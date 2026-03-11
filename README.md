@@ -94,7 +94,7 @@ We have upgraded the scan pipeline with 6 distinct modes:
   - `merging_engine.go` — Semantic deduplication and finding correlation.
 - **[`scanner/`](./scanner)**: Pattern-matching engine, AST analyzer, and SCA logic.
 - **[`reporter/`](./reporter)**: Generates HTML, PDF, and CSV reports with Risk Scoring.
-- **[`rules/`](./rules)**: 928+ YAML security rules.
+- **[`rules/`](./rules)**: YAML security rules (You can add rules in this directory).
 
 ---
 
