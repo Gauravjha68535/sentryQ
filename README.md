@@ -11,7 +11,7 @@ This tool transforms security scanning from simple pattern matching into **Intel
 
 | Feature | What it means & why it's useful |
 | :--- | :--- |
-| **🔍 Pattern Matching Engine** | Uses **928 security rules** across 20+ languages to find hardcoded secrets, weak crypto, and classic injections. |
+| **🔍 Pattern Matching Engine** | Uses **security rules** across 20+ languages to find hardcoded secrets, weak crypto, and classic injections. |
 | **🧠 Security Guru 3.0 (AI)** | **Chain of Thought (CoT)** reasoning. The AI "thinks" like an attacker, performing simulated **Taint-Flow** traces and construction exploitation payloads before reporting. |
 | **🔄 Intelligent Orchestration** | **The Merger Mode:** Runs Static rules first, then AI Discovery, then uses a Master LLM to semantically deduplicate and merge the results into one "Master" report. |
 | **🌊 Deep Flow Analysis** | Tracks data from Source to Sink. It understands what is MISSING—detecting the **Absence of CSRF tokens**, missing **HSTS/CSP headers**, or unvalidated entry points. |
