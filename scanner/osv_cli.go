@@ -96,7 +96,7 @@ func mapOSVCLISeverity(severities []struct {
 func RunOSVCli(targetDir string) ([]reporter.Finding, error) {
 	utils.LogInfo("🔍 Launching Google OSV-Scanner CLI...")
 
-	cmd := exec.Command(getOSVBin(), "-r", "--json", targetDir)
+	cmd := exec.Command(getOSVBin(), "scan", "--format", "json", "-r", targetDir)
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
