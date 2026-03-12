@@ -111,7 +111,7 @@
 - id: r-hardcoded-password
   languages: [r]
   patterns:
-    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\\s*(?:<-|=)\\s*['\"][^'\"]{4,}['\"]'
+    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\\s*(?:<-|=)\\s*[''\"][^''\"]{4,}[''\"]'
   severity: high
   description: "Hardcoded credential detected"
   remediation: "Use environment variables via Sys.getenv()"
@@ -177,7 +177,7 @@
 - id: r-download-no-verify
   languages: [r]
   patterns:
-    - regex: '(?i)download\\.file\\s*\\(.*method.*=.*'?(?:curl|wget)'
+    - regex: '(?i)download\\.file\\s*\\(.*method.*=.*''?(?:curl|wget)'
   severity: medium
   description: "File download without integrity verification"
   remediation: "Verify checksums after downloading"
@@ -210,7 +210,7 @@
 - id: r-dbi-cleartext
   languages: [r]
   patterns:
-    - regex: '(?i)dbConnect\\s*\\(.*password\\s*=\\s*['\"]'
+    - regex: '(?i)dbConnect\\s*\\(.*password\\s*=\\s*[''\"]'
   severity: high
   description: "Database password in cleartext"
   remediation: "Use .Renviron or keyring package for credentials"
@@ -232,7 +232,7 @@
 - id: r-md5
   languages: [r]
   patterns:
-    - regex: '(?i)digest::digest\\s*\\(.*algo\\s*=\\s*['\"]md5'
+    - regex: '(?i)digest::digest\\s*\\(.*algo\\s*=\\s*[''\"]md5'
   severity: medium
   description: "Weak MD5 hash algorithm"
   remediation: "Use SHA-256 or SHA-512"
@@ -243,7 +243,7 @@
 - id: r-file-permissions
   languages: [r]
   patterns:
-    - regex: '(?i)Sys\\.chmod\\s*\\(.*['\"]0?777'
+    - regex: '(?i)Sys\\.chmod\\s*\\(.*[''\"]0?777'
   severity: high
   description: "World-writable file permissions"
   remediation: "Use restrictive permissions"
@@ -353,7 +353,7 @@
 - id: r-crypto-weak
   languages: [r]
   patterns:
-    - regex: '(?i)digest\\s*\\(.*algo\\s*=\\s*['\\\"]md5'
+    - regex: '(?i)digest\\s*\\(.*algo\\s*=\\s*[''\\\"]md5'
   severity: medium
   description: "Weak cryptographic hash"
   remediation: "Use SHA-256 or better"

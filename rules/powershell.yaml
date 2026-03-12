@@ -6,7 +6,7 @@
 - id: ps-hardcoded-password
   languages: [powershell]
   patterns:
-    - regex: '(?i)(password|passwd|pwd|secret)\\s*=\\s*['\"][^'\"]{8,}['\"]'
+    - regex: '(?i)(password|passwd|pwd|secret)\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password in PowerShell script"
   remediation: "Use Get-Credential, SecureString, or Azure Key Vault"
@@ -16,7 +16,7 @@
 - id: ps-hardcoded-credential
   languages: [powershell]
   patterns:
-    - regex: '(?i)ConvertTo-SecureString\\s+['\"][^'\"]+['\"]\\s+-AsPlainText'
+    - regex: '(?i)ConvertTo-SecureString\\s+[''\"][^''\"]+[''\"]\\s+-AsPlainText'
   severity: high
   description: "Hardcoded password converted to SecureString"
   remediation: "Use Get-Credential or read from encrypted credential store"
@@ -384,7 +384,7 @@
 - id: ps-module-constrained-language
   languages: [powershell]
   patterns:
-    - regex: '(?i)LanguageMode\\s*=\\s*['\"]FullLanguage['\"]'
+    - regex: '(?i)LanguageMode\\s*=\\s*[''\"]FullLanguage[''\"]'
   severity: medium
   description: "Constrained Language Mode disabled"
   remediation: "Use ConstrainedLanguage mode for untrusted scripts"

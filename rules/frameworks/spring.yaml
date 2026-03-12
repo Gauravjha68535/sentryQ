@@ -149,7 +149,7 @@
 - id: spring-auth-jwt-secret-short
   languages: [java]
   patterns:
-    - regex: '(?i)jwt\\.secret\\s*=\\s*[\\\"'][a-zA-Z0-9]{8,20}[\\\"']'
+    - regex: '(?i)jwt\\.secret\\s*=\\s*[\\\"''][a-zA-Z0-9]{8,20}[\\\"'']'
   severity: high
   description: "JWT secret key too short"
   remediation: "Use minimum 256-bit (32 character) secret for JWT"
@@ -199,7 +199,7 @@
 - id: spring-auth-roles-hardcoded
   languages: [java]
   patterns:
-    - regex: '(?i)@PreAuthorize\\s*\\(\\s*\\\"hasRole\\s*\\(\\s*['\"]ADMIN['\"]'
+    - regex: '(?i)@PreAuthorize\\s*\\(\\s*\\\"hasRole\\s*\\(\\s*[''\"]ADMIN[''\"]'
   severity: low
   description: "Hardcoded role in authorization"
   remediation: "Externalize roles to configuration"
@@ -1871,7 +1871,7 @@
 - id: spring-secret-hardcoded-password
   languages: [java, properties]
   patterns:
-    - regex: '(?i)password\\s*=\\s*['\"][^'\"]{8,}['\"]'
+    - regex: '(?i)password\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password in configuration"
   remediation: "Use environment variables or vault"

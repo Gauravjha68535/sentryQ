@@ -1261,7 +1261,7 @@
 - id: puppet-hardcoded-nginx-basic-auth
   languages: [puppet]
   patterns:
-    - regex: '(?i)nginx::resource::location.*htpasswd.*['\"][^''
+    - regex: '(?i)nginx::resource::location.*htpasswd.*[''\"][^'''
   severity: high
   description: "Hardcoded Nginx basic auth password"
   remediation: "Use secure Nginx auth"

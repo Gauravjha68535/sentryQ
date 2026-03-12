@@ -1,7 +1,7 @@
 - id: java-hardcoded-password
   languages: [java]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*=\\s*['\"][^'\"]{8,}['\"]'
+    - regex: '(?i)(password|passwd|pwd)\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password detected in Java source code"
   remediation: "Use environment variables or Java system properties. Consider using a secrets manager"
@@ -9,7 +9,7 @@
 - id: java-hardcoded-api-key
   languages: [java]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*['\"][a-zA-Z0-9]{16,}['\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*[''\"][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "Hardcoded API key detected in Java source code"
   remediation: "Store API keys in environment variables or use AWS Secrets Manager/HashiCorp Vault"
@@ -25,7 +25,7 @@
 - id: java-hardcoded-jdbc
   languages: [java]
   patterns:
-    - regex: '(?i)jdbc:[^'\"]*password=[^'\"]+'
+    - regex: '(?i)jdbc:[^''\"]*password=[^''\"]+'
   severity: high
   description: "Database credentials in JDBC connection string"
   remediation: "Use environment variables or JNDI for database credentials. Never hardcode passwords"
@@ -85,7 +85,7 @@
 - id: java-weak-crypto-md5
   languages: [java]
   patterns:
-    - regex: '(?i)(MessageDigest\\.getInstance\\s*\\(\\s*['\"](?:MD5|SHA-1)['\"]))'
+    - regex: '(?i)(MessageDigest\\.getInstance\\s*\\(\\s*[''\"](?:MD5|SHA-1)[''\"]))'
   severity: medium
   description: "Use of weak cryptographic hash function (MD5/SHA1)"
   remediation: "Use SHA-256 or SHA-512. For passwords, use bcrypt, scrypt, or Argon2"
@@ -93,7 +93,7 @@
 - id: java-weak-cipher-ecb
   languages: [java]
   patterns:
-    - regex: '(?i)Cipher\\.getInstance\\s*\\(\\s*['\"](?:AES/ECB|DES|DESede|RC4)['\"]'
+    - regex: '(?i)Cipher\\.getInstance\\s*\\(\\s*[''\"](?:AES/ECB|DES|DESede|RC4)[''\"]'
   severity: high
   description: "Use of weak cipher mode (ECB) or deprecated algorithm (DES/RC4)"
   remediation: "Use AES/GCM/NoPadding or AES/CBC/PKCS5Padding with random IV"
@@ -101,7 +101,7 @@
 - id: java-hardcoded-crypto-key
   languages: [java]
   patterns:
-    - regex: 'new\\s+SecretKeySpec\\s*\\(\\s*['\"].*['\"]'
+    - regex: 'new\\s+SecretKeySpec\\s*\\(\\s*[''\"].*[''\"]'
   severity: critical
   description: "Hardcoded encryption key in SecretKeySpec"
   remediation: "Generate keys using KeyGenerator and store in KeyStore"
@@ -221,7 +221,7 @@
 - id: java-android-exported-component
   languages: [java]
   patterns:
-    - regex: 'android:exported\\s*=\\s*['\"]true['\"]'
+    - regex: 'android:exported\\s*=\\s*[''\"]true[''\"]'
   severity: medium
   description: "Android component exported without permission protection"
   remediation: "Set exported=false or add custom permission requirements"
@@ -1704,7 +1704,7 @@
 - id: java-gradle-dependency
   languages: [java]
   patterns:
-    - regex: 'implementation\\s*'|compile\\s*''
+    - regex: 'implementation\\s*''|compile\\s*'''
   severity: low
   description: "Gradle dependency"
   remediation: "Pin dependency versions"

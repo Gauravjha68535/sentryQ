@@ -507,7 +507,7 @@
 - id: chef-cleartext-ftp
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:ftp|ftps).*['\\\"]ftp://'
+    - regex: '(?i)(?:ftp|ftps).*[''\\\"]ftp://'
   severity: high
   description: "FTP protocol in use"
   remediation: "Use SFTP or secure transfer"

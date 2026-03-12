@@ -139,6 +139,7 @@ func (sd *SecretDetector) ScanSecrets(targetDir string) ([]reporter.Finding, err
 						Remediation: "Remove hardcoded secret. Use environment variables, secrets manager, or vault. If VERIFIED LIVE, revoke immediately.",
 						RuleID:      "secret-detector-entropy",
 						Source:      "secret-detector",
+						Confidence:  0.95,
 					})
 					srNo++
 				}

@@ -10,7 +10,7 @@
 - id: nuxt-config-ssr-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ssr:\\s*false|mode:\\s*['\"]spa['\"]'
+    - regex: 'ssr:\\s*false|mode:\\s*[''\"]spa[''\"]'
   severity: low
   description: "SSR disabled - may affect SEO and initial load security"
   remediation: "Consider SSR for better security posture if needed"
@@ -20,7 +20,7 @@
 - id: nuxt-config-target-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]server['\"]'
+    - regex: 'target:\\s*[''\"]server[''\"]'
   severity: low
   description: "Server target configured - ensure server security"
   remediation: "Secure server middleware and endpoints"
@@ -150,7 +150,7 @@
 - id: nuxt-config-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: 'server:\\s*\\{[^}]*host:\\s*['\"]0\\.0\\.0\\.0['\"]'
+    - regex: 'server:\\s*\\{[^}]*host:\\s*[''\"]0\\.0\\.0\\.0[''\"]'
   severity: medium
   description: "Server bound to all interfaces"
   remediation: "Bind to localhost for development"
@@ -813,7 +813,7 @@
 - id: nuxt-auth-token-name
   languages: [javascript, typescript]
   patterns:
-    - regex: 'name:\\s*['\"]'
+    - regex: 'name:\\s*[''\"]'
   severity: low
   description: "Token name"
   remediation: "Configure token name"
@@ -823,7 +823,7 @@
 - id: nuxt-auth-token-property
   languages: [javascript, typescript]
   patterns:
-    - regex: 'property:\\s*['\"]'
+    - regex: 'property:\\s*[''\"]'
   severity: low
   description: "Token property"
   remediation: "Configure token property"
@@ -833,7 +833,7 @@
 - id: nuxt-auth-token-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'type:\\s*['\"]'
+    - regex: 'type:\\s*[''\"]'
   severity: low
   description: "Token type"
   remediation: "Configure token type"
@@ -1255,7 +1255,7 @@
 - id: nuxt-deployment-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]server['\"]'
+    - regex: 'target:\\s*[''\"]server[''\"]'
   severity: low
   description: "Server target"
   remediation: "Configure server"
@@ -1265,7 +1265,7 @@
 - id: nuxt-deployment-target-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]static['\"]'
+    - regex: 'target:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static target"
   remediation: "Configure static"
@@ -1275,7 +1275,7 @@
 - id: nuxt-deployment-target-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]server['\"]'
+    - regex: 'target:\\s*[''\"]server[''\"]'
   severity: low
   description: "Server target"
   remediation: "Configure server"
@@ -1285,7 +1285,7 @@
 - id: nuxt-deployment-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]'
+    - regex: 'mode:\\s*[''\"]'
   severity: low
   description: "Mode"
   remediation: "Configure mode"
@@ -1295,7 +1295,7 @@
 - id: nuxt-deployment-mode-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]universal['\"]'
+    - regex: 'mode:\\s*[''\"]universal[''\"]'
   severity: low
   description: "Universal mode"
   remediation: "Configure universal"
@@ -1305,7 +1305,7 @@
 - id: nuxt-deployment-mode-spa
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]spa['\"]'
+    - regex: 'mode:\\s*[''\"]spa[''\"]'
   severity: low
   description: "SPA mode"
   remediation: "Configure SPA"
@@ -1315,7 +1315,7 @@
 - id: nuxt-deployment-mode-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]ssr['\"]'
+    - regex: 'mode:\\s*[''\"]ssr[''\"]'
   severity: low
   description: "SSR mode"
   remediation: "Configure SSR"
@@ -1325,7 +1325,7 @@
 - id: nuxt-deployment-mode-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]static['\"]'
+    - regex: 'mode:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static mode"
   remediation: "Configure static"
@@ -1335,7 +1335,7 @@
 - id: nuxt-deployment-mode-universal-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]universal['\"]'
+    - regex: 'mode:\\s*[''\"]universal[''\"]'
   severity: low
   description: "Universal mode"
   remediation: "Configure universal"
@@ -1345,7 +1345,7 @@
 - id: nuxt-deployment-mode-spa-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]spa['\"]'
+    - regex: 'mode:\\s*[''\"]spa[''\"]'
   severity: low
   description: "SPA mode"
   remediation: "Configure SPA"
@@ -1355,7 +1355,7 @@
 - id: nuxt-deployment-mode-ssr-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]ssr['\"]'
+    - regex: 'mode:\\s*[''\"]ssr[''\"]'
   severity: low
   description: "SSR mode"
   remediation: "Configure SSR"
@@ -1365,7 +1365,7 @@
 - id: nuxt-deployment-mode-static-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]static['\"]'
+    - regex: 'mode:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static mode"
   remediation: "Configure static"
@@ -1375,7 +1375,7 @@
 - id: nuxt-deployment-mode-universal-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]universal['\"]'
+    - regex: 'mode:\\s*[''\"]universal[''\"]'
   severity: low
   description: "Universal SSR"
   remediation: "Configure universal SSR"
@@ -1385,7 +1385,7 @@
 - id: nuxt-deployment-mode-spa-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]spa['\"]'
+    - regex: 'mode:\\s*[''\"]spa[''\"]'
   severity: low
   description: "SPA SSR"
   remediation: "Configure SPA SSR"
@@ -1395,7 +1395,7 @@
 - id: nuxt-deployment-mode-ssr-spa
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]ssr['\"]'
+    - regex: 'mode:\\s*[''\"]ssr[''\"]'
   severity: low
   description: "SSR SPA"
   remediation: "Configure SSR SPA"
@@ -1405,7 +1405,7 @@
 - id: nuxt-deployment-mode-static-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]static['\"]'
+    - regex: 'mode:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static SSR"
   remediation: "Configure static SSR"
@@ -1415,7 +1415,7 @@
 - id: nuxt-deployment-mode-universal-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]universal['\"]'
+    - regex: 'mode:\\s*[''\"]universal[''\"]'
   severity: low
   description: "Universal static"
   remediation: "Configure universal static"
@@ -1425,7 +1425,7 @@
 - id: nuxt-deployment-mode-spa-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]spa['\"]'
+    - regex: 'mode:\\s*[''\"]spa[''\"]'
   severity: low
   description: "SPA static"
   remediation: "Configure SPA static"
@@ -1435,7 +1435,7 @@
 - id: nuxt-deployment-mode-ssr-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]ssr['\"]'
+    - regex: 'mode:\\s*[''\"]ssr[''\"]'
   severity: low
   description: "SSR universal"
   remediation: "Configure SSR universal"
@@ -1445,7 +1445,7 @@
 - id: nuxt-deployment-mode-static-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*['\"]static['\"]'
+    - regex: 'mode:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static universal"
   remediation: "Configure static universal"
@@ -1455,7 +1455,7 @@
 - id: nuxt-deployment-target-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]universal['\"]'
+    - regex: 'target:\\s*[''\"]universal[''\"]'
   severity: low
   description: "Universal target"
   remediation: "Configure universal"
@@ -1465,7 +1465,7 @@
 - id: nuxt-deployment-target-static-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]static['\"]'
+    - regex: 'target:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static target"
   remediation: "Configure static"
@@ -1475,7 +1475,7 @@
 - id: nuxt-deployment-target-server-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]server['\"]'
+    - regex: 'target:\\s*[''\"]server[''\"]'
   severity: low
   description: "Server target"
   remediation: "Configure server"
@@ -1485,7 +1485,7 @@
 - id: nuxt-deployment-target-universal-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]universal['\"]'
+    - regex: 'target:\\s*[''\"]universal[''\"]'
   severity: low
   description: "Universal target"
   remediation: "Configure universal"
@@ -1495,7 +1495,7 @@
 - id: nuxt-deployment-target-static-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]static['\"]'
+    - regex: 'target:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static server"
   remediation: "Configure static server"
@@ -1505,7 +1505,7 @@
 - id: nuxt-deployment-target-server-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]server['\"]'
+    - regex: 'target:\\s*[''\"]server[''\"]'
   severity: low
   description: "Server universal"
   remediation: "Configure server universal"
@@ -1515,7 +1515,7 @@
 - id: nuxt-deployment-target-static-universal-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]static['\"]'
+    - regex: 'target:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static universal server"
   remediation: "Configure static universal server"
@@ -1525,7 +1525,7 @@
 - id: nuxt-deployment-target-universal-server-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]universal['\"]'
+    - regex: 'target:\\s*[''\"]universal[''\"]'
   severity: low
   description: "Universal server static"
   remediation: "Configure universal server static"
@@ -1535,7 +1535,7 @@
 - id: nuxt-deployment-target-server-static-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]server['\"]'
+    - regex: 'target:\\s*[''\"]server[''\"]'
   severity: low
   description: "Server static universal"
   remediation: "Configure server static universal"
@@ -1545,7 +1545,7 @@
 - id: nuxt-deployment-target-static-server-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*['\"]static['\"]'
+    - regex: 'target:\\s*[''\"]static[''\"]'
   severity: low
   description: "Static server universal"
   remediation: "Configure static server universal"

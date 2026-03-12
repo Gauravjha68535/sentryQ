@@ -499,7 +499,7 @@
     - regex: '(?i)NSLog\s*\(\s*[^@"]'
   severity: medium
   description: "Format string vulnerability in NSLog"
-  remediation: "Use NSLog(@"%@", variable)"
+  remediation: "Use NSLog(@\"%@\", variable)"
   cwe: "CWE-134"
   owasp: "A03:2021"
   confidence: 0.8

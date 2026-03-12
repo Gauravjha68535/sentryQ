@@ -308,7 +308,7 @@
 - id: laravel-response-html-method
   languages: [php]
   patterns:
-    - regex: 'Response::make\\s*\\(.*\\$request.*\\['Content-Type'\\]\\s*=\\s*['\"]text/html'
+    - regex: 'Response::make\\s*\\(.*\\$request.*\\[''Content-Type''\\]\\s*=\\s*[''\"]text/html'
   severity: high
   description: "Response with HTML content type and user input"
   remediation: "Use application/json or escape HTML"
@@ -359,7 +359,7 @@
 - id: laravel-csrf-except-array
   languages: [php]
   patterns:
-    - regex: '(?i)\\$except\\s*=\\s*\\[.*['\"]api/.*['\"]'
+    - regex: '(?i)\\$except\\s*=\\s*\\[.*[''\"]api/.*[''\"]'
   severity: medium
   description: "CSRF exception for API routes"
   remediation: "Ensure API uses token auth instead"
@@ -369,7 +369,7 @@
 - id: laravel-form-no-csrf-field
   languages: [php]
   patterns:
-    - regex: '<form.*method=['\"]POST['\"](?!.*@csrf)'
+    - regex: '<form.*method=[''\"]POST[''\"](?!.*@csrf)'
   severity: high
   description: "POST form without @csrf directive"
   remediation: "Add @csrf to all POST forms"
@@ -409,7 +409,7 @@
 - id: laravel-csrf-cookie-secure-false
   languages: [php]
   patterns:
-    - regex: '(?i)'secure'\\s*=>\\s*false.*csrf'
+    - regex: '(?i)''secure''\\s*=>\\s*false.*csrf'
   severity: high
   description: "CSRF cookie without secure flag"
   remediation: "Set secure => true for CSRF cookies"
@@ -419,7 +419,7 @@
 - id: laravel-csrf-cookie-httponly-false
   languages: [php]
   patterns:
-    - regex: '(?i)'http_only'\\s*=>\\s*false.*csrf'
+    - regex: '(?i)''http_only''\\s*=>\\s*false.*csrf'
   severity: high
   description: "CSRF cookie without HttpOnly flag"
   remediation: "Set http_only => true for CSRF cookies"
@@ -429,7 +429,7 @@
 - id: laravel-csrf-same-site-none
   languages: [php]
   patterns:
-    - regex: '(?i)'same_site'\\s*=>\\s*['\"]none['\"].*csrf'
+    - regex: '(?i)''same_site''\\s*=>\\s*[''\"]none[''\"].*csrf'
   severity: medium
   description: "CSRF cookie with SameSite=None"
   remediation: "Use SameSite=Lax or Strict"
@@ -439,7 +439,7 @@
 - id: laravel-csrf-exclude-pattern
   languages: [php]
   patterns:
-    - regex: '(?i)except\\s*=>\\s*\\[.*'\\*''
+    - regex: '(?i)except\\s*=>\\s*\\[.*''\\*'''
   severity: high
   description: "CSRF exclusion with wildcard pattern"
   remediation: "Specify exact routes to exclude"
@@ -490,7 +490,7 @@
 - id: laravel-auth-guard-driver-custom
   languages: [php]
   patterns:
-    - regex: '(?i)'driver'\\s*=>\\s*['\"]custom['\"]'
+    - regex: '(?i)''driver''\\s*=>\\s*[''\"]custom[''\"]'
   severity: medium
   description: "Custom authentication guard driver"
   remediation: "Review custom guard implementation"
@@ -500,7 +500,7 @@
 - id: laravel-auth-provider-custom
   languages: [php]
   patterns:
-    - regex: '(?i)'provider'\\s*=>\\s*['\"]custom['\"]'
+    - regex: '(?i)''provider''\\s*=>\\s*[''\"]custom[''\"]'
   severity: medium
   description: "Custom authentication provider"
   remediation: "Review custom provider security"
@@ -560,7 +560,7 @@
 - id: laravel-auth-session-driver-database
   languages: [php]
   patterns:
-    - regex: '(?i)'driver'\\s*=>\\s*['\"]database['\"]'
+    - regex: '(?i)''driver''\\s*=>\\s*[''\"]database[''\"]'
   severity: low
   description: "Session driver set to database"
   remediation: "Ensure session table is secured"
@@ -570,7 +570,7 @@
 - id: laravel-auth-session-lifetime-long
   languages: [php]
   patterns:
-    - regex: '(?i)'lifetime'\\s*=>\\s*[0-9]{5,}'
+    - regex: '(?i)''lifetime''\\s*=>\\s*[0-9]{5,}'
   severity: medium
   description: "Session lifetime too long"
   remediation: "Set reasonable session lifetime"
@@ -580,7 +580,7 @@
 - id: laravel-auth-session-expire-on-close
   languages: [php]
   patterns:
-    - regex: '(?i)'expire_on_close'\\s*=>\\s*false'
+    - regex: '(?i)''expire_on_close''\\s*=>\\s*false'
   severity: medium
   description: "Session doesn't expire on browser close"
   remediation: "Set expire_on_close = true"
@@ -610,7 +610,7 @@
 - id: laravel-auth-jwt-secret-weak
   languages: [php]
   patterns:
-    - regex: '(?i)JWT_SECRET\\s*=\\s*['\"][a-zA-Z0-9]{8,16}['\"]'
+    - regex: '(?i)JWT_SECRET\\s*=\\s*[''\"][a-zA-Z0-9]{8,16}[''\"]'
   severity: high
   description: "Weak JWT secret"
   remediation: "Use strong random JWT secret"
@@ -620,7 +620,7 @@
 - id: laravel-auth-guard-default
   languages: [php]
   patterns:
-    - regex: '(?i)'defaults'\\s*=>\\s*\\[.*'guard'\\s*=>'
+    - regex: '(?i)''defaults''\\s*=>\\s*\\[.*''guard''\\s*=>'
   severity: low
   description: "Default authentication guard"
   remediation: "Review default guard configuration"
@@ -630,7 +630,7 @@
 - id: laravel-auth-provider-table
   languages: [php]
   patterns:
-    - regex: '(?i)'table'\\s*=>\\s*['\"]users['\"]'
+    - regex: '(?i)''table''\\s*=>\\s*[''\"]users[''\"]'
   severity: low
   description: "Default users table for auth"
   remediation: "Ensure users table is secured"
@@ -711,7 +711,7 @@
 - id: laravel-middleware-ability
   languages: [php]
   patterns:
-    - regex: '(?i)->middleware\\s*\\(\\s*['\"]can:'
+    - regex: '(?i)->middleware\\s*\\(\\s*[''\"]can:'
   severity: low
   description: "Can middleware for authorization"
   remediation: "Ensure ability is defined"
@@ -721,7 +721,7 @@
 - id: laravel-middleware-role
   languages: [php]
   patterns:
-    - regex: '(?i)->middleware\\s*\\(\\s*['\"]role:'
+    - regex: '(?i)->middleware\\s*\\(\\s*[''\"]role:'
   severity: low
   description: "Role middleware for authorization"
   remediation: "Ensure role is defined"
@@ -731,7 +731,7 @@
 - id: laravel-middleware-permission
   languages: [php]
   patterns:
-    - regex: '(?i)->middleware\\s*\\(\\s*['\"]permission:'
+    - regex: '(?i)->middleware\\s*\\(\\s*[''\"]permission:'
   severity: low
   description: "Permission middleware"
   remediation: "Ensure permission is defined"
@@ -912,7 +912,7 @@
 - id: laravel-file-mimes-array
   languages: [php]
   patterns:
-    - regex: '(?i)'mimes'\\s*=>\\s*\\[.*'php''
+    - regex: '(?i)''mimes''\\s*=>\\s*\\[.*''php'''
   severity: critical
   description: "PHP file upload allowed"
   remediation: "Block executable file extensions"
@@ -922,7 +922,7 @@
 - id: laravel-file-extension-array
   languages: [php]
   patterns:
-    - regex: '(?i)'extensions'\\s*=>\\s*\\[.*'exe''
+    - regex: '(?i)''extensions''\\s*=>\\s*\\[.*''exe'''
   severity: critical
   description: "Executable file extension allowed"
   remediation: "Block executable extensions"
@@ -943,7 +943,7 @@
 - id: laravel-config-app-debug-true
   languages: [php]
   patterns:
-    - regex: '(?i)'debug'\\s*=>\\s*true'
+    - regex: '(?i)''debug''\\s*=>\\s*true'
   severity: high
   description: "App debug mode enabled"
   remediation: "Set debug = false in production"
@@ -953,7 +953,7 @@
 - id: laravel-config-app-url-http
   languages: [php]
   patterns:
-    - regex: '(?i)'url'\\s*=>\\s*['\"]http://'
+    - regex: '(?i)''url''\\s*=>\\s*[''\"]http://'
   severity: medium
   description: "App URL using HTTP"
   remediation: "Use HTTPS for APP_URL"
@@ -963,7 +963,7 @@
 - id: laravel-config-app-key-default
   languages: [php]
   patterns:
-    - regex: '(?i)APP_KEY\\s*=\\s*['\"]base64:'
+    - regex: '(?i)APP_KEY\\s*=\\s*[''\"]base64:'
   severity: high
   description: "Default or weak APP_KEY"
   remediation: "Generate strong random APP_KEY"
@@ -973,7 +973,7 @@
 - id: laravel-config-session-driver-cookie
   languages: [php]
   patterns:
-    - regex: '(?i)'driver'\\s*=>\\s*['\"]cookie['\"]'
+    - regex: '(?i)''driver''\\s*=>\\s*[''\"]cookie[''\"]'
   severity: medium
   description: "Session driver set to cookie"
   remediation: "Use file or database session driver"
@@ -983,7 +983,7 @@
 - id: laravel-config-session-lifetime
   languages: [php]
   patterns:
-    - regex: '(?i)'lifetime'\\s*=>\\s*[0-9]{6,}'
+    - regex: '(?i)''lifetime''\\s*=>\\s*[0-9]{6,}'
   severity: medium
   description: "Session lifetime too long"
   remediation: "Set reasonable session lifetime"
@@ -993,7 +993,7 @@
 - id: laravel-config-session-encrypt-false
   languages: [php]
   patterns:
-    - regex: '(?i)'encrypt'\\s*=>\\s*false'
+    - regex: '(?i)''encrypt''\\s*=>\\s*false'
   severity: high
   description: "Session encryption disabled"
   remediation: "Enable session encryption"
@@ -1003,7 +1003,7 @@
 - id: laravel-config-cookie-secure-false
   languages: [php]
   patterns:
-    - regex: '(?i)'secure'\\s*=>\\s*false'
+    - regex: '(?i)''secure''\\s*=>\\s*false'
   severity: high
   description: "Cookie secure flag disabled"
   remediation: "Enable secure cookie flag"
@@ -1013,7 +1013,7 @@
 - id: laravel-config-cookie-httponly-false
   languages: [php]
   patterns:
-    - regex: '(?i)'http_only'\\s*=>\\s*false'
+    - regex: '(?i)''http_only''\\s*=>\\s*false'
   severity: high
   description: "Cookie HttpOnly flag disabled"
   remediation: "Enable HttpOnly flag"
@@ -1023,7 +1023,7 @@
 - id: laravel-config-cookie-samesite-none
   languages: [php]
   patterns:
-    - regex: '(?i)'same_site'\\s*=>\\s*['\"]none['\"]'
+    - regex: '(?i)''same_site''\\s*=>\\s*[''\"]none[''\"]'
   severity: medium
   description: "Cookie SameSite set to none"
   remediation: "Use SameSite=Lax or Strict"
@@ -1033,7 +1033,7 @@
 - id: laravel-config-view-compile-true
   languages: [php]
   patterns:
-    - regex: '(?i)'compiled'\\s*=>\\s*.*env\\s*\\('
+    - regex: '(?i)''compiled''\\s*=>\\s*.*env\\s*\\('
   severity: medium
   description: "View compilation path from env"
   remediation: "Use fixed compiled path"
@@ -1043,7 +1043,7 @@
 - id: laravel-config-cache-driver
   languages: [php]
   patterns:
-    - regex: '(?i)'CACHE_DRIVER'\\s*=>\\s*['\"]file['\"]'
+    - regex: '(?i)''CACHE_DRIVER''\\s*=>\\s*[''\"]file[''\"]'
   severity: low
   description: "Cache driver set to file"
   remediation: "Use Redis or Memcached in production"
@@ -1053,7 +1053,7 @@
 - id: laravel-config-queue-driver
   languages: [php]
   patterns:
-    - regex: '(?i)'QUEUE_CONNECTION'\\s*=>\\s*['\"]sync['\"]'
+    - regex: '(?i)''QUEUE_CONNECTION''\\s*=>\\s*[''\"]sync[''\"]'
   severity: low
   description: "Queue driver set to sync"
   remediation: "Use database or Redis queue in production"
@@ -1063,7 +1063,7 @@
 - id: laravel-config-log-channel
   languages: [php]
   patterns:
-    - regex: '(?i)'LOG_CHANNEL'\\s*=>\\s*['\"]single['\"]'
+    - regex: '(?i)''LOG_CHANNEL''\\s*=>\\s*[''\"]single[''\"]'
   severity: low
   description: "Log channel set to single"
   remediation: "Use daily or stack logging"
@@ -1073,7 +1073,7 @@
 - id: laravel-config-log-level-debug
   languages: [php]
   patterns:
-    - regex: '(?i)'LOG_LEVEL'\\s*=>\\s*['\"]debug['\"]'
+    - regex: '(?i)''LOG_LEVEL''\\s*=>\\s*[''\"]debug[''\"]'
   severity: medium
   description: "Log level set to debug"
   remediation: "Use error or warning in production"
@@ -1083,7 +1083,7 @@
 - id: laravel-config-trusted-proxies
   languages: [php]
   patterns:
-    - regex: '(?i)'proxies'\\s*=>\\s*['\"]\\*['\"]'
+    - regex: '(?i)''proxies''\\s*=>\\s*[''\"]\\*[''\"]'
   severity: high
   description: "Trusted proxies set to wildcard"
   remediation: "Specify exact proxy IPs"
@@ -1094,7 +1094,7 @@
 - id: laravel-middleware-throttle-api
   languages: [php]
   patterns:
-    - regex: '(?i)'throttle:api''
+    - regex: '(?i)''throttle:api'''
   severity: low
   description: "API throttle middleware"
   remediation: "Configure appropriate rate limits"
@@ -1104,7 +1104,7 @@
 - id: laravel-middleware-auth-api
   languages: [php]
   patterns:
-    - regex: '(?i)'auth:api''
+    - regex: '(?i)''auth:api'''
   severity: low
   description: "API auth middleware"
   remediation: "Ensure API authentication is configured"
@@ -1114,7 +1114,7 @@
 - id: laravel-middleware-guest
   languages: [php]
   patterns:
-    - regex: '(?i)'guest''
+    - regex: '(?i)''guest'''
   severity: low
   description: "Guest middleware"
   remediation: "Ensure guest routes are appropriate"
@@ -1204,7 +1204,7 @@
 - id: laravel-middleware-throttle-global
   languages: [php]
   patterns:
-    - regex: '(?i)'throttle:60,1''
+    - regex: '(?i)''throttle:60,1'''
   severity: low
   description: "Global throttle middleware"
   remediation: "Review rate limit settings"
@@ -1255,7 +1255,7 @@
 - id: laravel-route-match-multiple-methods
   languages: [php]
   patterns:
-    - regex: '(?i)Route::match\\s*\\(\\s*\\[.*'GET'.*'POST''
+    - regex: '(?i)Route::match\\s*\\(\\s*\\[.*''GET''.*''POST'''
   severity: medium
   description: "Route matching multiple methods"
   remediation: "Use separate routes for different methods"
@@ -1265,7 +1265,7 @@
 - id: laravel-route-group-middleware-empty
   languages: [php]
   patterns:
-    - regex: '(?i)Route::group\\s*\\(\\s*\\[\\s*'middleware'\\s*=>\\s*\\[\\s*\\]'
+    - regex: '(?i)Route::group\\s*\\(\\s*\\[\\s*''middleware''\\s*=>\\s*\\[\\s*\\]'
   severity: medium
   description: "Route group without middleware"
   remediation: "Add appropriate middleware"
@@ -1396,7 +1396,7 @@
 - id: laravel-validation-nullable-without-required
   languages: [php]
   patterns:
-    - regex: '(?i)'nullable'.*'(?!required)'
+    - regex: '(?i)''nullable''.*''(?!required)'
   severity: medium
   description: "Nullable field without required"
   remediation: "Review nullable field logic"
@@ -1446,7 +1446,7 @@
 - id: laravel-validation-required-if
   languages: [php]
   patterns:
-    - regex: '(?i)'required_if':'
+    - regex: '(?i)''required_if'':'
   severity: low
   description: "Required if validation"
   remediation: "Review conditional requirement"
@@ -1456,7 +1456,7 @@
 - id: laravel-validation-required-unless
   languages: [php]
   patterns:
-    - regex: '(?i)'required_unless':'
+    - regex: '(?i)''required_unless'':'
   severity: low
   description: "Required unless validation"
   remediation: "Review conditional requirement"
@@ -1466,7 +1466,7 @@
 - id: laravel-validation-required-with
   languages: [php]
   patterns:
-    - regex: '(?i)'required_with':'
+    - regex: '(?i)''required_with'':'
   severity: low
   description: "Required with validation"
   remediation: "Review conditional requirement"
@@ -1476,7 +1476,7 @@
 - id: laravel-validation-required-without
   languages: [php]
   patterns:
-    - regex: '(?i)'required_without':'
+    - regex: '(?i)''required_without'':'
   severity: low
   description: "Required without validation"
   remediation: "Review conditional requirement"
@@ -1486,7 +1486,7 @@
 - id: laravel-validation-required-with-all
   languages: [php]
   patterns:
-    - regex: '(?i)'required_with_all':'
+    - regex: '(?i)''required_with_all'':'
   severity: low
   description: "Required with all validation"
   remediation: "Review conditional requirement"
@@ -1496,7 +1496,7 @@
 - id: laravel-validation-required-without-all
   languages: [php]
   patterns:
-    - regex: '(?i)'required_without_all':'
+    - regex: '(?i)''required_without_all'':'
   severity: low
   description: "Required without all validation"
   remediation: "Review conditional requirement"
@@ -1506,7 +1506,7 @@
 - id: laravel-validation-excluded-if
   languages: [php]
   patterns:
-    - regex: '(?i)'prohibited_if':'
+    - regex: '(?i)''prohibited_if'':'
   severity: low
   description: "Prohibited if validation"
   remediation: "Review prohibition logic"
@@ -1516,7 +1516,7 @@
 - id: laravel-validation-excluded-unless
   languages: [php]
   patterns:
-    - regex: '(?i)'prohibited_unless':'
+    - regex: '(?i)''prohibited_unless'':'
   severity: low
   description: "Prohibited unless validation"
   remediation: "Review prohibition logic"
@@ -1526,7 +1526,7 @@
 - id: laravel-validation-excluded-with
   languages: [php]
   patterns:
-    - regex: '(?i)'prohibited_with':'
+    - regex: '(?i)''prohibited_with'':'
   severity: low
   description: "Prohibited with validation"
   remediation: "Review prohibition logic"
@@ -1536,7 +1536,7 @@
 - id: laravel-validation-excluded-without
   languages: [php]
   patterns:
-    - regex: '(?i)'prohibited_without':'
+    - regex: '(?i)''prohibited_without'':'
   severity: low
   description: "Prohibited without validation"
   remediation: "Review prohibition logic"

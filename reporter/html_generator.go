@@ -39,6 +39,9 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 			return strings.Contains(s, substr)
 		},
 		"confidencePct": func(c float64) string {
+			if c <= 0 {
+				return "100%"
+			}
 			return fmt.Sprintf("%.0f%%", c*100)
 		},
 		"truncate": func(s string, n int) string {
@@ -68,6 +71,18 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 			return strings.Contains(s, "```")
 		},
 	}).Parse(htmlTemplate))
+
+	// Simple deduplication: Key = FilePath + LineNumber + IssueName
+	uniqueFindings := make([]Finding, 0)
+	seen := make(map[string]bool)
+	for _, f := range findings {
+		key := fmt.Sprintf("%s:%s:%s", f.FilePath, f.LineNumber, f.IssueName)
+		if !seen[key] {
+			seen[key] = true
+			uniqueFindings = append(uniqueFindings, f)
+		}
+	}
+	findings = uniqueFindings
 
 	confirmed, falsePositives := SplitFindings(findings)
 
@@ -290,7 +305,7 @@ const htmlTemplate = `<!DOCTYPE html>
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
         .detail-section { margin-bottom: 16px; }
         .detail-section h4 { color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .detail-text { font-size: 0.88rem; line-height: 1.65; color: var(--text); }
+        .detail-text { font-size: 0.88rem; line-height: 1.65; color: var(--text); white-space: pre-wrap; }
 
         /* Code blocks with copy button */
         .code-wrapper { position: relative; margin: 8px 0 16px; }

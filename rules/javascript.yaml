@@ -111,7 +111,7 @@
 - id: js-prototype-pollution-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\[\\s*['\"]?constructor['\"]?\\s*\\]|\\[\\s*['\"]?__proto__['\"]?\\s*\\]'
+    - regex: '\\[\\s*[''\"]?constructor[''\"]?\\s*\\]|\\[\\s*[''\"]?__proto__[''\"]?\\s*\\]'
   severity: high
   description: "Dynamic property access with constructor/__proto__ - prototype pollution risk"
   remediation: "Block or sanitize property names containing constructor/__proto__"
@@ -121,7 +121,7 @@
 - id: js-prototype-pollution-nested-property
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\w+\\[\\s*['\"]\\w+['\"]\\s*\\]\\s*\\[\\s*['\"]\\w+['\"]\\s*\\]\\s*=\\s*[^;]+'
+    - regex: '\\w+\\[\\s*[''\"]\\w+[''\"]\\s*\\]\\s*\\[\\s*[''\"]\\w+[''\"]\\s*\\]\\s*=\\s*[^;]+'
   severity: medium
   description: "Nested property assignment on dynamic objects - prototype pollution risk"
   remediation: "Check object existence and type before nested assignment"
@@ -171,7 +171,7 @@
 - id: js-prototype-pollution-object-define-property
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Object\\.defineProperty\\s*\\([^,]+,\\s*['\"]?(?:__proto__|constructor)['\"]?'
+    - regex: 'Object\\.defineProperty\\s*\\([^,]+,\\s*[''\"]?(?:__proto__|constructor)[''\"]?'
   severity: critical
   description: "Defining __proto__ or constructor property on object"
   remediation: "Never define properties named __proto__ or constructor"
@@ -181,7 +181,7 @@
 - id: js-prototype-pollution-reflect-set
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Reflect\\.set\\s*\\([^,]+,\\s*['\"]?(?:__proto__|constructor)['\"]?'
+    - regex: 'Reflect\\.set\\s*\\([^,]+,\\s*[''\"]?(?:__proto__|constructor)[''\"]?'
   severity: critical
   description: "Reflect.set with __proto__ or constructor property"
   remediation: "Filter property names before using Reflect.set"
@@ -283,7 +283,7 @@
 - id: js-postmessage-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'postMessage\\s*\\([^,]+,\\s*['\"]\\*['\"]'
+    - regex: 'postMessage\\s*\\([^,]+,\\s*[''\"]\\*[''\"]'
   severity: high
   description: "postMessage with wildcard origin sends data to any window - XSS risk"
   remediation: "Always specify exact target origin: postMessage(data, 'https://trusted.com')"
@@ -293,7 +293,7 @@
 - id: js-postmessage-no-origin-check
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['\"]message['\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*(?!event\\.origin)'
+    - regex: 'addEventListener\\s*\\(\\s*[''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*(?!event\\.origin)'
   severity: critical
   description: "Message event listener without origin validation"
   remediation: "Always check event.origin against allowlist before processing"
@@ -303,7 +303,7 @@
 - id: js-postmessage-origin-starts-with
   languages: [javascript, typescript]
   patterns:
-    - regex: 'event\\.origin\\.startsWith\\s*\\(|event\\.origin\\.indexOf\\s*\\(\\s*['\"]https?:'
+    - regex: 'event\\.origin\\.startsWith\\s*\\(|event\\.origin\\.indexOf\\s*\\(\\s*[''\"]https?:'
   severity: high
   description: "Origin validation using startsWith or indexOf - easily bypassed"
   remediation: "Use exact string comparison against trusted origins"
@@ -323,7 +323,7 @@
 - id: js-postmessage-innerhtml
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['\"]message['\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*innerHTML\\s*='
+    - regex: 'addEventListener\\s*\\(\\s*[''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*innerHTML\\s*='
   severity: high
   description: "Message event data inserted via innerHTML - DOM XSS"
   remediation: "Use textContent or sanitize with DOMPurify before innerHTML"
@@ -333,7 +333,7 @@
 - id: js-postmessage-eval
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['\"]message['\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*(?:eval|new\\s+Function)\\s*\\('
+    - regex: 'addEventListener\\s*\\(\\s*[''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*(?:eval|new\\s+Function)\\s*\\('
   severity: critical
   description: "Message event data passed to eval - remote code execution"
   remediation: "Never eval postMessage data. Use JSON.parse and validate"
@@ -343,7 +343,7 @@
 - id: js-postmessage-json-parse
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['\"]message['\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*JSON\\.parse\\s*\\(\\s*event\\.data'
+    - regex: 'addEventListener\\s*\\(\\s*[''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*JSON\\.parse\\s*\\(\\s*event\\.data'
   severity: high
   description: "JSON.parse on postMessage data without validation - code execution risk"
   remediation: "Validate parsed data structure before using"
@@ -485,7 +485,7 @@
 - id: js-service-worker-register
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.serviceWorker\\.register\\s*\\(\\s*['\"`][^'\"`]+['\"`]'
+    - regex: 'navigator\\.serviceWorker\\.register\\s*\\(\\s*[''\"`][^''\"`]+[''\"`]'
   severity: high
   description: "Service worker registration - can intercept all requests"
   remediation: "Validate service worker script integrity with subresource integrity"
@@ -495,7 +495,7 @@
 - id: js-service-worker-scope
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.serviceWorker\\.register\\s*\\([^,]+,\\s*\\{[^}]*scope:\\s*['\"]/['\"]'
+    - regex: 'navigator\\.serviceWorker\\.register\\s*\\([^,]+,\\s*\\{[^}]*scope:\\s*[''\"]/[''\"]'
   severity: critical
   description: "Service worker with root scope - intercepts all requests"
   remediation: "Restrict service worker scope to specific path"
@@ -505,7 +505,7 @@
 - id: js-service-worker-fetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['\"]fetch['\"]\\s*,\\s*function'
+    - regex: 'self\\.addEventListener\\s*\\(\\s*[''\"]fetch[''\"]\\s*,\\s*function'
   severity: high
   description: "Service worker fetch handler - can modify responses"
   remediation: "Validate and sanitize responses, use immutable responses"
@@ -525,7 +525,7 @@
 - id: js-service-worker-message
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['\"]message['\"]'
+    - regex: 'self\\.addEventListener\\s*\\(\\s*[''\"]message[''\"]'
   severity: medium
   description: "Service worker message handler - validate message origin"
   remediation: "Always check event.origin before processing messages"
@@ -535,7 +535,7 @@
 - id: js-service-worker-install
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['\"]install['\"]'
+    - regex: 'self\\.addEventListener\\s*\\(\\s*[''\"]install[''\"]'
   severity: low
   description: "Service worker install event - precaching strategy"
   remediation: "Ensure cached assets are versioned and immutable"
@@ -545,7 +545,7 @@
 - id: js-service-worker-activate
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['\"]activate['\"]'
+    - regex: 'self\\.addEventListener\\s*\\(\\s*[''\"]activate[''\"]'
   severity: low
   description: "Service worker activate event - cache cleanup"
   remediation: "Remove old caches to prevent serving stale data"
@@ -585,7 +585,7 @@
 - id: js-service-worker-push
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['\"]push['\"]'
+    - regex: 'self\\.addEventListener\\s*\\(\\s*[''\"]push[''\"]'
   severity: high
   description: "Service worker push notifications - validate push data"
   remediation: "Sanitize notification content before showing"
@@ -605,7 +605,7 @@
 - id: js-service-worker-notification-click
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['\"]notificationclick['\"]'
+    - regex: 'self\\.addEventListener\\s*\\(\\s*[''\"]notificationclick[''\"]'
   severity: medium
   description: "Service worker notification click - open URL from notification"
   remediation: "Validate URL before opening to prevent open redirect"
@@ -615,7 +615,7 @@
 - id: js-service-worker-sync
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['\"]sync['\"]'
+    - regex: 'self\\.addEventListener\\s*\\(\\s*[''\"]sync[''\"]'
   severity: low
   description: "Service worker background sync - offline data sync"
   remediation: "Validate data before syncing to server"
@@ -687,7 +687,7 @@
 - id: js-web-worker-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Worker\\s*\\(\\s*['\"`][^'\"`]+['\"`]'
+    - regex: 'new\\s+Worker\\s*\\(\\s*[''\"`][^''\"`]+[''\"`]'
   severity: medium
   description: "Web Worker instantiation - ensure worker script is trusted"
   remediation: "Load workers from same origin or trusted CDNs with SRI"
@@ -707,7 +707,7 @@
 - id: js-web-worker-data-uri
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Worker\\s*\\(\\s*['\"`]data:application/javascript'
+    - regex: 'new\\s+Worker\\s*\\(\\s*[''\"`]data:application/javascript'
   severity: critical
   description: "Web Worker from data URI - code injection risk"
   remediation: "Use external script files instead of data URIs"
@@ -717,7 +717,7 @@
 - id: js-web-worker-postmessage
   languages: [javascript, typescript]
   patterns:
-    - regex: 'worker\\.postMessage\\s*\\(|addEventListener\\s*\\(\\s*['\"]message['\"]'
+    - regex: 'worker\\.postMessage\\s*\\(|addEventListener\\s*\\(\\s*[''\"]message[''\"]'
   severity: medium
   description: "Web Worker message passing - validate message data"
   remediation: "Validate all messages sent to/from workers"
@@ -757,7 +757,7 @@
 - id: js-web-worker-error
   languages: [javascript, typescript]
   patterns:
-    - regex: 'worker\\.onerror|addEventListener\\s*\\(\\s*['\"]error['\"]'
+    - regex: 'worker\\.onerror|addEventListener\\s*\\(\\s*[''\"]error[''\"]'
   severity: low
   description: "Web Worker error handling - may expose sensitive data"
   remediation: "Don't expose internal errors to main thread"
@@ -767,7 +767,7 @@
 - id: js-web-worker-import-scripts
   languages: [javascript, typescript]
   patterns:
-    - regex: 'importScripts\\s*\\(\\s*['\"`][^'\"`]+['\"`]'
+    - regex: 'importScripts\\s*\\(\\s*[''\"`][^''\"`]+[''\"`]'
   severity: high
   description: "Web Worker importing scripts - ensure scripts are trusted"
   remediation: "Use SRI or load from same origin only"
@@ -889,17 +889,17 @@
 - id: js-eval-direct
   languages: [javascript, typescript]
   patterns:
-    - regex: 'eval\\s*\\('
+    - regex: 'eval\s*\(\s*([^''\"\s]|[''\"].*[\+\$])'
   severity: critical
-  description: "Direct eval usage - arbitrary code execution"
-  remediation: "Never use eval. Use JSON.parse for data, Function constructor if absolutely needed"
+  description: "Direct eval usage with dynamic input - remote code execution risk"
+  remediation: "Never use eval with dynamic data. Use JSON.parse for data, Function constructor if absolutely needed for static code"
   cwe: "CWE-94"
   owasp: "A03:2021"
 
 - id: js-function-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Function\\s*\\('
+    - regex: 'new\s+Function\s*\(\s*.*([^''\"\s]|[''\"].*[\+\$])'
   severity: critical
   description: "Function constructor with dynamic code - eval-like behavior"
   remediation: "Avoid dynamic code generation. Use predefined functions"
@@ -909,7 +909,7 @@
 - id: js-set-timeout-string
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout\\s*\\(\\s*['\"`][^'\"`]*['\"`]'
+    - regex: 'setTimeout\\s*\\(\\s*[''\"`][^''\"`]*[''\"`]'
   severity: high
   description: "setTimeout with string argument - eval-like behavior"
   remediation: "Pass function reference instead of string"
@@ -919,7 +919,7 @@
 - id: js-set-interval-string
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setInterval\\s*\\(\\s*['\"`][^'\"`]*['\"`]'
+    - regex: 'setInterval\\s*\\(\\s*[''\"`][^''\"`]*[''\"`]'
   severity: high
   description: "setInterval with string argument - eval-like behavior"
   remediation: "Pass function reference instead of string"
@@ -929,7 +929,7 @@
 - id: js-set-immediate-string
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setImmediate\\s*\\(\\s*['\"`][^'\"`]*['\"`]'
+    - regex: 'setImmediate\\s*\\(\\s*[''\"`][^''\"`]*[''\"`]'
   severity: high
   description: "setImmediate with string argument - eval-like behavior"
   remediation: "Pass function reference instead of string"
@@ -939,7 +939,7 @@
 - id: js-exec-script
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.write\\s*\\(\\s*['\"`][^'\"`]*<script'
+    - regex: 'document\\.write\\s*\\(\\s*[''\"`][^''\"`]*<script'
   severity: high
   description: "document.write with script tag - XSS"
   remediation: "Use DOM manipulation methods instead of document.write"
@@ -949,7 +949,7 @@
 - id: js-insert-script
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.createElement\\s*\\(\\s*['\"]script['\"]'
+    - regex: 'document\\.createElement\\s*\\(\\s*[''\"]script[''\"]'
   severity: high
   description: "Dynamic script element creation - XSS risk"
   remediation: "Validate script source and integrity"
@@ -1101,7 +1101,7 @@
 - id: js-fetch-credentials-include
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*credentials:\\s*['\"]include['\"]'
+    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*credentials:\\s*[''\"]include[''\"]'
   severity: high
   description: "fetch with credentials: include - sends cookies cross-origin"
   remediation: "Use credentials: 'same-origin' for same-origin requests"
@@ -1111,7 +1111,7 @@
 - id: js-fetch-cors-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*mode:\\s*['\"]cors['\"][^}]*'
+    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*mode:\\s*[''\"]cors[''\"][^}]*'
   severity: medium
   description: "fetch with CORS mode - ensure server CORS is secure"
   remediation: "Check server CORS configuration"
@@ -1121,7 +1121,7 @@
 - id: js-fetch-no-referrer
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*referrerPolicy:\\s*['\"]no-referrer['\"]'
+    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*referrerPolicy:\\s*[''\"]no-referrer[''\"]'
   severity: low
   description: "fetch with no-referrer policy - good for privacy"
   remediation: "Good practice for sensitive requests"
@@ -1131,7 +1131,7 @@
 - id: js-fetch-integrity
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*integrity:\\s*['\"][^'\"]+['\"]'
+    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*integrity:\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "fetch with subresource integrity - good for security"
   remediation: "Continue using SRI for external resources"
@@ -1161,7 +1161,7 @@
 - id: js-xhr-response-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'responseType\\s*=\\s*['\"]document['\"]|responseType\\s*=\\s*['\"]json['\"]'
+    - regex: 'responseType\\s*=\\s*[''\"]document[''\"]|responseType\\s*=\\s*[''\"]json[''\"]'
   severity: low
   description: "XHR response type setting"
   remediation: "Validate response data based on type"
@@ -1221,7 +1221,7 @@
 - id: js-socket-io
   languages: [javascript, typescript]
   patterns:
-    - regex: 'io\\s*\\(\\s*['\"`][^'\"`]+['\"`]'
+    - regex: 'io\\s*\\(\\s*[''\"`][^''\"`]+[''\"`]'
   severity: medium
   description: "Socket.IO connection - ensure secure WebSocket"
   remediation: "Use wss:// and validate connection"
@@ -1241,7 +1241,7 @@
 - id: js-ws-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+WebSocket\\s*\\(\\s*['\"`]ws:'
+    - regex: 'new\\s+WebSocket\\s*\\(\\s*[''\"`]ws:'
   severity: medium
   description: "Insecure WebSocket connection (ws://) - unencrypted"
   remediation: "Use wss:// for encrypted WebSocket connections"
@@ -1251,7 +1251,7 @@
 - id: js-ws-constructor-secure
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+WebSocket\\s*\\(\\s*['\"`]wss:'
+    - regex: 'new\\s+WebSocket\\s*\\(\\s*[''\"`]wss:'
   severity: low
   description: "Secure WebSocket connection (wss://) - good practice"
   remediation: "Good practice for WebSocket connections"
@@ -1323,7 +1323,7 @@
 - id: js-localstorage-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'localStorage\\.setItem\\s*\\(\\s*['\"][^'\"]*['\"]\\s*,\\s*[^)]*(?:password|token|secret|key|jwt)'
+    - regex: 'localStorage\\.setItem\\s*\\(\\s*[''\"][^''\"]*[''\"]\\s*,\\s*[^)]*(?:password|token|secret|key|jwt)'
   severity: high
   description: "Storing sensitive data in localStorage - XSS can steal it"
   remediation: "Use httpOnly cookies for tokens, never store secrets in localStorage"
@@ -1333,7 +1333,7 @@
 - id: js-localstorage-jwt
   languages: [javascript, typescript]
   patterns:
-    - regex: 'localStorage\\.(setItem|getItem)\\s*\\(\\s*['\"](jwt|token|access_token|refresh_token)['\"]'
+    - regex: 'localStorage\\.(setItem|getItem)\\s*\\(\\s*[''\"](jwt|token|access_token|refresh_token)[''\"]'
   severity: high
   description: "JWT stored in localStorage - XSS can steal token"
   remediation: "Use httpOnly cookies for JWT storage"
@@ -1343,7 +1343,7 @@
 - id: js-sessionstorage-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'sessionStorage\\.setItem\\s*\\(\\s*['\"][^'\"]*['\"]\\s*,\\s*[^)]*(?:password|token|secret|key)'
+    - regex: 'sessionStorage\\.setItem\\s*\\(\\s*[''\"][^''\"]*[''\"]\\s*,\\s*[^)]*(?:password|token|secret|key)'
   severity: high
   description: "Storing sensitive data in sessionStorage - XSS risk"
   remediation: "Avoid storing secrets in sessionStorage"
@@ -1847,7 +1847,7 @@
 - id: js-re2-usage
   languages: [javascript, typescript]
   patterns:
-    - regex: 'require\\s*\\(\\s*['\"]re2['\"]\\)|import\\s+.*\\s+from\\s+['\"]re2['\"]'
+    - regex: 'require\\s*\\(\\s*[''\"]re2[''\"]\\)|import\\s+.*\\s+from\\s+[''\"]re2[''\"]'
   severity: low
   description: "RE2 regex library - safe from ReDoS"
   remediation: "Good practice for user-provided regex"
@@ -1899,7 +1899,7 @@
 - id: js-type-coercion-equals
   languages: [javascript, typescript]
   patterns:
-    - regex: '==\\s*[0-9]|==\\s*['\"]|==\\s*null|==\\s*undefined'
+    - regex: '==\\s*[0-9]|==\\s*[''\"]|==\\s*null|==\\s*undefined'
   severity: high
   description: "Loose equality (==) can cause type coercion bugs"
   remediation: "Use strict equality (===) to prevent type juggling"
@@ -1919,7 +1919,7 @@
 - id: js-type-coercion-plus
   languages: [javascript, typescript]
   patterns:
-    - regex: '[^+]+\\+\\s*['\"]|['\"]\\s*\\+\\s*[^+]+'
+    - regex: '[^+]+\\+\\s*[''\"]|[''\"]\\s*\\+\\s*[^+]+'
   severity: medium
   description: "String concatenation with + may cause coercion"
   remediation: "Use template literals for strings, Number() for numbers"
@@ -1929,7 +1929,7 @@
 - id: js-type-coercion-minus
   languages: [javascript, typescript]
   patterns:
-    - regex: '['\"]\\s*-\\s*[0-9]|[0-9]\\s*-\\s*['\"]'
+    - regex: '[''\"]\\s*-\\s*[0-9]|[0-9]\\s*-\\s*[''\"]'
   severity: medium
   description: "Subtracting string from number - implicit coercion"
   remediation: "Convert strings to numbers explicitly with Number()"
@@ -2019,7 +2019,7 @@
 - id: js-type-coercion-or
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\w+\\s*=\\s*\\w+\\s*\\|\\|\\s*['\"]'
+    - regex: '\\w+\\s*=\\s*\\w+\\s*\\|\\|\\s*[''\"]'
   severity: low
   description: "OR operator for default values - may have falsey issues"
   remediation: "Use ?? operator for null/undefined defaults"
@@ -2303,7 +2303,7 @@
 - id: js-node-exec-user
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?:child_process|exec)\\s*\\(\\s*['\"`][^'\"`]*\\+.*req|exec\\s*\\(\\s*.*\\$\\{.*req'
+    - regex: '(?:child_process|exec)\\s*\\(\\s*[''\"`][^''\"`]*\\+.*req|exec\\s*\\(\\s*.*\\$\\{.*req'
   severity: critical
   description: "exec with user input - command injection"
   remediation: "Use execFile with argument array, never shell interpolation"
@@ -2353,7 +2353,7 @@
 - id: js-node-exec-sync-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'execSync\\s*\\(\\s*['\"`][^'\"`]*\\+.*req'
+    - regex: 'execSync\\s*\\(\\s*[''\"`][^''\"`]*\\+.*req'
   severity: critical
   description: "execSync with user input - command injection"
   remediation: "Use execFileSync with argument array"
@@ -2685,7 +2685,7 @@
 - id: js-browser-webgl-fingerprint
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getContext\\s*\\(\\s*['\"]webgl'
+    - regex: 'getContext\\s*\\(\\s*[''\"]webgl'
   severity: medium
   description: "WebGL fingerprinting - privacy risk"
   remediation: "Avoid WebGL fingerprinting"
@@ -3313,7 +3313,7 @@
 - id: js-cors-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['\"]\\*['\"]'
+    - regex: 'cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*[''\"]\\*[''\"]'
   severity: medium
   description: "CORS with wildcard origin - allows any site to access"
   remediation: "Specify exact allowed origins"
@@ -3323,7 +3323,7 @@
 - id: js-cors-credentials-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['\"]\\*['\"][^}]*credentials\\s*:\\s*true'
+    - regex: 'cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*[''\"]\\*[''\"][^}]*credentials\\s*:\\s*true'
   severity: medium
   description: "CORS wildcard with credentials - completely insecure"
   remediation: "Never combine credentials:true with wildcard origin"
@@ -3343,7 +3343,7 @@
 - id: js-cors-methods-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'methods:\\s*\\[\\s*['\"]\\*['\"]\\s*\\]'
+    - regex: 'methods:\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]'
   severity: high
   description: "CORS allows all HTTP methods"
   remediation: "Specify required methods only (GET, POST, etc.)"
@@ -3353,7 +3353,7 @@
 - id: js-cors-headers-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'allowedHeaders:\\s*\\[\\s*['\"]\\*['\"]\\s*\\]'
+    - regex: 'allowedHeaders:\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]'
   severity: high
   description: "CORS allows all headers"
   remediation: "Specify required headers only"
@@ -3363,7 +3363,7 @@
 - id: js-cors-expose-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'exposedHeaders:\\s*\\[\\s*['\"]\\*['\"]\\s*\\]'
+    - regex: 'exposedHeaders:\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]'
   severity: high
   description: "CORS exposes all headers to client"
   remediation: "Expose only necessary headers"
@@ -3433,7 +3433,7 @@
 - id: js-csp-unsafe-inline
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script-src[^;]*'unsafe-inline''
+    - regex: 'script-src[^;]*''unsafe-inline'''
   severity: high
   description: "CSP allows unsafe-inline - defeats XSS protection"
   remediation: "Use nonces or hashes for inline scripts"
@@ -3443,7 +3443,7 @@
 - id: js-csp-unsafe-eval
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script-src[^;]*'unsafe-eval''
+    - regex: 'script-src[^;]*''unsafe-eval'''
   severity: high
   description: "CSP allows unsafe-eval - eval() allowed"
   remediation: "Remove 'unsafe-eval' from script-src"
@@ -3695,7 +3695,7 @@
 - id: js-json-parse-unicode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*['\"]\\\\u[0-9a-f]{4}'
+    - regex: 'JSON\\.parse\\s*\\(\\s*[''\"]\\\\u[0-9a-f]{4}'
   severity: low
   description: "Parsing JSON with unicode escapes"
   remediation: "JSON handles unicode natively"
@@ -3787,7 +3787,7 @@
 - id: js-error-500-generic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'res\\.status\\(500\\)\\.send\\s*\\(\\s*['\"]Internal Server Error'
+    - regex: 'res\\.status\\(500\\)\\.send\\s*\\(\\s*[''\"]Internal Server Error'
   severity: low
   description: "Generic 500 error - good practice"
   remediation: "Continue using generic error messages"
@@ -3847,7 +3847,7 @@
 - id: js-error-domain
   languages: [javascript, typescript]
   patterns:
-    - regex: 'domain\\.on\\s*\\(\\s*['\"]error['\"]'
+    - regex: 'domain\\.on\\s*\\(\\s*[''\"]error[''\"]'
   severity: low
   description: "Domain error handling (deprecated)"
   remediation: "Use process.on('uncaughtException')"
@@ -3867,7 +3867,7 @@
 - id: js-error-event-emitter
   languages: [javascript, typescript]
   patterns:
-    - regex: 'EventEmitter.*on\\s*\\(\\s*['\"]error['\"]'
+    - regex: 'EventEmitter.*on\\s*\\(\\s*[''\"]error[''\"]'
   severity: low
   description: "EventEmitter error handler"
   remediation: "Always handle error events"
@@ -3877,7 +3877,7 @@
 - id: js-error-global
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['\"]uncaughtException['\"]'
+    - regex: 'process\\.on\\s*\\(\\s*[''\"]uncaughtException[''\"]'
   severity: medium
   description: "Global uncaught exception handler"
   remediation: "Log error and exit gracefully"
@@ -3887,7 +3887,7 @@
 - id: js-error-unhandled-rejection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['\"]unhandledRejection['\"]'
+    - regex: 'process\\.on\\s*\\(\\s*[''\"]unhandledRejection[''\"]'
   severity: medium
   description: "Unhandled promise rejection handler"
   remediation: "Handle rejections properly at source"
@@ -3897,7 +3897,7 @@
 - id: js-error-warning
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['\"]warning['\"]'
+    - regex: 'process\\.on\\s*\\(\\s*[''\"]warning[''\"]'
   severity: low
   description: "Warning event handler"
   remediation: "Monitor warnings for potential issues"
@@ -3907,7 +3907,7 @@
 - id: js-error-sigterm
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['\"]SIGTERM['\"]'
+    - regex: 'process\\.on\\s*\\(\\s*[''\"]SIGTERM[''\"]'
   severity: low
   description: "SIGTERM handler - graceful shutdown"
   remediation: "Implement graceful shutdown"
@@ -3919,7 +3919,7 @@
 - id: js-env-hardcoded
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.[^\\s]+\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'process\\.env\\.[^\\s]+\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Hardcoding environment variable - should use .env"
   remediation: "Use .env file and never commit secrets"
@@ -3929,7 +3929,7 @@
 - id: js-env-default-fallback
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.[^\\s]+\\s*\\|\\|\\s*['\"][^'\"]+['\"]'
+    - regex: 'process\\.env\\.[^\\s]+\\s*\\|\\|\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Fallback value for environment variable - may hide missing config"
   remediation: "Throw error if required env var missing"
@@ -3959,7 +3959,7 @@
 - id: js-env-boolean
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.[^\\s]+\\s*===\\s*['\"]true['\"]'
+    - regex: 'process\\.env\\.[^\\s]+\\s*===\\s*[''\"]true[''\"]'
   severity: low
   description: "Boolean environment variable check"
   remediation: "Use ['true', '1'].includes(process.env.VAR)"
@@ -3979,7 +3979,7 @@
 - id: js-env-dotenv
   languages: [javascript, typescript]
   patterns:
-    - regex: 'require\\s*\\(\\s*['\"]dotenv['\"]\\)\\.config'
+    - regex: 'require\\s*\\(\\s*[''\"]dotenv[''\"]\\)\\.config'
   severity: low
   description: "dotenv configuration - ensure .env not committed"
   remediation: "Add .env to .gitignore"
@@ -4009,7 +4009,7 @@
 - id: js-env-base64
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Buffer\\.from\\s*\\(\\s*process\\.env\\.[^,]+,\\s*['\"]base64['\"]\\)'
+    - regex: 'Buffer\\.from\\s*\\(\\s*process\\.env\\.[^,]+,\\s*[''\"]base64[''\"]\\)'
   severity: medium
   description: "Base64 decoding environment variable"
   remediation: "Ensure base64 env var is properly formatted"
@@ -4029,7 +4029,7 @@
 - id: js-env-development
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*['\"]development['\"]'
+    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*[''\"]development[''\"]'
   severity: low
   description: "Development environment check"
   remediation: "Use for conditional development code"
@@ -4039,7 +4039,7 @@
 - id: js-env-production
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*['\"]production['\"]'
+    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*[''\"]production[''\"]'
   severity: low
   description: "Production environment check"
   remediation: "Use for conditional production code"
@@ -4049,7 +4049,7 @@
 - id: js-env-test
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*['\"]test['\"]'
+    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*[''\"]test[''\"]'
   severity: low
   description: "Test environment check"
   remediation: "Use for conditional test code"

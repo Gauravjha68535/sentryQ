@@ -100,7 +100,7 @@
 - id: nextjs-ssr-server-action
   languages: [javascript, typescript]
   patterns:
-    - regex: ''use server'|'use client''
+    - regex: '''use server''|''use client'''
   severity: low
   description: "Server/Client component directive"
   remediation: "Ensure proper separation of concerns"
@@ -110,7 +110,7 @@
 - id: nextjs-ssr-action-mutation
   languages: [javascript, typescript]
   patterns:
-    - regex: ''use server'.*mutation|server action'
+    - regex: '''use server''.*mutation|server action'
   severity: medium
   description: "Server action with potential mutation"
   remediation: "Validate server action inputs"
@@ -170,7 +170,7 @@
 - id: nextjs-ssr-redirect-external
   languages: [javascript, typescript]
   patterns:
-    - regex: 'redirect\\s*\\(\\s*['\"]http'
+    - regex: 'redirect\\s*\\(\\s*[''\"]http'
   severity: medium
   description: "External redirect in Next.js"
   remediation: "Validate redirect URLs"
@@ -331,7 +331,7 @@
 - id: nextjs-api-route-dynamic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+const\\s+dynamic\\s*=|dynamic\\s*=\\s*['\"]'
+    - regex: 'export\\s+const\\s+dynamic\\s*=|dynamic\\s*=\\s*[''\"]'
   severity: low
   description: "Dynamic rendering configuration"
   remediation: "Configure rendering strategy appropriately"
@@ -592,7 +592,7 @@
 - id: nextjs-auth-jwt-strategy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'strategy:\\s*['\"]jwt['\"]'
+    - regex: 'strategy:\\s*[''\"]jwt[''\"]'
   severity: low
   description: "JWT session strategy"
   remediation: "Configure JWT securely"

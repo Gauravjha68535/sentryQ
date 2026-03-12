@@ -23,7 +23,7 @@
 - id: matlab-feval-string
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bfeval\\s*\\(\\s*['\"]'
+    - regex: '(?i)\\bfeval\\s*\\(\\s*[''\"]'
   severity: high
   description: "Dynamic function execution via feval()"
   remediation: "Use function handles instead of string-based feval"
@@ -78,7 +78,7 @@
 - id: matlab-hardcoded-password
   languages: [matlab]
   patterns:
-    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\\s*=\\s*'[^']{4,}''
+    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\\s*=\\s*''[^'']{4,}'''
   severity: high
   description: "Hardcoded credential"
   remediation: "Use environment variables or secure config"
@@ -100,7 +100,7 @@
 - id: matlab-websave-http
   languages: [matlab]
   patterns:
-    - regex: '(?i)websave\\s*\\(.*'http://'
+    - regex: '(?i)websave\\s*\\(.*''http://'
   severity: medium
   description: "Insecure HTTP download"
   remediation: "Use HTTPS"
@@ -111,7 +111,7 @@
 - id: matlab-webread-http
   languages: [matlab]
   patterns:
-    - regex: '(?i)webread\\s*\\(.*'http://'
+    - regex: '(?i)webread\\s*\\(.*''http://'
   severity: medium
   description: "Insecure HTTP request"
   remediation: "Use HTTPS"
@@ -144,7 +144,7 @@
 - id: matlab-fileread-userinput
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bfileread\\s*\\(\\s*(?!')'
+    - regex: '(?i)\\bfileread\\s*\\(\\s*(?!'')'
   severity: medium
   description: "File read with potential user-controlled path"
   remediation: "Validate and sanitize file paths"
@@ -155,7 +155,7 @@
 - id: matlab-md5
   languages: [matlab]
   patterns:
-    - regex: '(?i)DataHash.*'MD5'|md5\\s*\\('
+    - regex: '(?i)DataHash.*''MD5''|md5\\s*\\('
   severity: medium
   description: "Weak MD5 hash"
   remediation: "Use SHA-256 or SHA-512"
@@ -177,7 +177,7 @@
 - id: matlab-chmod-777
   languages: [matlab]
   patterns:
-    - regex: '(?i)fileattrib\\s*\\(.*'\\+w'.*'a''
+    - regex: '(?i)fileattrib\\s*\\(.*''\\+w''.*''a'''
   severity: medium
   description: "World-writable file permissions"
   remediation: "Use restrictive permissions"
@@ -221,7 +221,7 @@
 - id: matlab-ssrf
   languages: [matlab]
   patterns:
-    - regex: '(?i)webread\\s*\\(.*url\\s*=\\s*(?!')'
+    - regex: '(?i)webread\\s*\\(.*url\\s*=\\s*(?!'')'
   severity: high
   description: "Potential SSRF via web request"
   remediation: "Validate URLs against allowlist"
@@ -243,7 +243,7 @@
 - id: matlab-weak-crypto
   languages: [matlab]
   patterns:
-    - regex: '(?i)DataHash.*'MD5'|md5\\s*\\(|hash\\s*\\(.*'md5''
+    - regex: '(?i)DataHash.*''MD5''|md5\\s*\\(|hash\\s*\\(.*''md5'''
   severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
@@ -254,7 +254,7 @@
 - id: matlab-serialized
   languages: [matlab]
   patterns:
-    - regex: '(?i)load\\s*\\(.*'-mat'|save\\s*\\(.*'-mat''
+    - regex: '(?i)load\\s*\\(.*''-mat''|save\\s*\\(.*''-mat'''
   severity: high
   description: "MAT-file serialization - potential code execution"
   remediation: "Validate MAT file sources"
@@ -265,7 +265,7 @@
 - id: matlab-urlread
   languages: [matlab]
   patterns:
-    - regex: '(?i)urlread\\s*\\(.*url\\s*=\\s*(?!')'
+    - regex: '(?i)urlread\\s*\\(.*url\\s*=\\s*(?!'')'
   severity: high
   description: "Potential SSRF via urlread"
   remediation: "Validate URLs against allowlist"
@@ -342,7 +342,7 @@
 - id: matlab-insecure-tls
   languages: [matlab]
   patterns:
-    - regex: '(?i)weboptions\\s*\\(.*'CertificateFilename'|matlab\\.net\\.HttpOptions.*Skip'
+    - regex: '(?i)weboptions\\s*\\(.*''CertificateFilename''|matlab\\.net\\.HttpOptions.*Skip'
   severity: high
   description: "SSL certificate validation disabled"
   remediation: "Enable certificate validation"

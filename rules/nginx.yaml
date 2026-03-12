@@ -239,7 +239,7 @@
     - regex: '(?i)server\s*\{[\s\S]*?(?!.*Strict-Transport-Security)'
   severity: medium
   description: "Missing HSTS header in HTTPS server block"
-  remediation: "Add `add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;`"
+  remediation: "Add `add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;`"
   cwe: "CWE-319"
   owasp: "A02:2021"
   confidence: 0.8
@@ -249,7 +249,7 @@
     - regex: '(?i)server\s*\{[\s\S]*?(?!.*X-Frame-Options)'
   severity: medium
   description: "Missing X-Frame-Options (Clickjacking protection)"
-  remediation: "Add `add_header X-Frame-Options "SAMEORIGIN" always;`"
+  remediation: "Add `add_header X-Frame-Options \"SAMEORIGIN\" always;`"
   cwe: "CWE-693"
   owasp: "A05:2021"
   confidence: 0.8
@@ -259,7 +259,7 @@
     - regex: '(?i)server\s*\{[\s\S]*?(?!.*X-Content-Type-Options)'
   severity: low
   description: "Missing X-Content-Type-Options (MIME sniffing protection)"
-  remediation: "Add `add_header X-Content-Type-Options "nosniff" always;`"
+  remediation: "Add `add_header X-Content-Type-Options \"nosniff\" always;`"
   cwe: "CWE-693"
   owasp: "A05:2021"
   confidence: 0.8

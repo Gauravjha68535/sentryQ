@@ -1,7 +1,7 @@
 - id: go-command-injection
   languages: [go]
   patterns:
-    - regex: '(?i)exec\\.Command\\s*\\(\\s*[\"'](sh|bash|cmd)[\"']\\s*,\\s*[\"'](-c|/c)[\"']\\s*,'
+    - regex: '(?i)exec\\.Command\\s*\\(\\s*[\"''](sh|bash|cmd)[\"'']\\s*,\\s*[\"''](-c|/c)[\"'']\\s*,'
   severity: critical
   description: "Command injection via exec.Command with sh/bash -c"
   remediation: "Never pass user input directly to a shell. Pass arguments individually."
@@ -22,7 +22,7 @@
 - id: go-sqli-fmt-sprintf
   languages: [go]
   patterns:
-    - regex: '(?i)fmt\\.Sprintf\\(\\s*[\"'][^\"']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE).*?%s.*?[\"']'
+    - regex: '(?i)fmt\\.Sprintf\\(\\s*[\"''][^\"'']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE).*?%s.*?[\"'']'
   severity: critical
   description: "SQL injection via fmt.Sprintf"
   remediation: "Use parameterized queries with ? placeholders."
@@ -32,7 +32,7 @@
 - id: go-sqli-concat
   languages: [go]
   patterns:
-    - regex: '(?i)[\"'][^\"']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)[^\"']*[\"']\\s*\\+'
+    - regex: '(?i)[\"''][^\"'']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)[^\"'']*[\"'']\\s*\\+'
   severity: critical
   description: "SQL injection via string concatenation"
   remediation: "Use parameterized queries with ? placeholders."
@@ -53,7 +53,7 @@
 - id: go-ssrf-http
   languages: [go]
   patterns:
-    - regex: '(?i)http\\.(Get|Post|Head|Do|NewRequest)\\s*\\(\\s*[^\"']*\\b(req|c|r)[^\"']*\\)'
+    - regex: '(?i)http\\.(Get|Post|Head|Do|NewRequest)\\s*\\(\\s*[^\"'']*\\b(req|c|r)[^\"'']*\\)'
   severity: high
   description: "Server-Side Request Forgery via user-controlled URL"
   remediation: "Validate URL against an allowlist. Do not accept arbitrary URLs."
@@ -106,7 +106,7 @@
 - id: go-hardcoded-secret
   languages: [go]
   patterns:
-    - regex: '(?i)(secret|token|key|password)\\s*[=:]\\s*[\"'][a-zA-Z0-9_-]{12,}[\"']'
+    - regex: '(?i)(secret|token|key|password)\\s*[=:]\\s*[\"''][a-zA-Z0-9_-]{12,}[\"'']'
   severity: high
   description: "Hardcoded secret/token"
   remediation: "Store secrets in environment variables."
@@ -393,7 +393,7 @@
 - id: go-http-request-no-content-type-check
   languages: [go]
   patterns:
-    - regex: 'r\\.Header\\.Get\\s*\\(\\s*['\"]Content-Type['\"]\\s*\\)(?!.*if.*!=)'
+    - regex: 'r\\.Header\\.Get\\s*\\(\\s*[''\"]Content-Type[''\"]\\s*\\)(?!.*if.*!=)'
   severity: medium
   description: "No Content-Type validation"
   remediation: "Validate Content-Type header"
@@ -403,7 +403,7 @@
 - id: go-http-request-no-origin-check
   languages: [go]
   patterns:
-    - regex: 'r\\.Header\\.Get\\s*\\(\\s*['\"]Origin['\"]\\s*\\)(?!.*if.*!=)'
+    - regex: 'r\\.Header\\.Get\\s*\\(\\s*[''\"]Origin[''\"]\\s*\\)(?!.*if.*!=)'
   severity: medium
   description: "No Origin header validation"
   remediation: "Validate Origin header"
@@ -413,7 +413,7 @@
 - id: go-http-request-no-referer-check
   languages: [go]
   patterns:
-    - regex: 'r\\.Header\\.Get\\s*\\(\\s*['\"]Referer['\"]\\s*\\)(?!.*if.*!=)'
+    - regex: 'r\\.Header\\.Get\\s*\\(\\s*[''\"]Referer[''\"]\\s*\\)(?!.*if.*!=)'
   severity: low
   description: "No Referer header validation"
   remediation: "Validate Referer header"
@@ -423,7 +423,7 @@
 - id: go-http-request-no-user-agent-check
   languages: [go]
   patterns:
-    - regex: 'r\\.Header\\.Get\\s*\\(\\s*['\"]User-Agent['\"]\\s*\\)(?!.*if.*!=)'
+    - regex: 'r\\.Header\\.Get\\s*\\(\\s*[''\"]User-Agent[''\"]\\s*\\)(?!.*if.*!=)'
   severity: low
   description: "No User-Agent validation"
   remediation: "Validate User-Agent if needed"
@@ -1517,7 +1517,7 @@
 - id: go-exec-shell-c-sh-user-input
   languages: [go]
   patterns:
-    - regex: 'exec\\.Command\\s*\\(\\s*['\"]sh['\"]\\s*,\\s*['\"]-c['\"]\\s*,\\s*r\\.(FormValue|URL\\.Query)'
+    - regex: 'exec\\.Command\\s*\\(\\s*[''\"]sh[''\"]\\s*,\\s*[''\"]-c[''\"]\\s*,\\s*r\\.(FormValue|URL\\.Query)'
   severity: critical
   description: "Shell -c with user input"
   remediation: "Never use shell -c with user input"
@@ -1527,7 +1527,7 @@
 - id: go-exec-shell-bash-c-user-input
   languages: [go]
   patterns:
-    - regex: 'exec\\.Command\\s*\\(\\s*['\"]bash['\"]\\s*,\\s*['\"]-c['\"]\\s*,\\s*r\\.(FormValue|URL\\.Query)'
+    - regex: 'exec\\.Command\\s*\\(\\s*[''\"]bash[''\"]\\s*,\\s*[''\"]-c[''\"]\\s*,\\s*r\\.(FormValue|URL\\.Query)'
   severity: critical
   description: "Bash -c with user input"
   remediation: "Never use bash -c with user input"
@@ -1537,7 +1537,7 @@
 - id: go-exec-shell-cmd-exe-c-user-input
   languages: [go]
   patterns:
-    - regex: 'exec\\.Command\\s*\\(\\s*['\"]cmd['\"]\\s*,\\s*['\"]/c['\"]\\s*,\\s*r\\.(FormValue|URL\\.Query)'
+    - regex: 'exec\\.Command\\s*\\(\\s*[''\"]cmd[''\"]\\s*,\\s*[''\"]/c[''\"]\\s*,\\s*r\\.(FormValue|URL\\.Query)'
   severity: critical
   description: "CMD /c with user input"
   remediation: "Never use CMD /c with user input"
@@ -1547,7 +1547,7 @@
 - id: go-exec-shell-powershell-user-input
   languages: [go]
   patterns:
-    - regex: 'exec\\.Command\\s*\\(\\s*['\"]powershell['\"]\\s*,\\s*[^,]*r\\.(FormValue|URL\\.Query)'
+    - regex: 'exec\\.Command\\s*\\(\\s*[''\"]powershell[''\"]\\s*,\\s*[^,]*r\\.(FormValue|URL\\.Query)'
   severity: critical
   description: "PowerShell with user input"
   remediation: "Never use PowerShell with user input"
@@ -1667,7 +1667,7 @@
 - id: go-exec-command-context-value-key-no-type
   languages: [go]
   patterns:
-    - regex: 'context\\.Value\\s*\\(\\s*['\"]'
+    - regex: 'context\\.Value\\s*\\(\\s*[''\"]'
   severity: low
   description: "Context value with string key"
   remediation: "Use typed context keys"
@@ -2803,7 +2803,7 @@
 - id: go-command-injection
   languages: [go]
   patterns:
-    - regex: '(?i)exec\\.Command\\s*\\(\\s*[\"'](sh|bash|cmd)[\"']\\s*,\\s*[\"'](-c|/c)[\"']\\s*,'
+    - regex: '(?i)exec\\.Command\\s*\\(\\s*[\"''](sh|bash|cmd)[\"'']\\s*,\\s*[\"''](-c|/c)[\"'']\\s*,'
   severity: critical
   description: "Command injection via exec.Command with sh/bash -c"
   remediation: "Never pass user input directly to a shell. Pass arguments individually."
@@ -3005,7 +3005,7 @@
 - id: go-sqli-fmt-sprintf
   languages: [go]
   patterns:
-    - regex: '(?i)fmt\\.Sprintf\\(\\s*[\"'][^\"']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE).*?%s.*?[\"']'
+    - regex: '(?i)fmt\\.Sprintf\\(\\s*[\"''][^\"'']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE).*?%s.*?[\"'']'
   severity: critical
   description: "SQL injection via fmt.Sprintf"
   remediation: "Use parameterized queries with ? placeholders."
@@ -3015,7 +3015,7 @@
 - id: go-sqli-concat
   languages: [go]
   patterns:
-    - regex: '(?i)[\"'][^\"']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)[^\"']*[\"']\\s*\\+'
+    - regex: '(?i)[\"''][^\"'']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)[^\"'']*[\"'']\\s*\\+'
   severity: critical
   description: "SQL injection via string concatenation"
   remediation: "Use parameterized queries with ? placeholders."
@@ -3045,7 +3045,7 @@
 - id: go-sqli-db-query-concat
   languages: [go]
   patterns:
-    - regex: 'db\\.(Query|QueryRow|Exec)\\s*\\(\\s*[\"'].*\\+.*[\"']'
+    - regex: 'db\\.(Query|QueryRow|Exec)\\s*\\(\\s*[\"''].*\\+.*[\"'']'
   severity: critical
   description: "SQL injection via string concatenation in database query"
   remediation: "Use parameterized queries with ? placeholders"
@@ -3065,7 +3065,7 @@
 - id: go-sqli-gorm-where-string
   languages: [go]
   patterns:
-    - regex: 'db\\.Where\\s*\\(\\s*[\"'].*\\+.*[\"']'
+    - regex: 'db\\.Where\\s*\\(\\s*[\"''].*\\+.*[\"'']'
   severity: high
   description: "SQL injection in GORM via string concatenation in Where"
   remediation: "Use .Where(\"column = ?\", value) format"
@@ -3075,7 +3075,7 @@
 - id: go-sqli-gorm-raw
   languages: [go]
   patterns:
-    - regex: 'db\\.Raw\\s*\\(\\s*[\"'].*\\+.*[\"']'
+    - regex: 'db\\.Raw\\s*\\(\\s*[\"''].*\\+.*[\"'']'
   severity: high
   description: "SQL injection in GORM via string concatenation in Raw"
   remediation: "Use .Raw(\"SELECT * FROM users WHERE id = ?\", id)"
@@ -3085,7 +3085,7 @@
 - id: go-sqli-gorm-exec
   languages: [go]
   patterns:
-    - regex: 'db\\.Exec\\s*\\(\\s*[\"'].*\\+.*[\"']'
+    - regex: 'db\\.Exec\\s*\\(\\s*[\"''].*\\+.*[\"'']'
   severity: high
   description: "SQL injection in GORM via string concatenation in Exec"
   remediation: "Use parameterized queries with ? placeholders"
@@ -3145,7 +3145,7 @@
 - id: go-sqli-like-clause
   languages: [go]
   patterns:
-    - regex: 'LIKE\\s*[\"']%.*r\\.(FormValue|URL\\.Query).*%[\"']'
+    - regex: 'LIKE\\s*[\"'']%.*r\\.(FormValue|URL\\.Query).*%[\"'']'
   severity: high
   description: "LIKE clause with user input without escaping"
   remediation: "Escape special characters or use parameterized queries"
@@ -3155,7 +3155,7 @@
 - id: go-sqli-json-query
   languages: [go]
   patterns:
-    - regex: '->>['\"].*r\\.(FormValue|URL\\.Query)|#>>\\{.*r\\.(FormValue|URL\\.Query)'
+    - regex: '->>[''\"].*r\\.(FormValue|URL\\.Query)|#>>\\{.*r\\.(FormValue|URL\\.Query)'
   severity: high
   description: "JSON path injection in PostgreSQL JSON queries"
   remediation: "Validate JSON path components against allowlist"
@@ -3165,7 +3165,7 @@
 - id: go-sqli-pg-jsonb
   languages: [go]
   patterns:
-    - regex: '@>\\s*'\\{.*r\\.(FormValue|URL\\.Query).*\\}''
+    - regex: '@>\\s*''\\{.*r\\.(FormValue|URL\\.Query).*\\}'''
   severity: high
   description: "PostgreSQL JSONB containment with user input"
   remediation: "Use parameterized queries for JSONB operators"
@@ -3357,7 +3357,7 @@
 - id: go-context-value-not-typed
   languages: [go]
   patterns:
-    - regex: 'context\\.WithValue.*(string|\\.Value\\(\\s*[\"'])'
+    - regex: 'context\\.WithValue.*(string|\\.Value\\(\\s*[\"''])'
   severity: low
   description: "Context value using string key (not type-safe)"
   remediation: "Use custom typed keys for context values"
@@ -3829,7 +3829,7 @@
 - id: go-http-file-server-without-restrictions
   languages: [go]
   patterns:
-    - regex: 'http\\.FileServer\\(http\\.Dir\\([\"']\\.[\"']\\)\\)'
+    - regex: 'http\\.FileServer\\(http\\.Dir\\([\"'']\\.[\"'']\\)\\)'
   severity: high
   description: "File server serving current directory"
   remediation: "Restrict to specific subdirectory"
@@ -3839,7 +3839,7 @@
 - id: go-http-file-server-path-traversal
   languages: [go]
   patterns:
-    - regex: 'http\\.FileServer\\(http\\.Dir\\([\"']/[^\"']*[\"']\\)\\)'
+    - regex: 'http\\.FileServer\\(http\\.Dir\\([\"'']/[^\"'']*[\"'']\\)\\)'
   severity: medium
   description: "File server serving absolute path"
   remediation: "Ensure path is properly restricted"
@@ -4031,7 +4031,7 @@
 - id: go-tls-config-server-name-unsafe
   languages: [go]
   patterns:
-    - regex: 'ServerName\\s*=\\s*[\"']'
+    - regex: 'ServerName\\s*=\\s*[\"'']'
   severity: low
   description: "ServerName hardcoded in TLS config"
   remediation: "Use ServerName from request or make configurable"
@@ -4163,7 +4163,7 @@
 - id: go-jwt-hardcoded-secret
   languages: [go]
   patterns:
-    - regex: 'jwt\\.(NewWithClaims|ParseWithClaims).*\\[\\]byte\\([\"'][^\"']+[\"']\\)'
+    - regex: 'jwt\\.(NewWithClaims|ParseWithClaims).*\\[\\]byte\\([\"''][^\"'']+[\"'']\\)'
   severity: critical
   description: "Hardcoded JWT secret"
   remediation: "Use environment variables for secrets"
@@ -4283,7 +4283,7 @@
 - id: go-jwt-key-size-small
   languages: [go]
   patterns:
-    - regex: '\\[\\]byte\\([\"'](.{1,31})[\"']\\)'
+    - regex: '\\[\\]byte\\([\"''](.{1,31})[\"'']\\)'
   severity: high
   description: "JWT secret key too short (<32 bytes)"
   remediation: "Use at least 32-byte secret keys"
@@ -4333,7 +4333,7 @@
 - id: go-jwt-keyfunc-return-static
   languages: [go]
   patterns:
-    - regex: 'keyFunc.*return.*\\[\\]byte\\([\"']'
+    - regex: 'keyFunc.*return.*\\[\\]byte\\([\"'']'
   severity: high
   description: "JWT keyFunc returns static key"
   remediation: "Use different keys per issuer/algorithm"
@@ -4455,7 +4455,7 @@
 - id: go-crypto-key-derivation-missing-salt
   languages: [go]
   patterns:
-    - regex: 'pbkdf2\\.Key.*\\[\\]byte\\([\"']'
+    - regex: 'pbkdf2\\.Key.*\\[\\]byte\\([\"'']'
   severity: high
   description: "PBKDF2 with static salt (from literal)"
   remediation: "Use random, unique salt per key derivation"
@@ -4505,7 +4505,7 @@
 - id: go-crypto-hmac-key-static
   languages: [go]
   patterns:
-    - regex: 'hmac\\.New.*\\[\\]byte\\([\"']'
+    - regex: 'hmac\\.New.*\\[\\]byte\\([\"'']'
   severity: high
   description: "HMAC key from string literal"
   remediation: "Use random keys from crypto/rand"
@@ -4515,7 +4515,7 @@
 - id: go-crypto-cipher-iv-static
   languages: [go]
   patterns:
-    - regex: 'cipher\\.New(?:CBC|CTR|GCM).*\\[\\]byte\\([\"']'
+    - regex: 'cipher\\.New(?:CBC|CTR|GCM).*\\[\\]byte\\([\"'']'
   severity: high
   description: "Static IV used in encryption"
   remediation: "Generate random IV per encryption"
@@ -4525,7 +4525,7 @@
 - id: go-crypto-gcm-nonce-static
   languages: [go]
   patterns:
-    - regex: 'cipher\\.NewGCM.*Seal.*\\[\\]byte\\([\"']'
+    - regex: 'cipher\\.NewGCM.*Seal.*\\[\\]byte\\([\"'']'
   severity: critical
   description: "Static nonce used in GCM (catastrophic)"
   remediation: "Never reuse GCM nonces"
@@ -4577,7 +4577,7 @@
 - id: go-hardcoded-password
   languages: [go]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']'
+    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*[\"''][^\"'']{8,}[\"'']'
   severity: high
   description: "Hardcoded password detected"
   remediation: "Use environment variables or secrets manager"
@@ -4587,7 +4587,7 @@
 - id: go-hardcoded-api-key
   languages: [go]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*[\"'][a-zA-Z0-9]{16,}[\"']'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*[\"''][a-zA-Z0-9]{16,}[\"'']'
   severity: high
   description: "Hardcoded API key detected"
   remediation: "Store API keys in environment variables"
@@ -4597,7 +4597,7 @@
 - id: go-hardcoded-jwt-secret
   languages: [go]
   patterns:
-    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key|hmac[_-]?secret)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']'
+    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key|hmac[_-]?secret)\\s*[=:]\\s*[\"''][^\"'']{8,}[\"'']'
   severity: critical
   description: "Hardcoded JWT signing secret detected"
   remediation: "Use environment variables for JWT secrets"
@@ -4617,7 +4617,7 @@
 - id: go-hardcoded-aws-secret
   languages: [go]
   patterns:
-    - regex: '(?i)AWS_SECRET_ACCESS_KEY\\s*[=:]\\s*[\"'][a-zA-Z0-9/+=]{40}[\"']'
+    - regex: '(?i)AWS_SECRET_ACCESS_KEY\\s*[=:]\\s*[\"''][a-zA-Z0-9/+=]{40}[\"'']'
   severity: critical
   description: "AWS Secret Access Key hardcoded"
   remediation: "Never hardcode AWS secrets"
@@ -4627,7 +4627,7 @@
 - id: go-hardcoded-gcp-key
   languages: [go]
   patterns:
-    - regex: '(?i)(type[\"']:\\s*[\"']service_account[\"']|private_key_id[\"']:\\s*[\"'][a-f0-9]+[\"'])'
+    - regex: '(?i)(type[\"'']:\\s*[\"'']service_account[\"'']|private_key_id[\"'']:\\s*[\"''][a-f0-9]+[\"''])'
   severity: critical
   description: "GCP service account key embedded"
   remediation: "Use workload identity or environment variables"
@@ -4657,7 +4657,7 @@
 - id: go-hardcoded-oauth-secret
   languages: [go]
   patterns:
-    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\\s*[=:]\\s*[\"'][^\"']+[\"']'
+    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\\s*[=:]\\s*[\"''][^\"'']+[\"'']'
   severity: critical
   description: "OAuth client secret hardcoded"
   remediation: "Store OAuth secrets in environment variables"
@@ -4687,7 +4687,7 @@
 - id: go-hardcoded-token
   languages: [go]
   patterns:
-    - regex: '(?i)(token|bearer|auth_token)\\s*[=:]\\s*[\"'][a-zA-Z0-9._-]{16,}[\"']'
+    - regex: '(?i)(token|bearer|auth_token)\\s*[=:]\\s*[\"''][a-zA-Z0-9._-]{16,}[\"'']'
   severity: high
   description: "Hardcoded authentication token"
   remediation: "Use environment variables for tokens"
@@ -4777,7 +4777,7 @@
 - id: go-hardcoded-npm-token
   languages: [go]
   patterns:
-    - regex: '(?i)npm_[a-f0-9]{36}|_authToken[=:]\\s*[\"'][a-f0-9-]{36}[\"']'
+    - regex: '(?i)npm_[a-f0-9]{36}|_authToken[=:]\\s*[\"''][a-f0-9-]{36}[\"'']'
   severity: high
   description: "NPM token hardcoded"
   remediation: "Use environment variables for NPM tokens"
@@ -4827,7 +4827,7 @@
 - id: go-hardcoded-mailchimp-key
   languages: [go]
   patterns:
-    - regex: '(?i)mailchimp_api_key\\s*[=:]\\s*[\"'][a-f0-9]{32}-us[0-9]{1,2}[\"']'
+    - regex: '(?i)mailchimp_api_key\\s*[=:]\\s*[\"''][a-f0-9]{32}-us[0-9]{1,2}[\"'']'
   severity: high
   description: "Mailchimp API key hardcoded"
   remediation: "Use environment variables for email marketing keys"
@@ -4837,7 +4837,7 @@
 - id: go-hardcoded-newrelic-key
   languages: [go]
   patterns:
-    - regex: '(?i)NEW_RELIC_LICENSE_KEY\\s*[=:]\\s*[\"'][a-f0-9]{40}[\"']'
+    - regex: '(?i)NEW_RELIC_LICENSE_KEY\\s*[=:]\\s*[\"''][a-f0-9]{40}[\"'']'
   severity: high
   description: "New Relic license key hardcoded"
   remediation: "Use environment variables for monitoring keys"
@@ -4847,7 +4847,7 @@
 - id: go-hardcoded-datadog-key
   languages: [go]
   patterns:
-    - regex: '(?i)DATADOG_API_KEY\\s*[=:]\\s*[\"'][a-f0-9]{32}[\"']'
+    - regex: '(?i)DATADOG_API_KEY\\s*[=:]\\s*[\"''][a-f0-9]{32}[\"'']'
   severity: high
   description: "Datadog API key hardcoded"
   remediation: "Use environment variables for monitoring keys"
@@ -4857,7 +4857,7 @@
 - id: go-hardcoded-sentry-dsn
   languages: [go]
   patterns:
-    - regex: '(?i)sentry\\.(Init|New).*[\"']https://[a-f0-9]{64}@[a-f0-9]{32}\\.ingest\\.sentry\\.io/[0-9]+[\"']'
+    - regex: '(?i)sentry\\.(Init|New).*[\"'']https://[a-f0-9]{64}@[a-f0-9]{32}\\.ingest\\.sentry\\.io/[0-9]+[\"'']'
   severity: medium
   description: "Sentry DSN hardcoded"
   remediation: "Use environment variables for error tracking"
@@ -4867,7 +4867,7 @@
 - id: go-hardcoded-elastic-apm
   languages: [go]
   patterns:
-    - regex: '(?i)ELASTIC_APM_SECRET_TOKEN\\s*[=:]\\s*[\"'][a-zA-Z0-9]+[\"']'
+    - regex: '(?i)ELASTIC_APM_SECRET_TOKEN\\s*[=:]\\s*[\"''][a-zA-Z0-9]+[\"'']'
   severity: high
   description: "Elastic APM secret token hardcoded"
   remediation: "Use environment variables for APM tokens"
@@ -4877,7 +4877,7 @@
 - id: go-hardcoded-splunk-key
   languages: [go]
   patterns:
-    - regex: '(?i)splunk\\.hec\\.token\\s*[=:]\\s*[\"'][a-f0-9-]{36}[\"']'
+    - regex: '(?i)splunk\\.hec\\.token\\s*[=:]\\s*[\"''][a-f0-9-]{36}[\"'']'
   severity: high
   description: "Splunk HEC token hardcoded"
   remediation: "Use environment variables for logging tokens"
@@ -4887,7 +4887,7 @@
 - id: go-hardcoded-logz-token
   languages: [go]
   patterns:
-    - regex: '(?i)LOGZIO_TOKEN\\s*[=:]\\s*[\"'][a-zA-Z0-9_-]+[\"']'
+    - regex: '(?i)LOGZIO_TOKEN\\s*[=:]\\s*[\"''][a-zA-Z0-9_-]+[\"'']'
   severity: high
   description: "Logz.io token hardcoded"
   remediation: "Use environment variables for logging tokens"
@@ -5019,7 +5019,7 @@
 - id: go-file-temp-dir-rand
   languages: [go]
   patterns:
-    - regex: 'os\\.MkdirTemp\\s*\\([^,]+,\\s*[\"'][^\"']*\\*[^\"']*[\"']\\)'
+    - regex: 'os\\.MkdirTemp\\s*\\([^,]+,\\s*[\"''][^\"'']*\\*[^\"'']*[\"'']\\)'
   severity: low
   description: "Temp dir pattern may be insecure if predictable"
   remediation: "Use default patterns or ensure randomness"
@@ -5039,7 +5039,7 @@
 - id: go-file-permissions-executable
   languages: [go]
   patterns:
-    - regex: '0o?(?:755|777).*os\\.(Create|OpenFile|Chmod).*[\"']data[\"']'
+    - regex: '0o?(?:755|777).*os\\.(Create|OpenFile|Chmod).*[\"'']data[\"'']'
   severity: medium
   description: "Data file with executable permissions"
   remediation: "Use 0644 for data files"
@@ -5241,7 +5241,7 @@
 - id: go-errors-new-without-context
   languages: [go]
   patterns:
-    - regex: 'errors\\.New\\([\"'][^\"']*error[\"']\\)'
+    - regex: 'errors\\.New\\([\"''][^\"'']*error[\"'']\\)'
   severity: low
   description: "Error without context may be hard to debug"
   remediation: "Include relevant values in error messages"
@@ -5251,7 +5251,7 @@
 - id: go-fmt-errorf-without-verb
   languages: [go]
   patterns:
-    - regex: 'fmt\\.Errorf\\([\"'][^%]*[\"'](?!.*%[sv])'
+    - regex: 'fmt\\.Errorf\\([\"''][^%]*[\"''](?!.*%[sv])'
   severity: low
   description: "Errorf without format verbs"
   remediation: "Use errors.New for static errors"
@@ -5525,7 +5525,7 @@
 - id: go-net-dial-unix
   languages: [go]
   patterns:
-    - regex: 'net\\.Dial\\([\"']unix[\"']'
+    - regex: 'net\\.Dial\\([\"'']unix[\"'']'
   severity: low
   description: "Unix socket connection"
   remediation: "Validate socket path"
@@ -5535,7 +5535,7 @@
 - id: go-net-dial-unixgram
   languages: [go]
   patterns:
-    - regex: 'net\\.Dial\\([\"']unixgram[\"']'
+    - regex: 'net\\.Dial\\([\"'']unixgram[\"'']'
   severity: low
   description: "Unix datagram socket"
   remediation: "Validate socket path"
@@ -5545,7 +5545,7 @@
 - id: go-net-dial-unixpacket
   languages: [go]
   patterns:
-    - regex: 'net\\.Dial\\([\"']unixpacket[\"']'
+    - regex: 'net\\.Dial\\([\"'']unixpacket[\"'']'
   severity: low
   description: "Unix packet socket"
   remediation: "Validate socket path"

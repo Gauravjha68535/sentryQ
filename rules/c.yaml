@@ -51,7 +51,7 @@
 - id: c-buffer-overflow-scanf
   languages: [c]
   patterns:
-    - regex: 'scanf\\s*\\(\\s*['\"]%[^0-9]*(?:s|\\[)[^'\"]*['\"]'
+    - regex: 'scanf\\s*\\(\\s*[''\"]%[^0-9]*(?:s|\\[)[^''\"]*[''\"]'
   severity: critical
   description: "scanf %s without width specifier - unbounded input"
   remediation: "Use width specifier: scanf(\"%255s\", buf) or use fgets()"
@@ -61,7 +61,7 @@
 - id: c-buffer-overflow-sscanf
   languages: [c]
   patterns:
-    - regex: 'sscanf\\s*\\([^,]+,\\s*['\"][^'\"]*%[^0-9]*(?:s|\\[)[^'\"]*['\"]'
+    - regex: 'sscanf\\s*\\([^,]+,\\s*[''\"][^''\"]*%[^0-9]*(?:s|\\[)[^''\"]*[''\"]'
   severity: high
   description: "sscanf with %s without width - may overflow destination"
   remediation: "Use width specifier: sscanf(src, \"%255s\", dst)"
@@ -71,7 +71,7 @@
 - id: c-buffer-overflow-fscanf
   languages: [c]
   patterns:
-    - regex: 'fscanf\\s*\\([^,]+,\\s*['\"][^'\"]*%[^0-9]*(?:s|\\[)[^'\"]*['\"]'
+    - regex: 'fscanf\\s*\\([^,]+,\\s*[''\"][^''\"]*%[^0-9]*(?:s|\\[)[^''\"]*[''\"]'
   severity: high
   description: "fscanf with %s without width - buffer overflow risk"
   remediation: "Use width specifier: fscanf(file, \"%255s\", buf)"
@@ -111,7 +111,7 @@
 - id: c-buffer-overflow-strncpy
   languages: [c]
   patterns:
-    - regex: 'strncpy\\s*\\([^,]+,\\s*[^,]+,\\s*[^)]+\\)\\s*;(?!.*['\"]\\\\0['\"])'
+    - regex: 'strncpy\\s*\\([^,]+,\\s*[^,]+,\\s*[^)]+\\)\\s*;(?!.*[''\"]\\\\0[''\"])'
   severity: high
   description: "strncpy may not null-terminate when size equals buffer length"
   remediation: "Ensure null-termination: dest[size-1] = '\\0'"
@@ -977,7 +977,7 @@
 - id: c-command-injection-shell-construction
   languages: [c]
   patterns:
-    - regex: 'sn?printf\\s*\\([^,]+,\\s*[^,]+,\\s*['\"]\\s*\\w+\\s*['\"],\\s*[^)]*user'
+    - regex: 'sn?printf\\s*\\([^,]+,\\s*[^,]+,\\s*[''\"]\\s*\\w+\\s*[''\"],\\s*[^)]*user'
   severity: high
   description: "Constructing shell command with user input"
   remediation: "Use exec family directly, avoid shell string construction"
@@ -1007,7 +1007,7 @@
 - id: c-command-injection-sprintf-cmd
   languages: [c]
   patterns:
-    - regex: 'sprintf\\s*\\(\\s*\\w+,\\s*['\"](?:[^'\"]*)(?:%s|%d)[^'\"]*['\"],\\s*[^)]*user'
+    - regex: 'sprintf\\s*\\(\\s*\\w+,\\s*[''\"](?:[^''\"]*)(?:%s|%d)[^''\"]*[''\"],\\s*[^)]*user'
   severity: high
   description: "Building command string with sprintf and user input"
   remediation: "Use exec family directly with argument arrays"
@@ -1017,7 +1017,7 @@
 - id: c-command-injection-asprintf-cmd
   languages: [c]
   patterns:
-    - regex: 'asprintf\\s*\\([^,]+,\\s*['\"][^'\"]*%[^'\"]*['\"],\\s*[^)]*user'
+    - regex: 'asprintf\\s*\\([^,]+,\\s*[''\"][^''\"]*%[^''\"]*[''\"],\\s*[^)]*user'
   severity: high
   description: "Dynamically allocating command string with user input"
   remediation: "Avoid dynamic command construction, use exec directly"
@@ -1267,7 +1267,7 @@
 - id: c-path-traversal-absolute
   languages: [c]
   patterns:
-    - regex: '^\\s*['\"]\\/['\"]'
+    - regex: '^\\s*[''\"]\\/[''\"]'
   severity: low
   description: "Absolute path in code - may need validation"
   remediation: "Ensure absolute paths are safe and permissions are correct"
@@ -2377,7 +2377,7 @@
 - id: c-env-ld-preload
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]LD_PRELOAD['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]LD_PRELOAD[''\"]'
   severity: high
   description: "Reading LD_PRELOAD - library injection detection"
   remediation: "Ignore LD_PRELOAD in setuid/setgid programs"
@@ -2387,7 +2387,7 @@
 - id: c-env-ld-library-path
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]LD_LIBRARY_PATH['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]LD_LIBRARY_PATH[''\"]'
   severity: high
   description: "Reading LD_LIBRARY_PATH - library search path"
   remediation: "Ignore in setuid/setgid programs"
@@ -2397,7 +2397,7 @@
 - id: c-env-path
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]PATH['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]PATH[''\"]'
   severity: high
   description: "Reading PATH environment variable"
   remediation: "Use absolute paths when executing programs"
@@ -2407,7 +2407,7 @@
 - id: c-env-ifs
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]IFS['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]IFS[''\"]'
   severity: critical
   description: "Reading IFS (Internal Field Separator) - shell injection risk"
   remediation: "Never use system() with user input when IFS is set"
@@ -2417,7 +2417,7 @@
 - id: c-env-home
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]HOME['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]HOME[''\"]'
   severity: low
   description: "Reading HOME directory"
   remediation: "Validate HOME path before using"
@@ -2427,7 +2427,7 @@
 - id: c-env-temp
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]TMP['\"]|getenv\\s*\\(\\s*['\"]TEMP['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]TMP[''\"]|getenv\\s*\\(\\s*[''\"]TEMP[''\"]'
   severity: medium
   description: "Reading temp directory environment variable"
   remediation: "Use mkstemp with fallback to /tmp"
@@ -2437,7 +2437,7 @@
 - id: c-env-user
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]USER['\"]|getenv\\s*\\(\\s*['\"]LOGNAME['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]USER[''\"]|getenv\\s*\\(\\s*[''\"]LOGNAME[''\"]'
   severity: low
   description: "Reading username from environment"
   remediation: "Use getpwuid(getuid()) instead for accuracy"
@@ -2447,7 +2447,7 @@
 - id: c-env-lang
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]LANG['\"]|getenv\\s*\\(\\s*['\"]LC_'
+    - regex: 'getenv\\s*\\(\\s*[''\"]LANG[''\"]|getenv\\s*\\(\\s*[''\"]LC_'
   severity: low
   description: "Reading locale environment variables"
   remediation: "Validate locale settings, handle Unicode properly"
@@ -2457,7 +2457,7 @@
 - id: c-env-terms
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]TERM['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]TERM[''\"]'
   severity: low
   description: "Reading terminal type"
   remediation: "Validate terminal type before use"
@@ -2467,7 +2467,7 @@
 - id: c-env-display
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]DISPLAY['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]DISPLAY[''\"]'
   severity: low
   description: "Reading X11 display"
   remediation: "Validate display string"
@@ -2477,7 +2477,7 @@
 - id: c-env-proxy
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]HTTP_PROXY['\"]|getenv\\s*\\(\\s*['\"]HTTPS_PROXY'
+    - regex: 'getenv\\s*\\(\\s*[''\"]HTTP_PROXY[''\"]|getenv\\s*\\(\\s*[''\"]HTTPS_PROXY'
   severity: medium
   description: "Reading proxy environment variables"
   remediation: "Validate proxy URLs"
@@ -2487,7 +2487,7 @@
 - id: c-env-no-proxy
   languages: [c]
   patterns:
-    - regex: 'getenv\\s*\\(\\s*['\"]NO_PROXY['\"]'
+    - regex: 'getenv\\s*\\(\\s*[''\"]NO_PROXY[''\"]'
   severity: low
   description: "Reading NO_PROXY bypass list"
   remediation: "Validate host patterns"
@@ -2689,7 +2689,7 @@
 - id: c-memory-corruption-scanf-no-width
   languages: [c]
   patterns:
-    - regex: 'scanf\\s*\\(\\s*['\"][^0-9]*%s[^'\"]*['\"]'
+    - regex: 'scanf\\s*\\(\\s*[''\"][^0-9]*%s[^''\"]*[''\"]'
   severity: critical
   description: "scanf %s without width - buffer overflow"
   remediation: "Use scanf with width: scanf(\"%255s\", buffer)"

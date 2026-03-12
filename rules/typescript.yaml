@@ -2281,7 +2281,7 @@
 - id: ts-hardcoded-password
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*['\"][^'\"]{8,}['\"]'
+    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*[''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password detected"
   remediation: "Use environment variables or secrets manager"
@@ -2291,7 +2291,7 @@
 - id: ts-hardcoded-api-key
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*['\"][a-zA-Z0-9]{16,}['\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*[''\"][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "Hardcoded API key detected"
   remediation: "Store API keys in environment variables"
@@ -2311,7 +2311,7 @@
 - id: ts-hardcoded-jwt-secret
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(jwt|jsonwebtoken)\\s*['\"][a-zA-Z0-9]{8,}['\"]'
+    - regex: '(?i)(jwt|jsonwebtoken)\\s*[''\"][a-zA-Z0-9]{8,}[''\"]'
   severity: critical
   description: "Hardcoded JWT secret detected"
   remediation: "Use environment variable for JWT secret"
@@ -2426,7 +2426,7 @@
 - id: ts-jwt-weak-secret
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(jwt|jsonwebtoken)\\s*sign\\s*\\([^,)]*,\\s*['\"][a-zA-Z0-9]{8,16}['\"]'
+    - regex: '(?i)(jwt|jsonwebtoken)\\s*sign\\s*\\([^,)]*,\\s*[''\"][a-zA-Z0-9]{8,16}[''\"]'
   severity: high
   description: "JWT with weak secret"
   remediation: "Use strong, long secrets (32+ chars)"
@@ -2470,7 +2470,7 @@
 - id: ts-cors-wildcard
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['\"]\\*['\"]'
+    - regex: '(?i)cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*[''\"]\\*[''\"]'
   severity: high
   description: "CORS wildcard origin allows any site"
   remediation: "Specify exact allowed origins"
@@ -2523,7 +2523,7 @@
 - id: ts-weak-crypto-md5
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(MD5|md5|createHash\\s*\\(['\"]md5['\"])'
+    - regex: '(?i)(MD5|md5|createHash\\s*\\([''\"]md5[''\"])'
   severity: medium
   description: "MD5 hash usage - insecure"
   remediation: "Use SHA-256 or stronger"
@@ -2533,7 +2533,7 @@
 - id: ts-weak-crypto-sha1
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(SHA1|sha1|createHash\\s*\\(['\"]sha1['\"])'
+    - regex: '(?i)(SHA1|sha1|createHash\\s*\\([''\"]sha1[''\"])'
   severity: medium
   description: "SHA-1 hash usage - insecure"
   remediation: "Use SHA-256 or stronger"
@@ -2587,7 +2587,7 @@
 - id: ts-vulnerable-package
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(lodash|moment|minimist|node-fetch)[^:]*:.*['\"]?\\d+\\.\\d+\\.\\d+'
+    - regex: '(?i)(lodash|moment|minimist|node-fetch)[^:]*:.*[''\"]?\\d+\\.\\d+\\.\\d+'
   severity: high
   description: "Potentially vulnerable package version"
   remediation: "Update to latest secure version"
@@ -2598,7 +2598,7 @@
 - id: ts-hardcoded-crypto-key
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(AES|DES|RSA|secret|encryptionKey)\\s*[=:]\\s*['\"][a-zA-Z0-9+/=]{16,}['\"]'
+    - regex: '(?i)(AES|DES|RSA|secret|encryptionKey)\\s*[=:]\\s*[''\"][a-zA-Z0-9+/=]{16,}[''\"]'
   severity: critical
   description: "Hardcoded cryptographic key"
   remediation: "Use key management services"
@@ -2609,7 +2609,7 @@
 - id: ts-xxe
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)DOMParser\\s*\\(\\s*\\)\\s*\\.parseFromString\\s*\\([^)]*,.*['\"]text/xml'
+    - regex: '(?i)DOMParser\\s*\\(\\s*\\)\\s*\\.parseFromString\\s*\\([^)]*,.*[''\"]text/xml'
   severity: critical
   description: "XML External Entity (XXE) vulnerability"
   remediation: "Disable external entities in parsers"
@@ -2664,7 +2664,7 @@
 - id: ts-websocket-insecure
   languages: [typescript, javascript]
   patterns:
-    - regex: 'new\\s+WebSocket\\s*\\(\\s*['\"]ws:'
+    - regex: 'new\\s+WebSocket\\s*\\(\\s*[''\"]ws:'
   severity: high
   description: "Insecure WebSocket connection (ws://)"
   remediation: "Use wss:// for secure WebSocket"
@@ -2763,7 +2763,7 @@
 - id: ts-debug-mode
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(DEBUG\\s*=\\s*true|app\\.get\\s*\\('env'\\)\\s*===.*development'
+    - regex: '(?i)(DEBUG\\s*=\\s*true|app\\.get\\s*\\(''env''\\)\\s*===.*development'
   severity: high
   description: "Debug mode enabled in production"
   remediation: "Disable debug mode in production"
@@ -2774,7 +2774,7 @@
 - id: ts-unsafe-file-server
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)express\\.static\\s*\\(\\s*['\"]\\.'
+    - regex: '(?i)express\\.static\\s*\\(\\s*[''\"]\\.'
   severity: high
   description: "Serving static files from root directory"
   remediation: "Restrict static file serving"
@@ -2829,7 +2829,7 @@
 - id: ts-missing-auth
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(app|router)\\.(get|post|put|delete)\\s*\\(\\s*['\"]\\/api'
+    - regex: '(?i)(app|router)\\.(get|post|put|delete)\\s*\\(\\s*[''\"]\\/api'
   severity: medium
   description: "API route without authentication check"
   remediation: "Add auth middleware to routes"
@@ -3016,7 +3016,7 @@
 - id: ts-weak-auth
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(password|pass)\\s*===\\s*['\"][^'\"]{0,8}['\"]'
+    - regex: '(?i)(password|pass)\\s*===\\s*[''\"][^''\"]{0,8}[''\"]'
   severity: high
   description: "Weak password check"
   remediation: "Use secure auth libraries"
@@ -3027,7 +3027,7 @@
 - id: ts-config-secret
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(config|settings)\\.\\w*secret\\w*\\s*[=:]\\s*['\"][^'\"]+['\"]'
+    - regex: '(?i)(config|settings)\\.\\w*secret\\w*\\s*[=:]\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Hardcoded secret in config"
   remediation: "Use env variables for secrets"
@@ -3258,7 +3258,7 @@
 - id: ts-host-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(req\\.hostname|req\\.headers\\[['\\\"]host['\\\"]\\])'
+    - regex: '(?i)(req\\.hostname|req\\.headers\\[[''\\\"]host[''\\\"]\\])'
   severity: medium
   description: "Host header not validated"
   remediation: "Validate host header"

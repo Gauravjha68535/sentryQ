@@ -41,7 +41,7 @@
 - id: asp-hardcoded-password
   languages: [asp, vbscript]
   patterns:
-    - regex: '(?i)(password|passwd)\\.s*=\\.s*['\\.][^'\\.]{8,}['\\.]'
+    - regex: '(?i)(password|passwd)\\.s*=\\.s*[''\\.][^''\\.]{8,}[''\\.]'
   severity: high
   description: "Hardcoded password detected in ASP source code"
   remediation: "Store credentials in encrypted config files or use Windows Authentication"
@@ -81,7 +81,7 @@
 - id: asp-debug-enabled
   languages: [asp, vbscript]
   patterns:
-    - regex: '(?i)@\\.sENABLED\\.s=\\.s*['\\.]?debug['\\.]?'
+    - regex: '(?i)@\\.sENABLED\\.s=\\.s*[''\\.]?debug[''\\.]?'
   severity: low
   description: "Debug mode enabled in ASP page may leak sensitive information"
   remediation: "Disable debug mode in production: @ENABLED = False"
@@ -899,7 +899,7 @@
 - id: data-regex-dos
   languages: [csharp, aspnet, asp]
   patterns:
-    - regex: '(?i)RegExp\\.s*\\.(\\.s*['\\.].*\\.+.*['\\.]|\\..match\\.s*\\.(\\.s*user'
+    - regex: '(?i)RegExp\\.s*\\.(\\.s*[''\\.].*\\.+.*[''\\.]|\\..match\\.s*\\.(\\.s*user'
   severity: medium
   description: "User-controlled Regex may cause ReDoS"
   remediation: "Avoid user-controlled regex. Set timeout limits"
@@ -1035,7 +1035,7 @@
 - id: asp-viewstate-mac-disabled
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'EnableViewStateMac\\.s*=\\.s*['\\.]?false['\\.]?'
+    - regex: 'EnableViewStateMac\\.s*=\\.s*[''\\.]?false[''\\.]?'
   severity: critical
   description: "ViewState MAC disabled allows tampering"
   remediation: "Set EnableViewStateMac=true in web.config"
@@ -1045,7 +1045,7 @@
 - id: asp-viewstate-encryption-disabled
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'ViewStateEncryptionMode\\.s*=\\.s*['\\.]?Never['\\.]?'
+    - regex: 'ViewStateEncryptionMode\\.s*=\\.s*[''\\.]?Never[''\\.]?'
   severity: high
   description: "ViewState encryption disabled exposes data"
   remediation: "Set ViewStateEncryptionMode=Always"
@@ -1055,7 +1055,7 @@
 - id: asp-viewstate-weak-algorithm
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'validation\\.s*=\\.s*['\\.]?SHA1['\\.]?'
+    - regex: 'validation\\.s*=\\.s*[''\\.]?SHA1[''\\.]?'
   severity: high
   description: "Weak ViewState validation algorithm"
   remediation: "Use SHA256 or AES for ViewState validation"
@@ -1065,7 +1065,7 @@
 - id: asp-viewstate-length
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'maxPageStateFieldLength\\.s*=\\.s*['\\.]?[0-9]{1,3}['\\.]?'
+    - regex: 'maxPageStateFieldLength\\.s*=\\.s*[''\\.]?[0-9]{1,3}[''\\.]?'
   severity: low
   description: "ViewState max length configured"
   remediation: "Set appropriate limit to prevent DOS"
@@ -1075,7 +1075,7 @@
 - id: asp-request-validation-disabled
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'validateRequest\\.s*=\\.s*['\\.]?false['\\.]?'
+    - regex: 'validateRequest\\.s*=\\.s*[''\\.]?false[''\\.]?'
   severity: high
   description: "ASP.NET request validation disabled (XSS risk)"
   remediation: "Enable validateRequest=true in web.config"
@@ -1085,7 +1085,7 @@
 - id: asp-event-validation-disabled
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'EnableEventValidation\\.s*=\\.s*['\\.]?false['\\.]?'
+    - regex: 'EnableEventValidation\\.s*=\\.s*[''\\.]?false[''\\.]?'
   severity: high
   description: "Event validation disabled allows postback tampering"
   remediation: "Enable EnableEventValidation=true"
@@ -1115,7 +1115,7 @@
 - id: asp-razor-url-parameter
   languages: [asp, vbscript]
   patterns:
-    - regex: 'href=['\\.]?<%=.*?Request\\..'
+    - regex: 'href=[''\\.]?<%=.*?Request\\..'
   severity: high
   description: "User input in href attribute (open redirect/XSS)"
   remediation: "Validate URLs and use Url.Content()"
@@ -1125,7 +1125,7 @@
 - id: asp-razor-event-handler
   languages: [asp, vbscript]
   patterns:
-    - regex: 'onclick=['\\.]?<%=|onload=['\\.]?<%=|onerror=['\\.]?<%='
+    - regex: 'onclick=[''\\.]?<%=|onload=[''\\.]?<%=|onerror=[''\\.]?<%='
   severity: high
   description: "User input in event handler (XSS)"
   remediation: "Avoid dynamic event handlers with user input"
@@ -1135,7 +1135,7 @@
 - id: asp-razor-css-injection
   languages: [asp, vbscript]
   patterns:
-    - regex: 'style=['\\.]?<%=.*?Request\\..'
+    - regex: 'style=[''\\.]?<%=.*?Request\\..'
   severity: high
   description: "User input in style attribute (CSS injection)"
   remediation: "Validate and sanitize CSS input"
@@ -1145,7 +1145,7 @@
 - id: asp-viewstate-machine-key-static
   languages: [asp, vbscript, config]
   patterns:
-    - regex: '<machineKey.*?validationKey\\.s*=\\.s*['\\.][A-F0-9]{40,}['\\.]'
+    - regex: '<machineKey.*?validationKey\\.s*=\\.s*[''\\.][A-F0-9]{40,}[''\\.]'
   severity: medium
   description: "Static machine key in web.config"
   remediation: "Use auto-generated keys or store in secure location"
@@ -1165,7 +1165,7 @@
 - id: asp-viewstate-compatibility
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'CompatibilityMode\\.s*=\\.s*['\\.]?.*['\\.]?'
+    - regex: 'CompatibilityMode\\.s*=\\.s*[''\\.]?.*[''\\.]?'
   severity: low
   description: "ViewState compatibility mode configured"
   remediation: "Use latest compatibility mode"
@@ -1175,7 +1175,7 @@
 - id: asp-viewstate-chunking
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'ViewStateChunking\\.s*=\\.s*['\\.]?true['\\.]?'
+    - regex: 'ViewStateChunking\\.s*=\\.s*[''\\.]?true[''\\.]?'
   severity: low
   description: "ViewState chunking enabled"
   remediation: "Monitor for large ViewState size"
@@ -1185,7 +1185,7 @@
 - id: asp-request-validation-mode
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'requestValidationMode\\.s*=\\.s*['\\.]?2\\..0['\\.]?'
+    - regex: 'requestValidationMode\\.s*=\\.s*[''\\.]?2\\..0[''\\.]?'
   severity: medium
   description: "Request validation mode 2.0 (less restrictive)"
   remediation: "Use requestValidationMode='4.5' or higher"
@@ -1367,7 +1367,7 @@
 - id: asp-request-item-raw
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Request\\.(\\.s*['\\.][^'\\.]+['\\.]\\.s*\\.)'
+    - regex: 'Request\\.(\\.s*[''\\.][^''\\.]+[''\\.]\\.s*\\.)'
   severity: high
   description: "Direct Request item access (combines all collections)"
   remediation: "Access specific collections with validation"
@@ -1419,7 +1419,7 @@
 - id: asp-antiforgery-token-missing
   languages: [asp, vbscript]
   patterns:
-    - regex: 'If\\.s+Request\\..HttpMethod\\.s*=\\.s*['\\.]POST['\\.]'
+    - regex: 'If\\.s+Request\\..HttpMethod\\.s*=\\.s*[''\\.]POST[''\\.]'
   severity: high
   description: "POST handler without anti-forgery token check"
   remediation: "Implement anti-forgery token validation"
@@ -1429,7 +1429,7 @@
 - id: asp-antiforgery-token-weak
   languages: [asp, vbscript]
   patterns:
-    - regex: '__RequestVerificationToken.*?value\\.s*=\\.s*['\\.][a-zA-Z0-9]{1,16}['\\.]'
+    - regex: '__RequestVerificationToken.*?value\\.s*=\\.s*[''\\.][a-zA-Z0-9]{1,16}[''\\.]'
   severity: high
   description: "Weak anti-forgery token (too short)"
   remediation: "Ensure tokens are cryptographically random"
@@ -1459,7 +1459,7 @@
 - id: asp-antiforgery-same-site
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'sameSite\\.s*=\\.s*['\\.]?None['\\.]?'
+    - regex: 'sameSite\\.s*=\\.s*[''\\.]?None[''\\.]?'
   severity: medium
   description: "Anti-forgery cookie SameSite=None (CSRF risk)"
   remediation: "Use SameSite=Lax or Strict"
@@ -1469,7 +1469,7 @@
 - id: asp-antiforgery-session-based
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Session\\.[['\\.]__RequestVerificationToken['\\.]\\.]'
+    - regex: 'Session\\.[[''\\.]__RequestVerificationToken[''\\.]\\.]'
   severity: medium
   description: "Session-based anti-forgery token"
   remediation: "Use cookie-based tokens for better scalability"
@@ -1499,7 +1499,7 @@
 - id: asp-antiforgery-missing-form-field
   languages: [asp, vbscript]
   patterns:
-    - regex: '<form.*?method=['\\.]post['\\.].*?>.*?(?!__RequestVerificationToken)'
+    - regex: '<form.*?method=[''\\.]post[''\\.].*?>.*?(?!__RequestVerificationToken)'
   severity: high
   description: "POST form missing anti-forgery token"
   remediation: "Add @Html.AntiForgeryToken() to forms"
@@ -1509,7 +1509,7 @@
 - id: asp-antiforgery-ajax-missing
   languages: [asp, vbscript]
   patterns:
-    - regex: '\\..ajax\\.(|XMLHttpRequest.*?type:\\.s*['\\.]POST['\\.]'
+    - regex: '\\..ajax\\.(|XMLHttpRequest.*?type:\\.s*[''\\.]POST[''\\.]'
   severity: high
   description: "AJAX POST without anti-forgery token"
   remediation: "Add token to AJAX headers"
@@ -1541,7 +1541,7 @@
 - id: asp-session-cookie-domain
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'domain\\.s*=\\.s*['\\.][^'\\.]*\\..[^'\\.]*['\\.]'
+    - regex: 'domain\\.s*=\\.s*[''\\.][^''\\.]*\\..[^''\\.]*[''\\.]'
   severity: medium
   description: "Session cookie domain set broadly"
   remediation: "Restrict cookie domain to specific subdomain"
@@ -1551,7 +1551,7 @@
 - id: asp-session-cookie-path
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'path\\.s*=\\.s*['\\.]/['\\.]'
+    - regex: 'path\\.s*=\\.s*[''\\.]/[''\\.]'
   severity: low
   description: "Session cookie path set to root"
   remediation: "Restrict cookie path to application"
@@ -1591,7 +1591,7 @@
 - id: asp-session-fixation
   languages: [asp, vbscript]
   patterns:
-    - regex: 'SessionID\\.s*=\\.s*Request\\..(QueryString|Form)\\.(['\\.]SessionID['\\.]\\.)'
+    - regex: 'SessionID\\.s*=\\.s*Request\\..(QueryString|Form)\\.([''\\.]SessionID[''\\.]\\.)'
   severity: critical
   description: "Accepting session ID from client (fixation)"
   remediation: "Never accept session IDs from client"
@@ -1601,7 +1601,7 @@
 - id: asp-session-insecure-storage
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Session\\.(['\\.]password['\\.]\\.)|Session\\.(['\\.]credit['\\.]\\.)'
+    - regex: 'Session\\.([''\\.]password[''\\.]\\.)|Session\\.([''\\.]credit[''\\.]\\.)'
   severity: critical
   description: "Sensitive data stored in session"
   remediation: "Store minimal data, use secure session state"
@@ -1611,7 +1611,7 @@
 - id: asp-session-state-mode
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'mode\\.s*=\\.s*['\\.]?InProc['\\.]?'
+    - regex: 'mode\\.s*=\\.s*[''\\.]?InProc[''\\.]?'
   severity: medium
   description: "InProc session state (lost on restart)"
   remediation: "Use StateServer or SQLServer for production"
@@ -1621,7 +1621,7 @@
 - id: asp-session-state-cookieless
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'cookieless\\.s*=\\.s*['\\.]?true['\\.]?'
+    - regex: 'cookieless\\.s*=\\.s*[''\\.]?true[''\\.]?'
   severity: high
   description: "Cookieless sessions (URL-based) expose session ID"
   remediation: "Use cookie-based sessions"
@@ -1671,7 +1671,7 @@
 - id: asp-session-user-agent-check
   languages: [asp, vbscript]
   patterns:
-    - regex: 'If\\.s+Request\\..ServerVariables\\.(['\\.]HTTP_USER_AGENT['\\.]\\.)\\.s*<>'
+    - regex: 'If\\.s+Request\\..ServerVariables\\.([''\\.]HTTP_USER_AGENT[''\\.]\\.)\\.s*<>'
   severity: medium
   description: "Session hijacking protection via User-Agent"
   remediation: "Good practice to bind session to User-Agent"
@@ -1681,7 +1681,7 @@
 - id: asp-session-ip-check
   languages: [asp, vbscript]
   patterns:
-    - regex: 'If\\.s+Request\\..ServerVariables\\.(['\\.]REMOTE_ADDR['\\.]\\.)\\.s*<>'
+    - regex: 'If\\.s+Request\\..ServerVariables\\.([''\\.]REMOTE_ADDR[''\\.]\\.)\\.s*<>'
   severity: medium
   description: "Session binding to IP (may break for mobile)"
   remediation: "Consider using User-Agent instead"
@@ -1701,7 +1701,7 @@
 - id: asp-session-persistent-cookie
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Response\\..Cookies\\.(['\\.]ASP\\..NET_SessionId['\\.]\\.).*?Expires'
+    - regex: 'Response\\..Cookies\\.([''\\.]ASP\\..NET_SessionId[''\\.]\\.).*?Expires'
   severity: high
   description: "Persistent session cookie (remember me)"
   remediation: "Use short expiration for session cookies"
@@ -1711,7 +1711,7 @@
 - id: asp-session-validate-on-each-request
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Session\\.(['\\.]Authenticated['\\.]\\.)\\.s*=\\.s*true'
+    - regex: 'Session\\.([''\\.]Authenticated[''\\.]\\.)\\.s*=\\.s*true'
   severity: medium
   description: "Session-based authentication check"
   remediation: "Ensure session is validated on each request"
@@ -1753,7 +1753,7 @@
 - id: asp-cookie-path-too-broad
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Path\\.s*=\\.s*['\\.]/['\\.]'
+    - regex: 'Path\\.s*=\\.s*[''\\.]/[''\\.]'
   severity: low
   description: "Cookie path set to root"
   remediation: "Restrict cookie path to application"
@@ -1763,7 +1763,7 @@
 - id: asp-cookie-domain-too-broad
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Domain\\.s*=\\.s*['\\.][^'\\.]*\\..[^'\\.]*['\\.]'
+    - regex: 'Domain\\.s*=\\.s*[''\\.][^''\\.]*\\..[^''\\.]*[''\\.]'
   severity: medium
   description: "Cookie domain set broadly"
   remediation: "Restrict to specific subdomain"
@@ -1875,7 +1875,7 @@
 - id: asp-include-file
   languages: [asp, vbscript]
   patterns:
-    - regex: '<!--\\.s*#include\\.s+file\\.s*=\\.s*['\\.][^'\\.]+['\\.]'
+    - regex: '<!--\\.s*#include\\.s+file\\.s*=\\.s*[''\\.][^''\\.]+[''\\.]'
   severity: high
   description: "Server-side include with file attribute"
   remediation: "Use virtual include or restrict paths"
@@ -1885,7 +1885,7 @@
 - id: asp-include-virtual
   languages: [asp, vbscript]
   patterns:
-    - regex: '<!--\\.s*#include\\.s+virtual\\.s*=\\.s*['\\.][^'\\.]+['\\.]'
+    - regex: '<!--\\.s*#include\\.s+virtual\\.s*=\\.s*[''\\.][^''\\.]+[''\\.]'
   severity: medium
   description: "Server-side include with virtual path"
   remediation: "Ensure included files are safe"
@@ -1935,7 +1935,7 @@
 - id: asp-execute-external
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Server\\..Execute\\.s*\\.(['\\.][^'\\.]+\\.(asp|aspx)['\\.]'
+    - regex: 'Server\\..Execute\\.s*\\.([''\\.][^''\\.]+\\.(asp|aspx)[''\\.]'
   severity: medium
   description: "Server.Execute external file"
   remediation: "Ensure executed file is trusted"
@@ -1945,7 +1945,7 @@
 - id: asp-transfer-external
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Server\\..Transfer\\.s*\\.(['\\.][^'\\.]+\\.(asp|aspx)['\\.]'
+    - regex: 'Server\\..Transfer\\.s*\\.([''\\.][^''\\.]+\\.(asp|aspx)[''\\.]'
   severity: medium
   description: "Server.Transfer external file"
   remediation: "Validate transfer target"
@@ -1977,7 +1977,7 @@
 - id: asp-createobject-dynamic
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.][^'\\.]*?\\.$|CreateObject\\.s*\\.([^\\.]*Request\\.'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.][^''\\.]*?\\.$|CreateObject\\.s*\\.([^\\.]*Request\\.'
   severity: critical
   description: "Dynamic COM object creation (RCE risk)"
   remediation: "Use static object creation, never with user input"
@@ -1987,7 +1987,7 @@
 - id: asp-server-createobject-dynamic
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Server\\..CreateObject\\.s*\\.(\\.s*['\\.][^'\\.]*?\\.$|Server\\.CreateObject\\.s*\\.([^\\.]*Request\\.'
+    - regex: 'Server\\..CreateObject\\.s*\\.(\\.s*[''\\.][^''\\.]*?\\.$|Server\\.CreateObject\\.s*\\.([^\\.]*Request\\.'
   severity: critical
   description: "Dynamic Server.CreateObject (RCE risk)"
   remediation: "Never use user input in CreateObject"
@@ -1997,7 +1997,7 @@
 - id: asp-fso-createobject
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]Scripting\\.FileSystemObject['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]Scripting\\.FileSystemObject[''\\.]'
   severity: high
   description: "FileSystemObject creation (file access)"
   remediation: "Restrict file operations to specific directories"
@@ -2007,7 +2007,7 @@
 - id: asp-wscript-shell
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]WScript\\.Shell['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]WScript\\.Shell[''\\.]'
   severity: critical
   description: "WScript.Shell creation (command execution)"
   remediation: "Avoid shell access from ASP pages"
@@ -2017,7 +2017,7 @@
 - id: asp-adodb-connection
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]ADODB\\.Connection['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]ADODB\\.Connection[''\\.]'
   severity: high
   description: "ADODB connection creation"
   remediation: "Use connection strings from config"
@@ -2027,7 +2027,7 @@
 - id: asp-adodb-command
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]ADODB\\.Command['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]ADODB\\.Command[''\\.]'
   severity: high
   description: "ADODB Command object (parameterized queries)"
   remediation: "Use parameters for all queries"
@@ -2037,7 +2037,7 @@
 - id: asp-adodb-stream
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]ADODB\\.Stream['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]ADODB\\.Stream[''\\.]'
   severity: high
   description: "ADODB.Stream for binary data"
   remediation: "Validate data before processing"
@@ -2047,7 +2047,7 @@
 - id: asp-xmlhttp-creation
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]MSXML2\\..XMLHTTP['\\.]|CreateObject\\.s*\\.(\\.s*['\\.]Microsoft\\.XMLHTTP['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]MSXML2\\..XMLHTTP[''\\.]|CreateObject\\.s*\\.(\\.s*[''\\.]Microsoft\\.XMLHTTP[''\\.]'
   severity: high
   description: "XMLHTTP object creation (SSRF risk)"
   remediation: "Validate all requested URLs"
@@ -2057,7 +2057,7 @@
 - id: asp-ldap-creation
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]LDAP['\\.]|CreateObject\\.s*\\.(\\.s*['\\.]ADSystemInfo['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]LDAP[''\\.]|CreateObject\\.s*\\.(\\.s*[''\\.]ADSystemInfo[''\\.]'
   severity: high
   description: "LDAP object creation (injection risk)"
   remediation: "Sanitize LDAP queries"
@@ -2067,7 +2067,7 @@
 - id: asp-email-creation
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]CDO\\.Message['\\.]|CreateObject\\.s*\\.(\\.s*['\\.]JMail\\.SMTPMail['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]CDO\\.Message[''\\.]|CreateObject\\.s*\\.(\\.s*[''\\.]JMail\\.SMTPMail[''\\.]'
   severity: medium
   description: "Email object creation (SMTP injection)"
   remediation: "Validate email headers"
@@ -2077,7 +2077,7 @@
 - id: asp-scriptcontrol-creation
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.]ScriptControl['\\.]'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.]ScriptControl[''\\.]'
   severity: critical
   description: "ScriptControl creation (RCE)"
   remediation: "Never use ScriptControl with user input"
@@ -2087,7 +2087,7 @@
 - id: asp-unsafe-com-objects
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CreateObject\\.s*\\.(\\.s*['\\.](Shell|WScript|ADOX|CATID)'
+    - regex: 'CreateObject\\.s*\\.(\\.s*[''\\.](Shell|WScript|ADOX|CATID)'
   severity: critical
   description: "Unsafe COM object creation"
   remediation: "Restrict COM object creation"
@@ -2169,7 +2169,7 @@
 - id: asp-sql-injection-like
   languages: [asp, vbscript]
   patterns:
-    - regex: 'LIKE\\.s*['\\.]%['\\.]\\.s*\\.&.*?Request'
+    - regex: 'LIKE\\.s*[''\\.]%[''\\.]\\.s*\\.&.*?Request'
   severity: high
   description: "LIKE clause with unescaped user input"
   remediation: "Escape % and _ characters in LIKE patterns"
@@ -2189,7 +2189,7 @@
 - id: asp-sql-command-text
   languages: [asp, vbscript]
   patterns:
-    - regex: 'CommandText\\.s*=\\.s*['\\.]\\.&.*?Request'
+    - regex: 'CommandText\\.s*=\\.s*[''\\.]\\.&.*?Request'
   severity: critical
   description: "CommandText with user input concatenation"
   remediation: "Use parameters collection"
@@ -2299,7 +2299,7 @@
 - id: asp-sql-injection-escape
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Replace.*?['\\.]'['\\.],\\.s*['\\.]['\\.]'
+    - regex: 'Replace.*?[''\\.]''[''\\.],\\.s*[''\\.][''\\.]'
   severity: high
   description: "Manual SQL escaping (often insufficient)"
   remediation: "Use parameterized queries instead"
@@ -2309,7 +2309,7 @@
 - id: asp-sql-injection-replace
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Replace.*?['\\.]['\\.]\\.&'
+    - regex: 'Replace.*?[''\\.][''\\.]\\.&'
   severity: high
   description: "SQL escaping with string concatenation"
   remediation: "Use parameters, not string escaping"
@@ -2593,7 +2593,7 @@
 - id: asp-debug-response-write
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Response\\..Write\\.s*\\.(\\.s*['\\.]DEBUG:'
+    - regex: 'Response\\..Write\\.s*\\.(\\.s*[''\\.]DEBUG:'
   severity: high
   description: "Debug information written to response"
   remediation: "Remove debug output in production"
@@ -2633,7 +2633,7 @@
 - id: asp-custom-error-page
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'customErrors\\.s+mode\\.s*=\\.s*['\\.]?On['\\.]?'
+    - regex: 'customErrors\\.s+mode\\.s*=\\.s*[''\\.]?On[''\\.]?'
   severity: low
   description: "Custom errors enabled (good)"
   remediation: "Set mode='RemoteOnly' or 'On'"
@@ -2643,7 +2643,7 @@
 - id: asp-custom-error-off
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'customErrors\\.s+mode\\.s*=\\.s*['\\.]?Off['\\.]?'
+    - regex: 'customErrors\\.s+mode\\.s*=\\.s*[''\\.]?Off[''\\.]?'
   severity: critical
   description: "Custom errors disabled (stack traces exposed)"
   remediation: "Set customErrors mode='On' or 'RemoteOnly'"
@@ -2653,7 +2653,7 @@
 - id: asp-default-error-page
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'defaultRedirect\\.s*=\\.s*['\\.][^'\\.]+['\\.]'
+    - regex: 'defaultRedirect\\.s*=\\.s*[''\\.][^''\\.]+[''\\.]'
   severity: low
   description: "Default error page configured"
   remediation: "Ensure error page doesn't leak info"
@@ -2663,7 +2663,7 @@
 - id: asp-error-status-code
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Response\\..Status\\.s*=\\.s*['\\.]404|500'
+    - regex: 'Response\\..Status\\.s*=\\.s*[''\\.]404|500'
   severity: low
   description: "HTTP status code set"
   remediation: "Use appropriate error pages"
@@ -2673,7 +2673,7 @@
 - id: asp-debug-compilation
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'compilation\\.s+debug\\.s*=\\.s*['\\.]?true['\\.]?'
+    - regex: 'compilation\\.s+debug\\.s*=\\.s*[''\\.]?true[''\\.]?'
   severity: high
   description: "Debug compilation enabled"
   remediation: "Set debug='false' in production"
@@ -2683,7 +2683,7 @@
 - id: asp-batch-compilation
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'batch\\.s*=\\.s*['\\.]?false['\\.]?'
+    - regex: 'batch\\.s*=\\.s*[''\\.]?false[''\\.]?'
   severity: low
   description: "Batch compilation disabled (slower)"
   remediation: "Enable batch for production"
@@ -2693,7 +2693,7 @@
 - id: asp-optimize-compilation
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'optimizeCompilations\\.s*=\\.s*['\\.]?true['\\.]?'
+    - regex: 'optimizeCompilations\\.s*=\\.s*[''\\.]?true[''\\.]?'
   severity: low
   description: "Optimize compilations enabled"
   remediation: "Good for performance"
@@ -2703,7 +2703,7 @@
 - id: asp-debugging-enabled
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'debugging\\.s*=\\.s*['\\.]?true['\\.]?'
+    - regex: 'debugging\\.s*=\\.s*[''\\.]?true[''\\.]?'
   severity: high
   description: "ASP debugging enabled"
   remediation: "Disable debugging in production"
@@ -2735,7 +2735,7 @@
 - id: asp-auth-hardcoded-credentials
   languages: [asp, vbscript]
   patterns:
-    - regex: 'If\\.s+username\\.s*=\\.s*['\\.][^'\\.]+['\\.]\\.s+And\\.s+password\\.s*=\\.s*['\\.][^'\\.]+'
+    - regex: 'If\\.s+username\\.s*=\\.s*[''\\.][^''\\.]+[''\\.]\\.s+And\\.s+password\\.s*=\\.s*[''\\.][^''\\.]+'
   severity: critical
   description: "Hardcoded credentials in code"
   remediation: "Use membership provider or database"
@@ -2765,7 +2765,7 @@
 - id: asp-auth-role-check
   languages: [asp, vbscript]
   patterns:
-    - regex: 'Session\\.(['\\.]role['\\.]\\.s*=\\.s*['\\.]admin['\\.]'
+    - regex: 'Session\\.([''\\.]role[''\\.]\\.s*=\\.s*[''\\.]admin[''\\.]'
   severity: high
   description: "Role check from session"
   remediation: "Ensure roles are properly assigned"
@@ -2775,7 +2775,7 @@
 - id: asp-auth-admin-check
   languages: [asp, vbscript]
   patterns:
-    - regex: 'If\\.s+Session\\.(['\\.]isAdmin['\\.]\\.s*=\\.s*true'
+    - regex: 'If\\.s+Session\\.([''\\.]isAdmin[''\\.]\\.s*=\\.s*true'
   severity: high
   description: "Admin check from session"
   remediation: "Re-validate admin status on each request"
@@ -2937,7 +2937,7 @@
 - id: asp-config-tracing-enabled
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'trace\\.s+enabled\\.s*=\\.s*['\\.]?true['\\.]?'
+    - regex: 'trace\\.s+enabled\\.s*=\\.s*[''\\.]?true[''\\.]?'
   severity: high
   description: "Tracing enabled (information leak)"
   remediation: "Disable tracing in production"
@@ -2947,7 +2947,7 @@
 - id: asp-config-debug-enabled
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'debug\\.s*=\\.s*['\\.]?true['\\.]?'
+    - regex: 'debug\\.s*=\\.s*[''\\.]?true[''\\.]?'
   severity: high
   description: "Debug mode enabled"
   remediation: "Disable debug in production"
@@ -2957,7 +2957,7 @@
 - id: asp-config-session-timeout
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'timeout\\.s*=\\.s*['\\.]?[0-9]+['\\.]?'
+    - regex: 'timeout\\.s*=\\.s*[''\\.]?[0-9]+[''\\.]?'
   severity: medium
   description: "Session timeout configured"
   remediation: "Set to 20 minutes or less"
@@ -2997,7 +2997,7 @@
 - id: asp-config-enable-viewstate-encryption
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'viewStateEncryptionMode\\.s*=\\.s*['\\.]?Never['\\.]?'
+    - regex: 'viewStateEncryptionMode\\.s*=\\.s*[''\\.]?Never[''\\.]?'
   severity: high
   description: "ViewState encryption disabled"
   remediation: "Enable ViewState encryption"
@@ -3007,7 +3007,7 @@
 - id: asp-config-max-request-length
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'maxRequestLength\\.s*=\\.s*['\\.]?[0-9]{5,}['\\.]?'
+    - regex: 'maxRequestLength\\.s*=\\.s*[''\\.]?[0-9]{5,}[''\\.]?'
   severity: medium
   description: "Large maxRequestLength (DoS risk)"
   remediation: "Set reasonable request size limits"
@@ -3017,7 +3017,7 @@
 - id: asp-config-execution-timeout
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'executionTimeout\\.s*=\\.s*['\\.]?[0-9]{5,}['\\.]?'
+    - regex: 'executionTimeout\\.s*=\\.s*[''\\.]?[0-9]{5,}[''\\.]?'
   severity: medium
   description: "Long execution timeout (DoS risk)"
   remediation: "Set reasonable timeout (90-300 seconds)"
@@ -3027,7 +3027,7 @@
 - id: asp-config-custom-errors
   languages: [asp, vbscript, config]
   patterns:
-    - regex: 'customErrors\\.s+mode\\.s*=\\.s*['\\.]?Off['\\.]?'
+    - regex: 'customErrors\\.s+mode\\.s*=\\.s*[''\\.]?Off[''\\.]?'
   severity: critical
   description: "Custom errors disabled"
   remediation: "Enable custom errors"

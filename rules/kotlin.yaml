@@ -1,7 +1,7 @@
 - id: kotlin-hardcoded-password
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*['\\.][^'\\.]{8,}['\\.]'
+    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*[''\\.][^''\\.]{8,}[''\\.]'
   severity: high
   description: "Hardcoded password detected in Kotlin source code"
   remediation: "Use environment variables or Android Keystore for sensitive credentials"
@@ -9,7 +9,7 @@
 - id: kotlin-hardcoded-api-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*['\\.][a-zA-Z0-9]{16,}['\\.]'
+    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*[''\\.][a-zA-Z0-9]{16,}[''\\.]'
   severity: high
   description: "Hardcoded API key detected in Kotlin source code"
   remediation: "Store API keys in encrypted SharedPreferences or use a secrets manager"
@@ -18,7 +18,7 @@
 - id: kotlin-sql-injection
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(execSQL|rawQuery)\\.s*\\.(\\.s*['\\.].*\\.+.*['\\.]'
+    - regex: '(?i)(execSQL|rawQuery)\\.s*\\.(\\.s*[''\\.].*\\.+.*[''\\.]'
   severity: critical
   description: "Potential SQL injection via string concatenation"
   remediation: "Use parameterized queries with ? placeholders in SQLite"
@@ -27,7 +27,7 @@
 - id: kotlin-command-injection
   languages: [kotlin]
   patterns:
-    - regex: 'Runtime\\..getRuntime\\.(\\.)\\..exec\\.s*\\.(\\.s*['\\.].*\\.+.*['\\.]'
+    - regex: 'Runtime\\..getRuntime\\.(\\.)\\..exec\\.s*\\.(\\.s*[''\\.].*\\.+.*[''\\.]'
   severity: critical
   description: "Potential command injection via Runtime.exec"
   remediation: "Avoid executing shell commands. If necessary, validate all inputs"
@@ -45,7 +45,7 @@
 - id: kotlin-weak-crypto-md5
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(MessageDigest\\..getInstance\\.s*\\.(\\.s*['\\.]MD5['\\.])|(Cipher\\..getInstance\\.s*\\.(\\.s*['\\.]DES['\\.])'
+    - regex: '(?i)(MessageDigest\\..getInstance\\.s*\\.(\\.s*[''\\.]MD5[''\\.])|(Cipher\\..getInstance\\.s*\\.(\\.s*[''\\.]DES[''\\.])'
   severity: medium
   description: "Use of weak cryptographic hash function (MD5) or cipher (DES)"
   remediation: "Use SHA-256 or SHA-512. For passwords, use bcrypt or Argon2"
@@ -81,7 +81,7 @@
 - id: kotlin-hardcoded-encryption-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*['\\.][a-zA-Z0-9+/=]{16,}['\\.]'
+    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*[''\\.][a-zA-Z0-9+/=]{16,}[''\\.]'
   severity: medium
   description: "Hardcoded encryption key or IV detected"
   remediation: "Use Android Keystore for key generation and storage"
@@ -99,7 +99,7 @@
 - id: kotlin-exported-component
   languages: [kotlin]
   patterns:
-    - regex: '(?i)android:exported\\.s*=\\.s*['\\.]true['\\.]'
+    - regex: '(?i)android:exported\\.s*=\\.s*[''\\.]true[''\\.]'
   severity: medium
   description: "Android component exported without permission protection"
   remediation: "Set exported=false or add permission requirements for exported components"

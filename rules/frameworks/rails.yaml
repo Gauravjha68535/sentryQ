@@ -1240,7 +1240,7 @@
 - id: rails-config-secret-key-base-short
   languages: [ruby]
   patterns:
-    - regex: 'secret_key_base\\s*=\\s*['\"][a-zA-Z0-9]{8,32}['\"]'
+    - regex: 'secret_key_base\\s*=\\s*[''\"][a-zA-Z0-9]{8,32}[''\"]'
   severity: high
   description: "Weak secret_key_base"
   remediation: "Use 64+ character secret"
@@ -1340,7 +1340,7 @@
 - id: rails-config-active-storage-service
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.service\\s*=\\s*[:']local[:']'
+    - regex: 'config\\.active_storage\\.service\\s*=\\s*[:'']local[:'']'
   severity: low
   description: "Active Storage using local service"
   remediation: "Consider cloud storage for production"

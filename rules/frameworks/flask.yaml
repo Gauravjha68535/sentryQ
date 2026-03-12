@@ -37,7 +37,7 @@
 - id: flask-sqlalchemy-filter-interpolation
   languages: [python]
   patterns:
-    - regex: '(?i)\\.filter\\s*\\(.*f['\"].*\\{.*\\}'
+    - regex: '(?i)\\.filter\\s*\\(.*f[''\"].*\\{.*\\}'
   severity: critical
   description: "SQL injection via SQLAlchemy filter with f-string"
   remediation: "Use parameterized queries: Model.query.filter_by(id=user_id)"
@@ -67,7 +67,7 @@
 - id: flask-sqlalchemy-from-statement
   languages: [python]
   patterns:
-    - regex: '(?i)\\.from_statement\\s*\\(.*f['\"].*\\{'
+    - regex: '(?i)\\.from_statement\\s*\\(.*f[''\"].*\\{'
   severity: critical
   description: "SQL injection via from_statement with f-string"
   remediation: "Use parameterized queries"
@@ -77,7 +77,7 @@
 - id: flask-sqlalchemy-text-interpolation
   languages: [python]
   patterns:
-    - regex: '(?i)text\\s*\\(\\s*f['\"].*\\{'
+    - regex: '(?i)text\\s*\\(\\s*f[''\"].*\\{'
   severity: critical
   description: "SQL injection via text() with f-string"
   remediation: "Use bind parameters: text('SELECT * WHERE id = :id')"
@@ -97,7 +97,7 @@
 - id: flask-sqlalchemy-execute-interpolation
   languages: [python]
   patterns:
-    - regex: '(?i)db\\.session\\.execute\\s*\\(.*f['\"].*\\{'
+    - regex: '(?i)db\\.session\\.execute\\s*\\(.*f[''\"].*\\{'
   severity: critical
   description: "SQL injection via execute with f-string"
   remediation: "Use parameterized queries"
@@ -127,7 +127,7 @@
 - id: flask-sqlalchemy-having-interpolation
   languages: [python]
   patterns:
-    - regex: '(?i)\\.having\\s*\\(.*f['\"].*\\{'
+    - regex: '(?i)\\.having\\s*\\(.*f[''\"].*\\{'
   severity: critical
   description: "SQL injection via having with f-string"
   remediation: "Use parameterized queries"
@@ -167,7 +167,7 @@
 - id: flask-sqlalchemy-from-self
   languages: [python]
   patterns:
-    - regex: '(?i)\\.from_self\\s*\\(.*f['\"].*\\{'
+    - regex: '(?i)\\.from_self\\s*\\(.*f[''\"].*\\{'
   severity: critical
   description: "SQL injection via from_self with f-string"
   remediation: "Use parameterized queries"
@@ -177,7 +177,7 @@
 - id: flask-sqlalchemy-scalar-subquery
   languages: [python]
   patterns:
-    - regex: '(?i)\\.scalar_subquery\\s*\\(.*f['\"].*\\{'
+    - regex: '(?i)\\.scalar_subquery\\s*\\(.*f[''\"].*\\{'
   severity: critical
   description: "SQL injection via scalar_subquery"
   remediation: "Use parameterized queries"
@@ -238,7 +238,7 @@
 - id: flask-response-html-content-type
   languages: [python]
   patterns:
-    - regex: '(?i)Response\\s*\\(.*content_type\\s*=\\s*['\"]text/html['\"].*request'
+    - regex: '(?i)Response\\s*\\(.*content_type\\s*=\\s*[''\"]text/html[''\"].*request'
   severity: high
   description: "HTML response with user input"
   remediation: "Use JSON or escape HTML"
@@ -248,7 +248,7 @@
 - id: flask-make-response-html
   languages: [python]
   patterns:
-    - regex: '(?i)make_response\\s*\\(.*request.*'text/html''
+    - regex: '(?i)make_response\\s*\\(.*request.*''text/html'''
   severity: high
   description: "make_response with HTML content type"
   remediation: "Use JSON or escape HTML"
@@ -369,7 +369,7 @@
 - id: flask-csrf-token-not-in-form
   languages: [python]
   patterns:
-    - regex: '(?i)<form.*method=['\"]POST['\"](?!.*csrf_token)'
+    - regex: '(?i)<form.*method=[''\"]POST[''\"](?!.*csrf_token)'
   severity: high
   description: "POST form without CSRF token"
   remediation: "Add {{ csrf_token() }} to forms"
@@ -379,7 +379,7 @@
 - id: flask-csrf-token-ajax-missing
   languages: [python]
   patterns:
-    - regex: '(?i)\\$.ajax\\s*\\(.*type:\\s*['\"]POST['\"](?!.*X-CSRFToken)'
+    - regex: '(?i)\\$.ajax\\s*\\(.*type:\\s*[''\"]POST[''\"](?!.*X-CSRFToken)'
   severity: high
   description: "AJAX POST without CSRF token"
   remediation: "Include CSRF token in AJAX headers"
@@ -429,7 +429,7 @@
 - id: flask-csrf-field-name-custom
   languages: [python]
   patterns:
-    - regex: '(?i)WTF_CSRF_FIELD_NAME\\s*=\\s*['\"]'
+    - regex: '(?i)WTF_CSRF_FIELD_NAME\\s*=\\s*[''\"]'
   severity: low
   description: "Custom CSRF field name"
   remediation: "Ensure consistency across forms"
@@ -469,7 +469,7 @@
 - id: flask-csrf-field-class-custom
   languages: [python]
   patterns:
-    - regex: '(?i)WTF_CSRF_FIELD_CLASS\\s*=\\s*['\"]'
+    - regex: '(?i)WTF_CSRF_FIELD_CLASS\\s*=\\s*[''\"]'
   severity: low
   description: "Custom CSRF field class"
   remediation: "Ensure proper CSRF field rendering"
@@ -530,7 +530,7 @@
 - id: flask-login-next-param-unsafe
   languages: [python]
   patterns:
-    - regex: '(?i)next\\s*=\\s*request\\.args\\.get\\s*\\(\\s*['\"]next['\"]'
+    - regex: '(?i)next\\s*=\\s*request\\.args\\.get\\s*\\(\\s*[''\"]next[''\"]'
   severity: high
   description: "Next parameter from request"
   remediation: "Validate next parameter"
@@ -560,7 +560,7 @@
 - id: flask-login-session-protection-basic
   languages: [python]
   patterns:
-    - regex: '(?i)session_protection\\s*=\\s*['\"]basic['\"]'
+    - regex: '(?i)session_protection\\s*=\\s*[''\"]basic[''\"]'
   severity: medium
   description: "Session protection set to basic"
   remediation: "Use strong session protection"
@@ -570,7 +570,7 @@
 - id: flask-login-remember-cookie-name-default
   languages: [python]
   patterns:
-    - regex: '(?i)remember_cookie_name\\s*=\\s*['\"]remember_token['\"]'
+    - regex: '(?i)remember_cookie_name\\s*=\\s*[''\"]remember_token[''\"]'
   severity: low
   description: "Default remember cookie name"
   remediation: "Use custom cookie name"
@@ -580,7 +580,7 @@
 - id: flask-login-session-cookie-name-default
   languages: [python]
   patterns:
-    - regex: '(?i)session_cookie_name\\s*=\\s*['\"]session['\"]'
+    - regex: '(?i)session_cookie_name\\s*=\\s*[''\"]session[''\"]'
   severity: low
   description: "Default session cookie name"
   remediation: "Use custom session cookie name"
@@ -590,7 +590,7 @@
 - id: flask-login-id-cookie-name-default
   languages: [python]
   patterns:
-    - regex: '(?i)id_cookie_name\\s*=\\s*['\"]user_id['\"]'
+    - regex: '(?i)id_cookie_name\\s*=\\s*[''\"]user_id[''\"]'
   severity: low
   description: "Default ID cookie name"
   remediation: "Use custom ID cookie name"
@@ -641,7 +641,7 @@
 - id: flask-session-secret-key-weak
   languages: [python]
   patterns:
-    - regex: '(?i)SECRET_KEY\\s*=\\s*['\"][a-zA-Z0-9]{8,16}['\"]'
+    - regex: '(?i)SECRET_KEY\\s*=\\s*[''\"][a-zA-Z0-9]{8,16}[''\"]'
   severity: high
   description: "Weak session secret key"
   remediation: "Use strong random secret key"
@@ -651,7 +651,7 @@
 - id: flask-session-secret-key-hardcoded
   languages: [python]
   patterns:
-    - regex: '(?i)SECRET_KEY\\s*=\\s*['\"][^'\"]{16,}['\"]'
+    - regex: '(?i)SECRET_KEY\\s*=\\s*[''\"][^''\"]{16,}[''\"]'
   severity: high
   description: "Hardcoded session secret key"
   remediation: "Use environment variable for SECRET_KEY"
@@ -681,7 +681,7 @@
 - id: flask-session-cookie-samesite-none
   languages: [python]
   patterns:
-    - regex: '(?i)SESSION_COOKIE_SAMESITE\\s*=\\s*['\"]None['\"]'
+    - regex: '(?i)SESSION_COOKIE_SAMESITE\\s*=\\s*[''\"]None[''\"]'
   severity: medium
   description: "Session cookie SameSite set to None"
   remediation: "Use SameSite=Lax or Strict"
@@ -691,7 +691,7 @@
 - id: flask-session-cookie-path-root
   languages: [python]
   patterns:
-    - regex: '(?i)SESSION_COOKIE_PATH\\s*=\\s*['\"]/['\"]'
+    - regex: '(?i)SESSION_COOKIE_PATH\\s*=\\s*[''\"]/[''\"]'
   severity: low
   description: "Session cookie path set to root"
   remediation: "Restrict cookie path"
@@ -701,7 +701,7 @@
 - id: flask-session-cookie-domain-wildcard
   languages: [python]
   patterns:
-    - regex: '(?i)SESSION_COOKIE_DOMAIN\\s*=\\s*['\"]\\.'
+    - regex: '(?i)SESSION_COOKIE_DOMAIN\\s*=\\s*[''\"]\\.'
   severity: medium
   description: "Session cookie domain wildcard"
   remediation: "Set specific domain"
@@ -731,7 +731,7 @@
 - id: flask-session-type-default
   languages: [python]
   patterns:
-    - regex: '(?i)SESSION_TYPE\\s*=\\s*['\"]filesystem['\"]'
+    - regex: '(?i)SESSION_TYPE\\s*=\\s*[''\"]filesystem[''\"]'
   severity: low
   description: "Session type set to filesystem"
   remediation: "Use Redis or database session"
@@ -862,7 +862,7 @@
 - id: flask-file-write-user-path
   languages: [python]
   patterns:
-    - regex: '(?i)open\\s*\\(.*'w'.*request'
+    - regex: '(?i)open\\s*\\(.*''w''.*request'
   severity: high
   description: "File write with user-controlled path"
   remediation: "Validate file paths"
@@ -943,7 +943,7 @@
 - id: flask-config-debug-true
   languages: [python]
   patterns:
-    - regex: '(?i)app\\.config\\s*\\[\\s*['\"]DEBUG['\"]\\s*\\]\\s*=\\s*True'
+    - regex: '(?i)app\\.config\\s*\\[\\s*[''\"]DEBUG[''\"]\\s*\\]\\s*=\\s*True'
   severity: high
   description: "Debug mode enabled in config"
   remediation: "Set DEBUG = False in production"
@@ -953,7 +953,7 @@
 - id: flask-config-secret-key-default
   languages: [python]
   patterns:
-    - regex: '(?i)SECRET_KEY\\s*=\\s*['\"]dev['\"]|SECRET_KEY\\s*=\\s*['\"]test['\"]'
+    - regex: '(?i)SECRET_KEY\\s*=\\s*[''\"]dev[''\"]|SECRET_KEY\\s*=\\s*[''\"]test[''\"]'
   severity: high
   description: "Default development secret key"
   remediation: "Use strong random secret key"
@@ -963,7 +963,7 @@
 - id: flask-config-session-cookie-name-default
   languages: [python]
   patterns:
-    - regex: '(?i)SESSION_COOKIE_NAME\\s*=\\s*['\"]session['\"]'
+    - regex: '(?i)SESSION_COOKIE_NAME\\s*=\\s*[''\"]session[''\"]'
   severity: low
   description: "Default session cookie name"
   remediation: "Use custom session cookie name"
@@ -1003,7 +1003,7 @@
 - id: flask-config-upload-folder-default
   languages: [python]
   patterns:
-    - regex: '(?i)UPLOAD_FOLDER\\s*=\\s*['\"]uploads['\"]'
+    - regex: '(?i)UPLOAD_FOLDER\\s*=\\s*[''\"]uploads[''\"]'
   severity: low
   description: "Default upload folder"
   remediation: "Use secure upload folder"
@@ -1174,7 +1174,7 @@
 - id: flask-middleware-cache-type-default
   languages: [python]
   patterns:
-    - regex: '(?i)CACHE_TYPE\\s*=\\s*['\"]simple['\"]'
+    - regex: '(?i)CACHE_TYPE\\s*=\\s*[''\"]simple[''\"]'
   severity: low
   description: "Cache type set to simple"
   remediation: "Use Redis or Memcached"
@@ -1204,7 +1204,7 @@
 - id: flask-middleware-cache-key-prefix
   languages: [python]
   patterns:
-    - regex: '(?i)CACHE_KEY_PREFIX\\s*=\\s*['\"]'
+    - regex: '(?i)CACHE_KEY_PREFIX\\s*=\\s*[''\"]'
   severity: low
   description: "Cache key prefix"
   remediation: "Set cache key prefix"
@@ -1245,7 +1245,7 @@
 - id: flask-route-methods-all
   languages: [python]
   patterns:
-    - regex: '(?i)@app\\.route\\s*\\(.*methods\\s*=\\s*\\[.*'GET'.*'POST'.*'PUT'.*'DELETE''
+    - regex: '(?i)@app\\.route\\s*\\(.*methods\\s*=\\s*\\[.*''GET''.*''POST''.*''PUT''.*''DELETE'''
   severity: medium
   description: "Route accepting all HTTP methods"
   remediation: "Specify only needed methods"

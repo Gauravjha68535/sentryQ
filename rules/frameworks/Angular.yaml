@@ -844,7 +844,7 @@
 - id: angular-router-config-children-route-path
   languages: [typescript, typescript]
   patterns:
-    - regex: 'path\\s*:\\s*['\"]'
+    - regex: 'path\\s*:\\s*[''\"]'
   severity: low
   description: "Route path"
   remediation: "Configure path"
@@ -874,7 +874,7 @@
 - id: angular-router-config-children-route-children-path
   languages: [typescript, typescript]
   patterns:
-    - regex: 'path\\s*:\\s*['\"]'
+    - regex: 'path\\s*:\\s*[''\"]'
   severity: low
   description: "Route path"
   remediation: "Configure path"
@@ -904,7 +904,7 @@
 - id: angular-router-config-children-route-children-children-path
   languages: [typescript, typescript]
   patterns:
-    - regex: 'path\\s*:\\s*['\"]'
+    - regex: 'path\\s*:\\s*[''\"]'
   severity: low
   description: "Route path"
   remediation: "Configure path"
@@ -934,7 +934,7 @@
 - id: angular-router-config-children-route-children-children-children-path
   languages: [typescript, typescript]
   patterns:
-    - regex: 'path\\s*:\\s*['\"]'
+    - regex: 'path\\s*:\\s*[''\"]'
   severity: low
   description: "Route path"
   remediation: "Configure path"
@@ -964,7 +964,7 @@
 - id: angular-router-config-children-route-children-children-children-children-path
   languages: [typescript, typescript]
   patterns:
-    - regex: 'path\\s*:\\s*['\"]'
+    - regex: 'path\\s*:\\s*[''\"]'
   severity: low
   description: "Route path"
   remediation: "Configure path"
@@ -994,7 +994,7 @@
 - id: angular-router-config-children-route-children-children-children-children-children-path
   languages: [typescript, typescript]
   patterns:
-    - regex: 'path\\s*:\\s*['\"]'
+    - regex: 'path\\s*:\\s*[''\"]'
   severity: low
   description: "Route path"
   remediation: "Configure path"
@@ -1085,7 +1085,7 @@
 - id: angular-forms-form-group-controls-control-value
   languages: [typescript, typescript]
   patterns:
-    - regex: 'FormControl\\s*\\(\\s*['\"]'
+    - regex: 'FormControl\\s*\\(\\s*[''\"]'
   severity: low
   description: "Form control value"
   remediation: "Configure value"

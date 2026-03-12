@@ -50,7 +50,7 @@
 - id: django-orm-raw-injection
   languages: [python]
   patterns:
-    - regex: '(?i)\\.raw\\s*\\(\\s*f['\"]'
+    - regex: '(?i)\\.raw\\s*\\(\\s*f[''\"]'
   severity: high
   description: "Django ORM raw() with f-string"
   remediation: "Use parameterized raw queries"
@@ -824,7 +824,7 @@
 - id: django-settings-secret-key
   languages: [python]
   patterns:
-    - regex: '(?i)SECRET_KEY\\s*=\\s*['\"]'
+    - regex: '(?i)SECRET_KEY\\s*=\\s*[''\"]'
   severity: critical
   description: "Django SECRET_KEY in code"
   remediation: "Use environment variable for SECRET_KEY"
@@ -834,7 +834,7 @@
 - id: django-settings-allowed-hosts
   languages: [python]
   patterns:
-    - regex: '(?i)ALLOWED_HOSTS\\s*=\\s*\\[\\s*['\"]\\*['\"]'
+    - regex: '(?i)ALLOWED_HOSTS\\s*=\\s*\\[\\s*[''\"]\\*[''\"]'
   severity: high
   description: "Django ALLOWED_HOSTS wildcard"
   remediation: "Specify explicit allowed hosts"

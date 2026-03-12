@@ -2217,7 +2217,7 @@
 - id: ruby-session-secret
   languages: [ruby]
   patterns:
-    - regex: 'secret_key_base.*['\"][a-zA-Z0-9]{1,32}['\"]'
+    - regex: 'secret_key_base.*[''\"][a-zA-Z0-9]{1,32}[''\"]'
   severity: high
   description: "Weak or hardcoded session secret"
   remediation: "Use environment variable with long random string."
@@ -2901,7 +2901,7 @@
 - id: ruby-web-console
   languages: [ruby]
   patterns:
-    - regex: 'gem ['\"]web-console['\"]|WebConsole'
+    - regex: 'gem [''\"]web-console[''\"]|WebConsole'
   severity: high
   description: "web-console gem in production - RCE risk"
   remediation: "Only include web-console in development group."
@@ -3215,7 +3215,7 @@
 - id: ruby-api-api-key-hardcoded
   languages: [ruby]
   patterns:
-    - regex: 'API_KEY = ['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'API_KEY = [''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Hardcoded API key in code"
   remediation: "Use environment variables for API keys."
@@ -3417,7 +3417,7 @@
 - id: ruby-gemfile-source
   languages: [ruby]
   patterns:
-    - regex: 'source ['\"]http://rubygems.org['\"]'
+    - regex: 'source [''\"]http://rubygems.org[''\"]'
   severity: high
   description: "Gem source over HTTP - MITM risk"
   remediation: "Use HTTPS: https://rubygems.org"

@@ -1,7 +1,7 @@
 - id: swift-hardcoded-password
   languages: [swift]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*['\\.][^'\\.]{8,}['\\.]'
+    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*[''\\.][^''\\.]{8,}[''\\.]'
   severity: high
   description: "Hardcoded password detected in Swift source code"
   remediation: "Use Keychain or environment variables for sensitive credentials"
@@ -9,7 +9,7 @@
 - id: swift-hardcoded-api-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*['\\.][a-zA-Z0-9]{16,}['\\.]'
+    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*[''\\.][a-zA-Z0-9]{16,}[''\\.]'
   severity: high
   description: "Hardcoded API key detected in Swift source code"
   remediation: "Store API keys in Keychain or use a secure configuration system"
@@ -36,7 +36,7 @@
 - id: swift-insecure-http
   languages: [swift]
   patterns:
-    - regex: 'http://[^'\\.\\.s]+'
+    - regex: 'http://[^''\\.\\.s]+'
   severity: low
   description: "Insecure HTTP URL detected (should use HTTPS)"
   remediation: "Use HTTPS for all network requests to ensure encryption in transit"
@@ -54,7 +54,7 @@
 - id: swift-code-injection
   languages: [swift]
   patterns:
-    - regex: 'NSPredicate\\.s*\\.(format:\\.s*['\\.].*%@.*['\\.]'
+    - regex: 'NSPredicate\\.s*\\.(format:\\.s*[''\\.].*%@.*[''\\.]'
   severity: medium
   description: "Potential code injection via NSPredicate format string"
   remediation: "Use parameterized NSPredicate with %K for key names and %? for values"
@@ -72,7 +72,7 @@
 - id: swift-hardcoded-bundle-id
   languages: [swift]
   patterns:
-    - regex: 'Bundle\\..main\\..bundleIdentifier\\.s*==\\.s*['\\.][^'\\.]+['\\.]'
+    - regex: 'Bundle\\..main\\..bundleIdentifier\\.s*==\\.s*[''\\.][^''\\.]+[''\\.]'
   severity: low
   description: "Hardcoded bundle identifier comparison"
   remediation: "Use configuration files or environment variables for environment-specific values"
@@ -90,7 +90,7 @@
 - id: swift-biometric-bypass
   languages: [swift]
   patterns:
-    - regex: '(?i)LAContext\\..evaluatePolicy.*fallbackString\\.s*=\\.s*['\\.]skip['\\.]'
+    - regex: '(?i)LAContext\\..evaluatePolicy.*fallbackString\\.s*=\\.s*[''\\.]skip[''\\.]'
   severity: high
   description: "Biometric authentication can be bypassed with skip option"
   remediation: "Remove skip/fallback options from biometric authentication"
@@ -126,7 +126,7 @@
 - id: swift-hardcoded-encryption-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(key|iv|secret)\\.s*=\\.s*['\\.][a-zA-Z0-9+/=]{16,}['\\.]'
+    - regex: '(?i)(key|iv|secret)\\.s*=\\.s*[''\\.][a-zA-Z0-9+/=]{16,}[''\\.]'
   severity: critical
   description: "Hardcoded encryption key or IV detected"
   remediation: "Generate keys dynamically or store in Keychain/Secure Enclave"
@@ -162,7 +162,7 @@
 - id: swift-biometric-fallback-weak
   languages: [swift]
   patterns:
-    - regex: '(?i)localizedFallback\\.s*=\\.s*['\\.]Use Password['\\.]'
+    - regex: '(?i)localizedFallback\\.s*=\\.s*[''\\.]Use Password[''\\.]'
   severity: low
   description: "Biometric authentication has weak password fallback"
   remediation: "Use strong passcode fallback or require biometric for sensitive operations"

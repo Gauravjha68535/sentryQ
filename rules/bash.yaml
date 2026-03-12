@@ -11,7 +11,7 @@
 - id: bash-unquoted-variable
   languages: [bash]
   patterns:
-    - regex: '\\.$\\.{?[A-Za-z_][A-Za-z0-9_]*\\.}?(?=[^\\.'])'
+    - regex: '\\.$\\.{?[A-Za-z_][A-Za-z0-9_]*\\.}?(?=[^\\.''])'
   severity: medium
   description: "Unquoted variable expansion may cause word splitting and globbing"
   remediation: "Always quote variable expansions: \"$variable\" instead of $variable"
@@ -32,7 +32,7 @@
 - id: bash-hardcoded-password
   languages: [bash]
   patterns:
-    - regex: '(?i)(PASSWORD|PASSWD|DB_PASS|MYSQL_PASSWORD)\\.s*=\\.s*['\\.][^'\\.]{8,}['\\.]'
+    - regex: '(?i)(PASSWORD|PASSWD|DB_PASS|MYSQL_PASSWORD)\\.s*=\\.s*[''\\.][^''\\.]{8,}[''\\.]'
   severity: high
   description: "Hardcoded password in shell script"
   remediation: "Use environment variables, .env files with restricted permissions, or a secrets manager"
@@ -42,7 +42,7 @@
 - id: bash-hardcoded-api-key
   languages: [bash]
   patterns:
-    - regex: '(?i)(API_KEY|SECRET_KEY|ACCESS_TOKEN)\\.s*=\\.s*['\\.][a-zA-Z0-9]{16,}['\\.]'
+    - regex: '(?i)(API_KEY|SECRET_KEY|ACCESS_TOKEN)\\.s*=\\.s*[''\\.][a-zA-Z0-9]{16,}[''\\.]'
   severity: high
   description: "Hardcoded API key or token in shell script"
   remediation: "Pass secrets via environment variables or secrets manager"
@@ -52,7 +52,7 @@
 - id: bash-aws-credentials
   languages: [bash]
   patterns:
-    - regex: 'AKIA[0-9A-Z]{16}|(?i)AWS_SECRET_ACCESS_KEY\\.s*=\\.s*['\\.][^'\\.]+['\\.]'
+    - regex: 'AKIA[0-9A-Z]{16}|(?i)AWS_SECRET_ACCESS_KEY\\.s*=\\.s*[''\\.][^''\\.]+[''\\.]'
   severity: critical
   description: "AWS credentials detected in shell script"
   remediation: "Use IAM roles, AWS CLI profiles, or environment variables"
@@ -115,7 +115,7 @@
 - id: bash-sql-injection-cli
   languages: [bash]
   patterns:
-    - regex: '(?i)(mysql|psql|sqlite3)\\.s+.*-e\\.s+['\\.].*\\.$'
+    - regex: '(?i)(mysql|psql|sqlite3)\\.s+.*-e\\.s+[''\\.].*\\.$'
   severity: critical
   description: "SQL injection via variable interpolation in CLI database commands"
   remediation: "Use parameterized queries or properly escape variables"
@@ -209,7 +209,7 @@
 - id: bash-awk-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)awk\\.s+'[^']*\\.$\\.{'
+    - regex: '(?i)awk\\.s+''[^'']*\\.$\\.{'
   severity: high
   description: "AWK command with variable interpolation may allow injection"
   remediation: "Pass variables via -v option: awk -v var=\"$value\""
@@ -219,7 +219,7 @@
 - id: bash-sed-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)sed\\.s+'[^']*\\.$[A-Za-z_]'
+    - regex: '(?i)sed\\.s+''[^'']*\\.$[A-Za-z_]'
   severity: high
   description: "SED command with variable interpolation may allow injection"
   remediation: "Use proper quoting and escape special characters"
@@ -299,7 +299,7 @@
 - id: bash-printf-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)printf\\.s+'[^']*\\.$\\.{'
+    - regex: '(?i)printf\\.s+''[^'']*\\.$\\.{'
   severity: medium
   description: "PRINTF with variable may allow format string injection"
   remediation: "Use printf '%s' \"$var\" instead of interpolation"
@@ -1349,7 +1349,7 @@
 - id: bash-globbing-star
   languages: [bash]
   patterns:
-    - regex: '\\.*\\.s+[^\\.']|\\.*\\.s*$'
+    - regex: '\\.*\\.s+[^\\.'']|\\.*\\.s*$'
   severity: medium
   description: "Unquoted * in command (may expand unexpectedly)"
   remediation: "Quote glob patterns: \"*\" or use set -f"
@@ -1359,7 +1359,7 @@
 - id: bash-globbing-question
   languages: [bash]
   patterns:
-    - regex: '\\.?\\.s+[^\\.']|\\.?\\.s*$'
+    - regex: '\\.?\\.s+[^\\.'']|\\.?\\.s*$'
   severity: medium
   description: "Unquoted ? in command (may expand unexpectedly)"
   remediation: "Quote glob patterns: \"?\" or use set -f"
@@ -1369,7 +1369,7 @@
 - id: bash-globbing-brackets
   languages: [bash]
   patterns:
-    - regex: '\\.[[^\\.]]*\\.]\\.s+[^\\.']'
+    - regex: '\\.[[^\\.]]*\\.]\\.s+[^\\.'']'
   severity: medium
   description: "Unquoted character class in command (may expand)"
   remediation: "Quote glob patterns: \"[a-z]\""
@@ -1429,7 +1429,7 @@
 - id: bash-globbing-word-splitting
   languages: [bash]
   patterns:
-    - regex: 'IFS=\\.s*[^\\.n]*\\.s*\\.$|for\\.s+\\.w+\\.s+in\\.s+\\.$[^\\.']'
+    - regex: 'IFS=\\.s*[^\\.n]*\\.s*\\.$|for\\.s+\\.w+\\.s+in\\.s+\\.$[^\\.'']'
   severity: high
   description: "Word splitting vulnerability (IFS changed or unquoted)"
   remediation: "Quote variables: \"$var\", reset IFS after use"
@@ -1531,7 +1531,7 @@
 - id: bash-word-splitting-unquoted-var
   languages: [bash]
   patterns:
-    - regex: '[^\\.']\\.$[a-zA-Z_][a-zA-Z0-9_]*[^\\.']'
+    - regex: '[^\\.'']\\.$[a-zA-Z_][a-zA-Z0-9_]*[^\\.'']'
   severity: high
   description: "Unquoted variable expansion (word splitting risk)"
   remediation: "Always quote: \"$var\""
@@ -1551,7 +1551,7 @@
 - id: bash-word-splitting-command-substitution
   languages: [bash]
   patterns:
-    - regex: '[^\\.']\\.$\\.([^)]+\\.)[^\\.']'
+    - regex: '[^\\.'']\\.$\\.([^)]+\\.)[^\\.'']'
   severity: high
   description: "Unquoted command substitution (word splitting)"
   remediation: "Quote command substitution: \"$(command)\""
@@ -1631,7 +1631,7 @@
 - id: bash-word-splitting-printf-format
   languages: [bash]
   patterns:
-    - regex: 'printf\\.s+[^\\.']*\\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'printf\\.s+[^\\.'']*\\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: high
   description: "printf format string with variable (format injection)"
   remediation: "Use printf '%s' \"$var\" instead of interpolating"
@@ -1641,7 +1641,7 @@
 - id: bash-word-splitting-printf-variable
   languages: [bash]
   patterns:
-    - regex: 'printf\\.s+['\\.][^'\\.]*['\\.]\\.s+\\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'printf\\.s+[''\\.][^''\\.]*[''\\.]\\.s+\\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "printf with variable as argument (good)"
   remediation: "Good practice"
@@ -1651,7 +1651,7 @@
 - id: bash-word-splitting-echo
   languages: [bash]
   patterns:
-    - regex: 'echo\\.s+[^-][^\\.']*\\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'echo\\.s+[^-][^\\.'']*\\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "echo with unquoted variable (may interpret options)"
   remediation: "Use printf '%s\n' \"$var\" instead of echo"
@@ -1681,7 +1681,7 @@
 - id: bash-word-splitting-test-operator
   languages: [bash]
   patterns:
-    - regex: '\\.[\\.s+[^\\.']*\\.$[a-zA-Z_][a-zA-Z0-9_]*[^\\.']*\\.s+'
+    - regex: '\\.[\\.s+[^\\.'']*\\.$[a-zA-Z_][a-zA-Z0-9_]*[^\\.'']*\\.s+'
   severity: critical
   description: "Test with unquoted variable (word splitting)"
   remediation: "Always quote variables in [ ] tests"
@@ -1905,7 +1905,7 @@
 - id: bash-source-relative
   languages: [bash]
   patterns:
-    - regex: 'source\\.s+[\\.']?\\..\\./[\\.']?'
+    - regex: 'source\\.s+[\\.'']?\\..\\./[\\.'']?'
   severity: medium
   description: "Sourcing relative path (depends on current directory)"
   remediation: "Use absolute paths: source \"$(dirname \"$0\")/file.sh\""
@@ -1915,7 +1915,7 @@
 - id: bash-source-absolute
   languages: [bash]
   patterns:
-    - regex: 'source\\.s+[\\.']?\\./[\\.']?[^\\.']+'
+    - regex: 'source\\.s+[\\.'']?\\./[\\.'']?[^\\.'']+'
   severity: low
   description: "Sourcing absolute path (safer)"
   remediation: "Good practice"
@@ -2127,7 +2127,7 @@
 - id: bash-eval-trap
   languages: [bash]
   patterns:
-    - regex: 'trap\\.s+['\\.]eval'
+    - regex: 'trap\\.s+[''\\.]eval'
   severity: critical
   description: "eval in trap handler (dangerous)"
   remediation: "Use functions in trap, not eval"
@@ -2329,7 +2329,7 @@
 - id: bash-trap-ignore
   languages: [bash]
   patterns:
-    - regex: 'trap\\.s+['\\.]\\.s*['\\.]\\.s+SIG|trap\\.s+['\\.]\\.s*['\\.]\\.s+INT'
+    - regex: 'trap\\.s+[''\\.]\\.s*[''\\.]\\.s+SIG|trap\\.s+[''\\.]\\.s*[''\\.]\\.s+INT'
   severity: high
   description: "Ignoring signals (may prevent cleanup)"
   remediation: "Handle signals properly, don't ignore"

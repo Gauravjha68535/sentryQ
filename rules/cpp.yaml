@@ -80,7 +80,7 @@
 - id: cpp-hardcoded-api-key
   languages: [cpp]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*['\"][a-zA-Z0-9]{16,}['\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*[''\"][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "Hardcoded API key detected in C++ source code"
   remediation: "Use environment variables or secure credential storage"
@@ -658,7 +658,7 @@
 - id: cpp-throw-string
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s+['\"]'
+    - regex: 'throw\\s+[''\"]'
   severity: medium
   description: "Throwing string literal"
   remediation: "Throw std::exception derivatives"

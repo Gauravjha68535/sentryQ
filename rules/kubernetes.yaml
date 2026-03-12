@@ -141,7 +141,7 @@
 - id: k8s-secrets-in-env
   languages: [yaml]
   patterns:
-    - regex: '(?i)value:\\s*['\"][^'\"]{8,}['\"].*password|value:\\s*['\"][^'\"]{8,}['\"].*secret'
+    - regex: '(?i)value:\\s*[''\"][^''\"]{8,}[''\"].*password|value:\\s*[''\"][^''\"]{8,}[''\"].*secret'
   severity: high
   description: "Secrets hardcoded in environment variables"
   remediation: "Use secretKeyRef to reference Kubernetes Secrets"
@@ -218,7 +218,7 @@
 - id: k8s-rbac-wildcard-resources
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:\\s*\\[\\s*['\"]\\*['\"]'
+    - regex: '(?i)resources:\\s*\\[\\s*[''\"]\\*[''\"]'
   severity: high
   description: "RBAC wildcard resources"
   remediation: "Specify explicit resources"
@@ -228,7 +228,7 @@
 - id: k8s-rbac-wildcard-verbs
   languages: [yaml]
   patterns:
-    - regex: '(?i)verbs:\\s*\\[\\s*['\"]\\*['\"]'
+    - regex: '(?i)verbs:\\s*\\[\\s*[''\"]\\*[''\"]'
   severity: high
   description: "RBAC wildcard verbs"
   remediation: "Specify explicit verbs"
@@ -238,7 +238,7 @@
 - id: k8s-rbac-wildcard-apigroups
   languages: [yaml]
   patterns:
-    - regex: '(?i)apiGroups:\\s*\\[\\s*['\"]\\*['\"]'
+    - regex: '(?i)apiGroups:\\s*\\[\\s*[''\"]\\*[''\"]'
   severity: high
   description: "RBAC wildcard API groups"
   remediation: "Specify explicit API groups"

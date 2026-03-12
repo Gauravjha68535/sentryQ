@@ -13,6 +13,18 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 	pdf := gofpdf.New("L", "mm", "A4", "")
 	pdf.SetAutoPageBreak(true, 15)
 
+	// Simple deduplication
+	uniqueFindings := make([]Finding, 0)
+	seen := make(map[string]bool)
+	for _, f := range findings {
+		key := fmt.Sprintf("%s:%s:%s", f.FilePath, f.LineNumber, f.IssueName)
+		if !seen[key] {
+			seen[key] = true
+			uniqueFindings = append(uniqueFindings, f)
+		}
+	}
+	findings = uniqueFindings
+
 	// ——— Cover Page ———
 	pdf.AddPage()
 	pdf.SetFillColor(55, 48, 163) // Indigo

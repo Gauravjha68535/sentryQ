@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"time"
 )
@@ -98,6 +99,11 @@ func (cr *ComplianceReporter) GenerateComplianceReport(frameworkName string) (*C
 		Version:     framework.Version,
 		GeneratedAt: time.Now().Format(time.RFC3339),
 	}
+
+	// Sort controls by ID for deterministic output
+	sort.Slice(framework.Controls, func(i, j int) bool {
+		return framework.Controls[i].ID < framework.Controls[j].ID
+	})
 
 	totalControls := len(framework.Controls)
 	nonCompliantControls := 0

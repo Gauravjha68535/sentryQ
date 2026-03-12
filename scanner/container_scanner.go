@@ -207,7 +207,7 @@ func (cs *ContainerScanner) scanDockerfile(filePath string) ([]reporter.Finding,
 }
 
 func hasTrivy() bool {
-	_, err := exec.LookPath("trivy")
+	_, err := exec.LookPath(getTrivyBin())
 	return err == nil
 }
 

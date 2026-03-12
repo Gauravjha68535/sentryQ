@@ -8,7 +8,7 @@
 - id: fastapi-hardcoded-secret-key
   languages: [python]
   patterns:
-    - regex: '(?i)SECRET_KEY\\s*=\\s*['\"][^'\"]{8,}['\"]'
+    - regex: '(?i)SECRET_KEY\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
   severity: critical
   description: "Hardcoded secret key detected in FastAPI application"
   remediation: "Use environment variables via os.getenv('SECRET_KEY') or a secrets manager"
@@ -28,7 +28,7 @@
 - id: fastapi-cors-allow-all
   languages: [python]
   patterns:
-    - regex: 'allow_origins\\s*=\\s*\\[\\s*['\"]\\*['\"]\\s*\\]'
+    - regex: 'allow_origins\\s*=\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]'
   severity: high
   description: "CORS configured to allow all origins"
   remediation: "Restrict CORS to specific domains using allow_origins=[\"https://example.com\"]"
@@ -38,7 +38,7 @@
 - id: fastapi-sql-injection-raw-query
   languages: [python]
   patterns:
-    - regex: 'execute\\s*\\(\\s*['\"]\\s*(SELECT|INSERT|UPDATE|DELETE).*\\{.*\\}.*['\"]'
+    - regex: 'execute\\s*\\(\\s*[''\"]\\s*(SELECT|INSERT|UPDATE|DELETE).*\\{.*\\}.*[''\"]'
   severity: critical
   description: "Potential SQL injection with raw query using string formatting"
   remediation: "Use parameterized queries with SQLAlchemy or ORM"
@@ -58,7 +58,7 @@
 - id: fastapi-jwt-hardcoded-secret
   languages: [python]
   patterns:
-    - regex: 'JWT_SECRET_KEY\\s*=\\s*['\"][^'\"]{8,}['\"]|jwt.encode\\(.*,.*['\"][^'\"]{8,}['\"]'
+    - regex: 'JWT_SECRET_KEY\\s*=\\s*[''\"][^''\"]{8,}[''\"]|jwt.encode\\(.*,.*[''\"][^''\"]{8,}[''\"]'
   severity: critical
   description: "Hardcoded JWT secret key in FastAPI"
   remediation: "Use environment variables for JWT secrets and rotate regularly"
@@ -118,7 +118,7 @@
 - id: fastapi-path-traversal
   languages: [python]
   patterns:
-    - regex: 'open\\(.*\\+.*['\"]\\.\\.\\/|send_file\\(.*\\+.*['\"]\\.\\.\\/'
+    - regex: 'open\\(.*\\+.*[''\"]\\.\\.\\/|send_file\\(.*\\+.*[''\"]\\.\\.\\/'
   severity: high
   description: "Potential path traversal vulnerability"
   remediation: "Validate file paths and use os.path.basename to sanitize inputs"
@@ -138,7 +138,7 @@
 - id: fastapi-password-plaintext-storage
   languages: [python]
   patterns:
-    - regex: 'password\\s*=\\s*['\"][^'\"]+['\"]|user\\.password\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'password\\s*=\\s*[''\"][^''\"]+[''\"]|user\\.password\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Password stored in plaintext"
   remediation: "Use passlib or bcrypt to hash passwords before storage"
@@ -158,7 +158,7 @@
 - id: fastapi-sqlalchemy-raw-sql
   languages: [python]
   patterns:
-    - regex: 'session\\.execute\\(.*['\"]SELECT.*\\{.*\\}.*['\"]|text\\(.*\\+.*\\).*'
+    - regex: 'session\\.execute\\(.*[''\"]SELECT.*\\{.*\\}.*[''\"]|text\\(.*\\+.*\\).*'
   severity: high
   description: "Raw SQL execution with string concatenation"
   remediation: "Use SQLAlchemy ORM or parameterized queries with :param"
@@ -178,7 +178,7 @@
 - id: fastapi-wide-scope-permissions
   languages: [python]
   patterns:
-    - regex: 'scopes\\s*=\\s*\\[\\s*['\"]\\*['\"]\\s*\\]|permissions\\s*=\\s*\\[\\s*['\"]admin['\"]\\s*\\]'
+    - regex: 'scopes\\s*=\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]|permissions\\s*=\\s*\\[\\s*[''\"]admin[''\"]\\s*\\]'
   severity: high
   description: "Overly permissive authorization scopes"
   remediation: "Implement least privilege principle with specific scopes"
@@ -198,7 +198,7 @@
 - id: fastapi-openapi-exposed
   languages: [python]
   patterns:
-    - regex: 'openapi_url\\s*=\\s*['\"]\\/openapi.json['\"]|docs_url\\s*=\\s*['\"]\\/docs['\"]'
+    - regex: 'openapi_url\\s*=\\s*[''\"]\\/openapi.json[''\"]|docs_url\\s*=\\s*[''\"]\\/docs[''\"]'
   severity: low
   description: "OpenAPI docs exposed in production"
   remediation: "Disable docs in production: docs_url=None, redoc_url=None"
@@ -248,7 +248,7 @@
 - id: fastapi-redis-credentials-hardcoded
   languages: [python]
   patterns:
-    - regex: 'redis://:[^@]+@|REDIS_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'redis://:[^@]+@|REDIS_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Redis credentials hardcoded"
   remediation: "Use environment variables for Redis configuration"
@@ -258,7 +258,7 @@
 - id: fastapi-aws-credentials-hardcoded
   languages: [python]
   patterns:
-    - regex: 'AWS_ACCESS_KEY_ID\\s*=\\s*['\"][AKIA][0-9A-Z]{16}['\"]|AWS_SECRET_ACCESS_KEY\\s*=\\s*['\"][a-zA-Z0-9/+=]{40}['\"]'
+    - regex: 'AWS_ACCESS_KEY_ID\\s*=\\s*[''\"][AKIA][0-9A-Z]{16}[''\"]|AWS_SECRET_ACCESS_KEY\\s*=\\s*[''\"][a-zA-Z0-9/+=]{40}[''\"]'
   severity: critical
   description: "AWS credentials hardcoded in FastAPI"
   remediation: "Use IAM roles or environment variables for AWS credentials"
@@ -268,7 +268,7 @@
 - id: fastapi-api-key-hardcoded
   languages: [python]
   patterns:
-    - regex: 'API_KEY\\s*=\\s*['\"][a-zA-Z0-9]{16,}['\"]|X-API-Key['\"]:\\s*['\"][a-zA-Z0-9]{16,}['\"]'
+    - regex: 'API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]{16,}[''\"]|X-API-Key[''\"]:\\s*[''\"][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "API key hardcoded in source"
   remediation: "Use environment variables or a secrets manager"
@@ -278,7 +278,7 @@
 - id: fastapi-oauth-client-secret-hardcoded
   languages: [python]
   patterns:
-    - regex: 'CLIENT_SECRET\\s*=\\s*['\"][a-zA-Z0-9_-]{16,}['\"]|OAUTH_CLIENT_SECRET\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'CLIENT_SECRET\\s*=\\s*[''\"][a-zA-Z0-9_-]{16,}[''\"]|OAUTH_CLIENT_SECRET\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: critical
   description: "OAuth client secret hardcoded"
   remediation: "Store OAuth secrets in environment variables"
@@ -288,7 +288,7 @@
 - id: fastapi-smtp-password-hardcoded
   languages: [python]
   patterns:
-    - regex: 'SMTP_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]|mail_password\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'SMTP_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]|mail_password\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "SMTP password hardcoded"
   remediation: "Use environment variables for email configuration"
@@ -298,7 +298,7 @@
 - id: fastapi-stripe-key-hardcoded
   languages: [python]
   patterns:
-    - regex: 'sk_live_|pk_live_|STRIPE_(LIVE|TEST)_(SECRET|PUBLISHABLE)_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'sk_live_|pk_live_|STRIPE_(LIVE|TEST)_(SECRET|PUBLISHABLE)_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Stripe API key hardcoded"
   remediation: "Use environment variables for payment gateway keys"
@@ -348,7 +348,7 @@
 - id: fastapi-cors-credentials-allow-all
   languages: [python]
   patterns:
-    - regex: 'allow_credentials\\s*=\\s*True.*?allow_origins\\s*=\\s*\\[\\s*['\"]\\*['\"]\\s*\\]'
+    - regex: 'allow_credentials\\s*=\\s*True.*?allow_origins\\s*=\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]'
   severity: high
   description: "CORS allows credentials from all origins"
   remediation: "Specify exact origins when allow_credentials=True"
@@ -448,7 +448,7 @@
 - id: fastapi-admin-panel-no-auth
   languages: [python]
   patterns:
-    - regex: '@app\\.(get|post).*['\"]\\/admin.*?(?!Depends\\(.*auth.*\\))'
+    - regex: '@app\\.(get|post).*[''\"]\\/admin.*?(?!Depends\\(.*auth.*\\))'
   severity: critical
   description: "Admin endpoint without authentication"
   remediation: "Add authentication and authorization to admin routes"
@@ -468,7 +468,7 @@
 - id: fastapi-environment-credentials-in-code
   languages: [python]
   patterns:
-    - regex: 'os\\.environ\\.get\\(['\"](?!SECRET|KEY|PASS|TOKEN|AUTH)['\"]\\)|os\\.getenv\\(['\"](?!SECRET|KEY|PASS|TOKEN|AUTH)['\"]\\)'
+    - regex: 'os\\.environ\\.get\\([''\"](?!SECRET|KEY|PASS|TOKEN|AUTH)[''\"]\\)|os\\.getenv\\([''\"](?!SECRET|KEY|PASS|TOKEN|AUTH)[''\"]\\)'
   severity: low
   description: "Non-sensitive environment variable usage"
   remediation: "Use consistent environment variable naming"
@@ -538,7 +538,7 @@
 - id: fastapi-jwt-algorithm-none
   languages: [python]
   patterns:
-    - regex: 'jwt\\.(encode|decode)\\(.*algorithm=['\"]None['\"]'
+    - regex: 'jwt\\.(encode|decode)\\(.*algorithm=[''\"]None[''\"]'
   severity: critical
   description: "JWT with algorithm 'none' - can be forged"
   remediation: "Always specify a strong algorithm like 'HS256' or 'RS256'"
@@ -568,7 +568,7 @@
 - id: fastapi-celery-broker-plaintext
   languages: [python]
   patterns:
-    - regex: 'broker_url\\s*=\\s*['\"]redis://[^@]+:|broker_url\\s*=\\s*['\"]amqp://[^@]+:'
+    - regex: 'broker_url\\s*=\\s*[''\"]redis://[^@]+:|broker_url\\s*=\\s*[''\"]amqp://[^@]+:'
   severity: high
   description: "Celery broker URL with plaintext credentials"
   remediation: "Use environment variables for broker credentials"
@@ -658,7 +658,7 @@
 - id: fastapi-metrics-exposed
   languages: [python]
   patterns:
-    - regex: '@app\\.get\\(['\"]\\/metrics['\"]'
+    - regex: '@app\\.get\\([''\"]\\/metrics[''\"]'
   severity: low
   description: "Metrics endpoint exposed without auth"
   remediation: "Add authentication to metrics endpoint"
@@ -668,7 +668,7 @@
 - id: fastapi-health-endpoint-info-leak
   languages: [python]
   patterns:
-    - regex: '@app\\.get\\(['\"]\\/health['\"]\\).*?(version|commit|build)'
+    - regex: '@app\\.get\\([''\"]\\/health[''\"]\\).*?(version|commit|build)'
   severity: low
   description: "Health endpoint exposes version/commit info"
   remediation: "Limit health endpoint to basic status only"
@@ -708,7 +708,7 @@
 - id: fastapi-jwt-weak-secret
   languages: [python]
   patterns:
-    - regex: 'JWT_SECRET\\s*=\\s*['\"][a-zA-Z0-9]{0,15}['\"]|SECRET_KEY\\s*=\\s*['\"][a-zA-Z0-9]{0,15}['\"]'
+    - regex: 'JWT_SECRET\\s*=\\s*[''\"][a-zA-Z0-9]{0,15}[''\"]|SECRET_KEY\\s*=\\s*[''\"][a-zA-Z0-9]{0,15}[''\"]'
   severity: high
   description: "Weak JWT secret key (too short)"
   remediation: "Use a strong secret key of at least 32 characters"
@@ -798,7 +798,7 @@
 - id: fastapi-cors-expose-headers-all
   languages: [python]
   patterns:
-    - regex: 'expose_headers\\s*=\\s*\\[\\s*['\"]\\*['\"]\\s*\\]'
+    - regex: 'expose_headers\\s*=\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]'
   severity: medium
   description: "CORS exposes all headers to client"
   remediation: "Only expose necessary headers"
@@ -828,7 +828,7 @@
 - id: fastapi-redis-rate-limit-storage-plaintext
   languages: [python]
   patterns:
-    - regex: 'Redis\\(.*password=['\"][^'\"]+['\"]'
+    - regex: 'Redis\\(.*password=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Redis password exposed in code for rate limiting"
   remediation: "Use environment variables for Redis credentials"
@@ -838,7 +838,7 @@
 - id: fastapi-database-migration-credentials
   languages: [python]
   patterns:
-    - regex: 'alembic\\.command\\.upgrade\\(.*?['\"]postgresql://[^'\"]+['\"]'
+    - regex: 'alembic\\.command\\.upgrade\\(.*?[''\"]postgresql://[^''\"]+[''\"]'
   severity: critical
   description: "Database credentials in migration commands"
   remediation: "Use environment variables for migration database URLs"
@@ -898,7 +898,7 @@
 - id: fastapi-cache-control-sensitive-data
   languages: [python]
   patterns:
-    - regex: '@app\\.get\\(.*['\"]\\/(user|account|profile|private).*?(?!Cache-Control)'
+    - regex: '@app\\.get\\(.*[''\"]\\/(user|account|profile|private).*?(?!Cache-Control)'
   severity: high
   description: "Sensitive endpoint missing cache control headers"
   remediation: "Add Cache-Control: no-store for sensitive data"
@@ -1068,7 +1068,7 @@
 - id: fastapi-http-500-exposed
   languages: [python]
   patterns:
-    - regex: 'HTTPException\\(status_code=500.*?detail=['\"](?!Internal Server Error)'
+    - regex: 'HTTPException\\(status_code=500.*?detail=[''\"](?!Internal Server Error)'
   severity: low
   description: "Custom 500 error exposes internal details"
   remediation: "Use generic error messages for 500 responses"
@@ -1208,7 +1208,7 @@
 - id: fastapi-external-api-key-in-code
   languages: [python]
   patterns:
-    - regex: 'headers\\s*=\\s*\\{.*?['\"]X-API-Key['\"]:\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'headers\\s*=\\s*\\{.*?[''\"]X-API-Key[''\"]:\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: critical
   description: "External API key hardcoded in headers"
   remediation: "Use environment variables for external API keys"
@@ -1218,7 +1218,7 @@
 - id: fastapi-webhook-secret-hardcoded
   languages: [python]
   patterns:
-    - regex: 'webhook_secret\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|WEBHOOK_SIGNATURE\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'webhook_secret\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|WEBHOOK_SIGNATURE\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: critical
   description: "Webhook signing secret hardcoded"
   remediation: "Use environment variables for webhook secrets"
@@ -1288,7 +1288,7 @@
 - id: fastapi-api-key-in-url
   languages: [python]
   patterns:
-    - regex: 'api_key\\s*=\\s*request\\.query_params\\.get\\(['\"]api_key['\"]'
+    - regex: 'api_key\\s*=\\s*request\\.query_params\\.get\\([''\"]api_key[''\"]'
   severity: high
   description: "API key accepted in URL query parameters"
   remediation: "Accept API keys in headers only, not in URLs"
@@ -1308,7 +1308,7 @@
 - id: fastapi-password-reset-token-hardcoded
   languages: [python]
   patterns:
-    - regex: 'reset_token\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'reset_token\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Password reset token hardcoded"
   remediation: "Generate secure random tokens for password reset"
@@ -1338,7 +1338,7 @@
 - id: fastapi-email-verification-token-weak
   languages: [python]
   patterns:
-    - regex: 'email_verification_token\\s*=\\s*['\"][0-9]{4,6}['\"]'
+    - regex: 'email_verification_token\\s*=\\s*[''\"][0-9]{4,6}[''\"]'
   severity: high
   description: "Weak email verification token"
   remediation: "Use cryptographically secure tokens for email verification"
@@ -1498,7 +1498,7 @@
 - id: fastapi-generic-error-messages
   languages: [python]
   patterns:
-    - regex: 'return.*?['\"]error['\"]:\\s*['\"]Invalid request['\"]'
+    - regex: 'return.*?[''\"]error[''\"]:\\s*[''\"]Invalid request[''\"]'
   severity: low
   description: "Generic error messages may hide security issues"
   remediation: "Provide specific but safe error messages"
@@ -1838,7 +1838,7 @@
 - id: fastapi-format-string-injection
   languages: [python]
   patterns:
-    - regex: '.*\\.format\\(.*request.*\\)|f['\"]{.*request.*}['\"]'
+    - regex: '.*\\.format\\(.*request.*\\)|f[''\"]{.*request.*}[''\"]'
   severity: high
   description: "Potential format string injection"
   remediation: "Avoid using user input in format strings"
@@ -1894,7 +1894,7 @@
 - id: fastapi-gcp-service-account-json
   languages: [python]
   patterns:
-    - regex: 'type['\"]:\\s*['\"]service_account['\"]|private_key_id['\"]:\\s*['\"][a-f0-9]+['\"]|GOOGLE_APPLICATION_CREDENTIALS\\s*=\\s*['\"][^'\"]+\\.json['\"]'
+    - regex: 'type[''\"]:\\s*[''\"]service_account[''\"]|private_key_id[''\"]:\\s*[''\"][a-f0-9]+[''\"]|GOOGLE_APPLICATION_CREDENTIALS\\s*=\\s*[''\"][^''\"]+\\.json[''\"]'
   severity: critical
   description: "GCP service account JSON key embedded in code"
   remediation: "Use workload identity or environment variables for GCP authentication"
@@ -1914,7 +1914,7 @@
 - id: fastapi-azure-client-secret
   languages: [python]
   patterns:
-    - regex: 'client_secret\\s*=\\s*['\"][a-zA-Z0-9\\._-]{34}['\"]|AZURE_CLIENT_SECRET\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'client_secret\\s*=\\s*[''\"][a-zA-Z0-9\\._-]{34}[''\"]|AZURE_CLIENT_SECRET\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Azure client secret hardcoded in FastAPI"
   remediation: "Use managed identity or environment variables for Azure AD"
@@ -1924,7 +1924,7 @@
 - id: fastapi-azure-subscription-key
   languages: [python]
   patterns:
-    - regex: 'subscription_key\\s*=\\s*['\"][a-f0-9]{32}['\"]|Ocp-Apim-Subscription-Key['\"]:\\s*['\"][a-f0-9]{32}['\"]'
+    - regex: 'subscription_key\\s*=\\s*[''\"][a-f0-9]{32}[''\"]|Ocp-Apim-Subscription-Key[''\"]:\\s*[''\"][a-f0-9]{32}[''\"]'
   severity: high
   description: "Azure subscription key hardcoded"
   remediation: "Use environment variables for Azure API keys"
@@ -1934,7 +1934,7 @@
 - id: fastapi-alibaba-access-key
   languages: [python]
   patterns:
-    - regex: 'AccessKeyId['\"]:\\s*['\"]LTAI[a-zA-Z0-9]+['\"]|access_key_secret\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'AccessKeyId[''\"]:\\s*[''\"]LTAI[a-zA-Z0-9]+[''\"]|access_key_secret\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: critical
   description: "Alibaba Cloud access key hardcoded"
   remediation: "Use environment variables or RAM roles for Alibaba Cloud"
@@ -1944,7 +1944,7 @@
 - id: fastapi-oci-private-key
   languages: [python]
   patterns:
-    - regex: '-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----|oci\\.config.*key_file.*['\"][^'\"]+['\"]'
+    - regex: '-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----|oci\\.config.*key_file.*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Oracle Cloud private key embedded in code"
   remediation: "Use instance principals or environment variables for OCI"
@@ -1954,7 +1954,7 @@
 - id: fastapi-ibm-cloud-api-key
   languages: [python]
   patterns:
-    - regex: 'apikey['\"]:\\s*['\"][a-zA-Z0-9_-]{44}['\"]|IAM_API_KEY\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'apikey[''\"]:\\s*[''\"][a-zA-Z0-9_-]{44}[''\"]|IAM_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: critical
   description: "IBM Cloud API key hardcoded"
   remediation: "Use environment variables or trusted profiles for IBM Cloud"
@@ -1964,7 +1964,7 @@
 - id: fastapi-digitalocean-token
   languages: [python]
   patterns:
-    - regex: 'DO_TOKEN\\s*=\\s*['\"]dop_v1_[a-zA-Z0-9_-]{64}['\"]|digitalocean_token\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'DO_TOKEN\\s*=\\s*[''\"]dop_v1_[a-zA-Z0-9_-]{64}[''\"]|digitalocean_token\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: critical
   description: "DigitalOcean personal access token hardcoded"
   remediation: "Use environment variables for DigitalOcean API tokens"
@@ -1974,7 +1974,7 @@
 - id: fastapi-linode-token
   languages: [python]
   patterns:
-    - regex: 'LINODE_TOKEN\\s*=\\s*['\"][a-zA-Z0-9]{64}['\"]|linode_api_token\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'LINODE_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9]{64}[''\"]|linode_api_token\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Linode API token hardcoded"
   remediation: "Use environment variables for Linode tokens"
@@ -1984,7 +1984,7 @@
 - id: fastapi-vultr-api-key
   languages: [python]
   patterns:
-    - regex: 'VULTR_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]{36}['\"]|vultr_api_key\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'VULTR_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]{36}[''\"]|vultr_api_key\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Vultr API key hardcoded"
   remediation: "Use environment variables for Vultr API keys"
@@ -1994,7 +1994,7 @@
 - id: fastapi-hetzner-token
   languages: [python]
   patterns:
-    - regex: 'HETZNER_TOKEN\\s*=\\s*['\"][a-zA-Z0-9]{32,64}['\"]|hetzner_api_token\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'HETZNER_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9]{32,64}[''\"]|hetzner_api_token\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Hetzner Cloud API token hardcoded"
   remediation: "Use environment variables for Hetzner tokens"
@@ -2004,7 +2004,7 @@
 - id: fastapi-scaleway-token
   languages: [python]
   patterns:
-    - regex: 'SCALEWAY_TOKEN\\s*=\\s*['\"][a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}['\"]'
+    - regex: 'SCALEWAY_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}[''\"]'
   severity: high
   description: "Scaleway API token hardcoded"
   remediation: "Use environment variables for Scaleway credentials"
@@ -2014,7 +2014,7 @@
 - id: fastapi-ovh-api-key
   languages: [python]
   patterns:
-    - regex: 'OVH_APPLICATION_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|OVH_CONSUMER_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'OVH_APPLICATION_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|OVH_CONSUMER_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "OVH API credentials hardcoded"
   remediation: "Use environment variables for OVH API keys"
@@ -2024,7 +2024,7 @@
 - id: fastapi-exoscale-key
   languages: [python]
   patterns:
-    - regex: 'EXOSCALE_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|EXOSCALE_API_SECRET\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'EXOSCALE_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|EXOSCALE_API_SECRET\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Exoscale API credentials hardcoded"
   remediation: "Use environment variables for Exoscale credentials"
@@ -2034,7 +2034,7 @@
 - id: fastapi-upcloud-username
   languages: [python]
   patterns:
-    - regex: 'UPCLOUD_USERNAME\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|UPCLOUD_PASSWORD\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'UPCLOUD_USERNAME\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|UPCLOUD_PASSWORD\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "UpCloud credentials hardcoded"
   remediation: "Use environment variables for UpCloud authentication"
@@ -2044,7 +2044,7 @@
 - id: fastapi-profitbricks-password
   languages: [python]
   patterns:
-    - regex: 'PROFITBRICKS_USERNAME\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|PROFITBRICKS_PASSWORD\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'PROFITBRICKS_USERNAME\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|PROFITBRICKS_PASSWORD\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "ProfitBricks (IONOS) credentials hardcoded"
   remediation: "Use environment variables for IONOS cloud credentials"
@@ -2058,7 +2058,7 @@
 - id: fastapi-kafka-ssl-password
   languages: [python]
   patterns:
-    - regex: 'ssl\\.key.password\\s*=\\s*['\"][^'\"]+['\"]|ssl_password\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'ssl\\.key.password\\s*=\\s*[''\"][^''\"]+[''\"]|ssl_password\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Kafka SSL key password hardcoded"
   remediation: "Use environment variables for Kafka SSL passwords"
@@ -2068,7 +2068,7 @@
 - id: fastapi-kafka-sasl-password
   languages: [python]
   patterns:
-    - regex: 'sasl_plain_password\\s*=\\s*['\"][^'\"]+['\"]|sasl_password\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'sasl_plain_password\\s*=\\s*[''\"][^''\"]+[''\"]|sasl_password\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Kafka SASL password hardcoded"
   remediation: "Use environment variables for Kafka authentication"
@@ -2078,7 +2078,7 @@
 - id: fastapi-rabbitmq-vhost
   languages: [python]
   patterns:
-    - regex: 'virtual_host\\s*=\\s*['\"][^'\"]+['\"]|vhost\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'virtual_host\\s*=\\s*[''\"][^''\"]+[''\"]|vhost\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "RabbitMQ vhost hardcoded"
   remediation: "Use environment variables for RabbitMQ configuration"
@@ -2098,7 +2098,7 @@
 - id: fastapi-rabbitmq-connection-name
   languages: [python]
   patterns:
-    - regex: 'client_properties\\s*=\\s*\\{.*?['\"]connection_name['\"]:\\s*['\"][^'\"]+['\"]'
+    - regex: 'client_properties\\s*=\\s*\\{.*?[''\"]connection_name[''\"]:\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "RabbitMQ connection name hardcoded"
   remediation: "Generate connection names dynamically"
@@ -2108,7 +2108,7 @@
 - id: fastapi-redis-sentinel-password
   languages: [python]
   patterns:
-    - regex: 'sentinel_kwargs\\s*=\\s*\\{.*?['\"]password['\"]:\\s*['\"][^'\"]+['\"]'
+    - regex: 'sentinel_kwargs\\s*=\\s*\\{.*?[''\"]password[''\"]:\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Redis Sentinel password hardcoded"
   remediation: "Use environment variables for Redis Sentinel auth"
@@ -2118,7 +2118,7 @@
 - id: fastapi-redis-cluster-password
   languages: [python]
   patterns:
-    - regex: 'RedisCluster\\(.*?password=['\"][^'\"]+['\"]'
+    - regex: 'RedisCluster\\(.*?password=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Redis Cluster password hardcoded"
   remediation: "Use environment variables for Redis Cluster auth"
@@ -2128,7 +2128,7 @@
 - id: fastapi-nats-credentials
   languages: [python]
   patterns:
-    - regex: 'nats\\.connect\\(.*?user=['\"][^'\"]+['\"],.*?password=['\"][^'\"]+['\"]'
+    - regex: 'nats\\.connect\\(.*?user=[''\"][^''\"]+[''\"],.*?password=[''\"][^''\"]+[''\"]'
   severity: high
   description: "NATS credentials hardcoded"
   remediation: "Use environment variables or JWT for NATS auth"
@@ -2138,7 +2138,7 @@
 - id: fastapi-nats-token
   languages: [python]
   patterns:
-    - regex: 'nats\\.connect\\(.*?token=['\"][^'\"]+['\"]'
+    - regex: 'nats\\.connect\\(.*?token=[''\"][^''\"]+[''\"]'
   severity: high
   description: "NATS token hardcoded"
   remediation: "Use environment variables for NATS tokens"
@@ -2148,7 +2148,7 @@
 - id: fastapi-mqtt-password
   languages: [python]
   patterns:
-    - regex: 'mqtt\\.Client\\(.*?\\)\\.username_pw_set\\(['\"][^'\"]+['\"],\\s*['\"][^'\"]+['\"]\\)'
+    - regex: 'mqtt\\.Client\\(.*?\\)\\.username_pw_set\\([''\"][^''\"]+[''\"],\\s*[''\"][^''\"]+[''\"]\\)'
   severity: high
   description: "MQTT credentials hardcoded"
   remediation: "Use environment variables for MQTT authentication"
@@ -2158,7 +2158,7 @@
 - id: fastapi-mqtt-tls-cert
   languages: [python]
   patterns:
-    - regex: 'tls_set\\(.*?['\"][^'\"]+\\.(crt|pem|key)['\"]'
+    - regex: 'tls_set\\(.*?[''\"][^''\"]+\\.(crt|pem|key)[''\"]'
   severity: medium
   description: "MQTT TLS certificate paths hardcoded"
   remediation: "Use environment variables for certificate paths"
@@ -2168,7 +2168,7 @@
 - id: fastapi-zeromq-credentials
   languages: [python]
   patterns:
-    - regex: 'zmq\\.AUTH\\s*=\\s*['\"][^'\"]+['\"]|ZMQ_PLAIN_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'zmq\\.AUTH\\s*=\\s*[''\"][^''\"]+[''\"]|ZMQ_PLAIN_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "ZeroMQ credentials hardcoded"
   remediation: "Use environment variables for ZeroMQ auth"
@@ -2178,7 +2178,7 @@
 - id: fastapi-amqp-connection-string
   languages: [python]
   patterns:
-    - regex: 'amqp://[a-zA-Z0-9_]+:[^@]+@|AMQP_URI\\s*=\\s*['\"]amqp://[^'\"]+['\"]'
+    - regex: 'amqp://[a-zA-Z0-9_]+:[^@]+@|AMQP_URI\\s*=\\s*[''\"]amqp://[^''\"]+[''\"]'
   severity: critical
   description: "AMQP connection string with credentials hardcoded"
   remediation: "Use environment variables for AMQP URIs"
@@ -2188,7 +2188,7 @@
 - id: fastapi-stomp-password
   languages: [python]
   patterns:
-    - regex: 'STOMP_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]|stomp\\.connect\\(.*?passcode=['\"][^'\"]+['\"]'
+    - regex: 'STOMP_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]|stomp\\.connect\\(.*?passcode=[''\"][^''\"]+[''\"]'
   severity: high
   description: "STOMP protocol password hardcoded"
   remediation: "Use environment variables for STOMP authentication"
@@ -2198,7 +2198,7 @@
 - id: fastapi-pulsar-token
   languages: [python]
   patterns:
-    - regex: 'PULSAR_TOKEN\\s*=\\s*['\"][a-zA-Z0-9\\._\\-]+['\"]|authentication\\.token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'PULSAR_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9\\._\\-]+[''\"]|authentication\\.token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Apache Pulsar token hardcoded"
   remediation: "Use environment variables for Pulsar authentication"
@@ -2208,7 +2208,7 @@
 - id: fastapi-pulsar-oauth2
   languages: [python]
   patterns:
-    - regex: 'oauth2\\.client_id\\s*=\\s*['\"][^'\"]+['\"]|oauth2\\.client_secret\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'oauth2\\.client_id\\s*=\\s*[''\"][^''\"]+[''\"]|oauth2\\.client_secret\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Pulsar OAuth2 credentials hardcoded"
   remediation: "Use environment variables for Pulsar OAuth2"
@@ -2272,7 +2272,7 @@
 - id: fastapi-sqlalchemy-delete-orphan
   languages: [python]
   patterns:
-    - regex: 'relationship\\(.*cascade=['\"]all, delete-orphan['\"]'
+    - regex: 'relationship\\(.*cascade=[''\"]all, delete-orphan[''\"]'
   severity: medium
   description: "Delete-orphan cascade may cause unintended deletions"
   remediation: "Review cascade settings for data integrity"
@@ -2282,7 +2282,7 @@
 - id: fastapi-sqlalchemy-lazy-loading-nplus1
   languages: [python]
   patterns:
-    - regex: 'lazy=['\"]select['\"]|lazy=True'
+    - regex: 'lazy=[''\"]select[''\"]|lazy=True'
   severity: low
   description: "Lazy loading may cause N+1 queries"
   remediation: "Use joinedload or selectinload for relationships"
@@ -2292,7 +2292,7 @@
 - id: fastapi-sqlalchemy-backref
   languages: [python]
   patterns:
-    - regex: 'backref\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'backref\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "Use of backref instead of back_populates"
   remediation: "Use back_populates for clearer relationship definitions"
@@ -2482,7 +2482,7 @@
 - id: fastapi-cassandra-credentials
   languages: [python]
   patterns:
-    - regex: 'auth_provider\\s*=\\s*PlainTextAuthProvider\\(['\"][^'\"]+['\"],\\s*['\"][^'\"]+['\"]\\)'
+    - regex: 'auth_provider\\s*=\\s*PlainTextAuthProvider\\([''\"][^''\"]+[''\"],\\s*[''\"][^''\"]+[''\"]\\)'
   severity: critical
   description: "Cassandra credentials hardcoded"
   remediation: "Use environment variables for Cassandra auth"
@@ -2502,7 +2502,7 @@
 - id: fastapi-couchbase-password
   languages: [python]
   patterns:
-    - regex: 'PasswordAuthenticator\\(['\"][^'\"]+['\"],\\s*['\"][^'\"]+['\"]\\)'
+    - regex: 'PasswordAuthenticator\\([''\"][^''\"]+[''\"],\\s*[''\"][^''\"]+[''\"]\\)'
   severity: critical
   description: "Couchbase credentials hardcoded"
   remediation: "Use environment variables for Couchbase auth"
@@ -2512,7 +2512,7 @@
 - id: fastapi-couchbase-cert-path
   languages: [python]
   patterns:
-    - regex: 'couchbase\\.buckets\\.Bucket.*?cert_path=['\"][^'\"]+['\"]'
+    - regex: 'couchbase\\.buckets\\.Bucket.*?cert_path=[''\"][^''\"]+[''\"]'
   severity: medium
   description: "Couchbase certificate path hardcoded"
   remediation: "Use environment variables for certificate paths"
@@ -2522,7 +2522,7 @@
 - id: fastapi-elasticsearch-cloud-id
   languages: [python]
   patterns:
-    - regex: 'cloud_id\\s*=\\s*['\"][a-zA-Z0-9:_-]+['\"]'
+    - regex: 'cloud_id\\s*=\\s*[''\"][a-zA-Z0-9:_-]+[''\"]'
   severity: low
   description: "Elasticsearch cloud ID hardcoded"
   remediation: "Use environment variables for cloud ID"
@@ -2532,7 +2532,7 @@
 - id: fastapi-elasticsearch-api-key
   languages: [python]
   patterns:
-    - regex: 'api_key\\s*=\\s*['\"][a-zA-Z0-9=]+['\"]'
+    - regex: 'api_key\\s*=\\s*[''\"][a-zA-Z0-9=]+[''\"]'
   severity: high
   description: "Elasticsearch API key hardcoded"
   remediation: "Use environment variables for API keys"
@@ -2542,7 +2542,7 @@
 - id: fastapi-elasticsearch-basic-auth
   languages: [python]
   patterns:
-    - regex: 'http_auth\\s*=\\s*\\(['\"][^'\"]+['\"],\\s*['\"][^'\"]+['\"]\\)'
+    - regex: 'http_auth\\s*=\\s*\\([''\"][^''\"]+[''\"],\\s*[''\"][^''\"]+[''\"]\\)'
   severity: high
   description: "Elasticsearch basic auth credentials hardcoded"
   remediation: "Use environment variables for Elasticsearch auth"
@@ -2552,7 +2552,7 @@
 - id: fastapi-influxdb-token
   languages: [python]
   patterns:
-    - regex: 'token\\s*=\\s*['\"][a-zA-Z0-9_=-]+['\"]|INFLUXDB_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'token\\s*=\\s*[''\"][a-zA-Z0-9_=-]+[''\"]|INFLUXDB_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "InfluxDB token hardcoded"
   remediation: "Use environment variables for InfluxDB tokens"
@@ -2562,7 +2562,7 @@
 - id: fastapi-influxdb-org
   languages: [python]
   patterns:
-    - regex: 'org\\s*=\\s*['\"][^'\"]+['\"]|INFLUXDB_ORG\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'org\\s*=\\s*[''\"][^''\"]+[''\"]|INFLUXDB_ORG\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "InfluxDB organization hardcoded"
   remediation: "Use environment variables for organization"
@@ -2572,7 +2572,7 @@
 - id: fastapi-timescaledb-license
   languages: [python]
   patterns:
-    - regex: 'timescaledb.license_key\\s*=\\s*['\"][^'\"]+['\"]|TIMESCALEDB_LICENSE\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'timescaledb.license_key\\s*=\\s*[''\"][^''\"]+[''\"]|TIMESCALEDB_LICENSE\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: medium
   description: "TimescaleDB license key hardcoded"
   remediation: "Use environment variables for license key"
@@ -2582,7 +2582,7 @@
 - id: fastapi-clickhouse-password
   languages: [python]
   patterns:
-    - regex: 'clickhouse_driver\\.Client\\(.*?password=['\"][^'\"]+['\"]'
+    - regex: 'clickhouse_driver\\.Client\\(.*?password=[''\"][^''\"]+[''\"]'
   severity: high
   description: "ClickHouse password hardcoded"
   remediation: "Use environment variables for ClickHouse auth"
@@ -2606,7 +2606,7 @@
 - id: fastapi-memcached-sasl
   languages: [python]
   patterns:
-    - regex: 'pylibmc\\.Client\\(.*?username=['\"][^'\"]+['\"],.*?password=['\"][^'\"]+['\"]'
+    - regex: 'pylibmc\\.Client\\(.*?username=[''\"][^''\"]+[''\"],.*?password=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Memcached SASL credentials hardcoded"
   remediation: "Use environment variables for Memcached auth"
@@ -2636,7 +2636,7 @@
 - id: fastapi-redis-ssl-cert-validation
   languages: [python]
   patterns:
-    - regex: 'ssl_cert_reqs=None|ssl_cert_reqs='none''
+    - regex: 'ssl_cert_reqs=None|ssl_cert_reqs=''none'''
   severity: high
   description: "Redis SSL certificate validation disabled"
   remediation: "Enable SSL certificate validation"
@@ -2686,7 +2686,7 @@
 - id: fastapi-dogpile-cache-backend
   languages: [python]
   patterns:
-    - regex: 'dogpile.cache\\.make_region\\(.*?backend=['\"][^'\"]+['\"]'
+    - regex: 'dogpile.cache\\.make_region\\(.*?backend=[''\"][^''\"]+[''\"]'
   severity: low
   description: "Dogpile cache backend hardcoded"
   remediation: "Make cache backend configurable"
@@ -2716,7 +2716,7 @@
 - id: fastapi-beaker-cache-encryption
   languages: [python]
   patterns:
-    - regex: 'cache\\.encrypt_key\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'cache\\.encrypt_key\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Beaker cache encryption key hardcoded"
   remediation: "Use environment variables for cache encryption"
@@ -2760,7 +2760,7 @@
 - id: fastapi-opensearch-password
   languages: [python]
   patterns:
-    - regex: 'http_auth\\s*=\\s*\\(['\"][^'\"]+['\"],\\s*['\"][^'\"]+['\"]\\)|OPENSEARCH_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'http_auth\\s*=\\s*\\([''\"][^''\"]+[''\"],\\s*[''\"][^''\"]+[''\"]\\)|OPENSEARCH_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "OpenSearch credentials hardcoded"
   remediation: "Use environment variables for OpenSearch auth"
@@ -2780,7 +2780,7 @@
 - id: fastapi-solr-basic-auth
   languages: [python]
   patterns:
-    - regex: 'SOLR_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]|solr\\.Core\\(.*?auth=['\"][^'\"]+['\"]'
+    - regex: 'SOLR_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]|solr\\.Core\\(.*?auth=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Solr credentials hardcoded"
   remediation: "Use environment variables for Solr auth"
@@ -2800,7 +2800,7 @@
 - id: fastapi-meilisearch-key
   languages: [python]
   patterns:
-    - regex: 'MEILISEARCH_API_KEY\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]|client\\.api_key\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'MEILISEARCH_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]|client\\.api_key\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Meilisearch API key hardcoded"
   remediation: "Use environment variables for Meilisearch keys"
@@ -2810,7 +2810,7 @@
 - id: fastapi-typesense-key
   languages: [python]
   patterns:
-    - regex: 'TYPESENSE_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|typesense\\.Client\\(.*?api_key=['\"][^'\"]+['\"]'
+    - regex: 'TYPESENSE_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|typesense\\.Client\\(.*?api_key=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Typesense API key hardcoded"
   remediation: "Use environment variables for Typesense keys"
@@ -2820,7 +2820,7 @@
 - id: fastapi-weaviate-key
   languages: [python]
   patterns:
-    - regex: 'WEAVIATE_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|weaviate\\.Client\\(.*?api_key=['\"][^'\"]+['\"]'
+    - regex: 'WEAVIATE_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|weaviate\\.Client\\(.*?api_key=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Weaviate API key hardcoded"
   remediation: "Use environment variables for Weaviate keys"
@@ -2830,7 +2830,7 @@
 - id: fastapi-qdrant-key
   languages: [python]
   patterns:
-    - regex: 'QDRANT_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|qdrant_client\\.QdrantClient\\(.*?api_key=['\"][^'\"]+['\"]'
+    - regex: 'QDRANT_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|qdrant_client\\.QdrantClient\\(.*?api_key=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Qdrant API key hardcoded"
   remediation: "Use environment variables for Qdrant keys"
@@ -2840,7 +2840,7 @@
 - id: fastapi-pinecone-key
   languages: [python]
   patterns:
-    - regex: 'PINECONE_API_KEY\\s*=\\s*['\"][a-zA-Z0-9-]+['\"]|pinecone\\.init\\(.*?api_key=['\"][^'\"]+['\"]'
+    - regex: 'PINECONE_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9-]+[''\"]|pinecone\\.init\\(.*?api_key=[''\"][^''\"]+[''\"]'
   severity: high
   description: "Pinecone API key hardcoded"
   remediation: "Use environment variables for Pinecone keys"
@@ -2850,7 +2850,7 @@
 - id: fastapi-chromadb-persist
   languages: [python]
   patterns:
-    - regex: 'persist_directory\\s*=\\s*['\"][^'\"]+['\"]|CHROMA_PERSIST_DIR\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'persist_directory\\s*=\\s*[''\"][^''\"]+[''\"]|CHROMA_PERSIST_DIR\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "ChromaDB persistence directory hardcoded"
   remediation: "Use environment variables for storage paths"
@@ -2864,7 +2864,7 @@
 - id: fastapi-s3-secret-key
   languages: [python]
   patterns:
-    - regex: 'aws_secret_access_key\\s*=\\s*['\"][a-zA-Z0-9/+=]{40}['\"]|AWS_SECRET_ACCESS_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'aws_secret_access_key\\s*=\\s*[''\"][a-zA-Z0-9/+=]{40}[''\"]|AWS_SECRET_ACCESS_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "AWS S3 secret key hardcoded"
   remediation: "Use IAM roles or environment variables for S3"
@@ -2874,7 +2874,7 @@
 - id: fastapi-s3-endpoint-url
   languages: [python]
   patterns:
-    - regex: 'endpoint_url\\s*=\\s*['\"]https?://[^'\"]+['\"]|S3_ENDPOINT_URL\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'endpoint_url\\s*=\\s*[''\"]https?://[^''\"]+[''\"]|S3_ENDPOINT_URL\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "S3 endpoint URL hardcoded"
   remediation: "Use environment variables for S3 endpoints"
@@ -2884,7 +2884,7 @@
 - id: fastapi-s3-addressing-style
   languages: [python]
   patterns:
-    - regex: 'addressing_style\\s*=\\s*['\"](path|virtual)['\"]'
+    - regex: 'addressing_style\\s*=\\s*[''\"](path|virtual)[''\"]'
   severity: low
   description: "S3 addressing style hardcoded"
   remediation: "Let boto3 auto-detect addressing style"
@@ -2894,7 +2894,7 @@
 - id: fastapi-s3-signature-version
   languages: [python]
   patterns:
-    - regex: 'config\\s*=\\s*botocore\\.client\\.Config\\(.*?signature_version=['\"][^'\"]+['\"]'
+    - regex: 'config\\s*=\\s*botocore\\.client\\.Config\\(.*?signature_version=[''\"][^''\"]+[''\"]'
   severity: low
   description: "S3 signature version hardcoded"
   remediation: "Use default signature version or make configurable"
@@ -2914,7 +2914,7 @@
 - id: fastapi-s3-acl
   languages: [python]
   patterns:
-    - regex: 'ExtraArgs\\s*=\\s*\\{.*?['\"]ACL['\"]:\\s*['\"](public-read|public-read-write|authenticated-read)['\"]'
+    - regex: 'ExtraArgs\\s*=\\s*\\{.*?[''\"]ACL[''\"]:\\s*[''\"](public-read|public-read-write|authenticated-read)[''\"]'
   severity: high
   description: "S3 objects with public ACLs"
   remediation: "Use private ACLs and presigned URLs for access"
@@ -2924,7 +2924,7 @@
 - id: fastapi-s3-bucket-policy
   languages: [python]
   patterns:
-    - regex: 'bucket_policy.*?Effect['\"]:\\s*['\"]Allow['\"],.*?Principal['\"]:\\s*['\"]\\*['\"]'
+    - regex: 'bucket_policy.*?Effect[''\"]:\\s*[''\"]Allow[''\"],.*?Principal[''\"]:\\s*[''\"]\\*[''\"]'
   severity: critical
   description: "S3 bucket policy allows public access"
   remediation: "Restrict bucket policies to specific principals"
@@ -2944,7 +2944,7 @@
 - id: fastapi-s3-kms-key-id
   languages: [python]
   patterns:
-    - regex: 'SSEKMSKeyId\\s*=\\s*['\"][a-f0-9-]+['\"]|kms_key_id\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'SSEKMSKeyId\\s*=\\s*[''\"][a-f0-9-]+[''\"]|kms_key_id\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: low
   description: "S3 KMS key ID hardcoded"
   remediation: "Use environment variables for KMS key IDs"
@@ -2954,7 +2954,7 @@
 - id: fastapi-gcs-json-key
   languages: [python]
   patterns:
-    - regex: 'google\\.oauth2\\.service_account\\.Credentials\\.from_service_account_info\\(.*?['\"]private_key['\"]'
+    - regex: 'google\\.oauth2\\.service_account\\.Credentials\\.from_service_account_info\\(.*?[''\"]private_key[''\"]'
   severity: critical
   description: "GCS service account JSON key embedded"
   remediation: "Use workload identity or environment variables"
@@ -2974,7 +2974,7 @@
 - id: fastapi-gcs-encryption-key
   languages: [python]
   patterns:
-    - regex: 'customer_encryption_key\\s*=\\s*['\"][a-zA-Z0-9+/=]+['\"]|GCS_ENCRYPTION_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'customer_encryption_key\\s*=\\s*[''\"][a-zA-Z0-9+/=]+[''\"]|GCS_ENCRYPTION_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "GCS customer encryption key hardcoded"
   remediation: "Use environment variables or KMS for encryption keys"
@@ -2984,7 +2984,7 @@
 - id: fastapi-azure-blob-key
   languages: [python]
   patterns:
-    - regex: 'account_key\\s*=\\s*['\"][a-zA-Z0-9+/=]+['\"]|AZURE_STORAGE_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'account_key\\s*=\\s*[''\"][a-zA-Z0-9+/=]+[''\"]|AZURE_STORAGE_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Azure Blob Storage account key hardcoded"
   remediation: "Use managed identity or environment variables"
@@ -2994,7 +2994,7 @@
 - id: fastapi-azure-blob-sas-token
   languages: [python]
   patterns:
-    - regex: 'sas_token\\s*=\\s*['\"][a-zA-Z0-9%]+['\"]|AZURE_SAS_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'sas_token\\s*=\\s*[''\"][a-zA-Z0-9%]+[''\"]|AZURE_SAS_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Azure Blob SAS token hardcoded"
   remediation: "Generate SAS tokens dynamically with short expiration"
@@ -3004,7 +3004,7 @@
 - id: fastapi-azure-blob-public-access
   languages: [python]
   patterns:
-    - regex: 'public_access\\s*=\\s*['\"]blob['\"]|public_access\\s*=\\s*['\"]container['\"]'
+    - regex: 'public_access\\s*=\\s*[''\"]blob[''\"]|public_access\\s*=\\s*[''\"]container[''\"]'
   severity: high
   description: "Azure Blob container with public access"
   remediation: "Use private containers and SAS tokens"
@@ -3014,7 +3014,7 @@
 - id: fastapi-cloudfront-key-pair
   languages: [python]
   patterns:
-    - regex: 'cloudfront_key_pair_id\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|CLOUDFRONT_PRIVATE_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'cloudfront_key_pair_id\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|CLOUDFRONT_PRIVATE_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "CloudFront key pair credentials hardcoded"
   remediation: "Use environment variables for CloudFront keys"
@@ -3034,7 +3034,7 @@
 - id: fastapi-cdn-base-url
   languages: [python]
   patterns:
-    - regex: 'CDN_BASE_URL\\s*=\\s*['\"]https?://[^'\"]+['\"]'
+    - regex: 'CDN_BASE_URL\\s*=\\s*[''\"]https?://[^''\"]+[''\"]'
   severity: low
   description: "CDN base URL hardcoded"
   remediation: "Use environment variables for CDN URLs"
@@ -3044,7 +3044,7 @@
 - id: fastapi-cloudfront-custom-domain
   languages: [python]
   patterns:
-    - regex: 'custom_domain\\s*=\\s*['\"][a-zA-Z0-9.-]+['\"]'
+    - regex: 'custom_domain\\s*=\\s*[''\"][a-zA-Z0-9.-]+[''\"]'
   severity: low
   description: "CloudFront custom domain hardcoded"
   remediation: "Use environment variables for custom domains"
@@ -3054,7 +3054,7 @@
 - id: fastapi-minio-access-key
   languages: [python]
   patterns:
-    - regex: 'MINIO_ACCESS_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|minio\\.Minio\\(.*?access_key=['\"][^'\"]+['\"]'
+    - regex: 'MINIO_ACCESS_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|minio\\.Minio\\(.*?access_key=[''\"][^''\"]+[''\"]'
   severity: high
   description: "MinIO access key hardcoded"
   remediation: "Use environment variables for MinIO credentials"
@@ -3064,7 +3064,7 @@
 - id: fastapi-minio-secret-key
   languages: [python]
   patterns:
-    - regex: 'MINIO_SECRET_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|minio\\.Minio\\(.*?secret_key=['\"][^'\"]+['\"]'
+    - regex: 'MINIO_SECRET_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|minio\\.Minio\\(.*?secret_key=[''\"][^''\"]+[''\"]'
   severity: high
   description: "MinIO secret key hardcoded"
   remediation: "Use environment variables for MinIO credentials"
@@ -3084,7 +3084,7 @@
 - id: fastapi-ceph-key
   languages: [python]
   patterns:
-    - regex: 'CEPH_ACCESS_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|CEPH_SECRET_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'CEPH_ACCESS_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|CEPH_SECRET_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Ceph storage credentials hardcoded"
   remediation: "Use environment variables for Ceph credentials"
@@ -3108,7 +3108,7 @@
 - id: fastapi-slack-bot-token
   languages: [python]
   patterns:
-    - regex: 'xoxb-[0-9]{11}-[0-9]{13}-[a-zA-Z0-9]{24}|SLACK_BOT_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'xoxb-[0-9]{11}-[0-9]{13}-[a-zA-Z0-9]{24}|SLACK_BOT_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Slack bot token hardcoded"
   remediation: "Use environment variables for Slack tokens"
@@ -3118,7 +3118,7 @@
 - id: fastapi-slack-signing-secret
   languages: [python]
   patterns:
-    - regex: 'signing_secret\\s*=\\s*['\"][a-f0-9]{32}['\"]|SLACK_SIGNING_SECRET\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'signing_secret\\s*=\\s*[''\"][a-f0-9]{32}[''\"]|SLACK_SIGNING_SECRET\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Slack signing secret hardcoded"
   remediation: "Use environment variables for Slack signing secrets"
@@ -3148,7 +3148,7 @@
 - id: fastapi-discord-bot-token
   languages: [python]
   patterns:
-    - regex: '[a-zA-Z0-9_-]{24}\\.[a-zA-Z0-9_-]{6}\\.[a-zA-Z0-9_-]{27}|DISCORD_BOT_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: '[a-zA-Z0-9_-]{24}\\.[a-zA-Z0-9_-]{6}\\.[a-zA-Z0-9_-]{27}|DISCORD_BOT_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Discord bot token hardcoded"
   remediation: "Use environment variables for Discord tokens"
@@ -3158,7 +3158,7 @@
 - id: fastapi-telegram-bot-token
   languages: [python]
   patterns:
-    - regex: '[0-9]{8,10}:[a-zA-Z0-9_-]{35}|TELEGRAM_BOT_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: '[0-9]{8,10}:[a-zA-Z0-9_-]{35}|TELEGRAM_BOT_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Telegram bot token hardcoded"
   remediation: "Use environment variables for Telegram tokens"
@@ -3178,7 +3178,7 @@
 - id: fastapi-github-webhook-secret
   languages: [python]
   patterns:
-    - regex: 'webhook_secret\\s*=\\s*['\"][a-f0-9]+['\"]|GITHUB_WEBHOOK_SECRET\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'webhook_secret\\s*=\\s*[''\"][a-f0-9]+[''\"]|GITHUB_WEBHOOK_SECRET\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "GitHub webhook secret hardcoded"
   remediation: "Use environment variables for webhook secrets"
@@ -3188,7 +3188,7 @@
 - id: fastapi-github-token
   languages: [python]
   patterns:
-    - regex: 'ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}|GITHUB_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}|GITHUB_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "GitHub personal access token hardcoded"
   remediation: "Use environment variables or GitHub Actions secrets"
@@ -3198,7 +3198,7 @@
 - id: fastapi-gitlab-token
   languages: [python]
   patterns:
-    - regex: 'glpat-[a-zA-Z0-9_-]{20}|GITLAB_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'glpat-[a-zA-Z0-9_-]{20}|GITLAB_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "GitLab personal access token hardcoded"
   remediation: "Use environment variables for GitLab tokens"
@@ -3208,7 +3208,7 @@
 - id: fastapi-bitbucket-token
   languages: [python]
   patterns:
-    - regex: 'BITBUCKET_APP_PASSWORD\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|bitbucket_token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'BITBUCKET_APP_PASSWORD\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|bitbucket_token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Bitbucket app password hardcoded"
   remediation: "Use environment variables for Bitbucket auth"
@@ -3218,7 +3218,7 @@
 - id: fastapi-jira-token
   languages: [python]
   patterns:
-    - regex: 'JIRA_API_TOKEN\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|jira_token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'JIRA_API_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|jira_token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Jira API token hardcoded"
   remediation: "Use environment variables for Jira tokens"
@@ -3228,7 +3228,7 @@
 - id: fastapi-confluence-token
   languages: [python]
   patterns:
-    - regex: 'CONFLUENCE_API_TOKEN\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|confluence_token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'CONFLUENCE_API_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|confluence_token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Confluence API token hardcoded"
   remediation: "Use environment variables for Confluence tokens"
@@ -3238,7 +3238,7 @@
 - id: fastapi-asana-token
   languages: [python]
   patterns:
-    - regex: 'ASANA_ACCESS_TOKEN\\s*=\\s*['\"][0-9]+/[a-f0-9]+['\"]|asana_token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'ASANA_ACCESS_TOKEN\\s*=\\s*[''\"][0-9]+/[a-f0-9]+[''\"]|asana_token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Asana access token hardcoded"
   remediation: "Use environment variables for Asana tokens"
@@ -3248,7 +3248,7 @@
 - id: fastapi-trello-key
   languages: [python]
   patterns:
-    - regex: 'TRELLO_API_KEY\\s*=\\s*['\"][a-f0-9]{32}['\"]|TRELLO_TOKEN\\s*=\\s*['\"][a-f0-9]{64}['\"]'
+    - regex: 'TRELLO_API_KEY\\s*=\\s*[''\"][a-f0-9]{32}[''\"]|TRELLO_TOKEN\\s*=\\s*[''\"][a-f0-9]{64}[''\"]'
   severity: high
   description: "Trello API key and token hardcoded"
   remediation: "Use environment variables for Trello credentials"
@@ -3258,7 +3258,7 @@
 - id: fastapi-monday-api-key
   languages: [python]
   patterns:
-    - regex: 'MONDAY_API_KEY\\s*=\\s*['\"][a-f0-9-]{36}['\"]|monday_token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'MONDAY_API_KEY\\s*=\\s*[''\"][a-f0-9-]{36}[''\"]|monday_token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Monday.com API key hardcoded"
   remediation: "Use environment variables for Monday.com keys"
@@ -3268,7 +3268,7 @@
 - id: fastapi-clickup-token
   languages: [python]
   patterns:
-    - regex: 'CLICKUP_API_TOKEN\\s*=\\s*['\"][0-9]+_[a-zA-Z0-9]+['\"]|clickup_token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'CLICKUP_API_TOKEN\\s*=\\s*[''\"][0-9]+_[a-zA-Z0-9]+[''\"]|clickup_token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "ClickUp API token hardcoded"
   remediation: "Use environment variables for ClickUp tokens"
@@ -3278,7 +3278,7 @@
 - id: fastapi-notion-key
   languages: [python]
   patterns:
-    - regex: 'NOTION_API_KEY\\s*=\\s*['\"]secret_[a-zA-Z0-9]{43}['\"]|notion_token\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'NOTION_API_KEY\\s*=\\s*[''\"]secret_[a-zA-Z0-9]{43}[''\"]|notion_token\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Notion API key hardcoded"
   remediation: "Use environment variables for Notion keys"
@@ -3288,7 +3288,7 @@
 - id: fastapi-airtable-key
   languages: [python]
   patterns:
-    - regex: 'AIRTABLE_API_KEY\\s*=\\s*['\"]key[a-zA-Z0-9]{14}['\"]|AIRTABLE_BASE_ID\\s*=\\s*['\"]app[a-zA-Z0-9]{9}['\"]'
+    - regex: 'AIRTABLE_API_KEY\\s*=\\s*[''\"]key[a-zA-Z0-9]{14}[''\"]|AIRTABLE_BASE_ID\\s*=\\s*[''\"]app[a-zA-Z0-9]{9}[''\"]'
   severity: high
   description: "Airtable API key and base ID hardcoded"
   remediation: "Use environment variables for Airtable credentials"
@@ -3298,7 +3298,7 @@
 - id: fastapi-supabase-key
   languages: [python]
   patterns:
-    - regex: 'SUPABASE_URL\\s*=\\s*['\"]https://[a-zA-Z0-9-]+\\.supabase\\.co['\"]|SUPABASE_KEY\\s*=\\s*['\"][a-zA-Z0-9._-]+['\"]'
+    - regex: 'SUPABASE_URL\\s*=\\s*[''\"]https://[a-zA-Z0-9-]+\\.supabase\\.co[''\"]|SUPABASE_KEY\\s*=\\s*[''\"][a-zA-Z0-9._-]+[''\"]'
   severity: high
   description: "Supabase URL and anon key hardcoded"
   remediation: "Use environment variables for Supabase config"
@@ -3308,7 +3308,7 @@
 - id: fastapi-supabase-service-key
   languages: [python]
   patterns:
-    - regex: 'SUPABASE_SERVICE_KEY\\s*=\\s*['\"][a-zA-Z0-9._-]+['\"]|service_role_key\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'SUPABASE_SERVICE_KEY\\s*=\\s*[''\"][a-zA-Z0-9._-]+[''\"]|service_role_key\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Supabase service role key hardcoded (full access)"
   remediation: "Never use service keys in frontend or client code"
@@ -3318,7 +3318,7 @@
 - id: fastapi-firebase-admin-sdk
   languages: [python]
   patterns:
-    - regex: 'firebase_admin\\.initialize_app\\(.*?\\{.*?['\"]type['\"]:\\s*['\"]service_account['\"]'
+    - regex: 'firebase_admin\\.initialize_app\\(.*?\\{.*?[''\"]type[''\"]:\\s*[''\"]service_account[''\"]'
   severity: critical
   description: "Firebase Admin SDK credentials hardcoded"
   remediation: "Use environment variables or metadata service"
@@ -3328,7 +3328,7 @@
 - id: fastapi-firebase-api-key
   languages: [python]
   patterns:
-    - regex: 'apiKey['\"]:\\s*['\"]AIza[a-zA-Z0-9_-]{35}['\"]|FIREBASE_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'apiKey[''\"]:\\s*[''\"]AIza[a-zA-Z0-9_-]{35}[''\"]|FIREBASE_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Firebase Web API key hardcoded"
   remediation: "Use environment variables and restrict API key"
@@ -3338,7 +3338,7 @@
 - id: fastapi-firebase-database-secret
   languages: [python]
   patterns:
-    - regex: 'database_secret\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]|FIREBASE_DATABASE_SECRET\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'database_secret\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]|FIREBASE_DATABASE_SECRET\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Firebase database secret hardcoded (deprecated)"
   remediation: "Use Firebase Admin SDK with service account"
@@ -3348,7 +3348,7 @@
 - id: fastapi-pusher-key
   languages: [python]
   patterns:
-    - regex: 'PUSHER_APP_KEY\\s*=\\s*['\"][a-f0-9]{32}['\"]|PUSHER_APP_SECRET\\s*=\\s*['\"][a-f0-9]{32}['\"]'
+    - regex: 'PUSHER_APP_KEY\\s*=\\s*[''\"][a-f0-9]{32}[''\"]|PUSHER_APP_SECRET\\s*=\\s*[''\"][a-f0-9]{32}[''\"]'
   severity: high
   description: "Pusher app key and secret hardcoded"
   remediation: "Use environment variables for Pusher credentials"
@@ -3358,7 +3358,7 @@
 - id: fastapi-ably-key
   languages: [python]
   patterns:
-    - regex: 'ABLY_API_KEY\\s*=\\s*['\"][a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+['\"]'
+    - regex: 'ABLY_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+[''\"]'
   severity: high
   description: "Ably API key hardcoded"
   remediation: "Use environment variables for Ably keys"
@@ -3382,7 +3382,7 @@
 - id: fastapi-stripe-webhook-secret
   languages: [python]
   patterns:
-    - regex: 'whsec_[a-zA-Z0-9]{32,64}|STRIPE_WEBHOOK_SECRET\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'whsec_[a-zA-Z0-9]{32,64}|STRIPE_WEBHOOK_SECRET\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Stripe webhook secret hardcoded"
   remediation: "Use environment variables for webhook secrets"
@@ -3432,7 +3432,7 @@
 - id: fastapi-paypal-client-secret
   languages: [python]
   patterns:
-    - regex: 'PAYPAL_CLIENT_SECRET\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]|paypal\\.api\\.(live|test)\\.[a-zA-Z0-9_-]+'
+    - regex: 'PAYPAL_CLIENT_SECRET\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]|paypal\\.api\\.(live|test)\\.[a-zA-Z0-9_-]+'
   severity: critical
   description: "PayPal client secret hardcoded"
   remediation: "Use environment variables for PayPal credentials"
@@ -3442,7 +3442,7 @@
 - id: fastapi-paypal-webhook-id
   languages: [python]
   patterns:
-    - regex: 'PAYPAL_WEBHOOK_ID\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]|webhook_id\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'PAYPAL_WEBHOOK_ID\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]|webhook_id\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "PayPal webhook ID hardcoded"
   remediation: "Use environment variables for webhook ID"
@@ -3462,7 +3462,7 @@
 - id: fastapi-braintree-token
   languages: [python]
   patterns:
-    - regex: 'BRAINTREE_PUBLIC_KEY\\s*=\\s*['\"][a-f0-9]{32}['\"]|BRAINTREE_PRIVATE_KEY\\s*=\\s*['\"][a-f0-9]{32}['\"]'
+    - regex: 'BRAINTREE_PUBLIC_KEY\\s*=\\s*[''\"][a-f0-9]{32}[''\"]|BRAINTREE_PRIVATE_KEY\\s*=\\s*[''\"][a-f0-9]{32}[''\"]'
   severity: critical
   description: "Braintree API keys hardcoded"
   remediation: "Use environment variables for Braintree keys"
@@ -3472,7 +3472,7 @@
 - id: fastapi-braintree-merchant-id
   languages: [python]
   patterns:
-    - regex: 'BRAINTREE_MERCHANT_ID\\s*=\\s*['\"][a-f0-9]{16}['\"]|merchant_id\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'BRAINTREE_MERCHANT_ID\\s*=\\s*[''\"][a-f0-9]{16}[''\"]|merchant_id\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Braintree merchant ID hardcoded"
   remediation: "Use environment variables for merchant ID"
@@ -3482,7 +3482,7 @@
 - id: fastapi-square-access-token
   languages: [python]
   patterns:
-    - regex: 'EAAA[a-zA-Z0-9_-]{80,}|SQUARE_ACCESS_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'EAAA[a-zA-Z0-9_-]{80,}|SQUARE_ACCESS_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Square access token hardcoded"
   remediation: "Use environment variables for Square tokens"
@@ -3492,7 +3492,7 @@
 - id: fastapi-square-webhook-signature
   languages: [python]
   patterns:
-    - regex: 'SQUARE_WEBHOOK_SIGNATURE_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'SQUARE_WEBHOOK_SIGNATURE_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Square webhook signature key hardcoded"
   remediation: "Use environment variables for webhook keys"
@@ -3502,7 +3502,7 @@
 - id: fastapi-adyen-api-key
   languages: [python]
   patterns:
-    - regex: 'ADYEN_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|adyen\\.(live|test)\\.[a-zA-Z0-9_-]+'
+    - regex: 'ADYEN_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|adyen\\.(live|test)\\.[a-zA-Z0-9_-]+'
   severity: critical
   description: "Adyen API key hardcoded"
   remediation: "Use environment variables for Adyen keys"
@@ -3512,7 +3512,7 @@
 - id: fastapi-adyen-hmac-key
   languages: [python]
   patterns:
-    - regex: 'ADYEN_HMAC_KEY\\s*=\\s*['\"][a-f0-9]{64}['\"]|hmac_key\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'ADYEN_HMAC_KEY\\s*=\\s*[''\"][a-f0-9]{64}[''\"]|hmac_key\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Adyen HMAC key hardcoded"
   remediation: "Use environment variables for HMAC keys"
@@ -3522,7 +3522,7 @@
 - id: fastapi-razorpay-key
   languages: [python]
   patterns:
-    - regex: 'rzp_(live|test)_[a-zA-Z0-9]{14,}|RAZORPAY_KEY_SECRET\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'rzp_(live|test)_[a-zA-Z0-9]{14,}|RAZORPAY_KEY_SECRET\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: critical
   description: "Razorpay API key hardcoded"
   remediation: "Use environment variables for Razorpay keys"
@@ -3532,7 +3532,7 @@
 - id: fastapi-razorpay-webhook-secret
   languages: [python]
   patterns:
-    - regex: 'RAZORPAY_WEBHOOK_SECRET\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'RAZORPAY_WEBHOOK_SECRET\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Razorpay webhook secret hardcoded"
   remediation: "Use environment variables for webhook secrets"
@@ -3542,7 +3542,7 @@
 - id: fastapi-paystack-secret-key
   languages: [python]
   patterns:
-    - regex: 'sk_(live|test)_[a-f0-9]{40,}|PAYSTACK_SECRET_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'sk_(live|test)_[a-f0-9]{40,}|PAYSTACK_SECRET_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Paystack secret key hardcoded"
   remediation: "Use environment variables for Paystack keys"
@@ -3552,7 +3552,7 @@
 - id: fastapi-flutterwave-key
   languages: [python]
   patterns:
-    - regex: 'FLW_SECRET_KEY\\s*=\\s*['\"][a-f0-9-]+['\"]|FLW_PUBLIC_KEY\\s*=\\s*['\"][a-f0-9-]+['\"]'
+    - regex: 'FLW_SECRET_KEY\\s*=\\s*[''\"][a-f0-9-]+[''\"]|FLW_PUBLIC_KEY\\s*=\\s*[''\"][a-f0-9-]+[''\"]'
   severity: critical
   description: "Flutterwave API keys hardcoded"
   remediation: "Use environment variables for Flutterwave keys"
@@ -3562,7 +3562,7 @@
 - id: fastapi-mercadopago-key
   languages: [python]
   patterns:
-    - regex: 'APP_USR-[a-f0-9]{32}-[a-f0-9]{12}|MERCADOPAGO_ACCESS_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'APP_USR-[a-f0-9]{32}-[a-f0-9]{12}|MERCADOPAGO_ACCESS_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "MercadoPago access token hardcoded"
   remediation: "Use environment variables for MercadoPago tokens"
@@ -3572,7 +3572,7 @@
 - id: fastapi-pagseguro-key
   languages: [python]
   patterns:
-    - regex: 'PAGSEGURO_TOKEN\\s*=\\s*['\"][a-f0-9-]{36}['\"]|PAGSEGURO_EMAIL\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'PAGSEGURO_TOKEN\\s*=\\s*[''\"][a-f0-9-]{36}[''\"]|PAGSEGURO_EMAIL\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "PagSeguro credentials hardcoded"
   remediation: "Use environment variables for PagSeguro"
@@ -3586,7 +3586,7 @@
 - id: fastapi-twilio-account-sid
   languages: [python]
   patterns:
-    - regex: 'AC[a-f0-9]{32}|TWILIO_ACCOUNT_SID\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'AC[a-f0-9]{32}|TWILIO_ACCOUNT_SID\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Twilio Account SID hardcoded"
   remediation: "Use environment variables for Twilio credentials"
@@ -3596,7 +3596,7 @@
 - id: fastapi-twilio-auth-token
   languages: [python]
   patterns:
-    - regex: '[a-f0-9]{32,64}|TWILIO_AUTH_TOKEN\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: '[a-f0-9]{32,64}|TWILIO_AUTH_TOKEN\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Twilio Auth Token hardcoded"
   remediation: "Use environment variables for Twilio tokens"
@@ -3606,7 +3606,7 @@
 - id: fastapi-twilio-api-key
   languages: [python]
   patterns:
-    - regex: 'SK[a-f0-9]{32}|TWILIO_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'SK[a-f0-9]{32}|TWILIO_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Twilio API Key hardcoded"
   remediation: "Use environment variables for Twilio API keys"
@@ -3616,7 +3616,7 @@
 - id: fastapi-twilio-api-secret
   languages: [python]
   patterns:
-    - regex: 'TWILIO_API_SECRET\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|api_secret\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'TWILIO_API_SECRET\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|api_secret\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Twilio API Secret hardcoded"
   remediation: "Use environment variables for Twilio secrets"
@@ -3626,7 +3626,7 @@
 - id: fastapi-messagebird-key
   languages: [python]
   patterns:
-    - regex: 'MESSAGEBIRD_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]{20,}['\"]|live_[a-zA-Z0-9]{20,}'
+    - regex: 'MESSAGEBIRD_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]{20,}[''\"]|live_[a-zA-Z0-9]{20,}'
   severity: high
   description: "MessageBird API key hardcoded"
   remediation: "Use environment variables for MessageBird keys"
@@ -3636,7 +3636,7 @@
 - id: fastapi-vonage-key
   languages: [python]
   patterns:
-    - regex: 'VONAGE_API_KEY\\s*=\\s*['\"][a-f0-9]{16}['\"]|VONAGE_API_SECRET\\s*=\\s*['\"][a-f0-9]{16}['\"]'
+    - regex: 'VONAGE_API_KEY\\s*=\\s*[''\"][a-f0-9]{16}[''\"]|VONAGE_API_SECRET\\s*=\\s*[''\"][a-f0-9]{16}[''\"]'
   severity: high
   description: "Vonage (Nexmo) API credentials hardcoded"
   remediation: "Use environment variables for Vonage keys"
@@ -3646,7 +3646,7 @@
 - id: fastapi-plivo-auth-id
   languages: [python]
   patterns:
-    - regex: 'PLIVO_AUTH_ID\\s*=\\s*['\"][a-f0-9]{20}['\"]|PLIVO_AUTH_TOKEN\\s*=\\s*['\"][a-f0-9]{20}['\"]'
+    - regex: 'PLIVO_AUTH_ID\\s*=\\s*[''\"][a-f0-9]{20}[''\"]|PLIVO_AUTH_TOKEN\\s*=\\s*[''\"][a-f0-9]{20}[''\"]'
   severity: high
   description: "Plivo authentication credentials hardcoded"
   remediation: "Use environment variables for Plivo keys"
@@ -3656,7 +3656,7 @@
 - id: fastapi-sinch-key
   languages: [python]
   patterns:
-    - regex: 'SINCH_KEY_ID\\s*=\\s*['\"][a-f0-9-]{36}['\"]|SINCH_KEY_SECRET\\s*=\\s*['\"][a-zA-Z0-9+/=]+['\"]'
+    - regex: 'SINCH_KEY_ID\\s*=\\s*[''\"][a-f0-9-]{36}[''\"]|SINCH_KEY_SECRET\\s*=\\s*[''\"][a-zA-Z0-9+/=]+[''\"]'
   severity: high
   description: "Sinch API credentials hardcoded"
   remediation: "Use environment variables for Sinch keys"
@@ -3666,7 +3666,7 @@
 - id: fastapi-telnyx-key
   languages: [python]
   patterns:
-    - regex: 'TELNYX_API_KEY\\s*=\\s*['\"][a-zA-Z0-9]{40,}['\"]|key[a-f0-9]{32,}'
+    - regex: 'TELNYX_API_KEY\\s*=\\s*[''\"][a-zA-Z0-9]{40,}[''\"]|key[a-f0-9]{32,}'
   severity: high
   description: "Telnyx API key hardcoded"
   remediation: "Use environment variables for Telnyx keys"
@@ -3676,7 +3676,7 @@
 - id: fastapi-bandwidth-credentials
   languages: [python]
   patterns:
-    - regex: 'BANDWIDTH_USERNAME\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|BANDWIDTH_PASSWORD\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'BANDWIDTH_USERNAME\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|BANDWIDTH_PASSWORD\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Bandwidth.com credentials hardcoded"
   remediation: "Use environment variables for Bandwidth auth"
@@ -3686,7 +3686,7 @@
 - id: fastapi-sendgrid-api-key
   languages: [python]
   patterns:
-    - regex: 'SG\\.[a-zA-Z0-9_-]{22}\\.[a-zA-Z0-9_-]{43}|SENDGRID_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'SG\\.[a-zA-Z0-9_-]{22}\\.[a-zA-Z0-9_-]{43}|SENDGRID_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "SendGrid API key hardcoded"
   remediation: "Use environment variables for SendGrid keys"
@@ -3696,7 +3696,7 @@
 - id: fastapi-mailgun-api-key
   languages: [python]
   patterns:
-    - regex: 'key-[a-f0-9]{32}|MAILGUN_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'key-[a-f0-9]{32}|MAILGUN_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Mailgun API key hardcoded"
   remediation: "Use environment variables for Mailgun keys"
@@ -3706,7 +3706,7 @@
 - id: fastapi-postmark-server-token
   languages: [python]
   patterns:
-    - regex: 'POSTMARK_SERVER_TOKEN\\s*=\\s*['\"][a-f0-9-]{36}['\"]|[a-f0-9-]{36}'
+    - regex: 'POSTMARK_SERVER_TOKEN\\s*=\\s*[''\"][a-f0-9-]{36}[''\"]|[a-f0-9-]{36}'
   severity: high
   description: "Postmark server token hardcoded"
   remediation: "Use environment variables for Postmark tokens"
@@ -3716,7 +3716,7 @@
 - id: fastapi-ses-smtp-password
   languages: [python]
   patterns:
-    - regex: 'AWS_SES_SMTP_PASSWORD\\s*=\\s*['\"][a-zA-Z0-9+/=]{40,}['\"]'
+    - regex: 'AWS_SES_SMTP_PASSWORD\\s*=\\s*[''\"][a-zA-Z0-9+/=]{40,}[''\"]'
   severity: critical
   description: "AWS SES SMTP password hardcoded"
   remediation: "Use environment variables for SES credentials"
@@ -3726,7 +3726,7 @@
 - id: fastapi-resend-api-key
   languages: [python]
   patterns:
-    - regex: 're_[a-zA-Z0-9]{24,}|RESEND_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 're_[a-zA-Z0-9]{24,}|RESEND_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Resend.com API key hardcoded"
   remediation: "Use environment variables for Resend keys"
@@ -3736,7 +3736,7 @@
 - id: fastapi-mailersend-api-key
   languages: [python]
   patterns:
-    - regex: 'mlsn\\.[a-f0-9]{40,}|MAILERSEND_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'mlsn\\.[a-f0-9]{40,}|MAILERSEND_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "MailerSend API key hardcoded"
   remediation: "Use environment variables for MailerSend keys"
@@ -3746,7 +3746,7 @@
 - id: fastapi-brevo-api-key
   languages: [python]
   patterns:
-    - regex: 'xkeysib-[a-f0-9]{64}-[a-f0-9]{16}|BREVO_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'xkeysib-[a-f0-9]{64}-[a-f0-9]{16}|BREVO_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Brevo (Sendinblue) API key hardcoded"
   remediation: "Use environment variables for Brevo keys"
@@ -3756,7 +3756,7 @@
 - id: fastapi-mandrill-api-key
   languages: [python]
   patterns:
-    - regex: 'md-[a-zA-Z0-9]{32}|MANDRILL_API_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'md-[a-zA-Z0-9]{32}|MANDRILL_API_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Mandrill API key hardcoded"
   remediation: "Use environment variables for Mandrill keys"
@@ -3766,7 +3766,7 @@
 - id: fastapi-emailjs-public-key
   languages: [python]
   patterns:
-    - regex: 'EMAILJS_PUBLIC_KEY\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]|user_[a-zA-Z0-9]{16,}'
+    - regex: 'EMAILJS_PUBLIC_KEY\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]|user_[a-zA-Z0-9]{16,}'
   severity: low
   description: "EmailJS public key exposed"
   remediation: "Use environment variables, restrict domain in EmailJS"
@@ -3776,7 +3776,7 @@
 - id: fastapi-emailjs-private-key
   languages: [python]
   patterns:
-    - regex: 'EMAILJS_PRIVATE_KEY\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]|private_key_[a-zA-Z0-9]{16,}'
+    - regex: 'EMAILJS_PRIVATE_KEY\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]|private_key_[a-zA-Z0-9]{16,}'
   severity: critical
   description: "EmailJS private key hardcoded"
   remediation: "Never expose private keys; use server-side email"
@@ -3790,7 +3790,7 @@
 - id: fastapi-okta-client-secret
   languages: [python]
   patterns:
-    - regex: 'OKTA_CLIENT_SECRET\\s*=\\s*['\"][a-zA-Z0-9_-]{32,}['\"]'
+    - regex: 'OKTA_CLIENT_SECRET\\s*=\\s*[''\"][a-zA-Z0-9_-]{32,}[''\"]'
   severity: critical
   description: "Okta client secret hardcoded"
   remediation: "Use environment variables for Okta credentials"
@@ -3800,7 +3800,7 @@
 - id: fastapi-okta-api-token
   languages: [python]
   patterns:
-    - regex: 'OKTA_API_TOKEN\\s*=\\s*['\"][0-9a-f-]{40,}['\"]'
+    - regex: 'OKTA_API_TOKEN\\s*=\\s*[''\"][0-9a-f-]{40,}[''\"]'
   severity: critical
   description: "Okta API token hardcoded"
   remediation: "Use environment variables for Okta tokens"
@@ -3810,7 +3810,7 @@
 - id: fastapi-auth0-client-secret
   languages: [python]
   patterns:
-    - regex: 'AUTH0_CLIENT_SECRET\\s*=\\s*['\"][a-zA-Z0-9_-]{32,}['\"]'
+    - regex: 'AUTH0_CLIENT_SECRET\\s*=\\s*[''\"][a-zA-Z0-9_-]{32,}[''\"]'
   severity: critical
   description: "Auth0 client secret hardcoded"
   remediation: "Use environment variables for Auth0 secrets"
@@ -3820,7 +3820,7 @@
 - id: fastapi-auth0-management-token
   languages: [python]
   patterns:
-    - regex: 'AUTH0_MANAGEMENT_API_TOKEN\\s*=\\s*['\"][a-zA-Z0-9._-]+['\"]'
+    - regex: 'AUTH0_MANAGEMENT_API_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9._-]+[''\"]'
   severity: critical
   description: "Auth0 Management API token hardcoded"
   remediation: "Use environment variables and refresh tokens"
@@ -3830,7 +3830,7 @@
 - id: fastapi-fusionauth-key
   languages: [python]
   patterns:
-    - regex: 'FUSIONAUTH_API_KEY\\s*=\\s*['\"][a-f0-9-]{36}['\"]'
+    - regex: 'FUSIONAUTH_API_KEY\\s*=\\s*[''\"][a-f0-9-]{36}[''\"]'
   severity: high
   description: "FusionAuth API key hardcoded"
   remediation: "Use environment variables for FusionAuth keys"
@@ -3840,7 +3840,7 @@
 - id: fastapi-keycloak-client-secret
   languages: [python]
   patterns:
-    - regex: 'KEYCLOAK_CLIENT_SECRET\\s*=\\s*['\"][a-f0-9-]{36}['\"]'
+    - regex: 'KEYCLOAK_CLIENT_SECRET\\s*=\\s*[''\"][a-f0-9-]{36}[''\"]'
   severity: critical
   description: "Keycloak client secret hardcoded"
   remediation: "Use environment variables for Keycloak secrets"
@@ -3850,7 +3850,7 @@
 - id: fastapi-keycloak-admin-password
   languages: [python]
   patterns:
-    - regex: 'KEYCLOAK_ADMIN_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'KEYCLOAK_ADMIN_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Keycloak admin password hardcoded"
   remediation: "Use environment variables or secrets manager"
@@ -3860,7 +3860,7 @@
 - id: fastapi-cognito-client-secret
   languages: [python]
   patterns:
-    - regex: 'COGNITO_CLIENT_SECRET\\s*=\\s*['\"][a-f0-9]{32,}['\"]'
+    - regex: 'COGNITO_CLIENT_SECRET\\s*=\\s*[''\"][a-f0-9]{32,}[''\"]'
   severity: critical
   description: "Cognito client secret hardcoded"
   remediation: "Use environment variables for Cognito secrets"
@@ -3870,7 +3870,7 @@
 - id: fastapi-cognito-user-pool-id
   languages: [python]
   patterns:
-    - regex: 'COGNITO_USER_POOL_ID\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'COGNITO_USER_POOL_ID\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "Cognito user pool ID hardcoded"
   remediation: "Use environment variables for pool IDs"
@@ -3880,7 +3880,7 @@
 - id: fastapi-saml-private-key
   languages: [python]
   patterns:
-    - regex: '-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----|saml_private_key\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: '-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----|saml_private_key\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "SAML private key hardcoded"
   remediation: "Store SAML keys in secure files, not in code"
@@ -3890,7 +3890,7 @@
 - id: fastapi-saml-certificate
   languages: [python]
   patterns:
-    - regex: '-----BEGIN CERTIFICATE-----.*-----END CERTIFICATE-----|saml_certificate\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: '-----BEGIN CERTIFICATE-----.*-----END CERTIFICATE-----|saml_certificate\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "SAML certificate hardcoded"
   remediation: "Store certificates in secure files"
@@ -3900,7 +3900,7 @@
 - id: fastapi-ldap-bind-password
   languages: [python]
   patterns:
-    - regex: 'ldap\\.Connection\\(.*?password=['\"][^'\"]+['\"]|LDAP_BIND_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'ldap\\.Connection\\(.*?password=[''\"][^''\"]+[''\"]|LDAP_BIND_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "LDAP bind password hardcoded"
   remediation: "Use environment variables for LDAP passwords"
@@ -3910,7 +3910,7 @@
 - id: fastapi-ldap-simple-bind
   languages: [python]
   patterns:
-    - regex: 'simple_bind\\(['\"][^'\"]+['\"],\\s*['\"][^'\"]+['\"]\\)'
+    - regex: 'simple_bind\\([''\"][^''\"]+[''\"],\\s*[''\"][^''\"]+[''\"]\\)'
   severity: high
   description: "LDAP simple bind with hardcoded credentials"
   remediation: "Use environment variables for LDAP auth"
@@ -3940,7 +3940,7 @@
 - id: fastapi-oauth2-token-in-url
   languages: [python]
   patterns:
-    - regex: 'access_token\\s*=\\s*request\\.query_params\\.get\\(['\"]access_token['\"]'
+    - regex: 'access_token\\s*=\\s*request\\.query_params\\.get\\([''\"]access_token[''\"]'
   severity: high
   description: "OAuth2 token accepted in URL (fragment should be used)"
   remediation: "Accept tokens in Authorization header only"
@@ -3980,7 +3980,7 @@
 - id: fastapi-oauth-token-exchange-http
   languages: [python]
   patterns:
-    - regex: 'token_url\\s*=\\s*['\"]http://[^'\"]+['\"]'
+    - regex: 'token_url\\s*=\\s*[''\"]http://[^''\"]+[''\"]'
   severity: critical
   description: "OAuth token exchange over HTTP (not HTTPS)"
   remediation: "Always use HTTPS for token endpoints"
@@ -3990,7 +3990,7 @@
 - id: fastapi-jwt-payload-sensitivity
   languages: [python]
   patterns:
-    - regex: 'jwt\\.encode\\(.*?['\"](password|ssn|credit|pan|cvv|secret)['\"]'
+    - regex: 'jwt\\.encode\\(.*?[''\"](password|ssn|credit|pan|cvv|secret)[''\"]'
   severity: critical
   description: "Sensitive data included in JWT payload"
   remediation: "Never include sensitive data in JWT tokens"
@@ -4000,7 +4000,7 @@
 - id: fastapi-jwt-weak-algorithm
   languages: [python]
   patterns:
-    - regex: 'algorithm=['\"]none['\"]|algorithm=['\"]HS1['\"]|algorithm=['\"]HS2['\"]'
+    - regex: 'algorithm=[''\"]none[''\"]|algorithm=[''\"]HS1[''\"]|algorithm=[''\"]HS2[''\"]'
   severity: critical
   description: "JWT with weak or no algorithm"
   remediation: "Use HS256 or RS256, never 'none'"
@@ -4070,7 +4070,7 @@
 - id: fastapi-session-cookie-name
   languages: [python]
   patterns:
-    - regex: 'session_cookie=['\"]session['\"]|cookie_name=['\"]session['\"]'
+    - regex: 'session_cookie=[''\"]session[''\"]|cookie_name=[''\"]session[''\"]'
   severity: low
   description: "Generic session cookie name"
   remediation: "Use application-specific cookie names"
@@ -4080,7 +4080,7 @@
 - id: fastapi-session-fixed-key
   languages: [python]
   patterns:
-    - regex: 'secret_key\\s*=\\s*['\"][a-zA-Z0-9]{1,16}['\"]'
+    - regex: 'secret_key\\s*=\\s*[''\"][a-zA-Z0-9]{1,16}[''\"]'
   severity: high
   description: "Session secret key too short"
   remediation: "Use at least 32-character random secret key"
@@ -4090,7 +4090,7 @@
 - id: fastapi-session-backend-choice
   languages: [python]
   patterns:
-    - regex: 'session\\.middleware\\(.*?backend=['\"]memory['\"]'
+    - regex: 'session\\.middleware\\(.*?backend=[''\"]memory[''\"]'
   severity: low
   description: "In-memory session storage (not scalable)"
   remediation: "Use Redis or database for session storage"
@@ -4104,7 +4104,7 @@
 - id: fastapi-api-key-in-header
   languages: [python]
   patterns:
-    - regex: 'X-API-Key['\"]:\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'X-API-Key[''\"]:\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: high
   description: "API key hardcoded in headers"
   remediation: "Use environment variables for API keys"
@@ -4114,7 +4114,7 @@
 - id: fastapi-api-key-in-query
   languages: [python]
   patterns:
-    - regex: 'api_key\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'api_key\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: high
   description: "API key in query parameter (may be logged)"
   remediation: "Use Authorization header for API keys"
@@ -4174,7 +4174,7 @@
 - id: fastapi-bearer-token-in-url
   languages: [python]
   patterns:
-    - regex: 'token\\s*=\\s*request\\.query_params\\.get\\(['\"]token['\"]'
+    - regex: 'token\\s*=\\s*request\\.query_params\\.get\\([''\"]token[''\"]'
   severity: high
   description: "Bearer token accepted in URL"
   remediation: "Accept tokens in Authorization: Bearer header only"
@@ -4184,7 +4184,7 @@
 - id: fastapi-bearer-token-validation
   languages: [python]
   patterns:
-    - regex: 'Authorization\\s*:\\s*Bearer\\s+['\"]([^'\"]+)['\"]'
+    - regex: 'Authorization\\s*:\\s*Bearer\\s+[''\"]([^''\"]+)[''\"]'
   severity: low
   description: "Bearer token format validation missing"
   remediation: "Validate Bearer token format and presence"
@@ -4328,7 +4328,7 @@
 - id: fastapi-lambda-function-name
   languages: [python]
   patterns:
-    - regex: 'LAMBDA_FUNCTION_NAME\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'LAMBDA_FUNCTION_NAME\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "Lambda function name hardcoded"
   remediation: "Use environment variables for function names"
@@ -4388,7 +4388,7 @@
 - id: fastapi-lambda-s3-bucket
   languages: [python]
   patterns:
-    - regex: 'S3_BUCKET_NAME\\s*=\\s*['\"][a-zA-Z0-9.-]+['\"]'
+    - regex: 'S3_BUCKET_NAME\\s*=\\s*[''\"][a-zA-Z0-9.-]+[''\"]'
   severity: low
   description: "S3 bucket name hardcoded"
   remediation: "Use environment variables for bucket names"
@@ -4398,7 +4398,7 @@
 - id: fastapi-lambda-dynamodb-table
   languages: [python]
   patterns:
-    - regex: 'DYNAMODB_TABLE\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'DYNAMODB_TABLE\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "DynamoDB table name hardcoded"
   remediation: "Use environment variables for table names"
@@ -4418,7 +4418,7 @@
 - id: fastapi-lambda-cloudwatch-log
   languages: [python]
   patterns:
-    - regex: 'log_group_name\\s*=\\s*['\"][/a-zA-Z0-9_-]+['\"]'
+    - regex: 'log_group_name\\s*=\\s*[''\"][/a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "CloudWatch log group hardcoded"
   remediation: "Use environment variables for log groups"
@@ -4428,7 +4428,7 @@
 - id: fastapi-lambda-xray-tracing
   languages: [python]
   patterns:
-    - regex: 'AWS_XRAY_TRACING_NAME\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'AWS_XRAY_TRACING_NAME\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "X-Ray tracing name hardcoded"
   remediation: "Use environment variables for tracing names"
@@ -4458,7 +4458,7 @@
 - id: fastapi-gcf-function-name
   languages: [python]
   patterns:
-    - regex: 'GCF_FUNCTION_NAME\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'GCF_FUNCTION_NAME\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "Google Cloud Function name hardcoded"
   remediation: "Use environment variables for function names"
@@ -4468,7 +4468,7 @@
 - id: fastapi-gcf-service-account
   languages: [python]
   patterns:
-    - regex: 'service_account_email\\s*=\\s*['\"][a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\\.iam\\.gserviceaccount\\.com['\"]'
+    - regex: 'service_account_email\\s*=\\s*[''\"][a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\\.iam\\.gserviceaccount\\.com[''\"]'
   severity: medium
   description: "Service account email hardcoded"
   remediation: "Use default service account or environment variables"
@@ -4478,7 +4478,7 @@
 - id: fastapi-gcf-vpc-connector
   languages: [python]
   patterns:
-    - regex: 'vpc_connector\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'vpc_connector\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "VPC connector name hardcoded"
   remediation: "Use environment variables for VPC connectors"
@@ -4488,7 +4488,7 @@
 - id: fastapi-azure-function-key
   languages: [python]
   patterns:
-    - regex: 'x-functions-key['\"]:\\s*['\"][a-zA-Z0-9/+=]+['\"]|AZURE_FUNCTION_KEY\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'x-functions-key[''\"]:\\s*[''\"][a-zA-Z0-9/+=]+[''\"]|AZURE_FUNCTION_KEY\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Azure Function key hardcoded"
   remediation: "Use environment variables for function keys"
@@ -4498,7 +4498,7 @@
 - id: fastapi-azure-function-host-key
   languages: [python]
   patterns:
-    - regex: 'AZURE_FUNCTION_HOST_KEY\\s*=\\s*['\"][a-zA-Z0-9/+=]+['\"]'
+    - regex: 'AZURE_FUNCTION_HOST_KEY\\s*=\\s*[''\"][a-zA-Z0-9/+=]+[''\"]'
   severity: critical
   description: "Azure Function host key hardcoded (master key)"
   remediation: "Never hardcode master keys; use environment variables"
@@ -4508,7 +4508,7 @@
 - id: fastapi-azure-app-insights-key
   languages: [python]
   patterns:
-    - regex: 'APPINSIGHTS_INSTRUMENTATIONKEY\\s*=\\s*['\"][a-f0-9-]{36}['\"]'
+    - regex: 'APPINSIGHTS_INSTRUMENTATIONKEY\\s*=\\s*[''\"][a-f0-9-]{36}[''\"]'
   severity: high
   description: "Application Insights key hardcoded"
   remediation: "Use environment variables for instrumentation keys"
@@ -4538,7 +4538,7 @@
 - id: fastapi-kubernetes-kubeconfig
   languages: [python]
   patterns:
-    - regex: 'config\\.load_kube_config\\(['\"][^'\"]+\\.kube/config['\"]\\)'
+    - regex: 'config\\.load_kube_config\\([''\"][^''\"]+\\.kube/config[''\"]\\)'
   severity: high
   description: "Kubeconfig file path hardcoded"
   remediation: "Use default locations or environment variables"
@@ -4548,7 +4548,7 @@
 - id: fastapi-kubernetes-namespace
   languages: [python]
   patterns:
-    - regex: 'namespace\\s*=\\s*['\"][a-zA-Z0-9-]+['\"]'
+    - regex: 'namespace\\s*=\\s*[''\"][a-zA-Z0-9-]+[''\"]'
   severity: low
   description: "Kubernetes namespace hardcoded"
   remediation: "Use environment variables or downward API"
@@ -4558,7 +4558,7 @@
 - id: fastapi-kubernetes-secret-name
   languages: [python]
   patterns:
-    - regex: 'secret_name\\s*=\\s*['\"][a-zA-Z0-9-]+['\"]'
+    - regex: 'secret_name\\s*=\\s*[''\"][a-zA-Z0-9-]+[''\"]'
   severity: low
   description: "Kubernetes secret name hardcoded"
   remediation: "Use environment variables for secret names"
@@ -4568,7 +4568,7 @@
 - id: fastapi-kubernetes-configmap
   languages: [python]
   patterns:
-    - regex: 'config_map_name\\s*=\\s*['\"][a-zA-Z0-9-]+['\"]'
+    - regex: 'config_map_name\\s*=\\s*[''\"][a-zA-Z0-9-]+[''\"]'
   severity: low
   description: "Kubernetes configmap name hardcoded"
   remediation: "Use environment variables for configmap names"
@@ -4758,7 +4758,7 @@
 - id: fastapi-terraform-variable-default
   languages: [python]
   patterns:
-    - regex: 'variable\\s+\"[^\"]+(password|secret|key|token)\"\\s*\\{.*?default\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'variable\\s+\"[^\"]+(password|secret|key|token)\"\\s*\\{.*?default\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Sensitive variable has default value"
   remediation: "Remove default values for sensitive variables"
@@ -4768,7 +4768,7 @@
 - id: fastapi-terraform-hardcoded-creds
   languages: [python]
   patterns:
-    - regex: 'provider\\s+\"aws\"\\s*\\{.*?(access_key|secret_key)\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'provider\\s+\"aws\"\\s*\\{.*?(access_key|secret_key)\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: critical
   description: "Provider credentials hardcoded in Terraform"
   remediation: "Use environment variables or IAM roles"
@@ -4778,7 +4778,7 @@
 - id: fastapi-terraform-s3-acl-public
   languages: [python]
   patterns:
-    - regex: 'acl\\s*=\\s*['\"](public-read|public-read-write|authenticated-read)['\"]'
+    - regex: 'acl\\s*=\\s*[''\"](public-read|public-read-write|authenticated-read)[''\"]'
   severity: high
   description: "S3 bucket with public ACL"
   remediation: "Use private ACLs and bucket policies"
@@ -4998,7 +4998,7 @@
 - id: fastapi-datadog-api-key
   languages: [python]
   patterns:
-    - regex: 'DD_API_KEY\\s*=\\s*['\"][a-f0-9]{32}['\"]'
+    - regex: 'DD_API_KEY\\s*=\\s*[''\"][a-f0-9]{32}[''\"]'
   severity: critical
   description: "Datadog API key hardcoded"
   remediation: "Use environment variables for Datadog keys"
@@ -5008,7 +5008,7 @@
 - id: fastapi-datadog-app-key
   languages: [python]
   patterns:
-    - regex: 'DD_APP_KEY\\s*=\\s*['\"][a-f0-9]{40}['\"]'
+    - regex: 'DD_APP_KEY\\s*=\\s*[''\"][a-f0-9]{40}[''\"]'
   severity: critical
   description: "Datadog Application key hardcoded"
   remediation: "Use environment variables for Datadog keys"
@@ -5018,7 +5018,7 @@
 - id: fastapi-newrelic-license-key
   languages: [python]
   patterns:
-    - regex: 'NEW_RELIC_LICENSE_KEY\\s*=\\s*['\"][a-f0-9]{40}['\"]'
+    - regex: 'NEW_RELIC_LICENSE_KEY\\s*=\\s*[''\"][a-f0-9]{40}[''\"]'
   severity: critical
   description: "New Relic license key hardcoded"
   remediation: "Use environment variables for New Relic"
@@ -5028,7 +5028,7 @@
 - id: fastapi-newrelic-app-name
   languages: [python]
   patterns:
-    - regex: 'NEW_RELIC_APP_NAME\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'NEW_RELIC_APP_NAME\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: low
   description: "New Relic app name hardcoded"
   remediation: "Use environment variables for app name"
@@ -5038,7 +5038,7 @@
 - id: fastapi-opentelemetry-token
   languages: [python]
   patterns:
-    - regex: 'OTEL_EXPORTER_OTLP_HEADERS.*?Authorization=['\"]Bearer [a-zA-Z0-9._-]+['\"]'
+    - regex: 'OTEL_EXPORTER_OTLP_HEADERS.*?Authorization=[''\"]Bearer [a-zA-Z0-9._-]+[''\"]'
   severity: critical
   description: "OpenTelemetry auth token hardcoded"
   remediation: "Use environment variables for OTLP headers"
@@ -5048,7 +5048,7 @@
 - id: fastapi-opentelemetry-endpoint
   languages: [python]
   patterns:
-    - regex: 'OTEL_EXPORTER_OTLP_ENDPOINT\\s*=\\s*['\"]https?://[^'\"]+['\"]'
+    - regex: 'OTEL_EXPORTER_OTLP_ENDPOINT\\s*=\\s*[''\"]https?://[^''\"]+[''\"]'
   severity: low
   description: "OpenTelemetry endpoint hardcoded"
   remediation: "Use environment variables for endpoint"
@@ -5068,7 +5068,7 @@
 - id: fastapi-sentry-environment
   languages: [python]
   patterns:
-    - regex: 'sentry_sdk\\.init\\(.*?environment=['\"](development|staging|production)['\"]'
+    - regex: 'sentry_sdk\\.init\\(.*?environment=[''\"](development|staging|production)[''\"]'
   severity: low
   description: "Sentry environment hardcoded"
   remediation: "Set environment via environment variables"
@@ -5078,7 +5078,7 @@
 - id: fastapi-sentry-release
   languages: [python]
   patterns:
-    - regex: 'sentry_sdk\\.init\\(.*?release=['\"][0-9.]+['\"]'
+    - regex: 'sentry_sdk\\.init\\(.*?release=[''\"][0-9.]+[''\"]'
   severity: low
   description: "Sentry release hardcoded"
   remediation: "Use git commit hash or CI variables"
@@ -5088,7 +5088,7 @@
 - id: fastapi-logzio-token
   languages: [python]
   patterns:
-    - regex: 'LOGZIO_TOKEN\\s*=\\s*['\"][a-zA-Z0-9_-]+['\"]'
+    - regex: 'LOGZIO_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9_-]+[''\"]'
   severity: high
   description: "Logz.io token hardcoded"
   remediation: "Use environment variables for logging tokens"
@@ -5098,7 +5098,7 @@
 - id: fastapi-papertrail-host
   languages: [python]
   patterns:
-    - regex: 'PAPERTRAIL_HOST\\s*=\\s*['\"][a-zA-Z0-9.-]+\\.papertrail\\.com['\"]'
+    - regex: 'PAPERTRAIL_HOST\\s*=\\s*[''\"][a-zA-Z0-9.-]+\\.papertrail\\.com[''\"]'
   severity: low
   description: "Papertrail host hardcoded"
   remediation: "Use environment variables for logging hosts"
@@ -5118,7 +5118,7 @@
 - id: fastapi-sumologic-token
   languages: [python]
   patterns:
-    - regex: 'SUMOLOGIC_ACCESS_ID\\s*=\\s*['\"][a-zA-Z0-9]+['\"]|SUMOLOGIC_ACCESS_KEY\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'SUMOLOGIC_ACCESS_ID\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]|SUMOLOGIC_ACCESS_KEY\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Sumo Logic credentials hardcoded"
   remediation: "Use environment variables for Sumo Logic"
@@ -5128,7 +5128,7 @@
 - id: fastapi-elastic-cloud-id
   languages: [python]
   patterns:
-    - regex: 'ELASTIC_CLOUD_ID\\s*=\\s*['\"][a-zA-Z0-9:_-]+['\"]'
+    - regex: 'ELASTIC_CLOUD_ID\\s*=\\s*[''\"][a-zA-Z0-9:_-]+[''\"]'
   severity: low
   description: "Elastic Cloud ID hardcoded"
   remediation: "Use environment variables for cloud ID"
@@ -5138,7 +5138,7 @@
 - id: fastapi-elastic-apm-token
   languages: [python]
   patterns:
-    - regex: 'ELASTIC_APM_SECRET_TOKEN\\s*=\\s*['\"][a-zA-Z0-9]+['\"]'
+    - regex: 'ELASTIC_APM_SECRET_TOKEN\\s*=\\s*[''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Elastic APM secret token hardcoded"
   remediation: "Use environment variables for APM tokens"
@@ -5148,7 +5148,7 @@
 - id: fastapi-elastic-apm-server
   languages: [python]
   patterns:
-    - regex: 'ELASTIC_APM_SERVER_URL\\s*=\\s*['\"]https?://[^'\"]+['\"]'
+    - regex: 'ELASTIC_APM_SERVER_URL\\s*=\\s*[''\"]https?://[^''\"]+[''\"]'
   severity: low
   description: "Elastic APM server URL hardcoded"
   remediation: "Use environment variables for server URL"
@@ -5208,7 +5208,7 @@
 - id: fastapi-jaeger-password
   languages: [python]
   patterns:
-    - regex: 'JAEGER_PASSWORD\\s*=\\s*['\"][^'\"]+['\"]'
+    - regex: 'JAEGER_PASSWORD\\s*=\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "Jaeger password hardcoded"
   remediation: "Use environment variables for Jaeger auth"
@@ -5218,7 +5218,7 @@
 - id: fastapi-jaeger-agent-host
   languages: [python]
   patterns:
-    - regex: 'JAEGER_AGENT_HOST\\s*=\\s*['\"][a-zA-Z0-9.-]+['\"]'
+    - regex: 'JAEGER_AGENT_HOST\\s*=\\s*[''\"][a-zA-Z0-9.-]+[''\"]'
   severity: low
   description: "Jaeger agent host hardcoded"
   remediation: "Use environment variables for agent host"
@@ -5238,7 +5238,7 @@
 - id: fastapi-zipkin-endpoint
   languages: [python]
   patterns:
-    - regex: 'ZIPKIN_HTTP_ENDPOINT\\s*=\\s*['\"]https?://[^'\"]+['\"]'
+    - regex: 'ZIPKIN_HTTP_ENDPOINT\\s*=\\s*[''\"]https?://[^''\"]+[''\"]'
   severity: low
   description: "Zipkin endpoint hardcoded"
   remediation: "Use environment variables for endpoint"
@@ -5288,7 +5288,7 @@
 - id: fastapi-pii-in-headers
   languages: [python]
   patterns:
-    - regex: 'X-(User-Email|User-Phone|Client-SSN)['\"]:\\s*['\"][^'\"]+['\"]'
+    - regex: 'X-(User-Email|User-Phone|Client-SSN)[''\"]:\\s*[''\"][^''\"]+[''\"]'
   severity: high
   description: "PII in custom headers"
   remediation: "Avoid sending PII in headers"
@@ -5478,7 +5478,7 @@
 - id: fastapi-pci-dss-cvv-storage
   languages: [python]
   patterns:
-    - regex: 'cvv|cvc.*?=.*?['\"][0-9]{3,4}['\"]'
+    - regex: 'cvv|cvc.*?=.*?[''\"][0-9]{3,4}[''\"]'
   severity: critical
   description: "CVV stored (PCI violation)"
   remediation: "Never store CVV after authorization"
@@ -5498,7 +5498,7 @@
 - id: fastapi-test-credentials
   languages: [python]
   patterns:
-    - regex: 'test.*?(password|secret|key|token).*?=\\s*['\"](test|dummy|123|password)['\"]'
+    - regex: 'test.*?(password|secret|key|token).*?=\\s*[''\"](test|dummy|123|password)[''\"]'
   severity: medium
   description: "Weak test credentials that may be used in production"
   remediation: "Ensure test credentials are not used in production"
@@ -5558,7 +5558,7 @@
 - id: fastapi-hardcoded-host
   languages: [python]
   patterns:
-    - regex: 'host\\s*=\\s*['\"]localhost['\"]|host\\s*=\\s*['\"]127\\.0\\.0\\.1['\"]'
+    - regex: 'host\\s*=\\s*[''\"]localhost[''\"]|host\\s*=\\s*[''\"]127\\.0\\.0\\.1[''\"]'
   severity: low
   description: "Hardcoded localhost address"
   remediation: "Use environment variables for hosts"
@@ -5638,7 +5638,7 @@
 - id: fastapi-fixed-iv
   languages: [python]
   patterns:
-    - regex: 'iv\\s*=\\s*['\"][a-f0-9]{32}['\"]'
+    - regex: 'iv\\s*=\\s*[''\"][a-f0-9]{32}[''\"]'
   severity: high
   description: "Fixed IV for encryption"
   remediation: "Generate random IV for each encryption"
@@ -6478,7 +6478,7 @@
 - id: fastapi-helm-priority-class
   languages: [python]
   patterns:
-    - regex: 'priorityClassName:\\s*['\"]?['\"]?'
+    - regex: 'priorityClassName:\\s*[''\"]?[''\"]?'
   severity: low
   description: "Priority class not set"
   remediation: "Set priority class for critical services"
@@ -6562,7 +6562,7 @@
 - id: fastapi-workflow-skip
   languages: [python]
   patterns:
-    - regex: 'status\\s*=\\s*['\"](approved|completed|paid)['\"].*?(?!check_previous)'
+    - regex: 'status\\s*=\\s*[''\"](approved|completed|paid)[''\"].*?(?!check_previous)'
   severity: high
   description: "Workflow step without previous status validation"
   remediation: "Validate workflow state transitions"
@@ -6732,7 +6732,7 @@
 - id: fastapi-role-escalation
   languages: [python]
   patterns:
-    - regex: 'role\\s*=\\s*['\"](admin|superuser)['\"]'
+    - regex: 'role\\s*=\\s*[''\"](admin|superuser)[''\"]'
   severity: critical
   description: "Role assignment from client"
   remediation: "Never accept roles from client input"

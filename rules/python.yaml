@@ -38,9 +38,9 @@
   languages: [python]
   patterns:
   - regex: |-
-      (?i)(execute|cursor\..execute)\s*\.(\s*['\.].*%.*['\.]
+      (?i)(execute|cursor\..execute)\s*\(\s*['\x22\x27].*%.*['\x22\x27]
   severity: critical
-  description: "Potential SQL injection via string formatting"
+  description: "Potential SQL injection via string formatting in execute call"
   remediation: "Use parameterized queries with placeholders (?, %s) instead of string
     formatting"
 
@@ -61,9 +61,9 @@
   languages: [python]
   patterns:
   - regex: |-
-      (?i)(os\.system|subprocess\.(call|run|Popen))\s*\(\s*["\x27].*\+.*["\x27]
+      (?i)(os\.system|subprocess\.(call|run|Popen))\s*\(\s*(f["\x27]|.*[\x22\x27]\s*[\+\%])
   severity: critical
-  description: "Potential command injection via os.system or subprocess"
+  description: "Potential command injection via os.system or subprocess with dynamic input"
   remediation: "Use subprocess with shell=False and pass arguments as a list. Never
     concatenate user input"
   cwe: "CWE-78"
@@ -73,9 +73,9 @@
   languages: [python]
   patterns:
   - regex: |-
-      \b(eval|exec|compile)\s*\(
+      (?i)\b(eval|exec)\s*\(\s*([^"''\s]|["''].*[\+\%])
   severity: high
-  description: "Use of eval(), exec(), or compile() detected"
+  description: "Use of eval() or exec() with dynamic or non-literal input"
   remediation: "Avoid eval/exec. Use ast.literal_eval() for safe parsing or find alternative
     approaches"
   cwe: "CWE-94"
@@ -883,8 +883,8 @@
 
 # Cache Poisoning
 - id: python-cache-poisoning
-  languages: &id001
-  - python
+  languages: [python]
+
   patterns:
     - regex: 'request\\.headers\\[.(X-Forwarded|X-Original-URL|X-Rewrite-URL).'
   severity: medium
@@ -895,7 +895,7 @@
 
 # Open Redirect
 - id: python-open-redirect
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 'redirect\\(.*request\\.(args|form|values|GET|POST)'
   severity: high
@@ -905,7 +905,7 @@
   owasp: "A01:2021"
 
 - id: python-open-redirect-django
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 'HttpResponseRedirect\\(.*request\\.(GET|POST)'
   severity: high
@@ -916,7 +916,7 @@
 
 # CORS Misconfiguration
 - id: python-cors-wildcard
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 'Access-Control-Allow-Origin.*\\*|CORS_ALLOW_ALL_ORIGINS.*True'
   severity: high
@@ -927,7 +927,7 @@
 
 # DoS
 - id: python-regex-dos
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 're\\.(match|search|findall).*\\(.*\\+\\+|\\*\\*'
   severity: medium
@@ -937,7 +937,7 @@
   owasp: "A06:2021"
 
 - id: python-yaml-unsafe
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 'yaml\\.load\\((?!.*Loader)'
   severity: critical
@@ -948,7 +948,7 @@
 
 # File Upload
 - id: python-unrestricted-upload
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 'request\\.files.*save\\('
   severity: high
@@ -959,9 +959,9 @@
 
 # Format String
 - id: python-format-string
-  languages: *id001
+  languages: [python]
   patterns:
-    - regex: '\\.format\\(.*request\\.|f['\"].*\\{.*request\\.'
+    - regex: '\\.format\\(.*request\\.|f[''\"].*\\{.*request\\.'
   severity: high
   description: "Format string injection with user input"
   remediation: "Sanitize user input before using in format strings"
@@ -970,7 +970,7 @@
 
 # Business Logic
 - id: python-race-condition
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 'if.*os\\.path\\.exists.*open\\(|if.*os\\.path\\.isfile.*os\\.remove'
   severity: medium
@@ -980,7 +980,7 @@
   owasp: "A04:2021"
 
 - id: python-mass-assignment
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: '\\*\\*request\\.(json|form|data)|setattr.*request'
   severity: high
@@ -991,7 +991,7 @@
 
 # Image-related
 - id: python-image-rce
-  languages: *id001
+  languages: [python]
   patterns:
     - regex: 'Image\\.open\\(.*request|PIL.*open.*upload'
   severity: medium
@@ -1237,7 +1237,7 @@
   languages: [python]
   patterns:
   - regex: |-
-      (?:Template|render_template_string)\s*\([^)]*(?:os\.|subprocess\.|sys\.|__import__|eval\()
+      (?:Template|render_template_string)\s*\(\s*.*(?:request\.(?:args|form|values|json)|user_input|data).*?(?:os\.|subprocess\.|sys\.|__import__|eval\()
   severity: critical
   description: "SSTI attempting to access OS modules"
   remediation: "Use Jinja2 sandbox to block dangerous attributes"
@@ -2736,7 +2736,7 @@
   languages: [python]
   patterns:
   - regex: |-
-      xpath\s*\(\s*f?["'][^"']*\|\s*\|
+      xpath\s*\(\s*f?["'][^"']*?\{\s*.*?request\.(?:args|form|values|json).*?\}["'][^"']*?\|
   severity: high
   description: "XPath union operator with user input"
   remediation: "Validate XPath structure"
@@ -2936,7 +2936,7 @@
   languages: [python]
   patterns:
   - regex: |-
-      requests\.(get|post)\s*\([^)]*(?:0x[0-9a-fA-F]{1,8}\.[0-9a-fA-F]+|[0-9]{1,3}\.0x[0-9a-fA-F]+)
+      requests\.(get|post|request)\s*\(\s*.*(?:0x[0-9a-fA-F]{1,8}\.[0-9a-fA-F.]+)\b
   severity: high
   description: "IP obfuscation (SSRF bypass attempt)"
   remediation: "Normalize and validate IP addresses"
@@ -3448,7 +3448,7 @@
   languages: [python]
   patterns:
   - regex: |-
-      (?:logging\.(?:info|debug|warn|warning|error|critical)|logger\.[a-z]+)\s*\([^)]*(?:\\r|\\n|%0d|%0a|%0D|%0A)
+      (?:logging\.(?:info|debug|warn|warning|error|critical)|logger\.[a-z]+)\s*\(\s*.*request\.(?:args|form|values|json).*?(?:\\r|\\n|%0d|%0a)
   severity: high
   description: "CRLF injection in logs from user input"
   remediation: "Strip or encode newlines from user input before logging"

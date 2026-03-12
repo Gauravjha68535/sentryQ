@@ -104,7 +104,7 @@
 - id: elixir-insecure-http
   languages: [elixir]
   patterns:
-    - regex: 'http://[^\"'\\s]+'
+    - regex: 'http://[^\"''\\s]+'
   severity: low
   description: "Insecure HTTP URL detected"
   remediation: "Use HTTPS for all external communications"

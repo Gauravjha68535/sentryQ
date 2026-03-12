@@ -1615,7 +1615,6 @@
   remediation: "Use secure credential helper"
   cwe: "CWE-312"
   owasp: "A07:2021"
-  owasp: "A07:2021"
 - id: docker-build-cache-from
   languages: [dockerfile]
   patterns:

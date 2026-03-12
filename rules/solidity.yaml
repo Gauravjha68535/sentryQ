@@ -466,7 +466,7 @@
 - id: sol-gas-require-message
   languages: [solidity]
   patterns:
-    - regex: '(?i)require\\s*\\([^,]+,\\s*['\"]'
+    - regex: '(?i)require\\s*\\([^,]+,\\s*[''\"]'
   severity: low
   description: "Require with string message"
   remediation: "Consider using custom errors (Solidity 0.8.4+)"

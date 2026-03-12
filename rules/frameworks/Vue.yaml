@@ -20,7 +20,7 @@
 - id: vue-v-html-user-input
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.$\\.{'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.$\\.{'
   severity: critical
   description: "v-html with template literal containing user input"
   remediation: "Never use v-html with user-controlled data"
@@ -30,7 +30,7 @@
 - id: vue-v-html-data-property
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..html'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..html'
   severity: high
   description: "v-html bound to data property"
   remediation: "Sanitize HTML content before binding"
@@ -40,7 +40,7 @@
 - id: vue-v-html-props
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?props\\..'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?props\\..'
   severity: high
   description: "v-html bound to props"
   remediation: "Sanitize props before rendering as HTML"
@@ -50,7 +50,7 @@
 - id: vue-v-html-computed
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+Computed'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+Computed'
   severity: high
   description: "v-html bound to computed property"
   remediation: "Sanitize computed HTML content"
@@ -60,7 +60,7 @@
 - id: vue-v-html-method
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\.('
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\.('
   severity: high
   description: "v-html bound to method result"
   remediation: "Sanitize method return value"
@@ -70,7 +70,7 @@
 - id: vue-v-html-vue-instance
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.$\\.w+'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.$\\.w+'
   severity: high
   description: "v-html bound to Vue instance property"
   remediation: "Sanitize Vue instance property"
@@ -80,7 +80,7 @@
 - id: vue-v-html-store
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.$store\\..'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.$store\\..'
   severity: high
   description: "v-html bound to Vuex store"
   remediation: "Sanitize store data before rendering"
@@ -90,7 +90,7 @@
 - id: vue-v-html-api-response
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..response'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..response'
   severity: high
   description: "v-html bound to API response"
   remediation: "Sanitize API response before rendering"
@@ -100,7 +100,7 @@
 - id: vue-v-html-api-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..data'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..data'
   severity: high
   description: "v-html bound to API data"
   remediation: "Sanitize API data before rendering"
@@ -110,7 +110,7 @@
 - id: vue-v-html-api-content
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..content'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..content'
   severity: high
   description: "v-html bound to API content"
   remediation: "Sanitize content before rendering"
@@ -120,7 +120,7 @@
 - id: vue-v-html-api-html
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..html'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..html'
   severity: high
   description: "v-html bound to API HTML"
   remediation: "Sanitize HTML before rendering"
@@ -130,7 +130,7 @@
 - id: vue-v-html-api-body
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..body'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..body'
   severity: high
   description: "v-html bound to API body"
   remediation: "Sanitize body before rendering"
@@ -140,7 +140,7 @@
 - id: vue-v-html-api-text
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..text'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..text'
   severity: high
   description: "v-html bound to API text"
   remediation: "Sanitize text before rendering"
@@ -150,7 +150,7 @@
 - id: vue-v-html-api-result
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..result'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..result'
   severity: high
   description: "v-html bound to API result"
   remediation: "Sanitize result before rendering"
@@ -160,7 +160,7 @@
 - id: vue-v-html-api-output
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..output'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..output'
   severity: high
   description: "v-html bound to API output"
   remediation: "Sanitize output before rendering"
@@ -170,7 +170,7 @@
 - id: vue-v-html-api-value
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..value'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..value'
   severity: high
   description: "v-html bound to API value"
   remediation: "Sanitize value before rendering"
@@ -180,7 +180,7 @@
 - id: vue-v-html-api-message
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..message'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..message'
   severity: high
   description: "v-html bound to API message"
   remediation: "Sanitize message before rendering"
@@ -190,7 +190,7 @@
 - id: vue-v-html-api-data-html
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..data\\..html'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..data\\..html'
   severity: high
   description: "v-html bound to nested API data"
   remediation: "Sanitize nested data before rendering"
@@ -200,7 +200,7 @@
 - id: vue-v-html-response-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?response\\..data'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?response\\..data'
   severity: high
   description: "v-html bound to response data"
   remediation: "Sanitize response data"
@@ -210,7 +210,7 @@
 - id: vue-v-html-response-html
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?response\\..html'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?response\\..html'
   severity: high
   description: "v-html bound to response HTML"
   remediation: "Sanitize response HTML"
@@ -220,7 +220,7 @@
 - id: vue-v-html-response-content
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?response\\..content'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?response\\..content'
   severity: high
   description: "v-html bound to response content"
   remediation: "Sanitize response content"
@@ -230,7 +230,7 @@
 - id: vue-v-html-response-body
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?response\\..body'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?response\\..body'
   severity: high
   description: "v-html bound to response body"
   remediation: "Sanitize response body"
@@ -240,7 +240,7 @@
 - id: vue-v-html-response-text
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?response\\..text'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?response\\..text'
   severity: high
   description: "v-html bound to response text"
   remediation: "Sanitize response text"
@@ -250,7 +250,7 @@
 - id: vue-v-html-response-result
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?response\\..result'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?response\\..result'
   severity: high
   description: "v-html bound to response result"
   remediation: "Sanitize response result"
@@ -763,7 +763,7 @@
 - id: vue-router-dynamic-route
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['\\.]:/:'
+    - regex: 'path\\.s*:\\.s*[''\\.]:/:'
   severity: low
   description: "Dynamic route parameter"
   remediation: "Validate route parameters"
@@ -933,7 +933,7 @@
 - id: vue-router-redirect-path
   languages: [vue, javascript]
   patterns:
-    - regex: 'redirect\\.s*:\\.s*['\\.]'
+    - regex: 'redirect\\.s*:\\.s*[''\\.]'
   severity: low
   description: "Route redirect by path"
   remediation: "Validate redirect path"
@@ -1426,7 +1426,7 @@
 - id: vue-auth-local-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'localStorage\\..setItem\\.s*\\.(\\.s*['\\.]token'
+    - regex: 'localStorage\\..setItem\\.s*\\.(\\.s*[''\\.]token'
   severity: high
   description: "Token in localStorage"
   remediation: "Use httpOnly cookies instead"
@@ -1436,7 +1436,7 @@
 - id: vue-auth-session-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'sessionStorage\\..setItem\\.s*\\.(\\.s*['\\.]token'
+    - regex: 'sessionStorage\\..setItem\\.s*\\.(\\.s*[''\\.]token'
   severity: medium
   description: "Token in sessionStorage"
   remediation: "Use httpOnly cookies instead"
@@ -1522,7 +1522,7 @@
 - id: vue-v-html-user-content
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.$\\.{?\\.s*user|message|comment|content|input'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.$\\.{?\\.s*user|message|comment|content|input'
   severity: critical
   description: "v-html with user-controlled content (XSS critical)"
   remediation: "Use v-text or {{ }} interpolation, or sanitize with DOMPurify"
@@ -1532,7 +1532,7 @@
 - id: vue-v-html-unsanitized
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?[^\\.']*?(?!DOMPurify|sanitize|escape)'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?[^\\.'']*?(?!DOMPurify|sanitize|escape)'
   severity: high
   description: "v-html without sanitization"
   remediation: "Always sanitize HTML content with DOMPurify before using v-html"
@@ -1542,7 +1542,7 @@
 - id: vue-v-html-api-response
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w*\\..response\\..data|\\.w*\\..api\\..\\.w+'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w*\\..response\\..data|\\.w*\\..api\\..\\.w+'
   severity: critical
   description: "v-html bound to API response (XSS from external source)"
   remediation: "Sanitize all API responses before rendering HTML"
@@ -1552,7 +1552,7 @@
 - id: vue-v-html-store-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.$store\\..state\\..\\.w+|store\\..getters\\..\\.w+'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.$store\\..state\\..\\.w+|store\\..getters\\..\\.w+'
   severity: high
   description: "v-html bound to Vuex/Pinia store (XSS if store contains unsanitized data)"
   remediation: "Sanitize store data before rendering HTML"
@@ -1562,7 +1562,7 @@
 - id: vue-v-html-route-param
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.$route\\..params\\..\\.w+|\\.$route\\..query\\..\\.w+'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.$route\\..params\\..\\.w+|\\.$route\\..query\\..\\.w+'
   severity: critical
   description: "v-html with route parameters (XSS from URL)"
   remediation: "Never use v-html with route parameters"
@@ -1572,7 +1572,7 @@
 - id: vue-v-html-local-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?localStorage\\..getItem|sessionStorage\\..getItem'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?localStorage\\..getItem|sessionStorage\\..getItem'
   severity: high
   description: "v-html with storage data (XSS from stored content)"
   remediation: "Sanitize all data from storage before rendering"
@@ -1582,7 +1582,7 @@
 - id: vue-v-html-cookie
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?document\\..cookie|\\.$cookie|\\.$cookies'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?document\\..cookie|\\.$cookie|\\.$cookies'
   severity: high
   description: "v-html with cookie data (XSS from cookies)"
   remediation: "Never render cookie values with v-html"
@@ -1592,7 +1592,7 @@
 - id: vue-v-html-unescape
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?unescape|decodeURI|decodeURIComponent'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?unescape|decodeURI|decodeURIComponent'
   severity: high
   description: "v-html with decoded content (may decode malicious scripts)"
   remediation: "Sanitize after decoding"
@@ -1602,7 +1602,7 @@
 - id: vue-v-html-regex
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..replace|\\.w+\\..match|\\.w+\\..search'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..replace|\\.w+\\..match|\\.w+\\..search'
   severity: medium
   description: "v-html with regex operations (may affect sanitization)"
   remediation: "Apply sanitization after regex operations"
@@ -1612,7 +1612,7 @@
 - id: vue-v-html-slice
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\..slice|\\.w+\\..substr|\\.w+\\..substring'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\..slice|\\.w+\\..substr|\\.w+\\..substring'
   severity: medium
   description: "v-html with substring operations (may break sanitization)"
   remediation: "Sanitize after string manipulation"
@@ -1622,7 +1622,7 @@
 - id: vue-v-html-concat
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?\\.w+\\.s*\\.+\\.s*\\.w+'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?\\.w+\\.s*\\.+\\.s*\\.w+'
   severity: high
   description: "v-html with concatenated strings (may combine safe and unsafe)"
   remediation: "Sanitize final concatenated string"
@@ -1632,7 +1632,7 @@
 - id: vue-v-html-template-literal
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['\\.]?`.*\\.$\\.{.*\\.}.*`'
+    - regex: 'v-html\\.s*=\\.s*[''\\.]?`.*\\.$\\.{.*\\.}.*`'
   severity: critical
   description: "v-html with template literals (injection risk)"
   remediation: "Avoid v-html with template literals"
@@ -1882,7 +1882,7 @@
 - id: vue-v-html-href-javascript
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*href\\.s*=\\.s*['\\.]javascript:'
+    - regex: 'v-html.*href\\.s*=\\.s*[''\\.]javascript:'
   severity: critical
   description: "v-html with javascript: URLs (XSS)"
   remediation: "Strip javascript: URLs from HTML"
@@ -1944,7 +1944,7 @@
 - id: vue-prototype-pollution-set
   languages: [vue, javascript]
   patterns:
-    - regex: 'Vue\\..set\\.s*\\.(\\.s*[^,]+,\\.s*['\\.]__proto__|Vue\\..set.*['\\.]constructor'
+    - regex: 'Vue\\..set\\.s*\\.(\\.s*[^,]+,\\.s*[''\\.]__proto__|Vue\\..set.*[''\\.]constructor'
   severity: critical
   description: "Vue.set with __proto__ or constructor (prototype pollution)"
   remediation: "Sanitize keys before using Vue.set"
@@ -2004,7 +2004,7 @@
 - id: vue-prototype-pollution-inject
   languages: [vue, javascript]
   patterns:
-    - regex: 'inject\\.s*:\\.s*\\.[\\.s*['\\.]__proto__['\\.]|inject\\.s*:\\.s*{\\.s*__proto__'
+    - regex: 'inject\\.s*:\\.s*\\.[\\.s*[''\\.]__proto__[''\\.]|inject\\.s*:\\.s*{\\.s*__proto__'
   severity: critical
   description: "Inject with __proto__ (prototype pollution)"
   remediation: "Avoid injecting __proto__"
@@ -2014,7 +2014,7 @@
 - id: vue-prototype-pollution-emits
   languages: [vue, javascript]
   patterns:
-    - regex: 'emits\\.s*:\\.s*\\.[\\.s*['\\.]__proto__['\\.]|emits\\.s*:\\.s*{\\.s*__proto__'
+    - regex: 'emits\\.s*:\\.s*\\.[\\.s*[''\\.]__proto__[''\\.]|emits\\.s*:\\.s*{\\.s*__proto__'
   severity: critical
   description: "Emits with __proto__ (prototype pollution)"
   remediation: "Avoid emitting __proto__"
@@ -2024,7 +2024,7 @@
 - id: vue-prototype-pollution-expose
   languages: [vue, javascript]
   patterns:
-    - regex: 'expose\\.s*:\\.s*\\.[\\.s*['\\.]__proto__['\\.]'
+    - regex: 'expose\\.s*:\\.s*\\.[\\.s*[''\\.]__proto__[''\\.]'
   severity: critical
   description: "Expose with __proto__ (prototype pollution)"
   remediation: "Avoid exposing __proto__"
@@ -2034,7 +2034,7 @@
 - id: vue-prototype-pollution-ref
   languages: [vue, javascript]
   patterns:
-    - regex: 'ref\\.s*=\\.s*['\\.]__proto__['\\.]'
+    - regex: 'ref\\.s*=\\.s*[''\\.]__proto__[''\\.]'
   severity: high
   description: "Ref with __proto__ (may cause prototype pollution)"
   remediation: "Avoid using __proto__ as ref name"
@@ -2044,7 +2044,7 @@
 - id: vue-prototype-pollution-key
   languages: [vue, javascript]
   patterns:
-    - regex: ':key\\.s*=\\.s*['\\.]__proto__|:key\\.s*=\\.s*['\\.]constructor'
+    - regex: ':key\\.s*=\\.s*[''\\.]__proto__|:key\\.s*=\\.s*[''\\.]constructor'
   severity: high
   description: "Key with __proto__ or constructor"
   remediation: "Avoid using __proto__ as key"
@@ -2054,7 +2054,7 @@
 - id: vue-prototype-pollution-v-model
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-model\\.s*=\\.s*['\\.]__proto__|v-model\\.s*=\\.s*['\\.]constructor'
+    - regex: 'v-model\\.s*=\\.s*[''\\.]__proto__|v-model\\.s*=\\.s*[''\\.]constructor'
   severity: high
   description: "v-model with __proto__ (user can modify prototype)"
   remediation: "Avoid binding v-model to __proto__"
@@ -2064,7 +2064,7 @@
 - id: vue-prototype-pollution-v-bind
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind\\.s*=\\.s*['\\.]__proto__|v-bind.*['\\.]__proto__'
+    - regex: 'v-bind\\.s*=\\.s*[''\\.]__proto__|v-bind.*[''\\.]__proto__'
   severity: high
   description: "v-bind with __proto__ (prototype pollution)"
   remediation: "Avoid binding to __proto__"
@@ -2214,7 +2214,7 @@
 - id: vue-prototype-pollution-provide-inject
   languages: [vue, javascript]
   patterns:
-    - regex: 'provide\\.s*:\\.s*{\\.s*__proto__|inject\\.s*:\\.s*\\.[\\.s*['\\.]__proto__'
+    - regex: 'provide\\.s*:\\.s*{\\.s*__proto__|inject\\.s*:\\.s*\\.[\\.s*[''\\.]__proto__'
   severity: critical
   description: "Provide/inject with __proto__ (prototype pollution)"
   remediation: "Avoid providing __proto__"
@@ -2758,7 +2758,7 @@
 - id: vue-store-map-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'mapState\\.(\\.s*['\\.]\\.w+['\\.]|mapGetters\\.('
+    - regex: 'mapState\\.(\\.s*[''\\.]\\.w+[''\\.]|mapGetters\\.('
   severity: low
   description: "Mapping store to components"
   remediation: "Ensure mapped data is safe"
@@ -2780,7 +2780,7 @@
 - id: vue-router-guard-missing
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.s*path\\.s*:\\.s*['\\.]/[^']*['\\.]\\.s*,\\.s*component(?!.*beforeEnter|.*meta)'
+    - regex: '\\.{\\.s*path\\.s*:\\.s*[''\\.]/[^'']*[''\\.]\\.s*,\\.s*component(?!.*beforeEnter|.*meta)'
   severity: high
   description: "Route without guard or meta (may be unprotected)"
   remediation: "Add route guards for protected routes"
@@ -2790,7 +2790,7 @@
 - id: vue-router-guard-bypass
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*['\\.][^']*['\\.]\\.s*\\.)|next\\.(\\.s*\\.$router.*\\.)'
+    - regex: 'next\\.(\\.s*[''\\.][^'']*[''\\.]\\.s*\\.)|next\\.(\\.s*\\.$router.*\\.)'
   severity: high
   description: "Route guard redirect bypass (open redirect)"
   remediation: "Validate redirect URLs in guards"
@@ -2920,7 +2920,7 @@
 - id: vue-router-guard-next-local
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*['\\.]/['\\.]|next\\.(\\.s*['\\.]\\..\\..'
+    - regex: 'next\\.(\\.s*[''\\.]/[''\\.]|next\\.(\\.s*[''\\.]\\..\\..'
   severity: high
   description: "Route guard redirect to root or parent"
   remediation: "Ensure redirect is safe"
@@ -2930,7 +2930,7 @@
 - id: vue-router-guard-next-external
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*['\\.]https?://'
+    - regex: 'next\\.(\\.s*[''\\.]https?://'
   severity: critical
   description: "Route guard redirect to external URL (open redirect)"
   remediation: "Never redirect to external URLs from guards"
@@ -3040,7 +3040,7 @@
 - id: vue-router-params-regex
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['\\.][^']*?\\.([^']*?\\.)'
+    - regex: 'path\\.s*:\\.s*[''\\.][^'']*?\\.([^'']*?\\.)'
   severity: medium
   description: "Route path with regex (ReDoS risk)"
   remediation: "Avoid complex regex in routes"
@@ -3050,7 +3050,7 @@
 - id: vue-router-params-optional
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['\\.][^']*?\\.?[^']*'
+    - regex: 'path\\.s*:\\.s*[''\\.][^'']*?\\.?[^'']*'
   severity: low
   description: "Optional route parameters"
   remediation: "Handle missing parameters"
@@ -3060,7 +3060,7 @@
 - id: vue-router-params-repeat
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['\\.][^']*?\\.+[^']*'
+    - regex: 'path\\.s*:\\.s*[''\\.][^'']*?\\.+[^'']*'
   severity: medium
   description: "Repeatable route parameters"
   remediation: "Limit repeatable parameters"
@@ -3070,7 +3070,7 @@
 - id: vue-router-sensitive-paths
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['\\.]/admin|path\\.s*:\\.s*['\\.]/dashboard|path\\.s*:\\.s*['\\.]/private'
+    - regex: 'path\\.s*:\\.s*[''\\.]/admin|path\\.s*:\\.s*[''\\.]/dashboard|path\\.s*:\\.s*[''\\.]/private'
   severity: high
   description: "Sensitive route paths"
   remediation: "Add authentication guards"
@@ -3082,7 +3082,7 @@
 - id: vue-component-slot-injection
   languages: [vue, javascript]
   patterns:
-    - regex: '<slot.*name\\.s*=\\.s*['\\.].*['\\.]>.*{{.*}}'
+    - regex: '<slot.*name\\.s*=\\.s*[''\\.].*[''\\.]>.*{{.*}}'
   severity: high
   description: "Slots with interpolation (XSS risk)"
   remediation: "Ensure parent component sanitizes slot content"
@@ -3102,7 +3102,7 @@
 - id: vue-component-dynamic-component
   languages: [vue, javascript]
   patterns:
-    - regex: '<component\\.s+:is\\.s*=\\.s*['\\.]\\.w+['\\.]'
+    - regex: '<component\\.s+:is\\.s*=\\.s*[''\\.]\\.w+[''\\.]'
   severity: medium
   description: "Dynamic component rendering"
   remediation: "Validate component names"
@@ -3122,7 +3122,7 @@
 - id: vue-component-is-attribute
   languages: [vue, javascript]
   patterns:
-    - regex: 'is\\.s*=\\.s*['\\.]\\.w+['\\.]'
+    - regex: 'is\\.s*=\\.s*[''\\.]\\.w+[''\\.]'
   severity: medium
   description: "is attribute for dynamic elements"
   remediation: "Validate element types"
@@ -3142,7 +3142,7 @@
 - id: vue-component-ref-user
   languages: [vue, javascript]
   patterns:
-    - regex: 'ref\\.s*=\\.s*['\\.]\\.$route\\..params|ref\\.s*=\\.s*req'
+    - regex: 'ref\\.s*=\\.s*[''\\.]\\.$route\\..params|ref\\.s*=\\.s*req'
   severity: medium
   description: "ref with user input"
   remediation: "Avoid dynamic refs with user input"
@@ -3152,7 +3152,7 @@
 - id: vue-component-ref-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'this\\..\\.$refs\\.[['\\.]\\.$route|this\\..\\.$refs.*req'
+    - regex: 'this\\..\\.$refs\\.[[''\\.]\\.$route|this\\..\\.$refs.*req'
   severity: medium
   description: "Dynamic ref access with user input"
   remediation: "Validate ref names"
@@ -3162,7 +3162,7 @@
 - id: vue-component-emit-user
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$emit\\.(['\\.][^'\\.]*['\\.]\\.s*,\\.s*.*\\.$route|\\.$emit\\.(.*req'
+    - regex: '\\.$emit\\.([''\\.][^''\\.]*[''\\.]\\.s*,\\.s*.*\\.$route|\\.$emit\\.(.*req'
   severity: high
   description: "Emitting user input (XSS risk in parent)"
   remediation: "Sanitize emitted data"
@@ -3172,7 +3172,7 @@
 - id: vue-component-emit-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$emit\\.(['\\.][^'\\.]*['\\.]\\.s*,\\.s*.*token|\\.$emit.*password|\\.$emit.*secret'
+    - regex: '\\.$emit\\.([''\\.][^''\\.]*[''\\.]\\.s*,\\.s*.*token|\\.$emit.*password|\\.$emit.*secret'
   severity: critical
   description: "Emitting sensitive data"
   remediation: "Don't emit sensitive data"
@@ -3818,7 +3818,7 @@
 - id: vue-api-base-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'baseURL\\.s*:\\.s*['\\.]https?://[^']*['\\.]'
+    - regex: 'baseURL\\.s*:\\.s*[''\\.]https?://[^'']*[''\\.]'
   severity: low
   description: "API base URL configured"
   remediation: "Use environment variables"
@@ -3828,7 +3828,7 @@
 - id: vue-api-hardcoded-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..get\\.s*\\.(\\.s*['\\.]https?://[^']*['\\.]'
+    - regex: 'axios\\..get\\.s*\\.(\\.s*[''\\.]https?://[^'']*[''\\.]'
   severity: high
   description: "Hardcoded API URL"
   remediation: "Use baseURL and relative paths"
@@ -3958,7 +3958,7 @@
 - id: vue-api-websocket-ws
   languages: [vue, javascript]
   patterns:
-    - regex: 'new\\.s+WebSocket\\.s*\\.(\\.s*['\\.]ws://'
+    - regex: 'new\\.s+WebSocket\\.s*\\.(\\.s*[''\\.]ws://'
   severity: high
   description: "WebSocket without TLS"
   remediation: "Use wss:// instead of ws://"

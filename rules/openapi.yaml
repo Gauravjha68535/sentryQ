@@ -558,8 +558,8 @@
   patterns:
     - regex: '(?i)allOf:\s*\n(?!\s*\$ref)'
   severity: medium
-  description: "allOf without \$ref"
-  remediation: "Use \$ref for schema composition"
+  description: "allOf without $ref"
+  remediation: "Use $ref for schema composition"
   cwe: "CWE-1059"
   owasp: "A04:2021"
   confidence: 0.6

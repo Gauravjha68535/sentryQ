@@ -6,7 +6,7 @@
 - id: lua-code-injection-loadstring
   languages: [lua]
   patterns:
-    - regex: 'loadstring\\s*\\(|load\\s*\\(\\s*['\"]'
+    - regex: 'loadstring\\s*\\(|load\\s*\\(\\s*[''\"]'
   severity: critical
   description: "loadstring()/load() can execute arbitrary Lua code"
   remediation: "Avoid loadstring with user input. Use a sandboxed environment if needed"
@@ -38,7 +38,7 @@
 - id: lua-sql-injection
   languages: [lua]
   patterns:
-    - regex: '(?i)(execute|query)\\s*\\(\\s*['\"].*\\.\\.\\s*'
+    - regex: '(?i)(execute|query)\\s*\\(\\s*[''\"].*\\.\\.\\s*'
   severity: critical
   description: "SQL injection via string concatenation in Lua"
   remediation: "Use parameterized queries or prepared statements"
@@ -49,7 +49,7 @@
 - id: lua-hardcoded-password
   languages: [lua]
   patterns:
-    - regex: '(?i)(password|passwd|secret|api_key)\\s*=\\s*['\"][^'\"]{8,}['\"]'
+    - regex: '(?i)(password|passwd|secret|api_key)\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password or secret in Lua code"
   remediation: "Use environment variables or configuration files with restricted access"
@@ -937,7 +937,7 @@
 - id: lua-require-string
   languages: [lua]
   patterns:
-    - regex: '(?i)require\\s*\\(\\s*['\"]'
+    - regex: '(?i)require\\s*\\(\\s*[''\"]'
   severity: low
   description: "Module loading"
   remediation: "Verify module authenticity"
@@ -1148,7 +1148,7 @@
 - id: lua-env-password
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"](?:PASSWORD|SECRET|KEY)'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"](?:PASSWORD|SECRET|KEY)'
   severity: medium
   description: "Sensitive env var access"
   remediation: "Use secure secret management"
@@ -1158,7 +1158,7 @@
 - id: lua-env-path
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]PATH'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]PATH'
   severity: low
   description: "PATH environment access"
   remediation: "Validate PATH value"
@@ -1168,7 +1168,7 @@
 - id: lua-env-home
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]HOME'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]HOME'
   severity: low
   description: "HOME environment access"
   remediation: "Validate HOME value"
@@ -1178,7 +1178,7 @@
 - id: lua-env-temp
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]TMP|TEMP'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]TMP|TEMP'
   severity: low
   description: "Temp directory access"
   remediation: "Use secure temp directories"
@@ -1188,7 +1188,7 @@
 - id: lua-env-user
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]USER|USERNAME'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]USER|USERNAME'
   severity: low
   description: "User environment access"
   remediation: "Don't trust user env vars"
@@ -1198,7 +1198,7 @@
 - id: lua-env-shell
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]SHELL'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]SHELL'
   severity: low
   description: "Shell environment access"
   remediation: "Validate shell value"
@@ -1208,7 +1208,7 @@
 - id: lua-env-lang
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]LANG|LC_'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]LANG|LC_'
   severity: low
   description: "Locale environment access"
   remediation: "Validate locale settings"
@@ -1218,7 +1218,7 @@
 - id: lua-env-display
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]DISPLAY'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]DISPLAY'
   severity: low
   description: "Display environment access"
   remediation: "Validate display value"
@@ -1228,7 +1228,7 @@
 - id: lua-env-ld-preload
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]LD_PRELOAD'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]LD_PRELOAD'
   severity: high
   description: "LD_PRELOAD access"
   remediation: "Don't trust LD_PRELOAD"
@@ -1238,7 +1238,7 @@
 - id: lua-env-ld-library
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]LD_LIBRARY_PATH'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]LD_LIBRARY_PATH'
   severity: high
   description: "LD_LIBRARY_PATH access"
   remediation: "Don't trust LD_LIBRARY_PATH"
@@ -1248,7 +1248,7 @@
 - id: lua-env-pythonpath
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]PYTHONPATH'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]PYTHONPATH'
   severity: medium
   description: "PYTHONPATH access"
   remediation: "Validate PYTHONPATH"
@@ -1258,7 +1258,7 @@
 - id: lua-env-java-home
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]JAVA_HOME'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]JAVA_HOME'
   severity: low
   description: "JAVA_HOME access"
   remediation: "Validate JAVA_HOME"
@@ -1268,7 +1268,7 @@
 - id: lua-env-node-path
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]NODE_PATH'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]NODE_PATH'
   severity: medium
   description: "NODE_PATH access"
   remediation: "Validate NODE_PATH"
@@ -1278,7 +1278,7 @@
 - id: lua-env-gopath
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]GOPATH'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]GOPATH'
   severity: low
   description: "GOPATH access"
   remediation: "Validate GOPATH"
@@ -1288,7 +1288,7 @@
 - id: lua-env-ruby-path
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]RUBY'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]RUBY'
   severity: low
   description: "Ruby environment access"
   remediation: "Validate Ruby env vars"
@@ -1298,7 +1298,7 @@
 - id: lua-env-perl5lib
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]PERL5LIB'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]PERL5LIB'
   severity: medium
   description: "PERL5LIB access"
   remediation: "Validate PERL5LIB"
@@ -1308,7 +1308,7 @@
 - id: lua-env-proxy
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"](?:HTTP|HTTPS|FTP)_PROXY'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"](?:HTTP|HTTPS|FTP)_PROXY'
   severity: medium
   description: "Proxy environment access"
   remediation: "Validate proxy settings"
@@ -1318,7 +1318,7 @@
 - id: lua-env-no-proxy
   languages: [lua]
   patterns:
-    - regex: '(?i)os\\.getenv\\s*\\(\\s*['\"]NO_PROXY'
+    - regex: '(?i)os\\.getenv\\s*\\(\\s*[''\"]NO_PROXY'
   severity: low
   description: "NO_PROXY access"
   remediation: "Validate NO_PROXY"
@@ -1369,7 +1369,7 @@
 - id: lua-error-message
   languages: [lua]
   patterns:
-    - regex: '(?i)error\\s*\\(\\s*['\"]'
+    - regex: '(?i)error\\s*\\(\\s*[''\"]'
   severity: low
   description: "Error message"
   remediation: "Don't expose internal details"

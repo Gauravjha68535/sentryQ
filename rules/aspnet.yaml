@@ -21,7 +21,7 @@
 - id: aspnet-auth-role-hardcoded
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[Authorize\\s*\\(\\s*Roles\\s*=\\s*['\"]Admin['\"]'
+    - regex: '(?i)\\[Authorize\\s*\\(\\s*Roles\\s*=\\s*[''\"]Admin[''\"]'
   severity: medium
   description: "Hardcoded role names may lead to authorization bypass"
   remediation: "Use role constants or configuration-based role names"
@@ -91,7 +91,7 @@
 - id: aspnet-auth-api-key-header
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Request\\.Headers\\[\\s*['\"]X-API-Key['\"]|ApiKeyAttribute'
+    - regex: '(?i)Request\\.Headers\\[\\s*[''\"]X-API-Key[''\"]|ApiKeyAttribute'
   severity: medium
   description: "API Key authentication detected — verify implementation"
   remediation: "Use HTTPS and implement key rotation"
@@ -223,7 +223,7 @@
 - id: aspnet-session-cookie-domain
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Cookie\\.Domain\\s*=\\s*['\"]\\.'
+    - regex: '(?i)Cookie\\.Domain\\s*=\\s*[''\"]\\.'
   severity: medium
   description: "Session cookie domain set to parent domain"
   remediation: "Restrict cookie domain to specific subdomain"
@@ -233,7 +233,7 @@
 - id: aspnet-session-cookie-path
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Cookie\\.Path\\s*=\\s*['\"]/['\"]'
+    - regex: '(?i)Cookie\\.Path\\s*=\\s*[''\"]/[''\"]'
   severity: low
   description: "Session cookie path set to root"
   remediation: "Restrict cookie path to application directory"
@@ -415,7 +415,7 @@
 - id: aspnet-file-content-type-header
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ContentType\\s*=\\s*['\"]application/octet-stream'
+    - regex: '(?i)ContentType\\s*=\\s*[''\"]application/octet-stream'
   severity: low
   description: "Generic content type for file download"
   remediation: "Set specific content type and Content-Disposition"
@@ -1485,7 +1485,7 @@
 - id: aspnet-endpoint-route-template
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Map.*?\\(\\s*[\"'][^\"']*\\{[^}]+\\}[\"']'
+    - regex: 'endpoints\\.Map.*?\\(\\s*[\"''][^\"'']*\\{[^}]+\\}[\"'']'
   severity: low
   description: "Endpoint with route parameters"
   remediation: "Validate route parameters"
@@ -1777,7 +1777,7 @@
 - id: aspnet-blazor-js-interop
   languages: [csharp]
   patterns:
-    - regex: 'IJSRuntime\\.Invoke(?:Async|VoidAsync)\\([\"'][^\"']*[\"']\\s*,\\s*[^)]+'
+    - regex: 'IJSRuntime\\.Invoke(?:Async|VoidAsync)\\([\"''][^\"'']*[\"'']\\s*,\\s*[^)]+'
   severity: high
   description: "Blazor JS interop with parameters (XSS risk)"
   remediation: "Sanitize data passed to JavaScript"
@@ -1787,7 +1787,7 @@
 - id: aspnet-blazor-js-interop-sensitive
   languages: [csharp]
   patterns:
-    - regex: 'Invoke(?:Async|VoidAsync)\\([\"'][^\"']*[\"']\\s*,\\s*.*?(?:password|token|key)'
+    - regex: 'Invoke(?:Async|VoidAsync)\\([\"''][^\"'']*[\"'']\\s*,\\s*.*?(?:password|token|key)'
   severity: critical
   description: "Sensitive data passed to JavaScript via interop"
   remediation: "Avoid passing sensitive data to JavaScript"
@@ -1847,7 +1847,7 @@
 - id: aspnet-blazor-webassembly-auth-options
   languages: [csharp]
   patterns:
-    - regex: 'RedirectUri\\s*=\\s*[\"'][^\"']*\\{'
+    - regex: 'RedirectUri\\s*=\\s*[\"''][^\"'']*\\{'
   severity: high
   description: "Blazor auth with redirect URI template"
   remediation: "Validate redirect URIs"
@@ -2229,7 +2229,7 @@
 - id: aspnet-identity-login-path
   languages: [csharp]
   patterns:
-    - regex: 'LoginPath\\s*=\\s*[\"'][^\"']+[\"']'
+    - regex: 'LoginPath\\s*=\\s*[\"''][^\"'']+[\"'']'
   severity: low
   description: "Custom login path"
   remediation: "Ensure login page is HTTPS"
@@ -2239,7 +2239,7 @@
 - id: aspnet-identity-logout-path
   languages: [csharp]
   patterns:
-    - regex: 'LogoutPath\\s*=\\s*[\"'][^\"']+[\"']'
+    - regex: 'LogoutPath\\s*=\\s*[\"''][^\"'']+[\"'']'
   severity: low
   description: "Custom logout path"
   remediation: "Ensure logout clears all auth data"
@@ -2249,7 +2249,7 @@
 - id: aspnet-identity-return-url
   languages: [csharp]
   patterns:
-    - regex: 'ReturnUrlParameter\\s*=\\s*[\"'][^\"']+[\"']'
+    - regex: 'ReturnUrlParameter\\s*=\\s*[\"''][^\"'']+[\"'']'
   severity: high
   description: "Return URL parameter (open redirect risk)"
   remediation: "Validate return URLs"
@@ -2381,7 +2381,7 @@
 - id: aspnet-jwt-valid-issuer
   languages: [csharp]
   patterns:
-    - regex: 'ValidIssuer\\s*=\\s*[\"'][^\"']+[\"']'
+    - regex: 'ValidIssuer\\s*=\\s*[\"''][^\"'']+[\"'']'
   severity: low
   description: "Valid issuer configured"
   remediation: "Ensure issuer matches your auth server"
@@ -2391,7 +2391,7 @@
 - id: aspnet-jwt-valid-audience
   languages: [csharp]
   patterns:
-    - regex: 'ValidAudience\\s*=\\s*[\"'][^\"']+[\"']|ValidAudiences'
+    - regex: 'ValidAudience\\s*=\\s*[\"''][^\"'']+[\"'']|ValidAudiences'
   severity: low
   description: "Valid audience configured"
   remediation: "Ensure audience matches your API"
@@ -2401,7 +2401,7 @@
 - id: aspnet-jwt-issuer-signing-key
   languages: [csharp]
   patterns:
-    - regex: 'IssuerSigningKey\\s*=\\s*new\\s+SymmetricSecurityKey\\(Encoding\\.UTF8\\.GetBytes\\([\"'][^\"']+[\"']\\)\\)'
+    - regex: 'IssuerSigningKey\\s*=\\s*new\\s+SymmetricSecurityKey\\(Encoding\\.UTF8\\.GetBytes\\([\"''][^\"'']+[\"'']\\)\\)'
   severity: critical
   description: "JWT symmetric key hardcoded in code"
   remediation: "Load signing key from configuration or key vault"
@@ -2411,7 +2411,7 @@
 - id: aspnet-jwt-issuer-signing-key-short
   languages: [csharp]
   patterns:
-    - regex: 'Encoding\\.UTF8\\.GetBytes\\([\"'][^\"']{1,31}[\"']\\)'
+    - regex: 'Encoding\\.UTF8\\.GetBytes\\([\"''][^\"'']{1,31}[\"'']\\)'
   severity: high
   description: "JWT signing key too short (<32 bytes)"
   remediation: "Use at least 32-byte (256-bit) key"
@@ -2501,7 +2501,7 @@
 - id: aspnet-oauth-authority
   languages: [csharp]
   patterns:
-    - regex: 'Authority\\s*=\\s*[\"']http://'
+    - regex: 'Authority\\s*=\\s*[\"'']http://'
   severity: critical
   description: "OIDC authority using HTTP (not HTTPS)"
   remediation: "Use HTTPS for authority URL"
@@ -2511,7 +2511,7 @@
 - id: aspnet-oauth-client-id
   languages: [csharp]
   patterns:
-    - regex: 'ClientId\\s*=\\s*[\"'][^\"']+[\"']'
+    - regex: 'ClientId\\s*=\\s*[\"''][^\"'']+[\"'']'
   severity: low
   description: "OAuth client ID configured"
   remediation: "Store client ID securely"
@@ -2521,7 +2521,7 @@
 - id: aspnet-oauth-client-secret
   languages: [csharp]
   patterns:
-    - regex: 'ClientSecret\\s*=\\s*[\"'][^\"']+[\"']'
+    - regex: 'ClientSecret\\s*=\\s*[\"''][^\"'']+[\"'']'
   severity: critical
   description: "OAuth client secret hardcoded"
   remediation: "Use User Secrets or Key Vault"
@@ -2531,7 +2531,7 @@
 - id: aspnet-oauth-response-type
   languages: [csharp]
   patterns:
-    - regex: 'ResponseType\\s*=\\s*[\"']code[\"']'
+    - regex: 'ResponseType\\s*=\\s*[\"'']code[\"'']'
   severity: low
   description: "OAuth code flow (good)"
   remediation: "Use code flow with PKCE for SPAs"
@@ -2541,7 +2541,7 @@
 - id: aspnet-oauth-response-type-token
   languages: [csharp]
   patterns:
-    - regex: 'ResponseType\\s*=\\s*[\"']token[\"']|[\"']id_token[\"']'
+    - regex: 'ResponseType\\s*=\\s*[\"'']token[\"'']|[\"'']id_token[\"'']'
   severity: high
   description: "OAuth implicit flow (deprecated, insecure)"
   remediation: "Use code flow with PKCE instead"
@@ -2551,7 +2551,7 @@
 - id: aspnet-oauth-scope
   languages: [csharp]
   patterns:
-    - regex: 'Scope\\s*=\\s*[\"'][^\"']+[\"']'
+    - regex: 'Scope\\s*=\\s*[\"''][^\"'']+[\"'']'
   severity: low
   description: "OAuth scopes configured"
   remediation: "Request only necessary scopes"
@@ -2661,7 +2661,7 @@
 - id: aspnet-data-protection-purpose
   languages: [csharp]
   patterns:
-    - regex: 'CreateProtector\\([\"'][^\"']+[\"']\\)'
+    - regex: 'CreateProtector\\([\"''][^\"'']+[\"'']\\)'
   severity: low
   description: "Data protector with purpose"
   remediation: "Use meaningful purpose strings"
@@ -2671,7 +2671,7 @@
 - id: aspnet-data-protection-purpose-sensitive
   languages: [csharp]
   patterns:
-    - regex: 'CreateProtector\\([\"'][^\"']*(?:password|token|key)[^\"']*[\"']\\)'
+    - regex: 'CreateProtector\\([\"''][^\"'']*(?:password|token|key)[^\"'']*[\"'']\\)'
   severity: low
   description: "Data protector for sensitive data"
   remediation: "Good for protecting secrets"
@@ -2885,7 +2885,7 @@
 - id: aspnet-health-checks-public
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapHealthChecks\\([\"'][^\"']+[\"']\\)(?!.*RequireAuthorization)'
+    - regex: 'endpoints\\.MapHealthChecks\\([\"''][^\"'']+[\"'']\\)(?!.*RequireAuthorization)'
   severity: high
   description: "Health check endpoint without authorization"
   remediation: "Add .RequireAuthorization() to health checks"
@@ -2925,7 +2925,7 @@
 - id: aspnet-health-checks-url-group
   languages: [csharp]
   patterns:
-    - regex: 'MapHealthChecks\\([\"'][^\"']+[\"']\\).*?WithGroupName'
+    - regex: 'MapHealthChecks\\([\"''][^\"'']+[\"'']\\).*?WithGroupName'
   severity: low
   description: "Health check groups"
   remediation: "Use groups for different audiences"

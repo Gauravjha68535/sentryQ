@@ -1,7 +1,7 @@
 - id: perl-hardcoded-password
   languages: [perl]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*=\\s*['\"][^'\"]{8,}['\"]'
+    - regex: '(?i)(password|passwd|pwd)\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password detected in Perl source code"
   remediation: "Use environment variables ($ENV{PASSWORD}) or a configuration manager"
@@ -11,7 +11,7 @@
 - id: perl-hardcoded-api-key
   languages: [perl]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*['\"][a-zA-Z0-9]{16,}['\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*[''\"][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "Hardcoded API key detected in Perl source code"
   remediation: "Store API keys in environment variables or encrypted config"
@@ -22,7 +22,7 @@
 - id: perl-sql-injection
   languages: [perl]
   patterns:
-    - regex: '(?i)(do|execute|prepare)\\s*\\(\\s*['\"].*\\$'
+    - regex: '(?i)(do|execute|prepare)\\s*\\(\\s*[''\"].*\\$'
   severity: critical
   description: "SQL injection via variable interpolation in Perl DBI"
   remediation: "Use DBI placeholders: $dbh->prepare('SELECT * FROM users WHERE id = ?'); $sth->execute($id)"
@@ -32,7 +32,7 @@
 - id: perl-sql-injection-concat
   languages: [perl]
   patterns:
-    - regex: '(?i)(do|execute)\\s*\\(\\s*['\"].*\\s*\\.\\s*\\$'
+    - regex: '(?i)(do|execute)\\s*\\(\\s*[''\"].*\\s*\\.\\s*\\$'
   severity: critical
   description: "SQL injection via string concatenation in DBI query"
   remediation: "Use parameterized queries with ? placeholders in DBI"
@@ -43,7 +43,7 @@
 - id: perl-command-injection-system
   languages: [perl]
   patterns:
-    - regex: '(?i)system\\s*\\(\\s*['\"].*\\$|system\\s*\\(\\s*\\$'
+    - regex: '(?i)system\\s*\\(\\s*[''\"].*\\$|system\\s*\\(\\s*\\$'
   severity: critical
   description: "Command injection via system() with variable input"
   remediation: "Use list form of system: system('cmd', @args) or IPC::Run for safe execution"
@@ -63,7 +63,7 @@
 - id: perl-command-injection-open
   languages: [perl]
   patterns:
-    - regex: 'open\\s*\\(\\s*\\w+\\s*,\\s*['\"]\\|.*\\$|open\\s*\\(\\s*\\w+\\s*,\\s*['\"].*\\$.*\\|'
+    - regex: 'open\\s*\\(\\s*\\w+\\s*,\\s*[''\"]\\|.*\\$|open\\s*\\(\\s*\\w+\\s*,\\s*[''\"].*\\$.*\\|'
   severity: critical
   description: "Command injection via two-argument open with pipe"
   remediation: "Use three-argument open: open(my $fh, '-|', 'cmd', @args)"
@@ -96,7 +96,7 @@
 - id: perl-path-traversal
   languages: [perl]
   patterns:
-    - regex: 'open\\s*\\(\\s*\\w+\\s*,\\s*['\"]?\\s*\\$'
+    - regex: 'open\\s*\\(\\s*\\w+\\s*,\\s*[''\"]?\\s*\\$'
   severity: high
   description: "File open with user-controlled path — potential path traversal"
   remediation: "Validate file paths. Use File::Spec->canonpath and check against base directory"
@@ -254,7 +254,7 @@
 - id: perl-cgi-param-direct
   languages: [perl]
   patterns:
-    - regex: '(?i)param\\s*\\(\\s*['\"][^'\"]+['\"]\\s*\\)'
+    - regex: '(?i)param\\s*\\(\\s*[''\"][^''\"]+[''\"]\\s*\\)'
   severity: medium
   description: "CGI param access without validation"
   remediation: "Validate and sanitize all CGI parameters"
@@ -857,7 +857,7 @@
 - id: perl-moose-has
   languages: [perl]
   patterns:
-    - regex: '(?i)has\\s+['\"]\\w+['\"]'
+    - regex: '(?i)has\\s+[''\"]\\w+[''\"]'
   severity: low
   description: "Moose attribute declaration"
   remediation: "Validate attribute values"
@@ -867,7 +867,7 @@
 - id: perl-moose-extends
   languages: [perl]
   patterns:
-    - regex: '(?i)extends\\s+['\"]\\w+['\"]'
+    - regex: '(?i)extends\\s+[''\"]\\w+[''\"]'
   severity: low
   description: "Moose class extension"
   remediation: "Review parent class security"
@@ -877,7 +877,7 @@
 - id: perl-moose-with
   languages: [perl]
   patterns:
-    - regex: '(?i)with\\s+['\"]\\w+['\"]'
+    - regex: '(?i)with\\s+[''\"]\\w+[''\"]'
   severity: low
   description: "Moose role composition"
   remediation: "Review role security"
@@ -907,7 +907,7 @@
 - id: perl-moose-trigger
   languages: [perl]
   patterns:
-    - regex: '(?i)trigger\\s*=>|after\\s+['\"]\\w+['\"]'
+    - regex: '(?i)trigger\\s*=>|after\\s+[''\"]\\w+[''\"]'
   severity: low
   description: "Moose attribute trigger"
   remediation: "Validate trigger data"
@@ -1017,7 +1017,7 @@
 - id: perl-moo-has
   languages: [perl]
   patterns:
-    - regex: '(?i)has\\s+['\"]\\w+['\"]'
+    - regex: '(?i)has\\s+[''\"]\\w+[''\"]'
   severity: low
   description: "Moo attribute"
   remediation: "Validate attribute values"
@@ -1027,7 +1027,7 @@
 - id: perl-moo-with
   languages: [perl]
   patterns:
-    - regex: '(?i)with\\s+['\"]\\w+['\"]'
+    - regex: '(?i)with\\s+[''\"]\\w+[''\"]'
   severity: low
   description: "Moo role"
   remediation: "Review role security"
@@ -1088,7 +1088,7 @@
 - id: perl-plack-middleware
   languages: [perl]
   patterns:
-    - regex: '(?i)enable\\s+['\"]\\w+['\"]|Plack::Middleware'
+    - regex: '(?i)enable\\s+[''\"]\\w+[''\"]|Plack::Middleware'
   severity: low
   description: "Plack middleware"
   remediation: "Review middleware security"
@@ -1460,7 +1460,7 @@
 - id: perl-dancer-route
   languages: [perl]
   patterns:
-    - regex: '(?i)get\\s*['\"]|post\\s*['\"]|put\\s*['\"]'
+    - regex: '(?i)get\\s*[''\"]|post\\s*[''\"]|put\\s*[''\"]'
   severity: low
   description: "Dancer route"
   remediation: "Implement authorization"
@@ -1470,7 +1470,7 @@
 - id: perl-dancer-template
   languages: [perl]
   patterns:
-    - regex: '(?i)template\\s*['\"]|template\\s*\\('
+    - regex: '(?i)template\\s*[''\"]|template\\s*\\('
   severity: low
   description: "Dancer template"
   remediation: "Escape template output"
@@ -1480,7 +1480,7 @@
 - id: perl-dancer-param
   languages: [perl]
   patterns:
-    - regex: '(?i)param\\s*['\"]|param\\s*\\('
+    - regex: '(?i)param\\s*[''\"]|param\\s*\\('
   severity: medium
   description: "Dancer parameter"
   remediation: "Validate parameters"
@@ -1500,7 +1500,7 @@
 - id: perl-dancer-cookie
   languages: [perl]
   patterns:
-    - regex: '(?i)cookie\\s*['\"]|cookie\\s*\\('
+    - regex: '(?i)cookie\\s*[''\"]|cookie\\s*\\('
   severity: low
   description: "Dancer cookie"
   remediation: "Set secure cookie flags"
@@ -1560,7 +1560,7 @@
 - id: perl-dancer-hook
   languages: [perl]
   patterns:
-    - regex: '(?i)hook\\s*['\"]|before\\s*|after\\s*'
+    - regex: '(?i)hook\\s*[''\"]|before\\s*|after\\s*'
   severity: low
   description: "Dancer hook"
   remediation: "Review hook security"
@@ -1590,7 +1590,7 @@
 - id: perl-dancer-layout
   languages: [perl]
   patterns:
-    - regex: '(?i)layout\\s*['\"]|layout\\s*\\('
+    - regex: '(?i)layout\\s*[''\"]|layout\\s*\\('
   severity: low
   description: "Dancer layout"
   remediation: "Validate layout templates"
@@ -1600,7 +1600,7 @@
 - id: perl-dancer-config
   languages: [perl]
   patterns:
-    - regex: '(?i)config\\s*\\(|set\\s+['\"]\\w+['\"]'
+    - regex: '(?i)config\\s*\\(|set\\s+[''\"]\\w+[''\"]'
   severity: low
   description: "Dancer configuration"
   remediation: "Secure configuration"
@@ -1762,7 +1762,7 @@
 - id: perl-taint-bypass
   languages: [perl]
   patterns:
-    - regex: '(?i)no\\s+warnings\\s+'untie''
+    - regex: '(?i)no\\s+warnings\\s+''untie'''
   severity: high
   description: "Taint mode warning disabled"
   remediation: "Enable taint warnings"

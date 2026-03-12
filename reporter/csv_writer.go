@@ -25,6 +25,19 @@ func WriteCSV(filename string, findings []Finding) error {
 		"AI validated (yes/no)", "Remediation",
 		"Code Snippet", "Exploit PoC",
 	}
+
+	// Simple deduplication: Key = FilePath + LineNumber + IssueName
+	uniqueFindings := make([]Finding, 0)
+	seen := make(map[string]bool)
+	for _, f := range findings {
+		key := fmt.Sprintf("%s:%s:%s", f.FilePath, f.LineNumber, f.IssueName)
+		if !seen[key] {
+			seen[key] = true
+			uniqueFindings = append(uniqueFindings, f)
+		}
+	}
+	findings = uniqueFindings
+
 	if err := writer.Write(header); err != nil {
 		return err
 	}
@@ -58,6 +71,10 @@ func WriteCSV(filename string, findings []Finding) error {
 }
 
 func findingToRow(f Finding) []string {
+	confidence := f.Confidence
+	if confidence <= 0 {
+		confidence = 1.0
+	}
 	return []string{
 		strconv.Itoa(f.SrNo),
 		f.IssueName,
@@ -67,7 +84,7 @@ func findingToRow(f Finding) []string {
 		f.LineNumber,
 		f.CWE,
 		f.OWASP,
-		fmt.Sprintf("%.0f%%", f.Confidence*100),
+		fmt.Sprintf("%.0f%%", confidence*100),
 		f.Source,
 		f.AiValidated,
 		f.Remediation,

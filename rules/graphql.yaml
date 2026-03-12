@@ -7,7 +7,7 @@
 - id: gql-injection-query-concat
   languages: [graphql, javascript, typescript, python, ruby, java, go]
   patterns:
-    - regex: '(?i)(query|mutation|subscription)\\s*['\"]\\s*\\+|gql\\s*`[^`]*\\$\\{.*(req|params|body|input)|graphql\\s*\\(\\s*['\"].*\\+\\s*(req|params)'
+    - regex: '(?i)(query|mutation|subscription)\\s*[''\"]\\s*\\+|gql\\s*`[^`]*\\$\\{.*(req|params|body|input)|graphql\\s*\\(\\s*[''\"].*\\+\\s*(req|params)'
   severity: critical
   description: "GraphQL query constructed via string concatenation with user input - allows attackers to modify query structure"
   remediation: "Use GraphQL variables exclusively: query($id: ID!) { user(id: $id) }. Never concatenate user input into query strings."
@@ -67,7 +67,7 @@
 - id: gql-injection-raw-sql
   languages: [javascript, typescript, python, ruby, java]
   patterns:
-    - regex: 'db\\.(?:query|execute|raw)\\s*\\(\\s*['\"].*\\$\\{.*args|db\\.(?:query|execute).*\\+\\s*args\\.'
+    - regex: 'db\\.(?:query|execute|raw)\\s*\\(\\s*[''\"].*\\$\\{.*args|db\\.(?:query|execute).*\\+\\s*args\\.'
   severity: critical
   description: "SQL injection via GraphQL args passed directly to database queries"
   remediation: "Use ORM/ODM with parameterized queries. Never interpolate args into SQL strings."
@@ -87,7 +87,7 @@
 - id: gql-injection-rest-call
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'axios\\.(?:get|post|put|delete)\\s*\\(\\s*['\"].*\\$\\{.*args|fetch\\(\\s*['\"].*\\+\\s*args'
+    - regex: 'axios\\.(?:get|post|put|delete)\\s*\\(\\s*[''\"].*\\$\\{.*args|fetch\\(\\s*[''\"].*\\+\\s*args'
   severity: high
   description: "REST API URL injection via GraphQL args - SSRF vulnerability"
   remediation: "Validate URLs against allowlist. Use environment variables for API endpoints."
@@ -97,7 +97,7 @@
 - id: gql-injection-redis
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'redis\\.(?:get|set|hset|hget)\\s*\\(\\s*['\"].*\\$\\{.*args|redis\\.call.*\\+\\s*args'
+    - regex: 'redis\\.(?:get|set|hset|hget)\\s*\\(\\s*[''\"].*\\$\\{.*args|redis\\.call.*\\+\\s*args'
   severity: high
   description: "Redis command injection via GraphQL args - can manipulate cache data"
   remediation: "Use parameterized Redis commands. Validate cache keys against patterns."
@@ -117,7 +117,7 @@
 - id: gql-injection-ldap
   languages: [javascript, typescript, python, java]
   patterns:
-    - regex: 'ldap\\.(?:search|bind)\\s*\\(\\s*['\"].*\\$\\{.*args|ldap\\.search.*\\+\\s*args'
+    - regex: 'ldap\\.(?:search|bind)\\s*\\(\\s*[''\"].*\\$\\{.*args|ldap\\.search.*\\+\\s*args'
   severity: critical
   description: "LDAP injection via GraphQL args - can bypass authentication"
   remediation: "Use LDAP escaping libraries. Never interpolate user input into LDAP filters."
@@ -127,7 +127,7 @@
 - id: gql-injection-command
   languages: [javascript, typescript, python, ruby]
   patterns:
-    - regex: 'exec(?:Sync)?\\s*\\(\\s*['\"].*\\$\\{.*args|spawn\\s*\\(\\s*['\"].*\\+\\s*args'
+    - regex: 'exec(?:Sync)?\\s*\\(\\s*[''\"].*\\$\\{.*args|spawn\\s*\\(\\s*[''\"].*\\+\\s*args'
   severity: critical
   description: "Command injection via GraphQL args - RCE vulnerability"
   remediation: "Avoid shell commands entirely. Use safe APIs for system operations."
@@ -137,7 +137,7 @@
 - id: gql-injection-xpath
   languages: [javascript, typescript, python, java]
   patterns:
-    - regex: 'xpath\\.(?:query|evaluate)\\s*\\(\\s*['\"].*\\$\\{.*args|xpath.*\\+\\s*args'
+    - regex: 'xpath\\.(?:query|evaluate)\\s*\\(\\s*[''\"].*\\$\\{.*args|xpath.*\\+\\s*args'
   severity: high
   description: "XPath injection via GraphQL args - can access unauthorized XML data"
   remediation: "Use parameterized XPath queries. Validate and escape user input."
@@ -383,7 +383,7 @@
 - id: gql-auth-role-escalation
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'role:\\s*['\"]admin['\"]|roles.*includes.*['\"]admin['\"]'
+    - regex: 'role:\\s*[''\"]admin[''\"]|roles.*includes.*[''\"]admin[''\"]'
   severity: critical
   description: "Role assignment based on user input - privilege escalation vulnerability"
   remediation: "Never accept roles from client. Set roles server-side based on authentication."
@@ -413,7 +413,7 @@
 - id: gql-auth-jwt-none-algorithm
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'algorithms?:\\s*\\[?['\"]none['\"]|verify.*\\{\\s*algorithm.*none'
+    - regex: 'algorithms?:\\s*\\[?[''\"]none[''\"]|verify.*\\{\\s*algorithm.*none'
   severity: critical
   description: "JWT validation accepting 'none' algorithm - authentication bypass"
   remediation: "Always specify allowed algorithms (HS256, RS256). Never allow 'none'."
@@ -423,7 +423,7 @@
 - id: gql-auth-jwt-weak-secret
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'secret:\\s*['\"]\\w{1,15}['\"]|jwt\\.sign.*['\"]\\w{1,15}['\"]'
+    - regex: 'secret:\\s*[''\"]\\w{1,15}[''\"]|jwt\\.sign.*[''\"]\\w{1,15}[''\"]'
   severity: high
   description: "Weak JWT secret (<16 chars) - token forgery vulnerability"
   remediation: "Use strong secrets (min 32 chars). Store secrets in environment variables."
@@ -556,7 +556,7 @@
 - id: gql-info-debug-headers
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.headers\\['x-debug'\\]|req\\.headers\\['debug'\\]|X-Debug-Token'
+    - regex: 'req\\.headers\\[''x-debug''\\]|req\\.headers\\[''debug''\\]|X-Debug-Token'
   severity: medium
   description: "Debug headers enabled - can expose sensitive debugging information"
   remediation: "Disable debug headers in production. Use authenticated debug modes only."
@@ -606,7 +606,7 @@
 - id: gql-info-default-values
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*['\"](password|secret|key|token)['\"]|defaultValue:\\s*['\"]\\w+['\"]'
+    - regex: 'default:\\s*[''\"](password|secret|key|token)[''\"]|defaultValue:\\s*[''\"]\\w+[''\"]'
   severity: medium
   description: "Sensitive default values in schema - exposed via introspection"
   remediation: "Remove default values for sensitive fields. Use null defaults."
@@ -656,7 +656,7 @@
 - id: gql-info-error-codes
   languages: [javascript, typescript]
   patterns:
-    - regex: 'errorCode:\\s*'\\w+'|code:\\s*\\d{4,}'
+    - regex: 'errorCode:\\s*''\\w+''|code:\\s*\\d{4,}'
   severity: low
   description: "Detailed error codes exposed - helps attackers understand system"
   remediation: "Use generic error codes. Map internal codes to standard HTTP status codes."
@@ -699,7 +699,7 @@
 - id: gql-subscription-event-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'publish\\(\\s*['\"].*['\"]\\s*,\\s*\\{[^}]*\\}'
+    - regex: 'publish\\(\\s*[''\"].*[''\"]\\s*,\\s*\\{[^}]*\\}'
   severity: high
   description: "Events published without audience filtering - broadcasts to all subscribers"
   remediation: "Implement room/channel-based publishing. Filter subscribers by permissions."
@@ -729,7 +729,7 @@
 - id: gql-subscription-ws-no-tls
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ws://|new\\s+WebSocket\\(\\s*['\"]ws:'
+    - regex: 'ws://|new\\s+WebSocket\\(\\s*[''\"]ws:'
   severity: critical
   description: "WebSocket connection without TLS - credentials/tokens exposed"
   remediation: "Use wss:// for all WebSocket connections. Enforce TLS in production."
@@ -749,7 +749,7 @@
 - id: gql-subscription-filter-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'withFilter\\([^,]+,\\s*\\('?true'?\\)|withFilter.*return.*true'
+    - regex: 'withFilter\\([^,]+,\\s*\\(''?true''?\\)|withFilter.*return.*true'
   severity: high
   description: "withFilter always returns true - authorization filter bypass"
   remediation: "Implement proper filter functions checking user permissions."
@@ -809,7 +809,7 @@
 - id: gql-subscription-cross-tenant
   languages: [javascript, typescript]
   patterns:
-    - regex: 'publish\\(\\s*['\"]global|broadcast|all['\"]'
+    - regex: 'publish\\(\\s*[''\"]global|broadcast|all[''\"]'
   severity: high
   description: "Global broadcast subscriptions - cross-tenant data leakage"
   remediation: "Implement tenant-isolated channels. Never broadcast to all tenants."
@@ -822,7 +822,7 @@
 - id: gql-cors-allow-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'origin:\\s*['\"]\\*['\"]|Access-Control-Allow-Origin:\\s*\\*'
+    - regex: 'origin:\\s*[''\"]\\*[''\"]|Access-Control-Allow-Origin:\\s*\\*'
   severity: critical
   description: "CORS allows all origins - CSRF attacks, data theft"
   remediation: "Restrict origins to specific domains. Never use * with credentials."
@@ -832,7 +832,7 @@
 - id: gql-cors-credentials-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'credentials:\\s*true.*origin:\\s*['\"]\\*|Access-Control-Allow-Credentials.*origin:\\s*\\*'
+    - regex: 'credentials:\\s*true.*origin:\\s*[''\"]\\*|Access-Control-Allow-Credentials.*origin:\\s*\\*'
   severity: critical
   description: "Credentials allowed with wildcard origin - complete security bypass"
   remediation: "Specify exact origins when allowing credentials. Never use * with credentials."
@@ -842,7 +842,7 @@
 - id: gql-cors-methods-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'methods:\\s*\\[\\s*['\"]\\*['\"]\\s*\\]|Access-Control-Allow-Methods:\\s*\\*'
+    - regex: 'methods:\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]|Access-Control-Allow-Methods:\\s*\\*'
   severity: high
   description: "CORS allows all HTTP methods - can enable unintended operations"
   remediation: "Restrict methods to those actually used (GET, POST, OPTIONS)."
@@ -852,7 +852,7 @@
 - id: gql-cors-headers-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'allowedHeaders:\\s*\\[\\s*['\"]\\*['\"]\\s*\\]|Access-Control-Allow-Headers:\\s*\\*'
+    - regex: 'allowedHeaders:\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]|Access-Control-Allow-Headers:\\s*\\*'
   severity: high
   description: "CORS allows all headers - can bypass security headers"
   remediation: "Restrict headers to required ones (Content-Type, Authorization)."
@@ -892,7 +892,7 @@
 - id: gql-http-get-mutations
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.get\\(['\"]/graphql|server\\.get\\(['\"]/graphql'
+    - regex: 'app\\.get\\([''\"]/graphql|server\\.get\\([''\"]/graphql'
   severity: high
   description: "GraphQL GET endpoint accepts queries - mutations via CSRF"
   remediation: "Reject mutations on GET requests. Only allow POST for mutations."
@@ -902,7 +902,7 @@
 - id: gql-http-cache-control-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'res\\.setHeader\\(['\"]Cache-Control['\"](?!.*no-cache|.*no-store|.*private)'
+    - regex: 'res\\.setHeader\\([''\"]Cache-Control[''\"](?!.*no-cache|.*no-store|.*private)'
   severity: medium
   description: "No cache control headers - sensitive data cached"
   remediation: "Set Cache-Control: no-cache, no-store, private for authenticated responses."
@@ -922,7 +922,7 @@
 - id: gql-http-hsts-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Strict-Transport-Security|res\\.setHeader\\(['\"]Strict-Transport-Security'
+    - regex: 'Strict-Transport-Security|res\\.setHeader\\([''\"]Strict-Transport-Security'
   severity: high
   description: "HSTS header missing - SSL stripping attacks possible"
   remediation: "Enable HSTS with includeSubDomains and preload for production."
@@ -962,7 +962,7 @@
 - id: gql-http-cors-preflight-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.options\\(['\"]\\*|server\\.options\\(['\"]\\*'
+    - regex: 'app\\.options\\([''\"]\\*|server\\.options\\([''\"]\\*'
   severity: medium
   description: "OPTIONS handler allows all - preflight request bypass"
   remediation: "Handle OPTIONS requests properly with CORS middleware."
@@ -1005,7 +1005,7 @@
 - id: gql-upload-file-storage-path
   languages: [javascript, typescript]
   patterns:
-    - regex: 'createWriteStream\\(\\s*['\"].*\\+.*filename|path\\.join\\(\\s*.*\\+.*filename'
+    - regex: 'createWriteStream\\(\\s*[''\"].*\\+.*filename|path\\.join\\(\\s*.*\\+.*filename'
   severity: critical
   description: "File path constructed from user input - directory traversal"
   remediation: "Use absolute paths with validation. Store files in isolated directories."
@@ -1025,7 +1025,7 @@
 - id: gql-upload-file-executable-extensions
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\.(?:exe|sh|php|py|rb|jar|jsp|asp|aspx|cgi|pl|dll|bat|cmd)\\s*['\"]'
+    - regex: '\\.(?:exe|sh|php|py|rb|jar|jsp|asp|aspx|cgi|pl|dll|bat|cmd)\\s*[''\"]'
   severity: critical
   description: "Executable file extensions allowed - RCE vulnerability"
   remediation: "Block executable extensions. Store files with safe extensions only."
@@ -1035,7 +1035,7 @@
 - id: gql-upload-file-html-svg
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\.(?:html?|svg|xhtml?|xml)\\s*['\"]'
+    - regex: '\\.(?:html?|svg|xhtml?|xml)\\s*[''\"]'
   severity: high
   description: "HTML/SVG uploads allowed - XSS attacks on file view"
   remediation: "Block HTML/SVG uploads or sanitize content. Serve with correct Content-Type."
@@ -1055,7 +1055,7 @@
 - id: gql-upload-file-path-traversal-filename
   languages: [javascript, typescript]
   patterns:
-    - regex: 'filename\\.replace\\s*\\(\\s*['\"][^']*['\"]\\s*,\\s*['\"][^']*['\"]|filename\\.split'
+    - regex: 'filename\\.replace\\s*\\(\\s*[''\"][^'']*[''\"]\\s*,\\s*[''\"][^'']*[''\"]|filename\\.split'
   severity: medium
   description: "Manual filename sanitization - easily bypassed path traversal"
   remediation: "Use dedicated path validation libraries. Never trust sanitized filenames."
@@ -1118,7 +1118,7 @@
 - id: gql-rate-limit-window-too-long
   languages: [javascript, typescript]
   patterns:
-    - regex: 'windowMs:\\s*[6-9]\\d{5,}|window:\\s*'[^']*day'
+    - regex: 'windowMs:\\s*[6-9]\\d{5,}|window:\\s*''[^'']*day'
   severity: low
   description: "Rate limit window too long (hours/days) - brute force possible"
   remediation: "Use shorter windows (minutes). Implement sliding windows for APIs."
@@ -1261,7 +1261,7 @@
 - id: gql-persisted-queries-ttl-too-long
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ttl:\\s*[6-9]\\d{5,}|expiresIn:\\s*'[^']*month|expiresIn:\\s*'[^']*year'
+    - regex: 'ttl:\\s*[6-9]\\d{5,}|expiresIn:\\s*''[^'']*month|expiresIn:\\s*''[^'']*year'
   severity: low
   description: "Persisted query cache TTL too long - stale operations"
   remediation: "Set reasonable TTL (e.g., 1 day for non-critical operations)."
@@ -1344,7 +1344,7 @@
 - id: gql-federation-subgraph-ssrf
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subgraph.*url:\\s*['\"].*\\$\\{.*\\}|subgraph.*url:\\s*['\"].*\\+.*input'
+    - regex: 'subgraph.*url:\\s*[''\"].*\\$\\{.*\\}|subgraph.*url:\\s*[''\"].*\\+.*input'
   severity: critical
   description: "Dynamic subgraph URL from user input - SSRF vulnerability"
   remediation: "Use static subgraph URLs. Never allow dynamic service discovery."
@@ -1397,7 +1397,7 @@
 - id: gql-cache-redis-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: 'redis.*password:\\s*['\"][^'\"]+['\"]|redis\\.auth.*['\"]\\w+'
+    - regex: 'redis.*password:\\s*[''\"][^''\"]+[''\"]|redis\\.auth.*[''\"]\\w+'
   severity: high
   description: "Redis credentials hardcoded - cache access compromise"
   remediation: "Use environment variables. Use Redis ACLs and TLS."
@@ -1437,7 +1437,7 @@
 - id: gql-cache-keys-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cache\\.(?:get|set)\\s*\\(\\s*['\"]\\w*\\+\\s*args|cacheKey.*\\+.*input'
+    - regex: 'cache\\.(?:get|set)\\s*\\(\\s*[''\"]\\w*\\+\\s*args|cacheKey.*\\+.*input'
   severity: high
   description: "Cache keys constructed from user input - cache poisoning"
   remediation: "Use static cache keys. Validate input before key construction."
@@ -1612,7 +1612,7 @@
 - id: gql-introspection-type-repetition
   languages: [graphql]
   patterns:
-    - regex: '__type\\(name:\\s*['\"]\\w+['\"]\\)\\s*\\{[^}]*\\}(?:\\s*__type.*){5,}'
+    - regex: '__type\\(name:\\s*[''\"]\\w+[''\"]\\)\\s*\\{[^}]*\\}(?:\\s*__type.*){5,}'
   severity: medium
   description: "Multiple __type queries in single request - systematic schema enumeration"
   remediation: "Limit number of __type queries per request. Implement query cost analysis."
@@ -1954,7 +1954,7 @@
 - id: gql-input-default-sql
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*['\"].*(?:SELECT|INSERT|UPDATE|DELETE|DROP|UNION).*['\"]'
+    - regex: 'default:\\s*[''\"].*(?:SELECT|INSERT|UPDATE|DELETE|DROP|UNION).*[''\"]'
   severity: critical
   description: "SQL injection payload in default value - potential backdoor"
   remediation: "Never use SQL as default values. Remove suspicious defaults."
@@ -1964,7 +1964,7 @@
 - id: gql-input-default-command
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*['\"].*(?:exec|system|eval|require|process).*['\"]'
+    - regex: 'default:\\s*[''\"].*(?:exec|system|eval|require|process).*[''\"]'
   severity: critical
   description: "Command injection payload in default value - RCE risk"
   remediation: "Remove all command-like strings from default values."
@@ -1974,7 +1974,7 @@
 - id: gql-input-default-html
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*['\"].*<script>.*['\"]'
+    - regex: 'default:\\s*[''\"].*<script>.*[''\"]'
   severity: high
   description: "XSS payload in default value - reflected XSS risk"
   remediation: "Remove HTML/script tags from default values. Escape all defaults."
@@ -2034,7 +2034,7 @@
 - id: gql-input-deprecated-values
   languages: [graphql]
   patterns:
-    - regex: '@deprecated.*reason:\\s*['\"]([^'\"]*)['\"]'
+    - regex: '@deprecated.*reason:\\s*[''\"]([^''\"]*)[''\"]'
   severity: low
   description: "Deprecated enum values - may still be used by clients"
   remediation: "Plan removal of deprecated values. Monitor usage before removal."
@@ -2562,7 +2562,7 @@
 - id: gql-fed-link-version
   languages: [graphql]
   patterns:
-    - regex: '@link\\(url:.*federation.*version=['\"]1\\.|@link.*url.*v1\\.0'
+    - regex: '@link\\(url:.*federation.*version=[''\"]1\\.|@link.*url.*v1\\.0'
   severity: medium
   description: "Federation v1 spec - missing v2 security improvements"
   remediation: "Upgrade to Federation v2 with @link directive and better composition."
@@ -2654,7 +2654,7 @@
 - id: gql-persisted-store-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'store\\s*\\[\\s*['\"]\\s*\\+\\s*input|store\\.get\\s*\\(\\s*['\"]\\s*\\+'
+    - regex: 'store\\s*\\[\\s*[''\"]\\s*\\+\\s*input|store\\.get\\s*\\(\\s*[''\"]\\s*\\+'
   severity: critical
   description: "Persisted operation store key from user input - cache poisoning"
   remediation: "Use static operation IDs. Never construct cache keys from input."
@@ -2970,7 +2970,7 @@
 - id: gql-headers-csp-unsafe
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script-src.*'unsafe-inline'|script-src.*'unsafe-eval''
+    - regex: 'script-src.*''unsafe-inline''|script-src.*''unsafe-eval'''
   severity: high
   description: "CSP allows unsafe-inline or unsafe-eval - XSS mitigation bypass"
   remediation: "Remove unsafe-inline/unsafe-eval. Use nonces or hashes for scripts."
@@ -3062,7 +3062,7 @@
 - id: gql-test-debug-endpoints
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.get\\(['\"]/graphql/test|/graphql/playground|/graphiql|/voyager'
+    - regex: 'app\\.get\\([''\"]/graphql/test|/graphql/playground|/graphiql|/voyager'
   severity: high
   description: "Debug/playground endpoints exposed in production"
   remediation: "Disable GraphiQL, Playground, Voyager in production. Use conditionals."

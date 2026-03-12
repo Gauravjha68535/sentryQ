@@ -1490,7 +1490,7 @@
     - regex: |-
         <a[^>]*rel\s*=\s*["'][^"']*nofollow[^"']*["']
   severity: low
- description: "Link with rel=nofollow - SEO attribute"
+  description: "Link with rel=nofollow - SEO attribute"
   remediation: "Use for untrusted or sponsored links."
   cwe: "CWE-693"
   owasp: "A05:2021"
