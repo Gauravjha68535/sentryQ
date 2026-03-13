@@ -1,45 +1,99 @@
 package main
 
 import (
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
-	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"QWEN_SCR_24_FEB_2026/reporter"
+	"QWEN_SCR_24_FEB_2026/utils"
 )
+
+// webDistDir is the path to the built React frontend.
+// It is set at runtime to the correct location.
+var webDistDir string
 
 var (
 	dashboardFindings []reporter.Finding
 	findingsMutex     sync.RWMutex
 	startTime         time.Time
+	appSettings       = struct {
+		sync.RWMutex
+		OllamaHost   string `json:"ollama_host"`
+		DefaultModel string `json:"default_model"`
+	}{
+		OllamaHost:   "localhost:11434",
+		DefaultModel: "deepseek-r1:7b",
+	}
 )
 
-// StartWebDashboard starts a local HTTP server to serve the interactive report and API
-func StartWebDashboard(port int) {
+// StartWebServer starts the full web application server
+func StartWebServer(port int) {
+	if err := InitDB(); err != nil {
+		utils.LogError("Failed to initialize database", err)
+		return
+	}
+
 	mux := http.NewServeMux()
 
-	// 1. Serve the live HTML Dashboard
-	mux.HandleFunc("/", serveDashboardHTML)
+	// API Routes
+	mux.HandleFunc("/api/scans", handleListScans)
+	mux.HandleFunc("/api/scan/upload", handleUploadScan)
+	mux.HandleFunc("/api/scan/git", handleGitScan)
+	mux.HandleFunc("/api/settings", handleSettings)
+	mux.HandleFunc("/api/system/status", handleSystemStatus)
 
-	// 2. REST API endpoints
-	mux.HandleFunc("/api/findings", handleGetFindings)
-	mux.HandleFunc("/api/summary", handleGetSummary)
+	// Dynamic scan routes (manual routing for path params)
+	mux.HandleFunc("/api/scan/", handleScanRoutes)
+	mux.HandleFunc("/ws/scan/", handleWebSocketRoute)
 
-	// 3. Status/Health endpoint
-	mux.HandleFunc("/api/status", handleGetStatus)
+	// Legacy API (for old dashboard)
+	mux.HandleFunc("/api/findings", handleGetFindingsLegacy)
+	mux.HandleFunc("/api/summary", handleGetSummaryLegacy)
+	mux.HandleFunc("/api/charts", handleGetChartDataLegacy)
 
-	// 4. Chart Data endpoint
-	mux.HandleFunc("/api/charts", handleGetChartData)
+	// Determine dist dir location
+	exeDir, _ := os.Executable()
+	baseDir := filepath.Dir(exeDir)
+	// Try relative to working directory first (dev mode), then relative to binary
+	candidates := []string{
+		filepath.Join(".", "web", "dist"),
+		filepath.Join(baseDir, "web", "dist"),
+		filepath.Join(baseDir, "..", "..", "web", "dist"),
+	}
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			webDistDir = c
+			break
+		}
+	}
+	if webDistDir == "" {
+		utils.LogWarn("⚠ Web UI dist not found. Run 'cd web && npm run build' first.")
+		webDistDir = filepath.Join(".", "web", "dist") // fallback
+	}
+	utils.LogInfo(fmt.Sprintf("Serving frontend from: %s", webDistDir))
 
-	// 5. Auto-Fix endpoint
-	mux.HandleFunc("/api/fix", handleGetFix)
+	// Serve React SPA (static files from disk)
+	fileServer := http.FileServer(http.Dir(webDistDir))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Check if the file exists on disk
+		path := filepath.Join(webDistDir, r.URL.Path)
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			// SPA fallback: serve index.html for all non-API routes
+			http.ServeFile(w, r, filepath.Join(webDistDir, "index.html"))
+			return
+		}
+		fileServer.ServeHTTP(w, r)
+	})
 
 	addr := fmt.Sprintf("localhost:%d", port)
 	server := &http.Server{
@@ -47,239 +101,328 @@ func StartWebDashboard(port int) {
 		Handler: mux,
 	}
 
-	utils.LogInfo(fmt.Sprintf("🌐 Web Dashboard starting on http://%s", addr))
+	utils.LogInfo(fmt.Sprintf("🌐 QWEN Scanner Web UI starting on http://%s", addr))
 
-	// Open the browser automatically
+	// Auto-open browser
 	go openBrowser("http://" + addr)
 
-	// Start server (blocking)
-	err := server.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
-		utils.LogError("Dashboard server failed", err)
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		utils.LogError("Web server failed", err)
 	}
 }
 
-// UpdateDashboardFindings is called by the main scanner process to push new findings
-func UpdateDashboardFindings(newFindings []reporter.Finding) {
-	findingsMutex.Lock()
-	defer findingsMutex.Unlock()
+// ──────────────────────────────────────────────────────────
+//  API Handlers
+// ──────────────────────────────────────────────────────────
 
-	// Replace completely. The slice is already deduped.
-	dashboardFindings = make([]reporter.Finding, len(newFindings))
-	copy(dashboardFindings, newFindings)
+func handleListScans(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	scans, err := GetAllScans()
+	if err != nil {
+		httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	if scans == nil {
+		scans = []ScanRecord{}
+	}
+	httpJSON(w, http.StatusOK, scans)
 }
 
-func serveDashboardHTML(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+func handleUploadScan(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse multipart (max 500MB)
+	r.ParseMultipartForm(500 << 20)
+
+	configJSON := r.FormValue("config")
+
+	// Save uploaded files to a temp directory
+	tmpDir, err := os.MkdirTemp("", "qwen-upload-")
+	if err != nil {
+		http.Error(w, "Failed to create temp directory", http.StatusInternalServerError)
+		return
+	}
+
+	files := r.MultipartForm.File["files"]
+	for _, fileHeader := range files {
+		file, err := fileHeader.Open()
+		if err != nil {
+			continue
+		}
+
+		// Preserve relative path structure
+		relPath := fileHeader.Filename
+		destPath := filepath.Join(tmpDir, relPath)
+		os.MkdirAll(filepath.Dir(destPath), 0755)
+
+		destFile, err := os.Create(destPath)
+		if err != nil {
+			file.Close()
+			continue
+		}
+
+		io.Copy(destFile, file)
+		destFile.Close()
+		file.Close()
+	}
+
+	scanID, err := StartScanFromUpload(tmpDir, configJSON)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httpJSON(w, http.StatusOK, map[string]string{"scan_id": scanID})
+}
+
+func handleGitScan(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		URL    string        `json:"url"`
+		Config WebScanConfig `json:"config"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	configJSON, _ := json.Marshal(req.Config)
+	scanID, err := StartScanFromGit(req.URL, string(configJSON))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httpJSON(w, http.StatusOK, map[string]string{"scan_id": scanID})
+}
+
+func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")
+	parts := strings.Split(path, "/")
+
+	if len(parts) == 0 {
 		http.NotFound(w, r)
 		return
 	}
 
-	findingsMutex.RLock()
-	findings := make([]reporter.Finding, len(dashboardFindings))
-	copy(findings, dashboardFindings)
-	findingsMutex.RUnlock()
+	scanID := parts[0]
 
-	// Generate fresh HTML report into a buffer (no disk I/O)
-	summary := reporter.GenerateReportSummary(findings, ".")
-	var buf bytes.Buffer
-	err := reporter.GenerateHTMLReportToWriter(&buf, findings, summary)
-	if err != nil {
-		http.Error(w, "Failed to generate report HTML", http.StatusInternalServerError)
+	// DELETE /api/scan/:id
+	if r.Method == http.MethodDelete {
+		if err := DeleteScan(scanID); err != nil {
+			httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		httpJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 		return
 	}
 
-	// Inject Chart.js Dashboard before closing </body>
-	htmlContent := buf.String()
-	chartDashboard := generateChartDashboardHTML(findings)
-	htmlContent = strings.Replace(htmlContent, "</body>", chartDashboard+"</body>", 1)
+	// GET /api/scan/:id/findings
+	if len(parts) >= 2 && parts[1] == "findings" {
+		findings, err := GetFindingsForScan(scanID)
+		if err != nil {
+			httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		if findings == nil {
+			findings = []reporter.Finding{}
+		}
+		httpJSON(w, http.StatusOK, findings)
+		return
+	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write([]byte(htmlContent))
-}
+	// GET /api/scan/:id/report/html|csv|pdf
+	if len(parts) >= 3 && parts[1] == "report" {
+		format := parts[2]
+		reportsDir := filepath.Join(os.TempDir(), "qwen-reports", scanID)
+		var filePath string
+		var contentType string
 
-func handleGetFindings(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+		switch format {
+		case "html":
+			filePath = filepath.Join(reportsDir, "report.html")
+			contentType = "text/html"
+		case "csv":
+			filePath = filepath.Join(reportsDir, "report.csv")
+			contentType = "text/csv"
+		case "pdf":
+			filePath = filepath.Join(reportsDir, "report.pdf")
+			contentType = "application/pdf"
+		default:
+			http.NotFound(w, r)
+			return
+		}
 
-	findingsMutex.RLock()
-	defer findingsMutex.RUnlock()
-
-	// Basic filtering support via query params (e.g., ?severity=critical)
-	severityFilter := r.URL.Query().Get("severity")
-
-	var filtered []reporter.Finding
-	if severityFilter != "" {
-		for _, f := range dashboardFindings {
-			if f.Severity == severityFilter {
-				filtered = append(filtered, f)
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			// Try to regenerate
+			findings, _ := GetFindingsForScan(scanID)
+			if len(findings) > 0 {
+				webGenerateReportFiles(scanID, findings, ".")
 			}
 		}
-	} else {
-		filtered = dashboardFindings
+
+		w.Header().Set("Content-Type", contentType)
+		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=report.%s", format))
+		http.ServeFile(w, r, filePath)
+		return
 	}
 
-	json.NewEncoder(w).Encode(filtered)
+	// GET /api/scan/:id (scan info)
+	scan, err := GetScan(scanID)
+	if err != nil {
+		httpJSON(w, http.StatusNotFound, map[string]string{"error": "Scan not found"})
+		return
+	}
+	httpJSON(w, http.StatusOK, scan)
 }
 
-func handleGetSummary(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func handleWebSocketRoute(w http.ResponseWriter, r *http.Request) {
+	scanID := strings.TrimPrefix(r.URL.Path, "/ws/scan/")
+	if scanID == "" {
+		http.Error(w, "Missing scan ID", http.StatusBadRequest)
+		return
+	}
+	wsHub.HandleWS(w, r, scanID)
+}
 
-	findingsMutex.RLock()
-	defer findingsMutex.RUnlock()
-
-	summary := map[string]int{
-		"critical": 0,
-		"high":     0,
-		"medium":   0,
-		"low":      0,
-		"info":     0,
-		"total":    len(dashboardFindings),
+func handleSettings(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	if r.Method == http.MethodPut {
+		var s struct {
+			OllamaHost   string `json:"ollama_host"`
+			DefaultModel string `json:"default_model"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
+			http.Error(w, "Invalid body", http.StatusBadRequest)
+			return
+		}
+		appSettings.Lock()
+		if s.OllamaHost != "" {
+			appSettings.OllamaHost = s.OllamaHost
+		}
+		if s.DefaultModel != "" {
+			appSettings.DefaultModel = s.DefaultModel
+		}
+		appSettings.Unlock()
+		httpJSON(w, http.StatusOK, map[string]string{"status": "saved"})
+		return
 	}
 
+	appSettings.RLock()
+	defer appSettings.RUnlock()
+	httpJSON(w, http.StatusOK, map[string]interface{}{
+		"ollama_host":   appSettings.OllamaHost,
+		"default_model": appSettings.DefaultModel,
+	})
+}
+
+func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	// Check Ollama
+	ollamaStatus := "unreachable"
+	appSettings.RLock()
+	host := appSettings.OllamaHost
+	appSettings.RUnlock()
+	resp, err := http.Get(fmt.Sprintf("http://%s/api/version", host))
+	if err == nil && resp.StatusCode == 200 {
+		ollamaStatus = "connected"
+		resp.Body.Close()
+	}
+
+	// Check Go version
+	goVersion := runtime.Version()
+
+	// Check git
+	gitStatus := "not found"
+	if _, err := exec.LookPath("git"); err == nil {
+		gitStatus = "available"
+	}
+
+	httpJSON(w, http.StatusOK, map[string]interface{}{
+		"ollama":      ollamaStatus,
+		"ollama_host": host,
+		"go_version":  goVersion,
+		"git":         gitStatus,
+		"os":          runtime.GOOS,
+		"arch":        runtime.GOARCH,
+		"memory_mb":   m.Alloc / 1024 / 1024,
+		"uptime":      time.Since(startTime).Round(time.Second).String(),
+	})
+}
+
+// ──────────────────────────────────────────────────────────
+//  Legacy API Handlers (for backward-compat with old dashboard)
+// ──────────────────────────────────────────────────────────
+
+func handleGetFindingsLegacy(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	findingsMutex.RLock()
+	defer findingsMutex.RUnlock()
+	json.NewEncoder(w).Encode(dashboardFindings)
+}
+
+func handleGetSummaryLegacy(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	findingsMutex.RLock()
+	defer findingsMutex.RUnlock()
+	summary := map[string]int{"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "total": len(dashboardFindings)}
 	for _, f := range dashboardFindings {
 		summary[f.Severity]++
 	}
-
 	json.NewEncoder(w).Encode(summary)
 }
 
-func handleGetStatus(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	status := map[string]interface{}{
-		"status": "running",
-		"uptime": time.Since(startTime).String(),
-		"memory": getMemoryStats(),
-	}
-
-	json.NewEncoder(w).Encode(status)
-}
-
-// handleGetChartData returns structured chart data for the dashboard
-func handleGetChartData(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
+func handleGetChartDataLegacy(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
 	findingsMutex.RLock()
 	defer findingsMutex.RUnlock()
-
-	// Severity distribution
-	severityDist := map[string]int{
-		"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0,
-	}
-	// CWE distribution (top 10)
-	cweDist := make(map[string]int)
-	// Findings by file (top 10)
-	fileDist := make(map[string]int)
-	// Source distribution
-	sourceDist := make(map[string]int)
-
+	sevDist := map[string]int{"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
 	for _, f := range dashboardFindings {
-		severityDist[f.Severity]++
-		if f.CWE != "" {
-			cweDist[f.CWE]++
-		}
-		fileDist[f.FilePath]++
-		if f.Source != "" {
-			sourceDist[f.Source]++
-		}
+		sevDist[f.Severity]++
 	}
-
-	// Sort and take top 10 CWEs
-	type kv struct {
-		Key   string
-		Value int
-	}
-	topCWEs := sortMapTopN(cweDist, 10)
-	topFiles := sortMapTopN(fileDist, 10)
-
-	chartData := map[string]interface{}{
-		"severity":  severityDist,
-		"top_cwes":  topCWEs,
-		"top_files": topFiles,
-		"sources":   sourceDist,
-		"total":     len(dashboardFindings),
-	}
-
-	json.NewEncoder(w).Encode(chartData)
+	json.NewEncoder(w).Encode(map[string]interface{}{"severity": sevDist, "total": len(dashboardFindings)})
 }
 
-// handleGetFix returns the AI-suggested fix for a finding by ID
-func handleGetFix(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+// UpdateDashboardFindings is called by the main scanner to push new findings (legacy)
+func UpdateDashboardFindings(newFindings []reporter.Finding) {
+	findingsMutex.Lock()
+	defer findingsMutex.Unlock()
+	dashboardFindings = make([]reporter.Finding, len(newFindings))
+	copy(dashboardFindings, newFindings)
+}
+
+// ──────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────
+
+func setCORS(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	idStr := r.URL.Query().Get("id")
-	if idStr == "" {
-		http.Error(w, `{"error":"missing id parameter"}`, http.StatusBadRequest)
-		return
-	}
-
-	var findingID int
-	fmt.Sscanf(idStr, "%d", &findingID)
-
-	findingsMutex.RLock()
-	defer findingsMutex.RUnlock()
-
-	for _, f := range dashboardFindings {
-		if f.SrNo == findingID {
-			fix := map[string]interface{}{
-				"id":          f.SrNo,
-				"file":        f.FilePath,
-				"line":        f.LineNumber,
-				"issue":       f.IssueName,
-				"fix":         f.FixedCode,
-				"remediation": f.Remediation,
-			}
-			json.NewEncoder(w).Encode(fix)
-			return
-		}
-	}
-
-	http.Error(w, `{"error":"finding not found"}`, http.StatusNotFound)
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
 
-func getMemoryStats() map[string]uint64 {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	return map[string]uint64{
-		"alloc_mb":       m.Alloc / 1024 / 1024,
-		"total_alloc_mb": m.TotalAlloc / 1024 / 1024,
-		"sys_mb":         m.Sys / 1024 / 1024,
-		"num_gc":         uint64(m.NumGC),
-	}
+func httpJSON(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(data)
 }
 
-// sortMapTopN returns the top N entries from a map, sorted by value descending
-func sortMapTopN(m map[string]int, n int) []map[string]interface{} {
-	type kv struct {
-		Key   string
-		Value int
-	}
-	var sorted []kv
-	for k, v := range m {
-		sorted = append(sorted, kv{k, v})
-	}
-	sort.Slice(sorted, func(i, j int) bool {
-		return sorted[i].Value > sorted[j].Value
-	})
-	if len(sorted) > n {
-		sorted = sorted[:n]
-	}
-	result := make([]map[string]interface{}, len(sorted))
-	for i, item := range sorted {
-		result[i] = map[string]interface{}{"label": item.Key, "count": item.Value}
-	}
-	return result
-}
-
-// openBrowser attempts to open the default web browser to the given URL
 func openBrowser(url string) {
-	// Give the server a small moment to actually start listening
-	time.Sleep(500 * time.Millisecond)
-
+	time.Sleep(800 * time.Millisecond)
 	var err error
 	switch runtime.GOOS {
 	case "linux":
@@ -291,196 +434,44 @@ func openBrowser(url string) {
 	default:
 		err = fmt.Errorf("unsupported platform")
 	}
-
 	if err != nil {
-		utils.LogInfo(fmt.Sprintf("Failed to auto-open browser: %v. Please visit %s manually.", err, url))
+		utils.LogInfo(fmt.Sprintf("Open http://%s in your browser", url))
 	}
+}
+
+func generateChartDashboardHTML(findings []reporter.Finding) string {
+	// Simplified chart generation for legacy dashboard
+	sevCounts := map[string]int{"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
+	for _, f := range findings {
+		sevCounts[f.Severity]++
+	}
+	return fmt.Sprintf(`<div style="text-align:center;color:#94a3b8;padding:20px;">
+		<p>Critical: %d | High: %d | Medium: %d | Low: %d | Info: %d</p>
+	</div>`, sevCounts["critical"], sevCounts["high"], sevCounts["medium"], sevCounts["low"], sevCounts["info"])
+}
+
+func serveDashboardHTML(w http.ResponseWriter, r *http.Request) {
+	findingsMutex.RLock()
+	findings := make([]reporter.Finding, len(dashboardFindings))
+	copy(findings, dashboardFindings)
+	findingsMutex.RUnlock()
+
+	summary := reporter.GenerateReportSummary(findings, ".")
+	var buf bytes.Buffer
+	err := reporter.GenerateHTMLReportToWriter(&buf, findings, summary)
+	if err != nil {
+		http.Error(w, "Failed to generate report HTML", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write(buf.Bytes())
+}
+
+// StartWebDashboard starts the legacy dashboard (backward-compat)
+func StartWebDashboard(port int) {
+	StartWebServer(port)
 }
 
 func init() {
 	startTime = time.Now()
-}
-
-// generateChartDashboardHTML creates the Chart.js dashboard section to inject into the HTML report
-func generateChartDashboardHTML(findings []reporter.Finding) string {
-	// Calculate data
-	sevCounts := map[string]int{"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
-	cweCounts := make(map[string]int)
-	sourceCounts := make(map[string]int)
-
-	for _, f := range findings {
-		sevCounts[f.Severity]++
-		if f.CWE != "" {
-			cweCounts[f.CWE]++
-		}
-		if f.Source != "" {
-			sourceCounts[f.Source]++
-		}
-	}
-
-	// Top 8 CWEs
-	topCWEs := sortMapTopN(cweCounts, 8)
-	cweLabels := "["
-	cweCnts := "["
-	for i, item := range topCWEs {
-		if i > 0 {
-			cweLabels += ","
-			cweCnts += ","
-		}
-		cweLabels += fmt.Sprintf("'%s'", item["label"])
-		cweCnts += fmt.Sprintf("%d", item["count"])
-	}
-	cweLabels += "]"
-	cweCnts += "]"
-
-	// Source distribution
-	sourceLabels := "["
-	sourceCnts := "["
-	first := true
-	for k, v := range sourceCounts {
-		if !first {
-			sourceLabels += ","
-			sourceCnts += ","
-		}
-		sourceLabels += fmt.Sprintf("'%s'", k)
-		sourceCnts += fmt.Sprintf("%d", v)
-		first = false
-	}
-	sourceLabels += "]"
-	sourceCnts += "]"
-
-	return fmt.Sprintf(`
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<style>
-  .chart-dashboard {
-    background: linear-gradient(135deg, #0f0f23 0%%, #1a1a3e 100%%);
-    padding: 40px 30px;
-    margin: 30px 0;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .chart-dashboard h2 {
-    color: #e2e8f0;
-    text-align: center;
-    font-size: 1.6rem;
-    margin-bottom: 30px;
-    font-weight: 700;
-  }
-  .charts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 24px;
-  }
-  .chart-card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 24px;
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-  }
-  .chart-card h3 {
-    color: #93c5fd;
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    text-align: center;
-  }
-  .chart-card canvas {
-    max-height: 280px;
-  }
-</style>
-
-<div class="chart-dashboard">
-  <h2>📊 Visual Analytics Dashboard</h2>
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Severity Distribution</h3>
-      <canvas id="severityChart"></canvas>
-    </div>
-    <div class="chart-card">
-      <h3>Top CWE Categories</h3>
-      <canvas id="cweChart"></canvas>
-    </div>
-    <div class="chart-card">
-      <h3>Detection Sources</h3>
-      <canvas id="sourceChart"></canvas>
-    </div>
-  </div>
-</div>
-
-<script>
-  Chart.defaults.color = '#94a3b8';
-  Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
-
-  // Severity Pie Chart
-  new Chart(document.getElementById('severityChart'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Critical', 'High', 'Medium', 'Low', 'Info'],
-      datasets: [{
-        data: [%d, %d, %d, %d, %d],
-        backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#6366f1'],
-        borderWidth: 2,
-        borderColor: '#0f0f23'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } }
-      }
-    }
-  });
-
-  // CWE Bar Chart
-  new Chart(document.getElementById('cweChart'), {
-    type: 'bar',
-    data: {
-      labels: %s,
-      datasets: [{
-        label: 'Findings',
-        data: %s,
-        backgroundColor: 'rgba(99, 102, 241, 0.7)',
-        borderColor: '#818cf8',
-        borderWidth: 1,
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
-      }
-    }
-  });
-
-  // Source Doughnut Chart
-  new Chart(document.getElementById('sourceChart'), {
-    type: 'doughnut',
-    data: {
-      labels: %s,
-      datasets: [{
-        data: %s,
-        backgroundColor: ['#06b6d4', '#8b5cf6', '#f43f5e', '#10b981', '#f59e0b', '#3b82f6'],
-        borderWidth: 2,
-        borderColor: '#0f0f23'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } }
-      }
-    }
-  });
-</script>
-`,
-		sevCounts["critical"], sevCounts["high"], sevCounts["medium"], sevCounts["low"], sevCounts["info"],
-		cweLabels, cweCnts,
-		sourceLabels, sourceCnts,
-	)
 }

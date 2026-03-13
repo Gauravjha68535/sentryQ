@@ -119,6 +119,16 @@ func splitAndTrim(s string) []string {
 func main() {
 	utils.InitLogger()
 
+	// Check for --web flag before normal flag parsing
+	for _, arg := range os.Args[1:] {
+		if arg == "--web" || arg == "-web" {
+			utils.PrintBanner()
+			utils.LogInfo("🌐 Starting Web UI mode...")
+			StartWebServer(5336)
+			return
+		}
+	}
+
 	// Try CLI flags first; fall back to interactive menu
 	config := parseFlags()
 	if config == nil {
