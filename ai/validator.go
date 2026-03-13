@@ -91,9 +91,14 @@ Return ONLY a valid JSON object in the final part of your response:
 
 	// Use Ollama HTTP API instead of CLI subprocess
 	reqBody := OllamaAPIRequest{
-		Model:     modelName,
-		Prompt:    prompt,
-		Stream:    false,
+		Model:  modelName,
+		Prompt: prompt,
+		Stream: false,
+		Options: map[string]interface{}{
+			"num_ctx":     8192,
+			"num_predict": 2048, // Validation responses are usually shorter
+			"temperature": 0.0,
+		},
 		KeepAlive: "15m",
 	}
 

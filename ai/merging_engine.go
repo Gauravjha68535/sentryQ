@@ -92,9 +92,14 @@ Respond ONLY with valid JSON:
 }`, string(findingsJSON))
 
 	reqBody := OllamaAPIRequest{
-		Model:     modelName,
-		Prompt:    prompt,
-		Stream:    false,
+		Model:  modelName,
+		Prompt: prompt,
+		Stream: false,
+		Options: map[string]interface{}{
+			"num_ctx":     8192,
+			"num_predict": 4096,
+			"temperature": 0.0,
+		},
 		KeepAlive: "5m",
 	}
 

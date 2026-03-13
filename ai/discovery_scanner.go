@@ -98,10 +98,11 @@ func GetOllamaBaseURL() string {
 
 // OllamaAPIRequest is the request body for the Ollama generate API
 type OllamaAPIRequest struct {
-	Model     string `json:"model"`
-	Prompt    string `json:"prompt"`
-	Stream    bool   `json:"stream"`
-	KeepAlive string `json:"keep_alive,omitempty"`
+	Model     string                 `json:"model"`
+	Prompt    string                 `json:"prompt"`
+	Stream    bool                   `json:"stream"`
+	Options   map[string]interface{} `json:"options,omitempty"`
+	KeepAlive string                 `json:"keep_alive,omitempty"`
 }
 
 // OllamaAPIResponse is the response from the Ollama generate API
@@ -200,9 +201,14 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			"}", filePath, codeBlock, langSpecific)
 
 		reqBody := OllamaAPIRequest{
-			Model:     modelName,
-			Prompt:    prompt,
-			Stream:    false,
+			Model:  modelName,
+			Prompt: prompt,
+			Stream: false,
+			Options: map[string]interface{}{
+				"num_ctx":     8192,
+				"num_predict": 4096,
+				"temperature": 0.0,
+			},
 			KeepAlive: "15m",
 		}
 
