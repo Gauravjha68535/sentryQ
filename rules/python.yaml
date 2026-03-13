@@ -3745,17 +3745,6 @@
   cwe: "CWE-20"
   owasp: "A03:2021"
 
-- id: py-fstring-debug
-  languages: [python]
-  patterns:
-  - regex: |-
-      f["'][^"']*?=[^}]*\}
-  severity: low
-  description: "f-string debug expressions (=) may leak variable names"
-  remediation: "Remove debug expressions in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
 - id: py-fstring-nested
   languages: [python]
   patterns:
@@ -4035,3 +4024,25 @@
   remediation: "Never hardcode database usernames or credentials. Retrieve db configurations from secure environment variables."
   cwe: "CWE-798"
   owasp: "A07:2021"
+
+- id: py-jwt-algorithm-confusion
+  languages: [python]
+  patterns:
+  - regex: |-
+      (?i)jwt\.decode\((?![^)]*algorithms\s*=)[^)]+\)
+  severity: high
+  description: "JWT decoding without explicitly defining the allowed algorithms exposes the application to Algorithm Confusion."
+  remediation: "Always define the allowed algorithms explicitly: jwt.decode(token, secret, algorithms=['HS256'])"
+  cwe: "CWE-347"
+  owasp: "A02:2021"
+
+- id: py-missing-samesite-cookie
+  languages: [python]
+  patterns:
+  - regex: |-
+      (?i)set_cookie\((?![^)]*samesite\s*=\s*['"](Strict|Lax)['"])[^)]+\)
+  severity: medium
+  description: "Cookie generated without a secure 'SameSite' attribute, increasing CSRF risk."
+  remediation: "Add the SameSite attribute to cookies: set_cookie(..., samesite='Strict')"
+  cwe: "CWE-1275"
+  owasp: "A01:2021"

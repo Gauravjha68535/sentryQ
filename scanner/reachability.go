@@ -50,6 +50,7 @@ func (ra *ReachabilityAnalyzer) BuildCallGraph(targetDir string) error {
 		"onCreate", "onStart", "viewDidLoad",
 		"app.get", "app.post", "app.put", "app.delete",
 		"router.", "mux.", "http.Handle",
+		"@app.route", "@admin_bp.route", "@bp.route", ".route(",
 	}
 
 	err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
@@ -79,6 +80,7 @@ func (ra *ReachabilityAnalyzer) BuildCallGraph(targetDir string) error {
 		lines := strings.Split(utils.NormalizeNewlines(source), "\n")
 
 		var currentFunc string
+		var lastLine string
 
 		for lineNum, line := range lines {
 			// Check for function definitions
@@ -89,7 +91,7 @@ func (ra *ReachabilityAnalyzer) BuildCallGraph(targetDir string) error {
 
 					// Check if this is an entry point
 					for _, ep := range entryPointPatterns {
-						if strings.Contains(line, ep) {
+						if strings.Contains(line, ep) || strings.Contains(lastLine, ep) {
 							ra.entryPoints = append(ra.entryPoints, currentFunc)
 							break
 						}
@@ -110,6 +112,7 @@ func (ra *ReachabilityAnalyzer) BuildCallGraph(targetDir string) error {
 					}
 				}
 			}
+			lastLine = line
 		}
 
 		return nil

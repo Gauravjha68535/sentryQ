@@ -11,6 +11,16 @@ import (
 // GeneratePDF generates a professional PDF report with cover page, colors, and all findings
 func GeneratePDF(filename string, findings []Finding, summary ReportSummary, riskScore RiskScore) error {
 	pdf := gofpdf.New("L", "mm", "A4", "")
+
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-12)
+		pdf.SetFont("Helvetica", "I", 8)
+		pdf.SetTextColor(150, 150, 150)
+		// Alias {nb} gets replaced with the total number of pages automatically
+		pdf.CellFormat(0, 5, fmt.Sprintf("AI-Powered Security Scanner | Page %d of {nb}", pdf.PageNo()), "", 0, "C", false, 0, "")
+	})
+	pdf.AliasNbPages("") // Enables {nb} substitution
+
 	pdf.SetAutoPageBreak(true, 15)
 
 	// Simple deduplication
@@ -160,10 +170,11 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 		pdf.Ln(-1)
 
 		// Auto page break with repeated header
-		// Only break if we are not on the very last item
-		if pdf.GetY() > 190 && idx < len(confirmed)-1 {
+		// We can just rely on SetAutoPageBreak, or force it if it exceeds bounds.
+		// Since we have strict layout per row, we insert manually:
+		if pdf.GetY() > 185 && idx < len(confirmed)-1 {
 			pdf.AddPage()
-			addPageHeader(pdf, fmt.Sprintf("Confirmed Findings (continued - page %d)", pdf.PageNo()-2))
+			addPageHeader(pdf, "Confirmed Findings (continued)")
 			drawPDFTableHeader()
 		}
 	}
@@ -192,17 +203,6 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 		for idx, f := range falsePositives {
 			drawFindingRow(idx, f)
 		}
-	}
-
-	// ——— Footer on each page ———
-	lastContentPage := pdf.PageNo()
-	totalPages := lastContentPage
-	for i := 1; i <= totalPages; i++ {
-		pdf.SetPage(i)
-		pdf.SetY(-12)
-		pdf.SetFont("Helvetica", "I", 8)
-		pdf.SetTextColor(150, 150, 150)
-		pdf.CellFormat(0, 5, fmt.Sprintf("AI-Powered Security Scanner | Page %d of %d", i, totalPages), "", 0, "C", false, 0, "")
 	}
 
 	return pdf.OutputFileAndClose(filename)

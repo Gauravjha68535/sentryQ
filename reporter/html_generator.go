@@ -777,7 +777,9 @@ const htmlTemplate = `<!DOCTYPE html>
     // PDF Export
     async function exportPDF() {
         const btn = document.getElementById('exportBtn');
+        const actions = document.querySelector('.header-actions');
         btn.disabled = true; btn.textContent = 'Generating...';
+        actions.style.display = 'none';
         try {
             await html2pdf().set({
                 margin: [0.4, 0.4], filename: 'security-report.pdf',
@@ -788,6 +790,7 @@ const htmlTemplate = `<!DOCTYPE html>
             }).from(document.querySelector('.container')).save();
             btn.textContent = 'Downloaded!';
         } catch(e) { alert('PDF export failed'); }
+        actions.style.display = 'flex';
         setTimeout(() => { btn.disabled = false; btn.textContent = 'Export PDF'; }, 2000);
     }
 

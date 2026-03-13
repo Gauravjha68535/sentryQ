@@ -29,7 +29,7 @@ type PriorityMatrix struct {
 
 // CalculateRiskScore calculates overall security risk score (0-100)
 func CalculateRiskScore(findings []Finding) RiskScore {
-	score := 100.0
+	score := 0.0
 
 	// Weight configuration (adjust based on your risk tolerance)
 	criticalWt := 10.0
@@ -48,16 +48,16 @@ func CalculateRiskScore(findings []Finding) RiskScore {
 		switch f.Severity {
 		case "critical":
 			criticalCount++
-			score -= criticalWt
+			score += criticalWt
 		case "high":
 			highCount++
-			score -= highWt
+			score += highWt
 		case "medium":
 			mediumCount++
-			score -= mediumWt
+			score += mediumWt
 		case "low":
 			lowCount++
-			score -= lowWt
+			score += lowWt
 		default:
 			infoCount++
 		}
@@ -67,18 +67,18 @@ func CalculateRiskScore(findings []Finding) RiskScore {
 		}
 	}
 
-	// Ensure score doesn't go below 0
-	if score < 0 {
-		score = 0
+	// Cap score at 100
+	if score > 100 {
+		score = 100
 	}
 
-	// Determine risk level
+	// Determine risk level (higher score = worse)
 	level := "Low Risk"
-	if score < 25 {
+	if score >= 75 {
 		level = "Critical Risk"
-	} else if score < 50 {
+	} else if score >= 50 {
 		level = "High Risk"
-	} else if score < 75 {
+	} else if score >= 25 {
 		level = "Medium Risk"
 	}
 

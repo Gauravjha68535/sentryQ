@@ -743,9 +743,17 @@ func updateFindings(findings []reporter.Finding) {
 func saveReports(config *ScanConfig, findings []reporter.Finding) {
 	utils.LogSubHeader("📄 Generating Reports")
 
-	// Assign sequential Sr numbers
+	absTarget, _ := filepath.Abs(config.TargetDir)
+
+	// Assign sequential Sr numbers and relativize paths
 	for i := range findings {
 		findings[i].SrNo = i + 1
+		if filepath.IsAbs(findings[i].FilePath) {
+			rel, err := filepath.Rel(absTarget, findings[i].FilePath)
+			if err == nil {
+				findings[i].FilePath = rel
+			}
+		}
 	}
 
 	if err := reporter.WriteCSV(config.OutputCSV, findings); err != nil {

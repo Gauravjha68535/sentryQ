@@ -3,6 +3,7 @@
 /scanner_bin
 cmd/scanner/scanner
 /scanner
+/qwen-scanner
 !/scanner/
 
 # Output Reports
