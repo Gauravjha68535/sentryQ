@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusCircle, Clock, AlertTriangle, CheckCircle, XCircle, Trash2, ScanSearch } from 'lucide-react'
+import { motion } from 'framer-motion'
 import SeverityBadge from '../components/SeverityBadge'
 
 export default function Dashboard() {
@@ -96,9 +97,10 @@ export default function Dashboard() {
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {scans.map(scan => (
-                        <div
+                        <motion.div
                             key={scan.id}
                             className="card"
+                            whileHover={{ scale: 1.01, border: '1px solid var(--accent-primary)' }}
                             style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '16px' }}
                             onClick={() => navigate(scan.status === 'completed' ? `/scan/${scan.id}/report` : `/scan/${scan.id}`)}
                         >
@@ -135,7 +137,7 @@ export default function Dashboard() {
                             >
                                 <Trash2 size={14} />
                             </button>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             )}

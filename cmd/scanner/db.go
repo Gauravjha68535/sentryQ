@@ -117,10 +117,16 @@ func UpdateScanCounts(id string, total, critical, high int) error {
 	return err
 }
 
-// SaveFindings stores findings JSON blobs for a scan
+// SaveFindings stores findings JSON blobs for a scan (replaces any existing findings)
 func SaveFindings(scanID string, findings []reporter.Finding) error {
 	tx, err := db.Begin()
 	if err != nil {
+		return err
+	}
+
+	// Clear any existing findings for this scan to prevent duplicates
+	if _, err := tx.Exec("DELETE FROM findings WHERE scan_id = ?", scanID); err != nil {
+		tx.Rollback()
 		return err
 	}
 
@@ -136,7 +142,11 @@ func SaveFindings(scanID string, findings []reporter.Finding) error {
 		if err != nil {
 			continue
 		}
-		stmt.Exec(scanID, string(data))
+		if _, err := stmt.Exec(scanID, string(data)); err != nil {
+			utils.LogError(fmt.Sprintf("Failed to insert finding for scan %s", scanID), err)
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit()

@@ -62,10 +62,6 @@ func (scs *SupplyChainScanner) ScanSupplyChain(targetDir string) ([]reporter.Fin
 	typoFindings := scs.checkTyposquatting()
 	findings = append(findings, typoFindings...)
 
-	// Check license compliance
-	licenseFindings := scs.checkLicenseCompliance()
-	findings = append(findings, licenseFindings...)
-
 	// Check for outdated dependencies
 	outdatedFindings := scs.checkOutdatedDependencies()
 	findings = append(findings, outdatedFindings...)
@@ -199,41 +195,6 @@ func (scs *SupplyChainScanner) checkTyposquatting() []reporter.Finding {
 					Source:      "supply-chain",
 				})
 				srNo++
-			}
-		}
-	}
-
-	return findings
-}
-
-func (scs *SupplyChainScanner) checkLicenseCompliance() []reporter.Finding {
-	var findings []reporter.Finding
-	srNo := 1
-
-	// Restrictive licenses that may require attention
-	restrictiveLicenses := []string{
-		"GPL-2.0", "GPL-3.0", "AGPL-3.0", "LGPL-2.1", "LGPL-3.0",
-		"CC-BY-NC", "CC-BY-NC-SA", "SSPL", "Elastic-2.0",
-	}
-
-	for _, dep := range scs.dependencies {
-		if dep.License != "" {
-			for _, restrictive := range restrictiveLicenses {
-				if strings.Contains(strings.ToUpper(dep.License), strings.ToUpper(restrictive)) {
-					findings = append(findings, reporter.Finding{
-						SrNo:        srNo,
-						IssueName:   "Restrictive License Detected",
-						FilePath:    dep.SourceFile,
-						Description: fmt.Sprintf("Dependency %s uses %s license which may have compliance implications", dep.Name, dep.License),
-						Severity:    "medium",
-						LineNumber:  "1",
-						AiValidated: "No",
-						Remediation: fmt.Sprintf("Review %s license terms and ensure compliance with your organization's policies", dep.Name),
-						RuleID:      "license-" + restrictive,
-						Source:      "supply-chain",
-					})
-					srNo++
-				}
 			}
 		}
 	}

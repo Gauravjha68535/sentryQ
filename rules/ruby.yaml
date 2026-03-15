@@ -11,7 +11,7 @@
 - id: ruby-kernel-open-pipe
   languages: [ruby]
   patterns:
-    - regex: 'open\\s*\\|'
+    - regex: 'open\\s*\\(\\s*["\\x27]\\|'
   severity: critical
   description: "Kernel#open with pipe executes commands"
   remediation: "Use Open3.capture or Process.spawn instead of open with pipe."
@@ -3454,6 +3454,114 @@
   cwe: "CWE-1391"
   owasp: "A06:2021"
 
+- id: ruby-erb-ssti
+  languages: [ruby]
+  patterns:
+    - regex: '(?i)(?:render\s+inline:|ERB\.new\().*params\['
+  severity: critical
+  description: "Server-Side Template Injection (SSTI) in ERB or render inline via unvalidated user input."
+  remediation: "Never pass unsanitized user input directly into template engines like ERB or `render inline`."
+  cwe: "CWE-1336"
+  owasp: "A03:2021"
+
+- id: ruby-unsafe-deserialization-params
+  languages: [ruby]
+  patterns:
+    - regex: '(?i)(?:YAML|Marshal)\.load\s*\(\s*params\['
+  severity: critical
+  description: "Unsafe deserialization of user input directly from params."
+  remediation: "Do not use YAML.load or Marshal.load on untrusted data. Use JSON.parse instead."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: ruby-array-join-sqli
+  languages: [ruby]
+  patterns:
+    - regex: '(?i)(?:where|find_by_sql)\s*\(\s*["''].*#\{.*params\[.*\.join\([''"]'
+  severity: critical
+  description: "SQL Injection via Array.join on user input interpolated directly into SQL query strings (e.g., `where(\"id IN (\#{params[:ids].join(',')})\")`)."
+  remediation: "Use Active Record's built-in array passing: `where(id: params[:ids])` instead of manual string interpolation."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+
+- id: ruby-trailing-comment-sqli
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)\.where\(\s*["''].*=\s*[''"]#\{[^}]+\}[''"]'
+  severity: critical
+  description: "Direct string interpolation into a SQL WHERE clause allows trailing-comment (-- or #) authentication bypass."
+  remediation: "Always use parameterized queries (e.g., .where('username = ?', username))."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+
+- id: ruby-oauth-provider-ssrf
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)https://oauth\.#\{.*(?:params|request).*\}.*/token'
+  severity: critical
+  description: "OAuth provider URL constructed from user input allows redirection to attacker-controlled domains (SSRF/Token Leak)."
+  remediation: "Strictly validate the OAuth provider against an allowlist before constructing the token endpoint URL."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ruby-backtick-os-execution
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)`[^`]*#\{[^}]+\}[^`]*`'
+  severity: high
+  description: "Backtick OS command execution with string interpolation. Extremely vulnerable to command injection."
+  remediation: "Avoid backticks. Use Open3.capture3 or system() with discrete, un-concatenated argument arrays."
+  cwe: "CWE-78"
+  owasp: "A03:2021"
+
+- id: ruby-marshal-dump-leak
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)(?:render|send_data)\s+Marshal\.dump'
+  severity: high
+  description: "Exporting raw Marshal.dump data directly to clients establishes a future deserialization attack vector."
+  remediation: "Never transmit Ruby-specific Marshal encodings to untrusted clients. Use JSON or MessagePack."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: ruby-html-safe-bypass
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)render\s+html:\s*.*\.html_safe'
+  severity: critical
+  description: "Explicitly instructing Rails to render strings with .html_safe completely bypasses native XSS and SSTI controls."
+  remediation: "Remove .html_safe and rely on native Rails output encoding, or strictly sanitize before tagging as safe."
+  cwe: "CWE-116"
+  owasp: "A03:2021"
+
+- id: ruby-csv-unvalidated-ingestion
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)CSV\.parse\([A-Za-z_]+\.read.?.?\s+do'
+  severity: high
+  description: "Unvalidated CSV ingestion. If parsed rows are later supplied to object deserializers, it establishes a Stored payload trigger."
+  remediation: "Validate CSV MIME types, enforce structured mapping, and strictly sanitize all row fields prior to database operations."
+  cwe: "CWE-434"
+  owasp: "A04:2021"
+
+- id: ruby-md5-over-bcrypt
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)Digest::(?:MD5|SHA1)\.hexdigest.*password'
+  severity: high
+  description: "Using fundamentally broken hash algorithms (MD5/SHA1) for password digests, bypassing Rails has_secure_password."
+  remediation: "Remove manual Digest imports and utilize Rails native `has_secure_password` which securely wraps bcrypt out-of-the-box."
+  cwe: "CWE-328"
+  owasp: "A02:2021"
 
 
 
+- id: ruby-webhook-sig-bypass
+  languages: [ruby]
+  patterns:
+    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:params|request\.headers)[\s\S]{0,500}Marshal\.load\s*\('
+  severity: critical
+  description: "Potential signature bypass: Webhook signature is read but Marshal.load follows. Ensure signature is verified and execution is aborted on mismatch."
+  remediation: "Verify HMAC signature before calling Marshal.load(). Use OpenSSL::HMAC.hexdigest and hmac_compare to prevent timing attacks."
+  cwe: "CWE-347"
+  owasp: "A07:2021"

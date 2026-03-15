@@ -177,19 +177,20 @@ func calculateEntropy(s string) float64 {
 
 // Moved to helpers.go
 
+// Pre-compiled regexes for known secret patterns (avoid recompiling per match)
+var knownSecretPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`^AKIA[0-9A-Z]{16}$`),                // AWS Access Key
+	regexp.MustCompile(`^ghp_[a-zA-Z0-9]{36}$`),             // GitHub PAT
+	regexp.MustCompile(`^sk_(live|test)_[a-zA-Z0-9]{24,}$`), // Stripe
+	regexp.MustCompile(`^eyJ[a-zA-Z0-9_-]*\.eyJ`),           // JWT
+	regexp.MustCompile(`^AIza[0-9A-Za-z_-]{35}$`),           // Google API
+	regexp.MustCompile(`^xox[baprs]-`),                      // Slack
+	regexp.MustCompile(`-----BEGIN.*PRIVATE KEY-----`),
+}
+
 // isKnownSecretPattern checks if string matches known secret patterns
 func isKnownSecretPattern(s string) bool {
-	knownPatterns := []*regexp.Regexp{
-		regexp.MustCompile(`^AKIA[0-9A-Z]{16}$`),                // AWS Access Key
-		regexp.MustCompile(`^ghp_[a-zA-Z0-9]{36}$`),             // GitHub PAT
-		regexp.MustCompile(`^sk_(live|test)_[a-zA-Z0-9]{24,}$`), // Stripe
-		regexp.MustCompile(`^eyJ[a-zA-Z0-9_-]*\.eyJ`),           // JWT
-		regexp.MustCompile(`^AIza[0-9A-Za-z_-]{35}$`),           // Google API
-		regexp.MustCompile(`^xox[baprs]-`),                      // Slack
-		regexp.MustCompile(`-----BEGIN.*PRIVATE KEY-----`),
-	}
-
-	for _, pattern := range knownPatterns {
+	for _, pattern := range knownSecretPatterns {
 		if pattern.MatchString(s) {
 			return true
 		}

@@ -9,9 +9,10 @@ const classes = {
 }
 
 export default function SeverityBadge({ severity }) {
+    const s = (severity || 'info').toLowerCase();
     return (
-        <span className={classes[severity] || 'severity-badge severity-info'}>
-            {severity}
+        <span className={classes[s] || 'severity-badge severity-info'} style={{ textTransform: 'capitalize' }}>
+            {s}
         </span>
     )
 }

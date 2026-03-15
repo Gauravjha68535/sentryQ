@@ -1,3 +1,13 @@
+- id: cs-reflection-rce
+  languages: [csharp]
+  patterns:
+    - regex: '(?s)(?:Type\.GetType|Assembly\.Load|GetMethod)[\s\S]{0,500}\.Invoke\s*\('
+  severity: critical
+  description: "Potential Reflection-based RCE: Dynamic type loading or method retrieval followed by Invoke(). User-controlled input here allows arbitrary code execution."
+  remediation: "Avoid using reflection with non-constant type or method names. Use an allowlist if dynamic invocation is required."
+  cwe: "CWE-94"
+  owasp: "A03:2021"
+
 - id: cs-binaryformatter-deserialize
   languages: [csharp]
   patterns:
@@ -6987,3 +6997,63 @@
   remediation: "Validate inputs and use secure APIs."
   cwe: "CWE-20"
   owasp: "A03:2021"
+
+- id: csharp-aspx-viewstate-mac
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)EnableViewStateMac\s*=\s*[\"''\\]false[\"''\\]'
+  severity: critical
+  description: "ViewState MAC validation is disabled. This allows attackers to forge ViewState data, potentially leading to Remote Code Execution via deserialization."
+  remediation: "Set EnableViewStateMac=\"true\" or remove the attribute entirely (it defaults to true in modern frameworks)."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: csharp-aspx-literal-passthrough
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)<asp:Literal[^>]*Mode\s*=\s*[\"''\\]PassThrough[\"''\\]'
+  severity: critical
+  description: "asp:Literal is set to PassThrough mode. Any user-controlled data assigned to this control will be rendered raw, leading to direct Stored/Reflected XSS."
+  remediation: "Change Mode to 'Encode' or 'Transform'."
+  cwe: "CWE-79"
+  owasp: "A03:2021"
+
+- id: csharp-reflection-rce
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)MethodInfo\.Invoke\([^,]+,\s*new\s*object\[\]\s*\{\s*(?:Request|Request\.QueryString|Request\.Form)\['
+  severity: critical
+  description: "Reflection API (MethodInfo.Invoke) called with parameters directly from an HTTP Request, enabling Remote Code Execution."
+  remediation: "Do not pass user-controlled data directly into Reflection APIs. Use a strict allowlist mapping."
+  cwe: "CWE-470"
+  owasp: "A08:2021"
+
+- id: csharp-session-assignment-idor
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)Session\[\s*["''][^"']+["'']\s*\]\s*=\s*(?:Request|Request\.QueryString|Request\.Form)\['
+  severity: high
+  description: "Sensitive server-side session variables are assigned directly from user request parameters, allowing state tampering/privilege escalation."
+  remediation: "Validate and authorize all state transitions before updating the Session object."
+  cwe: "CWE-565"
+  owasp: "A01:2021"
+
+- id: csharp-powershell-injection
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)PowerShell\.Create\(\)\.AddScript\([^)]*(?:Request|Request\.QueryString|Request\.Form)\['
+  severity: critical
+  description: "Unsanitized user input concatenated into a PowerShell script, leading to OS Command Injection."
+  remediation: "Use AddParameter() or AddCommand() instead of interpolating strings into AddScript()."
+  cwe: "CWE-78"
+  owasp: "A03:2021"
+
+- id: csharp-insecure-httpcookie
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)new\s+HttpCookie\([^)]+\)(?:(?!Secure\s*=\s*true)(?!HttpOnly\s*=\s*true))'
+  severity: medium
+  description: "HttpCookie instantiated without explicitly setting Secure and HttpOnly modifiers."
+  remediation: "Ensure that HttpCookie objects have Secure = true and HttpOnly = true before adding them to the response."
+  cwe: "CWE-614"
+  owasp: "A05:2021"

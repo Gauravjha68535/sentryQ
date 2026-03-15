@@ -205,8 +205,8 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			Prompt: prompt,
 			Stream: false,
 			Options: map[string]interface{}{
-				"num_ctx":     8192,
-				"num_predict": 4096,
+				"num_ctx":     4096,
+				"num_predict": 1024,
 				"temperature": 0.0,
 			},
 			KeepAlive: "15m",
@@ -224,6 +224,7 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 		req.Header.Set("Content-Type", "application/json")
 
 		client := &http.Client{
+			Timeout: 25 * time.Minute,
 			Transport: &http.Transport{
 				DisableKeepAlives: true,
 			},
@@ -427,6 +428,7 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 						ExploitPoC:  v.ExploitPoC,
 						CWE:         v.CWE,
 						OWASP:       v.OWASP,
+						AiReasoning: v.Description,
 						AiValidated: "Discovered by AI",
 						FixedCode:   v.FixedCodeSnippet,
 						Confidence:  v.Confidence,

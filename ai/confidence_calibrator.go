@@ -12,10 +12,10 @@ import (
 
 // VulnerabilityStats tracks how often AI is correct vs wrong for a specific severity/type
 type VulnerabilityStats struct {
-	TotalPredictions int     `json:"total_predictions"`
+	AssessedFindings int     `json:"assessed_findings"` // New explicit count of how many were actually checked
 	TruePositives    int     `json:"true_positives"`
 	FalsePositives   int     `json:"false_positives"`
-	AccuracyRate     float64 `json:"accuracy_rate"` // TruePositives / TotalPredictions
+	AccuracyRate     float64 `json:"accuracy_rate"` // TruePositives / AssessedFindings
 }
 
 // ConfidenceCalibrator adjusts AI confidence based on historical accuracy
@@ -69,14 +69,14 @@ func (c *ConfidenceCalibrator) RecordValidation(severity string, isTruePositive 
 		c.Stats[severity] = stats
 	}
 
-	stats.TotalPredictions++
+	stats.AssessedFindings++
 	if isTruePositive {
 		stats.TruePositives++
 	} else {
 		stats.FalsePositives++
 	}
 
-	stats.AccuracyRate = float64(stats.TruePositives) / float64(stats.TotalPredictions)
+	stats.AccuracyRate = float64(stats.TruePositives) / float64(stats.AssessedFindings)
 }
 
 // CalibrateConfidence adjusts the raw confidence score based on historical accuracy for that severity
@@ -85,7 +85,7 @@ func (c *ConfidenceCalibrator) CalibrateConfidence(severity string, rawConfidenc
 	defer c.mu.RUnlock()
 
 	stats, exists := c.Stats[severity]
-	if !exists || stats.TotalPredictions < 5 {
+	if !exists || stats.AssessedFindings < 5 {
 		// Not enough data to calibrate, return raw
 		return rawConfidence
 	}

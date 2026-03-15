@@ -26,28 +26,32 @@ func WriteCSV(filename string, findings []Finding) error {
 		"Code Snippet", "Exploit PoC",
 	}
 
-	// Simple deduplication: Key = FilePath + IssueName
-	uniqueFindings := make([]Finding, 0)
-	seen := make(map[string]bool)
-	for _, f := range findings {
-		key := fmt.Sprintf("%s:%s", f.FilePath, f.IssueName)
-		if !seen[key] {
-			seen[key] = true
-			uniqueFindings = append(uniqueFindings, f)
-		}
-	}
-	findings = uniqueFindings
-
 	if err := writer.Write(header); err != nil {
 		return err
 	}
 
-	confirmed, falsePositives := SplitFindings(findings)
+	reachable, unreachable, falsePositives := SplitFindingsThreeWay(findings)
 
-	// Write confirmed findings
-	for _, f := range confirmed {
+	// Write reachable findings
+	for _, f := range reachable {
 		if err := writer.Write(findingToRow(f)); err != nil {
 			return err
+		}
+	}
+
+	// Write unreachable findings (optional, but keep them separate)
+	if len(unreachable) > 0 {
+		blankRow := make([]string, len(header))
+		writer.Write(blankRow)
+		sepRow := make([]string, len(header))
+		sepRow[0] = "=== POTENTIALLY UNREACHABLE (TEST FILES / LOW CONFIDENCE) ==="
+		writer.Write(sepRow)
+		writer.Write(header)
+
+		for _, f := range unreachable {
+			if err := writer.Write(findingToRow(f)); err != nil {
+				return err
+			}
 		}
 	}
 

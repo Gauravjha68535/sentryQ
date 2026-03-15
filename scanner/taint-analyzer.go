@@ -106,9 +106,10 @@ func NewTaintAnalyzer() *TaintAnalyzer {
 
 // taintInfo stores metadata about how a variable became tainted
 type taintInfo struct {
-	SourceLine int    // Line where taint originated
-	Hops       int    // Number of alias hops from original source
-	SourceVar  string // Original tainted source variable
+	SourceLine int      // Line where taint originated
+	Hops       int      // Number of alias hops from original source
+	SourceVar  string   // Original tainted source variable
+	Path       []string // Steps in the execution path
 }
 
 // Risk 4 fix: Maximum alias hops to prevent circular/deep chains (a=b; b=a)
@@ -176,6 +177,7 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 						SourceLine: currentLine,
 						Hops:       0,
 						SourceVar:  varName,
+						Path:       []string{fmt.Sprintf("Line %d: Source '%s' initialized", currentLine, varName)},
 					}
 					sanitizedVars[varName] = false
 				}
@@ -186,10 +188,13 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 		aliasVar, sourceVar := extractAliasAssignment(line)
 		if aliasVar != "" && sourceVar != "" {
 			if info, isTainted := taintedVars[sourceVar]; isTainted && info.Hops < maxTaintHops {
+				path := append([]string{}, info.Path...)
+				path = append(path, fmt.Sprintf("Line %d: Propagated to '%s' (alias)", currentLine, aliasVar))
 				taintedVars[aliasVar] = taintInfo{
 					SourceLine: info.SourceLine,
 					Hops:       info.Hops + 1,
 					SourceVar:  info.SourceVar,
+					Path:       path,
 				}
 				sanitizedVars[aliasVar] = sanitizedVars[sourceVar]
 			}
@@ -200,10 +205,13 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 			destVar := mcMatch[1]
 			srcVar := mcMatch[2]
 			if info, isTainted := taintedVars[srcVar]; isTainted && !sanitizedVars[srcVar] && info.Hops < maxTaintHops {
+				path := append([]string{}, info.Path...)
+				path = append(path, fmt.Sprintf("Line %d: Propagated to '%s' (method chain)", currentLine, destVar))
 				taintedVars[destVar] = taintInfo{
 					SourceLine: info.SourceLine,
 					Hops:       info.Hops + 1,
 					SourceVar:  info.SourceVar,
+					Path:       path,
 				}
 				sanitizedVars[destVar] = false
 			}
@@ -214,10 +222,13 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 			destVar := concatMatch[1]
 			for varName, info := range taintedVars {
 				if !sanitizedVars[varName] && containsVariable(trimmedLine, varName) && destVar != varName && info.Hops < maxTaintHops {
+					path := append([]string{}, info.Path...)
+					path = append(path, fmt.Sprintf("Line %d: Propagated to '%s' (concatenation)", currentLine, destVar))
 					taintedVars[destVar] = taintInfo{
 						SourceLine: info.SourceLine,
 						Hops:       info.Hops + 1,
 						SourceVar:  info.SourceVar,
+						Path:       path,
 					}
 					sanitizedVars[destVar] = false
 					break
@@ -230,10 +241,13 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 			destVar := interpMatch[1]
 			for varName, info := range taintedVars {
 				if !sanitizedVars[varName] && containsVariable(trimmedLine, varName) && destVar != varName && info.Hops < maxTaintHops {
+					path := append([]string{}, info.Path...)
+					path = append(path, fmt.Sprintf("Line %d: Propagated to '%s' (interpolation)", currentLine, destVar))
 					taintedVars[destVar] = taintInfo{
 						SourceLine: info.SourceLine,
 						Hops:       info.Hops + 1,
 						SourceVar:  info.SourceVar,
+						Path:       path,
 					}
 					sanitizedVars[destVar] = false
 					break
@@ -281,6 +295,7 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 								IssueName:   "Inter-Procedural Taint Propagation",
 								FilePath:    filePath,
 								Description: fmt.Sprintf("Tainted variable '%s' is passed as argument to custom function '%s()' on line %d. Ensure %s() safely handles dangerous inputs.", varName, funcName, currentLine, funcName),
+								ExploitPath: append(info.Path, fmt.Sprintf("Line %d: Passed to function '%s()'", currentLine, funcName)),
 								Severity:    "high", // Slightly lower than critical since we don't know the sink
 								LineNumber:  fmt.Sprintf("%d", currentLine),
 								AiValidated: "No",
@@ -319,6 +334,7 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 							IssueName:   fmt.Sprintf("Taint Flow: %s Injection", getInjectionType(sinkPatterns[i])),
 							FilePath:    filePath,
 							Description: fmt.Sprintf("User input '%s' (tainted on line %d, %d hops) flows to %s on line %d without sanitization", info.SourceVar, info.SourceLine, info.Hops, getInjectionType(sinkPatterns[i]), currentLine),
+							ExploitPath: append(info.Path, fmt.Sprintf("Line %d: Reaches sink '%s'", currentLine, sinkPatterns[i])),
 							Severity:    "critical",
 							LineNumber:  fmt.Sprintf("%d", currentLine),
 							AiValidated: "No",

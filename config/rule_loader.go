@@ -26,6 +26,7 @@ type Rule struct {
 	CWE         string  `yaml:"cwe"`
 	OWASP       string  `yaml:"owasp"`
 	Confidence  float64 `yaml:"confidence"`
+	Framework   string  `yaml:"framework"` // Tag for framework-specific rules
 }
 
 // flexRule is a more tolerant intermediate representation that handles
@@ -41,6 +42,7 @@ type flexRule struct {
 	CWE         string      `yaml:"cwe"`
 	OWASP       string      `yaml:"owasp"`
 	Confidence  float64     `yaml:"confidence"`
+	Framework   string      `yaml:"framework"`
 }
 
 // normalizeRule converts a flexRule to a strict Rule
@@ -54,6 +56,7 @@ func normalizeRule(fr flexRule) Rule {
 		CWE:         fr.CWE,
 		OWASP:       fr.OWASP,
 		Confidence:  fr.Confidence,
+		Framework:   fr.Framework,
 	}
 
 	switch p := fr.Patterns.(type) {
@@ -293,7 +296,14 @@ func LoadRules(rulesDir string) ([]Rule, error) {
 			utils.LogError(fmt.Sprintf("Error accessing path %s", path), err)
 			return nil // continue walking
 		}
-		if info.IsDir() || filepath.Ext(info.Name()) != ".yaml" {
+		if info.IsDir() {
+			// Skip the frameworks subdirectory to avoid loading them globally
+			if info.Name() == "frameworks" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if filepath.Ext(info.Name()) != ".yaml" {
 			return nil
 		}
 

@@ -2166,4 +2166,112 @@
   cwe: "CWE-94"
   owasp: "A03:2021"
 
+- id: php-base64-idor
+  languages: [php]
+  patterns:
+  - regex: '(?i)base64_decode\(\$[^)]+\).*explode\([''"]\:[''"]'
+  severity: critical
+  description: "IDOR via unsigned base64 token. base64 encoding without an HMAC signature is trivially forgeable."
+  remediation: "Sign verification tokens with a strong HMAC or use JWTs to prevent forgery."
+  cwe: "CWE-639"
+  owasp: "A01:2021"
 
+- id: php-extract-eval-injection
+  languages: [php]
+  patterns:
+  - regex: '(?i)extract\(\$[^)]+\)(?:.|\n)*eval\('
+  severity: critical
+  description: "extract() immediately preceding eval() allows critical variable injection and code execution."
+  remediation: "Never use extract() on untrusted arrays, and avoid eval() entirely."
+  cwe: "CWE-94"
+  owasp: "A03:2021"
+
+- id: php-process-list-credentials
+  languages: [php]
+  patterns:
+  - regex: '(?i)mysqldump\s+-u\{\$[^}]+\}\s+-p\{\$[^}]+\}'
+  severity: critical
+  description: "Database credentials injected directly into a shell command line, exposing them to the process list (ps aux)."
+  remediation: "Pass database credentials via environment variables instead of command line arguments."
+  cwe: "CWE-214"
+  owasp: "A05:2021"
+
+- id: php-curl-ssrf-unrestricted
+  languages: [php]
+  patterns:
+  - regex: '(?i)curl_setopt\([^\,]+,\s*CURLOPT_URL,\s*\$(?!.*CURLPROTO_HTTPS).*\)'
+  severity: high
+  description: "cURL handler lacking CURLOPT_PROTOCOLS restriction allows SSRF scheme bypass (dict://, file://, gopher://)."
+  remediation: "Restrict allowed cURL protocols using CURLOPT_PROTOCOLS to limit to HTTPS only."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: php-laravel-cache-poisoning
+  languages: [php]
+  patterns:
+  - regex: '(?i)Cache::(?:get|put)\([''"]widget_\{\$type\}_'
+  severity: high
+  description: "Cache key poisoning via user-controlled input interpolated directly into the cache key."
+  remediation: "Strictly validate or explicitly define cache keys to prevent collision and data exposure."
+  cwe: "CWE-20"
+  owasp: "A03:2021"
+
+- id: php-oauth-open-redirect
+  languages: [php]
+  patterns:
+  - regex: '(?i)(?:return|redirect\()->.*\$request->(?:input|get)\([''"](?:next|redirect|url)[''"]'
+  severity: high
+  description: "Unsanitized 'next' or 'redirect' URL parameter used immediately following an OAuth authentication callback establishes an Open Redirect phishing path."
+  remediation: "Strictly validate redirection targets against an internal relative path allowlist before routing the user post-login."
+  cwe: "CWE-601"
+  owasp: "A10:2021"
+
+- id: php-raw-db-column-interpolation
+  languages: [php]
+  patterns:
+  - regex: '(?i)DB::select\(\s*["'']SELECT\s+\{\$[a-zA-Z_]+\}'
+  severity: high
+  description: "Raw SQL parameter interpolation of table column names (SELECT {$field}) circumvents value parameterization, allowing schema discovery / data exfiltration."
+  remediation: "Validate requested columns against a hardcoded array allowlist before executing dynamic selects."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+
+- id: php-idor-explode-truncation
+  languages: [php]
+  patterns:
+  - regex: '(?i)list\([^)]+\)\s*=\s*explode\([^,]+,\s*\$[^)]+\)'
+  severity: medium
+  description: "Token splitting via explode() used for authentication can be spoofed by appending arbitrary padding to hit the split target, leading to IDOR."
+  remediation: "Ensure split lengths are strictly validated (e.g., exactly two segments) or rely on unforgeable serialized signed objects (JWTs)."
+  cwe: "CWE-287"
+  owasp: "A01:2021"
+
+- id: php-webhook-sig-bypass
+  languages: [php]
+  patterns:
+    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:\$_SERVER|\$request->header)[\s\S]{0,500}unserialize\s*\('
+  severity: critical
+  description: "Potential signature bypass: Webhook signature is read but unserialize() follows. Ensure signature is verified and execution is aborted on mismatch."
+  remediation: "Verify HMAC signature before calling unserialize(). Use hash_equals() to prevent timing attacks."
+  cwe: "CWE-347"
+  owasp: "A07:2021"
+
+- id: php-laravel-ssrf-auth-chain
+  languages: [php]
+  patterns:
+    - regex: '(?s)\$request->(?:input|get)\([''"](?:url|target|next|state)[''"]\)[\s\S]{0,500}(?:Auth|Login|Socialite|redirectTo)'
+  severity: high
+  description: "Potential SSRF-to-Account-Takeover chain: User-controlled URL parameter used in authentication flow."
+  remediation: "Strictly validate redirect URLs and state parameters against an allowlist."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: php-fake-sanitizer-path
+  languages: [php]
+  patterns:
+    - regex: '(?i)str_replace\s*\(\s*["\x27]\s+["\x27]\s*,\s*["\x27][^"\x27]+["\x27]\s*,\s*\$_(?:GET|POST|REQUEST)'
+  severity: medium
+  description: "Fake sanitizer: only replacing spaces is insufficient to prevent path traversal or command injection."
+  remediation: "Use real sanitization functions like basename(), realpath(), or filter_var()."
+  cwe: "CWE-20"
+  owasp: "A03:2021"

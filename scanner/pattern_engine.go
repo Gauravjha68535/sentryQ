@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
 	"sync"
 	"sync/atomic"
 )
@@ -41,52 +42,50 @@ func getDefaultConfidence(severity string) float64 {
 	}
 }
 
+// Pre-compiled regexes for framework detection (avoid recompiling per scan)
+var frameworkDetectors = map[string]*regexp.Regexp{
+	"django":  regexp.MustCompile(`(?i)"django"\s*[:=]|django-admin`),
+	"flask":   regexp.MustCompile(`(?i)"flask"\s*[:=]|from\s+flask`),
+	"fastapi": regexp.MustCompile(`(?i)"fastapi"\s*[:=]|from\s+fastapi`),
+	"express": regexp.MustCompile(`(?i)"express"\s*[:=]|require\(['"]express['"]\)`),
+	"spring":  regexp.MustCompile(`(?i)org\.springframework|spring-boot`),
+	"laravel": regexp.MustCompile(`(?i)"laravel/framework"\s*[:=]|php\s+artisan`),
+	"rails":   regexp.MustCompile(`(?i)gem\s+['"]rails['"]|rails/all`),
+	"angular": regexp.MustCompile(`(?i)"@angular/core"\s*[:=]|angular\.module`),
+	"react":   regexp.MustCompile(`(?i)"react"\s*[:=]|from\s+['"]react['"]`),
+	"vue":     regexp.MustCompile(`(?i)"vue"\s*[:=]|from\s+['"]vue['"]`),
+	"next_js": regexp.MustCompile(`(?i)"next"\s*[:=]|next\.config`),
+	"nuxt_js": regexp.MustCompile(`(?i)"nuxt"\s*[:=]|nuxt\.config`),
+	"svelte":  regexp.MustCompile(`(?i)"svelte"\s*[:=]|\.svelte`),
+}
+
 // detectFrameworks reads a subset of files to guess which frameworks are in use
 func detectFrameworks(result *ScanResult) []string {
 	frameworksFound := make(map[string]bool)
 
+	importantFiles := map[string]bool{
+		"package.json": true, "requirements.txt": true, "pom.xml": true,
+		"go.mod": true, "gemfile": true, "composer.json": true,
+	}
+
 	// Quick check of package.json, requirements.txt, pom.xml, composer.json, etc.
 	for _, files := range result.FilePaths {
 		for _, file := range files {
-			fileName := file
-			content, err := os.ReadFile(fileName)
+			baseName := strings.ToLower(filepath.Base(file))
+			if !importantFiles[baseName] {
+				continue
+			}
+
+			content, err := os.ReadFile(file)
 			if err != nil {
 				continue
 			}
 			source := string(content)
 
-			if regexp.MustCompile(`(?i)(django)`).MatchString(source) {
-				frameworksFound["django"] = true
-			}
-			if regexp.MustCompile(`(?i)(flask)`).MatchString(source) {
-				frameworksFound["flask"] = true
-			}
-			if regexp.MustCompile(`(?i)(fastapi|from\s+fastapi)`).MatchString(source) {
-				frameworksFound["fastapi"] = true
-			}
-			if regexp.MustCompile(`(?i)(express)`).MatchString(source) {
-				frameworksFound["express"] = true
-			}
-			if regexp.MustCompile(`(?i)(org\.springframework)`).MatchString(source) {
-				frameworksFound["spring"] = true
-			}
-			if regexp.MustCompile(`(?i)(illuminate|laravel)`).MatchString(source) {
-				frameworksFound["laravel"] = true
-			}
-			if regexp.MustCompile(`(?i)(rails|activerecord)`).MatchString(source) {
-				frameworksFound["rails"] = true
-			}
-			if regexp.MustCompile(`(?i)(@angular/core|angular\.module)`).MatchString(source) {
-				frameworksFound["angular"] = true
-			}
-			if regexp.MustCompile(`(?i)(next/app|next/router|next\.config)`).MatchString(source) {
-				frameworksFound["next_js"] = true
-			}
-			if regexp.MustCompile(`(?i)(nuxt\.config|@nuxt/|useNuxtApp)`).MatchString(source) {
-				frameworksFound["nuxt_js"] = true
-			}
-			if regexp.MustCompile(`(?i)(svelte|\.svelte)`).MatchString(source) {
-				frameworksFound["svelte"] = true
+			for framework, re := range frameworkDetectors {
+				if re.MatchString(source) {
+					frameworksFound[framework] = true
+				}
 			}
 		}
 	}
@@ -109,9 +108,23 @@ var frameworkFileMap = map[string]string{
 	"laravel": "laravel.yaml",
 	"rails":   "rails.yaml",
 	"angular": "Angular.yaml",
+	"react":   "React.yaml",
+	"vue":     "Vue.yaml",
 	"next_js": "Next_js.yaml",
 	"nuxt_js": "Nuxt_js.yaml",
 	"svelte":  "svelte.yaml",
+}
+
+// localFrameworkDetectors for per-file verification to avoid generic language leakage
+var localFrameworkDetectors = map[string]*regexp.Regexp{
+	"angular": regexp.MustCompile(`(?i)import.*@angular|@Component|@Injectable`),
+	"react":   regexp.MustCompile(`(?i)import.*react|useState|useEffect|JSX`),
+	"vue":     regexp.MustCompile(`(?i)import.*vue|defineComponent|<template`),
+	"next_js": regexp.MustCompile(`(?i)import.*next/|getServerSideProps|getStaticProps`),
+	"nuxt_js": regexp.MustCompile(`(?i)import.*nuxt|useNuxtApp`),
+	"express": regexp.MustCompile(`(?i)require\(['"]express['"]\)|import.*express`),
+	"fastapi": regexp.MustCompile(`(?i)from\s+fastapi|FastAPI\(`),
+	"flask":   regexp.MustCompile(`(?i)from\s+flask|Flask\(`),
 }
 
 // RunPatternScan performs multi-threaded pattern scanning across all files
@@ -128,6 +141,10 @@ func RunPatternScan(result *ScanResult, baseRules []config.Rule, rulesDir string
 		frameworkRulePath := filepath.Join(rulesDir, "frameworks", fileName)
 		frameworkRules, err := config.LoadRulesFile(frameworkRulePath)
 		if err == nil && len(frameworkRules) > 0 {
+			// Tag framework rules to prevent leakage
+			for i := range frameworkRules {
+				frameworkRules[i].Framework = framework
+			}
 			rules = append(rules, frameworkRules...)
 		}
 	}
@@ -236,6 +253,13 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 
 	var findings []reporter.Finding
 	for _, rule := range rules {
+		// Strict Isolation: Only run framework-specific rules on relevant files
+		if rule.Framework != "" {
+			if !shouldApplyFrameworkRule(rule.Framework, filePath, cleanSource) {
+				continue
+			}
+		}
+
 		for _, pattern := range rule.Patterns {
 			if pattern.CompiledRegex == nil {
 				continue
@@ -264,19 +288,128 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 					IssueName:   rule.ID,
 					FilePath:    filePath,
 					Description: rule.Description,
-					Severity:    rule.Severity,
+					Severity:    normalizeSeverity(rule),
 					LineNumber:  lineRef,
 					AiValidated: "No",
 					Remediation: rule.Remediation,
 					RuleID:      rule.ID,
-					Source:      "custom",
+					Source:      "pattern-engine",
 					CWE:         rule.CWE,
 					OWASP:       rule.OWASP,
 					Confidence:  confidence,
 				})
+				*counter = int64(srNo)
 			}
 		}
 	}
 
 	return findings
+}
+
+// shouldApplyFrameworkRule checks if a framework rule should apply to a specific file
+func shouldApplyFrameworkRule(framework, filePath, content string) bool {
+	ext := strings.ToLower(filepath.Ext(filePath))
+
+	// Step 1: File extension check (Base isolation)
+	isJsTs := ext == ".js" || ext == ".ts" || ext == ".jsx" || ext == ".tsx"
+
+	switch framework {
+	case "svelte":
+		return ext == ".svelte"
+	case "react":
+		if ext == ".jsx" || ext == ".tsx" {
+			return true
+		}
+		if isJsTs {
+			return localFrameworkDetectors["react"].MatchString(content)
+		}
+		return false
+	case "angular":
+		if isJsTs {
+			return localFrameworkDetectors["angular"].MatchString(content)
+		}
+		return false
+	case "vue":
+		if ext == ".vue" {
+			return true
+		}
+		if isJsTs {
+			return localFrameworkDetectors["vue"].MatchString(content)
+		}
+		return false
+	case "next_js":
+		if isJsTs {
+			return localFrameworkDetectors["next_js"].MatchString(content)
+		}
+		return false
+	case "nuxt_js":
+		if ext == ".vue" || isJsTs {
+			return localFrameworkDetectors["nuxt_js"].MatchString(content)
+		}
+		return false
+	case "laravel":
+		return ext == ".php"
+	case "rails":
+		return ext == ".rb" || ext == ".erb"
+	case "django", "flask", "fastapi":
+		if ext == ".py" {
+			// Optional: add content check if needed
+			return true
+		}
+		return false
+	case "express":
+		if isJsTs {
+			return localFrameworkDetectors["express"].MatchString(content)
+		}
+		return false
+	case "spring":
+		return ext == ".java" || ext == ".xml"
+	default:
+		return true // Fallback
+	}
+}
+
+// normalizeSeverity enforces correct severity levels based on CWE mapping
+func normalizeSeverity(rule config.Rule) string {
+	// Critical Vulnerability Classes (RCE, SQLi, Auth Bypass, Deserialization)
+	criticalCWEs := map[string]bool{
+		"CWE-78":  true, // Command Injection
+		"CWE-89":  true, // SQL Injection
+		"CWE-94":  true, // Code Injection
+		"CWE-502": true, // Deserialization
+		"CWE-287": true, // Auth Bypass
+		"CWE-918": true, // SSRF
+		"CWE-798": true, // Hardcoded Credentials
+	}
+
+	highCWEs := map[string]bool{
+		"CWE-79":  true, // XSS
+		"CWE-22":  true, // Path Traversal
+		"CWE-352": true, // CSRF
+		"CWE-611": true, // XXE
+		"CWE-942": true, // CORS Misconfiguration
+	}
+
+	cwe := strings.ToUpper(rule.CWE)
+	if criticalCWEs[cwe] {
+		return "critical"
+	}
+	if highCWEs[cwe] {
+		return "high"
+	}
+
+	// Dynamic elevation for specific keywords in title/description
+	desc := strings.ToLower(rule.Description + " " + rule.ID)
+	if strings.Contains(desc, "rce") || strings.Contains(desc, "injection") || strings.Contains(desc, "bypass") || strings.Contains(rule.ID, "sql-injection") {
+		if !strings.Contains(desc, "potential") && !strings.Contains(desc, "possible") {
+			return "critical"
+		}
+		return "high"
+	}
+
+	if rule.Severity == "" {
+		return "medium"
+	}
+
+	return strings.ToLower(rule.Severity)
 }

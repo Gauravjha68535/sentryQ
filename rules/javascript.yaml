@@ -2919,12 +2919,22 @@
 - id: js-deserialize-node-serialize
   languages: [javascript, typescript]
   patterns:
-    - regex: 'node-serialize|nodeSerialize|serialize-javascript'
+    - regex: '\.(?:unserialize|deserialize)\s*\('
   severity: critical
-  description: "node-serialize usage - known RCE vulnerability"
+  description: "node-serialize/unserialize usage - known RCE vulnerability"
   remediation: "Use JSON.stringify/parse instead"
   cwe: "CWE-502"
   owasp: "A08:2021"
+
+- id: js-webhook-sig-bypass
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)[\s\S]{0,500}if\s*\([^)]*!==[\s\S]{0,100}console\.(?:log|error)[\s\S]{0,200}\.(?:unserialize|deserialize)'
+  severity: critical
+  description: "Potential signature bypass: Webhook signature mismatch is logged but execution continues into dangerous deserialization."
+  remediation: "Ensure the process exits or returns immediately upon signature mismatch. Use 'return' or 'res.status(401).send()' after logging."
+  cwe: "CWE-347"
+  owasp: "A07:2021"
 
 - id: js-deserialize-func
   languages: [javascript, typescript]
@@ -4349,4 +4359,204 @@
   description: "XSS via pre-defined client-side variable"
   remediation: "Instead of innerHTML, use text() in jQuery or textContent in vanilla JS when injecting pre-defined variables."
   cwe: "CWE-79"
+  owasp: "A03:2021"
+
+- id: js-postmessage-origin-bypass
+  languages: [javascript, typescript, tsx, jsx]
+  patterns:
+  - regex: '(?i)window\.addEventListener\([''"]message['"].*\{\s*(?!.*event\.origin)(.*(?:window\.location\.href|localStorage\.setItem))'
+  severity: critical
+  description: "postMessage handler redirects or sets storage without validating event.origin"
+  remediation: "Always validate event.origin against a strict allowlist before processing postMessage data."
+  cwe: "CWE-346"
+  owasp: "A07:2021"
+
+- id: js-hardcoded-admin-bypass-header
+  languages: [javascript, typescript, tsx, jsx]
+  patterns:
+  - regex: '(?i)[''"]X-Admin-(Key|Bypass)[''"]\s*:\s*(?!undefined|null)'
+  severity: critical
+  description: "Hardcoded administrative bypass token or header sent automatically in client-side code."
+  remediation: "Remove administrative bypass keys from client-side bundles entirely."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+
+- id: js-react-dynamic-script-src
+  languages: [javascript, typescript, tsx, jsx]
+  patterns:
+  - regex: '(?i)(?:createElement|document\.createElement)\([''"]script['"]\).*?\.src\s*=\s*(?:query|params|new URLSearchParams).get'
+  severity: high
+  description: "Dynamically sourcing a script tag from a URL or query parameter leads to unauthenticated XSS/RCE."
+  remediation: "Never load executable script sources derived from unvalidated query parameters."
+  cwe: "CWE-79"
+  owasp: "A03:2021"
+
+- id: js-mysql-multiple-statements
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)multipleStatements\s*:\s*true'
+  severity: critical
+  description: "MySQL connection configured with multipleStatements: true enables stacked query SQL injection (RCE)."
+  remediation: "Set multipleStatements to false. Use separate pooled queries if multiple statements are required."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+
+- id: js-jwt-none-algorithm
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)algorithms?\s*:\s*\[.*[''"]none['''"].*\]'
+  severity: critical
+  description: "JWT verification explicitly permits the 'none' algorithm."
+  remediation: "Remove 'none' from the algorithms array to enforce cryptographic signature verification."
+  cwe: "CWE-347"
+  owasp: "A02:2021"
+
+- id: js-prototype-pollution-loop
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)for\s*\(.*in\s+.*(?:req\.body|req\.query).*(?!.*\_\_proto\_\_)'
+  severity: high
+  description: "Deep object copy or iteration over untrusted input without blocking __proto__ or constructor keys."
+  remediation: "Explicitly reject payload keys matching '__proto__', 'constructor', or 'prototype'."
+  cwe: "CWE-1321"
+  owasp: "A08:2021"
+
+- id: js-prototype-pollution-merge
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)(\.merge|\.extend|\.recursive|deepMerge)\s*\(\s*[^,]+,\s*(?:req\.body|req\.query)'
+  severity: critical
+  description: "Unsafe deep merge of user input into object prototype."
+  remediation: "Sanitize keys or use a safe merge library like 'lodash.merge' (if updated) or 'ajv' for schema validation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021"
+
+- id: js-dom-xss-innerhtml-reflection
+  languages: [javascript, typescript, tsx, jsx, html]
+  patterns:
+  - regex: '(?i)(?:\.innerHTML|container\.innerHTML|bar\.innerHTML)\s*=\s*(?:.*(?:params|search|data\.html|decodeURIComponent)).*'
+  severity: critical
+  description: "Reflected DOM XSS via unsanitized data injected directly into innerHTML."
+  remediation: "Use textContent instead of innerHTML, or thoroughly sanitize HTML before insertion."
+  cwe: "CWE-79"
+  owasp: "A03:2021"
+
+- id: js-unquoted-attribute-xss
+  languages: [javascript, typescript, tsx, jsx, html]
+  patterns:
+  - regex: '(?i)value=\$\{.*\}|onclick=\$\{.*\}'
+  severity: high
+  description: "Unquoted attribute injection allows attackers to break out of HTML attributes and execute XSS."
+  remediation: "Always quote HTML attributes and HTML-encode dynamic values."
+  cwe: "CWE-79"
+  owasp: "A03:2021"
+
+- id: js-health-endpoint-secret-leak
+  languages: [javascript, typescript, tsx, jsx, html]
+  patterns:
+  - regex: '(?i)apiRequest\([''"]/health[''"]\).*debugLog'
+  severity: critical
+  description: "Health check endpoint leaks sensitive environment secrets directly to the client browser DOM."
+  remediation: "Remove the API health response from the client DOM, and ensure /health does not emit secrets."
+  cwe: "CWE-200"
+  owasp: "A05:2021"
+
+- id: js-visible-jwt-token
+  languages: [javascript, typescript, tsx, jsx, html]
+  patterns:
+  - regex: '(?i)textContent\s*=\s*[''"]Token:\s*[''"]\s*\+\s*token'
+  severity: high
+  description: "JWT token rendered visually in the DOM, allowing theft via shoulder surfing or screenshots."
+  remediation: "Never render raw authentication tokens visually on screen."
+  cwe: "CWE-200"
+  owasp: "A05:2021"
+
+- id: js-postmessage-wildcard-origin
+  languages: [javascript, typescript, tsx, jsx, html]
+  patterns:
+  - regex: '(?i)\.postMessage\([^,]+,\s*[''"]\*[''"]\)'
+  severity: medium
+  description: "postMessage called with a wildcard '*' origin, broadcasting data to any embedding window."
+  remediation: "Specify the exact target origin instead of '*' when sending postMessage payloads."
+  cwe: "CWE-345"
+  owasp: "A08:2021"
+
+- id: js-missing-sri-cdn
+  languages: [html, javascript, typescript, tsx, jsx]
+  patterns:
+  - regex: '(?i)<script\s+src=[''"]https://(?!.*integrity=).*[''"]\s*>'
+  severity: medium
+  description: "External script loaded from a CDN without Subresource Integrity (SRI) attributes."
+  remediation: "Add integrity and crossorigin attributes to all external <script> tags."
+  cwe: "CWE-352"
+  owasp: "A08:2021"
+
+- id: js-lodash-merge-pollution
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)lodash\.merge\([^,]+,\s*(?:req\.body|req\.query)'
+  severity: critical
+  description: "Direct deep-merge of user-controlled data via lodash.merge() enables severe Prototype Pollution attacks."
+  remediation: "Sanitize request bodies to strip '__proto__', 'constructor', and 'prototype' before deep merging."
+  cwe: "CWE-1321"
+  owasp: "A08:2021"
+
+- id: js-xml2js-xxe
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)parseString\([^,]+,\s*(?!.*explicitArray|\s*\{\})'
+  severity: critical
+  description: "xml2js parsing untrusted XML without disabling external entities allows Server-Side Request Forgery and XXE Local File Read."
+  remediation: "Configure xml2js parser to reject external DTDs or explicitly use safer XML parsers."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: js-multer-early-body-access
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)diskStorage.*destination.*req\.body\.'
+  severity: critical
+  description: "Accessing req.body in a multer diskStorage callback before streams finish parsing allows an attacker to dictate the file destination."
+  remediation: "Never rely on req.body for upload destinaton routing directly. Save files to isolation first, then move them post-parse."
+  cwe: "CWE-434"
+  owasp: "A01:2021"
+
+- id: js-express-qs-prototype-pollution
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)express\.urlencoded\(\{.*extended:\s*true.*\}\)'
+  severity: high
+  description: "Enabling extended urlencoded parsing utilizes the 'qs' library, which enables complex object parsing making prototype poisoning attacks trivial."
+  remediation: "Use express.urlencoded({ extended: false }) unless nested object queries are absolutely necessary, and implement strict '__proto__' blocking filters."
+  cwe: "CWE-1321"
+  owasp: "A08:2021"
+
+- id: js-axios-header-forwarding-leak
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)axios\.(?:get|post|put)\([^,]+,\s*\{.*headers:\s*req\.headers'
+  severity: critical
+  description: "Unrestricted header forwarding to backend services proxies Authorization tokens, Hosts, and Cookies natively via request spoofing."
+  remediation: "Explicitly map and forward only required headers. Do not proxy req.headers directly."
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+
+- id: js-idor-user-id-mismatch
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)router\.[A-Za-z]+\([''"]/[^:]+/:id/.*authMiddleware(?:.|\n)*req\.params\.id'
+  severity: high
+  description: "Authentication middleware protects the route, but logic uses req.params.id instead of req.user.id without ownership verification (IDOR)."
+  remediation: "Ensure that sensitive account retrievals strictly validate req.params.id === req.user.id."
+  cwe: "CWE-639"
+  owasp: "A01:2021"
+
+- id: js-response-code-injection
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)res\.redirect\(\s*parseInt\([\sA-Za-z0-9.]*(?:query|body)\.[a-zA-Z]+'
+  severity: critical
+  description: "HTTP status code directly controlled by user input enables Response Splitting, HTTP smuggling, and caching manipulation."
+  remediation: "Never allow users to dynamically define HTTP status codes natively. Force standard redirection codes (301/302)."
+  cwe: "CWE-113"
   owasp: "A03:2021"

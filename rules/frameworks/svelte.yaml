@@ -4838,7 +4838,7 @@
 - id: svelte-hardcoded-ui-component-version
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ui_component_ver=v1\\.0|'
+    - regex: '(?i)ui_component_ver=v1\\.0'
   severity: low
   description: "UI component version hardcoded"
   remediation: "Auto-update UI components"

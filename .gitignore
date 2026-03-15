@@ -4,6 +4,7 @@
 cmd/scanner/scanner
 /scanner
 /qwen-scanner
+scanner_test
 !/scanner/
 
 # Output Reports

@@ -1542,3 +1542,23 @@
   remediation: "Review prohibition logic"
   cwe: "CWE-20"
   owasp: "A03:2021"
+
+- id: laravel-raw-db-statement-interpolation
+  languages: [php]
+  patterns:
+    - regex: '(?i)(?:DB::select|DB::statement|DB::insert|DB::update|DB::delete)\s*\(\s*["''\}].*(?:\$|{)'
+  severity: critical
+  description: "Raw DB statement execution with direct variable interpolation. This is a severe SQL Injection vector."
+  remediation: "Never interpolate strings into raw DB commands. Always use parameterized queries like DB::select('SELECT * FROM x WHERE id = ?', [$id])."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+
+- id: laravel-raw-db-query-builder-interpolation
+  languages: [php]
+  patterns:
+    - regex: '(?i)(?:->selectRaw|->whereRaw|->orWhereRaw|->havingRaw|->orHavingRaw|->orderByRaw|->groupByRaw)\s*\(\s*["''\}].*(?:\$|{)'
+  severity: critical
+  description: "Raw Query Builder method called with direct string interpolation. This escapes Eloquent's built-in parameterization and leads to direct SQL injection."
+  remediation: "Extract variables out of the raw string and pass them as the second array argument for PDO parameter binding."
+  cwe: "CWE-89"
+  owasp: "A03:2021"

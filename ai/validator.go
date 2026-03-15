@@ -69,7 +69,7 @@ CRITICAL INSTRUCTIONS:
 - Do NOT dismiss Configuration/Header/Secret vulnerabilities just because there is "no user input".
 - Do NOT log unified diffs (+/-) or git diff formats in the suggested_fix or explanation. Describe the fix conceptually or just provide the final snippet.
 - Do NOT flag standard DevOps/Infra commands as vulnerabilities.
-- Provide a clear, step-by-step 'exploit_poc'.
+- You MUST provide a clear, exact step-by-step 'exploit_poc'. Provide the HTTP request, curl command, or payload. If this is mathematically impossible to exploit, you MUST return "N/A" for the 'exploit_poc' field. Do NOT leave it blank or omit the field.
 
 Return ONLY a valid JSON object in the final part of your response:
 {
@@ -78,7 +78,7 @@ Return ONLY a valid JSON object in the final part of your response:
   "explanation": "Summarize your adversarial analysis and why a bypass is or is not possible.",
   "suggested_fix": "Provide a fix conceptually. DO NOT USE DIFF FORMAT (+/-).",
   "severity_adjustment": "critical/high/medium/low/info or same",
-  "exploit_poc": "Provide a high-quality exploit payload or command."
+  "exploit_poc": "Provide a high-quality exploit payload, curl command, or HTTP request. Use 'N/A' if unexploitable."
 }`,
 		finding.IssueName,
 		finding.FilePath,
@@ -114,7 +114,7 @@ Return ONLY a valid JSON object in the final part of your response:
 	httpReq.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{
-		Timeout: 5 * time.Minute, // Risk 1 fix: Per-finding timeout prevents infinite hangs
+		Timeout: 15 * time.Minute, // Increased timeout for slow models / heavy loads
 	}
 
 	resp, err := client.Do(httpReq)

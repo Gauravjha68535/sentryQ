@@ -24,7 +24,7 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 	headerColor.Println("└────────────────────────────────────────")
 	fmt.Println()
 
-	numWorkers := 4 // Default concurrency
+	numWorkers := 2 // Default concurrency
 	if len(findings) < numWorkers {
 		numWorkers = len(findings)
 	}
@@ -163,8 +163,8 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 				consecutiveErrors = 0
 				if result.IsTruePositive {
 					job.finding.AiValidated = "Yes"
-					if result.Explanation != "" && result.Explanation != job.finding.Description {
-						job.finding.Description = result.Explanation
+					if result.Explanation != "" {
+						job.finding.AiReasoning = result.Explanation
 					}
 					if result.SuggestedFix != "" {
 						job.finding.Remediation = result.SuggestedFix
@@ -176,11 +176,15 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 					if result.ExploitPoC != "" {
 						job.finding.ExploitPoC = result.ExploitPoC
 					}
+					job.finding.Confidence = result.Confidence
 					truePositives++
 					color.New(color.FgGreen).Printf("         ✓ Confirmed (%.0f%% confidence)\n", result.Confidence*100)
 				} else {
 					job.finding.AiValidated = "No (False Positive)"
 					job.finding.Description = fmt.Sprintf("AI determined this is a false positive: %s", result.Explanation)
+					job.finding.Confidence = result.Confidence
+					job.finding.CWE = ""
+					job.finding.OWASP = ""
 					falsePositives++
 					color.New(color.FgHiBlack).Printf("         ✗ False Positive (%.0f%% confidence)\n", result.Confidence*100)
 				}

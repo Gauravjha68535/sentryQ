@@ -27,6 +27,14 @@ func IsTestFile(filePath string) bool {
 	return false
 }
 
+// Pre-compiled regexes for StripComments (avoid recompiling per file)
+var (
+	reBlockComment = regexp.MustCompile(`(?s)/\*.*?\*/`)
+	reLineCommentC = regexp.MustCompile(`//.*`)
+	reLineCommentH = regexp.MustCompile(`#.*`)
+	reHTMLComment  = regexp.MustCompile(`(?s)<!--.*?-->`)
+)
+
 // StripComments replaces comments with spaces to preserve line numbers/offsets
 func StripComments(source string, ext string) string {
 	ext = strings.ToLower(ext)
@@ -45,16 +53,12 @@ func StripComments(source string, ext string) string {
 
 	switch ext {
 	case ".go", ".js", ".ts", ".java", ".c", ".cpp", ".cs", ".php", ".swift", ".kt", ".dart", ".scala", ".rs":
-		reBlock := regexp.MustCompile(`(?s)/\*.*?\*/`)
-		source = reBlock.ReplaceAllStringFunc(source, replacer)
-		reLine := regexp.MustCompile(`//.*`)
-		source = reLine.ReplaceAllStringFunc(source, replacer)
+		source = reBlockComment.ReplaceAllStringFunc(source, replacer)
+		source = reLineCommentC.ReplaceAllStringFunc(source, replacer)
 	case ".py", ".rb", ".sh", ".bash", ".yaml", ".yml", ".dockerfile", ".tf", ".pl":
-		reLine := regexp.MustCompile(`#.*`)
-		source = reLine.ReplaceAllStringFunc(source, replacer)
+		source = reLineCommentH.ReplaceAllStringFunc(source, replacer)
 	case ".html", ".xml", ".vue":
-		reBlock := regexp.MustCompile(`(?s)<!--.*?-->`)
-		source = reBlock.ReplaceAllStringFunc(source, replacer)
+		source = reHTMLComment.ReplaceAllStringFunc(source, replacer)
 	}
 
 	return source

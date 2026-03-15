@@ -92,6 +92,16 @@
   owasp: "A04:2021"
 
 # ======================== XSS ========================
+- id: go-fake-sanitizer
+  languages: [go]
+  patterns:
+    - regex: 'strings\.ReplaceAll\s*\(\s*[^,]+,\s*["\x27]\s+["\x27]\s*,\s*["\x27][^"\x27]+["\x27]'
+  severity: medium
+  description: "Fake sanitizer: only replacing spaces is insufficient to prevent path traversal or command injection."
+  remediation: "Use proper sanitization: filepath.Base(), filepath.Clean(), or a dedicated validation library."
+  cwe: "CWE-20"
+  owasp: "A03:2021"
+
 - id: go-template-html
   languages: [go]
   patterns:
@@ -6057,5 +6067,125 @@
   remediation: "Always defer file.Close()"
   cwe: "CWE-401"
   owasp: "A06:2021"
+
+- id: go-math-rand-crypto
+  languages: [go]
+  patterns:
+    - regex: '(?i)(?:token|session|secret|key|password|auth).*math/rand'
+  severity: high
+  description: "Use of math/rand for generating security-sensitive tokens/passwords is cryptographically insecure."
+  remediation: "Use crypto/rand instead of math/rand for all security-sensitive random value generation."
+  cwe: "CWE-338"
+  owasp: "A02:2021"
+
+- id: go-tls-insecure-skip-verify
+  languages: [go]
+  patterns:
+    - regex: '(?i)InsecureSkipVerify\s*:\s*true'
+  severity: high
+  description: "TLS verification is disabled (InsecureSkipVerify: true), making the connection vulnerable to MITM attacks."
+  remediation: "Set InsecureSkipVerify to false and properly configure root certificates."
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+
+- id: go-insecure-cookie-creation
+  languages: [go]
+  patterns:
+    - regex: '(?i)http\.Cookie\{(?:(?!\bSecure\s*:\s*true\b|\bHttpOnly\s*:\s*true\b).)*\}'
+  severity: medium
+  description: "Cookie created without explicitly setting both Secure and HttpOnly flags."
+  remediation: "Always set Secure: true and HttpOnly: true when creating sensitive cookies."
+  cwe: "CWE-614"
+  owasp: "A05:2021"
+
+- id: go-unauthenticated-logging-command-injection
+  languages: [go]
+  patterns:
+  - regex: '(?i)fmt\.Sprintf\([''"]tail\s+-n\s+%s.*%s[''"],\s*lines,\s*logFile\)'
+  severity: critical
+  description: "Unauthenticated OS Command Injection via unsanitized log file names and lines."
+  remediation: "Do not use shell execution for log reading. Use native OS file reading APIs (os.Open, bufio.Scanner)."
+  cwe: "CWE-78"
+  owasp: "A03:2021"
+
+- id: go-timing-unsafe-equal
+  languages: [go]
+  patterns:
+  - regex: '(?i)signature\s*!=\s*expectedSig|signature\s*==\s*expectedSig'
+  severity: high
+  description: "Direct string/byte comparison of cryptographic signatures exposes timing attacks."
+  remediation: "Use hmac.Equal() or subtle.ConstantTimeCompare() for validating cryptographic signatures."
+  cwe: "CWE-208"
+  owasp: "A02:2021"
+
+- id: go-jwt-algorithm-confusion
+  languages: [go]
+  patterns:
+  - regex: '(?i)jwt\.ParseWithClaims\([^,]+,\s*[^,]+,\s*func\(t\s+\*jwt\.Token\)(?!.*t\.Method\s*==\s*jwt\.SigningMethodHS256)'
+  severity: high
+  description: "Missing explicit SigningMethod check in JWT parsing allows Algorithm Confusion attacks (e.g., swapping RS256 for HS256)."
+  remediation: "Always verify the ParseWithClaims token.Method matches the expected algorithm (e.g., jwt.SigningMethodHS256)."
+  cwe: "CWE-347"
+  owasp: "A02:2021"
+
+- id: go-toctou-race-condition
+  languages: [go]
+  patterns:
+  - regex: '(?i)(?:QueryRow|Query).*(?:stock|quantity|balance)(?:.|\n)*Exec\([''"]UPDATE.*(?:stock|quantity|balance)'
+  severity: high
+  description: "TOCTOU (Time-of-Check to Time-of-Use) Race Condition. Concurrent requests can bypass stock constraints."
+  remediation: "Wrap check and decrement inside a DB transaction (`BEGIN` ... `COMMIT`) using `SELECT ... FOR UPDATE`."
+  cwe: "CWE-367"
+  owasp: "A04:2021"
+
+- id: go-global-mutex-bottleneck
+  languages: [go]
+  patterns:
+  - regex: '(?i)var\s+mu\s+sync\.Mutex(?:.|\n)*mu\.Lock\(\)'
+  severity: medium
+  description: "In-memory session store using a global sync.Mutex forces serial execution, bottlenecking all authenticated requests."
+  remediation: "Use sync.RWMutex, partitioned mutex maps, or a distributed datastore like Redis for session management."
+  cwe: "CWE-400"
+  owasp: "A06:2021"
+
+- id: go-dual-auth-desync
+  languages: [go]
+  patterns:
+  - regex: '(?i)func\s+[A-Za-z]+\(.*(jwt\.Parse|http\.Cookie)(?:.|\n)*(?:jwt\.Parse|http\.Cookie)'
+  severity: medium
+  description: "Dual authentication parsing (e.g., checking both cookies and JWTs sequentially). Ensure invalidation mechanisms effectively revoke both states."
+  remediation: "Consolidate session tracking or ensure forced logouts invalidate all issued tokens across both methods."
+  cwe: "CWE-613"
+  owasp: "A07:2021"
+
+- id: go-handrolled-base64-token
+  languages: [go]
+  patterns:
+  - regex: '(?i)base64\.(?:StdEncoding|URLEncoding)\.EncodeToString\(\[\]byte\(fmt\.Sprintf\([''"]%v:%v'
+  severity: critical
+  description: "Cryptographically insecure IDOR/token generation utilizing base64 encoding without an HMAC signature or entropy."
+  remediation: "Use secure token standards (JWT, PASETO) or explicitly sign custom tokens with crypto/hmac."
+  cwe: "CWE-345"
+  owasp: "A02:2021"
+
+- id: go-template-string-injection
+  languages: [go]
+  patterns:
+  - regex: '(?i)template\.New\([^)]+\)\.Parse\(\s*fmt\.Sprintf\('
+  severity: high
+  description: "User-controlled input concatenated into a Go template string before parsing allows template directive execution (SSTI/RCE)."
+  remediation: "Always pass data into template.Execute() as variables instead of building the template string dynamically with Parse()."
+  cwe: "CWE-1336"
+  owasp: "A03:2021"
+
+- id: go-json-token-leak
+  languages: [go]
+  patterns:
+  - regex: '(?i)json\.NewEncoder\([^)]+\)\.Encode\([^)]*(?:user|account|auth)[^)]*\)'
+  severity: medium
+  description: "Encoding full struct objects directly to JSON responses risks leaking internally stored tokens or hashed passwords."
+  remediation: "Define explicit output DTO structs rather than returning database models containing internal fields."
+  cwe: "CWE-200"
+  owasp: "A01:2021"
 
 

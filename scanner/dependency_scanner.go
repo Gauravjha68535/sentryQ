@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -381,12 +382,15 @@ func mapOSVSeverity(severities []struct {
 }) string {
 	for _, s := range severities {
 		if s.Type == "CVSS_V3" {
-			score := s.Score
-			if score >= "9.0" {
+			score, err := strconv.ParseFloat(s.Score, 64)
+			if err != nil {
+				continue
+			}
+			if score >= 9.0 {
 				return "critical"
-			} else if score >= "7.0" {
+			} else if score >= 7.0 {
 				return "high"
-			} else if score >= "4.0" {
+			} else if score >= 4.0 {
 				return "medium"
 			}
 			return "low"

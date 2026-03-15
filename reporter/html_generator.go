@@ -72,22 +72,11 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		},
 	}).Parse(htmlTemplate))
 
-	// Simple deduplication: Key = FilePath + IssueName
-	uniqueFindings := make([]Finding, 0)
-	seen := make(map[string]bool)
-	for _, f := range findings {
-		key := fmt.Sprintf("%s:%s", f.FilePath, f.IssueName)
-		if !seen[key] {
-			seen[key] = true
-			uniqueFindings = append(uniqueFindings, f)
-		}
-	}
-	findings = uniqueFindings
-
-	confirmed, falsePositives := SplitFindings(findings)
+	reachable, unreachable, falsePositives := SplitFindingsThreeWay(findings)
 
 	data := struct {
 		Findings       []Finding
+		Unreachable    []Finding
 		FalsePositives []Finding
 		Summary        ReportSummary
 		RiskScore      RiskScore
@@ -95,7 +84,8 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		CWECounts      []KVCount
 		OWASPCounts    []KVCount
 	}{
-		Findings:       confirmed,
+		Findings:       reachable,
+		Unreachable:    unreachable,
 		FalsePositives: falsePositives,
 		Summary:        summary,
 		RiskScore:      CalculateRiskScore(findings),
@@ -555,6 +545,27 @@ const htmlTemplate = `<!DOCTYPE html>
                                     </div>
                                     {{end}}
 
+                                    {{if .AiReasoning}}
+                                    <div class="detail-section">
+                                        <h4>AI Security Insight</h4>
+                                        <div class="detail-text" style="background: rgba(139,92,246,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(139,92,246,0.1);">{{.AiReasoning}}</div>
+                                    </div>
+                                    {{end}}
+
+                                    {{if .ExploitPath}}
+                                    <div class="detail-section">
+                                        <h4>Detected Exploit Path</h4>
+                                        <div class="detail-text" style="font-family: var(--mono); font-size: 0.75rem; background: #0d1117; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                                            {{range $i, $step := .ExploitPath}}
+                                            <div style="margin-bottom: 4px; display: flex; gap: 8px;">
+                                                <span style="color: var(--primary); font-weight: bold;">Step {{$i}}:</span>
+                                                <span>{{$step}}</span>
+                                            </div>
+                                            {{end}}
+                                        </div>
+                                    </div>
+                                    {{end}}
+
                                     <div class="detail-section" style="margin-top:16px;">
                                         <h4>Metadata</h4>
                                         <table style="font-size:0.82rem; border-collapse:collapse; width:100%;">
@@ -575,6 +586,60 @@ const htmlTemplate = `<!DOCTYPE html>
             {{end}}
         </table>
     </div>
+
+    <!-- Unreachable Findings -->
+    {{if .Unreachable}}
+    <div class="fp-section" style="border-color: rgba(14,165,233,0.25); background: rgba(14,165,233,0.03);">
+        <h2 style="color: var(--low);">Potentially Unreachable ({{len .Unreachable}})</h2>
+        <p>The following findings were detected in <strong>test files, mocks, or had very low confidence</strong>. They are likely non-exploitable in production.</p>
+        <div class="table-container" style="margin-top: 12px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Issue</th>
+                        <th>File Path</th>
+                        <th>Severity</th>
+                        <th>Source</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                {{range .Unreachable}}
+                <tbody class="finding-group">
+                    <tr class="main-row" data-severity="{{.Severity}}" data-source="{{.Source}}" onclick="toggleRow(this)">
+                        <td style="font-weight: 600; color: var(--text-dim);"><span class="toggle-icon">▸</span> {{.SrNo}}</td>
+                        <td style="font-weight: 600;">{{.IssueName}}</td>
+                        <td class="cell-file" title="{{.FilePath}}">{{.FilePath}}:{{.LineNumber}}</td>
+                        <td><span class="severity-badge {{.Severity}}">{{.Severity}}</span></td>
+                        <td><span class="source-badge">{{.Source}}</span></td>
+                        <td class="cell-desc">{{if .AiReasoning}}{{truncate .AiReasoning 70}}{{else}}Located in test/mock context{{end}}</td>
+                    </tr>
+                    <tr class="detail-row" style="display: none;">
+                        <td colspan="6" style="padding: 0; border-bottom: none;">
+                            <div class="expandable-content">
+                                <div class="detail-grid">
+                                    <div>
+                                        <div class="detail-section"><h4>Description</h4><div class="detail-text">{{.Description}}</div></div>
+                                        <div class="detail-section"><h4>Context Insight</h4><div class="detail-text">This finding was moved here because it was detected in a file matching test patterns or the AI trust score was below 20%.</div></div>
+                                    </div>
+                                    <div>
+                                        {{if .CodeSnippet}}
+                                        <div class="detail-section">
+                                            <h4>Code Snippet</h4>
+                                            <div class="code-block snippet">{{replaceNewline .CodeSnippet}}</div>
+                                        </div>
+                                        {{end}}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                {{end}}
+            </table>
+        </div>
+    </div>
+    {{end}}
 
     <!-- False Positives -->
     {{if .FalsePositives}}

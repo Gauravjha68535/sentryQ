@@ -66,10 +66,20 @@ go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2
 #    c. Install Semgrep: pip install --upgrade semgrep
 ```
 
-### Step 2: Run the Scanner
+### Step 2: Build & Run from Source
+
+To build the complete application (including the Web UI), run the automated build script:
+
 ```bash
-go run ./cmd/scanner
+chmod +x build.sh
+./build.sh
+./qwen-scanner
 ```
+
+This script builds the React frontend, synchronizes the assets, and compiles the Go binary.
+
+> [!NOTE]
+> If you are just making Go changes and the UI is already built, you can run `go run ./cmd/scanner` as usual. The `go:embed` error only happens if the `internal/ui/dist` folder is missing or empty.
 
 ---
 
@@ -115,7 +125,7 @@ The scanner generates multiple report formats so you can share results with any 
 | **HTML** | `report.html` | Interactive, styled report with filtering and charts. |
 | **PDF** | `report.pdf` | Printable executive summary for stakeholders. |
 | **CSV** | `report.csv` | Importable into Excel, Jira, or any ticketing system. |
-| **Web Dashboard** | `localhost:<port>` | Live, auto-refreshing browser dashboard with Chart.js analytics (default 8080). |
+| **Web Dashboard** | `localhost:<port>` | Live, auto-refreshing browser dashboard with Chart.js analytics (default 5336). |
 | **JSON (Stashed)** | `.findings_stashed.json` | Machine-readable local DB for consecutive scans. |
 
 ---
@@ -138,17 +148,16 @@ go run ./cmd/scanner -d /path/to/your/code -ai -semgrep -consolidated
 | `-deps` | `true` | Enable dependency/SCA scanning. |
 | `-secrets` | `true` | Enable secret detection. |
 | `-supply-chain` | `false` | Enable SBOM generation. |
-| `-compliance` | `false` | Enable compliance checking. |
+| `-supply-chain` | `false` | Enable SBOM generation. |
 | `-threat-intel` | `false` | Enable threat intelligence enrichment. |
 | `-ml-fp` | `false` | Enable ML false-positive reduction. |
 | `-consolidated` | `false` | Enable Consolidated AI + Static intelligence. |
 | `-model` | `qwen2.5-coder:7b` | AI model name (any Ollama model). |
 | `-ollama-host` | `localhost:11434` | Ollama host:port (for remote AI). |
-| `-port` | `8080` | Port to run the Web Dashboard on. |
+| `-port` | `5336` | Port to run the Web Dashboard on. |
 | `-csv` | `report.csv` | Output CSV report file path. |
 | `-html` | `report.html` | Output HTML report file path. |
 | `-pdf` | `report.pdf` | Output PDF report file path. |
-| `-frameworks` | *(none)* | Comma-separated: `PCI-DSS,HIPAA,SOC2,ISO27001,GDPR` |
 
 **Changing the AI Model:** Pull any Ollama model, then pass it via the `-model` flag:
 ```bash

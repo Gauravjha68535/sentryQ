@@ -13,6 +13,7 @@ import (
 )
 
 // ConsolidateFindings takes static and ai findings and merges them using LLM intelligence
+// ConsolidateFindings takes static and ai findings and merges them using LLM intelligence
 func ConsolidateFindings(staticFindings []reporter.Finding, aiFindings []reporter.Finding, modelName string) ([]reporter.Finding, error) {
 	if len(staticFindings) == 0 && len(aiFindings) == 0 {
 		return []reporter.Finding{}, nil
@@ -20,11 +21,10 @@ func ConsolidateFindings(staticFindings []reporter.Finding, aiFindings []reporte
 
 	color.Cyan("🧠 Consolidating %d Static and %d AI findings using %s...", len(staticFindings), len(aiFindings), modelName)
 
-	// Prepare the findings for the LLM
-	// We'll send a simplified version to save tokens
+	// Prepare simplified findings for LLM
 	type SimplifiedFinding struct {
 		ID          int    `json:"id"`
-		Type        string `json:"type"` // "static" or "ai"
+		Type        string `json:"type"`
 		IssueName   string `json:"issue_name"`
 		File        string `json:"file"`
 		Line        string `json:"line"`
@@ -33,81 +33,57 @@ func ConsolidateFindings(staticFindings []reporter.Finding, aiFindings []reporte
 
 	var allSimplified []SimplifiedFinding
 	idCount := 1
-
 	for _, f := range staticFindings {
-		allSimplified = append(allSimplified, SimplifiedFinding{
-			ID:          idCount,
-			Type:        "static",
-			IssueName:   f.IssueName,
-			File:        f.FilePath,
-			Line:        f.LineNumber,
-			Description: f.Description,
-		})
+		allSimplified = append(allSimplified, SimplifiedFinding{ID: idCount, Type: "static", IssueName: f.IssueName, File: f.FilePath, Line: f.LineNumber, Description: f.Description})
 		idCount++
 	}
-
 	for _, f := range aiFindings {
-		allSimplified = append(allSimplified, SimplifiedFinding{
-			ID:          idCount,
-			Type:        "ai",
-			IssueName:   f.IssueName,
-			File:        f.FilePath,
-			Line:        f.LineNumber,
-			Description: f.Description,
-		})
+		allSimplified = append(allSimplified, SimplifiedFinding{ID: idCount, Type: "ai", IssueName: f.IssueName, File: f.FilePath, Line: f.LineNumber, Description: f.Description})
 		idCount++
 	}
 
-	findingsJSON, _ := json.MarshalIndent(allSimplified, "", "  ")
+	findingsJSON, _ := json.Marshal(allSimplified)
+	prompt := fmt.Sprintf(`You are an elite Security Orchestrator and Senior Auditor. 
+You have two lists of security findings: one from a Static Rule Engine and one from an AI Discovery Engine.
+Your goal is to semantically MERGE these two lists into one final, deduplicated, high-precision report.
 
-	prompt := fmt.Sprintf(`You are an elite Security Orchestrator. You have two lists of security findings: one from a Static Rule Engine and one from an AI Discovery Engine.
-Your goal is to semantically MERGE these two lists into one final, deduplicated masterpiece.
-
-RULES FOR MERGING:
+SEMANTIC DEDUPLICATION STRATEGY:
 1. IDENTIFY DUPLICATES: If both engines found the same issue (e.g. SQL Injection) on the same line or very close lines in the same file, they are the SAME issue.
-2. PRIORITIZE AI CONTENT: When merging a duplicate, ALWAYS use the "ai" version's description and issue name, as the AI has deeper context.
-3. PRESERVE UNIQUE ISSUES: If an issue appears only in the Static list or only in the AI list, keep it.
-4. CORRELATE: If multiple static rules point to the same root cause, group them into one comprehensive finding.
+2. SINK OVERLAP: If multiple rules fire on the same dangerous function call (e.g. 'eval()', 'cursor.execute()'), they are the SAME issue.
+3. FLOW OVERLAP: If multiple rules track the same data flow but trigger at different points (source vs sink), group them into the sink finding.
+4. PRIORITIZE AI CONTENT: When merging a duplicate, ALWAYS use the "ai" version's description and issue name, as the AI has deeper context.
 
 INPUT FINDINGS:
 %s
 
 OUTPUT PROTOCOL:
-Return a JSON object containing a list of the IDs that should be kept in the final report. For merged items, specify which ID is the "Master" and which are "Duplicates".
+Return a JSON object containing a list of merged_findings.
+For each group of duplicates, pick a "Master" ID and list the others as "Duplicate IDs".
+Provide a brief "Reason" for the merge.
 
-Respond ONLY with valid JSON:
 {
   "merged_findings": [
     {
       "master_id": 5,
       "duplicate_ids": [1], 
-      "reason": "Both identified the same SQL injection sink on line 42."
+      "reason": "Both identified the same root cause on line 42."
     },
     {
       "master_id": 2,
       "duplicate_ids": [],
-      "reason": "Unique static rule finding."
+      "reason": "Unique finding."
     }
   ]
 }`, string(findingsJSON))
 
 	reqBody := OllamaAPIRequest{
-		Model:  modelName,
-		Prompt: prompt,
-		Stream: false,
-		Options: map[string]interface{}{
-			"num_ctx":     8192,
-			"num_predict": 4096,
-			"temperature": 0.0,
-		},
-		KeepAlive: "5m",
+		Model:   modelName,
+		Prompt:  prompt,
+		Stream:  false,
+		Options: map[string]interface{}{"num_ctx": 16384, "num_predict": 4096, "temperature": 0.0},
 	}
 
-	reqJSON, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, err
-	}
-
+	reqJSON, _ := json.Marshal(reqBody)
 	resp, err := http.Post(ollamaAPIURL, "application/json", bytes.NewBuffer(reqJSON))
 	if err != nil {
 		return nil, err
@@ -115,32 +91,24 @@ Respond ONLY with valid JSON:
 	defer resp.Body.Close()
 
 	var apiResp OllamaAPIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, err
-	}
-
-	// Extract JSON
+	json.NewDecoder(resp.Body).Decode(&apiResp)
 	outputStr := strings.TrimSpace(apiResp.Response)
+
+	// Extract JSON block
 	startIdx := strings.Index(outputStr, "{")
 	endIdx := strings.LastIndex(outputStr, "}")
 	if startIdx < 0 || endIdx <= startIdx {
 		return nil, fmt.Errorf("invalid response from merger LLM")
 	}
-	jsonStr := outputStr[startIdx : endIdx+1]
 
-	type MergeDecision struct {
+	var decision struct {
 		MergedFindings []struct {
 			MasterID     int   `json:"master_id"`
 			DuplicateIDs []int `json:"duplicate_ids"`
 		} `json:"merged_findings"`
 	}
+	json.Unmarshal([]byte(outputStr[startIdx:endIdx+1]), &decision)
 
-	var decision MergeDecision
-	if err := json.Unmarshal([]byte(jsonStr), &decision); err != nil {
-		return nil, fmt.Errorf("failed to parse merge decision: %v", err)
-	}
-
-	// Map findings back to IDs
 	findingByID := make(map[int]reporter.Finding)
 	idCount = 1
 	for _, f := range staticFindings {
@@ -157,15 +125,28 @@ Respond ONLY with valid JSON:
 
 	for _, m := range decision.MergedFindings {
 		if f, ok := findingByID[m.MasterID]; ok {
+			// Persist AI validation status
+			isAiValidated := (f.AiValidated == "Yes")
+			if !isAiValidated {
+				for _, dupID := range m.DuplicateIDs {
+					if dup, ok := findingByID[dupID]; ok && dup.AiValidated == "Yes" {
+						isAiValidated = true
+						break
+					}
+				}
+			}
+			if isAiValidated {
+				f.AiValidated = "Yes"
+			}
 			finalFindings = append(finalFindings, f)
 			addedIDs[m.MasterID] = true
-			for _, dupID := range m.DuplicateIDs {
-				addedIDs[dupID] = true
+			for _, d := range m.DuplicateIDs {
+				addedIDs[d] = true
 			}
 		}
 	}
 
-	// Safety check: Add any missing IDs that the LLM might have forgotten
+	// Catch-all for missed IDs
 	for id, f := range findingByID {
 		if !addedIDs[id] {
 			finalFindings = append(finalFindings, f)

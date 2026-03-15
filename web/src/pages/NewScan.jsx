@@ -1,18 +1,15 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, GitBranch, FolderUp, Play, Cpu, Search, Bug, Shield, FileCode, Lock, Box, Brain } from 'lucide-react'
+import { Upload, GitBranch, FolderUp, Play, Cpu, Search, Shield, Lock, Brain, Box, FileCheck, Globe, Sparkles, FolderOpen } from 'lucide-react'
 
 const defaultConfig = {
+    enableDeepScan: false,
     enableAI: false,
-    enableAIDiscovery: false,
-    enableSemgrep: false,
-    enableDeps: true,
-    enableSecrets: true,
-    enableSupplyChain: false,
-    enableCompliance: false,
-    enableThreatIntel: false,
-    enableConsolidated: false,
-    aiModel: 'deepseek-r1:7b',
+    aiModel: '',
+    ollamaHost: 'localhost:11434',
+    consolidationModel: '',
+    enableMLFPReduction: false,
+    customRulesDir: '',
 }
 
 export default function NewScan() {
@@ -22,19 +19,52 @@ export default function NewScan() {
     const [gitUrl, setGitUrl] = useState('')
     const [dragover, setDragover] = useState(false)
     const [uploading, setUploading] = useState(false)
+    const [availableModels, setAvailableModels] = useState([])
+    const [loadingModels, setLoadingModels] = useState(true)
     const navigate = useNavigate()
 
-    const toggles = [
-        { key: 'enableAI', label: 'AI Validation', desc: 'Validate findings with LLM', icon: <Brain size={16} /> },
-        { key: 'enableAIDiscovery', label: 'AI Discovery', desc: 'Discover new vulns with AI', icon: <Search size={16} /> },
-        { key: 'enableSemgrep', label: 'Semgrep Analysis', desc: 'Run Semgrep rules', icon: <FileCode size={16} /> },
-        { key: 'enableDeps', label: 'Dependency Scan', desc: 'Check for vulnerable deps', icon: <Box size={16} /> },
-        { key: 'enableSecrets', label: 'Secret Detection', desc: 'Find hardcoded secrets', icon: <Lock size={16} /> },
-        { key: 'enableSupplyChain', label: 'Supply Chain', desc: 'SBOM + license checks', icon: <Shield size={16} /> },
-        { key: 'enableCompliance', label: 'Compliance', desc: 'PCI-DSS, HIPAA, SOC2', icon: <Shield size={16} /> },
-        { key: 'enableThreatIntel', label: 'Threat Intelligence', desc: 'CVE + EPSS enrichment', icon: <Bug size={16} /> },
-        { key: 'enableConsolidated', label: 'Consolidated Mode', desc: 'Merge static + AI results', icon: <Cpu size={16} /> },
-    ]
+    React.useEffect(() => {
+        fetchSettings()
+        fetchInstalledModels()
+    }, [])
+
+    const fetchSettings = async () => {
+        try {
+            const res = await fetch('/api/settings')
+            if (res.ok) {
+                const data = await res.json()
+                if (data.ollama_host) {
+                    setConfig(prev => ({ ...prev, ollamaHost: data.ollama_host }))
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch settings", e)
+        }
+    }
+
+    const fetchInstalledModels = async () => {
+        try {
+            const res = await fetch('/api/models')
+            if (res.ok) {
+                const data = await res.json()
+                setAvailableModels(data.models || [])
+
+                // Set default models if empty
+                if (data.models && data.models.length > 0) {
+                    setConfig(prev => {
+                        const newConfig = { ...prev }
+                        if (!newConfig.aiModel) newConfig.aiModel = data.models[0]
+                        if (!newConfig.consolidationModel) newConfig.consolidationModel = data.models[data.models.length - 1] // Pick highest/last as fallback larger model
+                        return newConfig
+                    })
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch models", e)
+        } finally {
+            setLoadingModels(false)
+        }
+    }
 
     const handleDrop = (e) => {
         e.preventDefault()
@@ -150,40 +180,230 @@ export default function NewScan() {
 
                 {/* Right: Scan Config */}
                 <div className="card">
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '20px' }}>Scanner Configuration</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {toggles.map(t => (
-                            <div key={t.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-primary)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <span style={{ color: 'var(--text-muted)' }}>{t.icon}</span>
-                                    <div>
-                                        <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t.label}</div>
-                                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{t.desc}</div>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '8px' }}>Scan Configuration</h3>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.5 }}>
+                        Pattern matching, AST analysis, taint analysis, and secret detection run automatically on every scan.
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {/* Deep Scan Toggle */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '16px', borderRadius: '10px',
+                            border: `1px solid ${config.enableDeepScan ? 'var(--accent-primary)' : 'var(--border-primary)'}`,
+                            background: config.enableDeepScan ? 'rgba(99, 102, 241, 0.06)' : 'transparent',
+                            transition: 'all 0.2s ease'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                    width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    background: config.enableDeepScan ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+                                    color: config.enableDeepScan ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s'
+                                }}>
+                                    <Shield size={18} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>Deep Scan</div>
+                                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>
+                                        Dependency vulnerabilities, Semgrep rules, supply chain, container (Docker/K8s), and Threat Intel
                                     </div>
                                 </div>
-                                <label className="toggle">
-                                    <input
-                                        type="checkbox"
-                                        checked={config[t.key]}
-                                        onChange={() => setConfig(prev => ({ ...prev, [t.key]: !prev[t.key] }))}
-                                    />
-                                    <span className="toggle-slider" />
-                                </label>
                             </div>
-                        ))}
+                            <label className="toggle">
+                                <input
+                                    type="checkbox"
+                                    checked={config.enableDeepScan}
+                                    onChange={() => setConfig(prev => ({ ...prev, enableDeepScan: !prev.enableDeepScan }))}
+                                />
+                                <span className="toggle-slider" />
+                            </label>
+                        </div>
+
+                        {/* AI-Powered Toggle */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '16px', borderRadius: '10px',
+                            border: `1px solid ${config.enableAI ? 'var(--accent-primary)' : 'var(--border-primary)'}`,
+                            background: config.enableAI ? 'rgba(99, 102, 241, 0.06)' : 'transparent',
+                            transition: 'all 0.2s ease'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                    width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    background: config.enableAI ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+                                    color: config.enableAI ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s'
+                                }}>
+                                    <Brain size={18} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>AI-Powered</div>
+                                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>
+                                        AI discovery, validation & auto-consolidation (requires Ollama)
+                                    </div>
+                                </div>
+                            </div>
+                            <label className="toggle">
+                                <input
+                                    type="checkbox"
+                                    checked={config.enableAI}
+                                    onChange={() => setConfig(prev => ({ ...prev, enableAI: !prev.enableAI }))}
+                                />
+                                <span className="toggle-slider" />
+                            </label>
+                        </div>
                     </div>
 
-                    <div style={{ marginTop: '20px' }}>
-                        <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                            AI Model
+                    {/* AI Configuration (only visible when AI enabled) */}
+                    {config.enableAI && (
+                        <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.3s ease' }}>
+                            <div>
+                                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                                    Ollama Host API
+                                </label>
+                                <input
+                                    className="input"
+                                    type="text"
+                                    value={config.ollamaHost}
+                                    onChange={(e) => setConfig(prev => ({ ...prev, ollamaHost: e.target.value }))}
+                                    placeholder="localhost:11434"
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                                    Discovery & Validation Model {loadingModels && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(Loading...)</span>}
+                                </label>
+
+                                {availableModels.length > 0 ? (
+                                    <select
+                                        className="input"
+                                        value={config.aiModel}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))}
+                                        style={{ appearance: 'auto' }}
+                                    >
+                                        {availableModels.map(model => (
+                                            <option key={model} value={model}>{model}</option>
+                                        ))}
+                                        <option value="custom" disabled>---</option>
+                                        {!availableModels.includes(config.aiModel) && config.aiModel !== '' && (
+                                            <option value={config.aiModel}>{config.aiModel} (Custom)</option>
+                                        )}
+                                    </select>
+                                ) : (
+                                    <input
+                                        className="input"
+                                        type="text"
+                                        value={config.aiModel}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))}
+                                        placeholder="Enter model name (e.g. deepseek-r1:7b)"
+                                    />
+                                )}
+                            </div>
+
+                            <div>
+                                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                                    Final Consolidation Model (Larger LLM)
+                                </label>
+
+                                {availableModels.length > 0 ? (
+                                    <select
+                                        className="input"
+                                        value={config.consolidationModel}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, consolidationModel: e.target.value }))}
+                                        style={{ appearance: 'auto' }}
+                                    >
+                                        {availableModels.map(model => (
+                                            <option key={`consolidation-${model}`} value={model}>{model}</option>
+                                        ))}
+                                        <option value="custom" disabled>---</option>
+                                        {!availableModels.includes(config.consolidationModel) && config.consolidationModel !== '' && (
+                                            <option value={config.consolidationModel}>{config.consolidationModel} (Custom)</option>
+                                        )}
+                                    </select>
+                                ) : (
+                                    <input
+                                        className="input"
+                                        type="text"
+                                        value={config.consolidationModel}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, consolidationModel: e.target.value }))}
+                                        placeholder="Enter larger model (e.g. qwen2.5-coder:14b)"
+                                    />
+                                )}
+                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                                    {availableModels.length > 0
+                                        ? `Found ${availableModels.length} installed models in Ollama.`
+                                        : "Model must be installed in Ollama. Run `ollama list` to check."}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+
+
+
+                    {/* ML FP Reduction Toggle (only when AI enabled) */}
+                    {config.enableAI && (
+                        <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '16px', borderRadius: '10px',
+                            border: `1px solid ${config.enableMLFPReduction ? '#06b6d4' : 'var(--border-primary)'}`,
+                            background: config.enableMLFPReduction ? 'rgba(6, 182, 212, 0.06)' : 'transparent',
+                            transition: 'all 0.2s ease', animation: 'fadeIn 0.3s ease'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                    width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    background: config.enableMLFPReduction ? '#06b6d4' : 'var(--bg-tertiary)',
+                                    color: config.enableMLFPReduction ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s'
+                                }}>
+                                    <Sparkles size={18} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>ML False Positive Reduction</div>
+                                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>
+                                        Filter likely false positives using historical similarity analysis
+                                    </div>
+                                </div>
+                            </div>
+                            <label className="toggle">
+                                <input
+                                    type="checkbox"
+                                    checked={config.enableMLFPReduction}
+                                    onChange={() => setConfig(prev => ({ ...prev, enableMLFPReduction: !prev.enableMLFPReduction }))}
+                                />
+                                <span className="toggle-slider" />
+                            </label>
+                        </div>
+                    )}
+
+                    {/* Custom Rules Directory */}
+                    <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'var(--bg-secondary)' }}>
+                        <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <FolderOpen size={14} /> Custom Rules Directory
                         </label>
                         <input
                             className="input"
                             type="text"
-                            value={config.aiModel}
-                            onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))}
-                            placeholder="deepseek-r1:7b"
+                            value={config.customRulesDir}
+                            onChange={(e) => setConfig(prev => ({ ...prev, customRulesDir: e.target.value }))}
+                            placeholder="rules (default)"
+                            style={{ width: '100%' }}
                         />
+                        <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            Leave empty to use the built-in rules directory
+                        </p>
+                    </div>
+
+                    {/* Always-on info */}
+                    <div style={{
+                        marginTop: '8px', padding: '12px 14px', borderRadius: '8px',
+                        background: 'rgba(34, 197, 94, 0.06)', border: '1px solid rgba(34, 197, 94, 0.15)',
+                        fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.5
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontWeight: 600, color: '#22c55e' }}>
+                            <Lock size={12} /> Always Active
+                        </div>
+                        Pattern matching • AST analysis • Taint/data flow • Secret detection • Reachability analysis
                     </div>
                 </div>
             </div>

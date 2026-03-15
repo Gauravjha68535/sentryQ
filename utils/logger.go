@@ -76,9 +76,9 @@ func PrintBanner() {
 	fmt.Print(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║   🔒  AI-POWERED SOURCE CODE SECURITY SCANNER          	║
+║   🔒  AI-POWERED SOURCE CODE SECURITY SCANNER  		║
 ║                                                           ║
-║   Version 2.0 | Built with Go + Ollama AI                	║
+║   Version 2.0 | Built with Go + Ollama AI            	║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `)
@@ -105,7 +105,11 @@ func PrintSummary(total, critical, high, medium, low, aiValidated int) {
 		fmt.Printf("│  %-20s: %-25s │\n", "Low", color.HiCyanString("%d", low))
 	}
 
-	fmt.Printf("│  %-20s: %-25s │\n", "AI Validated", color.HiGreenString("%d (%.1f%%)", aiValidated, float64(aiValidated)/float64(total)*100))
+	if total > 0 {
+		fmt.Printf("│  %-20s: %-25s │\n", "AI Validated", color.HiGreenString("%d (%.1f%%)", aiValidated, float64(aiValidated)/float64(total)*100))
+	} else {
+		fmt.Printf("│  %-20s: %-25s │\n", "AI Validated", color.HiGreenString("%d (0.0%%)", aiValidated))
+	}
 
 	fmt.Println("└─────────────────────────────────────────────────────┘")
 	fmt.Println()

@@ -442,16 +442,6 @@
   cwe: "CWE-284"
   owasp: "A01:2021"
 
-- id: aspnet-file-antivirus-scan
-  languages: [csharp, aspnet]
-  patterns:
-    - regex: '(?i)IFormFile.*Save|Upload.*file'
-  severity: medium
-  description: "File upload without antivirus scanning"
-  remediation: "Scan uploaded files with antivirus before processing"
-  cwe: "CWE-434"
-  owasp: "A01:2021"
-
 # --- ENTITY FRAMEWORK & DATABASE (46-60) ---
 
 - id: aspnet-ef-lazy-loading
@@ -2791,10 +2781,10 @@
 - id: aspnet-antiforgery-attribute-missing
   languages: [csharp]
   patterns:
-    - regex: '\\[HttpPost\\]\\s+public(?!.*\\[ValidateAntiForgeryToken\\])'
+    - regex: '(?s)\[HttpPost\](?![^\]]{0,100}\[ValidateAntiForgeryToken\])[\s\S]{0,100}public'
   severity: high
   description: "POST action without anti-forgery token"
-  remediation: "Add [ValidateAntiForgeryToken] attribute"
+  remediation: "Add [ValidateAntiForgeryToken] attribute to the controller action."
   cwe: "CWE-352"
   owasp: "A01:2021"
 

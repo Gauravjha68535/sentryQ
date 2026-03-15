@@ -544,18 +544,16 @@
   cwe: "CWE-287"
   owasp: "A07:2021"
 
-# ======================== Sensitive Data Exposure ========================
-- id: py-sensitive-data-print
+# ======================== HMAC / Signature Bypass ========================
+- id: py-webhook-sig-bypass
   languages: [python]
   patterns:
-  - regex: |-
-      (?i)print\s*\([^)]*(?:password|secret|token|credit_card|ssn)
-  severity: medium
-  description: "Sensitive data may be exposed via print statements"
-  remediation: "Remove sensitive data from print output. Use proper logging with data
-    masking"
-  cwe: "CWE-200"
-  owasp: "A01:2021"
+    - regex: '(?s)(?:signature|X-Signature|X-Hub-Signature)\s*=\s*request\.(?:headers|args|form)[\s\S]{0,500}pickle\.(?:load|loads)'
+  severity: critical
+  description: "Potential signature bypass: Webhook signature is read but dangerous deserialization (pickle) follows. Ensure signature is verified and execution is aborted on mismatch."
+  remediation: "Verify HMAC signature before calling pickle.loads(). Use hmac.compare_digest() and abort(403) on failure."
+  cwe: "CWE-347"
+  owasp: "A07:2021"
 
 # ======================== Connection String Injection ========================
 - id: py-connection-string-injection
@@ -4046,3 +4044,83 @@
   remediation: "Add the SameSite attribute to cookies: set_cookie(..., samesite='Strict')"
   cwe: "CWE-1275"
   owasp: "A01:2021"
+
+- id: py-unsafe-pickle-loads
+  languages: [python]
+  patterns:
+  - regex: '(?i)pickle\.loads\s*\(\s*(?:request|req\.)'
+  severity: critical
+  description: "Unsafe pickle deserialization of untrusted request data leads to arbitrary Remote Code Execution (RCE)."
+  remediation: "Never unpickle data from an untrusted source. Use JSON or safer formats instead."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: py-unsafe-yaml-loader
+  languages: [python]
+  patterns:
+  - regex: '(?i)yaml\.load\s*\(.*Loader\s*=\s*yaml\.Loader'
+  severity: critical
+  description: "yaml.load with yaml.Loader allows arbitrary Python object instantiation and Code Execution."
+  remediation: "Use yaml.safe_load() or yaml.CSafeLoader."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: py-base64-token-forgery
+  languages: [python]
+  patterns:
+  - regex: '(?i)base64\.b64decode\s*\(\s*(?:request|token)'
+  severity: critical
+  description: "Decoding base64 directly from a request to establish identity bypasses cryptographic signing."
+  remediation: "Use cryptographically signed tokens (like JWTs or timed serializers) instead of raw base64 encoding."
+  cwe: "CWE-345"
+  owasp: "A02:2021"
+
+- id: py-exception-traceback-leak
+  languages: [python]
+  patterns:
+  - regex: '(?i)except\s+Exception\s+as\s+[a-z]+.*(?:return|Response).*(?:str\(|repr\()?[a-z]+\)?'
+  severity: medium
+  description: "Returning raw exception strings to the client leaks infrastructure and schema details."
+  remediation: "Log the exception internally and return a generic 500 error message to the client."
+  cwe: "CWE-209"
+  owasp: "A05:2021"
+
+- id: py-unvalidated-update-sqli
+  languages: [python]
+  patterns:
+  - regex: '(?i)(?:cursor|db)\.execute\(\s*f["'']UPDATE.*SET.*WHERE.*id=\{.*\}["'']\s*\)'
+  severity: critical
+  description: "SQL string interpolation directly into an UPDATE statement. Unvalidated payload keys can conduct chained SQLi."
+  remediation: "Use parameterized execute statements (cost=? where id=?) instead of f-strings."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+
+- id: py-log-command-injection
+  languages: [python]
+  patterns:
+  - regex: '(?i)f["'']tail\s+-n\s+\{.*\}\s+/var/log/.*\|\s*grep\s*[''"]\{.*\}[''"]["'']'
+  severity: critical
+  description: "Command injection vulnerability via unescaped interpolation in a chained shell command (tail | grep)."
+  remediation: "Avoid shell=True. Use Python's native subprocess with argument lists, or native file reading constructs."
+  cwe: "CWE-78"
+  owasp: "A03:2021"
+
+- id: py-arbitrary-file-upload-traversal
+  languages: [python]
+  patterns:
+  - regex: '(?i)\.save\(os\.path\.join\([^,]+,\s*(?:request\.form\.get|request\.files)'
+  severity: high
+  description: "Saving an uploaded file using a client-controlled destination directory without path traversal limitations or role checks."
+  remediation: "Validate the destination directory and strictly enforce Werkzeug's secure_filename() on all client uploads."
+  cwe: "CWE-22"
+  owasp: "A01:2021"
+
+- id: py-ssrf-unfiltered-headers
+  languages: [python]
+  patterns:
+  - regex: '(?i)requests\.(?:get|post)\(.*verify\s*=\s*False\)(?:.|\n)*return.*response\.headers'
+  severity: high
+  description: "Fetching an internal or untrusted URL with TLS verification disabled and returning raw backend headers to the caller (SSRF/Leak)."
+  remediation: "Enforce verify=True. Filter internal infrastructure headers before proxying responses back to clients."
+  cwe: "CWE-918"
+  owasp: "A10:2021"

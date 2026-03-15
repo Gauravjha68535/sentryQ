@@ -59,18 +59,11 @@ func GetDefaultModel() string {
 
 	// If the user has explicitly installed models, try to pick the best one
 	if len(installed) > 0 {
-		// Prefer deepseek-r1 as the user mentioned
-		for _, m := range installed {
-			if strings.Contains(strings.ToLower(m), "deepseek-r1") || strings.Contains(strings.ToLower(m), "deepseek") {
-				return m
-			}
-		}
-		// Otherwise, just return the first installed model
 		return installed[0]
 	}
 
 	// Fallback if Ollama isn't running or no models installed
-	return "deepseek-r1:7b"
+	return ""
 }
 
 func GetModelRecommendations(ram *utils.RAMInfo) []ModelRecommendation {
@@ -107,7 +100,7 @@ func GetModelRecommendations(ram *utils.RAMInfo) []ModelRecommendation {
 			// Compare exact or without :tag
 			if allModels[i].Name == inst || strings.Split(allModels[i].Name, ":")[0] == strings.Split(inst, ":")[0] {
 				model := allModels[i]
-				model.Name = inst // Use actual installed name (e.g., deepseek-r1:7b instead of deepseek-r1)
+				model.Name = inst
 				model.Installed = true
 				ramReq := 0
 				fmt.Sscanf(model.RAMRequired, "%dGB", &ramReq)

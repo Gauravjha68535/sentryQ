@@ -1,10 +1,11 @@
 package main
 
 import (
-	"bytes"
+	"archive/zip"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/exec"
@@ -14,25 +15,26 @@ import (
 	"sync"
 	"time"
 
+	"QWEN_SCR_24_FEB_2026/ai"
+	"QWEN_SCR_24_FEB_2026/internal/ui"
 	"QWEN_SCR_24_FEB_2026/reporter"
 	"QWEN_SCR_24_FEB_2026/utils"
 )
 
-// webDistDir is the path to the built React frontend.
-// It is set at runtime to the correct location.
-var webDistDir string
+// staticFS is the embedded React build output (lazy initialized)
+var staticFS fs.FS
+var staticFSOnce sync.Once
+var staticFSError error
 
 var (
-	dashboardFindings []reporter.Finding
-	findingsMutex     sync.RWMutex
-	startTime         time.Time
-	appSettings       = struct {
+	startTime   time.Time
+	appSettings = struct {
 		sync.RWMutex
 		OllamaHost   string `json:"ollama_host"`
 		DefaultModel string `json:"default_model"`
 	}{
 		OllamaHost:   "localhost:11434",
-		DefaultModel: "deepseek-r1:7b",
+		DefaultModel: "qwen2.5-coder:7b",
 	}
 )
 
@@ -43,6 +45,15 @@ func StartWebServer(port int) {
 		return
 	}
 
+	// Initialize embedded static filesystem (lazy, with graceful fallback)
+	staticFSOnce.Do(func() {
+		staticFS, staticFSError = ui.StaticFS()
+	})
+	if staticFSError != nil {
+		utils.LogWarn("⚠ Web UI not embedded. Running in API-only mode.")
+		utils.LogWarn("   Run './build.sh' to embed the web UI.")
+	}
+
 	mux := http.NewServeMux()
 
 	// API Routes
@@ -51,48 +62,44 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/scan/git", handleGitScan)
 	mux.HandleFunc("/api/settings", handleSettings)
 	mux.HandleFunc("/api/system/status", handleSystemStatus)
+	mux.HandleFunc("/api/models", handleModels)
+	mux.HandleFunc("/api/chat", handleChat)
 
 	// Dynamic scan routes (manual routing for path params)
 	mux.HandleFunc("/api/scan/", handleScanRoutes)
 	mux.HandleFunc("/ws/scan/", handleWebSocketRoute)
 
-	// Legacy API (for old dashboard)
-	mux.HandleFunc("/api/findings", handleGetFindingsLegacy)
-	mux.HandleFunc("/api/summary", handleGetSummaryLegacy)
-	mux.HandleFunc("/api/charts", handleGetChartDataLegacy)
-
-	// Determine dist dir location
-	exeDir, _ := os.Executable()
-	baseDir := filepath.Dir(exeDir)
-	// Try relative to working directory first (dev mode), then relative to binary
-	candidates := []string{
-		filepath.Join(".", "web", "dist"),
-		filepath.Join(baseDir, "web", "dist"),
-		filepath.Join(baseDir, "..", "..", "web", "dist"),
-	}
-	for _, c := range candidates {
-		if _, err := os.Stat(c); err == nil {
-			webDistDir = c
-			break
-		}
-	}
-	if webDistDir == "" {
-		utils.LogWarn("⚠ Web UI dist not found. Run 'cd web && npm run build' first.")
-		webDistDir = filepath.Join(".", "web", "dist") // fallback
-	}
-	utils.LogInfo(fmt.Sprintf("Serving frontend from: %s", webDistDir))
-
-	// Serve React SPA (static files from disk)
-	fileServer := http.FileServer(http.Dir(webDistDir))
+	// Serve React SPA (embedded static files)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Check if the file exists on disk
-		path := filepath.Join(webDistDir, r.URL.Path)
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			// SPA fallback: serve index.html for all non-API routes
-			http.ServeFile(w, r, filepath.Join(webDistDir, "index.html"))
+		// If embedded UI is not available, return API-only mode message
+		if staticFS == nil {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			fmt.Fprintf(w, "QWEN Scanner API Only Mode\n\nWeb UI not embedded.\nRun './build.sh' to embed the web UI.")
 			return
 		}
-		fileServer.ServeHTTP(w, r)
+
+		// Check if the file exists in the embedded FS
+		path := strings.TrimPrefix(r.URL.Path, "/")
+		if path == "" {
+			path = "index.html"
+		}
+
+		f, err := staticFS.Open(path)
+		if err != nil {
+			// SPA fallback: serve index.html for all non-API routes
+			index, err := staticFS.Open("index.html")
+			if err != nil {
+				http.Error(w, "Web UI dist not found. Run 'cd web && npm run build' first.", http.StatusNotFound)
+				return
+			}
+			defer index.Close()
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			io.Copy(w, index)
+			return
+		}
+		f.Close()
+		http.FileServer(http.FS(staticFS)).ServeHTTP(w, r)
 	})
 
 	addr := fmt.Sprintf("localhost:%d", port)
@@ -130,6 +137,10 @@ func handleListScans(w http.ResponseWriter, r *http.Request) {
 
 func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 	setCORS(w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -154,9 +165,14 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Preserve relative path structure
-		relPath := fileHeader.Filename
+		// Preserve relative path structure with path traversal protection
+		relPath := filepath.Clean(fileHeader.Filename)
 		destPath := filepath.Join(tmpDir, relPath)
+		// Ensure destPath stays within tmpDir
+		if !strings.HasPrefix(filepath.Clean(destPath), filepath.Clean(tmpDir)) {
+			file.Close()
+			continue // Skip files that would escape the temp directory
+		}
 		os.MkdirAll(filepath.Dir(destPath), 0755)
 
 		destFile, err := os.Create(destPath)
@@ -248,6 +264,51 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		var filePath string
 		var contentType string
 
+		// Check for "all" format to return a ZIP of all reports
+		if format == "all" {
+			zipPath := filepath.Join(reportsDir, "reports_bundle.zip")
+
+			// Create the zip file if it doesn't exist
+			if _, err := os.Stat(zipPath); os.IsNotExist(err) {
+				zipFile, err := os.Create(zipPath)
+				if err != nil {
+					httpJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to create zip file"})
+					return
+				}
+				defer zipFile.Close()
+
+				archive := zip.NewWriter(zipFile)
+				defer archive.Close()
+
+				filesToZip := []string{"report.html", "report.csv", "report.pdf"}
+				for _, fileName := range filesToZip {
+					filePathToZip := filepath.Join(reportsDir, fileName)
+					if _, err := os.Stat(filePathToZip); os.IsNotExist(err) {
+						continue // skip missing files
+					}
+
+					f1, err := os.Open(filePathToZip)
+					if err != nil {
+						continue
+					}
+
+					w1, err := archive.Create(fileName)
+					if err != nil {
+						f1.Close()
+						continue
+					}
+
+					io.Copy(w1, f1)
+					f1.Close()
+				}
+			}
+
+			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"qwen_scan_%s.zip\"", scanID))
+			w.Header().Set("Content-Type", "application/zip")
+			http.ServeFile(w, r, zipPath)
+			return
+		}
+
 		switch format {
 		case "html":
 			filePath = filepath.Join(reportsDir, "report.html")
@@ -338,9 +399,11 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 	host := appSettings.OllamaHost
 	appSettings.RUnlock()
 	resp, err := http.Get(fmt.Sprintf("http://%s/api/version", host))
-	if err == nil && resp.StatusCode == 200 {
-		ollamaStatus = "connected"
-		resp.Body.Close()
+	if err == nil {
+		defer resp.Body.Close()
+		if resp.StatusCode == 200 {
+			ollamaStatus = "connected"
+		}
 	}
 
 	// Check Go version
@@ -364,45 +427,21 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ──────────────────────────────────────────────────────────
-//  Legacy API Handlers (for backward-compat with old dashboard)
-// ──────────────────────────────────────────────────────────
-
-func handleGetFindingsLegacy(w http.ResponseWriter, r *http.Request) {
+func handleModels(w http.ResponseWriter, r *http.Request) {
 	setCORS(w)
-	findingsMutex.RLock()
-	defer findingsMutex.RUnlock()
-	json.NewEncoder(w).Encode(dashboardFindings)
-}
 
-func handleGetSummaryLegacy(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
-	findingsMutex.RLock()
-	defer findingsMutex.RUnlock()
-	summary := map[string]int{"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "total": len(dashboardFindings)}
-	for _, f := range dashboardFindings {
-		summary[f.Severity]++
+	appSettings.RLock()
+	ai.SetOllamaHost(appSettings.OllamaHost)
+	appSettings.RUnlock()
+
+	models := ai.GetInstalledModels()
+	if models == nil {
+		models = []string{}
 	}
-	json.NewEncoder(w).Encode(summary)
-}
 
-func handleGetChartDataLegacy(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
-	findingsMutex.RLock()
-	defer findingsMutex.RUnlock()
-	sevDist := map[string]int{"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
-	for _, f := range dashboardFindings {
-		sevDist[f.Severity]++
-	}
-	json.NewEncoder(w).Encode(map[string]interface{}{"severity": sevDist, "total": len(dashboardFindings)})
-}
-
-// UpdateDashboardFindings is called by the main scanner to push new findings (legacy)
-func UpdateDashboardFindings(newFindings []reporter.Finding) {
-	findingsMutex.Lock()
-	defer findingsMutex.Unlock()
-	dashboardFindings = make([]reporter.Finding, len(newFindings))
-	copy(dashboardFindings, newFindings)
+	httpJSON(w, http.StatusOK, map[string]interface{}{
+		"models": models,
+	})
 }
 
 // ──────────────────────────────────────────────────────────
@@ -439,37 +478,71 @@ func openBrowser(url string) {
 	}
 }
 
-func generateChartDashboardHTML(findings []reporter.Finding) string {
-	// Simplified chart generation for legacy dashboard
-	sevCounts := map[string]int{"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
-	for _, f := range findings {
-		sevCounts[f.Severity]++
-	}
-	return fmt.Sprintf(`<div style="text-align:center;color:#94a3b8;padding:20px;">
-		<p>Critical: %d | High: %d | Medium: %d | Low: %d | Info: %d</p>
-	</div>`, sevCounts["critical"], sevCounts["high"], sevCounts["medium"], sevCounts["low"], sevCounts["info"])
-}
-
-func serveDashboardHTML(w http.ResponseWriter, r *http.Request) {
-	findingsMutex.RLock()
-	findings := make([]reporter.Finding, len(dashboardFindings))
-	copy(findings, dashboardFindings)
-	findingsMutex.RUnlock()
-
-	summary := reporter.GenerateReportSummary(findings, ".")
-	var buf bytes.Buffer
-	err := reporter.GenerateHTMLReportToWriter(&buf, findings, summary)
-	if err != nil {
-		http.Error(w, "Failed to generate report HTML", http.StatusInternalServerError)
+func handleChat(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write(buf.Bytes())
-}
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-// StartWebDashboard starts the legacy dashboard (backward-compat)
-func StartWebDashboard(port int) {
-	StartWebServer(port)
+	var req struct {
+		Messages []ai.ChatMessage `json:"messages"`
+		ScanID   string           `json:"scan_id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	appSettings.RLock()
+	model := appSettings.DefaultModel
+	host := appSettings.OllamaHost
+	appSettings.RUnlock()
+
+	ai.SetOllamaHost(host)
+
+	// Add system context if this is the first message or if context is missing
+	hasSystem := false
+	for _, msg := range req.Messages {
+		if msg.Role == "system" {
+			hasSystem = true
+			break
+		}
+	}
+
+	if !hasSystem {
+		systemMsg := ai.ChatMessage{
+			Role: "system",
+			Content: `You are the QWEN Security Assistant, an elite cybersecurity expert. 
+You are integrated into the QWEN Security Scanner. 
+Your goal is to help the user understand security vulnerabilities, explain scan reports, and provide high-quality remediation advice.
+When explaining a specific finding, be technical, precise, and provide clear code examples for fixes.
+Assume the user is a developer or security engineer.`,
+		}
+
+		// Inject scan context if scanID is provided
+		if req.ScanID != "" {
+			findings, _ := GetFindingsForScan(req.ScanID)
+			if len(findings) > 0 {
+				contextPrefix := fmt.Sprintf("\nCONTEXT: The current scan (ID: %s) has found %d issues.", req.ScanID, len(findings))
+				systemMsg.Content += contextPrefix
+			}
+		}
+
+		req.Messages = append([]ai.ChatMessage{systemMsg}, req.Messages...)
+	}
+
+	resp, err := ai.GenerateChatResponse(model, req.Messages)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("AI error: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	httpJSON(w, http.StatusOK, resp)
 }
 
 func init() {

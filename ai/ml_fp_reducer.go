@@ -75,14 +75,14 @@ func (ml *MLFPReducer) SaveHistory() error {
 // CalculateFPProbability calculates the probability that a finding is a false positive
 func (ml *MLFPReducer) CalculateFPProbability(finding reporter.Finding) float64 {
 	if len(ml.history.Findings) == 0 {
-		return 0.5 // No history, neutral probability
+		return 0.0 // No history, default to 0% FP (assume true positive)
 	}
 
 	// Find similar historical findings
 	similarFindings := ml.findSimilarFindings(finding)
 
-	if len(similarFindings) == 0 {
-		return 0.5 // No similar findings, neutral probability
+	if len(similarFindings) < 3 {
+		return 0.0 // Not enough similar findings for a confident prediction
 	}
 
 	// Calculate FP rate from similar findings
@@ -102,7 +102,7 @@ func (ml *MLFPReducer) findSimilarFindings(current reporter.Finding) []FindingFe
 
 	for _, feedback := range ml.history.Findings {
 		score := ml.calculateSimilarityScore(current, feedback)
-		if score > 0.7 { // 70% similarity threshold
+		if score > 0.8 { // 80% similarity threshold
 			similar = append(similar, feedback)
 		}
 	}
@@ -147,8 +147,10 @@ func (ml *MLFPReducer) FilterFindingsByFPProbability(findings []reporter.Finding
 
 		// If FP probability is below threshold, keep the finding
 		if fpProb < threshold {
-			finding.Description = fmt.Sprintf("%s [ML FP Probability: %.1f%%]",
-				finding.Description, fpProb*100)
+			if fpProb > 0.0 {
+				finding.Description = fmt.Sprintf("%s [ML FP Probability: %.1f%%]",
+					finding.Description, fpProb*100)
+			}
 			filtered = append(filtered, finding)
 		}
 	}

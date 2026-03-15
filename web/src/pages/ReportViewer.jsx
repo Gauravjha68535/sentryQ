@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Download, Filter, ChevronDown, ChevronUp, FileText, Code, ArrowLeft } from 'lucide-react'
+import { Download, Filter, ChevronDown, ChevronUp, FileText, Code, ArrowLeft, AlertTriangle, Shield, Sparkles } from 'lucide-react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
 import { Doughnut, Bar } from 'react-chartjs-2'
 import SeverityBadge from '../components/SeverityBadge'
@@ -34,16 +34,25 @@ export default function ReportViewer() {
         }
     }
 
-    const filtered = filter === 'all' ? findings : findings.filter(f => f.severity === filter)
+    const filtered = filter === 'all' ? findings : findings.filter(f => (f.severity || '').toLowerCase() === filter)
 
     // Calculate stats
     const stats = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }
-    findings.forEach(f => { if (stats[f.severity] !== undefined) stats[f.severity]++ })
+    findings.forEach(f => {
+        const s = (f.severity || '').toLowerCase()
+        if (stats[s] !== undefined) stats[s]++
+    })
 
     // CWE distribution
     const cweCounts = {}
     findings.forEach(f => { if (f.cwe) cweCounts[f.cwe] = (cweCounts[f.cwe] || 0) + 1 })
     const topCWEs = Object.entries(cweCounts).sort((a, b) => b[1] - a[1]).slice(0, 8)
+
+    // Compute risk score (mirrors reporter/risk_scorer.go logic)
+    const riskRaw = Math.min(100, stats.critical * 10 + stats.high * 5 + stats.medium * 2 + stats.low * 0.5)
+    const riskLevel = riskRaw >= 75 ? 'Critical Risk' : riskRaw >= 50 ? 'High Risk' : riskRaw >= 25 ? 'Medium Risk' : 'Low Risk'
+    const riskColor = riskRaw >= 75 ? '#ef4444' : riskRaw >= 50 ? '#f97316' : riskRaw >= 25 ? '#eab308' : '#22c55e'
+    const aiValidatedCount = findings.filter(f => f.ai_validated === 'Yes').length
 
     const sevChartData = {
         labels: ['Critical', 'High', 'Medium', 'Low', 'Info'],
@@ -108,6 +117,45 @@ export default function ReportViewer() {
                 ))}
             </div>
 
+            {/* Risk Score Card */}
+            <div className="card" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 28px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{
+                        width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: `conic-gradient(${riskColor} ${riskRaw * 3.6}deg, rgba(255,255,255,0.06) 0deg)`,
+                        position: 'relative'
+                    }}>
+                        <div style={{
+                            width: 52, height: 52, borderRadius: '50%', background: 'var(--bg-secondary)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '1.1rem', fontWeight: 800, color: riskColor
+                        }}>
+                            {Math.round(riskRaw)}
+                        </div>
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '1rem', fontWeight: 700, color: riskColor }}>{riskLevel}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                            Security Risk Score (0-100)
+                        </div>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', gap: '24px', fontSize: '0.78rem' }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>{findings.length}</div>
+                        <div style={{ color: 'var(--text-muted)' }}>Total</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#22c55e' }}>{aiValidatedCount}</div>
+                        <div style={{ color: 'var(--text-muted)' }}>AI Confirmed</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#ef4444' }}>{stats.critical}</div>
+                        <div style={{ color: 'var(--text-muted)' }}>Critical</div>
+                    </div>
+                </div>
+            </div>
+
             {/* Charts */}
             <div className="grid-2" style={{ marginBottom: '32px' }}>
                 <div className="card">
@@ -145,7 +193,7 @@ export default function ReportViewer() {
                             <th>Issue</th>
                             <th>File</th>
                             <th>Line</th>
-                            <th>CWE</th>
+                            <th>Trust Score</th>
                             <th>AI</th>
                             <th></th>
                         </tr>
@@ -159,7 +207,14 @@ export default function ReportViewer() {
                                     <td style={{ fontWeight: 600, maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.issue_name}</td>
                                     <td style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--text-accent)' }}>{f.file_path?.split('/').slice(-2).join('/')}</td>
                                     <td style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>{f.line_number}</td>
-                                    <td style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{f.cwe || '—'}</td>
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <div style={{ width: '32px', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                                                <div style={{ width: `${f.trust_score || 0}%`, height: '100%', background: (f.trust_score || 0) > 80 ? '#22c55e' : (f.trust_score || 0) > 50 ? '#eab308' : '#ef4444' }} />
+                                            </div>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>{Math.round(f.trust_score || 0)}%</span>
+                                        </div>
+                                    </td>
                                     <td>
                                         {f.ai_validated === 'Yes' ? <span style={{ color: 'var(--status-success)', fontWeight: 600, fontSize: '0.78rem' }}>✓ TP</span>
                                             : f.ai_validated?.includes('False') ? <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>✗ FP</span>
@@ -170,24 +225,91 @@ export default function ReportViewer() {
                                 {expandedRow === i && (
                                     <tr>
                                         <td colSpan={8} style={{ background: 'var(--bg-elevated)', padding: '20px' }}>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                                                 <div>
-                                                    <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>Description</h4>
-                                                    <p style={{ fontSize: '0.85rem', lineHeight: 1.6 }}>{f.description}</p>
+                                                    <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FileText size={14} /> Description</span>
+                                                        <button
+                                                            className="btn btn-primary btn-sm"
+                                                            style={{ padding: '4px 10px', fontSize: '0.7rem' }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const event = new CustomEvent('qwen-chat-open', {
+                                                                    detail: {
+                                                                        content: `Explain this finding in detail:\nIssue: ${f.issue_name}\nFile: ${f.file_path}\nDescription: ${f.description}\nCWE: ${f.cwe}`,
+                                                                        autoSend: true
+                                                                    }
+                                                                });
+                                                                window.dispatchEvent(event);
+                                                            }}
+                                                        >
+                                                            <Sparkles size={12} /> Explain with AI
+                                                        </button>
+                                                    </h4>
+                                                    <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>{f.description}</p>
+
+                                                    {f.ai_reasoning && (
+                                                        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '8px', borderLeft: '3px solid #6366f1' }}>
+                                                            <h4 style={{ fontSize: '0.75rem', color: '#818cf8', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>AI Reasoning Insight</h4>
+                                                            <p style={{ fontSize: '0.82rem', lineHeight: 1.5, color: '#94a3b8', fontStyle: 'italic' }}>"{f.ai_reasoning}"</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div>
-                                                    <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>Remediation</h4>
-                                                    <p style={{ fontSize: '0.85rem', lineHeight: 1.6 }}>{f.remediation || 'No remediation provided.'}</p>
+                                                    <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <Shield size={14} /> Remediation
+                                                    </h4>
+                                                    <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>{f.remediation || 'No remediation provided.'}</p>
+
+                                                    {f.exploit_path && f.exploit_path.length > 0 && (
+                                                        <div style={{ marginTop: '16px' }}>
+                                                            <h4 style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '10px', fontWeight: 700 }}>Exploit Path Detection</h4>
+                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                                                                {f.exploit_path.map((step, idx) => (
+                                                                    <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '12px' }}>
+                                                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: idx === 0 ? '#ef4444' : idx === f.exploit_path.length - 1 ? '#ef4444' : 'var(--text-muted)', zIndex: 1, marginTop: '4px' }} />
+                                                                            {idx < f.exploit_path.length - 1 && <div style={{ width: '2px', height: '24px', background: 'var(--border-primary)', margin: '-2px 0' }} />}
+                                                                        </div>
+                                                                        <div style={{ fontSize: '0.78rem', color: idx === 0 || idx === f.exploit_path.length - 1 ? 'var(--text-primary)' : 'var(--text-muted)', paddingBottom: '12px' }}>
+                                                                            {step}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
+
+                                            {f.exploit_poc && f.exploit_poc !== "N/A" && (
+                                                <div style={{ marginTop: '20px' }}>
+                                                    <h4 style={{ fontSize: '0.78rem', color: '#f87171', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>AI-Generated Concept Exploit (PoC)</h4>
+                                                    <pre style={{ background: '#1a1010', padding: '12px', borderRadius: '8px', fontSize: '0.78rem', overflow: 'auto', border: '1px solid #450a0a', color: '#fca5a5' }}>
+                                                        <code>{f.exploit_poc}</code>
+                                                    </pre>
+                                                </div>
+                                            )}
+
                                             {f.fixed_code && (
-                                                <div style={{ marginTop: '12px' }}>
-                                                    <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>Suggested Fix</h4>
-                                                    <pre style={{ background: '#0a0c14', padding: '12px', borderRadius: '8px', fontSize: '0.8rem', overflow: 'auto', border: '1px solid var(--border-primary)' }}>
+                                                <div style={{ marginTop: '16px' }}>
+                                                    <h4 style={{ fontSize: '0.78rem', color: '#4ade80', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>Secure Implementation Reference</h4>
+                                                    <pre style={{ background: '#0a1410', padding: '12px', borderRadius: '8px', fontSize: '0.8rem', overflow: 'auto', border: '1px solid #064e3b', color: '#6ee7b7' }}>
                                                         <code>{f.fixed_code}</code>
                                                     </pre>
                                                 </div>
                                             )}
+
+                                            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-primary)', paddingTop: '12px' }}>
+                                                <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                                    <span>Source: <strong style={{ color: 'var(--text-secondary)' }}>{f.source}</strong></span>
+                                                    {f.cwe && <span>CWE: <strong style={{ color: 'var(--text-secondary)' }}>{f.cwe}</strong></span>}
+                                                    {f.owasp && <span>OWASP: <strong style={{ color: 'var(--text-secondary)' }}>{f.owasp}</strong></span>}
+                                                </div>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                                                    Multi-Engine Trust Score: <span style={{ color: (f.trust_score || 0) > 80 ? '#22c55e' : (f.trust_score || 0) > 50 ? '#eab308' : '#ef4444' }}>{Math.round(f.trust_score || 0)}%</span>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 )}

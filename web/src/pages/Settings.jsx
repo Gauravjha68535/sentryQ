@@ -4,7 +4,7 @@ import { Save, RefreshCw, Cpu, Server, HardDrive } from 'lucide-react'
 export default function Settings() {
     const [settings, setSettings] = useState({
         ollama_host: 'localhost:11434',
-        default_model: 'deepseek-r1:7b',
+        default_model: '',
     })
     const [saved, setSaved] = useState(false)
     const [systemStatus, setSystemStatus] = useState(null)
@@ -30,6 +30,11 @@ export default function Settings() {
             if (res.ok) setSystemStatus(await res.json())
         } catch { /* ignore */ }
     }
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setSettings(prev => ({ ...prev, [name]: value }));
+    };
 
     const saveSettings = async () => {
         try {
@@ -69,8 +74,9 @@ export default function Settings() {
                         <input
                             className="input"
                             type="text"
+                            name="ollama_host"
                             value={settings.ollama_host}
-                            onChange={(e) => setSettings(prev => ({ ...prev, ollama_host: e.target.value }))}
+                            onChange={handleChange}
                             placeholder="localhost:11434"
                         />
                         <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>
@@ -85,9 +91,10 @@ export default function Settings() {
                         <input
                             className="input"
                             type="text"
+                            name="default_model"
                             value={settings.default_model}
-                            onChange={(e) => setSettings(prev => ({ ...prev, default_model: e.target.value }))}
-                            placeholder="deepseek-r1:7b"
+                            onChange={handleChange}
+                            placeholder="Enter default model (e.g. qwen2.5-coder)"
                         />
                     </div>
 

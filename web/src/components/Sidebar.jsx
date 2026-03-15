@@ -26,8 +26,8 @@ export default function Sidebar() {
                     <Shield size={20} color="white" />
                 </div>
                 <div>
-                    <h1>QWEN Scanner</h1>
-                    <span>AI Security Platform</span>
+                    <h1>JD Scanner</h1>
+                    <span>AI Security Scanner</span>
                 </div>
             </div>
             <nav className="sidebar-nav">

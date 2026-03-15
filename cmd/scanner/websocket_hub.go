@@ -88,11 +88,15 @@ func (h *WebSocketHub) Broadcast(scanID string, msg WSMessage) {
 		return
 	}
 
+	// Copy client references under the lock to avoid concurrent map iteration/write panic
 	h.mu.RLock()
-	clients := h.clients[scanID]
+	conns := make([]*websocket.Conn, 0, len(h.clients[scanID]))
+	for conn := range h.clients[scanID] {
+		conns = append(conns, conn)
+	}
 	h.mu.RUnlock()
 
-	for conn := range clients {
+	for _, conn := range conns {
 		err := conn.WriteMessage(websocket.TextMessage, data)
 		if err != nil {
 			conn.Close()
