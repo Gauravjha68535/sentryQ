@@ -13,6 +13,8 @@ report.html
 report.pdf
 *.csv
 *.html
+!web/index.html
+!internal/ui/dist/index.html
 *.pdf
 
 # Dependency directories (run go mod tidy instead)
