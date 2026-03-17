@@ -36,6 +36,10 @@ temp/
 bin/
 sbom.json
 
+# Database and cache
+db/
+.threat-intel-cache.json
+
 # Web Frontend
 web/node_modules/
 web/.vite/

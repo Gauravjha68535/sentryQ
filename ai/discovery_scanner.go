@@ -25,7 +25,7 @@ var globalCtx context.Context
 var globalCancel context.CancelFunc
 
 var aiHTTPClient = &http.Client{
-	Timeout: 25 * time.Minute,
+	Timeout: 3 * time.Minute,
 	Transport: &http.Transport{
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,
@@ -226,7 +226,11 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			return nil, err
 		}
 
-		req, err := http.NewRequestWithContext(globalCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
+		// Create a fresh context for each API call with a reasonable timeout
+		reqCtx, reqCancel := context.WithTimeout(globalCtx, 2*time.Minute)
+		defer reqCancel()
+
+		req, err := http.NewRequestWithContext(reqCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
 		if err != nil {
 			return nil, err
 		}
@@ -236,6 +240,9 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 		if err != nil {
 			if strings.Contains(err.Error(), "context canceled") {
 				return nil, fmt.Errorf("scan interrupted")
+			}
+			if strings.Contains(err.Error(), "context deadline exceeded") {
+				return nil, fmt.Errorf("AI model timeout - try a faster model or increase timeout settings")
 			}
 			return nil, fmt.Errorf("API request failed: %w", err)
 		}

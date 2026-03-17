@@ -49,11 +49,13 @@ func (ra *ReachabilityAnalyzer) BuildCallGraph(targetDir string) error {
 	entryPointPatterns := []string{
 		"main", "init", "Main", "Init",
 		"HandleFunc", "HandleRequest", "ServeHTTP",
-		"handle", "handler", "Controller",
-		"onCreate", "onStart", "viewDidLoad",
-		"app.get", "app.post", "app.put", "app.delete",
-		"router.", "mux.", "http.Handle",
+		"handle", "handler", "Controller", "Action",
+		"onCreate", "onStart", "viewdidload", "componentdidmount",
+		"app.get", "app.post", "app.put", "app.delete", "app.use",
+		"router.", "mux.", "http.Handle", "route.",
 		"@app.route", "@admin_bp.route", "@bp.route", ".route(",
+		"endpoint", "service", "api", "rpc",
+		"public func", "export func", "export default",
 	}
 
 	err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {

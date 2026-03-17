@@ -10,7 +10,7 @@
 - id: nuxt-config-ssr-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ssr:\\s*false|mode:\\s*[''\"]spa[''\"]'
+    - regex: 'ssr:\\s*false|mode:\\s*['''\"]spa[''\"]'
   severity: low
   description: "SSR disabled - may affect SEO and initial load security"
   remediation: "Consider SSR for better security posture if needed"
@@ -20,7 +20,7 @@
 - id: nuxt-config-target-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]server[''\"]'
+    - regex: 'target:\\s*['''\"]server[''\"]'
   severity: low
   description: "Server target configured - ensure server security"
   remediation: "Secure server middleware and endpoints"
@@ -30,8 +30,7 @@
 - id: nuxt-config-router-middleware
   languages: [javascript, typescript]
   patterns:
-    - regex: 'router:\\s*\\{[^}]*middleware:'
-  severity: low
+    - regex: 'router:\\s*\\{[^}]*middleware:''severity: low
   description: "Router middleware configured"
   remediation: "Ensure middleware validates requests"
   cwe: "CWE-284"
@@ -40,8 +39,7 @@
 - id: nuxt-config-server-middleware
   languages: [javascript, typescript]
   patterns:
-    - regex: 'serverMiddleware:\\s*\\['
-  severity: low
+    - regex: 'serverMiddleware:\\s*\\[''severity: low
   description: "Server middleware configured"
   remediation: "Validate server middleware security"
   cwe: "CWE-284"
@@ -50,8 +48,7 @@
 - id: nuxt-config-env-exposed
   languages: [javascript, typescript]
   patterns:
-    - regex: 'env:\\s*\\{[^}]*process\\.env'
-  severity: medium
+    - regex: 'env:\\s*\\{[^}]*process\\.env''severity: medium
   description: "Environment variables exposed to client"
   remediation: "Only expose necessary env vars. Use serverMiddleware for secrets"
   cwe: "CWE-200"
@@ -60,8 +57,7 @@
 - id: nuxt-config-public-env
   languages: [javascript, typescript]
   patterns:
-    - regex: 'publicRuntimeConfig:\\s*\\{'
-  severity: low
+    - regex: 'publicRuntimeConfig:\\s*\\{''severity: low
   description: "Public runtime config"
   remediation: "Don't store secrets in publicRuntimeConfig"
   cwe: "CWE-200"
@@ -70,8 +66,7 @@
 - id: nuxt-config-private-env
   languages: [javascript, typescript]
   patterns:
-    - regex: 'privateRuntimeConfig:\\s*\\{'
-  severity: low
+    - regex: 'privateRuntimeConfig:\\s*\\{''severity: low
   description: "Private runtime config"
   remediation: "Ensure secrets are properly protected"
   cwe: "CWE-312"
@@ -80,8 +75,7 @@
 - id: nuxt-config-generate-crawl
   languages: [javascript, typescript]
   patterns:
-    - regex: 'generate:\\s*\\{[^}]*crawl:'
-  severity: low
+    - regex: 'generate:\\s*\\{[^}]*crawl:''severity: low
   description: "SSG crawl configuration"
   remediation: "Ensure crawl routes are safe"
   cwe: "CWE-693"
@@ -90,8 +84,7 @@
 - id: nuxt-config-generate-routes
   languages: [javascript, typescript]
   patterns:
-    - regex: 'generate:\\s*\\{[^}]*routes:'
-  severity: low
+    - regex: 'generate:\\s*\\{[^}]*routes:''severity: low
   description: "SSG routes configuration"
   remediation: "Validate generated routes"
   cwe: "CWE-693"
@@ -100,8 +93,7 @@
 - id: nuxt-config-head-meta
   languages: [javascript, typescript]
   patterns:
-    - regex: 'head:\\s*\\{[^}]*meta:'
-  severity: low
+    - regex: 'head:\\s*\\{[^}]*meta:''severity: low
   description: "Head meta configuration"
   remediation: "Validate meta content for XSS"
   cwe: "CWE-79"
@@ -110,8 +102,7 @@
 - id: nuxt-config-head-script
   languages: [javascript, typescript]
   patterns:
-    - regex: 'head:\\s*\\{[^}]*script:'
-  severity: medium
+    - regex: 'head:\\s*\\{[^}]*script:''severity: medium
   description: "Head script configuration"
   remediation: "Validate script content for XSS"
   cwe: "CWE-79"
@@ -120,8 +111,7 @@
 - id: nuxt-config-modules
   languages: [javascript, typescript]
   patterns:
-    - regex: 'modules:\\s*\\['
-  severity: low
+    - regex: 'modules:\\s*\\[''severity: low
   description: "Nuxt modules configured"
   remediation: "Use trusted modules only"
   cwe: "CWE-1391"
@@ -130,8 +120,7 @@
 - id: nuxt-config-build-modules
   languages: [javascript, typescript]
   patterns:
-    - regex: 'buildModules:\\s*\\['
-  severity: low
+    - regex: 'buildModules:\\s*\\[''severity: low
   description: "Build modules configured"
   remediation: "Use trusted build modules"
   cwe: "CWE-1391"
@@ -140,8 +129,7 @@
 - id: nuxt-config-plugins
   languages: [javascript, typescript]
   patterns:
-    - regex: 'plugins:\\s*\\['
-  severity: low
+    - regex: 'plugins:\\s*\\[''severity: low
   description: "Plugins configured"
   remediation: "Validate plugin security"
   cwe: "CWE-693"
@@ -150,7 +138,7 @@
 - id: nuxt-config-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: 'server:\\s*\\{[^}]*host:\\s*[''\"]0\\.0\\.0\\.0[''\"]'
+    - regex: 'server:\\s*\\{[^}]*host:\\s*['''\"]0\\.0\\.0\\.0[''\"]'
   severity: medium
   description: "Server bound to all interfaces"
   remediation: "Bind to localhost for development"
@@ -160,8 +148,7 @@
 - id: nuxt-config-server-port
   languages: [javascript, typescript]
   patterns:
-    - regex: 'server:\\s*\\{[^}]*port:'
-  severity: low
+    - regex: 'server:\\s*\\{[^}]*port:''severity: low
   description: "Server port configuration"
   remediation: "Use environment variable for port"
   cwe: "CWE-693"
@@ -170,8 +157,7 @@
 - id: nuxt-config-server-https
   languages: [javascript, typescript]
   patterns:
-    - regex: 'server:\\s*\\{[^}]*https:'
-  severity: low
+    - regex: 'server:\\s*\\{[^}]*https:''severity: low
   description: "HTTPS configuration"
   remediation: "Use HTTPS in production"
   cwe: "CWE-319"
@@ -180,8 +166,7 @@
 - id: nuxt-config-render-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'render:\\s*\\{[^}]*ssr:'
-  severity: low
+    - regex: 'render:\\s*\\{[^}]*ssr:''severity: low
   description: "SSR render configuration"
   remediation: "Configure SSR properly"
   cwe: "CWE-693"
@@ -190,8 +175,7 @@
 - id: nuxt-config-render-bundle-renderer
   languages: [javascript, typescript]
   patterns:
-    - regex: 'bundleRenderer:'
-  severity: low
+    - regex: 'bundleRenderer:''severity: low
   description: "Bundle renderer configuration"
   remediation: "Configure renderer securely"
   cwe: "CWE-693"
@@ -200,8 +184,7 @@
 - id: nuxt-config-render-resource-hints
   languages: [javascript, typescript]
   patterns:
-    - regex: 'resourceHints:'
-  severity: low
+    - regex: 'resourceHints:''severity: low
   description: "Resource hints configuration"
   remediation: "Configure resource hints"
   cwe: "CWE-693"
@@ -210,8 +193,7 @@
 - id: nuxt-config-build-optimize-css
   languages: [javascript, typescript]
   patterns:
-    - regex: 'optimizeCSS:'
-  severity: low
+    - regex: 'optimizeCSS:''severity: low
   description: "CSS optimization"
   remediation: "Configure CSS optimization"
   cwe: "CWE-693"
@@ -220,8 +202,7 @@
 - id: nuxt-config-build-extract-css
   languages: [javascript, typescript]
   patterns:
-    - regex: 'extractCSS:'
-  severity: low
+    - regex: 'extractCSS:''severity: low
   description: "CSS extraction"
   remediation: "Configure CSS extraction"
   cwe: "CWE-693"
@@ -230,8 +211,7 @@
 - id: nuxt-config-build-extend
   languages: [javascript, typescript]
   patterns:
-    - regex: 'extend\\s*\\(\\s*config'
-  severity: low
+    - regex: 'extend\\s*\\(\\s*config''severity: low
   description: "Webpack config extension"
   remediation: "Validate webpack configuration"
   cwe: "CWE-693"
@@ -240,8 +220,7 @@
 - id: nuxt-config-build-babel
   languages: [javascript, typescript]
   patterns:
-    - regex: 'babel:'
-  severity: low
+    - regex: 'babel:''severity: low
   description: "Babel configuration"
   remediation: "Configure Babel securely"
   cwe: "CWE-693"
@@ -250,8 +229,7 @@
 - id: nuxt-config-build-loaders
   languages: [javascript, typescript]
   patterns:
-    - regex: 'loaders:'
-  severity: low
+    - regex: 'loaders:''severity: low
   description: "Webpack loaders"
   remediation: "Use trusted loaders"
   cwe: "CWE-1391"
@@ -261,8 +239,7 @@
 - id: nuxt-server-middleware-body-parser
   languages: [javascript, typescript]
   patterns:
-    - regex: 'body-parser|bodyParser'
-  severity: low
+    - regex: 'body-parser|bodyParser''severity: low
   description: "Body parser middleware"
   remediation: "Configure body parser limits"
   cwe: "CWE-770"
@@ -271,8 +248,7 @@
 - id: nuxt-server-middleware-helmet
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\s*\\('
-  severity: low
+    - regex: 'helmet\\s*\\(''severity: low
   description: "Helmet middleware"
   remediation: "Configure helmet properly"
   cwe: "CWE-693"
@@ -281,8 +257,7 @@
 - id: nuxt-server-middleware-cors
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cors\\s*\\('
-  severity: low
+    - regex: 'cors\\s*\\(''severity: low
   description: "CORS middleware"
   remediation: "Configure CORS properly"
   cwe: "CWE-942"
@@ -291,8 +266,7 @@
 - id: nuxt-server-middleware-rate-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rate-limit|rateLimit'
-  severity: low
+    - regex: 'rate-limit|rateLimit''severity: low
   description: "Rate limiting middleware"
   remediation: "Configure rate limits"
   cwe: "CWE-770"
@@ -301,8 +275,7 @@
 - id: nuxt-server-middleware-compression
   languages: [javascript, typescript]
   patterns:
-    - regex: 'compression\\s*\\('
-  severity: low
+    - regex: 'compression\\s*\\(''severity: low
   description: "Compression middleware"
   remediation: "Configure compression"
   cwe: "CWE-693"
@@ -311,8 +284,7 @@
 - id: nuxt-server-middleware-cookie-parser
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cookie-parser|cookieParser'
-  severity: low
+    - regex: 'cookie-parser|cookieParser''severity: low
   description: "Cookie parser middleware"
   remediation: "Configure cookie parser"
   cwe: "CWE-614"
@@ -321,8 +293,7 @@
 - id: nuxt-server-middleware-session
   languages: [javascript, typescript]
   patterns:
-    - regex: 'express-session|session\\s*\\('
-  severity: low
+    - regex: 'express-session|session\\s*\\(''severity: low
   description: "Session middleware"
   remediation: "Configure session securely"
   cwe: "CWE-613"
@@ -331,8 +302,7 @@
 - id: nuxt-server-middleware-hpp
   languages: [javascript, typescript]
   patterns:
-    - regex: 'hpp\\s*\\('
-  severity: low
+    - regex: 'hpp\\s*\\(''severity: low
   description: "HPP middleware"
   remediation: "Use HPP to prevent parameter pollution"
   cwe: "CWE-20"
@@ -341,8 +311,7 @@
 - id: nuxt-server-middleware-xss
   languages: [javascript, typescript]
   patterns:
-    - regex: 'xss-clean|xss-clean'
-  severity: low
+    - regex: 'xss-clean|xss-clean''severity: low
   description: "XSS cleaning middleware"
   remediation: "Use XSS sanitization"
   cwe: "CWE-79"
@@ -351,8 +320,7 @@
 - id: nuxt-server-middleware-helmet-csp
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.contentSecurityPolicy'
-  severity: low
+    - regex: 'helmet\\.contentSecurityPolicy''severity: low
   description: "Helmet CSP configuration"
   remediation: "Configure CSP properly"
   cwe: "CWE-79"
@@ -361,8 +329,7 @@
 - id: nuxt-server-middleware-helmet-hsts
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.hsts'
-  severity: low
+    - regex: 'helmet\\.hsts''severity: low
   description: "Helmet HSTS configuration"
   remediation: "Configure HSTS"
   cwe: "CWE-319"
@@ -371,8 +338,7 @@
 - id: nuxt-server-middleware-helmet-frameguard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.frameguard'
-  severity: low
+    - regex: 'helmet\\.frameguard''severity: low
   description: "Helmet frameguard"
   remediation: "Configure frameguard"
   cwe: "CWE-1021"
@@ -381,8 +347,7 @@
 - id: nuxt-server-middleware-helmet-hide-powered-by
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.hidePoweredBy'
-  severity: low
+    - regex: 'helmet\\.hidePoweredBy''severity: low
   description: "Hide powered-by header"
   remediation: "Hide framework headers"
   cwe: "CWE-200"
@@ -391,8 +356,7 @@
 - id: nuxt-server-middleware-helmet-no-sniff
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.noSniff'
-  severity: low
+    - regex: 'helmet\\.noSniff''severity: low
   description: "X-Content-Type-Options"
   remediation: "Enable noSniff"
   cwe: "CWE-693"
@@ -401,8 +365,7 @@
 - id: nuxt-server-middleware-helmet-xss-filter
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.xssFilter'
-  severity: low
+    - regex: 'helmet\\.xssFilter''severity: low
   description: "XSS filter"
   remediation: "Enable XSS filter"
   cwe: "CWE-79"
@@ -411,8 +374,7 @@
 - id: nuxt-server-middleware-helmet-dns-prefetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.dnsPrefetch'
-  severity: low
+    - regex: 'helmet\\.dnsPrefetch''severity: low
   description: "DNS prefetch control"
   remediation: "Configure DNS prefetch"
   cwe: "CWE-693"
@@ -421,8 +383,7 @@
 - id: nuxt-server-middleware-helmet-ienoopen
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.ienoopen'
-  severity: low
+    - regex: 'helmet\\.ienoopen''severity: low
   description: "IE noopen header"
   remediation: "Enable IE noopen"
   cwe: "CWE-693"
@@ -431,8 +392,7 @@
 - id: nuxt-server-middleware-helmet-permitted-cross-domain-policies
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.permittedCrossDomainPolicies'
-  severity: low
+    - regex: 'helmet\\.permittedCrossDomainPolicies''severity: low
   description: "Cross-domain policies"
   remediation: "Configure cross-domain policies"
   cwe: "CWE-693"
@@ -441,8 +401,7 @@
 - id: nuxt-server-middleware-helmet-referrer-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.referrerPolicy'
-  severity: low
+    - regex: 'helmet\\.referrerPolicy''severity: low
   description: "Referrer policy"
   remediation: "Configure referrer policy"
   cwe: "CWE-200"
@@ -451,8 +410,7 @@
 - id: nuxt-server-middleware-helmet-xss-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.xssProtection'
-  severity: low
+    - regex: 'helmet\\.xssProtection''severity: low
   description: "XSS protection header"
   remediation: "Enable XSS protection"
   cwe: "CWE-79"
@@ -461,8 +419,7 @@
 - id: nuxt-server-middleware-helmet-content-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.contentTypeOptions'
-  severity: low
+    - regex: 'helmet\\.contentTypeOptions''severity: low
   description: "Content type options"
   remediation: "Configure content type"
   cwe: "CWE-693"
@@ -471,8 +428,7 @@
 - id: nuxt-server-middleware-helmet-frame-options
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.frameoptions'
-  severity: low
+    - regex: 'helmet\\.frameoptions''severity: low
   description: "Frame options"
   remediation: "Configure frame options"
   cwe: "CWE-1021"
@@ -481,8 +437,7 @@
 - id: nuxt-server-middleware-helmet-hpkp
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.hpkp'
-  severity: low
+    - regex: 'helmet\\.hpkp''severity: low
   description: "HPKP (deprecated)"
   remediation: "Use Certificate Transparency instead"
   cwe: "CWE-326"
@@ -491,8 +446,7 @@
 - id: nuxt-server-middleware-helmet-no-cache
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.noCache'
-  severity: low
+    - regex: 'helmet\\.noCache''severity: low
   description: "No cache header"
   remediation: "Configure cache properly"
   cwe: "CWE-524"
@@ -501,8 +455,7 @@
 - id: nuxt-server-middleware-helmet-no-dns-prefetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\.noDnsPrefetch'
-  severity: low
+    - regex: 'helmet\\.noDnsPrefetch''severity: low
   description: "No DNS prefetch"
   remediation: "Configure DNS prefetch"
   cwe: "CWE-693"
@@ -512,8 +465,7 @@
 - id: nuxt-ssr-v-html
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*='
-  severity: high
+    - regex: 'v-html\\s*=''severity: high
   description: "v-html directive - XSS risk in SSR"
   remediation: "Sanitize HTML content before rendering"
   cwe: "CWE-79"
@@ -522,8 +474,7 @@
 - id: nuxt-ssr-v-text
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-text\\s*='
-  severity: low
+    - regex: 'v-text\\s*=''severity: low
   description: "v-text directive"
   remediation: "Use v-text for safe text rendering"
   cwe: "CWE-79"
@@ -532,8 +483,7 @@
 - id: nuxt-ssr-v-html-dynamic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\['
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[''severity: high
   description: "Dynamic v-html binding"
   remediation: "Sanitize dynamic content"
   cwe: "CWE-79"
@@ -542,8 +492,7 @@
 - id: nuxt-ssr-v-html-computed
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\['
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[''severity: high
   description: "v-html with computed property"
   remediation: "Sanitize computed values"
   cwe: "CWE-79"
@@ -552,8 +501,7 @@
 - id: nuxt-ssr-v-html-method
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\['
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[''severity: high
   description: "v-html with method"
   remediation: "Sanitize method return values"
   cwe: "CWE-79"
@@ -562,8 +510,7 @@
 - id: nuxt-ssr-v-html-data
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$data'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$data''severity: high
   description: "v-html with data property"
   remediation: "Sanitize data properties"
   cwe: "CWE-79"
@@ -572,8 +519,7 @@
 - id: nuxt-ssr-v-html-props
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$props'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$props''severity: high
   description: "v-html with props"
   remediation: "Sanitize props"
   cwe: "CWE-79"
@@ -582,8 +528,7 @@
 - id: nuxt-ssr-v-html-store
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$store'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$store''severity: high
   description: "v-html with store"
   remediation: "Sanitize store data"
   cwe: "CWE-79"
@@ -592,8 +537,7 @@
 - id: nuxt-ssr-v-html-state
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$state'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$state''severity: high
   description: "v-html with state"
   remediation: "Sanitize state"
   cwe: "CWE-79"
@@ -602,8 +546,7 @@
 - id: nuxt-ssr-v-html-getter
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$getters'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$getters''severity: high
   description: "v-html with getters"
   remediation: "Sanitize getters"
   cwe: "CWE-79"
@@ -612,8 +555,7 @@
 - id: nuxt-ssr-v-html-async-data
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$asyncData'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$asyncData''severity: high
   description: "v-html with asyncData"
   remediation: "Sanitize asyncData"
   cwe: "CWE-79"
@@ -622,8 +564,7 @@
 - id: nuxt-ssr-v-html-fetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$fetch'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$fetch''severity: high
   description: "v-html with fetch"
   remediation: "Sanitize fetch data"
   cwe: "CWE-79"
@@ -632,8 +573,7 @@
 - id: nuxt-ssr-v-html-head
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$head'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$head''severity: high
   description: "v-html in head"
   remediation: "Sanitize head content"
   cwe: "CWE-79"
@@ -642,8 +582,7 @@
 - id: nuxt-ssr-v-html-layout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$layout'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$layout''severity: high
   description: "v-html in layout"
   remediation: "Sanitize layout content"
   cwe: "CWE-79"
@@ -652,8 +591,7 @@
 - id: nuxt-ssr-v-html-page
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$page'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$page''severity: high
   description: "v-html in page"
   remediation: "Sanitize page content"
   cwe: "CWE-79"
@@ -662,8 +600,7 @@
 - id: nuxt-ssr-v-html-route
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$route'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$route''severity: high
   description: "v-html with route"
   remediation: "Sanitize route data"
   cwe: "CWE-79"
@@ -672,8 +609,7 @@
 - id: nuxt-ssr-v-html-router
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$router'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$router''severity: high
   description: "v-html with router"
   remediation: "Sanitize router data"
   cwe: "CWE-79"
@@ -682,8 +618,7 @@
 - id: nuxt-ssr-v-html-store-state
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$store\\.state'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$store\\.state''severity: high
   description: "v-html with store state"
   remediation: "Sanitize store state"
   cwe: "CWE-79"
@@ -692,8 +627,7 @@
 - id: nuxt-ssr-v-html-store-getters
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$store\\.getters'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$store\\.getters''severity: high
   description: "v-html with store getters"
   remediation: "Sanitize store getters"
   cwe: "CWE-79"
@@ -702,8 +636,7 @@
 - id: nuxt-ssr-v-html-store-mutations
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$store\\.commit'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$store\\.commit''severity: high
   description: "v-html with store mutations"
   remediation: "Sanitize mutations"
   cwe: "CWE-79"
@@ -712,8 +645,7 @@
 - id: nuxt-ssr-v-html-store-actions
   languages: [javascript, typescript]
   patterns:
-    - regex: 'v-html\\s*=\\s*\\[\\$store\\.dispatch'
-  severity: high
+    - regex: 'v-html\\s*=\\s*\\[\\$store\\.dispatch''severity: high
   description: "v-html with store actions"
   remediation: "Sanitize actions"
   cwe: "CWE-79"
@@ -722,8 +654,7 @@
 - id: nuxt-ssr-v-html-async-data-fetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'asyncData\\s*\\(\\s*\\{\\s*\\$'
-  severity: medium
+    - regex: 'asyncData\\s*\\(\\s*\\{\\s*\\$''severity: medium
   description: "asyncData fetch"
   remediation: "Validate asyncData sources"
   cwe: "CWE-918"
@@ -732,8 +663,7 @@
 - id: nuxt-ssr-async-data-fetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'asyncData\\s*\\(\\s*\\{'
-  severity: medium
+    - regex: 'asyncData\\s*\\(\\s*\\{''severity: medium
   description: "asyncData method"
   remediation: "Validate data sources"
   cwe: "CWE-918"
@@ -742,8 +672,7 @@
 - id: nuxt-ssr-fetch-method
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\(\\s*\\{'
-  severity: medium
+    - regex: 'fetch\\s*\\(\\s*\\{''severity: medium
   description: "fetch method"
   remediation: "Validate fetch sources"
   cwe: "CWE-918"
@@ -752,8 +681,7 @@
 - id: nuxt-ssr-server-middleware
   languages: [javascript, typescript]
   patterns:
-    - regex: 'serverMiddleware\\s*\\['
-  severity: low
+    - regex: 'serverMiddleware\\s*\\[''severity: low
   description: "Server middleware array"
   remediation: "Validate middleware"
   cwe: "CWE-284"
@@ -763,8 +691,7 @@
 - id: nuxt-auth-module
   languages: [javascript, typescript]
   patterns:
-    - regex: '@nuxtjs/auth'
-  severity: low
+    - regex: '@nuxtjs/auth''severity: low
   description: "Nuxt auth module"
   remediation: "Configure auth properly"
   cwe: "CWE-306"
@@ -773,8 +700,7 @@
 - id: nuxt-auth-strategies
   languages: [javascript, typescript]
   patterns:
-    - regex: 'strategies:\\s*\\['
-  severity: low
+    - regex: 'strategies:\\s*\\[''severity: low
   description: "Auth strategies"
   remediation: "Configure strategies securely"
   cwe: "CWE-306"
@@ -783,8 +709,7 @@
 - id: nuxt-auth-local
   languages: [javascript, typescript]
   patterns:
-    - regex: 'local:\\s*\\{'
-  severity: low
+    - regex: 'local:\\s*\\{''severity: low
   description: "Local auth strategy"
   remediation: "Configure local auth"
   cwe: "CWE-306"
@@ -793,8 +718,7 @@
 - id: nuxt-auth-oauth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'oauth\\s*\\{'
-  severity: low
+    - regex: 'oauth\\s*\\{''severity: low
   description: "OAuth configuration"
   remediation: "Configure OAuth securely"
   cwe: "CWE-306"
@@ -803,8 +727,7 @@
 - id: nuxt-auth-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'token:\\s*\\{'
-  severity: low
+    - regex: 'token:\\s*\\{''severity: low
   description: "Token configuration"
   remediation: "Configure token securely"
   cwe: "CWE-312"
@@ -813,7 +736,7 @@
 - id: nuxt-auth-token-name
   languages: [javascript, typescript]
   patterns:
-    - regex: 'name:\\s*[''\"]'
+    - regex: 'name:\\s*['''\"]'
   severity: low
   description: "Token name"
   remediation: "Configure token name"
@@ -823,7 +746,7 @@
 - id: nuxt-auth-token-property
   languages: [javascript, typescript]
   patterns:
-    - regex: 'property:\\s*[''\"]'
+    - regex: 'property:\\s*['''\"]'
   severity: low
   description: "Token property"
   remediation: "Configure token property"
@@ -833,7 +756,7 @@
 - id: nuxt-auth-token-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'type:\\s*[''\"]'
+    - regex: 'type:\\s*['''\"]'
   severity: low
   description: "Token type"
   remediation: "Configure token type"
@@ -843,8 +766,7 @@
 - id: nuxt-auth-token-required
   languages: [javascript, typescript]
   patterns:
-    - regex: 'required:\\s*true'
-  severity: low
+    - regex: 'required:\\s*true''severity: low
   description: "Token required"
   remediation: "Require token"
   cwe: "CWE-306"
@@ -853,8 +775,7 @@
 - id: nuxt-auth-token-required-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredToken'
-  severity: low
+    - regex: 'requiredToken''severity: low
   description: "Required token"
   remediation: "Require token"
   cwe: "CWE-306"
@@ -863,8 +784,7 @@
 - id: nuxt-auth-token-required-token-name
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenName'
-  severity: low
+    - regex: 'requiredTokenName''severity: low
   description: "Required token name"
   remediation: "Configure token name"
   cwe: "CWE-306"
@@ -873,8 +793,7 @@
 - id: nuxt-auth-token-required-token-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenType'
-  severity: low
+    - regex: 'requiredTokenType''severity: low
   description: "Required token type"
   remediation: "Configure token type"
   cwe: "CWE-306"
@@ -883,8 +802,7 @@
 - id: nuxt-auth-token-required-token-value
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValue'
-  severity: low
+    - regex: 'requiredTokenValue''severity: low
   description: "Required token value"
   remediation: "Configure token value"
   cwe: "CWE-306"
@@ -893,8 +811,7 @@
 - id: nuxt-auth-token-required-token-value-name
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueName'
-  severity: low
+    - regex: 'requiredTokenValueName''severity: low
   description: "Required token value name"
   remediation: "Configure token value name"
   cwe: "CWE-306"
@@ -903,8 +820,7 @@
 - id: nuxt-auth-token-required-token-value-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueType'
-  severity: low
+    - regex: 'requiredTokenValueType''severity: low
   description: "Required token value type"
   remediation: "Configure token value type"
   cwe: "CWE-306"
@@ -913,8 +829,7 @@
 - id: nuxt-auth-token-required-token-value-value
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueValue'
-  severity: low
+    - regex: 'requiredTokenValueValue''severity: low
   description: "Required token value value"
   remediation: "Configure token value"
   cwe: "CWE-306"
@@ -923,8 +838,7 @@
 - id: nuxt-auth-token-required-token-value-type-value
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValue'
-  severity: low
+    - regex: 'requiredTokenValueTypeValue''severity: low
   description: "Required token value type value"
   remediation: "Configure token value type"
   cwe: "CWE-306"
@@ -933,8 +847,7 @@
 - id: nuxt-auth-token-required-token-value-type-value-name
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValueName'
-  severity: low
+    - regex: 'requiredTokenValueTypeValueName''severity: low
   description: "Required token value type value name"
   remediation: "Configure token value name"
   cwe: "CWE-306"
@@ -943,8 +856,7 @@
 - id: nuxt-auth-token-required-token-value-type-value-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValueType'
-  severity: low
+    - regex: 'requiredTokenValueTypeValueType''severity: low
   description: "Required token value type value type"
   remediation: "Configure token value type"
   cwe: "CWE-306"
@@ -953,8 +865,7 @@
 - id: nuxt-auth-token-required-token-value-type-value-value
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValueValue'
-  severity: low
+    - regex: 'requiredTokenValueTypeValueValue''severity: low
   description: "Required token value type value value"
   remediation: "Configure token value"
   cwe: "CWE-306"
@@ -963,8 +874,7 @@
 - id: nuxt-auth-token-required-token-value-type-value-type-value
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValueTypeValue'
-  severity: low
+    - regex: 'requiredTokenValueTypeValueTypeValue''severity: low
   description: "Required token value type value type value"
   remediation: "Configure token value type"
   cwe: "CWE-306"
@@ -973,8 +883,7 @@
 - id: nuxt-auth-token-required-token-value-type-value-type-value-name
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValueTypeValueName'
-  severity: low
+    - regex: 'requiredTokenValueTypeValueTypeValueName''severity: low
   description: "Required token value type value type value name"
   remediation: "Configure token value name"
   cwe: "CWE-306"
@@ -983,8 +892,7 @@
 - id: nuxt-auth-token-required-token-value-type-value-type-value-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValueTypeValueType'
-  severity: low
+    - regex: 'requiredTokenValueTypeValueTypeValueType''severity: low
   description: "Required token value type value type value type"
   remediation: "Configure token value type"
   cwe: "CWE-306"
@@ -993,8 +901,7 @@
 - id: nuxt-auth-token-required-token-value-type-value-type-value-value
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requiredTokenValueTypeValueTypeValueValue'
-  severity: low
+    - regex: 'requiredTokenValueTypeValueTypeValueValue''severity: low
   description: "Required token value type value type value value"
   remediation: "Configure token value"
   cwe: "CWE-306"
@@ -1004,8 +911,7 @@
 - id: nuxt-dependency-axios
   languages: [javascript, typescript]
   patterns:
-    - regex: '@nuxtjs/axios'
-  severity: low
+    - regex: '@nuxtjs/axios''severity: low
   description: "Axios module"
   remediation: "Configure axios securely"
   cwe: "CWE-918"
@@ -1014,8 +920,7 @@
 - id: nuxt-dependency-axios-base-url
   languages: [javascript, typescript]
   patterns:
-    - regex: 'baseURL:'
-  severity: low
+    - regex: 'baseURL:''severity: low
   description: "Axios base URL"
   remediation: "Configure base URL"
   cwe: "CWE-918"
@@ -1024,8 +929,7 @@
 - id: nuxt-dependency-axios-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: 'withCredentials:'
-  severity: low
+    - regex: 'withCredentials:''severity: low
   description: "Axios credentials"
   remediation: "Configure credentials"
   cwe: "CWE-306"
@@ -1034,8 +938,7 @@
 - id: nuxt-dependency-axios-headers
   languages: [javascript, typescript]
   patterns:
-    - regex: 'headers:'
-  severity: low
+    - regex: 'headers:''severity: low
   description: "Axios headers"
   remediation: "Configure headers"
   cwe: "CWE-693"
@@ -1044,8 +947,7 @@
 - id: nuxt-dependency-axios-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'timeout:'
-  severity: low
+    - regex: 'timeout:''severity: low
   description: "Axios timeout"
   remediation: "Configure timeout"
   cwe: "CWE-770"
@@ -1054,8 +956,7 @@
 - id: nuxt-dependency-axios-timeout-request
   languages: [javascript, typescript]
   patterns:
-    - regex: 'timeout\\.request:'
-  severity: low
+    - regex: 'timeout\\.request:''severity: low
   description: "Request timeout"
   remediation: "Configure request timeout"
   cwe: "CWE-770"
@@ -1064,8 +965,7 @@
 - id: nuxt-dependency-axios-timeout-response
   languages: [javascript, typescript]
   patterns:
-    - regex: 'timeout\\.response:'
-  severity: low
+    - regex: 'timeout\\.response:''severity: low
   description: "Response timeout"
   remediation: "Configure response timeout"
   cwe: "CWE-770"
@@ -1074,8 +974,7 @@
 - id: nuxt-dependency-axios-proxy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy:'
-  severity: low
+    - regex: 'proxy:''severity: low
   description: "Proxy configuration"
   remediation: "Configure proxy"
   cwe: "CWE-693"
@@ -1084,8 +983,7 @@
 - id: nuxt-dependency-axios-proxy-host
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.host:'
-  severity: low
+    - regex: 'proxy\\.host:''severity: low
   description: "Proxy host"
   remediation: "Configure proxy host"
   cwe: "CWE-693"
@@ -1094,8 +992,7 @@
 - id: nuxt-dependency-axios-proxy-port
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.port:'
-  severity: low
+    - regex: 'proxy\\.port:''severity: low
   description: "Proxy port"
   remediation: "Configure proxy port"
   cwe: "CWE-693"
@@ -1104,8 +1001,7 @@
 - id: nuxt-dependency-axios-proxy-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth:'
-  severity: low
+    - regex: 'proxy\\.auth:''severity: low
   description: "Proxy auth"
   remediation: "Configure proxy auth"
   cwe: "CWE-306"
@@ -1114,8 +1010,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username:''severity: low
   description: "Proxy username"
   remediation: "Configure proxy username"
   cwe: "CWE-306"
@@ -1124,8 +1019,7 @@
 - id: nuxt-dependency-axios-proxy-auth-password
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.password:'
-  severity: low
+    - regex: 'proxy\\.auth\\.password:''severity: low
   description: "Proxy password"
   remediation: "Configure proxy password"
   cwe: "CWE-312"
@@ -1134,8 +1028,7 @@
 - id: nuxt-dependency-axios-proxy-protocol
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.protocol:'
-  severity: low
+    - regex: 'proxy\\.protocol:''severity: low
   description: "Proxy protocol"
   remediation: "Configure proxy protocol"
   cwe: "CWE-693"
@@ -1144,8 +1037,7 @@
 - id: nuxt-dependency-axios-proxy-host-name
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.hostName:'
-  severity: low
+    - regex: 'proxy\\.hostName:''severity: low
   description: "Proxy host name"
   remediation: "Configure proxy host name"
   cwe: "CWE-693"
@@ -1154,8 +1046,7 @@
 - id: nuxt-dependency-axios-proxy-port-number
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.portNumber:'
-  severity: low
+    - regex: 'proxy\\.portNumber:''severity: low
   description: "Proxy port number"
   remediation: "Configure proxy port number"
   cwe: "CWE-693"
@@ -1164,8 +1055,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password:''severity: low
   description: "Proxy auth username password"
   remediation: "Configure proxy auth"
   cwe: "CWE-306"
@@ -1174,8 +1064,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol:''severity: low
   description: "Proxy auth username password protocol"
   remediation: "Configure proxy protocol"
   cwe: "CWE-693"
@@ -1184,8 +1073,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol-host
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host:''severity: low
   description: "Proxy auth username password protocol host"
   remediation: "Configure proxy host"
   cwe: "CWE-693"
@@ -1194,8 +1082,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol-host-port
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port:''severity: low
   description: "Proxy auth username password protocol host port"
   remediation: "Configure proxy port"
   cwe: "CWE-693"
@@ -1204,8 +1091,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol-host-port-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth:''severity: low
   description: "Proxy auth username password protocol host port auth"
   remediation: "Configure proxy auth"
   cwe: "CWE-306"
@@ -1214,8 +1100,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol-host-port-auth-username
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username:''severity: low
   description: "Proxy auth username password protocol host port auth username"
   remediation: "Configure proxy username"
   cwe: "CWE-306"
@@ -1224,8 +1109,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol-host-port-auth-username-password
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username\\.password:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username\\.password:''severity: low
   description: "Proxy auth username password protocol host port auth username password"
   remediation: "Configure proxy password"
   cwe: "CWE-312"
@@ -1234,8 +1118,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol-host-port-auth-username-password-protocol
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username\\.password\\.protocol:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username\\.password\\.protocol:''severity: low
   description: "Proxy auth username password protocol host port auth username password protocol"
   remediation: "Configure proxy protocol"
   cwe: "CWE-693"
@@ -1244,8 +1127,7 @@
 - id: nuxt-dependency-axios-proxy-auth-username-password-protocol-host-port-auth-username-password-protocol-host
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username\\.password\\.protocol\\.host:'
-  severity: low
+    - regex: 'proxy\\.auth\\.username\\.password\\.protocol\\.host\\.port\\.auth\\.username\\.password\\.protocol\\.host:''severity: low
   description: "Proxy auth username password protocol host port auth username password protocol host"
   remediation: "Configure proxy host"
   cwe: "CWE-693"
@@ -1255,7 +1137,7 @@
 - id: nuxt-deployment-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]server[''\"]'
+    - regex: 'target:\\s*['''\"]server[''\"]'
   severity: low
   description: "Server target"
   remediation: "Configure server"
@@ -1265,7 +1147,7 @@
 - id: nuxt-deployment-target-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]static[''\"]'
+    - regex: 'target:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static target"
   remediation: "Configure static"
@@ -1275,7 +1157,7 @@
 - id: nuxt-deployment-target-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]server[''\"]'
+    - regex: 'target:\\s*['''\"]server[''\"]'
   severity: low
   description: "Server target"
   remediation: "Configure server"
@@ -1285,7 +1167,7 @@
 - id: nuxt-deployment-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]'
+    - regex: 'mode:\\s*['''\"]'
   severity: low
   description: "Mode"
   remediation: "Configure mode"
@@ -1295,7 +1177,7 @@
 - id: nuxt-deployment-mode-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]universal[''\"]'
+    - regex: 'mode:\\s*['''\"]universal[''\"]'
   severity: low
   description: "Universal mode"
   remediation: "Configure universal"
@@ -1305,7 +1187,7 @@
 - id: nuxt-deployment-mode-spa
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]spa[''\"]'
+    - regex: 'mode:\\s*['''\"]spa[''\"]'
   severity: low
   description: "SPA mode"
   remediation: "Configure SPA"
@@ -1315,7 +1197,7 @@
 - id: nuxt-deployment-mode-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]ssr[''\"]'
+    - regex: 'mode:\\s*['''\"]ssr[''\"]'
   severity: low
   description: "SSR mode"
   remediation: "Configure SSR"
@@ -1325,7 +1207,7 @@
 - id: nuxt-deployment-mode-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]static[''\"]'
+    - regex: 'mode:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static mode"
   remediation: "Configure static"
@@ -1335,7 +1217,7 @@
 - id: nuxt-deployment-mode-universal-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]universal[''\"]'
+    - regex: 'mode:\\s*['''\"]universal[''\"]'
   severity: low
   description: "Universal mode"
   remediation: "Configure universal"
@@ -1345,7 +1227,7 @@
 - id: nuxt-deployment-mode-spa-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]spa[''\"]'
+    - regex: 'mode:\\s*['''\"]spa[''\"]'
   severity: low
   description: "SPA mode"
   remediation: "Configure SPA"
@@ -1355,7 +1237,7 @@
 - id: nuxt-deployment-mode-ssr-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]ssr[''\"]'
+    - regex: 'mode:\\s*['''\"]ssr[''\"]'
   severity: low
   description: "SSR mode"
   remediation: "Configure SSR"
@@ -1365,7 +1247,7 @@
 - id: nuxt-deployment-mode-static-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]static[''\"]'
+    - regex: 'mode:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static mode"
   remediation: "Configure static"
@@ -1375,7 +1257,7 @@
 - id: nuxt-deployment-mode-universal-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]universal[''\"]'
+    - regex: 'mode:\\s*['''\"]universal[''\"]'
   severity: low
   description: "Universal SSR"
   remediation: "Configure universal SSR"
@@ -1385,7 +1267,7 @@
 - id: nuxt-deployment-mode-spa-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]spa[''\"]'
+    - regex: 'mode:\\s*['''\"]spa[''\"]'
   severity: low
   description: "SPA SSR"
   remediation: "Configure SPA SSR"
@@ -1395,7 +1277,7 @@
 - id: nuxt-deployment-mode-ssr-spa
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]ssr[''\"]'
+    - regex: 'mode:\\s*['''\"]ssr[''\"]'
   severity: low
   description: "SSR SPA"
   remediation: "Configure SSR SPA"
@@ -1405,7 +1287,7 @@
 - id: nuxt-deployment-mode-static-ssr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]static[''\"]'
+    - regex: 'mode:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static SSR"
   remediation: "Configure static SSR"
@@ -1415,7 +1297,7 @@
 - id: nuxt-deployment-mode-universal-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]universal[''\"]'
+    - regex: 'mode:\\s*['''\"]universal[''\"]'
   severity: low
   description: "Universal static"
   remediation: "Configure universal static"
@@ -1425,7 +1307,7 @@
 - id: nuxt-deployment-mode-spa-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]spa[''\"]'
+    - regex: 'mode:\\s*['''\"]spa[''\"]'
   severity: low
   description: "SPA static"
   remediation: "Configure SPA static"
@@ -1435,7 +1317,7 @@
 - id: nuxt-deployment-mode-ssr-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]ssr[''\"]'
+    - regex: 'mode:\\s*['''\"]ssr[''\"]'
   severity: low
   description: "SSR universal"
   remediation: "Configure SSR universal"
@@ -1445,7 +1327,7 @@
 - id: nuxt-deployment-mode-static-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mode:\\s*[''\"]static[''\"]'
+    - regex: 'mode:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static universal"
   remediation: "Configure static universal"
@@ -1455,7 +1337,7 @@
 - id: nuxt-deployment-target-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]universal[''\"]'
+    - regex: 'target:\\s*['''\"]universal[''\"]'
   severity: low
   description: "Universal target"
   remediation: "Configure universal"
@@ -1465,7 +1347,7 @@
 - id: nuxt-deployment-target-static-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]static[''\"]'
+    - regex: 'target:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static target"
   remediation: "Configure static"
@@ -1475,7 +1357,7 @@
 - id: nuxt-deployment-target-server-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]server[''\"]'
+    - regex: 'target:\\s*['''\"]server[''\"]'
   severity: low
   description: "Server target"
   remediation: "Configure server"
@@ -1485,7 +1367,7 @@
 - id: nuxt-deployment-target-universal-target
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]universal[''\"]'
+    - regex: 'target:\\s*['''\"]universal[''\"]'
   severity: low
   description: "Universal target"
   remediation: "Configure universal"
@@ -1495,7 +1377,7 @@
 - id: nuxt-deployment-target-static-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]static[''\"]'
+    - regex: 'target:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static server"
   remediation: "Configure static server"
@@ -1505,7 +1387,7 @@
 - id: nuxt-deployment-target-server-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]server[''\"]'
+    - regex: 'target:\\s*['''\"]server[''\"]'
   severity: low
   description: "Server universal"
   remediation: "Configure server universal"
@@ -1515,7 +1397,7 @@
 - id: nuxt-deployment-target-static-universal-server
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]static[''\"]'
+    - regex: 'target:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static universal server"
   remediation: "Configure static universal server"
@@ -1525,7 +1407,7 @@
 - id: nuxt-deployment-target-universal-server-static
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]universal[''\"]'
+    - regex: 'target:\\s*['''\"]universal[''\"]'
   severity: low
   description: "Universal server static"
   remediation: "Configure universal server static"
@@ -1535,7 +1417,7 @@
 - id: nuxt-deployment-target-server-static-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]server[''\"]'
+    - regex: 'target:\\s*['''\"]server[''\"]'
   severity: low
   description: "Server static universal"
   remediation: "Configure server static universal"
@@ -1545,7 +1427,7 @@
 - id: nuxt-deployment-target-static-server-universal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'target:\\s*[''\"]static[''\"]'
+    - regex: 'target:\\s*['''\"]static[''\"]'
   severity: low
   description: "Static server universal"
   remediation: "Configure static server universal"

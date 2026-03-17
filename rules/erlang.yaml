@@ -1,8 +1,7 @@
 - id: erlang-os-cmd
   languages: [erlang]
   patterns:
-    - regex: '(?i)os:cmd\\s*\\('
-  severity: critical
+    - regex: '(?i)os:cmd\\s*\\(''severity: critical
   description: "OS command execution"
   remediation: "Avoid os:cmd with user input"
   cwe: "CWE-78"
@@ -12,8 +11,7 @@
 - id: erlang-erlang-open-port
   languages: [erlang]
   patterns:
-    - regex: '(?i)erlang:open_port\\s*\\(\\s*\\{\\s*spawn'
-  severity: high
+    - regex: '(?i)erlang:open_port\\s*\\(\\s*\\{\\s*spawn''severity: high
   description: "Port execution with spawn"
   remediation: "Validate spawned command"
   cwe: "CWE-78"
@@ -23,8 +21,7 @@
 - id: erlang-binary-to-term
   languages: [erlang]
   patterns:
-    - regex: '(?i)binary_to_term\\s*\\((?!.*safe)'
-  severity: critical
+    - regex: '(?i)binary_to_term\\s*\\(''severity: critical
   description: "Unsafe deserialization"
   remediation: "Use binary_to_term(Bin, [safe])"
   cwe: "CWE-502"
@@ -34,8 +31,7 @@
 - id: erlang-list-to-atom
   languages: [erlang]
   patterns:
-    - regex: '(?i)list_to_atom\\s*\\('
-  severity: high
+    - regex: '(?i)list_to_atom\\s*\\(''severity: high
   description: "Atom table exhaustion (DoS)"
   remediation: "Use list_to_existing_atom instead"
   cwe: "CWE-400"
@@ -45,8 +41,7 @@
 - id: erlang-binary-to-atom
   languages: [erlang]
   patterns:
-    - regex: '(?i)binary_to_atom\\s*\\('
-  severity: high
+    - regex: '(?i)binary_to_atom\\s*\\(''severity: high
   description: "Atom table exhaustion (DoS)"
   remediation: "Use binary_to_existing_atom instead"
   cwe: "CWE-400"
@@ -56,8 +51,7 @@
 - id: erlang-rpc-call
   languages: [erlang]
   patterns:
-    - regex: '(?i)rpc:call\\s*\\('
-  severity: medium
+    - regex: '(?i)rpc:call\\s*\\(''severity: medium
   description: "Remote procedure call"
   remediation: "Validate Node, Module, and Function"
   cwe: "CWE-94"
@@ -67,8 +61,7 @@
 - id: erlang-ssl-verify-none
   languages: [erlang]
   patterns:
-    - regex: '(?i)\\{verify\\s*,\\s*verify_none\\}'
-  severity: high
+    - regex: '(?i)\\{verify\\s*,\\s*verify_none\\}''severity: high
   description: "SSL verification disabled"
   remediation: "Set verify to verify_peer"
   cwe: "CWE-295"
@@ -78,8 +71,7 @@
 - id: erlang-hardcoded-secret
   languages: [erlang]
   patterns:
-    - regex: '(?i)(?:secret|password|key|token)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"'
-  severity: high
+    - regex: '(?i)(?:secret|password|key|token)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
   description: "Hardcoded secret"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -89,8 +81,7 @@
 - id: erlang-file-read-file
   languages: [erlang]
   patterns:
-    - regex: '(?i)file:read_file\\s*\\('
-  severity: medium
+    - regex: '(?i)file:read_file\\s*\\(''severity: medium
   description: "File read operation"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -100,8 +91,7 @@
 - id: erlang-dets-open-file
   languages: [erlang]
   patterns:
-    - regex: '(?i)dets:open_file\\s*\\('
-  severity: medium
+    - regex: '(?i)dets:open_file\\s*\\(''severity: medium
   description: "DETS file open"
   remediation: "Validate file path"
   cwe: "CWE-22"
@@ -111,8 +101,7 @@
 - id: erlang-ssrf
   languages: [erlang]
   patterns:
-    - regex: '(?i)httpc\\.request\\s*\\(.*\\$\\{|ibrowse\\.send_req.*\\$\\{'
-  severity: high
+    - regex: '(?i)httpc\\.request\\s*\\(.*\\$\\{|ibrowse\\.send_req.*\\$\\{''severity: high
   description: "Potential SSRF via HTTP request"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -122,8 +111,7 @@
 - id: erlang-weak-random
   languages: [erlang]
   patterns:
-    - regex: '(?i)random:\\s*\\('
-  severity: medium
+    - regex: '(?i)random:\\s*\\(''severity: medium
   description: "Insecure random for cryptographic use"
   remediation: "Use crypto:rand_uniform for crypto randomness"
   cwe: "CWE-338"
@@ -133,8 +121,7 @@
 - id: erlang-path-traversal
   languages: [erlang]
   patterns:
-    - regex: '(?i)file:read_file\\s*\\(.*\\$|file:write_file\\s*\\(.*\\$'
-  severity: high
+    - regex: '(?i)file:read_file\\s*\\(.*\\$|file:write_file\\s*\\(.*\\$''severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -144,7 +131,7 @@
 - id: erlang-weak-crypto
   languages: [erlang]
   patterns:
-    - regex: '(?i)crypto:hash\\s*\\(\\s*''md5''|crypto:hash\\s*\\(\\s*''sha'
+    - regex: '(?i)crypto:hash\\s*\\(\\s*'''md5''|crypto:hash\\s*\\(\\s*''sha'
   severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
@@ -155,8 +142,7 @@
 - id: erlang-xxe
   languages: [erlang]
   patterns:
-    - regex: '(?i)xmerl_scan\\.string\\s*\\(.*dtd'
-  severity: high
+    - regex: '(?i)xmerl_scan\\.string\\s*\\(.*dtd''severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing"
   cwe: "CWE-611"
@@ -166,8 +152,7 @@
 - id: erlang-eval
   languages: [erlang]
   patterns:
-    - regex: '(?i)erlang:eval\\s*\\(|rpc:call.*eval'
-  severity: critical
+    - regex: '(?i)erlang:eval\\s*\\(|rpc:call.*eval''severity: critical
   description: "Dynamic code execution"
   remediation: "Avoid eval with untrusted input"
   cwe: "CWE-94"
@@ -177,8 +162,7 @@
 - id: erlang-serialization
   languages: [erlang]
   patterns:
-    - regex: '(?i)erlang:binary_to_term\\s*\\(.*unsafe|term_to_binary'
-  severity: high
+    - regex: '(?i)erlang:binary_to_term\\s*\\(.*unsafe|term_to_binary''severity: high
   description: "Unsafe deserialization"
   remediation: "Use safe binary_to_term"
   cwe: "CWE-502"
@@ -188,8 +172,7 @@
 - id: erlang-template-injection
   languages: [erlang]
   patterns:
-    - regex: '(?i)erlydtl:render.*\\$|mustache:render.*\\$'
-  severity: high
+    - regex: '(?i)erlydtl:render.*\\$|mustache:render.*\\$''severity: high
   description: "Template injection vulnerability"
   remediation: "Sanitize template inputs"
   cwe: "CWE-1336"
@@ -199,8 +182,7 @@
 - id: erlang-hardcoded-creds
   languages: [erlang]
   patterns:
-    - regex: '(?i)-(?:db|password|secret|key)\\s*=\\s*\\"[^"]{4,}\\"'
-  severity: high
+    - regex: '(?i)-(?:db|password|secret|key)\\s*=\\s*\\"[^"]{4,}\\"''severity: high
   description: "Hardcoded credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -210,8 +192,7 @@
 - id: erlang-ldap-injection
   languages: [erlang]
   patterns:
-    - regex: '(?i)eldap:search\\s*\\(.*filter.*\\$|ldap游search.*\\$'
-  severity: high
+    - regex: '(?i)eldap:search\\s*\\(.*filter.*\\$|ldap游search.*\\$''severity: high
   description: "LDAP injection vulnerability"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -221,8 +202,7 @@
 - id: erlang-regex-dos
   languages: [erlang]
   patterns:
-    - regex: '(?i)re:run.*\\*|re:compile.*\\*'
-  severity: medium
+    - regex: '(?i)re:run.*\\*|re:compile.*\\*''severity: medium
   description: "Potential ReDoS vulnerability"
   remediation: "Avoid nested quantifiers"
   cwe: "CWE-1333"
@@ -232,8 +212,7 @@
 - id: erlang-shell-injection
   languages: [erlang]
   patterns:
-    - regex: '(?i)os:cmd\\s*\\(.*\\$\\*|erlang:spawn.*\\$'
-  severity: critical
+    - regex: '(?i)os:cmd\\s*\\(.*\\$\\*|erlang:spawn.*\\$''severity: critical
   description: "Shell command injection"
   remediation: "Validate command arguments"
   cwe: "CWE-78"

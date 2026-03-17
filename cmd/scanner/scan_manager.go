@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"QWEN_SCR_24_FEB_2026/ai"
@@ -41,6 +43,49 @@ type WebScanConfig struct {
 	CustomRulesDir          string `json:"customRulesDir"`
 }
 
+var (
+	activeScans   = make(map[string]context.CancelFunc)
+	activeScansMu sync.Mutex
+)
+
+// registerScan registers a cancellation function for a scan
+func registerScan(scanID string, cancel context.CancelFunc) {
+	activeScansMu.Lock()
+	defer activeScansMu.Unlock()
+	activeScans[scanID] = cancel
+}
+
+// unregisterScan removes a scan's cancellation function
+func unregisterScan(scanID string) {
+	activeScansMu.Lock()
+	defer activeScansMu.Unlock()
+	delete(activeScans, scanID)
+}
+
+// StopScan terminates an active scan
+func StopScan(scanID string) error {
+	activeScansMu.Lock()
+	cancel, exists := activeScans[scanID]
+	activeScansMu.Unlock()
+
+	if !exists {
+		return fmt.Errorf("scan %s not found or already completed", scanID)
+	}
+
+	// Actually cancel the running scan context
+	cancel()
+
+	utils.LogInfo(fmt.Sprintf("Scan %s terminated by user request", scanID))
+	// 5. Unregister
+	unregisterScan(scanID)
+
+	UpdateScanStatus(scanID, "stopped")
+	wsHub.BroadcastLog(scanID, "🛑 Scan terminated by user", "warning")
+	wsHub.BroadcastError(scanID, "Scan aborted by user")
+
+	return nil
+}
+
 // StartScanFromUpload handles uploaded files
 func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 	scanID := uuid.New().String()[:8]
@@ -54,14 +99,40 @@ func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 	}
 
 	go func() {
+		ctx, cancel := context.WithCancel(context.Background())
+		registerScan(scanID, cancel)
+		defer unregisterScan(scanID)
+		defer cancel()
+
 		defer os.RemoveAll(targetDir) // Clean up upload temp directory
-		runScan(scanID, targetDir, webCfg)
+		runScan(ctx, scanID, targetDir, webCfg)
 	}()
 	return scanID, nil
 }
 
+// isValidGitURL performs basic safety checks on the repository URL to prevent flag injection
+func isValidGitURL(url string) bool {
+	trimmed := strings.TrimSpace(url)
+	if trimmed == "" {
+		return false
+	}
+	// Prevent flag injection: URL must not start with a hyphen
+	if strings.HasPrefix(trimmed, "-") {
+		return false
+	}
+	// Basic format check
+	if !strings.HasPrefix(trimmed, "http://") && !strings.HasPrefix(trimmed, "https://") && !strings.HasPrefix(trimmed, "git@") && !strings.HasPrefix(trimmed, "ssh://") {
+		return false
+	}
+	return true
+}
+
 // StartScanFromGit clones a repo and scans it
 func StartScanFromGit(repoURL string, configJSON string) (string, error) {
+	if !isValidGitURL(repoURL) {
+		return "", fmt.Errorf("invalid or unsafe Git URL provided")
+	}
+
 	scanID := uuid.New().String()[:8]
 	var webCfg WebScanConfig
 	json.Unmarshal([]byte(configJSON), &webCfg)
@@ -87,7 +158,8 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Cloning repository: %s", repoURL), "phase")
 		wsHub.BroadcastProgress(scanID, "Cloning Repository", 5)
 
-		cmd := exec.Command("git", "clone", "--depth", "1", repoURL, tmpDir)
+		// Extra safety check for exec
+		cmd := exec.Command("git", "clone", "--depth", "1", "--", repoURL, tmpDir)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			wsHub.BroadcastError(scanID, fmt.Sprintf("Git clone failed: %s", string(output)))
@@ -96,17 +168,23 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		}
 
 		wsHub.BroadcastLog(scanID, "Repository cloned successfully", "success")
-		runScan(scanID, tmpDir, webCfg)
+
+		ctx, cancel := context.WithCancel(context.Background())
+		registerScan(scanID, cancel)
+		defer unregisterScan(scanID)
+		defer cancel()
+
+		runScan(ctx, scanID, tmpDir, webCfg)
 	}()
 
 	return scanID, nil
 }
 
 // runScan is the core scan orchestration (runs in a goroutine)
-func runScan(scanID string, targetDir string, cfg WebScanConfig) {
+func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanConfig) {
 	// Route to Ensemble pipeline if enabled
 	if cfg.EnableEnsemble {
-		runEnsembleScan(scanID, targetDir, cfg)
+		runEnsembleScan(ctx, scanID, targetDir, cfg)
 		return
 	}
 
@@ -114,6 +192,10 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 
 	wsHub.BroadcastLog(scanID, "🚀 Starting security scan...", "phase")
 	wsHub.BroadcastProgress(scanID, "Initializing", 2)
+
+	if ctx.Err() != nil {
+		return
+	}
 
 	if cfg.OllamaHost != "" {
 		ai.SetOllamaHost(cfg.OllamaHost)
@@ -131,9 +213,12 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 	}
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("Loaded %d rules from %s", len(rules), rulesDir), "info")
 
-	// Walk directory
+	// Walking directory
 	wsHub.BroadcastProgress(scanID, "Scanning Files", 10)
 	wsHub.BroadcastLog(scanID, "Walking target directory...", "info")
+	if ctx.Err() != nil {
+		return
+	}
 	result, err := scanner.WalkDirectory(targetDir)
 	if err != nil {
 		wsHub.BroadcastError(scanID, fmt.Sprintf("Failed to walk directory: %v", err))
@@ -149,8 +234,14 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 	var allFindings []reporter.Finding
 
 	// ── Always-On Scanners ──────────────────────────────────
+	if ctx.Err() != nil {
+		return
+	}
 
 	// Pattern Scan (always)
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastProgress(scanID, "Pattern Matching", 20)
 	wsHub.BroadcastLog(scanID, "Running pattern engine...", "phase")
 	patternFindings := scanner.RunPatternScan(result, rules, rulesDir)
@@ -161,6 +252,9 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("Pattern engine found %d issues", len(patternFindings)), "info")
 
 	// AST Analysis (always)
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastProgress(scanID, "AST Analysis", 30)
 	wsHub.BroadcastLog(scanID, "Running AST analyzer...", "phase")
 	astAnalyzer := scanner.NewASTAnalyzer()
@@ -175,11 +269,20 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("AST analysis complete (%d total findings so far)", len(allFindings)), "info")
 
 	// Taint Analysis (always)
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastProgress(scanID, "Taint Analysis", 40)
 	wsHub.BroadcastLog(scanID, "Running taint analyzer...", "phase")
 	taintAnalyzer := scanner.NewTaintAnalyzer()
 	for _, files := range result.FilePaths {
+		if ctx.Err() != nil {
+			return
+		}
 		for _, file := range files {
+			if ctx.Err() != nil {
+				return
+			}
 			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
 			if err == nil {
 				allFindings = append(allFindings, findings...)
@@ -189,6 +292,9 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("Taint analysis complete (%d total findings)", len(allFindings)), "info")
 
 	// Secret Detection (always on — not togglable)
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastProgress(scanID, "Secret Detection", 50)
 	wsHub.BroadcastLog(scanID, "Scanning for hardcoded secrets...", "phase")
 	secretDetector := scanner.NewSecretDetector()
@@ -201,10 +307,13 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 	// ── Deep Scan Features (gated) ──────────────────────────
 
 	if cfg.EnableDeepScan {
+		if ctx.Err() != nil {
+			return
+		}
 		// Dependency Scan
 		wsHub.BroadcastProgress(scanID, "Dependency Scan", 52)
 		wsHub.BroadcastLog(scanID, "Checking vulnerable dependencies...", "phase")
-		depFindings, err := scanner.ScanDependencies(targetDir)
+		depFindings, err := scanner.ScanDependencies(ctx, targetDir)
 		if err == nil {
 			allFindings = append(allFindings, depFindings...)
 		}
@@ -213,7 +322,7 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 		// Semgrep
 		wsHub.BroadcastProgress(scanID, "Semgrep Analysis", 55)
 		wsHub.BroadcastLog(scanID, "Running Semgrep analysis...", "phase")
-		semgrepFindings, err := scanner.RunSemgrep(targetDir)
+		semgrepFindings, err := scanner.RunSemgrep(ctx, targetDir)
 		if err == nil {
 			allFindings = append(allFindings, semgrepFindings...)
 		}
@@ -223,7 +332,7 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 		wsHub.BroadcastProgress(scanID, "Supply Chain Analysis", 58)
 		wsHub.BroadcastLog(scanID, "Running supply chain security checks...", "phase")
 		supplyChainScanner := scanner.NewSupplyChainScanner()
-		scFindings, err := supplyChainScanner.ScanSupplyChain(targetDir)
+		scFindings, err := supplyChainScanner.ScanSupplyChain(ctx, targetDir)
 		if err == nil {
 			allFindings = append(allFindings, scFindings...)
 		}
@@ -233,7 +342,7 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 		if scanner.CheckOSVCliInstalled() {
 			wsHub.BroadcastProgress(scanID, "OSV SCA Scan", 60)
 			wsHub.BroadcastLog(scanID, "Running OSV.dev SCA vulnerability scan...", "phase")
-			osvFindings, osvErr := scanner.RunOSVCli(targetDir)
+			osvFindings, osvErr := scanner.RunOSVCli(ctx, targetDir)
 			if osvErr == nil && len(osvFindings) > 0 {
 				allFindings = append(allFindings, osvFindings...)
 				wsHub.BroadcastLog(scanID, fmt.Sprintf("OSV SCA found %d known CVEs", len(osvFindings)), "success")
@@ -296,6 +405,9 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 	}
 
 	if cfg.EnableAI {
+		if ctx.Err() != nil {
+			return
+		}
 		// AI Discovery
 		wsHub.BroadcastProgress(scanID, "AI Discovery", 70)
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Running AI discovery with model: %s", modelName), "phase")
@@ -348,28 +460,18 @@ func runScan(scanID string, targetDir string, cfg WebScanConfig) {
 			}
 
 			wsHub.BroadcastProgress(scanID, "AI Consolidation", 85)
-			wsHub.BroadcastLog(scanID, fmt.Sprintf("Consolidating static + AI findings using Larger LLM: %s...", consolidationModel), "phase")
-			merged, err := ai.ConsolidateFindings(allFindings, aiFindings, consolidationModel)
+			wsHub.BroadcastLog(scanID, fmt.Sprintf("Consolidating static + AI findings using Judge LLM: %s...", consolidationModel), "phase")
+
+			// Use the more robust JudgeFindings engine
+			merged, err := ai.JudgeFindings(allFindings, aiFindings, consolidationModel, cfg.ConsolidationOllamaHost)
 			if err == nil {
 				allFindings = merged
 				wsHub.BroadcastLog(scanID, "Consolidation complete", "success")
 			} else {
 				allFindings = append(allFindings, aiFindings...)
-				wsHub.BroadcastLog(scanID, fmt.Sprintf("Consolidation failed, appending: %v", err), "warning")
+				wsHub.BroadcastLog(scanID, fmt.Sprintf("Consolidation failed, using simple merge: %v", err), "warning")
 			}
 		}
-	}
-
-	// ── ML False Positive Reduction (gated) ─────────────────
-
-	if cfg.EnableMLFPReduction && cfg.EnableAI {
-		wsHub.BroadcastProgress(scanID, "ML FP Reduction", 87)
-		wsHub.BroadcastLog(scanID, "Running ML-based false positive reduction...", "phase")
-		mlReducer := ai.NewMLFPReducer(".scanner-cache")
-		mlReducer.LoadHistory()
-		allFindings = mlReducer.FilterFindingsByFPProbability(allFindings, 0.7)
-		mlReducer.SaveHistory()
-		wsHub.BroadcastLog(scanID, "ML FP reduction complete", "info")
 	}
 
 	// ── Confidence Calibration (always after AI) ────────────
@@ -658,12 +760,13 @@ func ExtractUploadedZip(zipPath string) (string, error) {
 //  ENSEMBLE AUDIT MODE — 3-Phase Pipeline
 // ════════════════════════════════════════════════════════════
 
+// runEnsembleScan implements the 3-phase high-assurance audit pipeline
 // runEnsembleScan runs the full 3-phase Ensemble Audit:
 //
 //	Phase 1 (0-40%):  All static scanners → Report A
 //	Phase 2 (40-75%): Independent AI discovery → Report B
 //	Phase 3 (75-95%): Judge LLM merges A+B → Final Master Report
-func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
+func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg WebScanConfig) {
 	startTime := time.Now()
 
 	wsHub.BroadcastLog(scanID, "🔬 Starting Ensemble Audit (3-Phase Pipeline)...", "phase")
@@ -686,6 +789,9 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("Loaded %d rules from %s", len(rules), rulesDir), "info")
 
 	// Walk directory
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastProgress(scanID, "Scanning Files", 3)
 	wsHub.BroadcastLog(scanID, "Walking target directory...", "info")
 	result, err := scanner.WalkDirectory(targetDir)
@@ -703,6 +809,9 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	// ════════════════════════════════════════════════════════
 	//  PHASE 1: STATIC EXPERT (0-40%)
 	// ════════════════════════════════════════════════════════
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")
 	wsHub.BroadcastLog(scanID, "📊 PHASE 1: Static Expert Scan", "phase")
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")
@@ -757,7 +866,7 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	// Dependency Scan
 	wsHub.BroadcastProgress(scanID, "Phase 1: Dependency Scan", 20)
 	wsHub.BroadcastLog(scanID, "Checking vulnerable dependencies...", "info")
-	depFindings, err := scanner.ScanDependencies(targetDir)
+	depFindings, err := scanner.ScanDependencies(ctx, targetDir)
 	if err == nil {
 		staticFindings = append(staticFindings, depFindings...)
 	}
@@ -765,7 +874,7 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	// Semgrep
 	wsHub.BroadcastProgress(scanID, "Phase 1: Semgrep Analysis", 24)
 	wsHub.BroadcastLog(scanID, "Running Semgrep analysis...", "info")
-	semgrepFindings, err := scanner.RunSemgrep(targetDir)
+	semgrepFindings, err := scanner.RunSemgrep(ctx, targetDir)
 	if err == nil {
 		staticFindings = append(staticFindings, semgrepFindings...)
 	}
@@ -774,7 +883,7 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	wsHub.BroadcastProgress(scanID, "Phase 1: Supply Chain", 28)
 	wsHub.BroadcastLog(scanID, "Running supply chain security checks...", "info")
 	supplyChainScanner := scanner.NewSupplyChainScanner()
-	scFindings, err := supplyChainScanner.ScanSupplyChain(targetDir)
+	scFindings, err := supplyChainScanner.ScanSupplyChain(ctx, targetDir)
 	if err == nil {
 		staticFindings = append(staticFindings, scFindings...)
 	}
@@ -782,7 +891,7 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	// OSV SCA
 	if scanner.CheckOSVCliInstalled() {
 		wsHub.BroadcastProgress(scanID, "Phase 1: OSV SCA Scan", 30)
-		osvFindings, osvErr := scanner.RunOSVCli(targetDir)
+		osvFindings, osvErr := scanner.RunOSVCli(ctx, targetDir)
 		if osvErr == nil && len(osvFindings) > 0 {
 			staticFindings = append(staticFindings, osvFindings...)
 		}
@@ -828,6 +937,9 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	// ════════════════════════════════════════════════════════
 	//  PHASE 2: AI EXPERT (40-75%)
 	// ════════════════════════════════════════════════════════
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")
 	wsHub.BroadcastLog(scanID, "🤖 PHASE 2: AI Expert Scan", "phase")
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")
@@ -873,6 +985,9 @@ func runEnsembleScan(scanID string, targetDir string, cfg WebScanConfig) {
 	// ════════════════════════════════════════════════════════
 	//  PHASE 3: JUDGE LLM (75-95%)
 	// ════════════════════════════════════════════════════════
+	if ctx.Err() != nil {
+		return
+	}
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")
 	wsHub.BroadcastLog(scanID, "⚖️  PHASE 3: AI Judge — Merging Reports", "phase")
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")

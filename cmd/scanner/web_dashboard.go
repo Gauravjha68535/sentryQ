@@ -41,6 +41,8 @@ var (
 	}
 )
 
+// ──────────────────────────────────────────────────────────
+
 // StartWebServer starts the full web application server
 func StartWebServer(port int) {
 	if err := InitDB(); err != nil {
@@ -271,7 +273,13 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// GET /api/scan/:id/findings?phase=static|ai|final
+	// POST /api/scan/:id/stop
+	if len(parts) >= 2 && parts[1] == "stop" && r.Method == http.MethodPost {
+		handleStopScan(w, r)
+		return
+	}
+
+// GET /api/scan/:id/findings?phase=static|ai|final
 	if len(parts) >= 2 && parts[1] == "findings" {
 		phase := r.URL.Query().Get("phase")
 		var findings []reporter.Finding
@@ -599,6 +607,24 @@ Assume the user is a developer or security engineer.`,
 	}
 
 	httpJSON(w, http.StatusOK, resp)
+}
+
+func handleStopScan(w http.ResponseWriter, r *http.Request) {
+	setCORS(w)
+	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")
+	parts := strings.Split(path, "/")
+	if len(parts) == 0 {
+		http.Error(w, "Invalid scan ID", http.StatusBadRequest)
+		return
+	}
+	scanID := parts[0]
+
+	if err := StopScan(scanID); err != nil {
+		httpJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+		return
+	}
+
+	httpJSON(w, http.StatusOK, map[string]string{"status": "stopping"})
 }
 
 func init() {

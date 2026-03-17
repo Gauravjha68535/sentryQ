@@ -106,7 +106,7 @@ func CreateScan(id, target, sourceType, configJSON string) error {
 
 // UpdateScanStatus updates the status of a scan
 func UpdateScanStatus(id, status string) error {
-	if status == "completed" || status == "failed" || status == "cancelled" {
+	if status == "completed" || status == "failed" || status == "cancelled" || status == "stopped" {
 		now := time.Now().UTC()
 		_, err := db.Exec("UPDATE scans SET status = ?, completed_at = ? WHERE id = ?", status, now, id)
 		return err

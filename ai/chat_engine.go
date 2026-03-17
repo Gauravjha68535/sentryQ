@@ -2,6 +2,7 @@ package ai
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -52,7 +53,11 @@ func GenerateChatResponse(modelName string, messages []ChatMessage) (*ChatRespon
 		return nil, fmt.Errorf("failed to marshal chat request: %v", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(globalCtx, "POST", apiURL, bytes.NewBuffer(reqJSON))
+	// Create a fresh context for chat requests
+	chatCtx, chatCancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer chatCancel()
+
+	httpReq, err := http.NewRequestWithContext(chatCtx, "POST", apiURL, bytes.NewBuffer(reqJSON))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request: %v", err)
 	}

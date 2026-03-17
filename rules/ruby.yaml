@@ -1,8 +1,7 @@
 - id: ruby-kernel-open
   languages: [ruby]
   patterns:
-    - regex: '\\bopen\\s*\\(\\s*[^)]*\\|'
-  severity: high
+    - regex: '\\bopen\\s*\\(\\s*[^)]*\\|''severity: high
   description: "Kernel#open with pipe allows command injection"
   remediation: "Use File.open for files, URI.open for URIs. Never use open with user input."
   cwe: "CWE-78"
@@ -11,8 +10,7 @@
 - id: ruby-kernel-open-pipe
   languages: [ruby]
   patterns:
-    - regex: 'open\\s*\\(\\s*["\\x27]\\|'
-  severity: critical
+    - regex: 'open\\s*\\(\\s*["\\x27]\\|''severity: critical
   description: "Kernel#open with pipe executes commands"
   remediation: "Use Open3.capture or Process.spawn instead of open with pipe."
   cwe: "CWE-78"
@@ -21,8 +19,7 @@
 - id: ruby-kernel-open-user-input
   languages: [ruby]
   patterns:
-    - regex: 'open\\s*\\(\\s*.*params\\[|open\\s*\\(\\s*.*request|open\\s*\\(\\s*.*user'
-  severity: high
+    - regex: 'open\\s*\\(\\s*.*params\\[|open\\s*\\(\\s*.*request|open\\s*\\(\\s*.*user''severity: high
   description: "Kernel#open with user input - command injection"
   remediation: "Never pass user input to open. Use safe alternatives."
   cwe: "CWE-78"
@@ -31,8 +28,7 @@
 - id: ruby-kernel-open-pipe-params
   languages: [ruby]
   patterns:
-    - regex: 'open\\s*\\(\\s*[^)]*\\|.*params'
-  severity: critical
+    - regex: 'open\\s*\\(\\s*[^)]*\\|.*params''severity: critical
   description: "Kernel#open with pipe and params - command injection"
   remediation: "Use Process.spawn with arguments array instead."
   cwe: "CWE-78"
@@ -41,8 +37,7 @@
 - id: ruby-uri-open
   languages: [ruby]
   patterns:
-    - regex: 'URI\\.open\\s*\\('
-  severity: high
+    - regex: 'URI\\.open\\s*\\(''severity: high
   description: "URI.open can open local files and remote URIs"
   remediation: "Use URI.open with user input carefully - validate URIs."
   cwe: "CWE-918"
@@ -51,8 +46,7 @@
 - id: ruby-uri-open-user-input
   languages: [ruby]
   patterns:
-    - regex: 'URI\\.open\\s*\\(\\s*.*params\\[|URI\\.open\\s*\\(\\s*.*request'
-  severity: high
+    - regex: 'URI\\.open\\s*\\(\\s*.*params\\[|URI\\.open\\s*\\(\\s*.*request''severity: high
   description: "URI.open with user input - SSRF and file inclusion"
   remediation: "Validate URIs against allowlist, block local file access."
   cwe: "CWE-918"
@@ -61,7 +55,7 @@
 - id: ruby-uri-open-local-file
   languages: [ruby]
   patterns:
-    - regex: 'URI\\.open\\s*\\(\\s*[''"]file://'
+    - regex: 'URI\\.open\\s*\\(\\s*['''"]file://'
   severity: high
   description: "URI.open with file:// - local file inclusion"
   remediation: "Use File.open for local files, not URI.open."
@@ -71,8 +65,7 @@
 - id: ruby-uri-open-private-ip
   languages: [ruby]
   patterns:
-    - regex: 'URI\\.open.*192\\.168|URI\\.open.*10\\.|URI\\.open.*172\\.1[6-9]'
-  severity: high
+    - regex: 'URI\\.open.*192\\.168|URI\\.open.*10\\.|URI\\.open.*172\\.1[6-9]''severity: high
   description: "URI.open accessing private IP range - SSRF risk"
   remediation: "Block access to private IP ranges."
   cwe: "CWE-918"
@@ -81,8 +74,7 @@
 - id: ruby-uri-open-localhost
   languages: [ruby]
   patterns:
-    - regex: 'URI\\.open.*localhost|URI\\.open.*127\\.0\\.0\\.1'
-  severity: high
+    - regex: 'URI\\.open.*localhost|URI\\.open.*127\\.0\\.0\\.1''severity: high
   description: "URI.open accessing localhost - SSRF risk"
   remediation: "Block access to localhost and loopback addresses."
   cwe: "CWE-918"
@@ -91,8 +83,7 @@
 - id: ruby-open3-popen2
   languages: [ruby]
   patterns:
-    - regex: 'Open3\\.popen2|Open3\\.popen2e|Open3\\.popen3'
-  severity: high
+    - regex: 'Open3\\.popen2|Open3\\.popen2e|Open3\\.popen3''severity: high
   description: "Open3.popen* - ensure command arguments are safe"
   remediation: "Use array form for command and arguments to avoid injection."
   cwe: "CWE-78"
@@ -101,8 +92,7 @@
 - id: ruby-open3-capture
   languages: [ruby]
   patterns:
-    - regex: 'Open3\\.capture2|Open3\\.capture2e|Open3\\.capture3'
-  severity: high
+    - regex: 'Open3\\.capture2|Open3\\.capture2e|Open3\\.capture3''severity: high
   description: "Open3.capture* - command injection risk"
   remediation: "Use array form: Open3.capture2(['ls', '-la'], ...)"
   cwe: "CWE-78"
@@ -111,8 +101,7 @@
 - id: ruby-open3-pipeline
   languages: [ruby]
   patterns:
-    - regex: 'Open3\\.pipeline|Open3\\.pipeline_r|Open3\\.pipeline_w'
-  severity: high
+    - regex: 'Open3\\.pipeline|Open3\\.pipeline_r|Open3\\.pipeline_w''severity: high
   description: "Open3.pipeline* - complex command pipelines"
   remediation: "Validate all command components."
   cwe: "CWE-78"
@@ -121,8 +110,7 @@
 - id: ruby-process-spawn
   languages: [ruby]
   patterns:
-    - regex: 'Process\\.spawn'
-  severity: high
+    - regex: 'Process\\.spawn''severity: high
   description: "Process.spawn - command injection risk"
   remediation: "Use array form: Process.spawn('ls', '-la')"
   cwe: "CWE-78"
@@ -131,8 +119,7 @@
 - id: ruby-process-spawn-shell
   languages: [ruby]
   patterns:
-    - regex: 'Process\\.spawn\\([^)]*\\|[^)]*\\)'
-  severity: critical
+    - regex: 'Process\\.spawn\\([^)]*\\|[^)]*\\)''severity: critical
   description: "Process.spawn with shell metacharacters - injection"
   remediation: "Use array form to avoid shell interpretation."
   cwe: "CWE-78"
@@ -141,8 +128,7 @@
 - id: ruby-io-popen
   languages: [ruby]
   patterns:
-    - regex: 'IO\\.popen'
-  severity: critical
+    - regex: 'IO\\.popen''severity: critical
   description: "IO.popen executes commands - command injection"
   remediation: "Use Open3.capture with array arguments instead."
   cwe: "CWE-78"
@@ -151,8 +137,7 @@
 - id: ruby-exec-system
   languages: [ruby]
   patterns:
-    - regex: 'exec\\s+|system\\s+'
-  severity: critical
+    - regex: 'exec\\s+|system\\s+''severity: critical
   description: "exec/system - command injection risk"
   remediation: "Use system with array arguments: system('ls', '-la')"
   cwe: "CWE-78"
@@ -161,8 +146,7 @@
 - id: ruby-backtick-operator
   languages: [ruby]
   patterns:
-    - regex: '`[^`]*#\\{.*\\}[^`]*`'
-  severity: critical
+    - regex: '`[^`]*#\\{.*\\}[^`]*`''severity: critical
   description: "Backtick operator with interpolation - command injection"
   remediation: "Use system with array arguments or Open3.capture."
   cwe: "CWE-78"
@@ -171,8 +155,7 @@
 - id: ruby-backtick-user-input
   languages: [ruby]
   patterns:
-    - regex: '`[^`]*params\\[|`[^`]*request[^`]*`'
-  severity: critical
+    - regex: '`[^`]*params\\[|`[^`]*request[^`]*`''severity: critical
   description: "Backtick operator with user input - command injection"
   remediation: "Never use backticks with user input."
   cwe: "CWE-78"
@@ -181,8 +164,7 @@
 - id: ruby-percent-x-command
   languages: [ruby]
   patterns:
-    - regex: '%x\\[.*#\\{.*\\}.*\\]'
-  severity: high
+    - regex: '%x\\[.*#\\{.*\\}.*\\]''severity: high
   description: "%x command execution with interpolation - injection"
   remediation: "Use system with array arguments."
   cwe: "CWE-78"
@@ -191,8 +173,7 @@
 - id: ruby-percent-x-user-input
   languages: [ruby]
   patterns:
-    - regex: '%x\\[.*params\\[|%x\\[.*request'
-  severity: high
+    - regex: '%x\\[.*params\\[|%x\\[.*request''severity: high
   description: "%x with user input - command injection"
   remediation: "Never use %x with user input."
   cwe: "CWE-78"
@@ -201,8 +182,7 @@
 - id: ruby-shell-words-escape
   languages: [ruby]
   patterns:
-    - regex: 'Shellwords\\.escape'
-  severity: medium
+    - regex: 'Shellwords\\.escape''severity: medium
   description: "Shellwords.escape - may not cover all injection vectors"
   remediation: "Prefer array arguments instead of escaping."
   cwe: "CWE-78"
@@ -211,8 +191,7 @@
 - id: ruby-shell-words-join
   languages: [ruby]
   patterns:
-    - regex: 'Shellwords\\.join'
-  severity: medium
+    - regex: 'Shellwords\\.join''severity: medium
   description: "Shellwords.join builds command strings - injection risk"
   remediation: "Use array arguments directly with system/exec."
   cwe: "CWE-78"
@@ -223,8 +202,7 @@
 - id: ruby-send-user-input
   languages: [ruby]
   patterns:
-    - regex: '\\.send\\s*\\(\\s*params\\[|\\.send\\s*\\(\\s*request|'
-  severity: high
+    - regex: '\\.send\\s*\\(\\s*params\\[|\\.send\\s*\\(\\s*request|''severity: high
   description: "send with user input - arbitrary method invocation"
   remediation: "Use allowlist of permitted methods before send."
   cwe: "CWE-470"
@@ -233,7 +211,7 @@
 - id: ruby-send-unsafe-method
   languages: [ruby]
   patterns:
-    - regex: '\\.send\\s*\\(\\s*[''"][^''"]*(?:exec|system|eval|send)'
+    - regex: '\\.send\\s*\\(\\s*['''"][^''"]*(?:exec|system|eval|send)'
   severity: high
   description: "send calling dangerous methods - RCE"
   remediation: "Never allow user input to select method names."
@@ -243,8 +221,7 @@
 - id: ruby-public-send-user-input
   languages: [ruby]
   patterns:
-    - regex: '\\.public_send\\s*\\(\\s*params\\['
-  severity: high
+    - regex: '\\.public_send\\s*\\(\\s*params\\[''severity: high
   description: "public_send with user input - arbitrary public method invocation"
   remediation: "Validate method names against allowlist."
   cwe: "CWE-470"
@@ -253,8 +230,7 @@
 - id: ruby-send-method-missing
   languages: [ruby]
   patterns:
-    - regex: 'method_missing\\s*\\([^)]*\\)'
-  severity: high
+    - regex: 'method_missing\\s*\\([^)]*\\)''severity: high
   description: "method_missing can be exploited with send"
   remediation: "Ensure method_missing doesn't forward to send with user input."
   cwe: "CWE-470"
@@ -263,8 +239,7 @@
 - id: ruby-define-method-user-input
   languages: [ruby]
   patterns:
-    - regex: 'define_method\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'define_method\\s*\\(\\s*params\\[''severity: high
   description: "define_method with user input - dynamic method definition"
   remediation: "Never define methods based on user input."
   cwe: "CWE-470"
@@ -273,8 +248,7 @@
 - id: ruby-class-eval-user-input
   languages: [ruby]
   patterns:
-    - regex: 'class_eval\\s*\\(\\s*params\\[|module_eval\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'class_eval\\s*\\(\\s*params\\[|module_eval\\s*\\(\\s*params\\[''severity: high
   description: "class_eval/module_eval with user input - code injection"
   remediation: "Never use eval family with user input."
   cwe: "CWE-94"
@@ -283,8 +257,7 @@
 - id: ruby-instance-eval-user-input
   languages: [ruby]
   patterns:
-    - regex: 'instance_eval\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'instance_eval\\s*\\(\\s*params\\[''severity: high
   description: "instance_eval with user input - code injection"
   remediation: "Never use instance_eval with user input."
   cwe: "CWE-94"
@@ -293,8 +266,7 @@
 - id: ruby-method-missing-delegation
   languages: [ruby]
   patterns:
-    - regex: 'method_missing.*send.*params|method_missing.*__send__.*params'
-  severity: high
+    - regex: 'method_missing.*send.*params|method_missing.*__send__.*params''severity: high
   description: "method_missing delegating to send with user input"
   remediation: "Never pass user input through method_missing to send."
   cwe: "CWE-470"
@@ -303,8 +275,7 @@
 - id: ruby-const-get-user-input
   languages: [ruby]
   patterns:
-    - regex: 'const_get\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'const_get\\s*\\(\\s*params\\[''severity: high
   description: "const_get with user input - arbitrary constant access"
   remediation: "Validate constant names against allowlist."
   cwe: "CWE-470"
@@ -313,8 +284,7 @@
 - id: ruby-const-missing
   languages: [ruby]
   patterns:
-    - regex: 'const_missing\\s*\\([^)]*\\)'
-  severity: high
+    - regex: 'const_missing\\s*\\([^)]*\\)''severity: high
   description: "const_missing can be exploited"
   remediation: "Ensure const_missing doesn't load arbitrary constants."
   cwe: "CWE-470"
@@ -323,8 +293,7 @@
 - id: ruby-constantize-user-input
   languages: [ruby]
   patterns:
-    - regex: '\\.constantize\\s*(?:$|[\\s\\.])|\\bsafe_constantize\\s*\\(\\s*params\\['
-  severity: high
+    - regex: '\\.constantize\\s*(?:$|[\\s\\.])|\\bsafe_constantize\\s*\\(\\s*params\\[''severity: high
   description: "constantize with user input - arbitrary class loading"
   remediation: "Use allowlist of permitted class names."
   cwe: "CWE-470"
@@ -333,8 +302,7 @@
 - id: ruby-autoload-user-input
   languages: [ruby]
   patterns:
-    - regex: 'autoload\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'autoload\\s*\\(\\s*params\\[''severity: high
   description: "autoload with user input - arbitrary file loading"
   remediation: "Never use autoload with user input."
   cwe: "CWE-98"
@@ -343,8 +311,7 @@
 - id: ruby-require-user-input
   languages: [ruby]
   patterns:
-    - regex: 'require\\s*\\(\\s*params\\[|load\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'require\\s*\\(\\s*params\\[|load\\s*\\(\\s*params\\[''severity: high
   description: "require/load with user input - arbitrary file inclusion"
   remediation: "Never use require/load with user input."
   cwe: "CWE-98"
@@ -353,8 +320,7 @@
 - id: ruby-require-dynamic
   languages: [ruby]
   patterns:
-    - regex: 'require\\s*.*\\+.*params|load\\s*.*\\+.*params'
-  severity: high
+    - regex: 'require\\s*.*\\+.*params|load\\s*.*\\+.*params''severity: high
   description: "Dynamic require/load with user input - file inclusion"
   remediation: "Use static require statements only."
   cwe: "CWE-98"
@@ -363,8 +329,7 @@
 - id: ruby-autoload-dynamic
   languages: [ruby]
   patterns:
-    - regex: 'autoload\\s*\\([^,]+,\\s*[^)]*params'
-  severity: high
+    - regex: 'autoload\\s*\\([^,]+,\\s*[^)]*params''severity: high
   description: "Dynamic autoload path with user input - file inclusion"
   remediation: "Use fixed autoload paths."
   cwe: "CWE-98"
@@ -373,8 +338,7 @@
 - id: ruby-require-relative-user
   languages: [ruby]
   patterns:
-    - regex: 'require_relative\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'require_relative\\s*\\(\\s*params\\[''severity: high
   description: "require_relative with user input - path traversal"
   remediation: "Never use require_relative with user input."
   cwe: "CWE-22"
@@ -383,8 +347,7 @@
 - id: ruby-load-path-modify
   languages: [ruby]
   patterns:
-    - regex: '\\$LOAD_PATH <<|\\$: <<'
-  severity: medium
+    - regex: '\\$LOAD_PATH <<|\\$: <<''severity: medium
   description: "Modifying LOAD_PATH - ensure paths are trusted"
   remediation: "Only add trusted directories to LOAD_PATH."
   cwe: "CWE-98"
@@ -393,8 +356,7 @@
 - id: ruby-load-path-user-input
   languages: [ruby]
   patterns:
-    - regex: '\\$LOAD_PATH <<.*params|\\$: <<.*params'
-  severity: high
+    - regex: '\\$LOAD_PATH <<.*params|\\$: <<.*params''severity: high
   description: "LOAD_PATH modified with user input - arbitrary code loading"
   remediation: "Never use user input in LOAD_PATH."
   cwe: "CWE-98"
@@ -403,8 +365,7 @@
 - id: ruby-gem-loading
   languages: [ruby]
   patterns:
-    - regex: 'gem\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'gem\\s*\\(\\s*params\\[''severity: high
   description: "gem loading with user input - arbitrary gem activation"
   remediation: "Never load gems based on user input."
   cwe: "CWE-98"
@@ -415,8 +376,7 @@
 - id: ruby-yaml-load
   languages: [ruby]
   patterns:
-    - regex: 'YAML\\.load\\s*\\([^)]*\\)'
-  severity: critical
+    - regex: 'YAML\\.load\\s*\\([^)]*\\)''severity: critical
   description: "YAML.load can deserialize arbitrary objects - RCE"
   remediation: "Use YAML.safe_load with permitted_classes."
   cwe: "CWE-502"
@@ -425,8 +385,7 @@
 - id: ruby-yaml-load-user-input
   languages: [ruby]
   patterns:
-    - regex: 'YAML\\.load\\s*\\(\\s*params\\[|YAML\\.load\\s*\\(\\s*request'
-  severity: critical
+    - regex: 'YAML\\.load\\s*\\(\\s*params\\[|YAML\\.load\\s*\\(\\s*request''severity: critical
   description: "YAML.load with user input - remote code execution"
   remediation: "Never use YAML.load on user input. Use YAML.safe_load."
   cwe: "CWE-502"
@@ -435,8 +394,7 @@
 - id: ruby-yaml-load-file
   languages: [ruby]
   patterns:
-    - regex: 'YAML\\.load_file\\s*\\([^)]*\\)'
-  severity: high
+    - regex: 'YAML\\.load_file\\s*\\([^)]*\\)''severity: high
   description: "YAML.load_file - ensure file is trusted"
   remediation: "Use YAML.safe_load_file for untrusted YAML files."
   cwe: "CWE-502"
@@ -445,8 +403,7 @@
 - id: ruby-yaml-load-stream
   languages: [ruby]
   patterns:
-    - regex: 'YAML\\.load_stream\\s*\\([^)]*\\)'
-  severity: high
+    - regex: 'YAML\\.load_stream\\s*\\([^)]*\\)''severity: high
   description: "YAML.load_stream - multiple documents, all deserialized"
   remediation: "Use YAML.safe_load_stream with permitted classes."
   cwe: "CWE-502"
@@ -455,8 +412,7 @@
 - id: ruby-yaml-safe-load-aliases
   languages: [ruby]
   patterns:
-    - regex: 'aliases:\\s*true'
-  severity: medium
+    - regex: 'aliases:\\s*true''severity: medium
   description: "YAML aliases enabled - may allow entity expansion attacks"
   remediation: "Disable aliases unless needed."
   cwe: "CWE-776"
@@ -465,8 +421,7 @@
 - id: ruby-yaml-permitted-classes
   languages: [ruby]
   patterns:
-    - regex: 'YAML\\.safe_load.*\\[\\s*\\]'
-  severity: high
+    - regex: 'YAML\\.safe_load.*\\[\\s*\\]''severity: high
   description: "YAML.safe_load with empty permitted_classes - only basic types"
   remediation: "Add any required classes to permitted_classes."
   cwe: "CWE-502"
@@ -475,8 +430,7 @@
 - id: ruby-yaml-deserialize-gadgets
   languages: [ruby]
   patterns:
-    - regex: 'Gem::Specification|Gem::Requirement|Gem::Dependency'
-  severity: high
+    - regex: 'Gem::Specification|Gem::Requirement|Gem::Dependency''severity: high
   description: "YAML deserialization of gem objects - known gadget chains"
   remediation: "Never allow these classes in YAML deserialization."
   cwe: "CWE-502"
@@ -485,8 +439,7 @@
 - id: ruby-yaml-psych-gadgets
   languages: [ruby]
   patterns:
-    - regex: 'Psych::|ActiveSupport::'
-  severity: high
+    - regex: 'Psych::|ActiveSupport::''severity: high
   description: "YAML deserialization of Psych or ActiveSupport objects - RCE"
   remediation: "Use YAML.safe_load and disallow these classes."
   cwe: "CWE-502"
@@ -495,8 +448,7 @@
 - id: ruby-yaml-erb-injection
   languages: [ruby]
   patterns:
-    - regex: '!ruby/object:ERB'
-  severity: high
+    - regex: '!ruby/object:ERB''severity: high
   description: "YAML loading ERB objects - can execute arbitrary ERB"
   remediation: "Never allow ERB class in YAML deserialization."
   cwe: "CWE-94"
@@ -505,8 +457,7 @@
 - id: ruby-yaml-date-gadgets
   languages: [ruby]
   patterns:
-    - regex: 'Date|DateTime|Time'
-  severity: medium
+    - regex: 'Date|DateTime|Time''severity: medium
   description: "Date/DateTime/Time objects in YAML - potential DoS"
   remediation: "Only allow if needed, set limits."
   cwe: "CWE-770"
@@ -515,8 +466,7 @@
 - id: ruby-yaml-symbols
   languages: [ruby]
   patterns:
-    - regex: '!ruby/symbol'
-  severity: high
+    - regex: '!ruby/symbol''severity: high
   description: "YAML loading symbols - memory exhaustion risk"
   remediation: "Use permitted_symbols: [] to restrict symbols."
   cwe: "CWE-770"
@@ -525,8 +475,7 @@
 - id: ruby-psych-unsafe
   languages: [ruby]
   patterns:
-    - regex: 'Psych\\.load|Psych\\.load_file|Psych\\.load_stream'
-  severity: critical
+    - regex: 'Psych\\.load|Psych\\.load_file|Psych\\.load_stream''severity: critical
   description: "Psych.load is unsafe like YAML.load"
   remediation: "Use Psych.safe_load with permitted_classes."
   cwe: "CWE-502"
@@ -535,8 +484,7 @@
 - id: ruby-psych-parse
   languages: [ruby]
   patterns:
-    - regex: 'Psych\\.parse|Psych\\.parse_file|Psych\\.parse_stream'
-  severity: medium
+    - regex: 'Psych\\.parse|Psych\\.parse_file|Psych\\.parse_stream''severity: medium
   description: "Psych.parse returns a Psych::Nodes::Document - safer"
   remediation: "Use parse and walk tree manually for safety."
   cwe: "CWE-502"
@@ -545,8 +493,7 @@
 - id: ruby-json-parse-user-input
   languages: [ruby]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'JSON\\.parse\\s*\\(\\s*params\\[''severity: high
   description: "JSON.parse with user input - potential DoS via large JSON"
   remediation: "Limit JSON size before parsing."
   cwe: "CWE-770"
@@ -555,8 +502,7 @@
 - id: ruby-json-parse-symbol-names
   languages: [ruby]
   patterns:
-    - regex: 'JSON\\.parse.*symbolize_names:\\s*true'
-  severity: high
+    - regex: 'JSON\\.parse.*symbolize_names:\\s*true''severity: high
   description: "JSON parsing with symbolization - memory exhaustion risk"
   remediation: "Use symbolize_names: false or limit JSON size."
   cwe: "CWE-770"
@@ -565,8 +511,7 @@
 - id: ruby-oj-load
   languages: [ruby]
   patterns:
-    - regex: 'Oj\\.load|Oj\\.object_load'
-  severity: high
+    - regex: 'Oj\\.load|Oj\\.object_load''severity: high
   description: "Oj.load can deserialize arbitrary objects - RCE"
   remediation: "Use Oj.safe_load with :mode => :strict."
   cwe: "CWE-502"
@@ -575,8 +520,7 @@
 - id: ruby-oj-compat-mode
   languages: [ruby]
   patterns:
-    - regex: 'Oj\\.load.*mode:\\s*:compat'
-  severity: medium
+    - regex: 'Oj\\.load.*mode:\\s*:compat''severity: medium
   description: "Oj.load in compat mode - may deserialize objects"
   remediation: "Use strict mode for untrusted data."
   cwe: "CWE-502"
@@ -585,8 +529,7 @@
 - id: ruby-oj-object-mode
   languages: [ruby]
   patterns:
-    - regex: 'Oj\\.load.*mode:\\s*:object'
-  severity: high
+    - regex: 'Oj\\.load.*mode:\\s*:object''severity: high
   description: "Oj.load in object mode - arbitrary object creation"
   remediation: "Never use object mode with untrusted data."
   cwe: "CWE-502"
@@ -595,8 +538,7 @@
 - id: ruby-marshal-load
   languages: [ruby]
   patterns:
-    - regex: 'Marshal\\.load|Marshal\\.restore'
-  severity: critical
+    - regex: 'Marshal\\.load|Marshal\\.restore''severity: critical
   description: "Marshal.load can execute arbitrary code - RCE"
   remediation: "Never use Marshal.load on untrusted data."
   cwe: "CWE-502"
@@ -607,8 +549,7 @@
 - id: ruby-erb-new-user-input
   languages: [ruby]
   patterns:
-    - regex: 'ERB\\.new\\s*\\(\\s*params\\[|ERB\\.new\\s*\\(\\s*request'
-  severity: high
+    - regex: 'ERB\\.new\\s*\\(\\s*params\\[|ERB\\.new\\s*\\(\\s*request''severity: high
   description: "ERB.new with user input - template injection, RCE"
   remediation: "Never create templates from user input. Use render with variables."
   cwe: "CWE-1336"
@@ -617,8 +558,7 @@
 - id: ruby-erb-new-tainted
   languages: [ruby]
   patterns:
-    - regex: 'ERB\\.new\\s*\\(\\s*[^)]*\\+.*params|ERB\\.new\\s*\\(\\s*[^)]*#\\{'
-  severity: high
+    - regex: 'ERB\\.new\\s*\\(\\s*[^)]*\\+.*params|ERB\\.new\\s*\\(\\s*[^)]*#\\{''severity: high
   description: "ERB template built with string concatenation - injection"
   remediation: "Use static templates with variable substitution only."
   cwe: "CWE-1336"
@@ -627,8 +567,7 @@
 - id: ruby-render-inline-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+inline:\\s*params\\[|render\\s+inline:\\s*request'
-  severity: high
+    - regex: 'render\\s+inline:\\s*params\\[|render\\s+inline:\\s*request''severity: high
   description: "Rails render inline with user input - SSTI, RCE"
   remediation: "Never render inline with user input. Use partials and locals."
   cwe: "CWE-1336"
@@ -637,8 +576,7 @@
 - id: ruby-render-inline-concat
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+inline:\\s*[^)]*\\+.*params'
-  severity: high
+    - regex: 'render\\s+inline:\\s*[^)]*\\+.*params''severity: high
   description: "Rails render inline with concatenation - SSTI"
   remediation: "Use static templates with locals."
   cwe: "CWE-1336"
@@ -647,8 +585,7 @@
 - id: ruby-render-html-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+html:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+html:\\s*params\\[''severity: high
   description: "Rails render html with user input - XSS"
   remediation: "Escape user input before rendering HTML."
   cwe: "CWE-79"
@@ -657,8 +594,7 @@
 - id: ruby-render-text-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+text:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+text:\\s*params\\[''severity: high
   description: "Rails render text with user input - XSS if used in HTML context"
   remediation: "Use render html with escaping or render json."
   cwe: "CWE-79"
@@ -667,8 +603,7 @@
 - id: ruby-render-body-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+body:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+body:\\s*params\\[''severity: high
   description: "Rails render body with user input - raw response"
   remediation: "Avoid rendering raw user input."
   cwe: "CWE-79"
@@ -677,8 +612,7 @@
 - id: ruby-render-js-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+js:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+js:\\s*params\\[''severity: high
   description: "Rails render js with user input - XSS, code injection"
   remediation: "Never render JavaScript from user input."
   cwe: "CWE-94"
@@ -687,8 +621,7 @@
 - id: ruby-render-xml-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+xml:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+xml:\\s*params\\[''severity: high
   description: "Rails render xml with user input - XXE risk"
   remediation: "Use safe XML building libraries."
   cwe: "CWE-611"
@@ -697,8 +630,7 @@
 - id: ruby-render-json-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+json:\\s*params\\['
-  severity: medium
+    - regex: 'render\\s+json:\\s*params\\[''severity: medium
   description: "Rails render json with user input - potential XSS"
   remediation: "Rails JSON escaping protects against XSS."
   cwe: "CWE-79"
@@ -707,8 +639,7 @@
 - id: ruby-render-action-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+action:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+action:\\s*params\\[''severity: high
   description: "Rails render action with user input - template injection"
   remediation: "Never use user input to select actions."
   cwe: "CWE-1336"
@@ -717,8 +648,7 @@
 - id: ruby-render-template-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+template:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+template:\\s*params\\[''severity: high
   description: "Rails render template with user input - file inclusion"
   remediation: "Use allowlist of allowed templates."
   cwe: "CWE-98"
@@ -727,8 +657,7 @@
 - id: ruby-render-file-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+file:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+file:\\s*params\\[''severity: high
   description: "Rails render file with user input - path traversal"
   remediation: "Never render files based on user input."
   cwe: "CWE-22"
@@ -737,8 +666,7 @@
 - id: ruby-render-partial-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+partial:\\s*params\\[|render.*collection:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+partial:\\s*params\\[|render.*collection:\\s*params\\[''severity: high
   description: "Rails render partial with user input - template injection"
   remediation: "Use allowlist of allowed partials."
   cwe: "CWE-98"
@@ -747,8 +675,7 @@
 - id: ruby-render-layout-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+layout:\\s*params\\['
-  severity: high
+    - regex: 'render\\s+layout:\\s*params\\[''severity: high
   description: "Rails render layout with user input - template injection"
   remediation: "Use static layout names."
   cwe: "CWE-98"
@@ -757,8 +684,7 @@
 - id: ruby-render-options-user-input
   languages: [ruby]
   patterns:
-    - regex: 'render\\s*\\(?.*params\\[[^]]*\\]'
-  severity: high
+    - regex: 'render\\s*\\(?.*params\\[[^]]*\\]''severity: high
   description: "Rails render with params - ensure safe usage"
   remediation: "Only use user input in locals, not in template selection."
   cwe: "CWE-1336"
@@ -767,8 +693,7 @@
 - id: ruby-slim-template-injection
   languages: [ruby]
   patterns:
-    - regex: 'Slim::Template\\.new.*params|Slim::Template\\.new.*request'
-  severity: high
+    - regex: 'Slim::Template\\.new.*params|Slim::Template\\.new.*request''severity: high
   description: "Slim template with user input - SSTI, RCE"
   remediation: "Never create templates from user input."
   cwe: "CWE-1336"
@@ -777,8 +702,7 @@
 - id: ruby-haml-template-injection
   languages: [ruby]
   patterns:
-    - regex: 'Haml::Engine\\.new.*params|Haml::Engine\\.new.*request'
-  severity: high
+    - regex: 'Haml::Engine\\.new.*params|Haml::Engine\\.new.*request''severity: high
   description: "Haml template with user input - SSTI, RCE"
   remediation: "Never create templates from user input."
   cwe: "CWE-1336"
@@ -789,7 +713,7 @@
 - id: ruby-ar-where-interpolation
   languages: [ruby]
   patterns:
-    - regex: 'where\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'where\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "ActiveRecord where with string interpolation - SQL injection"
   remediation: "Use parameterized where: where('name = ?', name)"
@@ -799,7 +723,7 @@
 - id: ruby-ar-order-injection
   languages: [ruby]
   patterns:
-    - regex: 'order\\(\\s*params\\[|order\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'order\\(\\s*params\\[|order\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: high
   description: "ActiveRecord order with user input - SQL injection"
   remediation: "Use allowlist of allowed sort columns."
@@ -809,7 +733,7 @@
 - id: ruby-ar-group-injection
   languages: [ruby]
   patterns:
-    - regex: 'group\\(\\s*params\\[|group\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'group\\(\\s*params\\[|group\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: high
   description: "ActiveRecord group with user input - SQL injection"
   remediation: "Use allowlist of allowed group columns."
@@ -819,7 +743,7 @@
 - id: ruby-ar-having-injection
   languages: [ruby]
   patterns:
-    - regex: 'having\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'having\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "ActiveRecord having with string interpolation - SQL injection"
   remediation: "Use parameterized having: having('count > ?', 5)"
@@ -829,7 +753,7 @@
 - id: ruby-ar-joins-injection
   languages: [ruby]
   patterns:
-    - regex: 'joins\\(\\s*params\\[|joins\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'joins\\(\\s*params\\[|joins\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: high
   description: "ActiveRecord joins with user input - SQL injection"
   remediation: "Use association joins or allowlist."
@@ -839,7 +763,7 @@
 - id: ruby-ar-select-injection
   languages: [ruby]
   patterns:
-    - regex: 'select\\(\\s*params\\[|select\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'select\\(\\s*params\\[|select\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: high
   description: "ActiveRecord select with user input - column injection"
   remediation: "Use allowlist of allowed columns."
@@ -849,7 +773,7 @@
 - id: ruby-ar-pluck-injection
   languages: [ruby]
   patterns:
-    - regex: 'pluck\\(\\s*params\\[|pluck\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'pluck\\(\\s*params\\[|pluck\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: high
   description: "ActiveRecord pluck with user input - column injection"
   remediation: "Use allowlist of allowed columns."
@@ -859,8 +783,7 @@
 - id: ruby-ar-calculate-injection
   languages: [ruby]
   patterns:
-    - regex: 'calculate\\([^,]+,\\s*params\\['
-  severity: high
+    - regex: 'calculate\\([^,]+,\\s*params\\[''severity: high
   description: "ActiveRecord calculate with user input - column injection"
   remediation: "Use allowlist of allowed columns."
   cwe: "CWE-89"
@@ -869,7 +792,7 @@
 - id: ruby-ar-from-injection
   languages: [ruby]
   patterns:
-    - regex: 'from\\(\\s*params\\[|from\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'from\\(\\s*params\\[|from\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: high
   description: "ActiveRecord from with user input - table injection"
   remediation: "Never use user input in from clause."
@@ -879,7 +802,7 @@
 - id: ruby-ar-find-by-sql
   languages: [ruby]
   patterns:
-    - regex: 'find_by_sql\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'find_by_sql\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "ActiveRecord find_by_sql with interpolation - SQL injection"
   remediation: "Use parameterized array: find_by_sql(['SELECT ?', value])"
@@ -889,7 +812,7 @@
 - id: ruby-ar-execute-sql
   languages: [ruby]
   patterns:
-    - regex: 'execute\\(\\s*["''].*#\\{.*\\}.*["'']|exec_query.*["''].*#\\{'
+    - regex: 'execute\\(\\s*["'''].*#\\{.*\\}.*["'']|exec_query.*["''].*#\\{'
   severity: critical
   description: "ActiveRecord execute with interpolation - SQL injection"
   remediation: "Use parameterized: execute(['SELECT ?', value])"
@@ -899,7 +822,7 @@
 - id: ruby-ar-connection-select
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.select.*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.select.*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL select with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -909,7 +832,7 @@
 - id: ruby-ar-connection-insert
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.insert.*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.insert.*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL insert with interpolation - SQL injection"
   remediation: "Use ActiveRecord create instead."
@@ -919,7 +842,7 @@
 - id: ruby-ar-connection-update
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.update.*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.update.*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL update with interpolation - SQL injection"
   remediation: "Use ActiveRecord update instead."
@@ -929,7 +852,7 @@
 - id: ruby-ar-connection-delete
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.delete.*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.delete.*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL delete with interpolation - SQL injection"
   remediation: "Use ActiveRecord destroy instead."
@@ -939,7 +862,7 @@
 - id: ruby-ar-connection-execute
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.execute.*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.execute.*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL execute with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -949,8 +872,7 @@
 - id: ruby-mass-assignment-update
   languages: [ruby]
   patterns:
-    - regex: 'update\\(\\s*params\\[|update_attributes\\(\\s*params\\['
-  severity: high
+    - regex: 'update\\(\\s*params\\[|update_attributes\\(\\s*params\\[''severity: high
   description: "Mass assignment with params - vulnerability"
   remediation: "Use strong parameters: update(params.require(:user).permit(:name, :email))"
   cwe: "CWE-915"
@@ -959,8 +881,7 @@
 - id: ruby-mass-assignment-create
   languages: [ruby]
   patterns:
-    - regex: 'create\\(\\s*params\\[|create!\\(\\s*params\\[|new\\(\\s*params\\['
-  severity: high
+    - regex: 'create\\(\\s*params\\[|create!\\(\\s*params\\[|new\\(\\s*params\\[''severity: high
   description: "Mass assignment in create - vulnerability"
   remediation: "Use strong parameters: User.create(user_params)"
   cwe: "CWE-915"
@@ -969,8 +890,7 @@
 - id: ruby-mass-assignment-assign-attributes
   languages: [ruby]
   patterns:
-    - regex: 'assign_attributes\\(\\s*params\\['
-  severity: high
+    - regex: 'assign_attributes\\(\\s*params\\[''severity: high
   description: "Mass assignment with assign_attributes"
   remediation: "Use strong parameters: user.assign_attributes(user_params)"
   cwe: "CWE-915"
@@ -979,8 +899,7 @@
 - id: ruby-strong-parameters-permit-all
   languages: [ruby]
   patterns:
-    - regex: 'permit!|permit\\(\\*\\*\\)'
-  severity: high
+    - regex: 'permit!|permit\\(\\*\\*\\)''severity: high
   description: "Permitting all parameters - mass assignment vulnerability"
   remediation: "Never use permit! or permit(**). Explicitly list allowed params."
   cwe: "CWE-915"
@@ -989,8 +908,7 @@
 - id: ruby-strong-parameters-empty-permit
   languages: [ruby]
   patterns:
-    - regex: 'permit\\(\\s*\\)'
-  severity: high
+    - regex: 'permit\\(\\s*\\)''severity: high
   description: "Empty permit - allows no parameters, may break functionality"
   remediation: "Specify allowed parameters explicitly."
   cwe: "CWE-915"
@@ -999,8 +917,7 @@
 - id: ruby-attr-accessible
   languages: [ruby]
   patterns:
-    - regex: 'attr_accessible|attr_protected'
-  severity: high
+    - regex: 'attr_accessible|attr_protected''severity: high
   description: "attr_accessible/attr_protected - deprecated"
   remediation: "Use strong parameters instead."
   cwe: "CWE-915"
@@ -1009,8 +926,7 @@
 - id: ruby-attr-accessible-all
   languages: [ruby]
   patterns:
-    - regex: 'attr_accessible.*:all'
-  severity: high
+    - regex: 'attr_accessible.*:all''severity: high
   description: "attr_accessible :all - all attributes mass-assignable"
   remediation: "Use strong parameters and list allowed attributes."
   cwe: "CWE-915"
@@ -1019,8 +935,7 @@
 - id: ruby-attr-protected-none
   languages: [ruby]
   patterns:
-    - regex: 'attr_protected.*\\[\\s*\\]'
-  severity: high
+    - regex: 'attr_protected.*\\[\\s*\\]''severity: high
   description: "attr_protected empty array - protects nothing"
   remediation: "Use strong parameters instead."
   cwe: "CWE-915"
@@ -1029,8 +944,7 @@
 - id: ruby-nested-attributes-allow-destroy
   languages: [ruby]
   patterns:
-    - regex: 'allow_destroy:\\s*true'
-  severity: medium
+    - regex: 'allow_destroy:\\s*true''severity: medium
   description: "Allow destroy in nested attributes - ensure authorized"
   remediation: "Check user permissions before allowing destroy."
   cwe: "CWE-284"
@@ -1039,8 +953,7 @@
 - id: ruby-role-mass-assignment
   languages: [ruby]
   patterns:
-    - regex: 'params\\[:user\\]\\[:role\\]|params\\[:admin\\]'
-  severity: high
+    - regex: 'params\\[:user\\]\\[:role\\]|params\\[:admin\\]''severity: high
   description: "Role field in params - privilege escalation"
   remediation: "Never allow role/permission fields in mass assignment."
   cwe: "CWE-284"
@@ -1049,8 +962,7 @@
 - id: ruby-admin-mass-assignment
   languages: [ruby]
   patterns:
-    - regex: 'params\\[:admin\\]|params\\[:is_admin\\]'
-  severity: high
+    - regex: 'params\\[:admin\\]|params\\[:is_admin\\]''severity: high
   description: "Admin flag in params - privilege escalation"
   remediation: "Never allow admin flag in mass assignment."
   cwe: "CWE-284"
@@ -1059,8 +971,7 @@
 - id: ruby-password-mass-assignment
   languages: [ruby]
   patterns:
-    - regex: 'params\\[:password\\]'
-  severity: high
+    - regex: 'params\\[:password\\]''severity: high
   description: "Password field in params - ensure proper handling"
   remediation: "Only allow password in specific actions, hash before saving."
   cwe: "CWE-312"
@@ -1069,8 +980,7 @@
 - id: ruby-id-mass-assignment
   languages: [ruby]
   patterns:
-    - regex: 'params\\[:id\\]|params\\[:user_id\\]'
-  severity: high
+    - regex: 'params\\[:id\\]|params\\[:user_id\\]''severity: high
   description: "ID field in params - IDOR risk"
   remediation: "Never allow ID in mass assignment, use current user scoping."
   cwe: "CWE-639"
@@ -1079,8 +989,7 @@
 - id: ruby-json-api-mass-assignment
   languages: [ruby]
   patterns:
-    - regex: 'ActiveModelSerializers|JSONAPI::Resource'
-  severity: high
+    - regex: 'ActiveModelSerializers|JSONAPI::Resource''severity: high
   description: "JSON API serialization - ensure attributes are filtered"
   remediation: "Use attributes method to expose only intended fields."
   cwe: "CWE-200"
@@ -1089,8 +998,7 @@
 - id: ruby-graphql-mass-assignment
   languages: [ruby]
   patterns:
-    - regex: 'GraphQL::Schema::InputObject'
-  severity: high
+    - regex: 'GraphQL::Schema::InputObject''severity: high
   description: "GraphQL input types - mass assignment risk"
   remediation: "Define allowed inputs explicitly in GraphQL types."
   cwe: "CWE-915"
@@ -1099,8 +1007,7 @@
 - id: ruby-graphql-resolve-params
   languages: [ruby]
   patterns:
-    - regex: 'resolve.*params\\['
-  severity: high
+    - regex: 'resolve.*params\\[''severity: high
   description: "GraphQL resolver using params - use args instead"
   remediation: "Use GraphQL arguments, not request params."
   cwe: "CWE-20"
@@ -1109,8 +1016,7 @@
 - id: ruby-grape-mass-assignment
   languages: [ruby]
   patterns:
-    - regex: 'Grape::API.*params.*Hash|params.*permit.*all'
-  severity: high
+    - regex: 'Grape::API.*params.*Hash|params.*permit.*all''severity: high
   description: "Grape API mass assignment"
   remediation: "Explicitly declare and validate all parameters."
   cwe: "CWE-915"
@@ -1119,8 +1025,7 @@
 - id: ruby-file-open-user-input
   languages: [ruby]
   patterns:
-    - regex: 'File\\.open\\s*\\(\\s*params\\[|File\\.open\\s*\\(\\s*request'
-  severity: high
+    - regex: 'File\\.open\\s*\\(\\s*params\\[|File\\.open\\s*\\(\\s*request''severity: high
   description: "File.open with user input - path traversal"
   remediation: "Validate file path against base directory."
   cwe: "CWE-22"
@@ -1129,8 +1034,7 @@
 - id: ruby-file-read-user-input
   languages: [ruby]
   patterns:
-    - regex: 'File\\.read\\s*\\(\\s*params\\[|File\\.readlines\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'File\\.read\\s*\\(\\s*params\\[|File\\.readlines\\s*\\(\\s*params\\[''severity: high
   description: "File.read with user input - path traversal"
   remediation: "Validate file path, use basename only."
   cwe: "CWE-22"
@@ -1139,8 +1043,7 @@
 - id: ruby-file-write-user-input
   languages: [ruby]
   patterns:
-    - regex: 'File\\.write\\s*\\(\\s*params\\[|File\\.open.*w.*params'
-  severity: high
+    - regex: 'File\\.write\\s*\\(\\s*params\\[|File\\.open.*w.*params''severity: high
   description: "File.write with user input - arbitrary file write"
   remediation: "Never allow user input for file write paths."
   cwe: "CWE-22"
@@ -1149,8 +1052,7 @@
 - id: ruby-file-delete-user-input
   languages: [ruby]
   patterns:
-    - regex: 'File\\.delete\\s*\\(\\s*params\\[|File\\.unlink\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'File\\.delete\\s*\\(\\s*params\\[|File\\.unlink\\s*\\(\\s*params\\[''severity: high
   description: "File.delete with user input - arbitrary file deletion"
   remediation: "Never allow user input for file deletion."
   cwe: "CWE-22"
@@ -1159,8 +1061,7 @@
 - id: ruby-file-rename-user-input
   languages: [ruby]
   patterns:
-    - regex: 'File\\.rename\\s*\\([^,]+,\\s*[^)]*params'
-  severity: high
+    - regex: 'File\\.rename\\s*\\([^,]+,\\s*[^)]*params''severity: high
   description: "File.rename with user input - arbitrary rename"
   remediation: "Validate both source and destination paths."
   cwe: "CWE-22"
@@ -1169,8 +1070,7 @@
 - id: ruby-file-chmod-user-input
   languages: [ruby]
   patterns:
-    - regex: 'File\\.chmod\\s*\\([^,]+,\\s*[^)]*params'
-  severity: high
+    - regex: 'File\\.chmod\\s*\\([^,]+,\\s*[^)]*params''severity: high
   description: "File.chmod with user input - permission changes"
   remediation: "Use fixed permissions, never from user input."
   cwe: "CWE-732"
@@ -1179,8 +1079,7 @@
 - id: ruby-file-chown-user-input
   languages: [ruby]
   patterns:
-    - regex: 'File\\.chown\\s*\\([^,]+,\\s*[^,]+,\\s*[^)]*params'
-  severity: high
+    - regex: 'File\\.chown\\s*\\([^,]+,\\s*[^,]+,\\s*[^)]*params''severity: high
   description: "File.chown with user input - ownership changes"
   remediation: "Never allow user input for file ownership."
   cwe: "CWE-732"
@@ -1189,8 +1088,7 @@
 - id: ruby-dir-mkdir-user-input
   languages: [ruby]
   patterns:
-    - regex: 'Dir\\.mkdir\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'Dir\\.mkdir\\s*\\(\\s*params\\[''severity: high
   description: "Dir.mkdir with user input - directory traversal"
   remediation: "Validate directory path, use base directory."
   cwe: "CWE-22"
@@ -1199,8 +1097,7 @@
 - id: ruby-dir-rmdir-user-input
   languages: [ruby]
   patterns:
-    - regex: 'Dir\\.rmdir\\s*\\(\\s*params\\[|Dir\\.delete\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'Dir\\.rmdir\\s*\\(\\s*params\\[|Dir\\.delete\\s*\\(\\s*params\\[''severity: high
   description: "Dir.rmdir with user input - directory deletion"
   remediation: "Never allow user input for directory deletion."
   cwe: "CWE-22"
@@ -1209,8 +1106,7 @@
 - id: ruby-dir-glob-user-input
   languages: [ruby]
   patterns:
-    - regex: 'Dir\\.glob\\s*\\(\\s*params\\[|Dir\\[\\s*params\\['
-  severity: high
+    - regex: 'Dir\\.glob\\s*\\(\\s*params\\[|Dir\\[\\s*params\\[''severity: high
   description: "Dir.glob with user input - path traversal"
   remediation: "Validate glob patterns, restrict to allowed directories."
   cwe: "CWE-22"
@@ -1219,8 +1115,7 @@
 - id: ruby-dir-entries-user-input
   languages: [ruby]
   patterns:
-    - regex: 'Dir\\.entries\\s*\\(\\s*params\\[|Dir\\.foreach\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'Dir\\.entries\\s*\\(\\s*params\\[|Dir\\.foreach\\s*\\(\\s*params\\[''severity: high
   description: "Dir.entries with user input - directory listing"
   remediation: "Validate directory path, restrict to allowed dirs."
   cwe: "CWE-22"
@@ -1229,8 +1124,7 @@
 - id: ruby-find-find-user-input
   languages: [ruby]
   patterns:
-    - regex: 'Find\\.find\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'Find\\.find\\s*\\(\\s*params\\[''severity: high
   description: "Find.find with user input - directory traversal"
   remediation: "Validate directory path before traversing."
   cwe: "CWE-22"
@@ -1239,7 +1133,7 @@
 - id: ruby-path-traversal-join
   languages: [ruby]
   patterns:
-    - regex: 'File\\.join\\(\\s*Rails\\.root,\\s*[''"]public[''"],\\s*params\\['
+    - regex: 'File\\.join\\(\\s*Rails\\.root,\\s*['''"]public[''"],\\s*params\\['
   severity: high
   description: "File.join with user input - path traversal"
   remediation: "Use File.expand_path and validate."
@@ -1249,7 +1143,7 @@
 - id: ruby-path-traversal-join-relative
   languages: [ruby]
   patterns:
-    - regex: 'File\\.join\\(\\s*[''"][^''"]*[''"],\\s*params\\['
+    - regex: 'File\\.join\\(\\s*['''"][^''"]*[''"],\\s*params\\['
   severity: high
   description: "File.join with relative path and user input"
   remediation: "Validate full path after join."
@@ -1259,8 +1153,7 @@
 - id: ruby-send-file-user-input
   languages: [ruby]
   patterns:
-    - regex: 'send_file\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'send_file\\s*\\(\\s*params\\[''severity: high
   description: "send_file with user input - path traversal"
   remediation: "Use send_file with fixed path, or validate against allowlist."
   cwe: "CWE-22"
@@ -1269,8 +1162,7 @@
 - id: ruby-send-data-user-input
   languages: [ruby]
   patterns:
-    - regex: 'send_data\\s*\\(\\s*[^,]+,\\s*filename:\\s*params\\['
-  severity: medium
+    - regex: 'send_data\\s*\\(\\s*[^,]+,\\s*filename:\\s*params\\[''severity: medium
   description: "send_data filename from user input"
   remediation: "Sanitize filename, remove path separators."
   cwe: "CWE-22"
@@ -1279,8 +1171,7 @@
 - id: ruby-download-options-path
   languages: [ruby]
   patterns:
-    - regex: 'send_file.*:filename.*params\\['
-  severity: high
+    - regex: 'send_file.*:filename.*params\\[''severity: high
   description: "send_file with user-specified filename"
   remediation: "Use fixed filename, or sanitize thoroughly."
   cwe: "CWE-22"
@@ -1289,8 +1180,7 @@
 - id: ruby-zip-entry-name
   languages: [ruby]
   patterns:
-    - regex: 'Zip::File\\.open.*\\.\\.\\/'
-  severity: high
+    - regex: 'Zip::File\\.open.*\\.\\.\\/''severity: high
   description: "Zip extraction with .. in entry names - Zip Slip"
   remediation: "Validate entry names, reject those containing .."
   cwe: "CWE-22"
@@ -1299,8 +1189,7 @@
 - id: ruby-zip-extract-to
   languages: [ruby]
   patterns:
-    - regex: 'Zip::File\\.open.*extract.*entry\\.name'
-  severity: high
+    - regex: 'Zip::File\\.open.*extract.*entry\\.name''severity: high
   description: "Zip extraction - validate entry names before extraction"
   remediation: "Check entry.name for path traversal."
   cwe: "CWE-22"
@@ -1309,8 +1198,7 @@
 - id: ruby-tar-entry-name
   languages: [ruby]
   patterns:
-    - regex: 'Gem::Package::TarReader.*entry\\.full_name'
-  severity: high
+    - regex: 'Gem::Package::TarReader.*entry\\.full_name''severity: high
   description: "Tar extraction - validate entry names"
   remediation: "Reject entries with .. in path."
   cwe: "CWE-22"
@@ -1321,8 +1209,7 @@
 - id: ruby-html-safe
   languages: [ruby]
   patterns:
-    - regex: '\\.html_safe'
-  severity: high
+    - regex: '\\.html_safe''severity: high
   description: "html_safe marks string as safe - bypasses escaping"
   remediation: "Only use html_safe on trusted strings, never on user input."
   cwe: "CWE-79"
@@ -1331,8 +1218,7 @@
 - id: ruby-html-safe-user-input
   languages: [ruby]
   patterns:
-    - regex: '\\.html_safe.*params\\[|params\\[.*\\.html_safe'
-  severity: high
+    - regex: '\\.html_safe.*params\\[|params\\[.*\\.html_safe''severity: high
   description: "html_safe on user input - XSS vulnerability"
   remediation: "Never call html_safe on user input."
   cwe: "CWE-79"
@@ -1341,8 +1227,7 @@
 - id: ruby-raw-output
   languages: [ruby]
   patterns:
-    - regex: 'raw\\s*\\(\\s*params\\[|raw\\s*\\(\\s*request'
-  severity: high
+    - regex: 'raw\\s*\\(\\s*params\\[|raw\\s*\\(\\s*request''severity: high
   description: "raw with user input - XSS vulnerability"
   remediation: "Use sanitize or escape helpers instead of raw."
   cwe: "CWE-79"
@@ -1351,8 +1236,7 @@
 - id: ruby-concat-output
   languages: [ruby]
   patterns:
-    - regex: 'concat\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'concat\\s*\\(\\s*params\\[''severity: high
   description: "concat with user input - XSS if used in views"
   remediation: "Use <%= %> with escaping instead."
   cwe: "CWE-79"
@@ -1361,8 +1245,7 @@
 - id: ruby-json-escape
   languages: [ruby]
   patterns:
-    - regex: 'to_json.*html_safe'
-  severity: high
+    - regex: 'to_json.*html_safe''severity: high
   description: "JSON with html_safe - may break escaping"
   remediation: "Avoid html_safe on JSON output."
   cwe: "CWE-79"
@@ -1371,8 +1254,7 @@
 - id: ruby-link-to-unsafe-url
   languages: [ruby]
   patterns:
-    - regex: 'link_to.*url:\\s*params\\[|link_to.*href:\\s*params\\['
-  severity: high
+    - regex: 'link_to.*url:\\s*params\\[|link_to.*href:\\s*params\\[''severity: high
   description: "link_to with user-controlled URL - open redirect"
   remediation: "Validate URLs or use named routes."
   cwe: "CWE-601"
@@ -1381,8 +1263,7 @@
 - id: ruby-link-to-user-params
   languages: [ruby]
   patterns:
-    - regex: 'link_to.*params\\['
-  severity: medium
+    - regex: 'link_to.*params\\[''severity: medium
   description: "link_to with user parameters - XSS in link text"
   remediation: "Rails escapes link text by default, but verify."
   cwe: "CWE-79"
@@ -1391,8 +1272,7 @@
 - id: ruby-button-to-unsafe-url
   languages: [ruby]
   patterns:
-    - regex: 'button_to.*params\\['
-  severity: high
+    - regex: 'button_to.*params\\[''severity: high
   description: "button_to with user parameters - CSRF risk"
   remediation: "Ensure CSRF token is present."
   cwe: "CWE-352"
@@ -1401,8 +1281,7 @@
 - id: ruby-redirect-to-user-input
   languages: [ruby]
   patterns:
-    - regex: 'redirect_to\\s*\\(?\\s*params\\['
-  severity: high
+    - regex: 'redirect_to\\s*\\(?\\s*params\\[''severity: high
   description: "redirect_to with user input - open redirect"
   remediation: "Validate redirect URL against allowlist."
   cwe: "CWE-601"
@@ -1411,8 +1290,7 @@
 - id: ruby-redirect-back
   languages: [ruby]
   patterns:
-    - regex: 'redirect_back|redirect_to :back'
-  severity: high
+    - regex: 'redirect_back|redirect_to :back''severity: high
   description: "redirect_back - open redirect via Referer"
   remediation: "Use fallback location and validate Referer."
   cwe: "CWE-601"
@@ -1421,8 +1299,7 @@
 - id: ruby-url-for-params
   languages: [ruby]
   patterns:
-    - regex: 'url_for\\s*\\(?\\s*params\\['
-  severity: medium
+    - regex: 'url_for\\s*\\(?\\s*params\\[''severity: medium
   description: "url_for with params - may generate unsafe URLs"
   remediation: "Use named routes instead of dynamic params."
   cwe: "CWE-601"
@@ -1431,8 +1308,7 @@
 - id: ruby-image-tag-src
   languages: [ruby]
   patterns:
-    - regex: 'image_tag\\(\\s*params\\['
-  severity: high
+    - regex: 'image_tag\\(\\s*params\\[''severity: high
   description: "image_tag with user-controlled src - may load external images"
   remediation: "Validate image paths, restrict to trusted sources."
   cwe: "CWE-20"
@@ -1441,8 +1317,7 @@
 - id: ruby-javascript-tag
   languages: [ruby]
   patterns:
-    - regex: 'javascript_tag\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'javascript_tag\\s*\\(\\s*params\\[''severity: high
   description: "javascript_tag with user input - XSS, code injection"
   remediation: "Never inject user input into JavaScript tags."
   cwe: "CWE-94"
@@ -1451,8 +1326,7 @@
 - id: ruby-content-tag
   languages: [ruby]
   patterns:
-    - regex: 'content_tag\\([^,]+,\\s*params\\['
-  severity: high
+    - regex: 'content_tag\\([^,]+,\\s*params\\[''severity: high
   description: "content_tag with user content - XSS if not escaped"
   remediation: "Rails escapes content by default, but verify."
   cwe: "CWE-79"
@@ -1461,8 +1335,7 @@
 - id: ruby-tag-attribute
   languages: [ruby]
   patterns:
-    - regex: 'tag\\([^,]+,\\s*[^,]+,\\s*escape:\\s*false'
-  severity: high
+    - regex: 'tag\\([^,]+,\\s*[^,]+,\\s*escape:\\s*false''severity: high
   description: "tag with escaping disabled - XSS risk"
   remediation: "Never disable escaping with user input."
   cwe: "CWE-79"
@@ -1471,8 +1344,7 @@
 - id: ruby-cdata-section
   languages: [ruby]
   patterns:
-    - regex: 'cdata_section.*params\\['
-  severity: medium
+    - regex: 'cdata_section.*params\\[''severity: medium
   description: "cdata_section with user input - ensure escaping"
   remediation: "Escape CDATA content properly."
   cwe: "CWE-79"
@@ -1487,7 +1359,7 @@
 - id: ruby-ar-connection-select-all
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.select_all\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.select_all\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL select_all with interpolation - SQL injection"
   remediation: "Use parameterized queries: connection.select_all(['SELECT ?', value])"
@@ -1497,7 +1369,7 @@
 - id: ruby-ar-connection-select-one
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.select_one\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.select_one\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL select_one with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1507,7 +1379,7 @@
 - id: ruby-ar-connection-select-value
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.select_value\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.select_value\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL select_value with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1517,7 +1389,7 @@
 - id: ruby-ar-connection-select-rows
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.select_rows\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.select_rows\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL select_rows with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1527,7 +1399,7 @@
 - id: ruby-ar-connection-insert-sql
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.insert_sql\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.insert_sql\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL insert_sql with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1537,7 +1409,7 @@
 - id: ruby-ar-connection-update-sql
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.update_sql\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.update_sql\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL update_sql with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1547,7 +1419,7 @@
 - id: ruby-ar-connection-delete-sql
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.delete_sql\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.delete_sql\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL delete_sql with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1557,7 +1429,7 @@
 - id: ruby-ar-connection-exec-query
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.exec_query\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.exec_query\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL exec_query with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1567,7 +1439,7 @@
 - id: ruby-ar-connection-exec-update
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.exec_update\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.exec_update\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL exec_update with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1577,7 +1449,7 @@
 - id: ruby-ar-connection-exec-insert
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.exec_insert\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.exec_insert\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL exec_insert with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1587,7 +1459,7 @@
 - id: ruby-ar-connection-exec-delete
   languages: [ruby]
   patterns:
-    - regex: 'connection\\.exec_delete\\s*\\(\\s*["''].*#\\{.*\\}.*["'']'
+    - regex: 'connection\\.exec_delete\\s*\\(\\s*["'''].*#\\{.*\\}.*["'']'
   severity: critical
   description: "Raw SQL exec_delete with interpolation - SQL injection"
   remediation: "Use parameterized queries."
@@ -1597,8 +1469,7 @@
 - id: ruby-ar-scope-injection
   languages: [ruby]
   patterns:
-    - regex: 'scope\\s*:\\s*params\\[|scope\\s*:\\s*->\\s*\\{[^}]*params\\['
-  severity: high
+    - regex: 'scope\\s*:\\s*params\\[|scope\\s*:\\s*->\\s*\\{[^}]*params\\[''severity: high
   description: "Scope with dynamic params - SQL injection"
   remediation: "Use lambdas with safe parameters."
   cwe: "CWE-89"
@@ -1607,8 +1478,7 @@
 - id: ruby-ar-unscoped-usage
   languages: [ruby]
   patterns:
-    - regex: 'unscoped\\.'
-  severity: medium
+    - regex: 'unscoped\\.''severity: medium
   description: "unscoped bypasses default scopes - ensure authorization checks"
   remediation: "Verify authorization before using unscoped."
   cwe: "CWE-284"
@@ -1617,8 +1487,7 @@
 - id: ruby-ar-extending-module
   languages: [ruby]
   patterns:
-    - regex: 'extending\\([^)]*params\\['
-  severity: high
+    - regex: 'extending\\([^)]*params\\[''severity: high
   description: "extending with dynamic module - code injection"
   remediation: "Use fixed module names."
   cwe: "CWE-94"
@@ -1627,8 +1496,7 @@
 - id: ruby-ar-preload-associations
   languages: [ruby]
   patterns:
-    - regex: 'preload\\(\\s*params\\[|eager_load\\(\\s*params\\['
-  severity: high
+    - regex: 'preload\\(\\s*params\\[|eager_load\\(\\s*params\\[''severity: high
   description: "Preloading associations from params - injection"
   remediation: "Validate association names against allowlist."
   cwe: "CWE-20"
@@ -1637,8 +1505,7 @@
 - id: ruby-ar-includes-associations
   languages: [ruby]
   patterns:
-    - regex: 'includes\\(\\s*params\\['
-  severity: high
+    - regex: 'includes\\(\\s*params\\[''severity: high
   description: "Includes with params - association injection"
   remediation: "Use allowlist of allowed associations."
   cwe: "CWE-20"
@@ -1647,8 +1514,7 @@
 - id: ruby-ar-references-associations
   languages: [ruby]
   patterns:
-    - regex: 'references\\(\\s*params\\['
-  severity: high
+    - regex: 'references\\(\\s*params\\[''severity: high
   description: "References with params - table injection"
   remediation: "Use allowlist of allowed tables."
   cwe: "CWE-20"
@@ -1657,8 +1523,7 @@
 - id: ruby-ar-optimizer-hints
   languages: [ruby]
   patterns:
-    - regex: 'optimizer_hints\\(\\s*params\\['
-  severity: high
+    - regex: 'optimizer_hints\\(\\s*params\\[''severity: high
   description: "Optimizer hints from params - SQL injection"
   remediation: "Never use params in optimizer hints."
   cwe: "CWE-89"
@@ -1667,8 +1532,7 @@
 - id: ruby-ar-lock-option
   languages: [ruby]
   patterns:
-    - regex: 'lock\\(\\s*params\\['
-  severity: high
+    - regex: 'lock\\(\\s*params\\[''severity: high
   description: "Lock option from params - injection"
   remediation: "Use fixed lock clauses."
   cwe: "CWE-89"
@@ -1677,8 +1541,7 @@
 - id: ruby-ar-merge-conditions
   languages: [ruby]
   patterns:
-    - regex: 'merge\\([^)]*params\\['
-  severity: high
+    - regex: 'merge\\([^)]*params\\[''severity: high
   description: "merge with params - scope injection"
   remediation: "Validate merged scopes."
   cwe: "CWE-20"
@@ -1689,8 +1552,7 @@
 - id: ruby-mongoid-criteria
   languages: [ruby]
   patterns:
-    - regex: 'Mongoid::Document.*where\\([^)]*params\\['
-  severity: critical
+    - regex: 'Mongoid::Document.*where\\([^)]*params\\[''severity: critical
   description: "MongoDB query with params - NoSQL injection"
   remediation: "Use field-specific query methods, sanitize input."
   cwe: "CWE-943"
@@ -1699,8 +1561,7 @@
 - id: ruby-mongoid-elem-match
   languages: [ruby]
   patterns:
-    - regex: '\\.elem_match\\([^)]*params\\['
-  severity: high
+    - regex: '\\.elem_match\\([^)]*params\\[''severity: high
   description: "MongoDB $elemMatch with params - injection"
   remediation: "Validate query structure before execution."
   cwe: "CWE-943"
@@ -1709,8 +1570,7 @@
 - id: ruby-mongoid-where-operator
   languages: [ruby]
   patterns:
-    - regex: '\\.where\\(.*\$.*params\\['
-  severity: high
+    - regex: '\\.where\\(.*\$.*params\\[''severity: high
   description: "MongoDB query operators from params - injection"
   remediation: "Block query operators in user input."
   cwe: "CWE-943"
@@ -1719,8 +1579,7 @@
 - id: ruby-mongoid-nin-operator
   languages: [ruby]
   patterns:
-    - regex: '\\.nin\\([^)]*params\\['
-  severity: high
+    - regex: '\\.nin\\([^)]*params\\[''severity: high
   description: "MongoDB $nin with params - injection"
   remediation: "Validate array contents."
   cwe: "CWE-943"
@@ -1729,8 +1588,7 @@
 - id: ruby-mongoid-in-operator
   languages: [ruby]
   patterns:
-    - regex: '\\.in\\([^)]*params\\['
-  severity: high
+    - regex: '\\.in\\([^)]*params\\[''severity: high
   description: "MongoDB $in with params - injection"
   remediation: "Validate array contents, limit array size."
   cwe: "CWE-943"
@@ -1739,8 +1597,7 @@
 - id: ruby-mongoid-regex-operator
   languages: [ruby]
   patterns:
-    - regex: '\\.where\\(.*\$regex.*params\\['
-  severity: high
+    - regex: '\\.where\\(.*\$regex.*params\\[''severity: high
   description: "MongoDB regex from params - ReDoS risk"
   remediation: "Use fixed regex patterns, not from user input."
   cwe: "CWE-1333"
@@ -1749,8 +1606,7 @@
 - id: ruby-mongoid-where-raw
   languages: [ruby]
   patterns:
-    - regex: 'collection\\.find\\([^)]*params\\['
-  severity: high
+    - regex: 'collection\\.find\\([^)]*params\\[''severity: high
   description: "Raw MongoDB query with params - injection"
   remediation: "Use Mongoid query methods instead of raw find."
   cwe: "CWE-943"
@@ -1759,8 +1615,7 @@
 - id: ruby-mongoid-map-reduce
   languages: [ruby]
   patterns:
-    - regex: 'map_reduce.*params\\[|out.*params\\['
-  severity: high
+    - regex: 'map_reduce.*params\\[|out.*params\\[''severity: high
   description: "MapReduce with params - code injection"
   remediation: "Never pass user input to map/reduce functions."
   cwe: "CWE-94"
@@ -1769,8 +1624,7 @@
 - id: ruby-mongoid-aggregate-pipeline
   languages: [ruby]
   patterns:
-    - regex: '\\.aggregate\\([^)]*params\\['
-  severity: high
+    - regex: '\\.aggregate\\([^)]*params\\[''severity: high
   description: "Aggregation pipeline with params - injection"
   remediation: "Use fixed pipeline stages, validate input."
   cwe: "CWE-943"
@@ -1779,8 +1633,7 @@
 - id: ruby-mongoid-text-search
   languages: [ruby]
   patterns:
-    - regex: '\\.text_search\\(\\s*params\\['
-  severity: high
+    - regex: '\\.text_search\\(\\s*params\\[''severity: high
   description: "Text search with params - NoSQL injection"
   remediation: "Escape search terms properly."
   cwe: "CWE-943"
@@ -1789,8 +1642,7 @@
 - id: ruby-elasticsearch-query
   languages: [ruby]
   patterns:
-    - regex: 'Elasticsearch::Client.*search.*params\\['
-  severity: high
+    - regex: 'Elasticsearch::Client.*search.*params\\[''severity: high
   description: "Elasticsearch query with params - injection"
   remediation: "Use query builders, sanitize input."
   cwe: "CWE-943"
@@ -1799,8 +1651,7 @@
 - id: ruby-elasticsearch-query-string
   languages: [ruby]
   patterns:
-    - regex: 'query_string.*query.*params\\['
-  severity: high
+    - regex: 'query_string.*query.*params\\[''severity: high
   description: "Elasticsearch query_string with params - injection"
   remediation: "Use term queries instead of query_string."
   cwe: "CWE-943"
@@ -1809,8 +1660,7 @@
 - id: ruby-elasticsearch-script
   languages: [ruby]
   patterns:
-    - regex: 'script:.*params\\['
-  severity: high
+    - regex: 'script:.*params\\[''severity: high
   description: "Elasticsearch script with params - code injection"
   remediation: "Use script parameters instead of inline."
   cwe: "CWE-94"
@@ -1819,8 +1669,7 @@
 - id: ruby-redis-eval
   languages: [ruby]
   patterns:
-    - regex: 'Redis\\.new\\.eval\\([^)]*params\\['
-  severity: high
+    - regex: 'Redis\\.new\\.eval\\([^)]*params\\[''severity: high
   description: "Redis EVAL with params - Lua injection"
   remediation: "Use Redis commands with parameterization."
   cwe: "CWE-94"
@@ -1829,8 +1678,7 @@
 - id: ruby-redis-script
   languages: [ruby]
   patterns:
-    - regex: 'script\\:load.*params|evalsha.*params'
-  severity: high
+    - regex: 'script\\:load.*params|evalsha.*params''severity: high
   description: "Redis script loading with params - injection"
   remediation: "Load scripts from files, not user input."
   cwe: "CWE-94"
@@ -1841,8 +1689,7 @@
 - id: ruby-shellwords-escape-unsafe
   languages: [ruby]
   patterns:
-    - regex: 'Shellwords\\.escape.*params\\['
-  severity: high
+    - regex: 'Shellwords\\.escape.*params\\[''severity: high
   description: "Shellwords.escape on user input - still potentially unsafe"
   remediation: "Use array arguments instead of escaping."
   cwe: "CWE-78"
@@ -1851,8 +1698,7 @@
 - id: ruby-backtick-operator-array
   languages: [ruby]
   patterns:
-    - regex: '`.*\\[.*\\]`'
-  severity: low
+    - regex: '`.*\\[.*\\]`''severity: low
   description: "Backtick operator with array interpolation - may be safe"
   remediation: "Prefer system with array arguments."
   cwe: "CWE-78"
@@ -1861,8 +1707,7 @@
 - id: ruby-percent-x-array
   languages: [ruby]
   patterns:
-    - regex: '%x\\[.*\\[.*\\].*\\]'
-  severity: low
+    - regex: '%x\\[.*\\[.*\\].*\\]''severity: low
   description: "%x with array interpolation - may be safe"
   remediation: "Prefer system with array arguments."
   cwe: "CWE-78"
@@ -1871,8 +1716,7 @@
 - id: ruby-io-popen-environment
   languages: [ruby]
   patterns:
-    - regex: 'IO\\.popen.*\\{.*\\}'
-  severity: high
+    - regex: 'IO\\.popen.*\\{.*\\}''severity: high
   description: "IO.popen with environment hash - ensure env is safe"
   remediation: "Validate environment variables."
   cwe: "CWE-78"
@@ -1881,8 +1725,7 @@
 - id: ruby-open3-popen2-environment
   languages: [ruby]
   patterns:
-    - regex: 'Open3\\.popen2.*\\{.*params'
-  severity: high
+    - regex: 'Open3\\.popen2.*\\{.*params''severity: high
   description: "Open3.popen2 with environment from params - injection"
   remediation: "Never pass user input to environment."
   cwe: "CWE-78"
@@ -1891,8 +1734,7 @@
 - id: ruby-process-spawn-environment
   languages: [ruby]
   patterns:
-    - regex: 'Process\\.spawn.*\\{[^}]*params\\['
-  severity: critical
+    - regex: 'Process\\.spawn.*\\{[^}]*params\\[''severity: critical
   description: "Process.spawn with environment from params - injection"
   remediation: "Never use user input in environment."
   cwe: "CWE-78"
@@ -1901,8 +1743,7 @@
 - id: ruby-posix-spawn
   languages: [ruby]
   patterns:
-    - regex: 'POSIX::Spawn\\.(spawn|system|popen4)'
-  severity: high
+    - regex: 'POSIX::Spawn\\.(spawn|system|popen4)''severity: high
   description: "POSIX::Spawn command execution - injection risk"
   remediation: "Use array arguments."
   cwe: "CWE-78"
@@ -1911,8 +1752,7 @@
 - id: ruby-terraform-command
   languages: [ruby]
   patterns:
-    - regex: 'terraform\\s+.*params\\['
-  severity: high
+    - regex: 'terraform\\s+.*params\\[''severity: high
   description: "Terraform command with user input - injection"
   remediation: "Use API instead of command line."
   cwe: "CWE-78"
@@ -1921,8 +1761,7 @@
 - id: ruby-ansible-command
   languages: [ruby]
   patterns:
-    - regex: 'ansible-playbook.*params\\['
-  severity: high
+    - regex: 'ansible-playbook.*params\\[''severity: high
   description: "Ansible command with user input - injection"
   remediation: "Use Ansible API or validate inputs."
   cwe: "CWE-78"
@@ -1931,8 +1770,7 @@
 - id: ruby-docker-command
   languages: [ruby]
   patterns:
-    - regex: 'docker\\s+.*params\\['
-  severity: high
+    - regex: 'docker\\s+.*params\\[''severity: high
   description: "Docker command with user input - injection"
   remediation: "Use Docker API gem instead."
   cwe: "CWE-78"
@@ -1941,8 +1779,7 @@
 - id: ruby-kubectl-command
   languages: [ruby]
   patterns:
-    - regex: 'kubectl\\s+.*params\\['
-  severity: high
+    - regex: 'kubectl\\s+.*params\\[''severity: high
   description: "kubectl command with user input - injection"
   remediation: "Use Kubernetes API client."
   cwe: "CWE-78"
@@ -1951,8 +1788,7 @@
 - id: ruby-helm-command
   languages: [ruby]
   patterns:
-    - regex: 'helm\\s+.*params\\['
-  severity: high
+    - regex: 'helm\\s+.*params\\[''severity: high
   description: "Helm command with user input - injection"
   remediation: "Use Helm Go client or API."
   cwe: "CWE-78"
@@ -1963,8 +1799,7 @@
 - id: ruby-net-http-get
   languages: [ruby]
   patterns:
-    - regex: 'Net::HTTP\\.get\\(\\s*params\\['
-  severity: high
+    - regex: 'Net::HTTP\\.get\\(\\s*params\\[''severity: high
   description: "Net::HTTP.get with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -1973,8 +1808,7 @@
 - id: ruby-net-http-post
   languages: [ruby]
   patterns:
-    - regex: 'Net::HTTP\\.post_form\\(\\s*params\\['
-  severity: high
+    - regex: 'Net::HTTP\\.post_form\\(\\s*params\\[''severity: high
   description: "Net::HTTP.post_form with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -1983,8 +1817,7 @@
 - id: ruby-net-http-start
   languages: [ruby]
   patterns:
-    - regex: 'Net::HTTP\\.start\\([^,]+,\\s*[^)]*params\\['
-  severity: high
+    - regex: 'Net::HTTP\\.start\\([^,]+,\\s*[^)]*params\\[''severity: high
   description: "Net::HTTP.start with user input - SSRF"
   remediation: "Validate host and port against allowlist."
   cwe: "CWE-918"
@@ -1993,8 +1826,7 @@
 - id: ruby-httpclient
   languages: [ruby]
   patterns:
-    - regex: 'HTTPClient\\.new\\.(get|post|put|delete)\\(\\s*params\\['
-  severity: high
+    - regex: 'HTTPClient\\.new\\.(get|post|put|delete)\\(\\s*params\\[''severity: high
   description: "HTTPClient with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2003,8 +1835,7 @@
 - id: ruby-httparty
   languages: [ruby]
   patterns:
-    - regex: 'HTTParty\\.(get|post|put|delete)\\(\\s*params\\['
-  severity: high
+    - regex: 'HTTParty\\.(get|post|put|delete)\\(\\s*params\\[''severity: high
   description: "HTTParty with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2013,8 +1844,7 @@
 - id: ruby-rest-client
   languages: [ruby]
   patterns:
-    - regex: 'RestClient\\.(get|post|put|delete)\\(\\s*params\\['
-  severity: high
+    - regex: 'RestClient\\.(get|post|put|delete)\\(\\s*params\\[''severity: high
   description: "RestClient with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2023,8 +1853,7 @@
 - id: ruby-faraday
   languages: [ruby]
   patterns:
-    - regex: 'Faraday\\.(get|post|put|delete)\\(\\s*params\\['
-  severity: high
+    - regex: 'Faraday\\.(get|post|put|delete)\\(\\s*params\\[''severity: high
   description: "Faraday with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2033,8 +1862,7 @@
 - id: ruby-excon
   languages: [ruby]
   patterns:
-    - regex: 'Excon\\.(get|post|put|delete)\\(\\s*params\\['
-  severity: high
+    - regex: 'Excon\\.(get|post|put|delete)\\(\\s*params\\[''severity: high
   description: "Excon with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2043,8 +1871,7 @@
 - id: ruby-typhoeus
   languages: [ruby]
   patterns:
-    - regex: 'Typhoeus\\.(get|post|put|delete)\\(\\s*params\\['
-  severity: high
+    - regex: 'Typhoeus\\.(get|post|put|delete)\\(\\s*params\\[''severity: high
   description: "Typhoeus with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2053,8 +1880,7 @@
 - id: ruby-mechanize
   languages: [ruby]
   patterns:
-    - regex: 'Mechanize\\.new\\.(get|post)\\(\\s*params\\['
-  severity: high
+    - regex: 'Mechanize\\.new\\.(get|post)\\(\\s*params\\[''severity: high
   description: "Mechanize with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2063,8 +1889,7 @@
 - id: ruby-watir
   languages: [ruby]
   patterns:
-    - regex: 'Watir::Browser\\.new\\.goto\\(\\s*params\\['
-  severity: high
+    - regex: 'Watir::Browser\\.new\\.goto\\(\\s*params\\[''severity: high
   description: "Watir with user input - SSRF via browser"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2073,8 +1898,7 @@
 - id: ruby-selenium
   languages: [ruby]
   patterns:
-    - regex: 'Selenium::WebDriver\\.for\\.get\\(\\s*params\\['
-  severity: high
+    - regex: 'Selenium::WebDriver\\.for\\.get\\(\\s*params\\[''severity: high
   description: "Selenium with user input - SSRF via browser"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2083,8 +1907,7 @@
 - id: ruby-capybara
   languages: [ruby]
   patterns:
-    - regex: 'Capybara\\.visit\\(\\s*params\\['
-  severity: high
+    - regex: 'Capybara\\.visit\\(\\s*params\\[''severity: high
   description: "Capybara with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2093,8 +1916,7 @@
 - id: ruby-poltergeist
   languages: [ruby]
   patterns:
-    - regex: 'Capybara\\.poltergeist\\.visit\\(\\s*params\\['
-  severity: high
+    - regex: 'Capybara\\.poltergeist\\.visit\\(\\s*params\\[''severity: high
   description: "Poltergeist with user input - SSRF"
   remediation: "Validate URL against allowlist."
   cwe: "CWE-918"
@@ -2103,8 +1925,7 @@
 - id: ruby-aws-sdk
   languages: [ruby]
   patterns:
-    - regex: 'Aws::S3::Client.*endpoint.*params\\['
-  severity: high
+    - regex: 'Aws::S3::Client.*endpoint.*params\\[''severity: high
   description: "AWS SDK endpoint from user input - SSRF"
   remediation: "Use fixed endpoints, not from user input."
   cwe: "CWE-918"
@@ -2115,8 +1936,7 @@
 - id: ruby-marshal-dump
   languages: [ruby]
   patterns:
-    - regex: 'Marshal\\.dump.*params\\['
-  severity: high
+    - regex: 'Marshal\\.dump.*params\\[''severity: high
   description: "Marshal.dump of user data - may expose internals"
   remediation: "Use JSON for serializing user data."
   cwe: "CWE-502"
@@ -2125,8 +1945,7 @@
 - id: ruby-json-dump-user-input
   languages: [ruby]
   patterns:
-    - regex: 'JSON\\.dump.*params\\[|to_json.*params\\['
-  severity: medium
+    - regex: 'JSON\\.dump.*params\\[|to_json.*params\\[''severity: medium
   description: "JSON serialization of user data - ensure no objects"
   remediation: "Use to_json only on safe data structures."
   cwe: "CWE-502"
@@ -2135,8 +1954,7 @@
 - id: ruby-psych-dump
   languages: [ruby]
   patterns:
-    - regex: 'Psych\\.dump.*params\\['
-  severity: high
+    - regex: 'Psych\\.dump.*params\\[''severity: high
   description: "Psych.dump of user data - YAML serialization"
   remediation: "Use JSON instead of YAML for user data."
   cwe: "CWE-502"
@@ -2145,8 +1963,7 @@
 - id: ruby-yaml-dump
   languages: [ruby]
   patterns:
-    - regex: 'YAML\\.dump.*params\\['
-  severity: high
+    - regex: 'YAML\\.dump.*params\\[''severity: high
   description: "YAML.dump of user data - unsafe serialization"
   remediation: "Use JSON for user data serialization."
   cwe: "CWE-502"
@@ -2155,8 +1972,7 @@
 - id: ruby-oj-dump
   languages: [ruby]
   patterns:
-    - regex: 'Oj\\.dump.*params\\[.*mode:\\s*:object'
-  severity: high
+    - regex: 'Oj\\.dump.*params\\[.*mode:\\s*:object''severity: high
   description: "Oj.dump in object mode - serializes objects"
   remediation: "Use strict or compat mode for user data."
   cwe: "CWE-502"
@@ -2165,8 +1981,7 @@
 - id: ruby-messagepack-unpack
   languages: [ruby]
   patterns:
-    - regex: 'MessagePack\\.unpack\\(\\s*params\\['
-  severity: high
+    - regex: 'MessagePack\\.unpack\\(\\s*params\\[''severity: high
   description: "MessagePack.unpack with user input - code execution"
   remediation: "Use MessagePack.unpack with safe option if available."
   cwe: "CWE-502"
@@ -2175,8 +1990,7 @@
 - id: ruby-cbor-unpack
   languages: [ruby]
   patterns:
-    - regex: 'CBOR\\.decode\\(\\s*params\\['
-  severity: high
+    - regex: 'CBOR\\.decode\\(\\s*params\\[''severity: high
   description: "CBOR decode with user input - object injection"
   remediation: "Use JSON for untrusted data."
   cwe: "CWE-502"
@@ -2185,8 +1999,7 @@
 - id: ruby-bson-deserialize
   languages: [ruby]
   patterns:
-    - regex: 'BSON\\.deserialize\\(\\s*params\\['
-  severity: high
+    - regex: 'BSON\\.deserialize\\(\\s*params\\[''severity: high
   description: "BSON deserialize with user input - object injection"
   remediation: "Use safe BSON parsing options."
   cwe: "CWE-502"
@@ -2195,8 +2008,7 @@
 - id: ruby-protobuf-decode
   languages: [ruby]
   patterns:
-    - regex: 'Protobuf\\.decode\\([^)]*params\\['
-  severity: high
+    - regex: 'Protobuf\\.decode\\([^)]*params\\[''severity: high
   description: "Protobuf decode with user input - schema mismatch"
   remediation: "Validate protobuf schema before decoding."
   cwe: "CWE-502"
@@ -2205,8 +2017,7 @@
 - id: ruby-oj-load-user-input
   languages: [ruby]
   patterns:
-    - regex: 'Oj\\.load\\(\\s*params\\[.*mode:\\s*:object'
-  severity: high
+    - regex: 'Oj\\.load\\(\\s*params\\[.*mode:\\s*:object''severity: high
   description: "Oj.load in object mode with user input - RCE"
   remediation: "Never use object mode with user input."
   cwe: "CWE-502"
@@ -2217,7 +2028,7 @@
 - id: ruby-session-secret
   languages: [ruby]
   patterns:
-    - regex: 'secret_key_base.*[''\"][a-zA-Z0-9]{1,32}[''\"]'
+    - regex: 'secret_key_base.*['''\"][a-zA-Z0-9]{1,32}[''\"]'
   severity: high
   description: "Weak or hardcoded session secret"
   remediation: "Use environment variable with long random string."
@@ -2227,8 +2038,7 @@
 - id: ruby-session-cookie-httponly
   languages: [ruby]
   patterns:
-    - regex: 'config\\.session_options.*httponly\\s*=\\s*false'
-  severity: high
+    - regex: 'config\\.session_options.*httponly\\s*=\\s*false''severity: high
   description: "HttpOnly cookie disabled - XSS can steal session"
   remediation: "Set httponly: true in session options."
   cwe: "CWE-614"
@@ -2237,8 +2047,7 @@
 - id: ruby-session-cookie-secure
   languages: [ruby]
   patterns:
-    - regex: 'config\\.session_options.*secure\\s*=\\s*false'
-  severity: high
+    - regex: 'config\\.session_options.*secure\\s*=\\s*false''severity: high
   description: "Secure cookie disabled - session over HTTP"
   remediation: "Set secure: true in production."
   cwe: "CWE-614"
@@ -2247,8 +2056,7 @@
 - id: ruby-session-cookie-samesite
   languages: [ruby]
   patterns:
-    - regex: 'config\\.session_options.*same_site\\s*=\\s*nil|:none'
-  severity: high
+    - regex: 'config\\.session_options.*same_site\\s*=\\s*nil|:none''severity: high
   description: "SameSite cookie disabled - CSRF risk"
   remediation: "Set same_site: :lax or :strict."
   cwe: "CWE-352"
@@ -2257,8 +2065,7 @@
 - id: ruby-session-cookie-expiry
   languages: [ruby]
   patterns:
-    - regex: 'config\\.session_options.*expire_after\\s*=\\s*[6-9]\\d{6,}'
-  severity: medium
+    - regex: 'config\\.session_options.*expire_after\\s*=\\s*[6-9]\\d{6,}''severity: medium
   description: "Session cookie expires too far in future"
   remediation: "Set reasonable expiry time (hours to days)."
   cwe: "CWE-613"
@@ -2267,7 +2074,7 @@
 - id: ruby-session-cookie-domain
   languages: [ruby]
   patterns:
-    - regex: 'config\\.session_options.*domain\\s*=\\s*''.*\\..*\\..*'''
+    - regex: 'config\\.session_options.*domain\\s*=\\s*'''.*\\..*\\..*'''
   severity: medium
   description: "Session cookie domain too broad"
   remediation: "Restrict cookie domain to specific subdomain."
@@ -2277,7 +2084,7 @@
 - id: ruby-session-cookie-path
   languages: [ruby]
   patterns:
-    - regex: 'config\\.session_options.*path\\s*=\\s*''/'''
+    - regex: 'config\\.session_options.*path\\s*=\\s*'''/'''
   severity: low
   description: "Session cookie path set to root"
   remediation: "Restrict to application path if possible."
@@ -2287,8 +2094,7 @@
 - id: ruby-session-fixation
   languages: [ruby]
   patterns:
-    - regex: 'reset_session(?!.*after.*login)'
-  severity: high
+    - regex: 'reset_session''severity: high
   description: "Session not reset after login - fixation risk"
   remediation: "Call reset_session after successful login."
   cwe: "CWE-384"
@@ -2297,8 +2103,7 @@
 - id: ruby-cookies-permanent
   languages: [ruby]
   patterns:
-    - regex: 'cookies\\.permanent'
-  severity: high
+    - regex: 'cookies\\.permanent''severity: high
   description: "Permanent cookies - persist across sessions"
   remediation: "Use with caution, not for sensitive data."
   cwe: "CWE-613"
@@ -2307,8 +2112,7 @@
 - id: ruby-cookies-user-input
   languages: [ruby]
   patterns:
-    - regex: 'cookies\\[.*\\]\\s*=\\s*params\\['
-  severity: high
+    - regex: 'cookies\\[.*\\]\\s*=\\s*params\\[''severity: high
   description: "Setting cookies from user input - injection"
   remediation: "Validate cookie values before setting."
   cwe: "CWE-20"
@@ -2317,8 +2121,7 @@
 - id: ruby-cookie-value-size
   languages: [ruby]
   patterns:
-    - regex: 'cookies\\[.*\\]\\s*=\\s*[^;]{4000,}'
-  severity: medium
+    - regex: 'cookies\\[.*\\]\\s*=\\s*[^;]{4000,}''severity: medium
   description: "Very large cookie value - header overflow"
   remediation: "Keep cookies small (<4KB)."
   cwe: "CWE-770"
@@ -2327,8 +2130,7 @@
 - id: ruby-token-comparison
   languages: [ruby]
   patterns:
-    - regex: 'token\\s*==\\s*.*params|token\\s*==\\s*.*request'
-  severity: high
+    - regex: 'token\\s*==\\s*.*params|token\\s*==\\s*.*request''severity: high
   description: "Token comparison with == - timing attack"
   remediation: "Use ActiveSupport::SecurityUtils.secure_compare."
   cwe: "CWE-208"
@@ -2337,8 +2139,7 @@
 - id: ruby-password-length
   languages: [ruby]
   patterns:
-    - regex: 'validates.*password.*length.*[1-5]'
-  severity: high
+    - regex: 'validates.*password.*length.*[1-5]''severity: high
   description: "Password length validation too short"
   remediation: "Require minimum 8+ characters for passwords."
   cwe: "CWE-521"
@@ -2347,8 +2148,7 @@
 - id: ruby-upload-original-filename
   languages: [ruby]
   patterns:
-    - regex: 'original_filename.*user|uploaded_file\\.original_filename'
-  severity: high
+    - regex: 'original_filename.*user|uploaded_file\\.original_filename''severity: high
   description: "Using original filename - path traversal risk"
   remediation: "Generate random filename, never use original."
   cwe: "CWE-22"
@@ -2357,8 +2157,7 @@
 - id: ruby-upload-content-type
   languages: [ruby]
   patterns:
-    - regex: 'content_type.*user|uploaded_file\\.content_type'
-  severity: medium
+    - regex: 'content_type.*user|uploaded_file\\.content_type''severity: medium
   description: "Using client-provided content type"
   remediation: "Validate actual file type, don't trust header."
   cwe: "CWE-434"
@@ -2367,8 +2166,7 @@
 - id: ruby-upload-size-validation
   languages: [ruby]
   patterns:
-    - regex: 'upload.*(?!size)'
-  severity: high
+    - regex: 'upload.*''severity: high
   description: "File upload without size validation"
   remediation: "Validate file size to prevent DoS."
   cwe: "CWE-770"
@@ -2377,8 +2175,7 @@
 - id: ruby-upload-file-type-validation
   languages: [ruby]
   patterns:
-    - regex: 'upload.*(?!content_type.*\\[)'
-  severity: high
+    - regex: 'upload.*''severity: high
   description: "File upload without type validation"
   remediation: "Validate file extensions and content types."
   cwe: "CWE-434"
@@ -2387,8 +2184,7 @@
 - id: ruby-upload-mime-type
   languages: [ruby]
   patterns:
-    - regex: 'mime\\.type.*params|Mime::Type.*params'
-  severity: high
+    - regex: 'mime\\.type.*params|Mime::Type.*params''severity: high
   description: "MIME type from user input - spoofing"
   remediation: "Detect MIME type from file content, not user."
   cwe: "CWE-434"
@@ -2397,8 +2193,7 @@
 - id: ruby-upload-file-ext
   languages: [ruby]
   patterns:
-    - regex: 'File\\.extname.*params|params.*extension'
-  severity: high
+    - regex: 'File\\.extname.*params|params.*extension''severity: high
   description: "File extension from user input - injection"
   remediation: "Validate extension against allowlist."
   cwe: "CWE-434"
@@ -2407,8 +2202,7 @@
 - id: ruby-upload-image-magick
   languages: [ruby]
   patterns:
-    - regex: 'MiniMagick|ImageMagick|MIME::Types.*upload'
-  severity: high
+    - regex: 'MiniMagick|ImageMagick|MIME::Types.*upload''severity: high
   description: "Image processing on upload - RCE risk"
   remediation: "Use image processing with safety limits."
   cwe: "CWE-94"
@@ -2417,8 +2211,7 @@
 - id: ruby-upload-pdf-parser
   languages: [ruby]
   patterns:
-    - regex: 'PDF::Reader|Origami|CombinePDF'
-  severity: high
+    - regex: 'PDF::Reader|Origami|CombinePDF''severity: high
   description: "PDF parsing on upload - XXE, RCE risks"
   remediation: "Validate PDFs before parsing."
   cwe: "CWE-611"
@@ -2427,8 +2220,7 @@
 - id: ruby-upload-xml-parser
   languages: [ruby]
   patterns:
-    - regex: 'Nokogiri.*upload|REXML.*upload'
-  severity: high
+    - regex: 'Nokogiri.*upload|REXML.*upload''severity: high
   description: "XML parsing on upload - XXE risk"
   remediation: "Disable external entities in XML parser."
   cwe: "CWE-611"
@@ -2437,8 +2229,7 @@
 - id: ruby-upload-csv-parser
   languages: [ruby]
   patterns:
-    - regex: 'CSV\\.read.*upload|CSV\\.parse.*upload'
-  severity: high
+    - regex: 'CSV\\.read.*upload|CSV\\.parse.*upload''severity: high
   description: "CSV parsing on upload - formula injection"
   remediation: "Sanitize CSV cells starting with =, +, -, @."
   cwe: "CWE-74"
@@ -2447,8 +2238,7 @@
 - id: ruby-upload-aws-s3
   languages: [ruby]
   patterns:
-    - regex: 'Aws::S3.*upload|s3.*put_object'
-  severity: medium
+    - regex: 'Aws::S3.*upload|s3.*put_object''severity: medium
   description: "Upload to S3 - ensure public access blocked"
   remediation: "Set proper bucket permissions."
   cwe: "CWE-732"
@@ -2457,8 +2247,7 @@
 - id: ruby-upload-multiple
   languages: [ruby]
   patterns:
-    - regex: 'multiple.*files.*upload|upload.*\\[\\]'
-  severity: high
+    - regex: 'multiple.*files.*upload|upload.*\\[\\]''severity: high
   description: "Multiple file upload - DoS risk"
   remediation: "Limit number and total size of files."
   cwe: "CWE-770"
@@ -2467,8 +2256,7 @@
 - id: ruby-upload-parallel
   languages: [ruby]
   patterns:
-    - regex: 'concurrent.*upload|parallel.*upload'
-  severity: high
+    - regex: 'concurrent.*upload|parallel.*upload''severity: high
   description: "Parallel file upload - resource exhaustion"
   remediation: "Limit concurrent uploads per user."
   cwe: "CWE-770"
@@ -2479,8 +2267,7 @@
 - id: ruby-nokogiri-xxe
   languages: [ruby]
   patterns:
-    - regex: 'Nokogiri::XML\\.parse.*(?!NOENT|DTDLOAD)'
-  severity: high
+    - regex: 'Nokogiri::XML\\.parse.*''severity: high
   description: "Nokogiri XML parse without disabling entities - XXE"
   remediation: "Use Nokogiri::XML.parse(file, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)"
   cwe: "CWE-611"
@@ -2489,8 +2276,7 @@
 - id: ruby-nokogiri-dtdload
   languages: [ruby]
   patterns:
-    - regex: 'Nokogiri::XML::ParseOptions::DTDLOAD'
-  severity: high
+    - regex: 'Nokogiri::XML::ParseOptions::DTDLOAD''severity: high
   description: "Nokogiri DTDLOAD option enabled - XXE risk"
   remediation: "Remove DTDLOAD from parse options."
   cwe: "CWE-611"
@@ -2499,8 +2285,7 @@
 - id: ruby-nokogiri-noent
   languages: [ruby]
   patterns:
-    - regex: 'Nokogiri::XML::ParseOptions::NOENT'
-  severity: high
+    - regex: 'Nokogiri::XML::ParseOptions::NOENT''severity: high
   description: "Nokogiri NOENT option enabled - entity substitution"
   remediation: "Remove NOENT from parse options."
   cwe: "CWE-611"
@@ -2509,8 +2294,7 @@
 - id: ruby-nokogiri-xslt
   languages: [ruby]
   patterns:
-    - regex: 'Nokogiri::XSLT\\.parse.*user|Nokogiri::XSLT.*params'
-  severity: high
+    - regex: 'Nokogiri::XSLT\\.parse.*user|Nokogiri::XSLT.*params''severity: high
   description: "Nokogiri XSLT with user input - code injection"
   remediation: "Never use user input in XSLT."
   cwe: "CWE-94"
@@ -2519,8 +2303,7 @@
 - id: ruby-rexml-document
   languages: [ruby]
   patterns:
-    - regex: 'REXML::Document\\.new.*params|REXML::Document.*File'
-  severity: high
+    - regex: 'REXML::Document\\.new.*params|REXML::Document.*File''severity: high
   description: "REXML document parsing - XXE vulnerable"
   remediation: "Use Nokogiri with safe options instead."
   cwe: "CWE-611"
@@ -2529,8 +2312,7 @@
 - id: ruby-libxml-ruby
   languages: [ruby]
   patterns:
-    - regex: 'LibXML::XML::Parser\\.new'
-  severity: high
+    - regex: 'LibXML::XML::Parser\\.new''severity: high
   description: "libxml-ruby parser - XXE risk"
   remediation: "Configure parser to disable entities."
   cwe: "CWE-611"
@@ -2539,8 +2321,7 @@
 - id: ruby-libxml-options
   languages: [ruby]
   patterns:
-    - regex: 'options:.*LibXML::XML::Parser::Options::NOENT'
-  severity: high
+    - regex: 'options:.*LibXML::XML::Parser::Options::NOENT''severity: high
   description: "libxml-ruby NOENT option - entity substitution"
   remediation: "Use NOBLANKS option only."
   cwe: "CWE-611"
@@ -2549,8 +2330,7 @@
 - id: ruby-ox-parse
   languages: [ruby]
   patterns:
-    - regex: 'Ox\\.parse.*params|Ox\\.load.*params'
-  severity: high
+    - regex: 'Ox\\.parse.*params|Ox\\.load.*params''severity: high
   description: "Ox XML/JSON parsing with user input"
   remediation: "Ox is generally safe, but validate input."
   cwe: "CWE-20"
@@ -2559,8 +2339,7 @@
 - id: ruby-ox-mode
   languages: [ruby]
   patterns:
-    - regex: 'Ox\\.parse.*mode:\\s*:object'
-  severity: high
+    - regex: 'Ox\\.parse.*mode:\\s*:object''severity: high
   description: "Ox object mode - object deserialization"
   remediation: "Use :hash or :generic mode for untrusted data."
   cwe: "CWE-502"
@@ -2569,8 +2348,7 @@
 - id: ruby-xmlrpc-client
   languages: [ruby]
   patterns:
-    - regex: 'XMLRPC::Client|XMLRPC::Server'
-  severity: high
+    - regex: 'XMLRPC::Client|XMLRPC::Server''severity: high
   description: "XML-RPC client/server - XXE risk"
   remediation: "Use JSON-RPC or REST instead."
   cwe: "CWE-611"
@@ -2579,8 +2357,7 @@
 - id: ruby-xmlrpc-call
   languages: [ruby]
   patterns:
-    - regex: 'call\\([^,]+,\\s*params\\['
-  severity: high
+    - regex: 'call\\([^,]+,\\s*params\\[''severity: high
   description: "XML-RPC call with user input - injection"
   remediation: "Validate XML-RPC method and parameters."
   cwe: "CWE-94"
@@ -2589,8 +2366,7 @@
 - id: ruby-soap-client
   languages: [ruby]
   patterns:
-    - regex: 'SOAP::Client|Savon\\.client'
-  severity: high
+    - regex: 'SOAP::Client|Savon\\.client''severity: high
   description: "SOAP client - XXE risk"
   remediation: "Configure XML parser to disable entities."
   cwe: "CWE-611"
@@ -2599,8 +2375,7 @@
 - id: ruby-savon-request
   languages: [ruby]
   patterns:
-    - regex: 'Savon\\.client\\([^)]*\\)\\.call.*params'
-  severity: high
+    - regex: 'Savon\\.client\\([^)]*\\)\\.call.*params''severity: high
   description: "Savon SOAP call with user input - injection"
   remediation: "Validate SOAP operation and parameters."
   cwe: "CWE-20"
@@ -2609,7 +2384,7 @@
 - id: ruby-jwt-none-algorithm
   languages: [ruby]
   patterns:
-    - regex: 'algorithm:\\s*''none''|JWT\\.decode.*none'
+    - regex: 'algorithm:\\s*'''none''|JWT\\.decode.*none'
   severity: high
   description: "JWT none algorithm allows signature bypass"
   remediation: "Always specify a secure algorithm (HS256, RS256)."
@@ -2619,7 +2394,7 @@
 - id: ruby-jwt-hardcoded-secret
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.encode.*[''"][a-zA-Z0-9]{1,32}[''"]'
+    - regex: 'JWT\\.encode.*['''"][a-zA-Z0-9]{1,32}[''"]'
   severity: high
   description: "Hardcoded JWT secret in code"
   remediation: "Use environment variable for JWT secret."
@@ -2629,7 +2404,7 @@
 - id: ruby-jwt-weak-secret
   languages: [ruby]
   patterns:
-    - regex: 'ENV\\[[''"]JWT_SECRET[''"\\]]{1,15}'
+    - regex: 'ENV\\[['''"]JWT_SECRET[''"\\]]{1,15}'
   severity: high
   description: "Weak JWT secret (less than 16 chars)"
   remediation: "Use 32+ character random secret."
@@ -2639,8 +2414,7 @@
 - id: ruby-jwt-no-expiration
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.encode.*(?!exp)'
-  severity: high
+    - regex: 'JWT\\.encode.*''severity: high
   description: "JWT created without expiration"
   remediation: "Add exp claim with short expiry."
   cwe: "CWE-613"
@@ -2649,8 +2423,7 @@
 - id: ruby-jwt-issuer-validation
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*(?!verify_iss)'
-  severity: high
+    - regex: 'JWT\\.decode.*''severity: high
   description: "JWT without issuer validation"
   remediation: "Add iss claim and verify it."
   cwe: "CWE-287"
@@ -2659,8 +2432,7 @@
 - id: ruby-jwt-audience-validation
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*(?!verify_aud)'
-  severity: high
+    - regex: 'JWT\\.decode.*''severity: high
   description: "JWT without audience validation"
   remediation: "Add aud claim and verify it."
   cwe: "CWE-287"
@@ -2669,8 +2441,7 @@
 - id: ruby-jwt-iat-validation
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*(?!verify_iat)'
-  severity: medium
+    - regex: 'JWT\\.decode.*''severity: medium
   description: "JWT without issued-at validation"
   remediation: "Verify iat to prevent replay of old tokens."
   cwe: "CWE-613"
@@ -2679,8 +2450,7 @@
 - id: ruby-jwt-leeway
   languages: [ruby]
   patterns:
-    - regex: 'leeway:\\s*[6-9]\\d{2,}'
-  severity: medium
+    - regex: 'leeway:\\s*[6-9]\\d{2,}''severity: medium
   description: "Excessive JWT leeway (60+ seconds)"
   remediation: "Keep leeway to 30-60 seconds."
   cwe: "CWE-613"
@@ -2689,8 +2459,7 @@
 - id: ruby-jwt-kid-injection
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*kid.*params'
-  severity: high
+    - regex: 'JWT\\.decode.*kid.*params''severity: high
   description: "JWT kid from user input - injection"
   remediation: "Validate kid against allowlist of keys."
   cwe: "CWE-94"
@@ -2699,8 +2468,7 @@
 - id: ruby-jwt-jku-injection
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*jku.*params'
-  severity: high
+    - regex: 'JWT\\.decode.*jku.*params''severity: high
   description: "JWT jku header from user input - SSRF"
   remediation: "Disable jku header or validate URLs."
   cwe: "CWE-918"
@@ -2709,8 +2477,7 @@
 - id: ruby-jwt-x5u-injection
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*x5u.*params'
-  severity: high
+    - regex: 'JWT\\.decode.*x5u.*params''severity: high
   description: "JWT x5u header from user input - SSRF"
   remediation: "Disable x5u header or validate URLs."
   cwe: "CWE-918"
@@ -2719,7 +2486,7 @@
 - id: ruby-jwt-algorithm-confusion
   languages: [ruby]
   patterns:
-    - regex: 'algorithm:\\s*''HS256''.*verify.*public_key'
+    - regex: 'algorithm:\\s*'''HS256''.*verify.*public_key'
   severity: high
   description: "Algorithm confusion - HS256 with public key"
   remediation: "Ensure algorithm matches key type."
@@ -2729,8 +2496,7 @@
 - id: ruby-jwt-compression
   languages: [ruby]
   patterns:
-    - regex: 'zip|compression.*JWT'
-  severity: medium
+    - regex: 'zip|compression.*JWT''severity: medium
   description: "JWT compression - CRIME attack risk"
   remediation: "Disable compression for sensitive JWTs."
   cwe: "CWE-200"
@@ -2739,7 +2505,7 @@
 - id: ruby-jwt-encryption-weak
   languages: [ruby]
   patterns:
-    - regex: 'encryption:\\s*''A128GCM'''
+    - regex: 'encryption:\\s*'''A128GCM'''
   severity: medium
   description: "Weak JWT encryption (AES-128)"
   remediation: "Use AES-256-GCM for stronger encryption."
@@ -2749,8 +2515,7 @@
 - id: ruby-jwt-decoding-without-verify
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*(?!verify)'
-  severity: high
+    - regex: 'JWT\\.decode.*''severity: high
   description: "JWT decode without verification"
   remediation: "Always use verify option in decode."
   cwe: "CWE-347"
@@ -2759,8 +2524,7 @@
 - id: ruby-jwt-subject-validation
   languages: [ruby]
   patterns:
-    - regex: 'JWT\\.decode.*(?!sub)'
-  severity: medium
+    - regex: 'JWT\\.decode.*''severity: medium
   description: "JWT without subject claim"
   remediation: "Add sub claim and validate it."
   cwe: "CWE-287"
@@ -2771,8 +2535,7 @@
 - id: ruby-logger-format-injection
   languages: [ruby]
   patterns:
-    - regex: 'logger\\.(info|debug|warn|error)\\s*\\([^)]*params\\['
-  severity: high
+    - regex: 'logger\\.(info|debug|warn|error)\\s*\\([^)]*params\\[''severity: high
   description: "User input in log messages - log injection"
   remediation: "Sanitize user input, remove newlines and control chars."
   cwe: "CWE-117"
@@ -2781,8 +2544,7 @@
 - id: ruby-logger-json-injection
   languages: [ruby]
   patterns:
-    - regex: 'logger\\.(info|debug|warn|error)\\s*\\(.*params.to_json'
-  severity: medium
+    - regex: 'logger\\.(info|debug|warn|error)\\s*\\(.*params.to_json''severity: medium
   description: "JSON logging with params - may expose sensitive data"
   remediation: "Filter sensitive parameters before logging."
   cwe: "CWE-532"
@@ -2791,8 +2553,7 @@
 - id: ruby-rails-logger-params
   languages: [ruby]
   patterns:
-    - regex: 'Rails\\.logger\\.(info|debug).*params\\['
-  severity: high
+    - regex: 'Rails\\.logger\\.(info|debug).*params\\[''severity: high
   description: "Logging request params - sensitive data exposure"
   remediation: "Use filter_parameters to hide sensitive data."
   cwe: "CWE-532"
@@ -2801,8 +2562,7 @@
 - id: ruby-rails-filter-params-missing
   languages: [ruby]
   patterns:
-    - regex: 'Rails\\.application\\.config\\.filter_parameters(?!.*password)'
-  severity: high
+    - regex: 'Rails\\.application\\.config\\.filter_parameters''severity: high
   description: "Missing filter for sensitive parameters"
   remediation: "Add password, token, secret to filter_parameters."
   cwe: "CWE-532"
@@ -2811,7 +2571,7 @@
 - id: ruby-log-injection-newline
   languages: [ruby]
   patterns:
-    - regex: 'params\\[.*\\].*\\+.*''\\n''|params\\[.*\\].*\\+.*''\\r'''
+    - regex: 'params\\[.*\\].*\\+.*'''\\n''|params\\[.*\\].*\\+.*''\\r'''
   severity: high
   description: "User input with newlines - log injection"
   remediation: "Strip newlines and carriage returns."
@@ -2821,8 +2581,7 @@
 - id: ruby-log-injection-color
   languages: [ruby]
   patterns:
-    - regex: 'params\\[.*\\].*\\e\\['
-  severity: medium
+    - regex: 'params\\[.*\\].*\\e\\[''severity: medium
   description: "User input with ANSI escape codes - terminal injection"
   remediation: "Strip ANSI escape sequences from logs."
   cwe: "CWE-117"
@@ -2831,8 +2590,7 @@
 - id: ruby-puts-sensitive
   languages: [ruby]
   patterns:
-    - regex: 'puts\\s+.*password|puts\\s+.*token|puts\\s+.*secret'
-  severity: high
+    - regex: 'puts\\s+.*password|puts\\s+.*token|puts\\s+.*secret''severity: high
   description: "Sensitive data printed to console"
   remediation: "Remove debug prints containing secrets."
   cwe: "CWE-532"
@@ -2841,8 +2599,7 @@
 - id: ruby-p-sensitive
   languages: [ruby]
   patterns:
-    - regex: 'p\\s+.*password|pp\\s+.*token'
-  severity: high
+    - regex: 'p\\s+.*password|pp\\s+.*token''severity: high
   description: "Sensitive data printed with p/pp"
   remediation: "Remove debug prints with sensitive data."
   cwe: "CWE-532"
@@ -2851,8 +2608,7 @@
 - id: ruby-puts-user-input
   languages: [ruby]
   patterns:
-    - regex: 'puts\\s+.*params\\['
-  severity: medium
+    - regex: 'puts\\s+.*params\\[''severity: medium
   description: "Printing user input - debug only"
   remediation: "Remove in production."
   cwe: "CWE-532"
@@ -2861,8 +2617,7 @@
 - id: ruby-ap-user-input
   languages: [ruby]
   patterns:
-    - regex: 'ap\\s+.*params\\['
-  severity: medium
+    - regex: 'ap\\s+.*params\\[''severity: medium
   description: "Awesome print of user input - debug only"
   remediation: "Remove in production."
   cwe: "CWE-532"
@@ -2871,8 +2626,7 @@
 - id: ruby-stack-trace-logging
   languages: [ruby]
   patterns:
-    - regex: 'logger\\.error.*backtrace|logger\\.error.*exception'
-  severity: low
+    - regex: 'logger\\.error.*backtrace|logger\\.error.*exception''severity: low
   description: "Logging stack traces - may expose internals"
   remediation: "Log only error messages, not full traces."
   cwe: "CWE-209"
@@ -2881,8 +2635,7 @@
 - id: ruby-stderr-output
   languages: [ruby]
   patterns:
-    - regex: 'STDERR\\.puts|warn\\s+'
-  severity: low
+    - regex: 'STDERR\\.puts|warn\\s+''severity: low
   description: "Output to stderr - may expose info"
   remediation: "Use proper logging in production."
   cwe: "CWE-532"
@@ -2891,8 +2644,7 @@
 - id: ruby-stack-trace-ui
   languages: [ruby]
   patterns:
-    - regex: 'render.*status:.*backtrace|show_detailed_exceptions'
-  severity: high
+    - regex: 'render.*status:.*backtrace|show_detailed_exceptions''severity: high
   description: "Showing stack traces to users"
   remediation: "Disable detailed exceptions in production."
   cwe: "CWE-209"
@@ -2901,7 +2653,7 @@
 - id: ruby-web-console
   languages: [ruby]
   patterns:
-    - regex: 'gem [''\"]web-console[''\"]|WebConsole'
+    - regex: 'gem ['''\"]web-console[''\"]|WebConsole'
   severity: high
   description: "web-console gem in production - RCE risk"
   remediation: "Only include web-console in development group."
@@ -2911,8 +2663,7 @@
 - id: ruby-better-errors
   languages: [ruby]
   patterns:
-    - regex: 'better_errors|binding_of_caller'
-  severity: high
+    - regex: 'better_errors|binding_of_caller''severity: high
   description: "better_errors in production - code execution"
   remediation: "Only use better_errors in development."
   cwe: "CWE-94"
@@ -2921,8 +2672,7 @@
 - id: ruby-pry-rails
   languages: [ruby]
   patterns:
-    - regex: 'pry-rails|binding\\.pry'
-  severity: high
+    - regex: 'pry-rails|binding\\.pry''severity: high
   description: "Pry debugging in production - code execution"
   remediation: "Remove Pry from production Gemfile."
   cwe: "CWE-94"
@@ -2931,8 +2681,7 @@
 - id: ruby-byebug
   languages: [ruby]
   patterns:
-    - regex: 'byebug|debugger'
-  severity: high
+    - regex: 'byebug|debugger''severity: high
   description: "Debugger breakpoint in production"
   remediation: "Remove debugger calls in production."
   cwe: "CWE-94"
@@ -2943,8 +2692,7 @@
 - id: ruby-rack-cors-origin-all
   languages: [ruby]
   patterns:
-    - regex: 'origins.*\\*|allow do.*\\*'
-  severity: medium
+    - regex: 'origins.*\\*|allow do.*\\*''severity: medium
   description: "CORS allowing all origins - security risk"
   remediation: "Restrict origins to specific domains."
   cwe: "CWE-942"
@@ -2953,8 +2701,7 @@
 - id: ruby-rack-cors-credentials
   languages: [ruby]
   patterns:
-    - regex: 'resource.*headers.*:.*\\*.*credentials.*true'
-  severity: high
+    - regex: 'resource.*headers.*:.*\\*.*credentials.*true''severity: high
   description: "CORS wildcard with credentials - insecure"
   remediation: "Specify exact origins when using credentials."
   cwe: "CWE-942"
@@ -2963,8 +2710,7 @@
 - id: ruby-rack-rewrite
   languages: [ruby]
   patterns:
-    - regex: 'Rack::Rewrite.*params'
-  severity: high
+    - regex: 'Rack::Rewrite.*params''severity: high
   description: "Rack rewrite with user input - open redirect"
   remediation: "Avoid user input in rewrite rules."
   cwe: "CWE-601"
@@ -2973,8 +2719,7 @@
 - id: ruby-rack-static
   languages: [ruby]
   patterns:
-    - regex: 'Rack::Static'
-  severity: low
+    - regex: 'Rack::Static''severity: low
   description: "Static file serving - ensure paths are safe"
   remediation: "Restrict static files to public directory."
   cwe: "CWE-22"
@@ -2983,7 +2728,7 @@
 - id: ruby-rack-static-root
   languages: [ruby]
   patterns:
-    - regex: 'root:.*[''"]\\.\\.["'']'
+    - regex: 'root:.*['''"]\\.\\.["'']'
   severity: high
   description: "Rack static root outside public directory"
   remediation: "Keep static files in public directory."
@@ -2993,8 +2738,7 @@
 - id: ruby-rack-method-override
   languages: [ruby]
   patterns:
-    - regex: 'Rack::MethodOverride'
-  severity: medium
+    - regex: 'Rack::MethodOverride''severity: medium
   description: "HTTP method override enabled - CSRF risk"
   remediation: "Ensure proper CSRF protection."
   cwe: "CWE-352"
@@ -3003,8 +2747,7 @@
 - id: ruby-rack-show-exceptions
   languages: [ruby]
   patterns:
-    - regex: 'Rack::ShowExceptions'
-  severity: medium
+    - regex: 'Rack::ShowExceptions''severity: medium
   description: "Show exceptions in production - info leak"
   remediation: "Disable in production, use custom error pages."
   cwe: "CWE-209"
@@ -3013,8 +2756,7 @@
 - id: ruby-sidekiq-args
   languages: [ruby]
   patterns:
-    - regex: 'Sidekiq::Client\\.push.*params\\['
-  severity: high
+    - regex: 'Sidekiq::Client\\.push.*params\\[''severity: high
   description: "Sidekiq job with user params - serialization risk"
   remediation: "Use IDs instead of full objects."
   cwe: "CWE-502"
@@ -3023,8 +2765,7 @@
 - id: ruby-sidekiq-web
   languages: [ruby]
   patterns:
-    - regex: 'mount Sidekiq::Web|Sidekiq\\.Web'
-  severity: high
+    - regex: 'mount Sidekiq::Web|Sidekiq\\.Web''severity: high
   description: "Sidekiq web interface without authentication"
   remediation: "Protect Sidekiq::Web with authentication."
   cwe: "CWE-306"
@@ -3033,8 +2774,7 @@
 - id: ruby-sidekiq-cron
   languages: [ruby]
   patterns:
-    - regex: 'Sidekiq::Cron::Job.*params'
-  severity: high
+    - regex: 'Sidekiq::Cron::Job.*params''severity: high
   description: "Sidekiq cron from params - code injection"
   remediation: "Never create cron jobs from user input."
   cwe: "CWE-94"
@@ -3043,8 +2783,7 @@
 - id: ruby-resque-web
   languages: [ruby]
   patterns:
-    - regex: 'Resque::Server|mount Resque'
-  severity: high
+    - regex: 'Resque::Server|mount Resque''severity: high
   description: "Resque web interface without authentication"
   remediation: "Protect Resque web with authentication."
   cwe: "CWE-306"
@@ -3053,8 +2792,7 @@
 - id: ruby-delayed-job-web
   languages: [ruby]
   patterns:
-    - regex: 'DelayedJobWeb|mount DelayedJob'
-  severity: high
+    - regex: 'DelayedJobWeb|mount DelayedJob''severity: high
   description: "Delayed Job web interface without authentication"
   remediation: "Protect Delayed Job web with authentication."
   cwe: "CWE-306"
@@ -3063,8 +2801,7 @@
 - id: ruby-active-job-params
   languages: [ruby]
   patterns:
-    - regex: 'perform_later.*params\\['
-  severity: high
+    - regex: 'perform_later.*params\\[''severity: high
   description: "ActiveJob with user params - serialization risk"
   remediation: "Use IDs instead of full objects."
   cwe: "CWE-502"
@@ -3073,8 +2810,7 @@
 - id: ruby-active-job-globalid
   languages: [ruby]
   patterns:
-    - regex: 'GlobalID|GlobalID::Locator'
-  severity: medium
+    - regex: 'GlobalID|GlobalID::Locator''severity: medium
   description: "GlobalID deserialization - ensure model access"
   remediation: "Authorize access to deserialized models."
   cwe: "CWE-284"
@@ -3083,7 +2819,7 @@
 - id: ruby-sidekiq-redis-hardcoded
   languages: [ruby]
   patterns:
-    - regex: 'redis:\\s*\\{.*url:.*[''"][^''"]+[''"]'
+    - regex: 'redis:\\s*\\{.*url:.*['''"][^''"]+[''"]'
   severity: high
   description: "Hardcoded Redis URL in Sidekiq config"
   remediation: "Use environment variables for Redis."
@@ -3093,8 +2829,7 @@
 - id: ruby-sidekiq-schedule
   languages: [ruby]
   patterns:
-    - regex: 'Sidekiq\\.schedule.*params'
-  severity: high
+    - regex: 'Sidekiq\\.schedule.*params''severity: high
   description: "Sidekiq schedule from user input - code injection"
   remediation: "Never allow user input in job schedules."
   cwe: "CWE-94"
@@ -3103,8 +2838,7 @@
 - id: ruby-resque-schedule
   languages: [ruby]
   patterns:
-    - regex: 'Resque\\.schedule.*params'
-  severity: high
+    - regex: 'Resque\\.schedule.*params''severity: high
   description: "Resque schedule from user input - code injection"
   remediation: "Never allow user input in job schedules."
   cwe: "CWE-94"
@@ -3113,8 +2847,7 @@
 - id: ruby-que-web
   languages: [ruby]
   patterns:
-    - regex: 'Que::Web|mount Que'
-  severity: high
+    - regex: 'Que::Web|mount Que''severity: high
   description: "Que web interface without authentication"
   remediation: "Protect Que web with authentication."
   cwe: "CWE-306"
@@ -3123,8 +2856,7 @@
 - id: ruby-good-job-web
   languages: [ruby]
   patterns:
-    - regex: 'GoodJob::Engine|mount GoodJob'
-  severity: high
+    - regex: 'GoodJob::Engine|mount GoodJob''severity: high
   description: "GoodJob web interface without authentication"
   remediation: "Protect GoodJob web with authentication."
   cwe: "CWE-306"
@@ -3133,8 +2865,7 @@
 - id: ruby-job-data-size
   languages: [ruby]
   patterns:
-    - regex: 'perform.*[^,]{10000,}'
-  severity: medium
+    - regex: 'perform.*[^,]{10000,}''severity: medium
   description: "Very large job data - memory issues"
   remediation: "Keep job data small, use IDs for large objects."
   cwe: "CWE-770"
@@ -3143,8 +2874,7 @@
 - id: ruby-job-deserialization
   languages: [ruby]
   patterns:
-    - regex: 'YAML\\.load.*job|Marshal\\.load.*job'
-  severity: high
+    - regex: 'YAML\\.load.*job|Marshal\\.load.*job''severity: high
   description: "Unsafe deserialization in job"
   remediation: "Use JSON or safe serialization for jobs."
   cwe: "CWE-502"
@@ -3153,8 +2883,7 @@
 - id: ruby-job-retry-infinite
   languages: [ruby]
   patterns:
-    - regex: 'retry:\\s*true|retry_count:\\s*[6-9]\\d+'
-  severity: medium
+    - regex: 'retry:\\s*true|retry_count:\\s*[6-9]\\d+''severity: medium
   description: "Infinite or excessive job retries - DoS"
   remediation: "Limit retries with exponential backoff."
   cwe: "CWE-770"
@@ -3163,8 +2892,7 @@
 - id: ruby-job-queue-name
   languages: [ruby]
   patterns:
-    - regex: 'queue:\\s*params\\[|sidekiq_options.*queue.*params'
-  severity: high
+    - regex: 'queue:\\s*params\\[|sidekiq_options.*queue.*params''severity: high
   description: "Queue name from user input - injection"
   remediation: "Use fixed queue names, not from params."
   cwe: "CWE-20"
@@ -3175,8 +2903,7 @@
 - id: ruby-api-json-response
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+json:\\s*.*params'
-  severity: medium
+    - regex: 'render\\s+json:\\s*.*params''severity: medium
   description: "JSON response from params - ensure no sensitive data"
   remediation: "Use serializers to filter sensitive fields."
   cwe: "CWE-200"
@@ -3185,8 +2912,7 @@
 - id: ruby-api-xml-response
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+xml:\\s*.*params'
-  severity: high
+    - regex: 'render\\s+xml:\\s*.*params''severity: high
   description: "XML response from params - XXE risk"
   remediation: "Use JSON instead of XML for APIs."
   cwe: "CWE-611"
@@ -3195,8 +2921,7 @@
 - id: ruby-api-jsonp-callback
   languages: [ruby]
   patterns:
-    - regex: 'params\\[:callback\\]|JSONP'
-  severity: high
+    - regex: 'params\\[:callback\\]|JSONP''severity: high
   description: "JSONP callback from params - XSS risk"
   remediation: "Use CORS instead of JSONP."
   cwe: "CWE-79"
@@ -3205,8 +2930,7 @@
 - id: ruby-api-api-key-header
   languages: [ruby]
   patterns:
-    - regex: 'headers\\[.*api_key|params\\[:api_key\\]'
-  severity: high
+    - regex: 'headers\\[.*api_key|params\\[:api_key\\]''severity: high
   description: "API key in headers/params - ensure secure storage"
   remediation: "Store API keys securely, use HTTPS."
   cwe: "CWE-798"
@@ -3215,7 +2939,7 @@
 - id: ruby-api-api-key-hardcoded
   languages: [ruby]
   patterns:
-    - regex: 'API_KEY = [''\"][a-zA-Z0-9]+[''\"]'
+    - regex: 'API_KEY = ['''\"][a-zA-Z0-9]+[''\"]'
   severity: high
   description: "Hardcoded API key in code"
   remediation: "Use environment variables for API keys."
@@ -3225,8 +2949,7 @@
 - id: ruby-api-version-param
   languages: [ruby]
   patterns:
-    - regex: 'params\\[:version\\]|version: params'
-  severity: low
+    - regex: 'params\\[:version\\]|version: params''severity: low
   description: "API version from params - check allowlist"
   remediation: "Validate version against allowlist."
   cwe: "CWE-20"
@@ -3235,8 +2958,7 @@
 - id: ruby-api-format-param
   languages: [ruby]
   patterns:
-    - regex: 'params\\[:format\\]|respond_to.*format'
-  severity: low
+    - regex: 'params\\[:format\\]|respond_to.*format''severity: low
   description: "Format parameter - check for injection"
   remediation: "Restrict allowed formats."
   cwe: "CWE-20"
@@ -3245,8 +2967,7 @@
 - id: ruby-api-graphql-query
   languages: [ruby]
   patterns:
-    - regex: 'GraphQL.*query.*params\\['
-  severity: high
+    - regex: 'GraphQL.*query.*params\\[''severity: high
   description: "GraphQL query from params - complexity limits"
   remediation: "Implement query depth and complexity limits."
   cwe: "CWE-770"
@@ -3255,8 +2976,7 @@
 - id: ruby-api-graphql-mutation
   languages: [ruby]
   patterns:
-    - regex: 'GraphQL.*mutation.*params\\['
-  severity: high
+    - regex: 'GraphQL.*mutation.*params\\[''severity: high
   description: "GraphQL mutation from params - CSRF risk"
   remediation: "Use CSRF tokens for mutations."
   cwe: "CWE-352"
@@ -3265,8 +2985,7 @@
 - id: ruby-api-graphql-introspection
   languages: [ruby]
   patterns:
-    - regex: '__schema|__type'
-  severity: high
+    - regex: '__schema|__type''severity: high
   description: "GraphQL introspection - disable in production"
   remediation: "Disable introspection in production."
   cwe: "CWE-200"
@@ -3275,8 +2994,7 @@
 - id: ruby-api-oauth2-public-client
   languages: [ruby]
   patterns:
-    - regex: 'public.*client.*secret'
-  severity: high
+    - regex: 'public.*client.*secret''severity: high
   description: "Public client with secret - insecure"
   remediation: "Public clients should not have secrets."
   cwe: "CWE-798"
@@ -3285,8 +3003,7 @@
 - id: ruby-api-oauth2-refresh-token
   languages: [ruby]
   patterns:
-    - regex: 'refresh_token.*expires.*never'
-  severity: high
+    - regex: 'refresh_token.*expires.*never''severity: high
   description: "Refresh token never expires - security risk"
   remediation: "Set expiration on refresh tokens."
   cwe: "CWE-613"
@@ -3295,8 +3012,7 @@
 - id: ruby-api-saml2-acs
   languages: [ruby]
   patterns:
-    - regex: 'assertion_consumer_service_url.*params'
-  severity: high
+    - regex: 'assertion_consumer_service_url.*params''severity: high
   description: "SAML ACS from params - open redirect"
   remediation: "Use fixed ACS URL, not from params."
   cwe: "CWE-601"
@@ -3305,8 +3021,7 @@
 - id: ruby-api-json-webhook
   languages: [ruby]
   patterns:
-    - regex: 'webhook.*params|webhook.*JSON'
-  severity: high
+    - regex: 'webhook.*params|webhook.*JSON''severity: high
   description: "Webhook with user input - injection"
   remediation: "Validate webhook signatures."
   cwe: "CWE-20"
@@ -3315,8 +3030,7 @@
 - id: ruby-api-webhook-https
   languages: [ruby]
   patterns:
-    - regex: 'webhook.*http://'
-  severity: high
+    - regex: 'webhook.*http://''severity: high
   description: "Webhook using HTTP - MITM risk"
   remediation: "Always use HTTPS for webhooks."
   cwe: "CWE-319"
@@ -3327,8 +3041,7 @@
 - id: ruby-rails-cache
   languages: [ruby]
   patterns:
-    - regex: 'Rails\\.cache.*params'
-  severity: high
+    - regex: 'Rails\\.cache.*params''severity: high
   description: "Cache keys from params - cache poisoning"
   remediation: "Validate cache keys, don't use raw params."
   cwe: "CWE-20"
@@ -3337,8 +3050,7 @@
 - id: ruby-rails-cache-store
   languages: [ruby]
   patterns:
-    - regex: 'config\\.cache_store\\s*=\\s*:file_store'
-  severity: medium
+    - regex: 'config\\.cache_store\\s*=\\s*:file_store''severity: medium
   description: "File cache store - file system access"
   remediation: "Use Redis or Memcached in production."
   cwe: "CWE-200"
@@ -3347,8 +3059,7 @@
 - id: ruby-rails-cache-expiry
   languages: [ruby]
   patterns:
-    - regex: 'expires_in:\\s*[6-9]\\d{5,}'
-  severity: medium
+    - regex: 'expires_in:\\s*[6-9]\\d{5,}''severity: medium
   description: "Very long cache expiry"
   remediation: "Set reasonable cache expiration times."
   cwe: "CWE-524"
@@ -3357,8 +3068,7 @@
 - id: ruby-rails-force-ssl-missing
   languages: [ruby]
   patterns:
-    - regex: 'config\\.force_ssl\\s*=\\s*false'
-  severity: high
+    - regex: 'config\\.force_ssl\\s*=\\s*false''severity: high
   description: "Force SSL disabled - MITM risk"
   remediation: "Enable force_ssl in production."
   cwe: "CWE-319"
@@ -3367,8 +3077,7 @@
 - id: ruby-rails-log-level
   languages: [ruby]
   patterns:
-    - regex: 'config\\.log_level\\s*=\\s*:debug'
-  severity: high
+    - regex: 'config\\.log_level\\s*=\\s*:debug''severity: high
   description: "Debug logging in production"
   remediation: "Set log level to :info or :warn in production."
   cwe: "CWE-532"
@@ -3377,8 +3086,7 @@
 - id: ruby-rails-assets-compile
   languages: [ruby]
   patterns:
-    - regex: 'config\\.assets\\.compile\\s*=\\s*true'
-  severity: medium
+    - regex: 'config\\.assets\\.compile\\s*=\\s*true''severity: medium
   description: "Asset compilation in production - performance"
   remediation: "Precompile assets in production."
   cwe: "CWE-770"
@@ -3387,8 +3095,7 @@
 - id: ruby-rails-i18n
   languages: [ruby]
   patterns:
-    - regex: 'I18n\\.t\\s*\\(\\s*params\\['
-  severity: high
+    - regex: 'I18n\\.t\\s*\\(\\s*params\\[''severity: high
   description: "I18n translation key from params - path traversal"
   remediation: "Validate translation keys against allowlist."
   cwe: "CWE-22"
@@ -3397,8 +3104,7 @@
 - id: ruby-rails-i18n-locale
   languages: [ruby]
   patterns:
-    - regex: 'I18n\\.locale\\s*=\\s*params\\['
-  severity: high
+    - regex: 'I18n\\.locale\\s*=\\s*params\\[''severity: high
   description: "Locale from params - path traversal"
   remediation: "Validate locale against allowlist."
   cwe: "CWE-22"
@@ -3407,8 +3113,7 @@
 - id: ruby-rails-database-config
   languages: [ruby]
   patterns:
-    - regex: 'database.yml.*password.*[^\\s]+'
-  severity: high
+    - regex: 'database.yml.*password.*[^\\s]+''severity: high
   description: "Database password in config file"
   remediation: "Use ENV variables for database password."
   cwe: "CWE-798"
@@ -3417,7 +3122,7 @@
 - id: ruby-gemfile-source
   languages: [ruby]
   patterns:
-    - regex: 'source [''\"]http://rubygems.org[''\"]'
+    - regex: 'source ['''\"]http://rubygems.org[''\"]'
   severity: high
   description: "Gem source over HTTP - MITM risk"
   remediation: "Use HTTPS: https://rubygems.org"
@@ -3427,7 +3132,7 @@
 - id: ruby-gemfile-git
   languages: [ruby]
   patterns:
-    - regex: 'gem [''"]\\w+[''"],\\s*git:|github:|:git'
+    - regex: 'gem ['''"]\\w+[''"],\\s*git:|github:|:git'
   severity: medium
   description: "Git gem dependency - ensure trusted source"
   remediation: "Pin to specific commit SHA for security."
@@ -3437,7 +3142,7 @@
 - id: ruby-gemfile-path
   languages: [ruby]
   patterns:
-    - regex: 'gem [''"]\\w+[''"],\\s*path:'
+    - regex: 'gem ['''"]\\w+[''"],\\s*path:'
   severity: low
   description: "Local path dependency - ensure path is secure"
   remediation: "Use versioned gems from RubyGems.org."
@@ -3447,7 +3152,7 @@
 - id: ruby-gemfile-version-latest
   languages: [ruby]
   patterns:
-    - regex: 'gem [''"]\\w+[''"],\\s*[''"]>=[''"]|gem [''"]\\w+[''"]$'
+    - regex: 'gem ['''"]\\w+[''"],\\s*[''"]>=[''"]|gem [''"]\\w+[''"]$'
   severity: medium
   description: "Unpinned gem version - unexpected updates"
   remediation: "Pin to specific versions: '~> 1.2.3'"
@@ -3457,8 +3162,7 @@
 - id: ruby-erb-ssti
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:render\s+inline:|ERB\.new\().*params\['
-  severity: critical
+    - regex: '(?i)(?:render\s+inline:|ERB\.new\().*params\[''severity: critical
   description: "Server-Side Template Injection (SSTI) in ERB or render inline via unvalidated user input."
   remediation: "Never pass unsanitized user input directly into template engines like ERB or `render inline`."
   cwe: "CWE-1336"
@@ -3467,8 +3171,7 @@
 - id: ruby-unsafe-deserialization-params
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:YAML|Marshal)\.load\s*\(\s*params\['
-  severity: critical
+    - regex: '(?i)(?:YAML|Marshal)\.load\s*\(\s*params\[''severity: critical
   description: "Unsafe deserialization of user input directly from params."
   remediation: "Do not use YAML.load or Marshal.load on untrusted data. Use JSON.parse instead."
   cwe: "CWE-502"
@@ -3477,7 +3180,7 @@
 - id: ruby-array-join-sqli
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:where|find_by_sql)\s*\(\s*["''].*#\{.*params\[.*\.join\([''"]'
+    - regex: '(?i)(?:where|find_by_sql)\s*\(\s*["'''].*#\{.*params\[.*\.join\([''"]'
   severity: critical
   description: "SQL Injection via Array.join on user input interpolated directly into SQL query strings (e.g., `where(\"id IN (\#{params[:ids].join(',')})\")`)."
   remediation: "Use Active Record's built-in array passing: `where(id: params[:ids])` instead of manual string interpolation."
@@ -3487,7 +3190,7 @@
 - id: ruby-trailing-comment-sqli
   languages: [ruby]
   patterns:
-  - regex: '(?i)\.where\(\s*["''].*=\s*[''"]#\{[^}]+\}[''"]'
+  - regex: '(?i)\.where\(\s*["'''].*=\s*[''"]#\{[^}]+\}[''"]'
   severity: critical
   description: "Direct string interpolation into a SQL WHERE clause allows trailing-comment (-- or #) authentication bypass."
   remediation: "Always use parameterized queries (e.g., .where('username = ?', username))."
@@ -3497,8 +3200,7 @@
 - id: ruby-oauth-provider-ssrf
   languages: [ruby]
   patterns:
-  - regex: '(?i)https://oauth\.#\{.*(?:params|request).*\}.*/token'
-  severity: critical
+  - regex: '(?i)https://oauth\.#\{.*(?:params|request).*\}.*/token''severity: critical
   description: "OAuth provider URL constructed from user input allows redirection to attacker-controlled domains (SSRF/Token Leak)."
   remediation: "Strictly validate the OAuth provider against an allowlist before constructing the token endpoint URL."
   cwe: "CWE-918"
@@ -3507,8 +3209,7 @@
 - id: ruby-backtick-os-execution
   languages: [ruby]
   patterns:
-  - regex: '(?i)`[^`]*#\{[^}]+\}[^`]*`'
-  severity: high
+  - regex: '(?i)`[^`]*#\{[^}]+\}[^`]*`''severity: high
   description: "Backtick OS command execution with string interpolation. Extremely vulnerable to command injection."
   remediation: "Avoid backticks. Use Open3.capture3 or system() with discrete, un-concatenated argument arrays."
   cwe: "CWE-78"
@@ -3517,8 +3218,7 @@
 - id: ruby-marshal-dump-leak
   languages: [ruby]
   patterns:
-  - regex: '(?i)(?:render|send_data)\s+Marshal\.dump'
-  severity: high
+  - regex: '(?i)(?:render|send_data)\s+Marshal\.dump''severity: high
   description: "Exporting raw Marshal.dump data directly to clients establishes a future deserialization attack vector."
   remediation: "Never transmit Ruby-specific Marshal encodings to untrusted clients. Use JSON or MessagePack."
   cwe: "CWE-502"
@@ -3527,8 +3227,7 @@
 - id: ruby-html-safe-bypass
   languages: [ruby]
   patterns:
-  - regex: '(?i)render\s+html:\s*.*\.html_safe'
-  severity: critical
+  - regex: '(?i)render\s+html:\s*.*\.html_safe''severity: critical
   description: "Explicitly instructing Rails to render strings with .html_safe completely bypasses native XSS and SSTI controls."
   remediation: "Remove .html_safe and rely on native Rails output encoding, or strictly sanitize before tagging as safe."
   cwe: "CWE-116"
@@ -3537,8 +3236,7 @@
 - id: ruby-csv-unvalidated-ingestion
   languages: [ruby]
   patterns:
-  - regex: '(?i)CSV\.parse\([A-Za-z_]+\.read.?.?\s+do'
-  severity: high
+  - regex: '(?i)CSV\.parse\([A-Za-z_]+\.read.?.?\s+do''severity: high
   description: "Unvalidated CSV ingestion. If parsed rows are later supplied to object deserializers, it establishes a Stored payload trigger."
   remediation: "Validate CSV MIME types, enforce structured mapping, and strictly sanitize all row fields prior to database operations."
   cwe: "CWE-434"
@@ -3547,8 +3245,7 @@
 - id: ruby-md5-over-bcrypt
   languages: [ruby]
   patterns:
-  - regex: '(?i)Digest::(?:MD5|SHA1)\.hexdigest.*password'
-  severity: high
+  - regex: '(?i)Digest::(?:MD5|SHA1)\.hexdigest.*password''severity: high
   description: "Using fundamentally broken hash algorithms (MD5/SHA1) for password digests, bypassing Rails has_secure_password."
   remediation: "Remove manual Digest imports and utilize Rails native `has_secure_password` which securely wraps bcrypt out-of-the-box."
   cwe: "CWE-328"
@@ -3559,8 +3256,7 @@
 - id: ruby-webhook-sig-bypass
   languages: [ruby]
   patterns:
-    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:params|request\.headers)[\s\S]{0,500}Marshal\.load\s*\('
-  severity: critical
+    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:params|request\.headers)[\s\S]{0,500}Marshal\.load\s*\(''severity: critical
   description: "Potential signature bypass: Webhook signature is read but Marshal.load follows. Ensure signature is verified and execution is aborted on mismatch."
   remediation: "Verify HMAC signature before calling Marshal.load(). Use OpenSSL::HMAC.hexdigest and hmac_compare to prevent timing attacks."
   cwe: "CWE-347"

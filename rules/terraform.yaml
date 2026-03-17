@@ -1,8 +1,7 @@
 - id: tf-aws-s3-public-acl
   languages: [terraform]
   patterns:
-    - regex: '(?i)acl\\s*=\\s*\"(public-read|public-read-write|authenticated-read)\"'
-  severity: critical
+    - regex: '(?i)acl\\s*=\\s*\"(public-read|public-read-write|authenticated-read)\"''severity: critical
   description: "S3 bucket with public ACL — data may be exposed to the internet"
   remediation: "Use acl = \"private\" and configure IAM policies for specific access"
   cwe: "CWE-732"
@@ -11,8 +10,7 @@
 - id: tf-aws-s3-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)resource\\s+\"aws_s3_bucket\"[^}]*(?!server_side_encryption)'
-  severity: high
+    - regex: '(?i)resource\\s+\"aws_s3_bucket\"[^}]*''severity: high
   description: "S3 bucket without server-side encryption"
   remediation: "Enable SSE: server_side_encryption_configuration { rule { apply_server_side_encryption_by_default } }"
   cwe: "CWE-311"
@@ -21,8 +19,7 @@
 - id: tf-aws-s3-no-versioning
   languages: [terraform]
   patterns:
-    - regex: '(?i)resource\\s+\"aws_s3_bucket\"[^}]*(?!versioning)'
-  severity: medium
+    - regex: '(?i)resource\\s+\"aws_s3_bucket\"[^}]*''severity: medium
   description: "S3 bucket without versioning enabled"
   remediation: "Enable versioning to protect against accidental deletions"
   cwe: "N/A"
@@ -31,8 +28,7 @@
 - id: tf-aws-sg-open-ingress
   languages: [terraform]
   patterns:
-    - regex: '(?i)cidr_blocks\\s*=\\s*\\[\\s*\"0\\.0\\.0\\.0/0\"\\s*\\]'
-  severity: high
+    - regex: '(?i)cidr_blocks\\s*=\\s*\\[\\s*\"0\\.0\\.0\\.0/0\"\\s*\\]''severity: high
   description: "Security group allows ingress from 0.0.0.0/0 (entire internet)"
   remediation: "Restrict cidr_blocks to specific IP ranges needed for access"
   cwe: "CWE-284"
@@ -41,8 +37,7 @@
 - id: tf-aws-rds-public
   languages: [terraform]
   patterns:
-    - regex: '(?i)publicly_accessible\\s*=\\s*true'
-  severity: critical
+    - regex: '(?i)publicly_accessible\\s*=\\s*true''severity: critical
   description: "RDS/database instance publicly accessible from the internet"
   remediation: "Set publicly_accessible = false and use VPC private subnets"
   cwe: "CWE-284"
@@ -51,8 +46,7 @@
 - id: tf-aws-rds-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)storage_encrypted\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)storage_encrypted\\s*=\\s*false''severity: high
   description: "RDS storage encryption disabled"
   remediation: "Set storage_encrypted = true for encryption at rest"
   cwe: "CWE-311"
@@ -61,8 +55,7 @@
 - id: tf-aws-iam-wildcard
   languages: [terraform]
   patterns:
-    - regex: '(?i)\"Action\"\\s*:\\s*\"\\*\"|\"Resource\"\\s*:\\s*\"\\*\"'
-  severity: critical
+    - regex: '(?i)\"Action\"\\s*:\\s*\"\\*\"|\"Resource\"\\s*:\\s*\"\\*\"''severity: critical
   description: "IAM policy with wildcard Action or Resource grants excessive permissions"
   remediation: "Follow least privilege: specify exact actions and resource ARNs"
   cwe: "CWE-250"
@@ -71,8 +64,7 @@
 - id: tf-aws-cloudtrail-disabled
   languages: [terraform]
   patterns:
-    - regex: '(?i)enable_logging\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)enable_logging\\s*=\\s*false''severity: high
   description: "CloudTrail logging disabled — audit trail lost"
   remediation: "Enable logging: enable_logging = true with S3 bucket for log storage"
   cwe: "CWE-778"
@@ -82,8 +74,7 @@
 - id: tf-azure-storage-public
   languages: [terraform]
   patterns:
-    - regex: '(?i)allow_blob_public_access\\s*=\\s*true|public_network_access_enabled\\s*=\\s*true'
-  severity: high
+    - regex: '(?i)allow_blob_public_access\\s*=\\s*true|public_network_access_enabled\\s*=\\s*true''severity: high
   description: "Azure Storage account allows public access"
   remediation: "Set allow_blob_public_access = false for storage accounts"
   cwe: "CWE-284"
@@ -93,8 +84,7 @@
 - id: tf-gcp-compute-public
   languages: [terraform]
   patterns:
-    - regex: '(?i)access_config\\s*\\{\\s*\\}'
-  severity: high
+    - regex: '(?i)access_config\\s*\\{\\s*\\}''severity: high
   description: "GCP compute instance with public IP (empty access_config)"
   remediation: "Remove access_config block to prevent public IP assignment. Use Cloud NAT"
   cwe: "CWE-284"
@@ -104,8 +94,7 @@
 - id: tf-hardcoded-secret
   languages: [terraform]
   patterns:
-    - regex: '(?i)(password|secret|api_key|access_key)\\s*=\\s*\"[^\"]{8,}\"'
-  severity: critical
+    - regex: '(?i)(password|secret|api_key|access_key)\\s*=\\s*\"[^\"]{8,}\"''severity: critical
   description: "Hardcoded secret in Terraform configuration"
   remediation: "Use terraform variables with sensitive flag, environment vars, or vault provider"
   cwe: "CWE-798"
@@ -114,8 +103,7 @@
 - id: tf-no-state-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\"s3\"\\s*\\{[^}]*(?!encrypt\\s*=\\s*true)'
-  severity: high
+    - regex: '(?i)backend\\s+\"s3\"\\s*\\{[^}]*''severity: high
   description: "Terraform state stored without encryption"
   remediation: "Enable encryption for remote state: encrypt = true in backend config"
   cwe: "CWE-311"
@@ -124,8 +112,7 @@
 - id: tf-http-backend
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\"http\"\\s*\\{[^}]*address\\s*=\\s*\"http://'
-  severity: high
+    - regex: '(?i)backend\\s+\"http\"\\s*\\{[^}]*address\\s*=\\s*\"http://''severity: high
   description: "Terraform state backend uses HTTP instead of HTTPS"
   remediation: "Use HTTPS for remote state backend to protect sensitive state data"
   cwe: "CWE-319"
@@ -134,8 +121,7 @@
 - id: tf-k8s-privileged-pod
   languages: [terraform]
   patterns:
-    - regex: '(?i)privileged\\s*=\\s*true'
-  severity: critical
+    - regex: '(?i)privileged\\s*=\\s*true''severity: critical
   description: "Kubernetes Pod or Deployment running a privileged container"
   remediation: "Set privileged = false or remove the parameter"
   cwe: "CWE-269"
@@ -144,8 +130,7 @@
 - id: tf-k8s-host-network
   languages: [terraform]
   patterns:
-    - regex: '(?i)host_network\\s*=\\s*true'
-  severity: high
+    - regex: '(?i)host_network\\s*=\\s*true''severity: high
   description: "Kubernetes Pod using host network namespace"
   remediation: "Set host_network = false to isolate network traffic"
   cwe: "CWE-284"
@@ -154,8 +139,7 @@
 - id: tf-k8s-no-limits
   languages: [terraform]
   patterns:
-    - regex: '(?i)resources\\s*\\{[^}]*(?!limits)'
-  severity: medium
+    - regex: '(?i)resources\\s*\\{[^}]*''severity: medium
   description: "Kubernetes container missing resource limits"
   remediation: "Define CPU and memory limits inside the resources block"
   cwe: "CWE-400"
@@ -173,8 +157,7 @@
 - id: tf-aws-ec2-no-monitoring
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_instance.*monitoring\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)aws_instance.*monitoring\\s*=\\s*false''severity: medium
   description: "EC2 detailed monitoring disabled"
   remediation: "Enable detailed monitoring for better visibility"
   cwe: "CWE-778"
@@ -183,8 +166,7 @@
 - id: tf-aws-ec2-no-termination-protection
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_instance(?!.*disable_api_termination)'
-  severity: low
+    - regex: '(?i)aws_instance''severity: low
   description: "EC2 termination protection not configured"
   remediation: "Set disable_api_termination = true for critical instances"
   cwe: "CWE-693"
@@ -193,8 +175,7 @@
 - id: tf-aws-ec2-imdsv1
   languages: [terraform]
   patterns:
-    - regex: '(?i)metadata_options.*http_tokens\\s*=\\s*optional'
-  severity: high
+    - regex: '(?i)metadata_options.*http_tokens\\s*=\\s*optional''severity: high
   description: "EC2 IMDSv1 enabled"
   remediation: "Set http_tokens = required for IMDSv2"
   cwe: "CWE-284"
@@ -203,8 +184,7 @@
 - id: tf-aws-ec2-associate-public-ip
   languages: [terraform]
   patterns:
-    - regex: '(?i)associate_public_ip_address\\s*=\\s*true'
-  severity: medium
+    - regex: '(?i)associate_public_ip_address\\s*=\\s*true''severity: medium
   description: "EC2 with public IP"
   remediation: "Use private IPs with NAT Gateway"
   cwe: "CWE-284"
@@ -213,8 +193,7 @@
 - id: tf-aws-ebs-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_ebs_volume(?!.*encrypted\\s*=\\s*true)'
-  severity: high
+    - regex: '(?i)aws_ebs_volume''severity: high
   description: "EBS volume without encryption"
   remediation: "Set encrypted = true for EBS volumes"
   cwe: "CWE-311"
@@ -223,8 +202,7 @@
 - id: tf-aws-ebs-snapshot-public
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_ebs_snapshot.*create_volume_permission'
-  severity: high
+    - regex: '(?i)aws_ebs_snapshot.*create_volume_permission''severity: high
   description: "EBS snapshot with create volume permissions"
   remediation: "Don't share EBS snapshots publicly"
   cwe: "CWE-284"
@@ -233,8 +211,7 @@
 - id: tf-aws-ami-public
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_ami.*launch_permission'
-  severity: high
+    - regex: '(?i)aws_ami.*launch_permission''severity: high
   description: "AMI with launch permissions"
   remediation: "Don't share AMIs publicly"
   cwe: "CWE-284"
@@ -243,8 +220,7 @@
 - id: tf-aws-lambda-no-vpc
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_lambda_function(?!.*vpc_config)'
-  severity: medium
+    - regex: '(?i)aws_lambda_function''severity: medium
   description: "Lambda function not in VPC"
   remediation: "Configure Lambda with VPC for network isolation"
   cwe: "CWE-284"
@@ -253,8 +229,7 @@
 - id: tf-aws-lambda-environment-vars
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_lambda_function.*environment.*\\{[^}]*password'
-  severity: high
+    - regex: '(?i)aws_lambda_function.*environment.*\\{[^}]*password''severity: high
   description: "Lambda with sensitive environment variables"
   remediation: "Use AWS Secrets Manager for Lambda environment"
   cwe: "CWE-798"
@@ -263,8 +238,7 @@
 - id: tf-aws-api-gateway-no-auth
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_api_gateway_method.*authorization\\s*=\\s*NONE'
-  severity: high
+    - regex: '(?i)aws_api_gateway_method.*authorization\\s*=\\s*NONE''severity: high
   description: "API Gateway without authorization"
   remediation: "Set authorization = AWS_IAM or COGNITO_USER_POOLS"
   cwe: "CWE-306"
@@ -273,8 +247,7 @@
 - id: tf-aws-api-gateway-no-throttling
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_api_gateway_stage(?!.*throttling)'
-  severity: medium
+    - regex: '(?i)aws_api_gateway_stage''severity: medium
   description: "API Gateway without throttling"
   remediation: "Configure throttling for API Gateway"
   cwe: "CWE-770"
@@ -283,8 +256,7 @@
 - id: tf-aws-api-gateway-logging
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_api_gateway_stage(?!.*access_log_settings)'
-  severity: medium
+    - regex: '(?i)aws_api_gateway_stage''severity: medium
   description: "API Gateway without access logging"
   remediation: "Configure access_log_settings for API Gateway"
   cwe: "CWE-778"
@@ -293,8 +265,7 @@
 - id: tf-aws-cloudfront-no-waf
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_cloudfront_distribution(?!.*web_acl_id)'
-  severity: medium
+    - regex: '(?i)aws_cloudfront_distribution''severity: medium
   description: "CloudFront without WAF"
   remediation: "Associate WAF web_acl_id with CloudFront"
   cwe: "CWE-693"
@@ -303,8 +274,7 @@
 - id: tf-aws-cloudfront-no-https
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_cloudfront_distribution.*viewer_protocol_policy\\s*=\\s*allow-all'
-  severity: high
+    - regex: '(?i)aws_cloudfront_distribution.*viewer_protocol_policy\\s*=\\s*allow-all''severity: high
   description: "CloudFront allowing HTTP"
   remediation: "Set viewer_protocol_policy = redirect-to-https"
   cwe: "CWE-319"
@@ -313,8 +283,7 @@
 - id: tf-aws-cloudfront-no-oai
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_cloudfront_distribution(?!.*origin_access_identity)'
-  severity: medium
+    - regex: '(?i)aws_cloudfront_distribution''severity: medium
   description: "CloudFront without OAI"
   remediation: "Use Origin Access Identity for S3 origins"
   cwe: "CWE-284"
@@ -323,8 +292,7 @@
 - id: tf-aws-elasticache-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_elasticache_cluster(?!.*encryption)'
-  severity: high
+    - regex: '(?i)aws_elasticache_cluster''severity: high
   description: "ElastiCache without encryption"
   remediation: "Enable encryption at rest and in transit"
   cwe: "CWE-311"
@@ -333,8 +301,7 @@
 - id: tf-aws-elasticache-public
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_elasticache_cluster.*security_group_ids.*sg-'
-  severity: medium
+    - regex: '(?i)aws_elasticache_cluster.*security_group_ids.*sg-''severity: medium
   description: "ElastiCache with security group"
   remediation: "Restrict ElastiCache security group"
   cwe: "CWE-284"
@@ -343,8 +310,7 @@
 - id: tf-aws-redshift-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_redshift_cluster(?!.*encrypted)'
-  severity: high
+    - regex: '(?i)aws_redshift_cluster''severity: high
   description: "Redshift without encryption"
   remediation: "Set encrypted = true for Redshift"
   cwe: "CWE-311"
@@ -353,8 +319,7 @@
 - id: tf-aws-redshift-public
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_redshift_cluster.*publicly_accessible\\s*=\\s*true'
-  severity: critical
+    - regex: '(?i)aws_redshift_cluster.*publicly_accessible\\s*=\\s*true''severity: critical
   description: "Redshift publicly accessible"
   remediation: "Set publicly_accessible = false"
   cwe: "CWE-284"
@@ -363,8 +328,7 @@
 - id: tf-aws-ecs-no-fargate
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_ecs_service.*launch_type\\s*=\\s*EC2'
-  severity: low
+    - regex: '(?i)aws_ecs_service.*launch_type\\s*=\\s*EC2''severity: low
   description: "ECS using EC2 launch type"
   remediation: "Consider Fargate for better isolation"
   cwe: "CWE-693"
@@ -373,8 +337,7 @@
 - id: tf-aws-ecs-task-no-iam
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_ecs_task_definition(?!.*task_role_arn)'
-  severity: medium
+    - regex: '(?i)aws_ecs_task_definition''severity: medium
   description: "ECS task without IAM role"
   remediation: "Configure task_role_arn for ECS tasks"
   cwe: "CWE-284"
@@ -383,8 +346,7 @@
 - id: tf-aws-eks-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_eks_cluster(?!.*encryption_config)'
-  severity: high
+    - regex: '(?i)aws_eks_cluster''severity: high
   description: "EKS without encryption"
   remediation: "Configure encryption_config for EKS"
   cwe: "CWE-311"
@@ -393,8 +355,7 @@
 - id: tf-aws-eks-public-endpoint
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_eks_cluster.*endpoint_public_access\\s*=\\s*true'
-  severity: high
+    - regex: '(?i)aws_eks_cluster.*endpoint_public_access\\s*=\\s*true''severity: high
   description: "EKS with public endpoint"
   remediation: "Set endpoint_public_access = false"
   cwe: "CWE-284"
@@ -403,8 +364,7 @@
 - id: tf-aws-msk-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_msk_cluster(?!.*encryption_info)'
-  severity: high
+    - regex: '(?i)aws_msk_cluster''severity: high
   description: "MSK without encryption"
   remediation: "Configure encryption_info for MSK"
   cwe: "CWE-311"
@@ -413,8 +373,7 @@
 - id: tf-aws-neptune-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_neptune_cluster(?!.*storage_encrypted)'
-  severity: high
+    - regex: '(?i)aws_neptune_cluster''severity: high
   description: "Neptune without encryption"
   remediation: "Set storage_encrypted = true"
   cwe: "CWE-311"
@@ -423,8 +382,7 @@
 - id: tf-aws-documentdb-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_docdb_cluster(?!.*storage_encrypted)'
-  severity: high
+    - regex: '(?i)aws_docdb_cluster''severity: high
   description: "DocumentDB without encryption"
   remediation: "Set storage_encrypted = true"
   cwe: "CWE-311"
@@ -433,8 +391,7 @@
 - id: tf-aws-kinesis-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_kinesis_stream(?!.*encryption_type)'
-  severity: high
+    - regex: '(?i)aws_kinesis_stream''severity: high
   description: "Kinesis without encryption"
   remediation: "Set encryption_type = KMS"
   cwe: "CWE-311"
@@ -443,8 +400,7 @@
 - id: tf-aws-firehose-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_kinesis_firehose_delivery_stream(?!.*server_side_encryption)'
-  severity: high
+    - regex: '(?i)aws_kinesis_firehose_delivery_stream''severity: high
   description: "Firehose without encryption"
   remediation: "Configure server_side_encryption"
   cwe: "CWE-311"
@@ -453,8 +409,7 @@
 - id: tf-aws-glue-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_glue_catalog_database(?!.*encryption)'
-  severity: high
+    - regex: '(?i)aws_glue_catalog_database''severity: high
   description: "Glue without encryption"
   remediation: "Configure encryption for Glue"
   cwe: "CWE-311"
@@ -463,8 +418,7 @@
 - id: tf-aws-athena-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)aws_athena_workgroup(?!.*encryption_configuration)'
-  severity: high
+    - regex: '(?i)aws_athena_workgroup''severity: high
   description: "Athena without encryption"
   remediation: "Configure encryption_configuration"
   cwe: "CWE-311"
@@ -474,8 +428,7 @@
 - id: tf-azure-vm-no-disk-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_virtual_machine(?!.*encryption_settings)'
-  severity: high
+    - regex: '(?i)azurerm_virtual_machine''severity: high
   description: "Azure VM without disk encryption"
   remediation: "Configure encryption_settings for VM disks"
   cwe: "CWE-311"
@@ -484,8 +437,7 @@
 - id: tf-azure-vm-managed-disk
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_virtual_machine.*os_disk.*vhd_uri'
-  severity: medium
+    - regex: '(?i)azurerm_virtual_machine.*os_disk.*vhd_uri''severity: medium
   description: "Azure VM using unmanaged disks"
   remediation: "Use managed disks instead of vhd_uri"
   cwe: "CWE-693"
@@ -494,8 +446,7 @@
 - id: tf-azure-aks-no-rbac
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_kubernetes_cluster.*role_based_access_control\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)azurerm_kubernetes_cluster.*role_based_access_control\\s*=\\s*false''severity: high
   description: "AKS without RBAC"
   remediation: "Set role_based_access_control = true"
   cwe: "CWE-284"
@@ -504,8 +455,7 @@
 - id: tf-azure-aks-public-ip
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_kubernetes_cluster.*public_network_access\\s*=\\s*Enabled'
-  severity: high
+    - regex: '(?i)azurerm_kubernetes_cluster.*public_network_access\\s*=\\s*Enabled''severity: high
   description: "AKS with public network access"
   remediation: "Set public_network_access = Disabled"
   cwe: "CWE-284"
@@ -514,8 +464,7 @@
 - id: tf-azure-function-no-vnet
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_function_app(?!.*virtual_network_subnet_id)'
-  severity: medium
+    - regex: '(?i)azurerm_function_app''severity: medium
   description: "Azure Function without VNet"
   remediation: "Configure virtual_network_subnet_id"
   cwe: "CWE-284"
@@ -524,8 +473,7 @@
 - id: tf-azure-function-https-only
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_function_app.*https_only\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)azurerm_function_app.*https_only\\s*=\\s*false''severity: high
   description: "Azure Function allowing HTTP"
   remediation: "Set https_only = true"
   cwe: "CWE-319"
@@ -534,8 +482,7 @@
 - id: tf-azure-app-service-https
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_app_service.*https_only\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)azurerm_app_service.*https_only\\s*=\\s*false''severity: high
   description: "App Service allowing HTTP"
   remediation: "Set https_only = true"
   cwe: "CWE-319"
@@ -544,8 +491,7 @@
 - id: tf-azure-app-service-client-cert
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_app_service.*client_cert_enabled\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)azurerm_app_service.*client_cert_enabled\\s*=\\s*false''severity: medium
   description: "App Service without client cert"
   remediation: "Enable client_cert_enabled for mutual TLS"
   cwe: "CWE-295"
@@ -554,8 +500,7 @@
 - id: tf-azure-cosmos-no-firewall
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_cosmosdb_account(?!.*ip_range_filter)'
-  severity: medium
+    - regex: '(?i)azurerm_cosmosdb_account''severity: medium
   description: "CosmosDB without IP firewall"
   remediation: "Configure ip_range_filter for CosmosDB"
   cwe: "CWE-284"
@@ -564,8 +509,7 @@
 - id: tf-azure-cosmos-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_cosmosdb_account.*enable_multiple_write_locations'
-  severity: medium
+    - regex: '(?i)azurerm_cosmosdb_account.*enable_multiple_write_locations''severity: medium
   description: "CosmosDB multi-region write"
   remediation: "Review multi-region write implications"
   cwe: "CWE-693"
@@ -574,8 +518,7 @@
 - id: tf-azure-sql-audit
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_mssql_server(?!.*audit)'
-  severity: medium
+    - regex: '(?i)azurerm_mssql_server''severity: medium
   description: "Azure SQL without auditing"
   remediation: "Configure auditing for SQL Server"
   cwe: "CWE-778"
@@ -584,8 +527,7 @@
 - id: tf-azure-sql-threat-detection
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_mssql_server(?!.*threat_detection_policy)'
-  severity: medium
+    - regex: '(?i)azurerm_mssql_server''severity: medium
   description: "Azure SQL without threat detection"
   remediation: "Configure threat_detection_policy"
   cwe: "CWE-778"
@@ -594,8 +536,7 @@
 - id: tf-azure-key-vault-soft-delete
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_key_vault.*soft_delete_enabled\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)azurerm_key_vault.*soft_delete_enabled\\s*=\\s*false''severity: high
   description: "Key Vault soft delete disabled"
   remediation: "Set soft_delete_enabled = true"
   cwe: "CWE-693"
@@ -604,8 +545,7 @@
 - id: tf-azure-key-vault-purge
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_key_vault.*purge_protection_enabled\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)azurerm_key_vault.*purge_protection_enabled\\s*=\\s*false''severity: high
   description: "Key Vault purge protection disabled"
   remediation: "Set purge_protection_enabled = true"
   cwe: "CWE-693"
@@ -614,8 +554,7 @@
 - id: tf-azure-key-vault-network
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_key_vault.*network_acls.*default_action\\s*=\\s*Allow'
-  severity: high
+    - regex: '(?i)azurerm_key_vault.*network_acls.*default_action\\s*=\\s*Allow''severity: high
   description: "Key Vault network ACLs allowing all"
   remediation: "Set default_action = Deny"
   cwe: "CWE-284"
@@ -624,8 +563,7 @@
 - id: tf-azure-advisor
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_advisor.*recommendation'
-  severity: low
+    - regex: '(?i)azurerm_advisor.*recommendation''severity: low
   description: "Azure Advisor recommendations"
   remediation: "Review Advisor recommendations"
   cwe: "CWE-693"
@@ -634,8 +572,7 @@
 - id: tf-azure-policy
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_policy.*assignment'
-  severity: low
+    - regex: '(?i)azurerm_policy.*assignment''severity: low
   description: "Azure Policy assignment"
   remediation: "Review Policy assignments"
   cwe: "CWE-693"
@@ -644,8 +581,7 @@
 - id: tf-azure-blueprint
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_blueprint.*assignment'
-  severity: low
+    - regex: '(?i)azurerm_blueprint.*assignment''severity: low
   description: "Azure Blueprint assignment"
   remediation: "Review Blueprint assignments"
   cwe: "CWE-693"
@@ -654,8 +590,7 @@
 - id: tf-azure-sentinel
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_sentinel.*workspace'
-  severity: low
+    - regex: '(?i)azurerm_sentinel.*workspace''severity: low
   description: "Azure Sentinel workspace"
   remediation: "Configure Sentinel for security monitoring"
   cwe: "CWE-778"
@@ -664,8 +599,7 @@
 - id: tf-azure-defender
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_security_center.*pricing'
-  severity: low
+    - regex: '(?i)azurerm_security_center.*pricing''severity: low
   description: "Azure Defender pricing tier"
   remediation: "Enable Defender for all resource types"
   cwe: "CWE-778"
@@ -674,8 +608,7 @@
 - id: tf-azure-backup
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_backup.*vault'
-  severity: low
+    - regex: '(?i)azurerm_backup.*vault''severity: low
   description: "Azure Backup vault"
   remediation: "Configure Backup for critical resources"
   cwe: "CWE-693"
@@ -684,8 +617,7 @@
 - id: tf-azure-site-recovery
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_site_recovery.*vault'
-  severity: low
+    - regex: '(?i)azurerm_site_recovery.*vault''severity: low
   description: "Azure Site Recovery vault"
   remediation: "Configure Site Recovery for DR"
   cwe: "CWE-693"
@@ -694,8 +626,7 @@
 - id: tf-azure-traffic-manager
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_traffic_manager.*profile'
-  severity: low
+    - regex: '(?i)azurerm_traffic_manager.*profile''severity: low
   description: "Azure Traffic Manager profile"
   remediation: "Configure Traffic Manager for HA"
   cwe: "CWE-693"
@@ -704,8 +635,7 @@
 - id: tf-azure-front-door
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_frontdoor.*frontend_endpoint'
-  severity: low
+    - regex: '(?i)azurerm_frontdoor.*frontend_endpoint''severity: low
   description: "Azure Front Door endpoint"
   remediation: "Configure Front Door WAF"
   cwe: "CWE-693"
@@ -714,8 +644,7 @@
 - id: tf-azure-cdn
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_cdn.*profile'
-  severity: low
+    - regex: '(?i)azurerm_cdn.*profile''severity: low
   description: "Azure CDN profile"
   remediation: "Configure CDN security"
   cwe: "CWE-693"
@@ -724,8 +653,7 @@
 - id: tf-azure-dns
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_dns.*zone'
-  severity: low
+    - regex: '(?i)azurerm_dns.*zone''severity: low
   description: "Azure DNS zone"
   remediation: "Secure DNS zone configuration"
   cwe: "CWE-693"
@@ -734,8 +662,7 @@
 - id: tf-azure-private-dns
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_private_dns.*zone'
-  severity: low
+    - regex: '(?i)azurerm_private_dns.*zone''severity: low
   description: "Azure Private DNS zone"
   remediation: "Good for internal DNS"
   cwe: "CWE-693"
@@ -744,8 +671,7 @@
 - id: tf-azure-bastion
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_bastion_host'
-  severity: low
+    - regex: '(?i)azurerm_bastion_host''severity: low
   description: "Azure Bastion host"
   remediation: "Use Bastion for secure RDP/SSH"
   cwe: "CWE-284"
@@ -754,8 +680,7 @@
 - id: tf-azure-ddos
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_ddos_protection_plan'
-  severity: low
+    - regex: '(?i)azurerm_ddos_protection_plan''severity: low
   description: "Azure DDoS protection plan"
   remediation: "Enable DDoS protection"
   cwe: "CWE-770"
@@ -764,8 +689,7 @@
 - id: tf-azure-monitor
   languages: [terraform]
   patterns:
-    - regex: '(?i)azurerm_monitor.*diagnostic_setting'
-  severity: low
+    - regex: '(?i)azurerm_monitor.*diagnostic_setting''severity: low
   description: "Azure Monitor diagnostic setting"
   remediation: "Configure comprehensive monitoring"
   cwe: "CWE-778"
@@ -775,8 +699,7 @@
 - id: tf-gcp-compute-no-shielded
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_compute_instance(?!.*shielded_instance_config)'
-  severity: medium
+    - regex: '(?i)google_compute_instance''severity: medium
   description: "GCP Compute without shielded VM"
   remediation: "Configure shielded_instance_config"
   cwe: "CWE-693"
@@ -785,8 +708,7 @@
 - id: tf-gcp-compute-no-confidential
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_compute_instance.*confidential_instance_config.*enable_confidential_compute\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)google_compute_instance.*confidential_instance_config.*enable_confidential_compute\\s*=\\s*false''severity: medium
   description: "GCP confidential computing disabled"
   remediation: "Enable confidential compute for sensitive workloads"
   cwe: "CWE-311"
@@ -795,8 +717,7 @@
 - id: tf-gcp-gke-no-private-cluster
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_container_cluster.*private_cluster_config.*enable_private_nodes\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)google_container_cluster.*private_cluster_config.*enable_private_nodes\\s*=\\s*false''severity: high
   description: "GKE without private nodes"
   remediation: "Set enable_private_nodes = true"
   cwe: "CWE-284"
@@ -805,8 +726,7 @@
 - id: tf-gcp-gke-no-master-auth
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_container_cluster.*master_auth.*username'
-  severity: high
+    - regex: '(?i)google_container_cluster.*master_auth.*username''severity: high
   description: "GKE with basic auth enabled"
   remediation: "Disable basic auth, use IAM"
   cwe: "CWE-306"
@@ -815,8 +735,7 @@
 - id: tf-gcp-gke-no-network-policy
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_container_cluster.*network_policy.*enabled\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)google_container_cluster.*network_policy.*enabled\\s*=\\s*false''severity: medium
   description: "GKE network policy disabled"
   remediation: "Set network_policy.enabled = true"
   cwe: "CWE-284"
@@ -825,8 +744,7 @@
 - id: tf-gcp-gke-no-pod-security
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_container_cluster.*pod_security_policy_config.*enabled\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)google_container_cluster.*pod_security_policy_config.*enabled\\s*=\\s*false''severity: medium
   description: "GKE pod security policy disabled"
   remediation: "Enable pod_security_policy_config"
   cwe: "CWE-284"
@@ -835,8 +753,7 @@
 - id: tf-gcp-gke-no-binary-authorization
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_container_cluster.*binary_authorization.*enabled\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)google_container_cluster.*binary_authorization.*enabled\\s*=\\s*false''severity: medium
   description: "GKE binary authorization disabled"
   remediation: "Enable binary_authorization"
   cwe: "CWE-693"
@@ -845,8 +762,7 @@
 - id: tf-gcp-gke-no-workload-identity
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_container_cluster.*workload_identity_config'
-  severity: low
+    - regex: '(?i)google_container_cluster.*workload_identity_config''severity: low
   description: "GKE workload identity"
   remediation: "Configure workload_identity_config"
   cwe: "CWE-284"
@@ -855,8 +771,7 @@
 - id: tf-gcp-cloud-function-no-vpc
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_cloudfunctions_function(?!.*vpc_connector)'
-  severity: medium
+    - regex: '(?i)google_cloudfunctions_function''severity: medium
   description: "Cloud Function without VPC"
   remediation: "Configure vpc_connector"
   cwe: "CWE-284"
@@ -865,8 +780,7 @@
 - id: tf-gcp-cloud-function-https
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_cloudfunctions_function.*ingress_settings\\s*=\\s*ALLOW_ALL'
-  severity: high
+    - regex: '(?i)google_cloudfunctions_function.*ingress_settings\\s*=\\s*ALLOW_ALL''severity: high
   description: "Cloud Function allowing all ingress"
   remediation: "Set ingress_settings = ALLOW_INTERNAL_ONLY"
   cwe: "CWE-284"
@@ -875,8 +789,7 @@
 - id: tf-gcp-pubsub-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_pubsub_topic(?!.*message_encryption)'
-  severity: high
+    - regex: '(?i)google_pubsub_topic''severity: high
   description: "Pub/Sub without encryption"
   remediation: "Configure message_encryption"
   cwe: "CWE-311"
@@ -885,8 +798,7 @@
 - id: tf-gcp-spanner-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_spanner_instance(?!.*encryption_config)'
-  severity: high
+    - regex: '(?i)google_spanner_instance''severity: high
   description: "Spanner without encryption"
   remediation: "Configure encryption_config"
   cwe: "CWE-311"
@@ -895,8 +807,7 @@
 - id: tf-gcp-bigquery-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_bigquery_dataset(?!.*encryption_configuration)'
-  severity: high
+    - regex: '(?i)google_bigquery_dataset''severity: high
   description: "BigQuery without encryption"
   remediation: "Configure encryption_configuration"
   cwe: "CWE-311"
@@ -905,8 +816,7 @@
 - id: tf-gcp-dataflow-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_dataflow_job(?!.*encryption_config)'
-  severity: high
+    - regex: '(?i)google_dataflow_job''severity: high
   description: "Dataflow without encryption"
   remediation: "Configure encryption_config"
   cwe: "CWE-311"
@@ -915,8 +825,7 @@
 - id: tf-gcp-dataproc-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_dataproc_cluster(?!.*encryption_config)'
-  severity: high
+    - regex: '(?i)google_dataproc_cluster''severity: high
   description: "Dataproc without encryption"
   remediation: "Configure encryption_config"
   cwe: "CWE-311"
@@ -925,8 +834,7 @@
 - id: tf-gcp-composer-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_composer_environment(?!.*encryption_config)'
-  severity: high
+    - regex: '(?i)google_composer_environment''severity: high
   description: "Composer without encryption"
   remediation: "Configure encryption_config"
   cwe: "CWE-311"
@@ -935,8 +843,7 @@
 - id: tf-gcp-memorystore-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_redis_instance(?!.*encryption)'
-  severity: high
+    - regex: '(?i)google_redis_instance''severity: high
   description: "Memorystore without encryption"
   remediation: "Enable encryption for Memorystore"
   cwe: "CWE-311"
@@ -945,8 +852,7 @@
 - id: tf-gcp-filestore-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_filestore_instance(?!.*encryption)'
-  severity: high
+    - regex: '(?i)google_filestore_instance''severity: high
   description: "Filestore without encryption"
   remediation: "Enable encryption for Filestore"
   cwe: "CWE-311"
@@ -955,8 +861,7 @@
 - id: tf-gcp-sourcerepo-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_sourcerepo_repository'
-  severity: low
+    - regex: '(?i)google_sourcerepo_repository''severity: low
   description: "Cloud Source Repository"
   remediation: "Review repository access"
   cwe: "CWE-284"
@@ -965,8 +870,7 @@
 - id: tf-gcp-build-no-encryption
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_cloudbuild_trigger'
-  severity: low
+    - regex: '(?i)google_cloudbuild_trigger''severity: low
   description: "Cloud Build trigger"
   remediation: "Secure build triggers"
   cwe: "CWE-693"
@@ -975,8 +879,7 @@
 - id: tf-gcp-run-no-iam
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_cloud_run_service(?!.*iam)'
-  severity: medium
+    - regex: '(?i)google_cloud_run_service''severity: medium
   description: "Cloud Run without IAM"
   remediation: "Configure IAM for Cloud Run"
   cwe: "CWE-284"
@@ -985,8 +888,7 @@
 - id: tf-gcp-run-no-ingress
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_cloud_run_service.*ingress\\s*=\\s*all'
-  severity: high
+    - regex: '(?i)google_cloud_run_service.*ingress\\s*=\\s*all''severity: high
   description: "Cloud Run allowing all ingress"
   remediation: "Set ingress = internal"
   cwe: "CWE-284"
@@ -995,8 +897,7 @@
 - id: tf-gcp-app-engine-no-iam
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_app_engine_application(?!.*iam)'
-  severity: medium
+    - regex: '(?i)google_app_engine_application''severity: medium
   description: "App Engine without IAM"
   remediation: "Configure IAM for App Engine"
   cwe: "CWE-284"
@@ -1005,8 +906,7 @@
 - id: tf-gcp-endpoints-no-auth
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_endpoints_service.*openapi_config.*security'
-  severity: medium
+    - regex: '(?i)google_endpoints_service.*openapi_config.*security''severity: medium
   description: "Endpoints without auth"
   remediation: "Configure security for Endpoints"
   cwe: "CWE-306"
@@ -1015,8 +915,7 @@
 - id: tf-gcp-iap-no-auth
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_iap_web.*enabled\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)google_iap_web.*enabled\\s*=\\s*false''severity: high
   description: "IAP disabled"
   remediation: "Enable IAP for access control"
   cwe: "CWE-306"
@@ -1025,8 +924,7 @@
 - id: tf-gcp-vpc-no-flow-logs
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_compute_subnetwork.*log_config.*enable\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)google_compute_subnetwork.*log_config.*enable\\s*=\\s*false''severity: medium
   description: "VPC flow logs disabled"
   remediation: "Enable log_config.enable"
   cwe: "CWE-778"
@@ -1035,8 +933,7 @@
 - id: tf-gcp-vpc-no-private-google
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_compute_subnetwork.*private_ipv6_google_access\\s*=\\s*DISABLE'
-  severity: medium
+    - regex: '(?i)google_compute_subnetwork.*private_ipv6_google_access\\s*=\\s*DISABLE''severity: medium
   description: "Private Google access disabled"
   remediation: "Enable private_ipv6_google_access"
   cwe: "CWE-284"
@@ -1045,8 +942,7 @@
 - id: tf-gcp-vpc-no-internal-dns
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_compute_network.*routing_mode\\s*=\\s*REGIONAL'
-  severity: low
+    - regex: '(?i)google_compute_network.*routing_mode\\s*=\\s*REGIONAL''severity: low
   description: "VPC routing mode"
   remediation: "Use GLOBAL routing mode"
   cwe: "CWE-693"
@@ -1055,8 +951,7 @@
 - id: tf-gcp-vpc-peering
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_compute_network_peering'
-  severity: low
+    - regex: '(?i)google_compute_network_peering''severity: low
   description: "VPC peering"
   remediation: "Review VPC peering configuration"
   cwe: "CWE-284"
@@ -1065,8 +960,7 @@
 - id: tf-gcp-vpc-shared
   languages: [terraform]
   patterns:
-    - regex: '(?i)google_compute_shared_vpc'
-  severity: low
+    - regex: '(?i)google_compute_shared_vpc''severity: low
   description: "Shared VPC"
   remediation: "Review Shared VPC configuration"
   cwe: "CWE-284"
@@ -1076,8 +970,7 @@
 - id: tf-k8s-no-network-policy
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_network_policy'
-  severity: medium
+    - regex: '(?i)kubernetes_network_policy''severity: medium
   description: "Kubernetes NetworkPolicy"
   remediation: "Implement NetworkPolicy for pod isolation"
   cwe: "CWE-284"
@@ -1086,8 +979,7 @@
 - id: tf-k8s-no-pod-security-policy
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_pod_security_policy'
-  severity: medium
+    - regex: '(?i)kubernetes_pod_security_policy''severity: medium
   description: "Kubernetes PodSecurityPolicy"
   remediation: "Implement PSP for pod security"
   cwe: "CWE-284"
@@ -1096,8 +988,7 @@
 - id: tf-k8s-no-resource-quota
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_resource_quota'
-  severity: low
+    - regex: '(?i)kubernetes_resource_quota''severity: low
   description: "Kubernetes ResourceQuota"
   remediation: "Implement ResourceQuota for namespace"
   cwe: "CWE-770"
@@ -1106,8 +997,7 @@
 - id: tf-k8s-no-limit-range
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_limit_range'
-  severity: low
+    - regex: '(?i)kubernetes_limit_range''severity: low
   description: "Kubernetes LimitRange"
   remediation: "Implement LimitRange for containers"
   cwe: "CWE-770"
@@ -1116,8 +1006,7 @@
 - id: tf-k8s-no-pdb
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_pod_disruption_budget'
-  severity: low
+    - regex: '(?i)kubernetes_pod_disruption_budget''severity: low
   description: "Kubernetes PDB"
   remediation: "Implement PDB for availability"
   cwe: "CWE-693"
@@ -1126,8 +1015,7 @@
 - id: tf-k8s-no-hpa
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_horizontal_pod_autoscaler'
-  severity: low
+    - regex: '(?i)kubernetes_horizontal_pod_autoscaler''severity: low
   description: "Kubernetes HPA"
   remediation: "Implement HPA for scaling"
   cwe: "CWE-770"
@@ -1136,8 +1024,7 @@
 - id: tf-k8s-no-vpa
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_vertical_pod_autoscaler'
-  severity: low
+    - regex: '(?i)kubernetes_vertical_pod_autoscaler''severity: low
   description: "Kubernetes VPA"
   remediation: "Implement VPA for resource optimization"
   cwe: "CWE-770"
@@ -1146,8 +1033,7 @@
 - id: tf-k8s-no-service-account
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_service_account'
-  severity: low
+    - regex: '(?i)kubernetes_service_account''severity: low
   description: "Kubernetes ServiceAccount"
   remediation: "Use dedicated ServiceAccounts"
   cwe: "CWE-284"
@@ -1156,8 +1042,7 @@
 - id: tf-k8s-no-role
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_role|kubernetes_cluster_role'
-  severity: low
+    - regex: '(?i)kubernetes_role|kubernetes_cluster_role''severity: low
   description: "Kubernetes Role"
   remediation: "Define least privilege roles"
   cwe: "CWE-284"
@@ -1166,8 +1051,7 @@
 - id: tf-k8s-no-role-binding
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_role_binding|kubernetes_cluster_role_binding'
-  severity: low
+    - regex: '(?i)kubernetes_role_binding|kubernetes_cluster_role_binding''severity: low
   description: "Kubernetes RoleBinding"
   remediation: "Review RoleBinding assignments"
   cwe: "CWE-284"
@@ -1176,8 +1060,7 @@
 - id: tf-k8s-no-secret
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_secret'
-  severity: low
+    - regex: '(?i)kubernetes_secret''severity: low
   description: "Kubernetes Secret"
   remediation: "Encrypt secrets at rest"
   cwe: "CWE-312"
@@ -1186,8 +1069,7 @@
 - id: tf-k8s-no-configmap
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_config_map'
-  severity: low
+    - regex: '(?i)kubernetes_config_map''severity: low
   description: "Kubernetes ConfigMap"
   remediation: "Don't store secrets in ConfigMaps"
   cwe: "CWE-312"
@@ -1196,8 +1078,7 @@
 - id: tf-k8s-no-ingress
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_ingress|kubernetes_ingress_v1'
-  severity: low
+    - regex: '(?i)kubernetes_ingress|kubernetes_ingress_v1''severity: low
   description: "Kubernetes Ingress"
   remediation: "Configure TLS for Ingress"
   cwe: "CWE-319"
@@ -1206,8 +1087,7 @@
 - id: tf-k8s-no-service
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_service'
-  severity: low
+    - regex: '(?i)kubernetes_service''severity: low
   description: "Kubernetes Service"
   remediation: "Use ClusterIP instead of NodePort"
   cwe: "CWE-284"
@@ -1216,8 +1096,7 @@
 - id: tf-k8s-no-persistent-volume
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_persistent_volume'
-  severity: low
+    - regex: '(?i)kubernetes_persistent_volume''severity: low
   description: "Kubernetes PersistentVolume"
   remediation: "Encrypt PersistentVolumes"
   cwe: "CWE-311"
@@ -1226,8 +1105,7 @@
 - id: tf-k8s-no-storage-class
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_storage_class'
-  severity: low
+    - regex: '(?i)kubernetes_storage_class''severity: low
   description: "Kubernetes StorageClass"
   remediation: "Configure StorageClass encryption"
   cwe: "CWE-311"
@@ -1236,8 +1114,7 @@
 - id: tf-k8s-no-statefulset
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_stateful_set'
-  severity: low
+    - regex: '(?i)kubernetes_stateful_set''severity: low
   description: "Kubernetes StatefulSet"
   remediation: "Secure StatefulSet configuration"
   cwe: "CWE-693"
@@ -1246,8 +1123,7 @@
 - id: tf-k8s-no-daemonset
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_daemon_set'
-  severity: low
+    - regex: '(?i)kubernetes_daemon_set''severity: low
   description: "Kubernetes DaemonSet"
   remediation: "Secure DaemonSet configuration"
   cwe: "CWE-693"
@@ -1256,8 +1132,7 @@
 - id: tf-k8s-no-cronjob
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_cron_job'
-  severity: low
+    - regex: '(?i)kubernetes_cron_job''severity: low
   description: "Kubernetes CronJob"
   remediation: "Secure CronJob configuration"
   cwe: "CWE-693"
@@ -1266,8 +1141,7 @@
 - id: tf-k8s-no-job
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_job'
-  severity: low
+    - regex: '(?i)kubernetes_job''severity: low
   description: "Kubernetes Job"
   remediation: "Secure Job configuration"
   cwe: "CWE-693"
@@ -1276,8 +1150,7 @@
 - id: tf-k8s-no-namespace
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_namespace'
-  severity: low
+    - regex: '(?i)kubernetes_namespace''severity: low
   description: "Kubernetes Namespace"
   remediation: "Use namespaces for isolation"
   cwe: "CWE-284"
@@ -1286,8 +1159,7 @@
 - id: tf-k8s-no-validating-webhook
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_validating_webhook_configuration'
-  severity: low
+    - regex: '(?i)kubernetes_validating_webhook_configuration''severity: low
   description: "Kubernetes ValidatingWebhook"
   remediation: "Implement admission webhooks"
   cwe: "CWE-693"
@@ -1296,8 +1168,7 @@
 - id: tf-k8s-no-mutating-webhook
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_mutating_webhook_configuration'
-  severity: low
+    - regex: '(?i)kubernetes_mutating_webhook_configuration''severity: low
   description: "Kubernetes MutatingWebhook"
   remediation: "Implement admission webhooks"
   cwe: "CWE-693"
@@ -1306,8 +1177,7 @@
 - id: tf-k8s-no-custom-resource
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_custom_resource'
-  severity: low
+    - regex: '(?i)kubernetes_custom_resource''severity: low
   description: "Kubernetes CustomResource"
   remediation: "Validate CustomResource definitions"
   cwe: "CWE-693"
@@ -1316,8 +1186,7 @@
 - id: tf-k8s-no-api-service
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_api_service'
-  severity: low
+    - regex: '(?i)kubernetes_api_service''severity: low
   description: "Kubernetes APIService"
   remediation: "Secure APIService configuration"
   cwe: "CWE-693"
@@ -1326,8 +1195,7 @@
 - id: tf-k8s-no-certificate
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_certificate'
-  severity: low
+    - regex: '(?i)kubernetes_certificate''severity: low
   description: "Kubernetes Certificate"
   remediation: "Manage certificates securely"
   cwe: "CWE-326"
@@ -1336,8 +1204,7 @@
 - id: tf-k8s-no-cluster-role-aggregation
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_cluster_role.*aggregation_rule'
-  severity: low
+    - regex: '(?i)kubernetes_cluster_role.*aggregation_rule''severity: low
   description: "Kubernetes ClusterRole aggregation"
   remediation: "Review aggregation rules"
   cwe: "CWE-284"
@@ -1346,8 +1213,7 @@
 - id: tf-k8s-no-priority-class
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_priority_class'
-  severity: low
+    - regex: '(?i)kubernetes_priority_class''severity: low
   description: "Kubernetes PriorityClass"
   remediation: "Configure PriorityClass appropriately"
   cwe: "CWE-693"
@@ -1356,8 +1222,7 @@
 - id: tf-k8s-no-runtime-class
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_runtime_class'
-  severity: low
+    - regex: '(?i)kubernetes_runtime_class''severity: low
   description: "Kubernetes RuntimeClass"
   remediation: "Configure RuntimeClass appropriately"
   cwe: "CWE-693"
@@ -1366,8 +1231,7 @@
 - id: tf-k8s-no-csi-driver
   languages: [terraform]
   patterns:
-    - regex: '(?i)kubernetes_csi_driver'
-  severity: low
+    - regex: '(?i)kubernetes_csi_driver''severity: low
   description: "Kubernetes CSIDriver"
   remediation: "Secure CSI driver configuration"
   cwe: "CWE-693"
@@ -1377,8 +1241,7 @@
 - id: tf-general-no-provider-version
   languages: [terraform]
   patterns:
-    - regex: '(?i)provider\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!version)'
-  severity: medium
+    - regex: '(?i)provider\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: medium
   description: "Provider without version constraint"
   remediation: "Specify provider version constraint"
   cwe: "CWE-1391"
@@ -1387,8 +1250,7 @@
 - id: tf-general-no-module-version
   languages: [terraform]
   patterns:
-    - regex: '(?i)module\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!version|source)'
-  severity: medium
+    - regex: '(?i)module\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: medium
   description: "Module without version"
   remediation: "Specify module version or commit hash"
   cwe: "CWE-1391"
@@ -1397,8 +1259,7 @@
 - id: tf-general-no-module-source
   languages: [terraform]
   patterns:
-    - regex: '(?i)module\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!source)'
-  severity: medium
+    - regex: '(?i)module\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: medium
   description: "Module without source"
   remediation: "Specify module source"
   cwe: "CWE-1391"
@@ -1407,8 +1268,7 @@
 - id: tf-general-local-module
   languages: [terraform]
   patterns:
-    - regex: '(?i)source\\s*=\\s*\\\"\\.\\./|source\\s*=\\s*\\\"\\.\\/'
-  severity: low
+    - regex: '(?i)source\\s*=\\s*\\\"\\.\\./|source\\s*=\\s*\\\"\\.\\/''severity: low
   description: "Local module source"
   remediation: "Use versioned module registry"
   cwe: "CWE-1391"
@@ -1417,8 +1277,7 @@
 - id: tf-general-git-module
   languages: [terraform]
   patterns:
-    - regex: '(?i)source\\s*=\\s*\\\"git::'
-  severity: medium
+    - regex: '(?i)source\\s*=\\s*\\\"git::''severity: medium
   description: "Git module source"
   remediation: "Pin to specific commit hash"
   cwe: "CWE-1391"
@@ -1427,8 +1286,7 @@
 - id: tf-general-http-module
   languages: [terraform]
   patterns:
-    - regex: '(?i)source\\s*=\\s*\\\"https?://'
-  severity: high
+    - regex: '(?i)source\\s*=\\s*\\\"https?://''severity: high
   description: "HTTP module source"
   remediation: "Use versioned module registry"
   cwe: "CWE-1391"
@@ -1437,8 +1295,7 @@
 - id: tf-general-no-variable-type
   languages: [terraform]
   patterns:
-    - regex: '(?i)variable\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!type)'
-  severity: low
+    - regex: '(?i)variable\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: low
   description: "Variable without type"
   remediation: "Specify variable type"
   cwe: "CWE-710"
@@ -1447,8 +1304,7 @@
 - id: tf-general-no-variable-default
   languages: [terraform]
   patterns:
-    - regex: '(?i)variable\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!default)'
-  severity: low
+    - regex: '(?i)variable\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: low
   description: "Variable without default"
   remediation: "Consider setting default value"
   cwe: "CWE-710"
@@ -1457,8 +1313,7 @@
 - id: tf-general-variable-sensitive
   languages: [terraform]
   patterns:
-    - regex: '(?i)variable\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!sensitive)'
-  severity: low
+    - regex: '(?i)variable\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: low
   description: "Sensitive variable not marked"
   remediation: "Set sensitive = true for secrets"
   cwe: "CWE-312"
@@ -1467,8 +1322,7 @@
 - id: tf-general-no-output-description
   languages: [terraform]
   patterns:
-    - regex: '(?i)output\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!description)'
-  severity: low
+    - regex: '(?i)output\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: low
   description: "Output without description"
   remediation: "Add output description"
   cwe: "CWE-693"
@@ -1477,8 +1331,7 @@
 - id: tf-general-output-sensitive
   languages: [terraform]
   patterns:
-    - regex: '(?i)output\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!sensitive)'
-  severity: medium
+    - regex: '(?i)output\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: medium
   description: "Sensitive output not marked"
   remediation: "Set sensitive = true for secret outputs"
   cwe: "CWE-312"
@@ -1487,8 +1340,7 @@
 - id: tf-general-no-data-source
   languages: [terraform]
   patterns:
-    - regex: '(?i)data\\s+\\\"[^\\\"]+\\\"\\s+\\\"[^\\\"]+\\\"\\s*\\{'
-  severity: low
+    - regex: '(?i)data\\s+\\\"[^\\\"]+\\\"\\s+\\\"[^\\\"]+\\\"\\s*\\{''severity: low
   description: "Data source usage"
   remediation: "Validate data source configuration"
   cwe: "CWE-693"
@@ -1497,8 +1349,7 @@
 - id: tf-general-no-resource-lifecycle
   languages: [terraform]
   patterns:
-    - regex: '(?i)resource\\s+\\\"[^\\\"]+\\\"\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!lifecycle)'
-  severity: low
+    - regex: '(?i)resource\\s+\\\"[^\\\"]+\\\"\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: low
   description: "Resource without lifecycle"
   remediation: "Consider lifecycle configuration"
   cwe: "CWE-693"
@@ -1507,8 +1358,7 @@
 - id: tf-general-no-provisioner
   languages: [terraform]
   patterns:
-    - regex: '(?i)provisioner\\s+\\\"[^\\\"]+\\\"'
-  severity: medium
+    - regex: '(?i)provisioner\\s+\\\"[^\\\"]+\\\"''severity: medium
   description: "Provisioner usage"
   remediation: "Avoid provisioners, use cloud-init"
   cwe: "CWE-693"
@@ -1517,8 +1367,7 @@
 - id: tf-general-local-exec
   languages: [terraform]
   patterns:
-    - regex: '(?i)provisioner\\s+\\\"local-exec\\\"'
-  severity: high
+    - regex: '(?i)provisioner\\s+\\\"local-exec\\\"''severity: high
   description: "local-exec provisioner"
   remediation: "Avoid local-exec, use remote management"
   cwe: "CWE-78"
@@ -1527,8 +1376,7 @@
 - id: tf-general-remote-exec
   languages: [terraform]
   patterns:
-    - regex: '(?i)provisioner\\s+\\\"remote-exec\\\"'
-  severity: high
+    - regex: '(?i)provisioner\\s+\\\"remote-exec\\\"''severity: high
   description: "remote-exec provisioner"
   remediation: "Avoid remote-exec, use cloud-init"
   cwe: "CWE-78"
@@ -1537,8 +1385,7 @@
 - id: tf-general-file-provisioner
   languages: [terraform]
   patterns:
-    - regex: '(?i)provisioner\\s+\\\"file\\\"'
-  severity: medium
+    - regex: '(?i)provisioner\\s+\\\"file\\\"''severity: medium
   description: "file provisioner"
   remediation: "Use cloud-init or configuration management"
   cwe: "CWE-693"
@@ -1547,8 +1394,7 @@
 - id: tf-general-no-remote-state
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s*\\{[^}]*(?!backend)'
-  severity: high
+    - regex: '(?i)terraform\\s*\\{[^}]*''severity: high
   description: "No remote state backend"
   remediation: "Configure remote state backend"
   cwe: "CWE-312"
@@ -1557,8 +1403,7 @@
 - id: tf-general-state-lock
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*(?!lock)'
-  severity: medium
+    - regex: '(?i)backend\\s+\\\"[^\\\"]+\\\"\\s*\\{[^}]*''severity: medium
   description: "State locking not configured"
   remediation: "Enable state locking"
   cwe: "CWE-362"
@@ -1567,8 +1412,7 @@
 - id: tf-general-state-dynamodb
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"s3\\\"\\s*\\{[^}]*dynamodb_table'
-  severity: low
+    - regex: '(?i)backend\\s+\\\"s3\\\"\\s*\\{[^}]*dynamodb_table''severity: low
   description: "S3 backend with DynamoDB locking"
   remediation: "Good practice for state locking"
   cwe: "CWE-362"
@@ -1577,8 +1421,7 @@
 - id: tf-general-state-consul
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"consul\\\"'
-  severity: low
+    - regex: '(?i)backend\\s+\\\"consul\\\"''severity: low
   description: "Consul backend"
   remediation: "Secure Consul configuration"
   cwe: "CWE-312"
@@ -1587,8 +1430,7 @@
 - id: tf-general-state-gcs
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"gcs\\\"'
-  severity: low
+    - regex: '(?i)backend\\s+\\\"gcs\\\"''severity: low
   description: "GCS backend"
   remediation: "Enable GCS bucket encryption"
   cwe: "CWE-311"
@@ -1597,8 +1439,7 @@
 - id: tf-general-state-azurerm
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"azurerm\\\"'
-  severity: low
+    - regex: '(?i)backend\\s+\\\"azurerm\\\"''severity: low
   description: "Azure backend"
   remediation: "Enable storage account encryption"
   cwe: "CWE-311"
@@ -1607,8 +1448,7 @@
 - id: tf-general-state-http
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"http\\\"'
-  severity: high
+    - regex: '(?i)backend\\s+\\\"http\\\"''severity: high
   description: "HTTP backend (insecure)"
   remediation: "Use secure backend instead"
   cwe: "CWE-319"
@@ -1617,8 +1457,7 @@
 - id: tf-general-state-artifactory
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"artifactory\\\"'
-  severity: low
+    - regex: '(?i)backend\\s+\\\"artifactory\\\"''severity: low
   description: "Artifactory backend"
   remediation: "Secure Artifactory configuration"
   cwe: "CWE-312"
@@ -1627,8 +1466,7 @@
 - id: tf-general-state-oss
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"oss\\\"'
-  severity: low
+    - regex: '(?i)backend\\s+\\\"oss\\\"''severity: low
   description: "Alibaba OSS backend"
   remediation: "Enable OSS bucket encryption"
   cwe: "CWE-311"
@@ -1637,8 +1475,7 @@
 - id: tf-general-state-cos
   languages: [terraform]
   patterns:
-    - regex: '(?i)backend\\s+\\\"cos\\\"'
-  severity: low
+    - regex: '(?i)backend\\s+\\\"cos\\\"''severity: low
   description: "Tencent COS backend"
   remediation: "Enable COS bucket encryption"
   cwe: "CWE-311"
@@ -1647,8 +1484,7 @@
 - id: tf-general-workspace
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+workspace'
-  severity: low
+    - regex: '(?i)terraform\\s+workspace''severity: low
   description: "Terraform workspace"
   remediation: "Use workspaces for environment separation"
   cwe: "CWE-693"
@@ -1657,8 +1493,7 @@
 - id: tf-general-import
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+import'
-  severity: low
+    - regex: '(?i)terraform\\s+import''severity: low
   description: "Terraform import"
   remediation: "Review imported resources"
   cwe: "CWE-693"
@@ -1667,8 +1502,7 @@
 - id: tf-general-taint
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+taint'
-  severity: low
+    - regex: '(?i)terraform\\s+taint''severity: low
   description: "Terraform taint"
   remediation: "Review tainted resources"
   cwe: "CWE-693"
@@ -1677,8 +1511,7 @@
 - id: tf-general-refresh
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+refresh'
-  severity: low
+    - regex: '(?i)terraform\\s+refresh''severity: low
   description: "Terraform refresh"
   remediation: "Review state drift"
   cwe: "CWE-693"
@@ -1687,8 +1520,7 @@
 - id: tf-general-apply-auto-approve
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+apply\\s+-auto-approve'
-  severity: medium
+    - regex: '(?i)terraform\\s+apply\\s+-auto-approve''severity: medium
   description: "Terraform apply with auto-approve"
   remediation: "Review changes before applying"
   cwe: "CWE-693"
@@ -1697,8 +1529,7 @@
 - id: tf-general-plan-out
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+plan\\s+-out'
-  severity: low
+    - regex: '(?i)terraform\\s+plan\\s+-out''severity: low
   description: "Terraform plan output"
   remediation: "Review plan output before apply"
   cwe: "CWE-693"
@@ -1707,8 +1538,7 @@
 - id: tf-general-destroy
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+destroy'
-  severity: medium
+    - regex: '(?i)terraform\\s+destroy''severity: medium
   description: "Terraform destroy"
   remediation: "Ensure destroy is intentional"
   cwe: "CWE-693"
@@ -1717,8 +1547,7 @@
 - id: tf-general-state-rm
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+state\\s+rm'
-  severity: medium
+    - regex: '(?i)terraform\\s+state\\s+rm''severity: medium
   description: "Terraform state rm"
   remediation: "Ensure state removal is intentional"
   cwe: "CWE-693"
@@ -1727,8 +1556,7 @@
 - id: tf-general-state-mv
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+state\\s+mv'
-  severity: low
+    - regex: '(?i)terraform\\s+state\\s+mv''severity: low
   description: "Terraform state mv"
   remediation: "Review state moves"
   cwe: "CWE-693"
@@ -1737,8 +1565,7 @@
 - id: tf-general-state-pull
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+state\\s+pull'
-  severity: low
+    - regex: '(?i)terraform\\s+state\\s+pull''severity: low
   description: "Terraform state pull"
   remediation: "Review state content"
   cwe: "CWE-693"
@@ -1747,8 +1574,7 @@
 - id: tf-general-state-push
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+state\\s+push'
-  severity: medium
+    - regex: '(?i)terraform\\s+state\\s+push''severity: medium
   description: "Terraform state push"
   remediation: "Ensure state push is intentional"
   cwe: "CWE-693"
@@ -1757,8 +1583,7 @@
 - id: tf-general-state-list
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+state\\s+list'
-  severity: low
+    - regex: '(?i)terraform\\s+state\\s+list''severity: low
   description: "Terraform state list"
   remediation: "Review state resources"
   cwe: "CWE-693"
@@ -1767,8 +1592,7 @@
 - id: tf-general-state-show
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+state\\s+show'
-  severity: low
+    - regex: '(?i)terraform\\s+state\\s+show''severity: low
   description: "Terraform state show"
   remediation: "Review resource state"
   cwe: "CWE-693"
@@ -1777,8 +1601,7 @@
 - id: tf-general-validate
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+validate'
-  severity: low
+    - regex: '(?i)terraform\\s+validate''severity: low
   description: "Terraform validate"
   remediation: "Run validate before apply"
   cwe: "CWE-693"
@@ -1787,8 +1610,7 @@
 - id: tf-general-format
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform\\s+fmt'
-  severity: low
+    - regex: '(?i)terraform\\s+fmt''severity: low
   description: "Terraform fmt"
   remediation: "Run fmt for consistent formatting"
   cwe: "CWE-693"
@@ -1797,8 +1619,7 @@
 - id: tf-general-docs
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform-docs'
-  severity: low
+    - regex: '(?i)terraform-docs''severity: low
   description: "terraform-docs usage"
   remediation: "Generate documentation"
   cwe: "CWE-693"
@@ -1807,8 +1628,7 @@
 - id: tf-general-tflint
   languages: [terraform]
   patterns:
-    - regex: '(?i)tflint'
-  severity: low
+    - regex: '(?i)tflint''severity: low
   description: "tflint usage"
   remediation: "Run tflint for linting"
   cwe: "CWE-693"
@@ -1817,8 +1637,7 @@
 - id: tf-general-tfsec
   languages: [terraform]
   patterns:
-    - regex: '(?i)tfsec'
-  severity: low
+    - regex: '(?i)tfsec''severity: low
   description: "tfsec usage"
   remediation: "Run tfsec for security scanning"
   cwe: "CWE-693"
@@ -1827,8 +1646,7 @@
 - id: tf-general-checkov
   languages: [terraform]
   patterns:
-    - regex: '(?i)checkov'
-  severity: low
+    - regex: '(?i)checkov''severity: low
   description: "Checkov usage"
   remediation: "Run Checkov for security scanning"
   cwe: "CWE-693"
@@ -1837,8 +1655,7 @@
 - id: tf-general-terrascan
   languages: [terraform]
   patterns:
-    - regex: '(?i)terrascan'
-  severity: low
+    - regex: '(?i)terrascan''severity: low
   description: "Terrascan usage"
   remediation: "Run Terrascan for security scanning"
   cwe: "CWE-693"
@@ -1847,8 +1664,7 @@
 - id: tf-general-infracost
   languages: [terraform]
   patterns:
-    - regex: '(?i)infracost'
-  severity: low
+    - regex: '(?i)infracost''severity: low
   description: "Infracost usage"
   remediation: "Review cost estimates"
   cwe: "CWE-693"
@@ -1857,8 +1673,7 @@
 - id: tf-general-atlantis
   languages: [terraform]
   patterns:
-    - regex: '(?i)atlantis'
-  severity: low
+    - regex: '(?i)atlantis''severity: low
   description: "Atlantis usage"
   remediation: "Configure Atlantis securely"
   cwe: "CWE-693"
@@ -1867,8 +1682,7 @@
 - id: tf-general-terraform-cloud
   languages: [terraform]
   patterns:
-    - regex: '(?i)app\\.terraform\\.io|terraform\\.cloud'
-  severity: low
+    - regex: '(?i)app\\.terraform\\.io|terraform\\.cloud''severity: low
   description: "Terraform Cloud"
   remediation: "Configure Terraform Cloud securely"
   cwe: "CWE-693"
@@ -1877,8 +1691,7 @@
 - id: tf-general-terraform-enterprise
   languages: [terraform]
   patterns:
-    - regex: '(?i)terraform.*enterprise|TFE'
-  severity: low
+    - regex: '(?i)terraform.*enterprise|TFE''severity: low
   description: "Terraform Enterprise"
   remediation: "Configure TFE securely"
   cwe: "CWE-693"
@@ -1887,8 +1700,7 @@
 - id: tf-general-sentinel
   languages: [terraform]
   patterns:
-    - regex: '(?i)sentinel'
-  severity: low
+    - regex: '(?i)sentinel''severity: low
   description: "Sentinel policy"
   remediation: "Implement Sentinel policies"
   cwe: "CWE-693"
@@ -1897,8 +1709,7 @@
 - id: tf-general-opa
   languages: [terraform]
   patterns:
-    - regex: '(?i)openpolicyagent|opa'
-  severity: low
+    - regex: '(?i)openpolicyagent|opa''severity: low
   description: "OPA policy"
   remediation: "Implement OPA policies"
   cwe: "CWE-693"
@@ -1907,8 +1718,7 @@
 - id: tf-general-conftest
   languages: [terraform]
   patterns:
-    - regex: '(?i)conftest'
-  severity: low
+    - regex: '(?i)conftest''severity: low
   description: "Conftest usage"
   remediation: "Run conftest for policy testing"
   cwe: "CWE-693"

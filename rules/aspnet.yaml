@@ -1,8 +1,7 @@
 - id: aspnet-auth-missing-authorize-attribute
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)public\\s+(IActionResult|ActionResult|Task)\\s+\\w+\\s*\\([^)]*\\)\\s*\\{[^}]*[Rr]eturn'
-  severity: high
+    - regex: '(?i)public\\s+(IActionResult|ActionResult|Task)\\s+\\w+\\s*\\([^)]*\\)\\s*\\{[^}]*[Rr]eturn''severity: high
   description: "Controller action without [Authorize] attribute"
   remediation: "Add [Authorize] attribute to protect sensitive endpoints"
   cwe: "CWE-306"
@@ -11,8 +10,7 @@
 - id: aspnet-auth-allow-anonymous-overuse
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[AllowAnonymous\\]\\s*(public|private|protected)'
-  severity: medium
+    - regex: '(?i)\\[AllowAnonymous\\]\\s*(public|private|protected)''severity: medium
   description: "Excessive use of [AllowAnonymous] may expose sensitive endpoints"
   remediation: "Review all [AllowAnonymous] endpoints for necessity"
   cwe: "CWE-284"
@@ -21,7 +19,7 @@
 - id: aspnet-auth-role-hardcoded
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[Authorize\\s*\\(\\s*Roles\\s*=\\s*[''\"]Admin[''\"]'
+    - regex: '(?i)\\[Authorize\\s*\\(\\s*Roles\\s*=\\s*['''\"]Admin[''\"]'
   severity: medium
   description: "Hardcoded role names may lead to authorization bypass"
   remediation: "Use role constants or configuration-based role names"
@@ -31,8 +29,7 @@
 - id: aspnet-auth-policy-missing
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[Authorize\\s*\\(\\s*\\)\\s*\\][^\\[]*public'
-  severity: medium
+    - regex: '(?i)\\[Authorize\\s*\\(\\s*\\)\\s*\\][^\\[]*public''severity: medium
   description: "[Authorize] without specific policy may be too permissive"
   remediation: "Define and use specific authorization policies"
   cwe: "CWE-284"
@@ -41,8 +38,7 @@
 - id: aspnet-auth-claim-type-hardcoded
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ClaimTypes\\.(Role|Name|Email)|\\\"sub\\\"|\\\"name\\\"'
-  severity: low
+    - regex: '(?i)ClaimTypes\\.(Role|Name|Email)|\\\"sub\\\"|\\\"name\\\"''severity: low
   description: "Hardcoded claim types may cause issues with identity providers"
   remediation: "Use configuration-based claim type mappings"
   cwe: "CWE-284"
@@ -51,8 +47,7 @@
 - id: aspnet-auth-user-identity-check
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)User\\.Identity\\.Name|User\\.FindFirst'
-  severity: medium
+    - regex: '(?i)User\\.Identity\\.Name|User\\.FindFirst''severity: medium
   description: "Direct user identity access — ensure proper validation"
   remediation: "Validate user identity before accessing resources"
   cwe: "CWE-284"
@@ -61,8 +56,7 @@
 - id: aspnet-auth-impersonation
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)WindowsIdentity\\.RunImpersonated|impersonate'
-  severity: high
+    - regex: '(?i)WindowsIdentity\\.RunImpersonated|impersonate''severity: high
   description: "Windows impersonation detected — verify security context"
   remediation: "Ensure impersonation is properly scoped and audited"
   cwe: "CWE-269"
@@ -71,8 +65,7 @@
 - id: aspnet-auth-token-expiry-missing
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)JwtSecurityTokenHandler|TokenValidationParameters'
-  severity: medium
+    - regex: '(?i)JwtSecurityTokenHandler|TokenValidationParameters''severity: medium
   description: "JWT token validation — ensure expiry is checked"
   remediation: "Set RequireExpirationTime = true in TokenValidationParameters"
   cwe: "CWE-613"
@@ -81,8 +74,7 @@
 - id: aspnet-auth-refresh-token-insecure
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)RefreshToken|refresh_token|\\.Refresh'
-  severity: medium
+    - regex: '(?i)RefreshToken|refresh_token|\\.Refresh''severity: medium
   description: "Refresh token handling detected — verify security"
   remediation: "Store refresh tokens securely and implement rotation"
   cwe: "CWE-613"
@@ -91,7 +83,7 @@
 - id: aspnet-auth-api-key-header
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Request\\.Headers\\[\\s*[''\"]X-API-Key[''\"]|ApiKeyAttribute'
+    - regex: '(?i)Request\\.Headers\\[\\s*['''\"]X-API-Key[''\"]|ApiKeyAttribute'
   severity: medium
   description: "API Key authentication detected — verify implementation"
   remediation: "Use HTTPS and implement key rotation"
@@ -101,8 +93,7 @@
 - id: aspnet-auth-basic-auth-header
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Authorization.*Basic|FromBase64String.*Authorization'
-  severity: high
+    - regex: '(?i)Authorization.*Basic|FromBase64String.*Authorization''severity: high
   description: "Basic Authentication header parsing detected"
   remediation: "Ensure Basic Auth is only over HTTPS"
   cwe: "CWE-523"
@@ -111,8 +102,7 @@
 - id: aspnet-auth-bearer-token-logging
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Bearer\\s+\\w+|access_token.*log'
-  severity: high
+    - regex: '(?i)Bearer\\s+\\w+|access_token.*log''severity: high
   description: "Bearer token may be logged accidentally"
   remediation: "Mask tokens in all logging statements"
   cwe: "CWE-532"
@@ -121,8 +111,7 @@
 - id: aspnet-auth-saml-configuration
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Saml2|WSFederation|MetadataAddress'
-  severity: medium
+    - regex: '(?i)Saml2|WSFederation|MetadataAddress''severity: medium
   description: "SAML/Federation configuration detected — verify security"
   remediation: "Validate SAML signatures and certificate pinning"
   cwe: "CWE-287"
@@ -131,8 +120,7 @@
 - id: aspnet-auth-openid-connect
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddOpenIdConnect|OpenIdConnectOptions'
-  severity: medium
+    - regex: '(?i)AddOpenIdConnect|OpenIdConnectOptions''severity: medium
   description: "OpenID Connect configuration detected — verify settings"
   remediation: "Validate token signatures and use HTTPS"
   cwe: "CWE-287"
@@ -141,8 +129,7 @@
 - id: aspnet-auth-social-login
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddFacebook|AddGoogle|AddTwitter|AddMicrosoft'
-  severity: low
+    - regex: '(?i)AddFacebook|AddGoogle|AddTwitter|AddMicrosoft''severity: low
   description: "Social login provider configured — verify callback URLs"
   remediation: "Validate redirect URIs and state parameters"
   cwe: "CWE-601"
@@ -153,8 +140,7 @@
 - id: aspnet-session-inmemory
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddDistributedMemoryCache|IMemoryCache'
-  severity: medium
+    - regex: '(?i)AddDistributedMemoryCache|IMemoryCache''severity: medium
   description: "In-memory session storage may be lost on app recycle"
   remediation: "Use distributed cache (Redis/SQL) for production"
   cwe: "CWE-693"
@@ -163,8 +149,7 @@
 - id: aspnet-session-cookie-name-default
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\.AspNetCore\\.Identity|\\.ASPXAUTH'
-  severity: low
+    - regex: '(?i)\\.AspNetCore\\.Identity|\\.ASPXAUTH''severity: low
   description: "Default session cookie name reveals technology stack"
   remediation: "Customize cookie name in configuration"
   cwe: "CWE-200"
@@ -173,8 +158,7 @@
 - id: aspnet-session-same-site-none
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SameSiteMode\\.None|SameSite\\s*=\\s*None'
-  severity: medium
+    - regex: '(?i)SameSiteMode\\.None|SameSite\\s*=\\s*None''severity: medium
   description: "SameSite=None cookie may be vulnerable to CSRF"
   remediation: "Use SameSite=Strict or Lax unless cross-site is required"
   cwe: "CWE-352"
@@ -183,8 +167,7 @@
 - id: aspnet-session-absolute-expiration
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AbsoluteExpiration|SlidingExpiration.*TimeSpan\\.MaxValue'
-  severity: medium
+    - regex: '(?i)AbsoluteExpiration|SlidingExpiration.*TimeSpan\\.MaxValue''severity: medium
   description: "Session without absolute expiration may persist indefinitely"
   remediation: "Set reasonable absolute expiration time"
   cwe: "CWE-613"
@@ -193,8 +176,7 @@
 - id: aspnet-session-data-sensitive
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)HttpContext\\.Session\\.Set|Session\\.SetString'
-  severity: medium
+    - regex: '(?i)HttpContext\\.Session\\.Set|Session\\.SetString''severity: medium
   description: "Session data storage detected — ensure no sensitive data"
   remediation: "Avoid storing sensitive data in session"
   cwe: "CWE-312"
@@ -203,8 +185,7 @@
 - id: aspnet-session-fixation-risk
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SessionId|\\.Session\\.Id|RegenerateSession'
-  severity: high
+    - regex: '(?i)SessionId|\\.Session\\.Id|RegenerateSession''severity: high
   description: "Session ID handling detected — verify regeneration on login"
   remediation: "Regenerate session ID after authentication"
   cwe: "CWE-384"
@@ -213,8 +194,7 @@
 - id: aspnet-session-parallel-requests
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SessionStateBehavior\\.ReadOnly|DisableSessionState'
-  severity: low
+    - regex: '(?i)SessionStateBehavior\\.ReadOnly|DisableSessionState''severity: low
   description: "Session state configuration detected — verify concurrency"
   remediation: "Ensure proper locking for concurrent requests"
   cwe: "CWE-362"
@@ -223,7 +203,7 @@
 - id: aspnet-session-cookie-domain
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Cookie\\.Domain\\s*=\\s*[''\"]\\.'
+    - regex: '(?i)Cookie\\.Domain\\s*=\\s*['''\"]\\.'
   severity: medium
   description: "Session cookie domain set to parent domain"
   remediation: "Restrict cookie domain to specific subdomain"
@@ -233,7 +213,7 @@
 - id: aspnet-session-cookie-path
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Cookie\\.Path\\s*=\\s*[''\"]/[''\"]'
+    - regex: '(?i)Cookie\\.Path\\s*=\\s*['''\"]/[''\"]'
   severity: low
   description: "Session cookie path set to root"
   remediation: "Restrict cookie path to application directory"
@@ -243,8 +223,7 @@
 - id: aspnet-session-serialization-format
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SessionSerializer|BinaryFormatter.*Session'
-  severity: high
+    - regex: '(?i)SessionSerializer|BinaryFormatter.*Session''severity: high
   description: "Session serialization may use insecure formatter"
   remediation: "Use JSON serialization for session data"
   cwe: "CWE-502"
@@ -253,8 +232,7 @@
 - id: aspnet-session-timeout-config
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)IdleTimeout|SessionTimeout.*TimeSpan'
-  severity: medium
+    - regex: '(?i)IdleTimeout|SessionTimeout.*TimeSpan''severity: medium
   description: "Session timeout configuration detected"
   remediation: "Set timeout to 20 minutes or less for sensitive apps"
   cwe: "CWE-613"
@@ -263,8 +241,7 @@
 - id: aspnet-session-logout-incomplete
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SignOutAsync|LogOut|Logout'
-  severity: medium
+    - regex: '(?i)SignOutAsync|LogOut|Logout''severity: medium
   description: "Logout functionality detected — verify complete cleanup"
   remediation: "Clear all session data and tokens on logout"
   cwe: "CWE-613"
@@ -273,8 +250,7 @@
 - id: aspnet-session-concurrent-login
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SecurityStamp|ConcurrencyStamp'
-  severity: low
+    - regex: '(?i)SecurityStamp|ConcurrencyStamp''severity: low
   description: "Security stamp detected — verify concurrent session handling"
   remediation: "Implement session invalidation on password change"
   cwe: "CWE-613"
@@ -283,8 +259,7 @@
 - id: aspnet-session-storage-encrypted
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)DataProtectionProvider|ProtectKeys'
-  severity: low
+    - regex: '(?i)DataProtectionProvider|ProtectKeys''severity: low
   description: "Data protection keys detected — verify encryption"
   remediation: "Store keys in secure location (Azure Key Vault)"
   cwe: "CWE-311"
@@ -293,8 +268,7 @@
 - id: aspnet-session-cookie-secure-missing
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)options\\.Cookie\\.(Secure|HttpOnly)\\s*=\\s*false'
-  severity: high
+    - regex: '(?i)options\\.Cookie\\.(Secure|HttpOnly)\\s*=\\s*false''severity: high
   description: "Session cookie security flags explicitly disabled"
   remediation: "Enable Secure and HttpOnly flags"
   cwe: "CWE-614"
@@ -305,8 +279,7 @@
 - id: aspnet-file-upload-no-validation
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)IFormFile|HttpPostedFileBase|\\.SaveAs\\s*\\('
-  severity: high
+    - regex: '(?i)IFormFile|HttpPostedFileBase|\\.SaveAs\\s*\\(''severity: high
   description: "File upload without extension validation"
   remediation: "Validate file extensions and MIME types"
   cwe: "CWE-434"
@@ -315,8 +288,7 @@
 - id: aspnet-file-upload-path-user-controlled
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SaveAs\\s*\\([^)]*Request\\.|Path\\.Combine.*fileName'
-  severity: critical
+    - regex: '(?i)SaveAs\\s*\\([^)]*Request\\.|Path\\.Combine.*fileName''severity: critical
   description: "File upload path includes user-controlled filename"
   remediation: "Generate server-side filenames, never use client names"
   cwe: "CWE-434"
@@ -325,8 +297,7 @@
 - id: aspnet-file-upload-mime-check
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ContentType|MimeType|\\.ContentType'
-  severity: medium
+    - regex: '(?i)ContentType|MimeType|\\.ContentType''severity: medium
   description: "MIME type check detected — verify it's not client-controlled"
   remediation: "Validate MIME type server-side using file content"
   cwe: "CWE-434"
@@ -335,8 +306,7 @@
 - id: aspnet-file-upload-size-limit
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)FormOptions.*MultipartBodyLengthLimit|RequestLimit'
-  severity: medium
+    - regex: '(?i)FormOptions.*MultipartBodyLengthLimit|RequestLimit''severity: medium
   description: "File upload size limit configuration"
   remediation: "Ensure reasonable size limits are enforced"
   cwe: "CWE-770"
@@ -345,8 +315,7 @@
 - id: aspnet-file-download-arbitrary
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)File\\(.*path|SendFileAsync|PhysicalFile'
-  severity: high
+    - regex: '(?i)File\\(.*path|SendFileAsync|PhysicalFile''severity: high
   description: "File download endpoint may allow arbitrary file access"
   remediation: "Validate file paths against allowlist"
   cwe: "CWE-22"
@@ -355,8 +324,7 @@
 - id: aspnet-file-delete-user-input
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)File\\.Delete|Directory\\.Delete.*Request\\['
-  severity: critical
+    - regex: '(?i)File\\.Delete|Directory\\.Delete.*Request\\[''severity: critical
   description: "File deletion with user-controlled path"
   remediation: "Never allow user input to control file deletion"
   cwe: "CWE-73"
@@ -365,8 +333,7 @@
 - id: aspnet-file-stream-unvalidated
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)FileStream\\s*\\([^)]*Request\\.|StreamReader.*Request'
-  severity: high
+    - regex: '(?i)FileStream\\s*\\([^)]*Request\\.|StreamReader.*Request''severity: high
   description: "File stream opened with user-controlled path"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -375,8 +342,7 @@
 - id: aspnet-file-temp-directory
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Path\\.GetTempPath|Path\\.GetTempFileName'
-  severity: low
+    - regex: '(?i)Path\\.GetTempPath|Path\\.GetTempFileName''severity: low
   description: "Temporary file usage detected — verify cleanup"
   remediation: "Ensure temporary files are cleaned up after use"
   cwe: "CWE-73"
@@ -385,8 +351,7 @@
 - id: aspnet-file-executable-upload
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\.exe|\\.dll|\\.aspx|\\.ashx|\\.cshtml'
-  severity: critical
+    - regex: '(?i)\\.exe|\\.dll|\\.aspx|\\.ashx|\\.cshtml''severity: critical
   description: "Potentially executable file extension in upload"
   remediation: "Block executable file extensions in uploads"
   cwe: "CWE-434"
@@ -395,8 +360,7 @@
 - id: aspnet-file-image-processing
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Image\\.FromStream|Bitmap\\s*\\(|ImageMagick'
-  severity: medium
+    - regex: '(?i)Image\\.FromStream|Bitmap\\s*\\(|ImageMagick''severity: medium
   description: "Image processing detected — verify library security"
   remediation: "Use updated image processing libraries"
   cwe: "CWE-133"
@@ -405,8 +369,7 @@
 - id: aspnet-file-zip-slip
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ZipArchive|ZipFile\\.Extract|\\.ExtractToDirectory'
-  severity: high
+    - regex: '(?i)ZipArchive|ZipFile\\.Extract|\\.ExtractToDirectory''severity: high
   description: "Zip extraction may be vulnerable to Zip Slip"
   remediation: "Validate extracted paths don't escape target directory"
   cwe: "CWE-22"
@@ -415,7 +378,7 @@
 - id: aspnet-file-content-type-header
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ContentType\\s*=\\s*[''\"]application/octet-stream'
+    - regex: '(?i)ContentType\\s*=\\s*['''\"]application/octet-stream'
   severity: low
   description: "Generic content type for file download"
   remediation: "Set specific content type and Content-Disposition"
@@ -425,8 +388,7 @@
 - id: aspnet-file-content-disposition
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Content-Disposition.*inline|attachment; filename'
-  severity: medium
+    - regex: '(?i)Content-Disposition.*inline|attachment; filename''severity: medium
   description: "Content-Disposition header may allow XSS"
   remediation: "Use 'attachment' and sanitize filename"
   cwe: "CWE-79"
@@ -435,8 +397,7 @@
 - id: aspnet-file-storage-cloud
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)CloudBlobClient|BlobContainerClient|Azure\\.Storage'
-  severity: medium
+    - regex: '(?i)CloudBlobClient|BlobContainerClient|Azure\\.Storage''severity: medium
   description: "Cloud storage integration detected — verify access controls"
   remediation: "Use SAS tokens with minimal permissions"
   cwe: "CWE-284"
@@ -447,8 +408,7 @@
 - id: aspnet-ef-lazy-loading
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)UseLazyLoadingProxies|virtual\\s+ICollection'
-  severity: medium
+    - regex: '(?i)UseLazyLoadingProxies|virtual\\s+ICollection''severity: medium
   description: "EF Lazy Loading may cause N+1 query issues"
   remediation: "Use explicit loading or eager loading with Include"
   cwe: "CWE-693"
@@ -457,8 +417,7 @@
 - id: aspnet-ef-tracking-disabled
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AsNoTracking\\s*\\(\\s*\\)|AsNoTrackingWithIdentityResolution'
-  severity: low
+    - regex: '(?i)AsNoTracking\\s*\\(\\s*\\)|AsNoTrackingWithIdentityResolution''severity: low
   description: "EF tracking disabled — verify it's intentional"
   remediation: "Ensure AsNoTracking is used appropriately"
   cwe: "CWE-693"
@@ -467,8 +426,7 @@
 - id: aspnet-ef-bulk-operations
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddRange|UpdateRange|RemoveRange|ExecuteUpdate'
-  severity: medium
+    - regex: '(?i)AddRange|UpdateRange|RemoveRange|ExecuteUpdate''severity: medium
   description: "Bulk operations detected — verify authorization"
   remediation: "Ensure bulk operations are properly authorized"
   cwe: "CWE-284"
@@ -477,8 +435,7 @@
 - id: aspnet-ef-migration-exposed
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Database\\.Migrate|EnsureCreated|ApplyPendingMigrations'
-  severity: high
+    - regex: '(?i)Database\\.Migrate|EnsureCreated|ApplyPendingMigrations''severity: high
   description: "Database migration in application code"
   remediation: "Run migrations during deployment, not at runtime"
   cwe: "CWE-693"
@@ -487,8 +444,7 @@
 - id: aspnet-ef-connection-pooling
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Pooling\\s*=\\s*false|Max Pool Size'
-  severity: low
+    - regex: '(?i)Pooling\\s*=\\s*false|Max Pool Size''severity: low
   description: "Database connection pooling configuration"
   remediation: "Ensure appropriate pool size for workload"
   cwe: "CWE-693"
@@ -497,8 +453,7 @@
 - id: aspnet-ef-soft-delete
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)IsDeleted|DeletedAt|SoftDelete|QueryFilter'
-  severity: low
+    - regex: '(?i)IsDeleted|DeletedAt|SoftDelete|QueryFilter''severity: low
   description: "Soft delete implementation detected"
   remediation: "Ensure soft delete filters are applied consistently"
   cwe: "CWE-693"
@@ -507,8 +462,7 @@
 - id: aspnet-ef-audit-logging
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)SaveChangesAsync|EntityEntry|StateChanged'
-  severity: low
+    - regex: '(?i)SaveChangesAsync|EntityEntry|StateChanged''severity: low
   description: "EF change tracking detected — consider audit logging"
   remediation: "Implement audit logging for sensitive entities"
   cwe: "CWE-778"
@@ -517,8 +471,7 @@
 - id: aspnet-ef-transaction-isolation
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)TransactionScope|BeginTransaction|IsolationLevel'
-  severity: medium
+    - regex: '(?i)TransactionScope|BeginTransaction|IsolationLevel''severity: medium
   description: "Database transaction configuration detected"
   remediation: "Use appropriate isolation level for consistency"
   cwe: "CWE-362"
@@ -527,8 +480,7 @@
 - id: aspnet-ef-concurrency-token
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ConcurrencyCheck|Timestamp|RowVersion'
-  severity: low
+    - regex: '(?i)ConcurrencyCheck|Timestamp|RowVersion''severity: low
   description: "Concurrency token detected — verify handling"
   remediation: "Handle concurrency conflicts appropriately"
   cwe: "CWE-362"
@@ -537,8 +489,7 @@
 - id: aspnet-ef-database-initializer
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Database\\.EnsureDeleted|DropCreateDatabase'
-  severity: critical
+    - regex: '(?i)Database\\.EnsureDeleted|DropCreateDatabase''severity: critical
   description: "Database drop/delete in application code"
   remediation: "Never drop production databases from application code"
   cwe: "CWE-73"
@@ -547,8 +498,7 @@
 - id: aspnet-ef-seed-data
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)HasData|Seed.*data|OnModelCreating.*Add'
-  severity: low
+    - regex: '(?i)HasData|Seed.*data|OnModelCreating.*Add''severity: low
   description: "Database seed data detected — verify no secrets"
   remediation: "Ensure seed data doesn't contain sensitive information"
   cwe: "CWE-798"
@@ -557,8 +507,7 @@
 - id: aspnet-ef-navigation-property
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Include\\s*\\(\\s*e\\s*=>|ThenInclude'
-  severity: medium
+    - regex: '(?i)Include\\s*\\(\\s*e\\s*=>|ThenInclude''severity: medium
   description: "EF navigation property loading detected"
   remediation: "Ensure related data doesn't expose sensitive info"
   cwe: "CWE-200"
@@ -567,8 +516,7 @@
 - id: aspnet-ef-dynamic-query
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Where\\s*\\(\\s*\\\"|DynamicFilter|PredicateBuilder'
-  severity: high
+    - regex: '(?i)Where\\s*\\(\\s*\\\"|DynamicFilter|PredicateBuilder''severity: high
   description: "Dynamic EF query construction detected"
   remediation: "Validate all dynamic query parameters"
   cwe: "CWE-89"
@@ -577,8 +525,7 @@
 - id: aspnet-ef-projection
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\.Select\\s*\\(\\s*new\\s+\\{|SelectMany'
-  severity: low
+    - regex: '(?i)\\.Select\\s*\\(\\s*new\\s+\\{|SelectMany''severity: low
   description: "EF projection detected — verify field selection"
   remediation: "Ensure projections don't include sensitive fields"
   cwe: "CWE-200"
@@ -587,8 +534,7 @@
 - id: aspnet-ef-database-provider
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)UseSqlServer|UseMySql|UseNpgsql|UseSqlite'
-  severity: low
+    - regex: '(?i)UseSqlServer|UseMySql|UseNpgsql|UseSqlite''severity: low
   description: "Database provider configuration detected"
   remediation: "Ensure connection strings are secured"
   cwe: "CWE-798"
@@ -599,8 +545,7 @@
 - id: aspnet-api-versioning-missing
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ApiController|\\[ApiController\\]|ControllerBase'
-  severity: low
+    - regex: '(?i)ApiController|\\[ApiController\\]|ControllerBase''severity: low
   description: "API Controller detected — verify versioning strategy"
   remediation: "Implement API versioning for backward compatibility"
   cwe: "CWE-1104"
@@ -609,8 +554,7 @@
 - id: aspnet-api-response-type
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[ProducesResponseType|Produces\\s*\\('
-  severity: low
+    - regex: '(?i)\\[ProducesResponseType|Produces\\s*\\(''severity: low
   description: "API response type documentation"
   remediation: "Document all possible response types including errors"
   cwe: "CWE-200"
@@ -619,8 +563,7 @@
 - id: aspnet-api-model-binding
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[FromBody\\]|\\[FromQuery\\]|\\[FromRoute\\]'
-  severity: medium
+    - regex: '(?i)\\[FromBody\\]|\\[FromQuery\\]|\\[FromRoute\\]''severity: medium
   description: "Model binding source detected — verify validation"
   remediation: "Validate all bound model properties"
   cwe: "CWE-20"
@@ -629,8 +572,7 @@
 - id: aspnet-api-content-negotiation
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Produces\\s*\\(\\s*MediaTypeNames|Accept.*header'
-  severity: low
+    - regex: '(?i)Produces\\s*\\(\\s*MediaTypeNames|Accept.*header''severity: low
   description: "Content negotiation detected — verify supported types"
   remediation: "Restrict to JSON, avoid XML if not needed"
   cwe: "CWE-693"
@@ -639,8 +581,7 @@
 - id: aspnet-api-pagination
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)page.*=|pageSize|skip.*take|Offset.*Limit'
-  severity: medium
+    - regex: '(?i)page.*=|pageSize|skip.*take|Offset.*Limit''severity: medium
   description: "API pagination detected — enforce limits"
   remediation: "Set maximum page size to prevent data scraping"
   cwe: "CWE-770"
@@ -649,8 +590,7 @@
 - id: aspnet-api-filtering
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\$filter|\\$orderby|\\$select|ODataQueryOptions'
-  severity: high
+    - regex: '(?i)\\$filter|\\$orderby|\\$select|ODataQueryOptions''severity: high
   description: "OData query options may allow data exposure"
   remediation: "Restrict OData query capabilities"
   cwe: "CWE-200"
@@ -659,8 +599,7 @@
 - id: aspnet-api-batch-operations
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)BatchRequest|\\$batch|CreateBatchRequest'
-  severity: medium
+    - regex: '(?i)BatchRequest|\\$batch|CreateBatchRequest''severity: medium
   description: "Batch operations detected — verify rate limiting"
   remediation: "Apply rate limiting to batch endpoints"
   cwe: "CWE-770"
@@ -669,8 +608,7 @@
 - id: aspnet-api-webhook
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)webhook|WebHook|WebHookHandler'
-  severity: medium
+    - regex: '(?i)webhook|WebHook|WebHookHandler''severity: medium
   description: "Webhook endpoint detected — verify signature validation"
   remediation: "Validate webhook signatures on all incoming requests"
   cwe: "CWE-345"
@@ -679,8 +617,7 @@
 - id: aspnet-api-rate-limit-header
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)X-RateLimit|RateLimit-|Too Many Requests'
-  severity: low
+    - regex: '(?i)X-RateLimit|RateLimit-|Too Many Requests''severity: low
   description: "Rate limiting headers detected"
   remediation: "Ensure rate limits are enforced server-side"
   cwe: "CWE-770"
@@ -689,8 +626,7 @@
 - id: aspnet-api-idempotency
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Idempotency-Key|IdempotencyKey|Idempotent'
-  severity: medium
+    - regex: '(?i)Idempotency-Key|IdempotencyKey|Idempotent''severity: medium
   description: "Idempotency handling detected — verify implementation"
   remediation: "Ensure idempotency keys are properly validated"
   cwe: "CWE-362"
@@ -699,8 +635,7 @@
 - id: aspnet-api-caching
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[ResponseCache|Cache-Control.*public'
-  severity: medium
+    - regex: '(?i)\\[ResponseCache|Cache-Control.*public''severity: medium
   description: "API response caching detected"
   remediation: "Avoid caching sensitive API responses"
   cwe: "CWE-524"
@@ -709,8 +644,7 @@
 - id: aspnet-api-documentation
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Swagger|OpenApi|UseSwaggerUI'
-  severity: medium
+    - regex: '(?i)Swagger|OpenApi|UseSwaggerUI''severity: medium
   description: "API documentation exposed"
   remediation: "Protect API docs with authentication in production"
   cwe: "CWE-200"
@@ -719,8 +653,7 @@
 - id: aspnet-api-health-check
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddHealthChecks|MapHealthChecks|/health'
-  severity: low
+    - regex: '(?i)AddHealthChecks|MapHealthChecks|/health''severity: low
   description: "Health check endpoint detected"
   remediation: "Limit information disclosed in health checks"
   cwe: "CWE-200"
@@ -729,8 +662,7 @@
 - id: aspnet-api-metrics
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddMetrics|MapPrometheusScrape|/metrics'
-  severity: low
+    - regex: '(?i)AddMetrics|MapPrometheusScrape|/metrics''severity: low
   description: "Metrics endpoint detected"
   remediation: "Protect metrics endpoint with authentication"
   cwe: "CWE-200"
@@ -739,8 +671,7 @@
 - id: aspnet-api-grpc
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)GrpcService|\\.AddGrpc|GrpcChannel'
-  severity: medium
+    - regex: '(?i)GrpcService|\\.AddGrpc|GrpcChannel''severity: medium
   description: "gRPC service detected — verify authentication"
   remediation: "Implement authentication for gRPC services"
   cwe: "CWE-306"
@@ -751,8 +682,7 @@
 - id: aspnet-blazor-server-circuit
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddServerSideBlazor|ServerSideBlazor|CircuitHandler'
-  severity: medium
+    - regex: '(?i)AddServerSideBlazor|ServerSideBlazor|CircuitHandler''severity: medium
   description: "Blazor Server circuit detected — verify timeout"
   remediation: "Set appropriate circuit timeout values"
   cwe: "CWE-613"
@@ -761,8 +691,7 @@
 - id: aspnet-blazor-webassembly-auth
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddWebAssemblyAuthentication|WebAssemblyHostBuilder'
-  severity: medium
+    - regex: '(?i)AddWebAssemblyAuthentication|WebAssemblyHostBuilder''severity: medium
   description: "Blazor WebAssembly auth detected — verify token storage"
   remediation: "Store tokens securely, avoid localStorage"
   cwe: "CWE-312"
@@ -771,8 +700,7 @@
 - id: aspnet-blazor-jsinterop-unsafe
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)IJSRuntime\\.InvokeVoidAsync|CallJSVoidAsync'
-  severity: medium
+    - regex: '(?i)IJSRuntime\\.InvokeVoidAsync|CallJSVoidAsync''severity: medium
   description: "Blazor JS Interop detected — validate parameters"
   remediation: "Sanitize all data passed to JavaScript"
   cwe: "CWE-79"
@@ -781,8 +709,7 @@
 - id: aspnet-blazor-component-injection
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)\\[Inject\\]|Inject.*Service'
-  severity: low
+    - regex: '(?i)\\[Inject\\]|Inject.*Service''severity: low
   description: "Blazor component injection detected"
   remediation: "Ensure injected services are properly scoped"
   cwe: "CWE-693"
@@ -791,8 +718,7 @@
 - id: aspnet-blazor-rendermode
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)rendermode=|RenderMode\\.Server|RenderMode\\.WebAssembly'
-  severity: low
+    - regex: '(?i)rendermode=|RenderMode\\.Server|RenderMode\\.WebAssembly''severity: low
   description: "Blazor render mode configuration"
   remediation: "Choose appropriate render mode for security requirements"
   cwe: "CWE-693"
@@ -801,8 +727,7 @@
 - id: aspnet-blazor-event-handling
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)@onclick|@onchange|@onsubmit|EventCallback'
-  severity: low
+    - regex: '(?i)@onclick|@onchange|@onsubmit|EventCallback''severity: low
   description: "Blazor event handling detected"
   remediation: "Validate event data before processing"
   cwe: "CWE-20"
@@ -811,8 +736,7 @@
 - id: aspnet-blazor-form-validation
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)EditForm|DataAnnotationsValidator|ValidationMessage'
-  severity: low
+    - regex: '(?i)EditForm|DataAnnotationsValidator|ValidationMessage''severity: low
   description: "Blazor form validation detected"
   remediation: "Always validate on server-side as well"
   cwe: "CWE-20"
@@ -821,8 +745,7 @@
 - id: aspnet-blazor-navigation
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)NavigationManager|NavigateTo|UriHelper'
-  severity: medium
+    - regex: '(?i)NavigationManager|NavigateTo|UriHelper''severity: medium
   description: "Blazor navigation detected — verify open redirect"
   remediation: "Validate navigation URLs before redirecting"
   cwe: "CWE-601"
@@ -831,8 +754,7 @@
 - id: aspnet-blazor-localstorage
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)localStorage\\.|sessionStorage\\.|IJSRuntime.*storage'
-  severity: high
+    - regex: '(?i)localStorage\\.|sessionStorage\\.|IJSRuntime.*storage''severity: high
   description: "Blazor browser storage access detected"
   remediation: "Avoid storing sensitive data in browser storage"
   cwe: "CWE-312"
@@ -841,8 +763,7 @@
 - id: aspnet-blazor-hub-connection
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)HubConnectionBuilder|WithAutomaticReconnect'
-  severity: medium
+    - regex: '(?i)HubConnectionBuilder|WithAutomaticReconnect''severity: medium
   description: "Blazor SignalR connection detected"
   remediation: "Ensure SignalR hub is properly authenticated"
   cwe: "CWE-306"
@@ -853,8 +774,7 @@
 - id: aspnet-signalr-hub-method
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Hub\\.InvokeAsync|Clients\\..*\\.SendAsync'
-  severity: medium
+    - regex: '(?i)Hub\\.InvokeAsync|Clients\\..*\\.SendAsync''severity: medium
   description: "SignalR hub method invocation detected"
   remediation: "Authorize hub methods appropriately"
   cwe: "CWE-284"
@@ -863,8 +783,7 @@
 - id: aspnet-signalr-connection-id
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Context\\.ConnectionId|ConnectionId.*='
-  severity: low
+    - regex: '(?i)Context\\.ConnectionId|ConnectionId.*=''severity: low
   description: "SignalR connection ID usage detected"
   remediation: "Don't expose connection IDs to clients"
   cwe: "CWE-200"
@@ -873,8 +792,7 @@
 - id: aspnet-signalr-groups
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Groups\\.AddToGroupAsync|RemoveFromGroupAsync'
-  severity: medium
+    - regex: '(?i)Groups\\.AddToGroupAsync|RemoveFromGroupAsync''severity: medium
   description: "SignalR group management detected"
   remediation: "Validate group membership authorization"
   cwe: "CWE-284"
@@ -883,8 +801,7 @@
 - id: aspnet-signalr-backplane
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddRedis|AddSqlServer|Azure\\.SignalR'
-  severity: low
+    - regex: '(?i)AddRedis|AddSqlServer|Azure\\.SignalR''severity: low
   description: "SignalR backplane configuration detected"
   remediation: "Secure backplane connection strings"
   cwe: "CWE-798"
@@ -893,8 +810,7 @@
 - id: aspnet-signalr-transport
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)HttpTransportType|WebSockets|LongPolling'
-  severity: low
+    - regex: '(?i)HttpTransportType|WebSockets|LongPolling''severity: low
   description: "SignalR transport configuration"
   remediation: "Prefer WebSockets for better security"
   cwe: "CWE-693"
@@ -903,8 +819,7 @@
 - id: aspnet-signalr-message-size
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)MaximumReceiveMessageSize|MessageSize'
-  severity: medium
+    - regex: '(?i)MaximumReceiveMessageSize|MessageSize''severity: medium
   description: "SignalR message size configuration"
   remediation: "Set appropriate message size limits"
   cwe: "CWE-770"
@@ -913,8 +828,7 @@
 - id: aspnet-signalr-authentication
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)RequireAuthorization|AuthorizeHub|HubAuthorize'
-  severity: medium
+    - regex: '(?i)RequireAuthorization|AuthorizeHub|HubAuthorize''severity: medium
   description: "SignalR authentication configuration"
   remediation: "Ensure all hubs require authentication"
   cwe: "CWE-306"
@@ -925,8 +839,7 @@
 - id: aspnet-logging-sensitive-data
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)_logger\\.Log.*password|LogInformation.*token'
-  severity: medium
+    - regex: '(?i)_logger\\.Log.*password|LogInformation.*token''severity: medium
   description: "Sensitive data may be logged"
   remediation: "Mask sensitive data in all log statements"
   cwe: "CWE-532"
@@ -935,8 +848,7 @@
 - id: aspnet-logging-exception-details
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)LogError.*exception|\\.ToString\\(\\).*log'
-  severity: high
+    - regex: '(?i)LogError.*exception|\\.ToString\\(\\).*log''severity: high
   description: "Exception details logged may leak information"
   remediation: "Log exception IDs, not full details to users"
   cwe: "CWE-209"
@@ -945,8 +857,7 @@
 - id: aspnet-logging-correlation-id
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)CorrelationId|TraceId|ActivityId'
-  severity: low
+    - regex: '(?i)CorrelationId|TraceId|ActivityId''severity: low
   description: "Correlation ID logging detected"
   remediation: "Ensure correlation IDs don't contain sensitive data"
   cwe: "CWE-532"
@@ -955,8 +866,7 @@
 - id: aspnet-logging-level-production
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)LogLevel.*Debug|MinimumLevel.*Debug'
-  severity: medium
+    - regex: '(?i)LogLevel.*Debug|MinimumLevel.*Debug''severity: medium
   description: "Debug logging level in production"
   remediation: "Set logging level to Information or Warning in production"
   cwe: "CWE-532"
@@ -965,8 +875,7 @@
 - id: aspnet-logging-sink-external
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)WriteTo\\.Console|WriteTo\\.File|Serilog\\.Sinks'
-  severity: low
+    - regex: '(?i)WriteTo\\.Console|WriteTo\\.File|Serilog\\.Sinks''severity: low
   description: "External logging sink configured"
   remediation: "Ensure log storage is secure and access controlled"
   cwe: "CWE-532"
@@ -975,8 +884,7 @@
 - id: aspnet-logging-audit-trail
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)Audit.*Log|Security.*Log|Access.*Log'
-  severity: low
+    - regex: '(?i)Audit.*Log|Security.*Log|Access.*Log''severity: low
   description: "Audit logging detected — verify completeness"
   remediation: "Ensure all security events are logged"
   cwe: "CWE-778"
@@ -985,8 +893,7 @@
 - id: aspnet-logging-pii-detection
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)email|phone|ssn|credit.*card.*log'
-  severity: high
+    - regex: '(?i)email|phone|ssn|credit.*card.*log''severity: high
   description: "PII may be logged without masking"
   remediation: "Implement PII detection and masking in logging"
   cwe: "CWE-532"
@@ -995,8 +902,7 @@
 - id: aspnet-logging-structured
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)LogInformation\\s*\\(\\s*\\\"{[^}]+}'
-  severity: low
+    - regex: '(?i)LogInformation\\s*\\(\\s*\\\"{[^}]+}''severity: low
   description: "Structured logging detected"
   remediation: "Ensure structured logs don't contain sensitive data"
   cwe: "CWE-532"
@@ -1007,8 +913,7 @@
 - id: aspnet-middleware-order
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)app\\.Use.*|UseAuthentication|UseAuthorization'
-  severity: medium
+    - regex: '(?i)app\\.Use.*|UseAuthentication|UseAuthorization''severity: medium
   description: "Middleware order affects security"
   remediation: "Ensure UseAuthentication before UseAuthorization"
   cwe: "CWE-693"
@@ -1017,8 +922,7 @@
 - id: aspnet-startup-configuration
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)ConfigureServices|Configure\\s*\\(\\s*IApplicationBuilder'
-  severity: low
+    - regex: '(?i)ConfigureServices|Configure\\s*\\(\\s*IApplicationBuilder''severity: low
   description: "Startup configuration detected — review security settings"
   remediation: "Review all security-related configuration"
   cwe: "CWE-693"
@@ -1027,8 +931,7 @@
 - id: aspnet-dependency-injection-scope
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddScoped|AddTransient|AddSingleton.*DbContext'
-  severity: medium
+    - regex: '(?i)AddScoped|AddTransient|AddSingleton.*DbContext''severity: medium
   description: "DI service scope may cause security issues"
   remediation: "Use appropriate service lifetime for security context"
   cwe: "CWE-693"
@@ -1037,8 +940,7 @@
 - id: aspnet-hosting-environment
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)IHostingEnvironment|IsProduction|IsDevelopment'
-  severity: medium
+    - regex: '(?i)IHostingEnvironment|IsProduction|IsDevelopment''severity: medium
   description: "Environment detection detected — verify production checks"
   remediation: "Ensure security features are enabled in production"
   cwe: "CWE-693"
@@ -1047,8 +949,7 @@
 - id: aspnet-appsettings-encryption
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)appsettings\\.json|appsettings\\.Production\\.json'
-  severity: medium
+    - regex: '(?i)appsettings\\.json|appsettings\\.Production\\.json''severity: medium
   description: "Configuration file detected — verify encryption"
   remediation: "Encrypt sensitive configuration sections"
   cwe: "CWE-311"
@@ -1057,8 +958,7 @@
 - id: aspnet-user-secrets
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)AddUserSecrets|UserSecretsId'
-  severity: low
+    - regex: '(?i)AddUserSecrets|UserSecretsId''severity: low
   description: "User Secrets detected — development only"
   remediation: "Don't use User Secrets in production"
   cwe: "CWE-798"
@@ -1067,8 +967,7 @@
 - id: aspnet-kestrel-configuration
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)UseKestrel|KestrelServerOptions|Listen'
-  severity: medium
+    - regex: '(?i)UseKestrel|KestrelServerOptions|Listen''severity: medium
   description: "Kestrel server configuration detected"
   remediation: "Configure Kestrel with security best practices"
   cwe: "CWE-693"
@@ -1077,8 +976,7 @@
 - id: aspnet-iis-integration
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)UseIIS|UseIISIntegration|AspNetCoreModule'
-  severity: low
+    - regex: '(?i)UseIIS|UseIISIntegration|AspNetCoreModule''severity: low
   description: "IIS integration detected — verify configuration"
   remediation: "Ensure IIS is configured securely"
   cwe: "CWE-693"
@@ -1087,8 +985,7 @@
 - id: aspnet-docker-container
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)FROM.*aspnet|Dockerfile|docker-compose'
-  severity: medium
+    - regex: '(?i)FROM.*aspnet|Dockerfile|docker-compose''severity: medium
   description: "Container configuration detected"
   remediation: "Use minimal base images and run as non-root"
   cwe: "CWE-693"
@@ -1097,8 +994,7 @@
 - id: aspnet-azure-app-service
   languages: [csharp, aspnet]
   patterns:
-    - regex: '(?i)WEBSITE_|APPSETTING_|Azure\\.Web'
-  severity: low
+    - regex: '(?i)WEBSITE_|APPSETTING_|Azure\\.Web''severity: low
   description: "Azure App Service configuration detected"
   remediation: "Use Azure Key Vault for secrets"
   cwe: "CWE-798"
@@ -1113,8 +1009,7 @@
 - id: aspnet-middleware-order
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseAuthentication\\(\\);[^}]*app\\.UseAuthorization\\(\\);[^}]*app\\.UseEndpoints\\('
-  severity: high
+    - regex: 'app\\.UseAuthentication\\(\\);[^}]*app\\.UseAuthorization\\(\\);[^}]*app\\.UseEndpoints\\(''severity: high
   description: "Middleware order affects security - Authentication before Authorization"
   remediation: "Ensure correct order: UseAuthentication, UseAuthorization, UseEndpoints"
   cwe: "CWE-693"
@@ -1123,8 +1018,7 @@
 - id: aspnet-middleware-cors-order
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseCors\\(\\);[^}]*app\\.UseAuthentication'
-  severity: medium
+    - regex: 'app\\.UseCors\\(\\);[^}]*app\\.UseAuthentication''severity: medium
   description: "CORS middleware should be before Authentication for preflight requests"
   remediation: "Place UseCors before UseAuthentication"
   cwe: "CWE-942"
@@ -1133,8 +1027,7 @@
 - id: aspnet-middleware-https-redirection
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseHttpsRedirection\\(\\);'
-  severity: low
+    - regex: 'app\\.UseHttpsRedirection\\(\\);''severity: low
   description: "HTTPS redirection middleware (good)"
   remediation: "Ensure it's present and configured correctly"
   cwe: "CWE-319"
@@ -1143,8 +1036,7 @@
 - id: aspnet-middleware-https-redirection-missing
   languages: [csharp]
   patterns:
-    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}(?!.*UseHttpsRedirection)'
-  severity: high
+    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}''severity: high
   description: "HTTPS redirection middleware missing"
   remediation: "Add app.UseHttpsRedirection() in Configure method"
   cwe: "CWE-319"
@@ -1153,8 +1045,7 @@
 - id: aspnet-middleware-hsts
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseHsts\\(\\);'
-  severity: low
+    - regex: 'app\\.UseHsts\\(\\);''severity: low
   description: "HSTS middleware (good)"
   remediation: "Ensure it's only enabled in production"
   cwe: "CWE-319"
@@ -1163,8 +1054,7 @@
 - id: aspnet-middleware-hsts-missing
   languages: [csharp]
   patterns:
-    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}(?!.*UseHsts)'
-  severity: medium
+    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}''severity: medium
   description: "HSTS middleware missing"
   remediation: "Add app.UseHsts() for production environments"
   cwe: "CWE-319"
@@ -1173,8 +1063,7 @@
 - id: aspnet-middleware-hsts-options
   languages: [csharp]
   patterns:
-    - regex: 'UseHsts\\s*\\(\\s*options\\s*=>\\s*options\\.MaxAge'
-  severity: low
+    - regex: 'UseHsts\\s*\\(\\s*options\\s*=>\\s*options\\.MaxAge''severity: low
   description: "HSTS with custom options"
   remediation: "Set MaxAge to at least 31536000 seconds (1 year)"
   cwe: "CWE-319"
@@ -1183,8 +1072,7 @@
 - id: aspnet-middleware-forwarded-headers
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseForwardedHeaders\\(\\);'
-  severity: medium
+    - regex: 'app\\.UseForwardedHeaders\\(\\);''severity: medium
   description: "Forwarded headers middleware (configure for proxies)"
   remediation: "Configure ForwardedHeadersOptions with KnownProxies"
   cwe: "CWE-20"
@@ -1193,8 +1081,7 @@
 - id: aspnet-middleware-forwarded-headers-missing
   languages: [csharp]
   patterns:
-    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}(?!.*UseForwardedHeaders)'
-  severity: medium
+    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}''severity: medium
   description: "Forwarded headers middleware missing (behind proxy)"
   remediation: "Add app.UseForwardedHeaders() when behind load balancer"
   cwe: "CWE-20"
@@ -1203,8 +1090,7 @@
 - id: aspnet-middleware-forwarded-headers-untrusted
   languages: [csharp]
   patterns:
-    - regex: 'UseForwardedHeaders\\(\\)(?!.*KnownProxies)'
-  severity: high
+    - regex: 'UseForwardedHeaders\\(\\)''severity: high
   description: "Forwarded headers without KnownProxies (spoofing risk)"
   remediation: "Configure KnownProxies and KnownNetworks"
   cwe: "CWE-20"
@@ -1213,8 +1099,7 @@
 - id: aspnet-middleware-exception-handler
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseExceptionHandler\\(\\);|app\\.UseDeveloperExceptionPage\\(\\);'
-  severity: low
+    - regex: 'app\\.UseExceptionHandler\\(\\);|app\\.UseDeveloperExceptionPage\\(\\);''severity: low
   description: "Exception handling middleware"
   remediation: "Use UseExceptionHandler in production, DeveloperExceptionPage only in development"
   cwe: "CWE-209"
@@ -1223,8 +1108,7 @@
 - id: aspnet-middleware-developer-exception-page
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseDeveloperExceptionPage\\(\\);.*?IsProduction\\(\\)'
-  severity: high
+    - regex: 'app\\.UseDeveloperExceptionPage\\(\\);.*?IsProduction\\(\\)''severity: high
   description: "Developer exception page in production (information leak)"
   remediation: "Conditionally use DeveloperExceptionPage only in development"
   cwe: "CWE-209"
@@ -1233,8 +1117,7 @@
 - id: aspnet-middleware-status-code-pages
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseStatusCodePages\\(\\);'
-  severity: low
+    - regex: 'app\\.UseStatusCodePages\\(\\);''severity: low
   description: "Status code pages middleware (good)"
   remediation: "Configure custom error pages for 404, 500"
   cwe: "CWE-209"
@@ -1243,8 +1126,7 @@
 - id: aspnet-middleware-cookie-policy
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseCookiePolicy\\(\\);'
-  severity: low
+    - regex: 'app\\.UseCookiePolicy\\(\\);''severity: low
   description: "Cookie policy middleware (good)"
   remediation: "Configure cookie policy options"
   cwe: "CWE-614"
@@ -1253,8 +1135,7 @@
 - id: aspnet-middleware-cookie-policy-missing
   languages: [csharp]
   patterns:
-    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}(?!.*UseCookiePolicy)'
-  severity: medium
+    - regex: 'public\\s+void\\s+Configure\\([^}]*\\}''severity: medium
   description: "Cookie policy middleware missing"
   remediation: "Add app.UseCookiePolicy() with secure settings"
   cwe: "CWE-614"
@@ -1263,8 +1144,7 @@
 - id: aspnet-middleware-cors-permissive
   languages: [csharp]
   patterns:
-    - regex: 'AllowAnyOrigin\\(\\)|AllowCredentials\\(\\)\\).*?AllowAnyOrigin\\(\\)'
-  severity: medium
+    - regex: 'AllowAnyOrigin\\(\\)|AllowCredentials\\(\\)\\).*?AllowAnyOrigin\\(\\)''severity: medium
   description: "CORS with AllowAnyOrigin and AllowCredentials (insecure)"
   remediation: "Specify exact origins, don't mix AllowAnyOrigin with credentials"
   cwe: "CWE-942"
@@ -1273,8 +1153,7 @@
 - id: aspnet-middleware-cors-any-origin
   languages: [csharp]
   patterns:
-    - regex: 'AllowAnyOrigin\\(\\)'
-  severity: high
+    - regex: 'AllowAnyOrigin\\(\\)''severity: high
   description: "CORS allows any origin"
   remediation: "Restrict to specific origins with .WithOrigins()"
   cwe: "CWE-942"
@@ -1283,8 +1162,7 @@
 - id: aspnet-middleware-cors-any-header
   languages: [csharp]
   patterns:
-    - regex: 'AllowAnyHeader\\(\\)'
-  severity: medium
+    - regex: 'AllowAnyHeader\\(\\)''severity: medium
   description: "CORS allows any header"
   remediation: "Specify allowed headers with .WithHeaders()"
   cwe: "CWE-942"
@@ -1293,8 +1171,7 @@
 - id: aspnet-middleware-cors-any-method
   languages: [csharp]
   patterns:
-    - regex: 'AllowAnyMethod\\(\\)'
-  severity: medium
+    - regex: 'AllowAnyMethod\\(\\)''severity: medium
   description: "CORS allows any HTTP method"
   remediation: "Specify allowed methods with .WithMethods()"
   cwe: "CWE-942"
@@ -1303,8 +1180,7 @@
 - id: aspnet-middleware-cors-expose-all
   languages: [csharp]
   patterns:
-    - regex: 'AllowAnyExposedHeader\\(\\)|WithExposedHeaders\\(\\s*\\*'
-  severity: medium
+    - regex: 'AllowAnyExposedHeader\\(\\)|WithExposedHeaders\\(\\s*\\*''severity: medium
   description: "CORS exposes all headers"
   remediation: "Specify only necessary exposed headers"
   cwe: "CWE-942"
@@ -1313,8 +1189,7 @@
 - id: aspnet-middleware-response-compression
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseResponseCompression\\(\\);'
-  severity: low
+    - regex: 'app\\.UseResponseCompression\\(\\);''severity: low
   description: "Response compression middleware"
   remediation: "Be aware of BREACH attack with secrets in responses"
   cwe: "CWE-311"
@@ -1323,8 +1198,7 @@
 - id: aspnet-middleware-request-localization
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseRequestLocalization\\(\\);'
-  severity: low
+    - regex: 'app\\.UseRequestLocalization\\(\\);''severity: low
   description: "Request localization middleware"
   remediation: "Validate culture values"
   cwe: "CWE-20"
@@ -1333,8 +1207,7 @@
 - id: aspnet-middleware-request-localization-options
   languages: [csharp]
   patterns:
-    - regex: 'AddSupportedCultures\\(\\s*\\*'
-  severity: medium
+    - regex: 'AddSupportedCultures\\(\\s*\\*''severity: medium
   description: "Request localization with wildcard (may allow arbitrary cultures)"
   remediation: "Specify exact list of supported cultures"
   cwe: "CWE-20"
@@ -1343,8 +1216,7 @@
 - id: aspnet-middleware-rewrite
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseRewriter\\(\\);'
-  severity: medium
+    - regex: 'app\\.UseRewriter\\(\\);''severity: medium
   description: "URL rewriter middleware"
   remediation: "Validate rewrite rules don't cause open redirects"
   cwe: "CWE-601"
@@ -1353,8 +1225,7 @@
 - id: aspnet-middleware-rewrite-redirect
   languages: [csharp]
   patterns:
-    - regex: 'AddRedirect\\(.*?Request'
-  severity: high
+    - regex: 'AddRedirect\\(.*?Request''severity: high
   description: "URL rewrite with user input (open redirect)"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -1363,8 +1234,7 @@
 - id: aspnet-middleware-static-files
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseStaticFiles\\(\\);'
-  severity: low
+    - regex: 'app\\.UseStaticFiles\\(\\);''severity: low
   description: "Static files middleware"
   remediation: "Configure static files to serve only from wwwroot"
   cwe: "CWE-22"
@@ -1373,8 +1243,7 @@
 - id: aspnet-middleware-static-files-options
   languages: [csharp]
   patterns:
-    - regex: 'UseStaticFiles\\(\\s*new\\s+StaticFileOptions\\s*\\{[^}]*RequestPath'
-  severity: medium
+    - regex: 'UseStaticFiles\\(\\s*new\\s+StaticFileOptions\\s*\\{[^}]*RequestPath''severity: medium
   description: "Static files with custom request path"
   remediation: "Ensure custom paths don't expose sensitive files"
   cwe: "CWE-22"
@@ -1383,8 +1252,7 @@
 - id: aspnet-middleware-default-files
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseDefaultFiles\\(\\);'
-  severity: low
+    - regex: 'app\\.UseDefaultFiles\\(\\);''severity: low
   description: "Default files middleware"
   remediation: "Configure default files appropriately"
   cwe: "CWE-22"
@@ -1393,8 +1261,7 @@
 - id: aspnet-middleware-directory-browsing
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseDirectoryBrowser\\(\\);'
-  severity: critical
+    - regex: 'app\\.UseDirectoryBrowser\\(\\);''severity: critical
   description: "Directory browsing enabled (information leak)"
   remediation: "Remove directory browsing in production"
   cwe: "CWE-548"
@@ -1403,8 +1270,7 @@
 - id: aspnet-middleware-routing
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseRouting\\(\\);'
-  severity: low
+    - regex: 'app\\.UseRouting\\(\\);''severity: low
   description: "Routing middleware (good)"
   remediation: "Ensure routing is properly configured"
   cwe: "CWE-693"
@@ -1415,8 +1281,7 @@
 - id: aspnet-endpoint-authorization-missing
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Map(Get|Post|Put|Delete|Controller).*?\\);(?!.*RequireAuthorization)'
-  severity: high
+    - regex: 'endpoints\\.Map(Get|Post|Put|Delete|Controller).*?\\);''severity: high
   description: "Endpoint without authorization requirement"
   remediation: "Add .RequireAuthorization() to endpoints or use [Authorize] attribute"
   cwe: "CWE-306"
@@ -1425,8 +1290,7 @@
 - id: aspnet-endpoint-authorization-all
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Map(?!.*RequireAuthorization)'
-  severity: medium
+    - regex: 'endpoints\\.Map''severity: medium
   description: "No global authorization policy"
   remediation: "Use MapControllersWithDefaultAuthorization() or add RequireAuthorization()"
   cwe: "CWE-306"
@@ -1435,8 +1299,7 @@
 - id: aspnet-endpoint-cors-all
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Map.*?\\);(?!.*RequireCors)'
-  severity: medium
+    - regex: 'endpoints\\.Map.*?\\);''severity: medium
   description: "Endpoint without CORS policy"
   remediation: "Add .RequireCors() with appropriate policy"
   cwe: "CWE-942"
@@ -1445,8 +1308,7 @@
 - id: aspnet-endpoint-https-missing
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Map.*?\\);(?!.*RequireHttps)'
-  severity: high
+    - regex: 'endpoints\\.Map.*?\\);''severity: high
   description: "Endpoint without HTTPS requirement"
   remediation: "Add [RequireHttps] attribute or .RequireHttps()"
   cwe: "CWE-319"
@@ -1455,8 +1317,7 @@
 - id: aspnet-endpoint-rate-limit
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Map.*?\\);(?!.*RequireRateLimiting)'
-  severity: medium
+    - regex: 'endpoints\\.Map.*?\\);''severity: medium
   description: "Endpoint without rate limiting"
   remediation: "Add rate limiting policies to endpoints"
   cwe: "CWE-770"
@@ -1465,8 +1326,7 @@
 - id: aspnet-endpoint-versioning
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapVersioned'
-  severity: low
+    - regex: 'endpoints\\.MapVersioned''severity: low
   description: "Versioned endpoints detected"
   remediation: "Ensure deprecated versions are properly handled"
   cwe: "CWE-1104"
@@ -1475,7 +1335,7 @@
 - id: aspnet-endpoint-route-template
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Map.*?\\(\\s*[\"''][^\"'']*\\{[^}]+\\}[\"'']'
+    - regex: 'endpoints\\.Map.*?\\(\\s*[\"'''][^\"'']*\\{[^}]+\\}[\"'']'
   severity: low
   description: "Endpoint with route parameters"
   remediation: "Validate route parameters"
@@ -1485,8 +1345,7 @@
 - id: aspnet-endpoint-route-constraint
   languages: [csharp]
   patterns:
-    - regex: '\\{[^:]+:regex\\([^)]+\\)\\}'
-  severity: high
+    - regex: '\\{[^:]+:regex\\([^)]+\\)\\}''severity: high
   description: "Route constraint with regex (ReDoS risk)"
   remediation: "Use safe regex patterns or custom constraints"
   cwe: "CWE-1333"
@@ -1495,8 +1354,7 @@
 - id: aspnet-endpoint-route-regex
   languages: [csharp]
   patterns:
-    - regex: '\\{[^:]+:regex\\(.*?\\+.*?\\)\\}'
-  severity: high
+    - regex: '\\{[^:]+:regex\\(.*?\\+.*?\\)\\}''severity: high
   description: "Route regex with quantifiers (ReDoS risk)"
   remediation: "Simplify regex, avoid nested quantifiers"
   cwe: "CWE-1333"
@@ -1505,8 +1363,7 @@
 - id: aspnet-endpoint-route-optional
   languages: [csharp]
   patterns:
-    - regex: '\\{\\w+\\?\\}'
-  severity: low
+    - regex: '\\{\\w+\\?\\}''severity: low
   description: "Optional route parameter"
   remediation: "Handle null/empty values safely"
   cwe: "CWE-20"
@@ -1515,8 +1372,7 @@
 - id: aspnet-endpoint-route-default
   languages: [csharp]
   patterns:
-    - regex: '\\{\\w+=[^}]+\\}'
-  severity: low
+    - regex: '\\{\\w+=[^}]+\\}''severity: low
   description: "Route parameter with default value"
   remediation: "Ensure defaults are secure"
   cwe: "CWE-20"
@@ -1525,8 +1381,7 @@
 - id: aspnet-endpoint-fallback
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapFallback'
-  severity: medium
+    - regex: 'endpoints\\.MapFallback''severity: medium
   description: "Fallback endpoint (may handle unexpected routes)"
   remediation: "Ensure fallback doesn't expose sensitive info"
   cwe: "CWE-200"
@@ -1535,8 +1390,7 @@
 - id: aspnet-endpoint-dynamic-controller
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapDynamicControllerRoute'
-  severity: high
+    - regex: 'endpoints\\.MapDynamicControllerRoute''severity: high
   description: "Dynamic controller routes (security risk)"
   remediation: "Validate dynamic controller names"
   cwe: "CWE-284"
@@ -1545,8 +1399,7 @@
 - id: aspnet-endpoint-area
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapAreaControllerRoute'
-  severity: low
+    - regex: 'endpoints\\.MapAreaControllerRoute''severity: low
   description: "Area routes configured"
   remediation: "Ensure area routes have proper authorization"
   cwe: "CWE-284"
@@ -1555,8 +1408,7 @@
 - id: aspnet-endpoint-health-checks
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapHealthChecks'
-  severity: low
+    - regex: 'endpoints\\.MapHealthChecks''severity: low
   description: "Health check endpoint"
   remediation: "Restrict health check access"
   cwe: "CWE-200"
@@ -1565,8 +1417,7 @@
 - id: aspnet-endpoint-metrics
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapMetrics|endpoints\\.MapPrometheus'
-  severity: low
+    - regex: 'endpoints\\.MapMetrics|endpoints\\.MapPrometheus''severity: low
   description: "Metrics endpoint"
   remediation: "Secure metrics endpoint with authentication"
   cwe: "CWE-200"
@@ -1575,8 +1426,7 @@
 - id: aspnet-endpoint-grpc
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapGrpcService'
-  severity: medium
+    - regex: 'endpoints\\.MapGrpcService''severity: medium
   description: "gRPC endpoint"
   remediation: "Ensure gRPC services have authentication"
   cwe: "CWE-306"
@@ -1585,8 +1435,7 @@
 - id: aspnet-endpoint-signalr
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapHub'
-  severity: medium
+    - regex: 'endpoints\\.MapHub''severity: medium
   description: "SignalR hub endpoint"
   remediation: "Apply authorization to hubs"
   cwe: "CWE-306"
@@ -1595,8 +1444,7 @@
 - id: aspnet-endpoint-blazor
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapBlazorHub'
-  severity: medium
+    - regex: 'endpoints\\.MapBlazorHub''severity: medium
   description: "Blazor hub endpoint"
   remediation: "Ensure Blazor hub has proper authentication"
   cwe: "CWE-306"
@@ -1605,8 +1453,7 @@
 - id: aspnet-endpoint-razor-pages
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapRazorPages'
-  severity: medium
+    - regex: 'endpoints\\.MapRazorPages''severity: medium
   description: "Razor Pages endpoint"
   remediation: "Ensure Razor Pages have authorization conventions"
   cwe: "CWE-306"
@@ -1615,8 +1462,7 @@
 - id: aspnet-endpoint-controllers
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapControllers'
-  severity: low
+    - regex: 'endpoints\\.MapControllers''severity: low
   description: "Controllers endpoint"
   remediation: "Use attribute routing with authorization"
   cwe: "CWE-306"
@@ -1625,8 +1471,7 @@
 - id: aspnet-endpoint-default
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapDefaultControllerRoute'
-  severity: low
+    - regex: 'endpoints\\.MapDefaultControllerRoute''severity: low
   description: "Default controller route"
   remediation: "Ensure default route is secure"
   cwe: "CWE-306"
@@ -1635,8 +1480,7 @@
 - id: aspnet-endpoint-page-route
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapPageRoute'
-  severity: medium
+    - regex: 'endpoints\\.MapPageRoute''severity: medium
   description: "Custom page route"
   remediation: "Validate route templates"
   cwe: "CWE-20"
@@ -1645,8 +1489,7 @@
 - id: aspnet-endpoint-data-localization
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapControllers\\(\\);\\.WithMetadata'
-  severity: low
+    - regex: 'endpoints\\.MapControllers\\(\\);\\.WithMetadata''severity: low
   description: "Endpoint with custom metadata"
   remediation: "Ensure metadata doesn't bypass security"
   cwe: "CWE-284"
@@ -1655,8 +1498,7 @@
 - id: aspnet-endpoint-convention
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Add(endpoint)?Convention'
-  severity: low
+    - regex: 'endpoints\\.Add(endpoint)?Convention''severity: low
   description: "Endpoint conventions detected"
   remediation: "Review conventions for security implications"
   cwe: "CWE-284"
@@ -1665,8 +1507,7 @@
 - id: aspnet-endpoint-filter
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Add(endpoint)?Filter'
-  severity: low
+    - regex: 'endpoints\\.Add(endpoint)?Filter''severity: low
   description: "Endpoint filters detected"
   remediation: "Ensure filters don't bypass authentication"
   cwe: "CWE-284"
@@ -1675,8 +1516,7 @@
 - id: aspnet-endpoint-selector
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.Set(endpoint)?Selector'
-  severity: low
+    - regex: 'endpoints\\.Set(endpoint)?Selector''severity: low
   description: "Custom endpoint selector"
   remediation: "Review selector logic for security"
   cwe: "CWE-284"
@@ -1685,8 +1525,7 @@
 - id: aspnet-endpoint-data-source
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.DataSource'
-  severity: low
+    - regex: 'endpoints\\.DataSource''severity: low
   description: "Custom endpoint data source"
   remediation: "Validate data source security"
   cwe: "CWE-284"
@@ -1695,8 +1534,7 @@
 - id: aspnet-endpoint-pattern-transformer
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.SetPatternTransformer'
-  severity: low
+    - regex: 'endpoints\\.SetPatternTransformer''severity: low
   description: "Pattern transformer detected"
   remediation: "Ensure transformations don't create open redirects"
   cwe: "CWE-601"
@@ -1705,8 +1543,7 @@
 - id: aspnet-endpoint-metadata-provider
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.SetMetadataProvider'
-  severity: low
+    - regex: 'endpoints\\.SetMetadataProvider''severity: low
   description: "Custom metadata provider"
   remediation: "Review provider for security metadata"
   cwe: "CWE-284"
@@ -1717,8 +1554,7 @@
 - id: aspnet-blazor-circuit-options
   languages: [csharp]
   patterns:
-    - regex: 'AddServerSideBlazor\\([^)]*options\\s*=>\\s*\\{'
-  severity: medium
+    - regex: 'AddServerSideBlazor\\([^)]*options\\s*=>\\s*\\{''severity: medium
   description: "Blazor circuit options configured"
   remediation: "Set DetailedErrors=false, MaxEnrolledCircuits limit"
   cwe: "CWE-770"
@@ -1727,8 +1563,7 @@
 - id: aspnet-blazor-detailed-errors
   languages: [csharp]
   patterns:
-    - regex: 'DetailedErrors\\s*=\\s*true'
-  severity: high
+    - regex: 'DetailedErrors\\s*=\\s*true''severity: high
   description: "Blazor detailed errors enabled (information leak)"
   remediation: "Disable DetailedErrors in production"
   cwe: "CWE-209"
@@ -1737,8 +1572,7 @@
 - id: aspnet-blazor-max-circuits
   languages: [csharp]
   patterns:
-    - regex: 'MaxEnrolledCircuits\\s*=\\s*[0-9]{1,3}'
-  severity: low
+    - regex: 'MaxEnrolledCircuits\\s*=\\s*[0-9]{1,3}''severity: low
   description: "Blazor circuit limit configured"
   remediation: "Set appropriate limit to prevent DoS"
   cwe: "CWE-770"
@@ -1747,8 +1581,7 @@
 - id: aspnet-blazor-max-circuits-missing
   languages: [csharp]
   patterns:
-    - regex: 'AddServerSideBlazor\\(\\)(?!.*MaxEnrolledCircuits)'
-  severity: medium
+    - regex: 'AddServerSideBlazor\\(\\)''severity: medium
   description: "Blazor without circuit limit (DoS risk)"
   remediation: "Configure MaxEnrolledCircuits"
   cwe: "CWE-770"
@@ -1757,8 +1590,7 @@
 - id: aspnet-blazor-disconnected-circuit
   languages: [csharp]
   patterns:
-    - regex: 'DisconnectedCircuitMaxRetries|DisconnectedCircuitRetryPeriod'
-  severity: low
+    - regex: 'DisconnectedCircuitMaxRetries|DisconnectedCircuitRetryPeriod''severity: low
   description: "Blazor disconnected circuit configuration"
   remediation: "Set reasonable retry limits"
   cwe: "CWE-770"
@@ -1767,7 +1599,7 @@
 - id: aspnet-blazor-js-interop
   languages: [csharp]
   patterns:
-    - regex: 'IJSRuntime\\.Invoke(?:Async|VoidAsync)\\([\"''][^\"'']*[\"'']\\s*,\\s*[^)]+'
+    - regex: 'IJSRuntime\\.Invoke(?:Async|VoidAsync)\\([\"'''][^\"'']*[\"'']\\s*,\\s*[^)]+'
   severity: high
   description: "Blazor JS interop with parameters (XSS risk)"
   remediation: "Sanitize data passed to JavaScript"
@@ -1777,7 +1609,7 @@
 - id: aspnet-blazor-js-interop-sensitive
   languages: [csharp]
   patterns:
-    - regex: 'Invoke(?:Async|VoidAsync)\\([\"''][^\"'']*[\"'']\\s*,\\s*.*?(?:password|token|key)'
+    - regex: 'Invoke(?:Async|VoidAsync)\\([\"'''][^\"'']*[\"'']\\s*,\\s*.*?(?:password|token|key)'
   severity: critical
   description: "Sensitive data passed to JavaScript via interop"
   remediation: "Avoid passing sensitive data to JavaScript"
@@ -1787,8 +1619,7 @@
 - id: aspnet-blazor-js-interop-dotnet
   languages: [csharp]
   patterns:
-    - regex: 'DotNetObjectReference|DotNetReference'
-  severity: medium
+    - regex: 'DotNetObjectReference|DotNetReference''severity: medium
   description: "Blazor .NET object reference passed to JS"
   remediation: "Ensure methods called from JS are properly secured"
   cwe: "CWE-284"
@@ -1797,8 +1628,7 @@
 - id: aspnet-blazor-js-invokable
   languages: [csharp]
   patterns:
-    - regex: '\\[JSInvokable\\]'
-  severity: high
+    - regex: '\\[JSInvokable\\]''severity: high
   description: "JS-invokable .NET method"
   remediation: "Validate all input to JSInvokable methods"
   cwe: "CWE-20"
@@ -1807,8 +1637,7 @@
 - id: aspnet-blazor-protected-browser-storage
   languages: [csharp]
   patterns:
-    - regex: 'Protected(?:Local|Session)Storage'
-  severity: medium
+    - regex: 'Protected(?:Local|Session)Storage''severity: medium
   description: "Protected browser storage usage"
   remediation: "Ensure data is properly encrypted"
   cwe: "CWE-311"
@@ -1817,8 +1646,7 @@
 - id: aspnet-blazor-local-storage
   languages: [csharp]
   patterns:
-    - regex: 'localStorage|sessionStorage'
-  severity: high
+    - regex: 'localStorage|sessionStorage''severity: high
   description: "Browser storage access (XSS risk)"
   remediation: "Avoid storing sensitive data in browser storage"
   cwe: "CWE-312"
@@ -1827,8 +1655,7 @@
 - id: aspnet-blazor-webassembly-auth
   languages: [csharp]
   patterns:
-    - regex: 'AddOidcAuthentication|AddMsalAuthentication'
-  severity: medium
+    - regex: 'AddOidcAuthentication|AddMsalAuthentication''severity: medium
   description: "Blazor WebAssembly authentication"
   remediation: "Ensure tokens are stored securely"
   cwe: "CWE-312"
@@ -1837,7 +1664,7 @@
 - id: aspnet-blazor-webassembly-auth-options
   languages: [csharp]
   patterns:
-    - regex: 'RedirectUri\\s*=\\s*[\"''][^\"'']*\\{'
+    - regex: 'RedirectUri\\s*=\\s*[\"'''][^\"'']*\\{'
   severity: high
   description: "Blazor auth with redirect URI template"
   remediation: "Validate redirect URIs"
@@ -1847,8 +1674,7 @@
 - id: aspnet-blazor-authorize-view
   languages: [csharp]
   patterns:
-    - regex: '<AuthorizeView>|<Authorized>|<NotAuthorized>'
-  severity: low
+    - regex: '<AuthorizeView>|<Authorized>|<NotAuthorized>''severity: low
   description: "Blazor AuthorizeView component"
   remediation: "Ensure authorization logic is correct"
   cwe: "CWE-284"
@@ -1857,8 +1683,7 @@
 - id: aspnet-blazor-authorize-attribute
   languages: [csharp]
   patterns:
-    - regex: '\\[Authorize\\]\\s+public\\s+class'
-  severity: low
+    - regex: '\\[Authorize\\]\\s+public\\s+class''severity: low
   description: "Blazor component with Authorize attribute"
   remediation: "Good practice"
   cwe: "CWE-284"
@@ -1867,8 +1692,7 @@
 - id: aspnet-blazor-input-validation
   languages: [csharp]
   patterns:
-    - regex: '<InputText|<InputNumber|<InputSelect'
-  severity: low
+    - regex: '<InputText|<InputNumber|<InputSelect''severity: low
   description: "Blazor input components"
   remediation: "Always validate on server-side"
   cwe: "CWE-20"
@@ -1877,8 +1701,7 @@
 - id: aspnet-blazor-edit-form
   languages: [csharp]
   patterns:
-    - regex: '<EditForm.*?OnValidSubmit'
-  severity: low
+    - regex: '<EditForm.*?OnValidSubmit''severity: low
   description: "Blazor form with validation"
   remediation: "Ensure validation logic is correct"
   cwe: "CWE-20"
@@ -1887,8 +1710,7 @@
 - id: aspnet-blazor-validation-summary
   languages: [csharp]
   patterns:
-    - regex: '<ValidationSummary'
-  severity: low
+    - regex: '<ValidationSummary''severity: low
   description: "Validation summary component"
   remediation: "Ensure no sensitive data in validation messages"
   cwe: "CWE-209"
@@ -1897,8 +1719,7 @@
 - id: aspnet-blazor-forms-input
   languages: [csharp]
   patterns:
-    - regex: '\\@bind-Value'
-  severity: low
+    - regex: '\\@bind-Value''severity: low
   description: "Blazor two-way binding"
   remediation: "Validate bound values"
   cwe: "CWE-20"
@@ -1907,8 +1728,7 @@
 - id: aspnet-blazor-query-parameter
   languages: [csharp]
   patterns:
-    - regex: '\\[SupplyParameterFromQuery\\]'
-  severity: high
+    - regex: '\\[SupplyParameterFromQuery\\]''severity: high
   description: "Blazor component with query parameter"
   remediation: "Validate all query parameters"
   cwe: "CWE-20"
@@ -1917,8 +1737,7 @@
 - id: aspnet-blazor-navigation-manager
   languages: [csharp]
   patterns:
-    - regex: 'NavigationManager\\.NavigateTo\\([^)]*\\+'
-  severity: high
+    - regex: 'NavigationManager\\.NavigateTo\\([^)]*\\+''severity: high
   description: "Blazor navigation with concatenation"
   remediation: "Validate navigation URLs"
   cwe: "CWE-601"
@@ -1929,8 +1748,7 @@
 - id: aspnet-signalr-auth-missing
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapHub<[^>]+>\\([^)]*\\);(?!.*RequireAuthorization)'
-  severity: high
+    - regex: 'endpoints\\.MapHub<[^>]+>\\([^)]*\\);''severity: high
   description: "SignalR hub without authorization"
   remediation: "Add [Authorize] attribute or .RequireAuthorization()"
   cwe: "CWE-306"
@@ -1939,8 +1757,7 @@
 - id: aspnet-signalr-auth-attribute
   languages: [csharp]
   patterns:
-    - regex: '\\[Authorize\\]\\s+public\\s+class\\s+\\w+Hub'
-  severity: low
+    - regex: '\\[Authorize\\]\\s+public\\s+class\\s+\\w+Hub''severity: low
   description: "SignalR hub with authorization (good)"
   remediation: "Good practice"
   cwe: "CWE-284"
@@ -1949,8 +1766,7 @@
 - id: aspnet-signalr-auth-method
   languages: [csharp]
   patterns:
-    - regex: 'public\\s+async\\s+Task\\s+\\w+\\(.*?\\)(?!.*\\[Authorize\\])'
-  severity: high
+    - regex: 'public\\s+async\\s+Task\\s+\\w+\\(.*?\\)''severity: high
   description: "SignalR hub method without authorization"
   remediation: "Add [Authorize] to hub methods"
   cwe: "CWE-306"
@@ -1959,8 +1775,7 @@
 - id: aspnet-signalr-connection-token
   languages: [csharp]
   patterns:
-    - regex: 'Context\\.ConnectionId|ConnectionId\\s*='
-  severity: low
+    - regex: 'Context\\.ConnectionId|ConnectionId\\s*=''severity: low
   description: "SignalR connection ID usage"
   remediation: "Don't expose connection IDs to clients"
   cwe: "CWE-200"
@@ -1969,8 +1784,7 @@
 - id: aspnet-signalr-user-identifier
   languages: [csharp]
   patterns:
-    - regex: 'Context\\.UserIdentifier'
-  severity: low
+    - regex: 'Context\\.UserIdentifier''severity: low
   description: "SignalR user identifier"
   remediation: "Ensure user identifier is properly set"
   cwe: "CWE-284"
@@ -1979,8 +1793,7 @@
 - id: aspnet-signalr-groups
   languages: [csharp]
   patterns:
-    - regex: 'Groups\\.AddToGroupAsync|Groups\\.RemoveFromGroupAsync'
-  severity: medium
+    - regex: 'Groups\\.AddToGroupAsync|Groups\\.RemoveFromGroupAsync''severity: medium
   description: "SignalR group management"
   remediation: "Validate group membership authorization"
   cwe: "CWE-284"
@@ -1989,8 +1802,7 @@
 - id: aspnet-signalr-clients-all
   languages: [csharp]
   patterns:
-    - regex: 'Clients\\.All'
-  severity: medium
+    - regex: 'Clients\\.All''severity: medium
   description: "SignalR broadcast to all clients"
   remediation: "Ensure no sensitive data broadcast"
   cwe: "CWE-200"
@@ -1999,8 +1811,7 @@
 - id: aspnet-signalr-clients-others
   languages: [csharp]
   patterns:
-    - regex: 'Clients\\.Others'
-  severity: low
+    - regex: 'Clients\\.Others''severity: low
   description: "SignalR broadcast to others"
   remediation: "Good for real-time updates"
   cwe: "CWE-200"
@@ -2009,8 +1820,7 @@
 - id: aspnet-signalr-clients-caller
   languages: [csharp]
   patterns:
-    - regex: 'Clients\\.Caller'
-  severity: low
+    - regex: 'Clients\\.Caller''severity: low
   description: "SignalR response to caller only"
   remediation: "Safe pattern"
   cwe: "CWE-200"
@@ -2019,8 +1829,7 @@
 - id: aspnet-signalr-clients-user
   languages: [csharp]
   patterns:
-    - regex: 'Clients\\.User|Clients\\.Users'
-  severity: medium
+    - regex: 'Clients\\.User|Clients\\.Users''severity: medium
   description: "SignalR messaging to specific users"
   remediation: "Validate user authorization"
   cwe: "CWE-284"
@@ -2029,8 +1838,7 @@
 - id: aspnet-signalr-hub-exception
   languages: [csharp]
   patterns:
-    - regex: 'catch\\s*\\(Exception\\)\\s*{\\s*}'
-  severity: high
+    - regex: 'catch\\s*\\(Exception\\)\\s*{\\s*}''severity: high
   description: "SignalR hub catching and ignoring exceptions"
   remediation: "Log exceptions, don't ignore"
   cwe: "CWE-754"
@@ -2039,8 +1847,7 @@
 - id: aspnet-signalr-hub-exposed-method
   languages: [csharp]
   patterns:
-    - regex: 'public\\s+async\\s+Task\\s+\\w+\\([^)]*\\)'
-  severity: medium
+    - regex: 'public\\s+async\\s+Task\\s+\\w+\\([^)]*\\)''severity: medium
   description: "Public hub method (all are exposed)"
   remediation: "Ensure all public methods are intentional"
   cwe: "CWE-284"
@@ -2049,8 +1856,7 @@
 - id: aspnet-signalr-max-message-size
   languages: [csharp]
   patterns:
-    - regex: 'MaximumMessageSize\\s*=\\s*[0-9]{7,}'
-  severity: medium
+    - regex: 'MaximumMessageSize\\s*=\\s*[0-9]{7,}''severity: medium
   description: "SignalR message size too large (DoS risk)"
   remediation: "Set reasonable message size limits"
   cwe: "CWE-770"
@@ -2059,8 +1865,7 @@
 - id: aspnet-signalr-max-message-size-missing
   languages: [csharp]
   patterns:
-    - regex: 'AddSignalR\\(\\)(?!.*MaximumMessageSize)'
-  severity: medium
+    - regex: 'AddSignalR\\(\\)''severity: medium
   description: "SignalR without message size limit"
   remediation: "Configure MaximumMessageSize"
   cwe: "CWE-770"
@@ -2069,8 +1874,7 @@
 - id: aspnet-signalr-websockets-only
   languages: [csharp]
   patterns:
-    - regex: 'Transports\\s*=\\s*HttpTransportType\\.WebSockets'
-  severity: low
+    - regex: 'Transports\\s*=\\s*HttpTransportType\\.WebSockets''severity: low
   description: "SignalR WebSockets only"
   remediation: "Good for security (no fallback to long polling)"
   cwe: "CWE-693"
@@ -2079,8 +1883,7 @@
 - id: aspnet-identity-password-options
   languages: [csharp]
   patterns:
-    - regex: 'options\\.Password\\.RequiredLength\\s*=\\s*[0-7]'
-  severity: high
+    - regex: 'options\\.Password\\.RequiredLength\\s*=\\s*[0-7]''severity: high
   description: "Weak password policy (minimum length < 8)"
   remediation: "Set RequiredLength to at least 8"
   cwe: "CWE-521"
@@ -2089,8 +1892,7 @@
 - id: aspnet-identity-password-complexity
   languages: [csharp]
   patterns:
-    - regex: 'RequireDigit\\s*=\\s*false|RequireLowercase\\s*=\\s*false|RequireUppercase\\s*=\\s*false|RequireNonAlphanumeric\\s*=\\s*false'
-  severity: medium
+    - regex: 'RequireDigit\\s*=\\s*false|RequireLowercase\\s*=\\s*false|RequireUppercase\\s*=\\s*false|RequireNonAlphanumeric\\s*=\\s*false''severity: medium
   description: "Password complexity requirements disabled"
   remediation: "Enable all complexity requirements for better security"
   cwe: "CWE-521"
@@ -2099,8 +1901,7 @@
 - id: aspnet-identity-lockout-options
   languages: [csharp]
   patterns:
-    - regex: 'DefaultLockoutTimeSpan\\s*=\\s*TimeSpan\\.FromSeconds\\(0\\)|MaxFailedAccessAttempts\\s*=\\s*0'
-  severity: high
+    - regex: 'DefaultLockoutTimeSpan\\s*=\\s*TimeSpan\\.FromSeconds\\(0\\)|MaxFailedAccessAttempts\\s*=\\s*0''severity: high
   description: "Account lockout disabled (brute force risk)"
   remediation: "Enable lockout with appropriate thresholds"
   cwe: "CWE-307"
@@ -2109,8 +1910,7 @@
 - id: aspnet-identity-lockout-timeout
   languages: [csharp]
   patterns:
-    - regex: 'DefaultLockoutTimeSpan\\s*=\\s*TimeSpan\\.FromMinutes\\([0-9]{1,2}\\)'
-  severity: low
+    - regex: 'DefaultLockoutTimeSpan\\s*=\\s*TimeSpan\\.FromMinutes\\([0-9]{1,2}\\)''severity: low
   description: "Account lockout timeout configured"
   remediation: "Good practice, ensure timeout is reasonable"
   cwe: "CWE-307"
@@ -2119,8 +1919,7 @@
 - id: aspnet-identity-lockout-attempts
   languages: [csharp]
   patterns:
-    - regex: 'MaxFailedAccessAttempts\\s*=\\s*[0-9]{1,2}'
-  severity: low
+    - regex: 'MaxFailedAccessAttempts\\s*=\\s*[0-9]{1,2}''severity: low
   description: "Max failed attempts configured"
   remediation: "Set to 5-10 attempts"
   cwe: "CWE-307"
@@ -2129,8 +1928,7 @@
 - id: aspnet-identity-user-validation
   languages: [csharp]
   patterns:
-    - regex: 'User\\.AllowedUserNameCharacters'
-  severity: low
+    - regex: 'User\\.AllowedUserNameCharacters''severity: low
   description: "Allowed username characters configured"
   remediation: "Ensure no special characters that could cause injection"
   cwe: "CWE-20"
@@ -2139,8 +1937,7 @@
 - id: aspnet-identity-email-confirmation
   languages: [csharp]
   patterns:
-    - regex: 'RequireUniqueEmail\\s*=\\s*true'
-  severity: low
+    - regex: 'RequireUniqueEmail\\s*=\\s*true''severity: low
   description: "Unique email requirement (good)"
   remediation: "Good for preventing duplicate accounts"
   cwe: "CWE-20"
@@ -2149,8 +1946,7 @@
 - id: aspnet-identity-email-confirmation-required
   languages: [csharp]
   patterns:
-    - regex: 'RequireConfirmedAccount|RequireConfirmedEmail'
-  severity: low
+    - regex: 'RequireConfirmedAccount|RequireConfirmedEmail''severity: low
   description: "Email confirmation required (good)"
   remediation: "Good for verifying user ownership"
   cwe: "CWE-287"
@@ -2159,8 +1955,7 @@
 - id: aspnet-identity-signin-options
   languages: [csharp]
   patterns:
-    - regex: 'SignIn\\.RequireConfirmedAccount|RequireConfirmedEmail|RequireConfirmedPhoneNumber'
-  severity: low
+    - regex: 'SignIn\\.RequireConfirmedAccount|RequireConfirmedEmail|RequireConfirmedPhoneNumber''severity: low
   description: "Sign-in confirmation requirements"
   remediation: "Enable for sensitive applications"
   cwe: "CWE-287"
@@ -2169,8 +1964,7 @@
 - id: aspnet-identity-cookie-httponly
   languages: [csharp]
   patterns:
-    - regex: 'Cookie\\.HttpOnly\\s*=\\s*false'
-  severity: high
+    - regex: 'Cookie\\.HttpOnly\\s*=\\s*false''severity: high
   description: "Identity cookie without HttpOnly"
   remediation: "Set HttpOnly = true"
   cwe: "CWE-1004"
@@ -2179,8 +1973,7 @@
 - id: aspnet-identity-cookie-secure
   languages: [csharp]
   patterns:
-    - regex: 'Cookie\\.SecurePolicy\\s*=\\s*CookieSecurePolicy\\.Never'
-  severity: high
+    - regex: 'Cookie\\.SecurePolicy\\s*=\\s*CookieSecurePolicy\\.Never''severity: high
   description: "Identity cookie without Secure flag"
   remediation: "Set SecurePolicy = Always"
   cwe: "CWE-614"
@@ -2189,8 +1982,7 @@
 - id: aspnet-identity-cookie-samesite
   languages: [csharp]
   patterns:
-    - regex: 'Cookie\\.SameSite\\s*=\\s*SameSiteMode\\.None'
-  severity: medium
+    - regex: 'Cookie\\.SameSite\\s*=\\s*SameSiteMode\\.None''severity: medium
   description: "Identity cookie with SameSite=None (CSRF risk)"
   remediation: "Use SameSiteMode.Lax or Strict"
   cwe: "CWE-352"
@@ -2199,8 +1991,7 @@
 - id: aspnet-identity-cookie-expire
   languages: [csharp]
   patterns:
-    - regex: 'ExpireTimeSpan\\s*=\\s*TimeSpan\\.FromDays'
-  severity: high
+    - regex: 'ExpireTimeSpan\\s*=\\s*TimeSpan\\.FromDays''severity: high
   description: "Identity cookie expiration too long"
   remediation: "Use hours or minutes, not days"
   cwe: "CWE-613"
@@ -2209,8 +2000,7 @@
 - id: aspnet-identity-cookie-sliding
   languages: [csharp]
   patterns:
-    - regex: 'SlidingExpiration\\s*=\\s*false'
-  severity: low
+    - regex: 'SlidingExpiration\\s*=\\s*false''severity: low
   description: "Sliding expiration disabled"
   remediation: "Enable sliding expiration for better UX"
   cwe: "CWE-613"
@@ -2219,7 +2009,7 @@
 - id: aspnet-identity-login-path
   languages: [csharp]
   patterns:
-    - regex: 'LoginPath\\s*=\\s*[\"''][^\"'']+[\"'']'
+    - regex: 'LoginPath\\s*=\\s*[\"'''][^\"'']+[\"'']'
   severity: low
   description: "Custom login path"
   remediation: "Ensure login page is HTTPS"
@@ -2229,7 +2019,7 @@
 - id: aspnet-identity-logout-path
   languages: [csharp]
   patterns:
-    - regex: 'LogoutPath\\s*=\\s*[\"''][^\"'']+[\"'']'
+    - regex: 'LogoutPath\\s*=\\s*[\"'''][^\"'']+[\"'']'
   severity: low
   description: "Custom logout path"
   remediation: "Ensure logout clears all auth data"
@@ -2239,7 +2029,7 @@
 - id: aspnet-identity-return-url
   languages: [csharp]
   patterns:
-    - regex: 'ReturnUrlParameter\\s*=\\s*[\"''][^\"'']+[\"'']'
+    - regex: 'ReturnUrlParameter\\s*=\\s*[\"'''][^\"'']+[\"'']'
   severity: high
   description: "Return URL parameter (open redirect risk)"
   remediation: "Validate return URLs"
@@ -2249,8 +2039,7 @@
 - id: aspnet-identity-external-login
   languages: [csharp]
   patterns:
-    - regex: 'AddGoogle|AddFacebook|AddMicrosoft|AddTwitter'
-  severity: medium
+    - regex: 'AddGoogle|AddFacebook|AddMicrosoft|AddTwitter''severity: medium
   description: "External login provider"
   remediation: "Validate external login callbacks"
   cwe: "CWE-287"
@@ -2259,8 +2048,7 @@
 - id: aspnet-identity-2fa
   languages: [csharp]
   patterns:
-    - regex: 'TwoFactorAuthentication|TwoFactorEnabled'
-  severity: low
+    - regex: 'TwoFactorAuthentication|TwoFactorEnabled''severity: low
   description: "Two-factor authentication detected"
   remediation: "Good for sensitive applications"
   cwe: "CWE-308"
@@ -2269,8 +2057,7 @@
 - id: aspnet-identity-role-manager
   languages: [csharp]
   patterns:
-    - regex: 'RoleManager|AddRoles'
-  severity: low
+    - regex: 'RoleManager|AddRoles''severity: low
   description: "Role management enabled"
   remediation: "Implement proper RBAC"
   cwe: "CWE-284"
@@ -2279,8 +2066,7 @@
 - id: aspnet-identity-role-validation
   languages: [csharp]
   patterns:
-    - regex: 'IsInRoleAsync|GetRolesAsync'
-  severity: low
+    - regex: 'IsInRoleAsync|GetRolesAsync''severity: low
   description: "Role checking in code"
   remediation: "Use policy-based authorization"
   cwe: "CWE-284"
@@ -2289,8 +2075,7 @@
 - id: aspnet-identity-claim-validation
   languages: [csharp]
   patterns:
-    - regex: 'HasClaim|FindFirst|ClaimsIdentity'
-  severity: medium
+    - regex: 'HasClaim|FindFirst|ClaimsIdentity''severity: medium
   description: "Manual claim validation"
   remediation: "Use [Authorize] with policies instead"
   cwe: "CWE-284"
@@ -2299,8 +2084,7 @@
 - id: aspnet-identity-password-reset
   languages: [csharp]
   patterns:
-    - regex: 'GeneratePasswordResetTokenAsync|ResetPasswordAsync'
-  severity: low
+    - regex: 'GeneratePasswordResetTokenAsync|ResetPasswordAsync''severity: low
   description: "Password reset functionality"
   remediation: "Validate reset tokens properly"
   cwe: "CWE-640"
@@ -2309,8 +2093,7 @@
 - id: aspnet-identity-email-confirmation
   languages: [csharp]
   patterns:
-    - regex: 'GenerateEmailConfirmationTokenAsync|ConfirmEmailAsync'
-  severity: low
+    - regex: 'GenerateEmailConfirmationTokenAsync|ConfirmEmailAsync''severity: low
   description: "Email confirmation functionality"
   remediation: "Validate confirmation tokens"
   cwe: "CWE-287"
@@ -2321,8 +2104,7 @@
 - id: aspnet-jwt-validate-issuer
   languages: [csharp]
   patterns:
-    - regex: 'ValidateIssuer\\s*=\\s*false'
-  severity: critical
+    - regex: 'ValidateIssuer\\s*=\\s*false''severity: critical
   description: "JWT issuer validation disabled"
   remediation: "Set ValidateIssuer = true"
   cwe: "CWE-287"
@@ -2331,8 +2113,7 @@
 - id: aspnet-jwt-validate-audience
   languages: [csharp]
   patterns:
-    - regex: 'ValidateAudience\\s*=\\s*false'
-  severity: critical
+    - regex: 'ValidateAudience\\s*=\\s*false''severity: critical
   description: "JWT audience validation disabled"
   remediation: "Set ValidateAudience = true"
   cwe: "CWE-287"
@@ -2341,8 +2122,7 @@
 - id: aspnet-jwt-validate-lifetime
   languages: [csharp]
   patterns:
-    - regex: 'ValidateLifetime\\s*=\\s*false'
-  severity: critical
+    - regex: 'ValidateLifetime\\s*=\\s*false''severity: critical
   description: "JWT lifetime validation disabled"
   remediation: "Set ValidateLifetime = true"
   cwe: "CWE-613"
@@ -2351,8 +2131,7 @@
 - id: aspnet-jwt-validate-issuer-signing-key
   languages: [csharp]
   patterns:
-    - regex: 'ValidateIssuerSigningKey\\s*=\\s*false'
-  severity: critical
+    - regex: 'ValidateIssuerSigningKey\\s*=\\s*false''severity: critical
   description: "JWT signing key validation disabled"
   remediation: "Set ValidateIssuerSigningKey = true"
   cwe: "CWE-347"
@@ -2361,8 +2140,7 @@
 - id: aspnet-jwt-clock-skew
   languages: [csharp]
   patterns:
-    - regex: 'ClockSkew\\s*=\\s*TimeSpan\\.FromSeconds\\([0-9]{4,}\\)'
-  severity: medium
+    - regex: 'ClockSkew\\s*=\\s*TimeSpan\\.FromSeconds\\([0-9]{4,}\\)''severity: medium
   description: "JWT clock skew too large (expiration window)"
   remediation: "Set ClockSkew to 5 minutes or less"
   cwe: "CWE-613"
@@ -2371,7 +2149,7 @@
 - id: aspnet-jwt-valid-issuer
   languages: [csharp]
   patterns:
-    - regex: 'ValidIssuer\\s*=\\s*[\"''][^\"'']+[\"'']'
+    - regex: 'ValidIssuer\\s*=\\s*[\"'''][^\"'']+[\"'']'
   severity: low
   description: "Valid issuer configured"
   remediation: "Ensure issuer matches your auth server"
@@ -2381,7 +2159,7 @@
 - id: aspnet-jwt-valid-audience
   languages: [csharp]
   patterns:
-    - regex: 'ValidAudience\\s*=\\s*[\"''][^\"'']+[\"'']|ValidAudiences'
+    - regex: 'ValidAudience\\s*=\\s*[\"'''][^\"'']+[\"'']|ValidAudiences'
   severity: low
   description: "Valid audience configured"
   remediation: "Ensure audience matches your API"
@@ -2391,7 +2169,7 @@
 - id: aspnet-jwt-issuer-signing-key
   languages: [csharp]
   patterns:
-    - regex: 'IssuerSigningKey\\s*=\\s*new\\s+SymmetricSecurityKey\\(Encoding\\.UTF8\\.GetBytes\\([\"''][^\"'']+[\"'']\\)\\)'
+    - regex: 'IssuerSigningKey\\s*=\\s*new\\s+SymmetricSecurityKey\\(Encoding\\.UTF8\\.GetBytes\\([\"'''][^\"'']+[\"'']\\)\\)'
   severity: critical
   description: "JWT symmetric key hardcoded in code"
   remediation: "Load signing key from configuration or key vault"
@@ -2401,7 +2179,7 @@
 - id: aspnet-jwt-issuer-signing-key-short
   languages: [csharp]
   patterns:
-    - regex: 'Encoding\\.UTF8\\.GetBytes\\([\"''][^\"'']{1,31}[\"'']\\)'
+    - regex: 'Encoding\\.UTF8\\.GetBytes\\([\"'''][^\"'']{1,31}[\"'']\\)'
   severity: high
   description: "JWT signing key too short (<32 bytes)"
   remediation: "Use at least 32-byte (256-bit) key"
@@ -2411,8 +2189,7 @@
 - id: aspnet-jwt-token-validation-parameters
   languages: [csharp]
   patterns:
-    - regex: 'TokenValidationParameters\\s*=\\s*new\\s+TokenValidationParameters'
-  severity: low
+    - regex: 'TokenValidationParameters\\s*=\\s*new\\s+TokenValidationParameters''severity: low
   description: "JWT validation parameters"
   remediation: "Ensure all validation flags are set correctly"
   cwe: "CWE-287"
@@ -2421,8 +2198,7 @@
 - id: aspnet-jwt-require-signed-tokens
   languages: [csharp]
   patterns:
-    - regex: 'RequireSignedTokens\\s*=\\s*false'
-  severity: critical
+    - regex: 'RequireSignedTokens\\s*=\\s*false''severity: critical
   description: "JWT signed tokens not required (unsigned tokens accepted)"
   remediation: "Set RequireSignedTokens = true"
   cwe: "CWE-347"
@@ -2431,8 +2207,7 @@
 - id: aspnet-jwt-require-expiration-time
   languages: [csharp]
   patterns:
-    - regex: 'RequireExpirationTime\\s*=\\s*false'
-  severity: critical
+    - regex: 'RequireExpirationTime\\s*=\\s*false''severity: critical
   description: "JWT expiration time not required (non-expiring tokens)"
   remediation: "Set RequireExpirationTime = true"
   cwe: "CWE-613"
@@ -2441,8 +2216,7 @@
 - id: aspnet-jwt-save-signin-token
   languages: [csharp]
   patterns:
-    - regex: 'SaveSigninToken\\s*=\\s*true'
-  severity: medium
+    - regex: 'SaveSigninToken\\s*=\\s*true''severity: medium
   description: "JWT token saved after authentication"
   remediation: "Be careful storing tokens"
   cwe: "CWE-312"
@@ -2451,8 +2225,7 @@
 - id: aspnet-jwt-name-claim-type
   languages: [csharp]
   patterns:
-    - regex: 'NameClaimType\\s*='
-  severity: low
+    - regex: 'NameClaimType\\s*=''severity: low
   description: "Custom name claim type"
   remediation: "Ensure claim type exists in token"
   cwe: "CWE-287"
@@ -2461,8 +2234,7 @@
 - id: aspnet-jwt-role-claim-type
   languages: [csharp]
   patterns:
-    - regex: 'RoleClaimType\\s*='
-  severity: low
+    - regex: 'RoleClaimType\\s*=''severity: low
   description: "Custom role claim type"
   remediation: "Ensure roles are validated"
   cwe: "CWE-284"
@@ -2471,8 +2243,7 @@
 - id: aspnet-jwt-authentication-type
   languages: [csharp]
   patterns:
-    - regex: 'AuthenticationType\\s*='
-  severity: low
+    - regex: 'AuthenticationType\\s*=''severity: low
   description: "JWT authentication type"
   remediation: "Set appropriate auth type"
   cwe: "CWE-287"
@@ -2481,8 +2252,7 @@
 - id: aspnet-oauth-validate-issuer
   languages: [csharp]
   patterns:
-    - regex: 'ValidateIssuer\\s*=\\s*false'
-  severity: critical
+    - regex: 'ValidateIssuer\\s*=\\s*false''severity: critical
   description: "OIDC issuer validation disabled"
   remediation: "Set ValidateIssuer = true"
   cwe: "CWE-287"
@@ -2491,7 +2261,7 @@
 - id: aspnet-oauth-authority
   languages: [csharp]
   patterns:
-    - regex: 'Authority\\s*=\\s*[\"'']http://'
+    - regex: 'Authority\\s*=\\s*[\"''']http://'
   severity: critical
   description: "OIDC authority using HTTP (not HTTPS)"
   remediation: "Use HTTPS for authority URL"
@@ -2501,7 +2271,7 @@
 - id: aspnet-oauth-client-id
   languages: [csharp]
   patterns:
-    - regex: 'ClientId\\s*=\\s*[\"''][^\"'']+[\"'']'
+    - regex: 'ClientId\\s*=\\s*[\"'''][^\"'']+[\"'']'
   severity: low
   description: "OAuth client ID configured"
   remediation: "Store client ID securely"
@@ -2511,7 +2281,7 @@
 - id: aspnet-oauth-client-secret
   languages: [csharp]
   patterns:
-    - regex: 'ClientSecret\\s*=\\s*[\"''][^\"'']+[\"'']'
+    - regex: 'ClientSecret\\s*=\\s*[\"'''][^\"'']+[\"'']'
   severity: critical
   description: "OAuth client secret hardcoded"
   remediation: "Use User Secrets or Key Vault"
@@ -2521,7 +2291,7 @@
 - id: aspnet-oauth-response-type
   languages: [csharp]
   patterns:
-    - regex: 'ResponseType\\s*=\\s*[\"'']code[\"'']'
+    - regex: 'ResponseType\\s*=\\s*[\"''']code[\"'']'
   severity: low
   description: "OAuth code flow (good)"
   remediation: "Use code flow with PKCE for SPAs"
@@ -2531,7 +2301,7 @@
 - id: aspnet-oauth-response-type-token
   languages: [csharp]
   patterns:
-    - regex: 'ResponseType\\s*=\\s*[\"'']token[\"'']|[\"'']id_token[\"'']'
+    - regex: 'ResponseType\\s*=\\s*[\"''']token[\"'']|[\"'']id_token[\"'']'
   severity: high
   description: "OAuth implicit flow (deprecated, insecure)"
   remediation: "Use code flow with PKCE instead"
@@ -2541,7 +2311,7 @@
 - id: aspnet-oauth-scope
   languages: [csharp]
   patterns:
-    - regex: 'Scope\\s*=\\s*[\"''][^\"'']+[\"'']'
+    - regex: 'Scope\\s*=\\s*[\"'''][^\"'']+[\"'']'
   severity: low
   description: "OAuth scopes configured"
   remediation: "Request only necessary scopes"
@@ -2551,8 +2321,7 @@
 - id: aspnet-oauth-callback-path
   languages: [csharp]
   patterns:
-    - regex: 'CallbackPath\\s*='
-  severity: low
+    - regex: 'CallbackPath\\s*=''severity: low
   description: "OAuth callback path"
   remediation: "Ensure callback path is properly registered"
   cwe: "CWE-601"
@@ -2561,8 +2330,7 @@
 - id: aspnet-oauth-require-https-metadata
   languages: [csharp]
   patterns:
-    - regex: 'RequireHttpsMetadata\\s*=\\s*false'
-  severity: critical
+    - regex: 'RequireHttpsMetadata\\s*=\\s*false''severity: critical
   description: "OIDC metadata without HTTPS (spoofing risk)"
   remediation: "Set RequireHttpsMetadata = true"
   cwe: "CWE-319"
@@ -2571,8 +2339,7 @@
 - id: aspnet-oauth-save-tokens
   languages: [csharp]
   patterns:
-    - regex: 'SaveTokens\\s*=\\s*true'
-  severity: medium
+    - regex: 'SaveTokens\\s*=\\s*true''severity: medium
   description: "OAuth tokens saved after authentication"
   remediation: "Be careful storing tokens"
   cwe: "CWE-312"
@@ -2581,8 +2348,7 @@
 - id: aspnet-oauth-get-claims-from-user-info
   languages: [csharp]
   patterns:
-    - regex: 'GetClaimsFromUserInfoEndpoint\\s*=\\s*true'
-  severity: low
+    - regex: 'GetClaimsFromUserInfoEndpoint\\s*=\\s*true''severity: low
   description: "Get claims from userinfo endpoint"
   remediation: "Validate userinfo endpoint is HTTPS"
   cwe: "CWE-319"
@@ -2591,8 +2357,7 @@
 - id: aspnet-oauth-events
   languages: [csharp]
   patterns:
-    - regex: 'OnTokenValidated|OnAuthorizationCodeReceived|OnTicketReceived'
-  severity: medium
+    - regex: 'OnTokenValidated|OnAuthorizationCodeReceived|OnTicketReceived''severity: medium
   description: "OAuth event handlers"
   remediation: "Review event handlers for security"
   cwe: "CWE-287"
@@ -2601,8 +2366,7 @@
 - id: aspnet-oauth-on-token-validated
   languages: [csharp]
   patterns:
-    - regex: 'OnTokenValidated.*?context\\.Properties'
-  severity: medium
+    - regex: 'OnTokenValidated.*?context\\.Properties''severity: medium
   description: "OAuth token validated event"
   remediation: "Validate token claims"
   cwe: "CWE-287"
@@ -2611,8 +2375,7 @@
 - id: aspnet-oauth-state-validation
   languages: [csharp]
   patterns:
-    - regex: 'OnAuthorizationCodeReceived.*?state'
-  severity: medium
+    - regex: 'OnAuthorizationCodeReceived.*?state''severity: medium
   description: "OAuth state validation (good)"
   remediation: "Always validate state parameter"
   cwe: "CWE-352"
@@ -2621,8 +2384,7 @@
 - id: aspnet-data-protection-keys
   languages: [csharp]
   patterns:
-    - regex: 'PersistKeysTo|ProtectKeysWith'
-  severity: low
+    - regex: 'PersistKeysTo|ProtectKeysWith''severity: low
   description: "Data protection key persistence"
   remediation: "Store keys securely"
   cwe: "CWE-311"
@@ -2631,8 +2393,7 @@
 - id: aspnet-data-protection-key-ring
   languages: [csharp]
   patterns:
-    - regex: 'KeyRingDirectory|KeyRingAzure|KeyRingFileSystem'
-  severity: low
+    - regex: 'KeyRingDirectory|KeyRingAzure|KeyRingFileSystem''severity: low
   description: "Key ring location"
   remediation: "Ensure proper permissions on key storage"
   cwe: "CWE-732"
@@ -2641,8 +2402,7 @@
 - id: aspnet-data-protection-unprotect
   languages: [csharp]
   patterns:
-    - regex: 'Unprotect|IDataProtector\\.Unprotect'
-  severity: low
+    - regex: 'Unprotect|IDataProtector\\.Unprotect''severity: low
   description: "Data unprotect operation"
   remediation: "Handle unprotect failures"
   cwe: "CWE-754"
@@ -2651,7 +2411,7 @@
 - id: aspnet-data-protection-purpose
   languages: [csharp]
   patterns:
-    - regex: 'CreateProtector\\([\"''][^\"'']+[\"'']\\)'
+    - regex: 'CreateProtector\\([\"'''][^\"'']+[\"'']\\)'
   severity: low
   description: "Data protector with purpose"
   remediation: "Use meaningful purpose strings"
@@ -2661,7 +2421,7 @@
 - id: aspnet-data-protection-purpose-sensitive
   languages: [csharp]
   patterns:
-    - regex: 'CreateProtector\\([\"''][^\"'']*(?:password|token|key)[^\"'']*[\"'']\\)'
+    - regex: 'CreateProtector\\([\"'''][^\"'']*(?:password|token|key)[^\"'']*[\"'']\\)'
   severity: low
   description: "Data protector for sensitive data"
   remediation: "Good for protecting secrets"
@@ -2671,8 +2431,7 @@
 - id: aspnet-data-protection-auto-gen
   languages: [csharp]
   patterns:
-    - regex: 'DisableAutomaticKeyGeneration\\s*=\\s*true'
-  severity: medium
+    - regex: 'DisableAutomaticKeyGeneration\\s*=\\s*true''severity: medium
   description: "Automatic key generation disabled"
   remediation: "Enable for most scenarios"
   cwe: "CWE-311"
@@ -2681,8 +2440,7 @@
 - id: aspnet-data-protection-encrypt
   languages: [csharp]
   patterns:
-    - regex: 'Protect|IDataProtector\\.Protect'
-  severity: low
+    - regex: 'Protect|IDataProtector\\.Protect''severity: low
   description: "Data protect operation"
   remediation: "Good for sensitive data"
   cwe: "CWE-311"
@@ -2691,8 +2449,7 @@
 - id: aspnet-data-protection-time-limited
   languages: [csharp]
   patterns:
-    - regex: 'ITimeLimitedDataProtector|ToTimeLimitedDataProtector'
-  severity: low
+    - regex: 'ITimeLimitedDataProtector|ToTimeLimitedDataProtector''severity: low
   description: "Time-limited data protection"
   remediation: "Set appropriate expiration"
   cwe: "CWE-613"
@@ -2701,8 +2458,7 @@
 - id: aspnet-data-protection-weak-algo
   languages: [csharp]
   patterns:
-    - regex: 'new\\s+AesCryptoServiceProvider\\(\\)|new\\s+DESCryptoServiceProvider\\(\\)'
-  severity: high
+    - regex: 'new\\s+AesCryptoServiceProvider\\(\\)|new\\s+DESCryptoServiceProvider\\(\\)''severity: high
   description: "Weak cryptographic algorithm"
   remediation: "Use AES-256 instead"
   cwe: "CWE-327"
@@ -2711,8 +2467,7 @@
 - id: aspnet-antiforgery-missing
   languages: [csharp]
   patterns:
-    - regex: 'services\\.AddControllers\\(\\)(?!.*AddAntiforgery)'
-  severity: high
+    - regex: 'services\\.AddControllers\\(\\)''severity: high
   description: "Anti-forgery services not added"
   remediation: "Add services.AddAntiforgery()"
   cwe: "CWE-352"
@@ -2721,8 +2476,7 @@
 - id: aspnet-antiforgery-config
   languages: [csharp]
   patterns:
-    - regex: 'services\\.AddAntiforgery\\(options\\s*=>'
-  severity: low
+    - regex: 'services\\.AddAntiforgery\\(options\\s*=>''severity: low
   description: "Anti-forgery configured"
   remediation: "Set secure options"
   cwe: "CWE-352"
@@ -2731,8 +2485,7 @@
 - id: aspnet-antiforgery-header
   languages: [csharp]
   patterns:
-    - regex: 'HeaderName\\s*='
-  severity: low
+    - regex: 'HeaderName\\s*=''severity: low
   description: "Custom anti-forgery header name"
   remediation: "Use standard header names"
   cwe: "CWE-352"
@@ -2741,8 +2494,7 @@
 - id: aspnet-antiforgery-cookie-name
   languages: [csharp]
   patterns:
-    - regex: 'Cookie\\.Name\\s*='
-  severity: low
+    - regex: 'Cookie\\.Name\\s*=''severity: low
   description: "Anti-forgery cookie name"
   remediation: "Use secure naming"
   cwe: "CWE-352"
@@ -2751,8 +2503,7 @@
 - id: aspnet-antiforgery-cookie-secure
   languages: [csharp]
   patterns:
-    - regex: 'Cookie\\.SecurePolicy\\s*=\\s*CookieSecurePolicy\\.Never'
-  severity: high
+    - regex: 'Cookie\\.SecurePolicy\\s*=\\s*CookieSecurePolicy\\.Never''severity: high
   description: "Anti-forgery cookie without Secure flag"
   remediation: "Set SecurePolicy = Always"
   cwe: "CWE-614"
@@ -2761,8 +2512,7 @@
 - id: aspnet-antiforgery-cookie-httponly
   languages: [csharp]
   patterns:
-    - regex: 'Cookie\\.HttpOnly\\s*=\\s*false'
-  severity: high
+    - regex: 'Cookie\\.HttpOnly\\s*=\\s*false''severity: high
   description: "Anti-forgery cookie without HttpOnly"
   remediation: "Set HttpOnly = true"
   cwe: "CWE-1004"
@@ -2771,8 +2521,7 @@
 - id: aspnet-antiforgery-cookie-samesite
   languages: [csharp]
   patterns:
-    - regex: 'Cookie\\.SameSite\\s*=\\s*SameSiteMode\\.None'
-  severity: medium
+    - regex: 'Cookie\\.SameSite\\s*=\\s*SameSiteMode\\.None''severity: medium
   description: "Anti-forgery cookie with SameSite=None"
   remediation: "Use Lax or Strict"
   cwe: "CWE-352"
@@ -2781,8 +2530,7 @@
 - id: aspnet-antiforgery-attribute-missing
   languages: [csharp]
   patterns:
-    - regex: '(?s)\[HttpPost\](?![^\]]{0,100}\[ValidateAntiForgeryToken\])[\s\S]{0,100}public'
-  severity: high
+    - regex: '(?s)\[HttpPost\][\s\S]{0,100}public''severity: high
   description: "POST action without anti-forgery token"
   remediation: "Add [ValidateAntiForgeryToken] attribute to the controller action."
   cwe: "CWE-352"
@@ -2791,8 +2539,7 @@
 - id: aspnet-antiforgery-ignore
   languages: [csharp]
   patterns:
-    - regex: '\\[IgnoreAntiforgeryToken\\]'
-  severity: high
+    - regex: '\\[IgnoreAntiforgeryToken\\]''severity: high
   description: "Anti-forgery explicitly ignored"
   remediation: "Remove unless absolutely necessary"
   cwe: "CWE-352"
@@ -2801,8 +2548,7 @@
 - id: aspnet-antiforgery-token-generate
   languages: [csharp]
   patterns:
-    - regex: 'IAntiforgery\\.GetAndStoreTokens'
-  severity: low
+    - regex: 'IAntiforgery\\.GetAndStoreTokens''severity: low
   description: "Anti-forgery token generation"
   remediation: "Good for AJAX scenarios"
   cwe: "CWE-352"
@@ -2813,8 +2559,7 @@
 - id: aspnet-rate-limiting-missing
   languages: [csharp]
   patterns:
-    - regex: 'services\\.AddControllers\\(\\)(?!.*AddRateLimiter)'
-  severity: high
+    - regex: 'services\\.AddControllers\\(\\)''severity: high
   description: "Rate limiting not configured"
   remediation: "Add services.AddRateLimiter() with policies"
   cwe: "CWE-770"
@@ -2823,8 +2568,7 @@
 - id: aspnet-rate-limiting-configured
   languages: [csharp]
   patterns:
-    - regex: 'services\\.AddRateLimiter'
-  severity: low
+    - regex: 'services\\.AddRateLimiter''severity: low
   description: "Rate limiting configured (good)"
   remediation: "Good practice"
   cwe: "CWE-770"
@@ -2833,8 +2577,7 @@
 - id: aspnet-rate-limiting-global
   languages: [csharp]
   patterns:
-    - regex: 'app\\.UseRateLimiter\\(\\);'
-  severity: low
+    - regex: 'app\\.UseRateLimiter\\(\\);''severity: low
   description: "Rate limiting middleware enabled"
   remediation: "Ensure policies are applied"
   cwe: "CWE-770"
@@ -2843,8 +2586,7 @@
 - id: aspnet-rate-limiting-permit-limit
   languages: [csharp]
   patterns:
-    - regex: 'PermitLimit\\s*=\\s*[0-9]{1,2}'
-  severity: low
+    - regex: 'PermitLimit\\s*=\\s*[0-9]{1,2}''severity: low
   description: "Rate limit permit limit"
   remediation: "Set appropriate limits"
   cwe: "CWE-770"
@@ -2853,8 +2595,7 @@
 - id: aspnet-rate-limiting-queue-limit
   languages: [csharp]
   patterns:
-    - regex: 'QueueLimit\\s*=\\s*[0-9]{1,2}'
-  severity: low
+    - regex: 'QueueLimit\\s*=\\s*[0-9]{1,2}''severity: low
   description: "Rate limiting queue limit"
   remediation: "Set appropriate queue size"
   cwe: "CWE-770"
@@ -2863,8 +2604,7 @@
 - id: aspnet-rate-limiting-auto-replenishment
   languages: [csharp]
   patterns:
-    - regex: 'AutoReplenishment\\s*=\\s*false'
-  severity: low
+    - regex: 'AutoReplenishment\\s*=\\s*false''severity: low
   description: "Rate limiting auto-replenishment disabled"
   remediation: "Enable for most scenarios"
   cwe: "CWE-770"
@@ -2875,7 +2615,7 @@
 - id: aspnet-health-checks-public
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapHealthChecks\\([\"''][^\"'']+[\"'']\\)(?!.*RequireAuthorization)'
+    - regex: 'endpoints\\.MapHealthChecks\\([\"'''][^\"'']+[\"'']\\)(?!.*RequireAuthorization)'
   severity: high
   description: "Health check endpoint without authorization"
   remediation: "Add .RequireAuthorization() to health checks"
@@ -2885,8 +2625,7 @@
 - id: aspnet-health-checks-sensitive
   languages: [csharp]
   patterns:
-    - regex: 'MapHealthChecks.*?details|detailed'
-  severity: medium
+    - regex: 'MapHealthChecks.*?details|detailed''severity: medium
   description: "Health check with detailed status"
   remediation: "Restrict detailed health checks"
   cwe: "CWE-200"
@@ -2895,8 +2634,7 @@
 - id: aspnet-health-checks-custom
   languages: [csharp]
   patterns:
-    - regex: 'AddCheck<|AddTypeActivatedCheck'
-  severity: low
+    - regex: 'AddCheck<|AddTypeActivatedCheck''severity: low
   description: "Custom health check"
   remediation: "Ensure custom checks don't leak info"
   cwe: "CWE-200"
@@ -2905,8 +2643,7 @@
 - id: aspnet-health-checks-database
   languages: [csharp]
   patterns:
-    - regex: 'AddDbContextCheck|AddSqlCheck'
-  severity: low
+    - regex: 'AddDbContextCheck|AddSqlCheck''severity: low
   description: "Database health check"
   remediation: "Use read-only queries for health checks"
   cwe: "CWE-20"
@@ -2915,7 +2652,7 @@
 - id: aspnet-health-checks-url-group
   languages: [csharp]
   patterns:
-    - regex: 'MapHealthChecks\\([\"''][^\"'']+[\"'']\\).*?WithGroupName'
+    - regex: 'MapHealthChecks\\([\"'''][^\"'']+[\"'']\\).*?WithGroupName'
   severity: low
   description: "Health check groups"
   remediation: "Use groups for different audiences"
@@ -2925,8 +2662,7 @@
 - id: aspnet-health-checks-predicate
   languages: [csharp]
   patterns:
-    - regex: 'MapHealthChecks.*?predicate'
-  severity: low
+    - regex: 'MapHealthChecks.*?predicate''severity: low
   description: "Health check predicate"
   remediation: "Ensure predicate doesn't filter security checks"
   cwe: "CWE-693"
@@ -2935,8 +2671,7 @@
 - id: aspnet-metrics
   languages: [csharp]
   patterns:
-    - regex: 'AddMetrics|AddAppMetrics|AddPrometheus'
-  severity: low
+    - regex: 'AddMetrics|AddAppMetrics|AddPrometheus''severity: low
   description: "Metrics collection configured"
   remediation: "Secure metrics endpoints"
   cwe: "CWE-200"
@@ -2945,8 +2680,7 @@
 - id: aspnet-metrics-endpoint
   languages: [csharp]
   patterns:
-    - regex: 'endpoints\\.MapMetrics|endpoints\\.MapPrometheusScrapingEndpoint'
-  severity: high
+    - regex: 'endpoints\\.MapMetrics|endpoints\\.MapPrometheusScrapingEndpoint''severity: high
   description: "Metrics endpoint without authorization"
   remediation: "Add .RequireAuthorization() to metrics endpoints"
   cwe: "CWE-200"
@@ -2955,8 +2689,7 @@
 - id: aspnet-metrics-sensitive
   languages: [csharp]
   patterns:
-    - regex: 'Metrics.*?password|token|key'
-  severity: high
+    - regex: 'Metrics.*?password|token|key''severity: high
   description: "Sensitive data in metrics"
   remediation: "Avoid including sensitive data in metrics"
   cwe: "CWE-200"
@@ -2965,8 +2698,7 @@
 - id: aspnet-di-lifetime-scoped
   languages: [csharp]
   patterns:
-    - regex: 'AddScoped<[^>]+>'
-  severity: low
+    - regex: 'AddScoped<[^>]+>''severity: low
   description: "Scoped service registration"
   remediation: "Use scoped for request-scoped services"
   cwe: "CWE-693"
@@ -2975,8 +2707,7 @@
 - id: aspnet-di-lifetime-transient
   languages: [csharp]
   patterns:
-    - regex: 'AddTransient<[^>]+>'
-  severity: low
+    - regex: 'AddTransient<[^>]+>''severity: low
   description: "Transient service registration"
   remediation: "Use for stateless services"
   cwe: "CWE-693"
@@ -2985,8 +2716,7 @@
 - id: aspnet-di-lifetime-singleton
   languages: [csharp]
   patterns:
-    - regex: 'AddSingleton<[^>]+>'
-  severity: medium
+    - regex: 'AddSingleton<[^>]+>''severity: medium
   description: "Singleton service registration"
   remediation: "Ensure singleton services are thread-safe"
   cwe: "CWE-362"
@@ -2995,8 +2725,7 @@
 - id: aspnet-di-factory
   languages: [csharp]
   patterns:
-    - regex: 'AddSingleton<[^>]+>\\(serviceProvider\\s*=>'
-  severity: medium
+    - regex: 'AddSingleton<[^>]+>\\(serviceProvider\\s*=>''severity: medium
   description: "Service with factory (may capture scoped services)"
   remediation: "Don't capture scoped services in singletons"
   cwe: "CWE-362"
@@ -3005,8 +2734,7 @@
 - id: aspnet-di-scoped-captured
   languages: [csharp]
   patterns:
-    - regex: 'AddSingleton<[^>]+>\\(.*?serviceProvider\\.GetService<[^>]+Scoped'
-  severity: high
+    - regex: 'AddSingleton<[^>]+>\\(.*?serviceProvider\\.GetService<[^>]+Scoped''severity: high
   description: "Scoped service captured in singleton (memory leak)"
   remediation: "Use scoped lifetime for dependent services"
   cwe: "CWE-401"
@@ -3015,8 +2743,7 @@
 - id: aspnet-di-http-client-typed
   languages: [csharp]
   patterns:
-    - regex: 'AddHttpClient<[^>]+>'
-  severity: low
+    - regex: 'AddHttpClient<[^>]+>''severity: low
   description: "Typed HTTP client"
   remediation: "Good for API clients"
   cwe: "CWE-770"

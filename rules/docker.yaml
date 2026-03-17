@@ -2671,15 +2671,14 @@
   owasp: "A01:2021"
 
 - id: docker-compose-cap-drop-missing
-  languages: [yaml, docker-compose]
+  languages: [yaml]
   patterns:
-    - regex: |-
-        (?!cap_drop)
-  severity: medium
-  description: "No capabilities dropped"
-  remediation: "Drop all capabilities and add only needed ones"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
+    - regex: '(?s)services:\s+.*?\s{2}\w+:\s+''      # For pure RE2, we target the service definition block:
+    - regex: 'services:\s+.*?\s{2}\w+:''severity: medium
+  description: "Docker Compose service missing cap_drop configuration"
+  remediation: "Add 'cap_drop: [ALL]' to drop all capabilities by default."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
 
 - id: docker-compose-read-only-root
   languages: [yaml, docker-compose]
@@ -2695,12 +2694,10 @@
 - id: docker-compose-read-only-root-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: |-
-        (?!read_only)
-  severity: medium
-  description: "Read-only root filesystem not enabled"
-  remediation: "Set read_only: true and use volumes for writes"
-  cwe: "CWE-732"
+    - regex: 'services:\s+.*?\s{2}\w+:''severity: medium
+  description: "Docker Compose service missing read_only root filesystem"
+  remediation: "Add 'read_only: true' to the service configuration."
+  cwe: "CWE-693"
   owasp: "A05:2021"
 
 - id: docker-compose-security-opt
@@ -2717,13 +2714,11 @@
 - id: docker-compose-security-opt-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: |-
-        (?!security_opt.*no-new-privileges)
-  severity: medium
-  description: "no-new-privileges not enabled"
-  remediation: "Add security_opt: - no-new-privileges:true"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
+    - regex: 'services:\s+.*?\s{2}\w+:''severity: medium
+  description: "Docker Compose service missing security_opt configuration"
+  remediation: "Add security_opt to enable AppArmor or Seccomp profiles."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
 
 - id: docker-compose-security-opt-apparmor
   languages: [yaml, docker-compose]
@@ -2772,11 +2767,9 @@
 - id: docker-compose-user-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: |-
-        (?!user:)
-  severity: medium
-  description: "User not specified (defaults to root)"
-  remediation: "Add user: nonroot or numeric UID"
+    - regex: 'services:\s+.*?\s{2}\w+:''severity: high
+  description: "Docker Compose service missing USER instruction"
+  remediation: "Specify a non-root 'user: 1000:1000' in the compose file."
   cwe: "CWE-250"
   owasp: "A01:2021"
 
@@ -3047,11 +3040,9 @@
 - id: docker-compose-deploy-resources-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: |-
-        (?!deploy:.*?resources)
-  severity: medium
-  description: "No resource limits configured"
-  remediation: "Add resource limits to prevent DoS"
+    - regex: 'services:\s+.*?\s{2}\w+:''severity: low
+  description: "Docker Compose service missing resource limits (CPU/Memory)"
+  remediation: "Add 'deploy: resources: limits' to prevent DoS via resource exhaustion."
   cwe: "CWE-770"
   owasp: "A04:2023"
 

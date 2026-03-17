@@ -1,8 +1,7 @@
 - id: move-missing-acquire
   languages: [move]
   patterns:
-    - regex: '(?i)fun\\s+\\w+.*(?!.*acquires)'
-  severity: low
+    - regex: '(?i)fun\\s+\\w+.*''severity: low
   description: "Missing acquires clause (framework dependent)"
   remediation: "Ensure required resources are acquired"
   cwe: "CWE-284"
@@ -12,8 +11,7 @@
 - id: move-signer-no-check
   languages: [move]
   patterns:
-    - regex: '(?i)fun\\s+\\w+\\s*\\(.*?signer.*?\\).*\\{.*move_to'
-  severity: medium
+    - regex: '(?i)fun\\s+\\w+\\s*\\(.*?signer.*?\\).*\\{.*move_to''severity: medium
   description: "Moving resources without strong checks"
   remediation: "Verify signer authorization"
   cwe: "CWE-284"
@@ -23,8 +21,7 @@
 - id: move-assert-false
   languages: [move]
   patterns:
-    - regex: '(?i)assert!\\s*\\(.*false'
-  severity: low
+    - regex: '(?i)assert!\\s*\\(.*false''severity: low
   description: "Hardcoded abort/assert"
   remediation: "Review logic for unreachable paths"
   cwe: "CWE-617"
@@ -34,8 +31,7 @@
 - id: move-borrow-global-mut
   languages: [move]
   patterns:
-    - regex: '(?i)borrow_global_mut\\s*<'
-  severity: medium
+    - regex: '(?i)borrow_global_mut\\s*<''severity: medium
   description: "Mutable borrow of global resource"
   remediation: "Ensure proper access control before borrow"
   cwe: "CWE-284"
@@ -45,8 +41,7 @@
 - id: move-tx-context-sender
   languages: [move]
   patterns:
-    - regex: '(?i)tx_context::sender\\s*\\('
-  severity: low
+    - regex: '(?i)tx_context::sender\\s*\\(''severity: low
   description: "Sender dependence"
   remediation: "Ensure proper logic for sender access"
   cwe: "CWE-284"
@@ -56,8 +51,7 @@
 - id: move-missing-signer-auth
   languages: [move]
   patterns:
-    - regex: '(?i)fun\s+\w+\s*\(account:\s*&signer[\s\S]*?(?!.*signer::address_of)'
-  severity: high
+    - regex: '(?i)fun\s+\w+\s*\(account:\s*&signer[\s\S]*?''severity: high
   description: "Missing signer authorization check"
   remediation: "Verify signer address against expected owner"
   cwe: "CWE-284"
@@ -66,8 +60,7 @@
 - id: move-unchecked-overflow
   languages: [move]
   patterns:
-    - regex: '(?i)(?:\+|\-|\*)\s*(?!.*assert!)'
-  severity: medium
+    - regex: '(?i)(?:\+|\-|\*)\s*''severity: medium
   description: "Potential arithmetic overflow without checks"
   remediation: "Use assert! to check boundaries before math operations"
   cwe: "CWE-190"
@@ -76,8 +69,7 @@
 - id: move-resource-leak
   languages: [move]
   patterns:
-    - regex: '(?i)fun\s+\w+\s*\([\s\S]*?\)[\s\S]*?move_to\s*<[\s\S]*?>(?!.*move_from)'
-  severity: low
+    - regex: '(?i)fun\s+\w+\s*\([\s\S]*?\)[\s\S]*?move_to\s*<[\s\S]*?>''severity: low
   description: "Resource created without mechanism to destroy/unpack"
   remediation: "Ensure resource can be destroyed to prevent bloat"
   cwe: "CWE-401"
@@ -86,8 +78,7 @@
 - id: move-global-unbounded
   languages: [move]
   patterns:
-    - regex: '(?i)borrow_global_mut\\s<[\\s\\S]*?>\\s*\\(.*\\)(?!.*assert!)'
-  severity: medium
+    - regex: '(?i)borrow_global_mut\\s<[\\s\\S]*?>\\s*\\(.*\\)''severity: medium
   description: "Mutable global borrow without constraints"
   remediation: "Assert caller permissions before mutable borrow"
   cwe: "CWE-284"
@@ -97,8 +88,7 @@
 - id: move-timestamp-randomness
   languages: [move]
   patterns:
-    - regex: '(?i)timestamp::now_microseconds.*%\\s*\\d+'
-  severity: medium
+    - regex: '(?i)timestamp::now_microseconds.*%\\s*\\d+''severity: medium
   description: "Timestamp used for randomness"
   remediation: "Use cryptographic randomness, not timestamps"
   cwe: "CWE-338"
@@ -108,8 +98,7 @@
 - id: move-coin-validation
   languages: [move]
   patterns:
-    - regex: '(?i)coin::withdraw[^)]*\\)(?!.*assert)'
-  severity: high
+    - regex: '(?i)coin::withdraw[^)]*\\)''severity: high
   description: "Coin withdrawal without validation"
   remediation: "Add balance checks before withdrawal"
   cwe: "CWE-119"
@@ -119,8 +108,7 @@
 - id: move-multi-sig-missing
   languages: [move]
   patterns:
-    - regex: '(?i)fun\\s+\\w+\\s*\\(.*signer[^)]*\\)(?!.*multisig)'
-  severity: medium
+    - regex: '(?i)fun\\s+\\w+\\s*\\(.*signer[^)]*\\)''severity: medium
   description: "Missing multi-signature verification"
   remediation: "Implement multi-sig verification for sensitive operations"
   cwe: "CWE-284"
@@ -130,8 +118,7 @@
 - id: move-public-entry
   languages: [move]
   patterns:
-    - regex: '(?i)public\\s+entry\\s+fun(?!.*acquires)'
-  severity: medium
+    - regex: '(?i)public\\s+entry\\s+fun''severity: medium
   description: "Public entry function without resource acquire"
   remediation: "Ensure proper resource management in entry functions"
   cwe: "CWE-284"
@@ -141,8 +128,7 @@
 - id: move-storage-privilege
   languages: [move]
   patterns:
-    - regex: '(?i)storage\\.append|storage\\.push(?!.*caller)'
-  severity: high
+    - regex: '(?i)storage\\.append|storage\\.push''severity: high
   description: "Storage modification without caller check"
   remediation: "Verify caller authorization before storage modification"
   cwe: "CWE-284"
@@ -152,8 +138,7 @@
 - id: move-math-overflow
   languages: [move]
   patterns:
-    - regex: '(?i)\\+\\s*\\+|-\\s*-|\\*\\s*\\*(?!.*assert)'
-  severity: high
+    - regex: '(?i)\\+\\s*\\+|-\\s*-|\\*\\s*\\*''severity: high
   description: "Arithmetic operation without overflow check"
   remediation: "Use checked arithmetic"
   cwe: "CWE-190"
@@ -163,8 +148,7 @@
 - id: move-wallet-signature
   languages: [move]
   patterns:
-    - regex: '(?i)Signer\\.address_of.*(?!.*txn|.*signer)'
-  severity: medium
+    - regex: '(?i)Signer\\.address_of.*''severity: medium
   description: "Signer address without transaction context"
   remediation: "Verify signer in transaction context"
   cwe: "CWE-287"
@@ -174,8 +158,7 @@
 - id: move-aptos-signature
   languages: [move]
   patterns:
-    - regex: '(?i)aptos_account\\.sign_transaction(?!.*auth_key)'
-  severity: high
+    - regex: '(?i)aptos_account\\.sign_transaction''severity: high
   description: "Transaction signing without auth key verification"
   remediation: "Verify authentication key"
   cwe: "CWE-287"
@@ -185,8 +168,7 @@
 - id: move-randomness
   languages: [move]
   patterns:
-    - regex: '(?i)timestamp::now_microseconds.*%.*random'
-  severity: medium
+    - regex: '(?i)timestamp::now_microseconds.*%.*random''severity: medium
   description: "Using timestamp for randomness"
   remediation: "Use chainlink VRF or secure randomness"
   cwe: "CWE-338"
@@ -196,8 +178,7 @@
 - id: move-loop-unbounded
   languages: [move]
   patterns:
-    - regex: '(?i)while\\s+true\\s*\\{|loop\\s*\\{'
-  severity: medium
+    - regex: '(?i)while\\s+true\\s*\\{|loop\\s*\\{''severity: medium
   description: "Unbounded loop without gas check"
   remediation: "Add iteration limits"
   cwe: "CWE-400"
@@ -207,8 +188,7 @@
 - id: move-nft-transfer
   languages: [move]
   patterns:
-    - regex: '(?i)token::transfer.*(?!.*sender|.*owner)'
-  severity: high
+    - regex: '(?i)token::transfer.*''severity: high
   description: "NFT transfer without owner verification"
   remediation: "Verify sender is owner"
   cwe: "CWE-284"

@@ -1,8 +1,7 @@
 - id: zig-unsafe-allowzero
   languages: [zig]
   patterns:
-    - regex: '(?i)allowzero'
-  severity: high
+    - regex: '(?i)allowzero''severity: high
   description: "Pointer with allowzero - null dereference risk"
   remediation: "Avoid allowzero pointers, use optional pointers"
   cwe: "CWE-476"
@@ -12,8 +11,7 @@
 - id: zig-undefined
   languages: [zig]
   patterns:
-    - regex: '(?i)=\\s*undefined\\b'
-  severity: medium
+    - regex: '(?i)=\\s*undefined\\b''severity: medium
   description: "Uninitialized variable via undefined"
   remediation: "Initialize variables explicitly"
   cwe: "CWE-457"
@@ -23,8 +21,7 @@
 - id: zig-unreachable
   languages: [zig]
   patterns:
-    - regex: '(?i)\\bunreachable\\b'
-  severity: medium
+    - regex: '(?i)\\bunreachable\\b''severity: medium
   description: "Unreachable assertion - UB if reached at runtime"
   remediation: "Handle edge cases instead of assuming unreachable"
   cwe: "CWE-617"
@@ -34,8 +31,7 @@
 - id: zig-align-cast
   languages: [zig]
   patterns:
-    - regex: '(?i)@alignCast\\s*\\('
-  severity: medium
+    - regex: '(?i)@alignCast\\s*\\(''severity: medium
   description: "Alignment cast - potential undefined behavior"
   remediation: "Verify alignment requirements before casting"
   cwe: "CWE-704"
@@ -45,8 +41,7 @@
 - id: zig-ptr-cast
   languages: [zig]
   patterns:
-    - regex: '(?i)@ptrCast\\s*\\('
-  severity: high
+    - regex: '(?i)@ptrCast\\s*\\(''severity: high
   description: "Pointer cast - potential type confusion"
   remediation: "Validate pointer types before casting"
   cwe: "CWE-843"
@@ -56,8 +51,7 @@
 - id: zig-int-to-ptr
   languages: [zig]
   patterns:
-    - regex: '(?i)@intToPtr\\s*\\('
-  severity: high
+    - regex: '(?i)@intToPtr\\s*\\(''severity: high
   description: "Integer to pointer conversion"
   remediation: "Validate integer values before conversion"
   cwe: "CWE-822"
@@ -67,8 +61,7 @@
 - id: zig-ptr-to-int
   languages: [zig]
   patterns:
-    - regex: '(?i)@ptrToInt\\s*\\('
-  severity: medium
+    - regex: '(?i)@ptrToInt\\s*\\(''severity: medium
   description: "Pointer to integer - address leakage"
   remediation: "Avoid exposing pointer values"
   cwe: "CWE-200"
@@ -78,8 +71,7 @@
 - id: zig-c-import
   languages: [zig]
   patterns:
-    - regex: '(?i)@cImport\\s*\\('
-  severity: medium
+    - regex: '(?i)@cImport\\s*\\(''severity: medium
   description: "C FFI import - inherits C unsafety"
   remediation: "Wrap C FFI calls with safety checks"
   cwe: "CWE-676"
@@ -89,8 +81,7 @@
 - id: zig-c-ptr
   languages: [zig]
   patterns:
-    - regex: '(?i)\\[\\*c\\]'
-  severity: medium
+    - regex: '(?i)\\[\\*c\\]''severity: medium
   description: "C pointer type - no bounds checking"
   remediation: "Use Zig slices instead of C pointers"
   cwe: "CWE-120"
@@ -100,8 +91,7 @@
 - id: zig-no-suspend
   languages: [zig]
   patterns:
-    - regex: '(?i)@noSuspend\\s*\\('
-  severity: medium
+    - regex: '(?i)@noSuspend\\s*\\(''severity: medium
   description: "Async suspension disabled"
   remediation: "Avoid noSuspend in production code"
   cwe: "CWE-662"
@@ -111,8 +101,7 @@
 - id: zig-set-eval-branch-quota
   languages: [zig]
   patterns:
-    - regex: '(?i)@setEvalBranchQuota\\s*\\('
-  severity: low
+    - regex: '(?i)@setEvalBranchQuota\\s*\\(''severity: low
   description: "Comptime evaluation quota increased"
   remediation: "Review for potential compilation DoS"
   cwe: "CWE-400"
@@ -122,8 +111,7 @@
 - id: zig-inline-asm
   languages: [zig]
   patterns:
-    - regex: '(?i)asm\\s+volatile'
-  severity: high
+    - regex: '(?i)asm\\s+volatile''severity: high
   description: "Inline assembly - bypasses safety checks"
   remediation: "Minimize inline assembly usage"
   cwe: "CWE-676"
@@ -133,8 +121,7 @@
 - id: zig-extern-fn
   languages: [zig]
   patterns:
-    - regex: '(?i)extern\\s+fn\\s+'
-  severity: medium
+    - regex: '(?i)extern\\s+fn\\s+''severity: medium
   description: "External function declaration - FFI boundary"
   remediation: "Validate all inputs at FFI boundary"
   cwe: "CWE-676"
@@ -144,8 +131,7 @@
 - id: zig-hardcoded-secret
   languages: [zig]
   patterns:
-    - regex: '(?i)(?:secret|password|api_?key|token).*=\\s*\"[a-zA-Z0-9_-]{12,}\"'
-  severity: high
+    - regex: '(?i)(?:secret|password|api_?key|token).*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
   description: "Hardcoded secret detected"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -155,8 +141,7 @@
 - id: zig-truncate
   languages: [zig]
   patterns:
-    - regex: '(?i)@truncate\\s*\\('
-  severity: medium
+    - regex: '(?i)@truncate\\s*\\(''severity: medium
   description: "Integer truncation - potential data loss"
   remediation: "Validate value range before truncation"
   cwe: "CWE-190"
@@ -166,8 +151,7 @@
 - id: zig-bit-cast
   languages: [zig]
   patterns:
-    - regex: '(?i)@bitCast\\s*\\('
-  severity: medium
+    - regex: '(?i)@bitCast\\s*\\(''severity: medium
   description: "Bit-level reinterpret cast"
   remediation: "Verify source and destination types are compatible"
   cwe: "CWE-843"
@@ -177,8 +161,7 @@
 - id: zig-error-discard
   languages: [zig]
   patterns:
-    - regex: '(?i)_\\s*=.*catch'
-  severity: medium
+    - regex: '(?i)_\\s*=.*catch''severity: medium
   description: "Error silently discarded"
   remediation: "Handle errors explicitly"
   cwe: "CWE-252"
@@ -188,8 +171,7 @@
 - id: zig-os-exec
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.os\\.execv|std\\.ChildProcess\\.spawn'
-  severity: critical
+    - regex: '(?i)std\\.os\\.execv|std\\.ChildProcess\\.spawn''severity: critical
   description: "OS command execution"
   remediation: "Validate all command arguments"
   cwe: "CWE-78"
@@ -199,8 +181,7 @@
 - id: zig-file-access
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.fs\\.openFile|std\\.fs\\.accessFile'
-  severity: medium
+    - regex: '(?i)std\\.fs\\.openFile|std\\.fs\\.accessFile''severity: medium
   description: "File system access"
   remediation: "Validate file paths before access"
   cwe: "CWE-22"
@@ -210,8 +191,7 @@
 - id: zig-heap-allocator
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.heap\\.page_allocator'
-  severity: low
+    - regex: '(?i)std\\.heap\\.page_allocator''severity: low
   description: "Using page allocator directly"
   remediation: "Use GeneralPurposeAllocator for safety"
   cwe: "CWE-401"
@@ -221,8 +201,7 @@
 - id: zig-ssrf
   languages: [zig]
   patterns:
-    - regex: '(?i)http\\.fetch\\s*\\(.*\\$'
-  severity: high
+    - regex: '(?i)http\\.fetch\\s*\\(.*\\$''severity: high
   description: "Potential SSRF via HTTP fetch"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -232,8 +211,7 @@
 - id: zig-insecure-random
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.rand\\s*\\.'
-  severity: medium
+    - regex: '(?i)std\\.rand\\s*\\.''severity: medium
   description: "Insecure random for cryptographic use"
   remediation: "Use std.crypto.random"
   cwe: "CWE-338"
@@ -243,8 +221,7 @@
 - id: zig-json-unsafe
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.json\\.parse\\s*\\(.*any'
-  severity: high
+    - regex: '(?i)std\\.json\\.parse\\s*\\(.*any''severity: high
   description: "Unsafe JSON parsing"
   remediation: "Validate JSON structure before use"
   cwe: "CWE-502"
@@ -254,8 +231,7 @@
 - id: zig-weak-crypto
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.crypto\\.md5|std\\.crypto\\.sha1'
-  severity: medium
+    - regex: '(?i)std\\.crypto\\.md5|std\\.crypto\\.sha1''severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
   cwe: "CWE-327"
@@ -265,8 +241,7 @@
 - id: zig-eval
   languages: [zig]
   patterns:
-    - regex: '(?i)@compileLog\\s*\\('
-  severity: medium
+    - regex: '(?i)@compileLog\\s*\\(''severity: medium
   description: "Compile-time code execution"
   remediation: "Avoid compile-time code execution"
   cwe: "CWE-94"
@@ -276,8 +251,7 @@
 - id: zig-shell-injection
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.child_process\\.exec\\s*\\(.*\\$'
-  severity: critical
+    - regex: '(?i)std\\.child_process\\.exec\\s*\\(.*\\$''severity: critical
   description: "Shell command injection"
   remediation: "Use argument arrays, not shell"
   cwe: "CWE-78"
@@ -287,8 +261,7 @@
 - id: zig-serialize
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.json\\.parse.*any|readFile.*json'
-  severity: high
+    - regex: '(?i)std\\.json\\.parse.*any|readFile.*json''severity: high
   description: "Unsafe JSON deserialization"
   remediation: "Validate JSON structure"
   cwe: "CWE-502"
@@ -298,8 +271,7 @@
 - id: zig-hardcoded-creds
   languages: [zig]
   patterns:
-    - regex: '(?i)(?:db|user|pass|key)\\s*:\\s*\\".{4,}\\"'
-  severity: high
+    - regex: '(?i)(?:db|user|pass|key)\\s*:\\s*\\".{4,}\\"''severity: high
   description: "Hardcoded credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -309,8 +281,7 @@
 - id: zig-ssrf
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.http\\.fetch\\s*\\(.*url.*='
-  severity: high
+    - regex: '(?i)std\\.http\\.fetch\\s*\\(.*url.*=''severity: high
   description: "Potential SSRF via HTTP fetch"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -320,8 +291,7 @@
 - id: zig-path-traversal
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.fs\\.open\\s*\\(.*\\$|std\\.fs\\.readLink\\s*\\(.*\\$'
-  severity: high
+    - regex: '(?i)std\\.fs\\.open\\s*\\(.*\\$|std\\.fs\\.readLink\\s*\\(.*\\$''severity: high
   description: "Path traversal vulnerability"
   remediation: "Validate and sanitize paths"
   cwe: "CWE-22"
@@ -331,8 +301,7 @@
 - id: zig-template-injection
   languages: [zig]
   patterns:
-    - regex: '(?i)std\\.fmt\\.format.*\\$\\{'
-  severity: high
+    - regex: '(?i)std\\.fmt\\.format.*\\$\\{''severity: high
   description: "Template injection risk"
   remediation: "Sanitize template inputs"
   cwe: "CWE-1336"
@@ -342,8 +311,7 @@
 - id: zig-unsafe-try
   languages: [zig]
   patterns:
-    - regex: '(?i)\\btry\\s*!|catch\\s+err\\s+return'
-  severity: medium
+    - regex: '(?i)\\btry\\s*!|catch\\s+err\\s+return''severity: medium
   description: "Unsafe error handling"
   remediation: "Properly handle errors"
   cwe: "CWE-755"

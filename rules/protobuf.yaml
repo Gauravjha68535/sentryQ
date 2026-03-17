@@ -1,8 +1,7 @@
 - id: protobuf-insecure-channel
   languages: [protobuf]
   patterns:
-    - regex: '(?i)InsecureChannelCredentials'
-  severity: high
+    - regex: '(?i)InsecureChannelCredentials''severity: high
   description: "Insecure gRPC channel"
   remediation: "Use TransportCredentials/TLS"
   cwe: "CWE-319"
@@ -11,8 +10,7 @@
 - id: protobuf-reflection-enabled
   languages: [protobuf]
   patterns:
-    - regex: '(?i)reflection\\.Register\\s*\\('
-  severity: medium
+    - regex: '(?i)reflection\\.Register\\s*\\(''severity: medium
   description: "gRPC reflection enabled"
   remediation: "Disable reflection in production"
   cwe: "CWE-200"
@@ -22,8 +20,7 @@
 - id: protobuf-allow-alias
   languages: [protobuf]
   patterns:
-    - regex: '(?i)option\s+allow_alias\s*=\s*true;'
-  severity: medium
+    - regex: '(?i)option\s+allow_alias\s*=\s*true;''severity: medium
   description: "Enum alias allowed (allow_alias = true)"
   remediation: "Avoid enum aliases to prevent logic errors in switches"
   cwe: "CWE-697"
@@ -32,8 +29,7 @@
 - id: protobuf-go-package-missing
   languages: [protobuf]
   patterns:
-    - regex: '(?i)syntax\s*=\s*"proto3";(?![\s\S]*?option\s+go_package)'
-  severity: low
+    - regex: '(?i)syntax\s*=\s*"proto3";''severity: low
   description: "Missing go_package option"
   remediation: "Specify go_package to avoid generated code collisions"
   cwe: "CWE-710"
@@ -42,8 +38,7 @@
 - id: protobuf-max-recursion
   languages: [protobuf]
   patterns:
-    - regex: '(?i)message\s+(\w+)\s*\{[\s\S]*?\1\s+\w+\s*='
-  severity: high
+    - regex: '(?i)message\s+(\w+)\s*\{[\s\S]*?\1\s+\w+\s*=''severity: high
   description: "Recursive message definition (DoS risk)"
   remediation: "Implement recursion limits in application logic"
   cwe: "CWE-400"
@@ -54,8 +49,7 @@
 - id: protobuf-grpc-no-auth
   languages: [protobuf]
   patterns:
-    - regex: '(?i)ServerInterceptor|grpc\\.withServerInterceptor'
-  severity: medium
+    - regex: '(?i)ServerInterceptor|grpc\\.withServerInterceptor''severity: medium
   description: "No gRPC auth interceptor configured"
   remediation: "Add authentication interceptor"
   cwe: "CWE-306"
@@ -65,8 +59,7 @@
 - id: protobuf-grpc-plaintext
   languages: [protobuf]
   patterns:
-    - regex: '(?i)InsecureChannelCredentials|InsecureCredentials'
-  severity: high
+    - regex: '(?i)InsecureChannelCredentials|InsecureCredentials''severity: high
   description: "gRPC using plaintext credentials"
   remediation: "Use TLS credentials"
   cwe: "CWE-319"
@@ -76,8 +69,7 @@
 - id: protobuf-grpc-metadata-exposed
   languages: [protobuf]
   patterns:
-    - regex: '(?i)metadata\\.NewOutgoingContext|metadata\\.Append'
-  severity: medium
+    - regex: '(?i)metadata\\.NewOutgoingContext|metadata\\.Append''severity: medium
   description: "Sensitive data in gRPC metadata"
   remediation: "Avoid passing sensitive data in metadata"
   cwe: "CWE-200"
@@ -88,8 +80,7 @@
 - id: protobuf-no-required-fields
   languages: [protobuf]
   patterns:
-    - regex: '(?i)message\s+\\w+\s*\\{[^}]*\\b(?:string|bytes|message)\\s+\\w+\s*=[0-9]+\\s*;'
-  severity: medium
+    - regex: '(?i)message\s+\\w+\s*\\{[^}]*\\b(?:string|bytes|message)\\s+\\w+\s*=[0-9]+\\s*;''severity: medium
   description: "No required field validation"
   remediation: "Use required fields or handle missing fields explicitly"
   cwe: "CWE-20"
@@ -99,8 +90,7 @@
 - id: protobuf-no-default-values
   languages: [protobuf]
   patterns:
-    - regex: '(?i)(string|int32|int64|uint32|uint64|sint32|sint64|fixed32|fixed64|sfixed32|sfixed64|float|double|bool)\\s+\\w+\\s*=\\s*[0-9]+\\s*;'
-  severity: low
+    - regex: '(?i)(string|int32|int64|uint32|uint64|sint32|sint64|fixed32|fixed64|sfixed32|sfixed64|float|double|bool)\\s+\\w+\\s*=\\s*[0-9]+\\s*;''severity: low
   description: "No default value handling"
   remediation: "Handle default values in application logic"
   cwe: "CWE-20"
@@ -111,8 +101,7 @@
 - id: protobuf-int32-overflow
   languages: [protobuf]
   patterns:
-    - regex: '(?i)\\bint32\\b.*\\b(?:field|value|num|count|size|length)\\s*='
-  severity: medium
+    - regex: '(?i)\\bint32\\b.*\\b(?:field|value|num|count|size|length)\\s*=''severity: medium
   description: "int32 may overflow for large values"
   remediation: "Use int64 for large numeric values"
   cwe: "CWE-190"
@@ -122,8 +111,7 @@
 - id: protobuf-unsigned-mixed
   languages: [protobuf]
   patterns:
-    - regex: '(?i)(uint32|uint64)\\s+\\w+.*(?:int32|int64)\\s+\\w+'
-  severity: low
+    - regex: '(?i)(uint32|uint64)\\s+\\w+.*(?:int32|int64)\\s+\\w+''severity: low
   description: "Mixing signed and unsigned integers"
   remediation: "Be consistent with signed/unsigned types"
   cwe: "CWE-197"
@@ -134,8 +122,7 @@
 - id: protobuf-no-max-length
   languages: [protobuf]
   patterns:
-    - regex: '(?i)\\bstring\\s+\\w+\\s*=\\s*[0-9]+\\s*;(?!.*maxlength)'
-  severity: medium
+    - regex: '(?i)\\bstring\\s+\\w+\\s*=\\s*[0-9]+\\s*;''severity: medium
   description: "String field without max length"
   remediation: "Add max length validation or use bytes with size limits"
   cwe: "CWE-20"
@@ -145,8 +132,7 @@
 - id: protobuf-bytes-no-size-limit
   languages: [protobuf]
   patterns:
-    - regex: '(?i)\\bbytes\\s+\\w+\\s*=\\s*[0-9]+\\s*;(?!.*max_size)'
-  severity: medium
+    - regex: '(?i)\\bbytes\\s+\\w+\\s*=\\s*[0-9]+\\s*;''severity: medium
   description: "Bytes field without size limit"
   remediation: "Add max size limits for bytes fields"
   cwe: "CWE-400"
@@ -157,8 +143,7 @@
 - id: protobuf-enum-deprecated
   languages: [protobuf]
   patterns:
-    - regex: '(?i)option\\s+deprecated\\s*=\\s*true;.*enum'
-  severity: low
+    - regex: '(?i)option\\s+deprecated\\s*=\\s*true;.*enum''severity: low
   description: "Deprecated enum value still in use"
   remediation: "Remove or mark deprecated enum values"
   cwe: "CWE-1104"
@@ -168,8 +153,7 @@
 - id: protobuf-enum-invalid-range
   languages: [protobuf]
   patterns:
-    - regex: '(?i)enum\\s+\\w+\\s*\\{[^}]*(?:0|[2-9][0-9]+)\\s+\\w+'
-  severity: medium
+    - regex: '(?i)enum\\s+\\w+\\s*\\{[^}]*(?:0|[2-9][0-9]+)\\s+\\w+''severity: medium
   description: "Enum with invalid range values"
   remediation: "Use values 1-2^31-1 for proto3 compatibility"
   cwe: "CWE-20"
@@ -180,8 +164,7 @@
 - id: protobuf-unknown-fields-accepted
   languages: [protobuf]
   patterns:
-    - regex: '(?i)option\\s+(allow_unknown_fields|uninterpreted_option)\\s*='
-  severity: medium
+    - regex: '(?i)option\\s+(allow_unknown_fields|uninterpreted_option)\\s*=''severity: medium
   description: "Unknown fields accepted"
   remediation: "Reject unknown fields in parsing"
   cwe: "CWE-20"
@@ -191,8 +174,7 @@
 - id: protobuf-nested-depth
   languages: [protobuf]
   patterns:
-    - regex: '(?i)message\\s+\\w+\\s*\\{[^}]*message\\s+\\w+\\s*\\{[^}]*message\\s+\\w+\\s*\\{'
-  severity: high
+    - regex: '(?i)message\\s+\\w+\\s*\\{[^}]*message\\s+\\w+\\s*\\{[^}]*message\\s+\\w+\\s*\\{''severity: high
   description: "Deeply nested message structure"
   remediation: "Flatten message structure to prevent DoS"
   cwe: "CWE-400"
@@ -203,8 +185,7 @@
 - id: protobuf-map-sensitive-key
   languages: [protobuf]
   patterns:
-    - regex: '(?i)map<\\w+,\\s*>\\s+(?:password|secret|token|key|auth)'
-  severity: high
+    - regex: '(?i)map<\\w+,\\s*>\\s+(?:password|secret|token|key|auth)''severity: high
   description: "Map with sensitive key field"
   remediation: "Avoid storing sensitive data in maps"
   cwe: "CWE-200"
@@ -215,8 +196,7 @@
 - id: protobuf-any-type-unrestricted
   languages: [protobuf]
   patterns:
-    - regex: '(?i)google\\.protobuf\\.Any|type_url|typeid'
-  severity: medium
+    - regex: '(?i)google\\.protobuf\\.Any|type_url|typeid''severity: medium
   description: "Any type without type restrictions"
   remediation: "Validate type_url before unpacking"
   cwe: "CWE-502"
@@ -226,8 +206,7 @@
 - id: protobuf-oneof-unhandled
   languages: [protobuf]
   patterns:
-    - regex: '(?i)oneof\\s+\\w+\\s*\\{[^}]*\\}'
-  severity: low
+    - regex: '(?i)oneof\\s+\\w+\\s*\\{[^}]*\\}''severity: low
   description: "oneof case not fully handled"
   remediation: "Handle all oneof cases in switch statements"
   cwe: "CWE-478"
@@ -238,8 +217,7 @@
 - id: protobuf-reserved-missing
   languages: [protobuf]
   patterns:
-    - regex: '(?i)message\\s+\\w+\\s*\\{[^}]{200,}'
-  severity: low
+    - regex: '(?i)message\\s+\\w+\\s*\\{[^}]{200,}''severity: low
   description: "Large message without reserved fields"
   remediation: "Use reserved for deprecated field numbers"
   cwe: "CWE-1104"
@@ -250,8 +228,7 @@
 - id: protobuf-extension-risk
   languages: [protobuf]
   patterns:
-    - regex: '(?i)extensions\\s+[0-9]+|extend\\s+\\w+'
-  severity: medium
+    - regex: '(?i)extensions\\s+[0-9]+|extend\\s+\\w+''severity: medium
   description: "Using extensions may be risky"
   remediation: "Limit extension ranges and validate data"
   cwe: "CWE-20"
@@ -262,8 +239,7 @@
 - id: protobuf-packed-disabled
   languages: [protobuf]
   patterns:
-    - regex: '(?i)(repeated\\s+(?:int32|int64|uint32|uint64|sint32|sint64|fixed32|fixed64|sfixed32|sfixed64|float|double|bool))\\s+\\w+\\s*=\\s*[0-9]+\\s*;(?!.*packed)'
-  severity: low
+    - regex: '(?i)(repeated\\s+(?:int32|int64|uint32|uint64|sint32|sint64|fixed32|fixed64|sfixed32|sfixed64|float|double|bool))\\s+\\w+\\s*=\\s*[0-9]+\\s*;''severity: low
   description: "Repeated numeric field not packed"
   remediation: "Add packed=true for better performance"
   cwe: "CWE-400"
@@ -274,8 +250,7 @@
 - id: protobuf-field-number-range
   languages: [protobuf]
   patterns:
-    - regex: '(?i)\\s=\\s*(?:19[0-9]{2}|2[0-1][0-9]{3}|22[0-9]{3})'
-  severity: high
+    - regex: '(?i)\\s=\\s*(?:19[0-9]{2}|2[0-1][0-9]{3}|22[0-9]{3})''severity: high
   description: "Field number in reserved range (19000-19999)"
   remediation: "Use field numbers outside reserved range"
   cwe: "CWE-20"
@@ -285,8 +260,7 @@
 - id: protobuf-max-field-number
   languages: [protobuf]
   patterns:
-    - regex: '\\s=\\s*(?:5[0-2-9][0-9]{2}|53[0-9]{2})|(?:536870911)'
-  severity: high
+    - regex: '\\s=\\s*(?:5[0-2-9][0-9]{2}|53[0-9]{2})|(?:536870911)''severity: high
   description: "Field number exceeds maximum (2^29 - 1)"
   remediation: "Use field numbers below 2^29 - 1"
   cwe: "CWE-20"
@@ -297,8 +271,7 @@
 - id: protobuf-lazy-bytes
   languages: [protobuf]
   patterns:
-    - regex: '(?i)bytes\\s+\\w+\\s*=\\s*[0-9]+\\s*;\\s*lazy\\s*=\\s*true'
-  severity: low
+    - regex: '(?i)bytes\\s+\\w+\\s*=\\s*[0-9]+\\s*;\\s*lazy\\s*=\\s*true''severity: low
   description: "Lazy bytes field may delay validation"
   remediation: "Validate lazy fields immediately if needed"
   cwe: "CWE-20"
@@ -309,8 +282,7 @@
 - id: protobuf-json-ignore
   languages: [protobuf]
   patterns:
-    - regex: '(?i)option\\s+json_name\\s*=.*'
-  severity: low
+    - regex: '(?i)option\\s+json_name\\s*=.*''severity: low
   description: "JSON field name mapping may leak info"
   remediation: "Be aware of JSON field name exposure"
   cwe: "CWE-200"
@@ -321,8 +293,7 @@
 - id: protobuf-custom-option-risk
   languages: [protobuf]
   patterns:
-    - regex: '(?i)option\\s+\\w+\\s*=\\s*\\{'
-  severity: low
+    - regex: '(?i)option\\s+\\w+\\s*=\\s*\\{''severity: low
   description: "Custom options may contain sensitive data"
   remediation: "Validate custom option values"
   cwe: "CWE-20"
@@ -333,8 +304,7 @@
 - id: protobuf-timestamp-validation
   languages: [protobuf]
   patterns:
-    - regex: '(?i)google\\.protobuf\\.Timestamp'
-  severity: medium
+    - regex: '(?i)google\\.protobuf\\.Timestamp''severity: medium
   description: "Timestamp needs validation"
   remediation: "Validate timestamp range in application"
   cwe: "CWE-20"
@@ -344,8 +314,7 @@
 - id: protobuf-duration-validation
   languages: [protobuf]
   patterns:
-    - regex: '(?i)google\\.protobuf\\.Duration'
-  severity: low
+    - regex: '(?i)google\\.protobuf\\.Duration''severity: low
   description: "Duration needs validation"
   remediation: "Validate duration range in application"
   cwe: "CWE-20"
@@ -355,8 +324,7 @@
 - id: protobuf-struct-unsafe
   languages: [protobuf]
   patterns:
-    - regex: '(?i)google\\.protobuf\\.Struct'
-  severity: medium
+    - regex: '(?i)google\\.protobuf\\.Struct''severity: medium
   description: "Struct type accepts arbitrary keys"
   remediation: "Validate struct keys and values"
   cwe: "CWE-20"
@@ -366,8 +334,7 @@
 - id: protobuf-value-unsafe
   languages: [protobuf]
   patterns:
-    - regex: '(?i)google\\.protobuf\\.Value'
-  severity: medium
+    - regex: '(?i)google\\.protobuf\\.Value''severity: medium
   description: "Value type accepts any value"
   remediation: "Validate Value content before use"
   cwe: "CWE-20"
@@ -378,8 +345,7 @@
 - id: protobuf-service-no-tls
   languages: [protobuf]
   patterns:
-    - regex: '(?i)service\\s+\\w+\\s*\\{'
-  severity: high
+    - regex: '(?i)service\\s+\\w+\\s*\\{''severity: high
   description: "gRPC service without TLS configuration"
   remediation: "Configure TLS for gRPC service"
   cwe: "CWE-319"
@@ -389,8 +355,7 @@
 - id: protobuf-service-unary-only
   languages: [protobuf]
   patterns:
-    - regex: '(?i)rpc\\s+\\w+\\s*\\(\\s*\\w+\\)\\s*returns\\s*\\(\\s*\\w+\\s*\\)'
-  severity: low
+    - regex: '(?i)rpc\\s+\\w+\\s*\\(\\s*\\w+\\)\\s*returns\\s*\\(\\s*\\w+\\s*\\)''severity: low
   description: "Consider streaming for large payloads"
   remediation: "Use streaming for large data"
   cwe: "CWE-400"
@@ -400,8 +365,7 @@
 - id: protobuf-no-client-timeout
   languages: [protobuf]
   patterns:
-    - regex: '(?i)grpc\\.withDeadline|grpc\\.withTimeout'
-  severity: medium
+    - regex: '(?i)grpc\\.withDeadline|grpc\\.withTimeout''severity: medium
   description: "No timeout on gRPC call"
   remediation: "Add timeout/deadline to gRPC calls"
   cwe: "CWE-770"
@@ -410,8 +374,7 @@
 - id: protobuf-insecure-grpc-channel
   languages: [protobuf]
   patterns:
-    - regex: '(?i)grpc\.insecureChannel'
-  severity: critical
+    - regex: '(?i)grpc\.insecureChannel''severity: critical
   description: "gRPC using insecure channel explicitly"
   remediation: "Use TLS credentials"
   cwe: "CWE-319"
@@ -420,8 +383,7 @@
 - id: protobuf-missing-validation-rules
   languages: [protobuf]
   patterns:
-    - regex: '(?i)message\s+\w+\s*\{(?![\s\S]*?\[\s*\(validate\.rules\))'
-  severity: medium
+    - regex: '(?i)message\s+\w+\s*\{)''severity: medium
   description: "Message missing validate.rules (protoc-gen-validate)"
   remediation: "Use protoc-gen-validate for critical inputs"
   cwe: "CWE-20"
@@ -430,8 +392,7 @@
 - id: protobuf-deprecated-package
   languages: [protobuf]
   patterns:
-    - regex: '(?i)package\s+.*v1alpha;'
-  severity: low
+    - regex: '(?i)package\s+.*v1alpha;''severity: low
   description: "Using alpha package in production"
   remediation: "Migrate to v1 or v1beta"
   cwe: "CWE-477"
@@ -440,8 +401,7 @@
 - id: protobuf-sensitive-field-logging
   languages: [protobuf]
   patterns:
-    - regex: '(?i)(?:password|secret|token)\s*=\s*\d+;(?!.*debug_redact)'
-  severity: medium
+    - regex: '(?i)(?:password|secret|token)\s*=\s*\d+;''severity: medium
   description: "Sensitive field missing debug_redact option"
   remediation: "Add [debug_redact = true] to prevent logging leaks"
   cwe: "CWE-532"
@@ -450,8 +410,7 @@
 - id: protobuf-max-bytes-missing
   languages: [protobuf]
   patterns:
-    - regex: '(?i)bytes\s+\w+\s*=\s*\d+;(?!.*\[\s*\(validate\.rules\)\.bytes\.max_len)'
-  severity: high
+    - regex: '(?i)bytes\s+\w+\s*=\s*\d+;\.bytes\.max_len)''severity: high
   description: "Bytes field without max_len validation"
   remediation: "Specify max_len to prevent memory exhaustion DoS"
   cwe: "CWE-400"
@@ -460,8 +419,7 @@
 - id: protobuf-max-string-missing
   languages: [protobuf]
   patterns:
-    - regex: '(?i)string\s+\w+\s*=\s*\d+;(?!.*\[\s*\(validate\.rules\)\.string\.max_len)'
-  severity: medium
+    - regex: '(?i)string\s+\w+\s*=\s*\d+;\.string\.max_len)''severity: medium
   description: "String field without max_len validation"
   remediation: "Specify max_len to prevent memory exhaustion"
   cwe: "CWE-400"
@@ -470,8 +428,7 @@
 - id: protobuf-max-repeated-items
   languages: [protobuf]
   patterns:
-    - regex: '(?i)repeated\s+\w+\s+\w+\s*=\s*\d+;(?!.*\[\s*\(validate\.rules\)\.repeated\.max_items)'
-  severity: high
+    - regex: '(?i)repeated\s+\w+\s+\w+\s*=\s*\d+;\.repeated\.max_items)''severity: high
   description: "Repeated field without max_items limit"
   remediation: "Specify max_items to prevent resource exhaustion"
   cwe: "CWE-400"
@@ -480,8 +437,7 @@
 - id: protobuf-enum-zero-unspecified
   languages: [protobuf]
   patterns:
-    - regex: '(?i)enum\s+\w+\s*\{\s*\n\s*(?!\w+_UNSPECIFIED\s*=\s*0;)'
-  severity: low
+    - regex: '(?i)enum\s+\w+\s*\{\s*\n\s*''severity: low
   description: "Enum zero value is not UNSPECIFIED"
   remediation: "First enum value must be UNSPECIFIED=0 per convention"
   cwe: "CWE-398"
@@ -490,8 +446,7 @@
 - id: protobuf-any-type-usage
   languages: [protobuf]
   patterns:
-    - regex: '(?i)google\.protobuf\.Any'
-  severity: high
+    - regex: '(?i)google\.protobuf\.Any''severity: high
   description: "Use of google.protobuf.Any (Deserialization Risk)"
   remediation: "Use strictly typed messages instead of Any where possible"
   cwe: "CWE-502"
@@ -500,8 +455,7 @@
 - id: protobuf-allow-alias-true
   languages: [protobuf]
   patterns:
-    - regex: '(?i)option\s+allow_alias\s*=\s*true;'
-  severity: medium
+    - regex: '(?i)option\s+allow_alias\s*=\s*true;''severity: medium
   description: "Enum aliases allowed"
   remediation: "Avoid aliases; they cause ambiguity in business logic"
   cwe: "CWE-697"
@@ -510,8 +464,7 @@
 - id: protobuf-map-sensitive-key
   languages: [protobuf]
   patterns:
-    - regex: '(?i)map<string,\s*string>\s*(?:headers|metadata|attributes)'
-  severity: medium
+    - regex: '(?i)map<string,\s*string>\s*(?:headers|metadata|attributes)''severity: medium
   description: "Map used for attributes (potential mass assignment)"
   remediation: "Strictly define fields instead of open hashmaps"
   cwe: "CWE-915"
@@ -520,8 +473,7 @@
 - id: protobuf-weak-rpc-auth
   languages: [protobuf]
   patterns:
-    - regex: '(?i)rpc\s+(?:Login|Authenticate).*returns\s*\(\s*google\.protobuf\.Empty\s*\)'
-  severity: low
+    - regex: '(?i)rpc\s+(?:Login|Authenticate).*returns\s*\(\s*google\.protobuf\.Empty\s*\)''severity: low
   description: "Auth RPC returns Empty"
   remediation: "Auth RPCs should typically return a token or session"
   cwe: "CWE-287"
@@ -530,8 +482,7 @@
 - id: protobuf-unauthenticated-rpc
   languages: [protobuf]
   patterns:
-    - regex: '(?i)rpc\s+\w+\s*\([\s\S]*?\)(?!.*option\s*\(google\.api\.http\))'
-  severity: low
+    - regex: '(?i)rpc\s+\w+\s*\([\s\S]*?\))''severity: low
   description: "RPC missing google.api.http annotations"
   remediation: "Add HTTP annotations if exposed to API Gateway"
   cwe: "CWE-1059"
@@ -540,8 +491,7 @@
 - id: protobuf-stream-stream-dos
   languages: [protobuf]
   patterns:
-    - regex: '(?i)rpc\s+\w+\s*\(\s*stream\s+[\s\S]*?stream\s+'
-  severity: medium
+    - regex: '(?i)rpc\s+\w+\s*\(\s*stream\s+[\s\S]*?stream\s+''severity: medium
   description: "Bi-directional streaming RPC (DoS risk)"
   remediation: "Implement application-level connection timeouts and limits"
   cwe: "CWE-400"
@@ -550,8 +500,7 @@
 - id: protobuf-reflection-abuse
   languages: [protobuf]
   patterns:
-    - regex: '(?i)grpc\\.reflection\\.v1|grpc\\.reflection\\.v2'
-  severity: high
+    - regex: '(?i)grpc\\.reflection\\.v1|grpc\\.reflection\\.v2''severity: high
   description: "gRPC reflection enabled"
   remediation: "Disable reflection in production"
   cwe: "CWE-200"
@@ -560,8 +509,7 @@
 - id: protobuf-proto-version
   languages: [protobuf]
   patterns:
-    - regex: '(?i)syntax\\s*=\\s*"proto2"'
-  severity: low
+    - regex: '(?i)syntax\\s*=\\s*"proto2"''severity: low
   description: "Using outdated proto2 syntax"
   remediation: "Upgrade to proto3 for security improvements"
   cwe: "CWE-1104"
@@ -570,8 +518,7 @@
 - id: protobuf-sensitive-field
   languages: [protobuf]
   patterns:
-    - regex: '(?i)(?:password|secret|token|key|credential)\\s+\\w+\\s*:'
-  severity: high
+    - regex: '(?i)(?:password|secret|token|key|credential)\\s+\\w+\\s*:''severity: high
   description: "Sensitive field in protobuf"
   remediation: "Use proper encryption or field masking"
   cwe: "CWE-200"
@@ -580,8 +527,7 @@
 - id: protobuf-no-tls
   languages: [protobuf]
   patterns:
-    - regex: '(?i)credentials|insecure'
-  severity: high
+    - regex: '(?i)credentials|insecure''severity: high
   description: "Insecure credentials configuration"
   remediation: "Use TLS credentials"
   cwe: "CWE-319"
@@ -590,8 +536,7 @@
 - id: protobuf-google-empty-param
   languages: [protobuf]
   patterns:
-    - regex: '(?i)rpc\s+\w+\s*\(\s*google\.protobuf\.Empty\s*\)'
-  severity: low
+    - regex: '(?i)rpc\s+\w+\s*\(\s*google\.protobuf\.Empty\s*\)''severity: low
   description: "RPC accepts Empty parameter (CSRF risk in web)"
   remediation: "Ensure mutating operations use distinct request messages"
   cwe: "CWE-352"

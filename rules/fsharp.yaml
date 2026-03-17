@@ -1,8 +1,7 @@
 - id: fsharp-sql-type-provider
   languages: [fsharp]
   patterns:
-    - regex: '(?i)SqlDataProvider<.*>'
-  severity: medium
+    - regex: '(?i)SqlDataProvider<.*>''severity: medium
   description: "SQL Type Provider usage"
   remediation: "Ensure connection strings are secure"
   cwe: "CWE-200"
@@ -12,8 +11,7 @@
 - id: fsharp-exec-process
   languages: [fsharp]
   patterns:
-    - regex: '(?i)Process\\.Start\\s*\\('
-  severity: critical
+    - regex: '(?i)Process\\.Start\\s*\\(''severity: critical
   description: "OS command execution"
   remediation: "Validate process arguments"
   cwe: "CWE-78"
@@ -23,8 +21,7 @@
 - id: fsharp-binary-formatter
   languages: [fsharp]
   patterns:
-    - regex: '(?i)BinaryFormatter\\.Deserialize'
-  severity: critical
+    - regex: '(?i)BinaryFormatter\\.Deserialize''severity: critical
   description: "Unsafe deserialization"
   remediation: "Use JSON or secure serializers"
   cwe: "CWE-502"
@@ -34,8 +31,7 @@
 - id: fsharp-hardcoded-secret
   languages: [fsharp]
   patterns:
-    - regex: '(?i)let\\s+(?:secret|password|key)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"'
-  severity: high
+    - regex: '(?i)let\\s+(?:secret|password|key)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
   description: "Hardcoded secret"
   remediation: "Use configuration or KeyVault"
   cwe: "CWE-798"
@@ -45,8 +41,7 @@
 - id: fsharp-sql-concat
   languages: [fsharp]
   patterns:
-    - regex: '(?i)SqlCommand\\s*\\(\\s*.*?\\+'
-  severity: critical
+    - regex: '(?i)SqlCommand\\s*\\(\\s*.*?\\+''severity: critical
   description: "SQL injection via concatenation"
   remediation: "Use SqlParameters"
   cwe: "CWE-89"
@@ -56,8 +51,7 @@
 - id: fsharp-xss-giraffe
   languages: [fsharp]
   patterns:
-    - regex: '(?i)htmlString\\s*.*\\+.*user|htmlString\\s*\\(sprintf'
-  severity: high
+    - regex: '(?i)htmlString\\s*.*\\+.*user|htmlString\\s*\\(sprintf''severity: high
   description: "XSS via raw HTML string"
   remediation: "Use proper templating engines or encode HTML"
   cwe: "CWE-79"
@@ -67,8 +61,7 @@
 - id: fsharp-file-read
   languages: [fsharp]
   patterns:
-    - regex: '(?i)File\\.ReadAllText\\s*\\('
-  severity: medium
+    - regex: '(?i)File\\.ReadAllText\\s*\\(''severity: medium
   description: "File read"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -78,8 +71,7 @@
 - id: fsharp-md5
   languages: [fsharp]
   patterns:
-    - regex: '(?i)MD5\\.Create\\s*\\(\\s*\\)'
-  severity: medium
+    - regex: '(?i)MD5\\.Create\\s*\\(\\s*\\)''severity: medium
   description: "Weak MD5 hash"
   remediation: "Use SHA256"
   cwe: "CWE-328"
@@ -89,8 +81,7 @@
 - id: fsharp-insecure-cookie
   languages: [fsharp]
   patterns:
-    - regex: '(?i)HttpCookie\\s*\\(.*Secure\\s*=\\s*false'
-  severity: medium
+    - regex: '(?i)HttpCookie\\s*\\(.*Secure\\s*=\\s*false''severity: medium
   description: "Insecure cookie"
   remediation: "Set Secure flag"
   cwe: "CWE-614"
@@ -100,8 +91,7 @@
 - id: fsharp-cert-validation-callback
   languages: [fsharp]
   patterns:
-    - regex: '(?i)ServerCertificateValidationCallback\\s*=\\s*.*true'
-  severity: high
+    - regex: '(?i)ServerCertificateValidationCallback\\s*=\\s*.*true''severity: high
   description: "SSL validation bypassed"
   remediation: "Validate server certificates"
   cwe: "CWE-295"
@@ -111,8 +101,7 @@
 - id: fsharp-eval
   languages: [fsharp]
   patterns:
-    - regex: '(?i)Eval\\.|FSharp\\.Evaluation\\.'
-  severity: critical
+    - regex: '(?i)Eval\\.|FSharp\\.Evaluation\\.''severity: critical
   description: "Dynamic code execution"
   remediation: "Avoid eval with untrusted input"
   cwe: "CWE-94"
@@ -122,8 +111,7 @@
 - id: fsharp-insecure-random
   languages: [fsharp]
   patterns:
-    - regex: '(?i)Random\\s*\\.'
-  severity: medium
+    - regex: '(?i)Random\\s*\\.''severity: medium
   description: "Insecure random for security"
   remediation: "Use RandomNumberGenerator for crypto"
   cwe: "CWE-338"
@@ -133,8 +121,7 @@
 - id: fsharp-ssrf
   languages: [fsharp]
   patterns:
-    - regex: '(?i)HttpClient\\.GetAsync\\s*\\(.*\\$'
-  severity: high
+    - regex: '(?i)HttpClient\\.GetAsync\\s*\\(.*\\$''severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -144,8 +131,7 @@
 - id: fsharp-xxe
   languages: [fsharp]
   patterns:
-    - regex: '(?i)XmlReader\\.Create\\s*\\(.*DtdProcessing'
-  severity: high
+    - regex: '(?i)XmlReader\\.Create\\s*\\(.*DtdProcessing''severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing in XML reader"
   cwe: "CWE-611"
@@ -155,8 +141,7 @@
 - id: fsharp-path-traversal
   languages: [fsharp]
   patterns:
-    - regex: '(?i)File\\.OpenRead\\s*\\(.*\\$|Directory\\.GetFiles\\s*\\(.*\\$'
-  severity: high
+    - regex: '(?i)File\\.OpenRead\\s*\\(.*\\$|Directory\\.GetFiles\\s*\\(.*\\$''severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -166,8 +151,7 @@
 - id: fsharp-command-injection
   languages: [fsharp]
   patterns:
-    - regex: '(?i)Process\\.Start\\s*\\(.*\\$\\*|bash\\s*\\+.*\\$'
-  severity: critical
+    - regex: '(?i)Process\\.Start\\s*\\(.*\\$\\*|bash\\s*\\+.*\\$''severity: critical
   description: "Command injection via process execution"
   remediation: "Use argument arrays, not string concatenation"
   cwe: "CWE-78"
@@ -177,8 +161,7 @@
 - id: fsharp-weak-crypto
   languages: [fsharp]
   patterns:
-    - regex: '(?i)DESCryptoServiceProvider|TripleDESCryptoServiceProvider'
-  severity: medium
+    - regex: '(?i)DESCryptoServiceProvider|TripleDESCryptoServiceProvider''severity: medium
   description: "Weak cryptographic algorithm (DES/3DES)"
   remediation: "Use AES-256 for encryption"
   cwe: "CWE-327"
@@ -188,8 +171,7 @@
 - id: fsharp-yaml-unsafe
   languages: [fsharp]
   patterns:
-    - regex: '(?i)YAML\\.load\\s*\\(|Newtonsoft\\.Json\\.Deserialize'
-  severity: high
+    - regex: '(?i)YAML\\.load\\s*\\(|Newtonsoft\\.Json\\.Deserialize''severity: high
   description: "Unsafe YAML/JSON deserialization"
   remediation: "Use safe deserializers"
   cwe: "CWE-502"
@@ -199,8 +181,7 @@
 - id: fsharp-regex-dos
   languages: [fsharp]
   patterns:
-    - regex: '(?i)Regex\\.Match.*\\*|Regex\\.Replace.*\\*'
-  severity: medium
+    - regex: '(?i)Regex\\.Match.*\\*|Regex\\.Replace.*\\*''severity: medium
   description: "Potential ReDoS vulnerability"
   remediation: "Avoid nested quantifiers in regex"
   cwe: "CWE-1333"
@@ -210,8 +191,7 @@
 - id: fsharp-ldap
   languages: [fsharp]
   patterns:
-    - regex: '(?i)DirectoryEntry\\s*\\(.*\\$\\|DirectorySearcher\\.Filter.*\\$'
-  severity: high
+    - regex: '(?i)DirectoryEntry\\s*\\(.*\\$\\|DirectorySearcher\\.Filter.*\\$''severity: high
   description: "LDAP injection vulnerability"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -221,8 +201,7 @@
 - id: fsharp-hardcoded-connection
   languages: [fsharp]
   patterns:
-    - regex: '(?i)SqlConnection\\s*\\(.*\\"[^"]*\\"'
-  severity: high
+    - regex: '(?i)SqlConnection\\s*\\(.*\\"[^"]*\\"''severity: high
   description: "Hardcoded database connection string"
   remediation: "Use secure connection string storage"
   cwe: "CWE-798"
@@ -232,8 +211,7 @@
 - id: fsharp-trust-boundary
   languages: [fsharp]
   patterns:
-    - regex: '(?i)IsInRole\\s*\\(.*\\)|PrincipalPermission.*Authenticate'
-  severity: medium
+    - regex: '(?i)IsInRole\\s*\\(.*\\)|PrincipalPermission.*Authenticate''severity: medium
   description: "Trust boundary violation"
   remediation: "Validate authorization at trust boundaries"
   cwe: "CWE-501"
@@ -243,8 +221,7 @@
 - id: fsharp-weak-random
   languages: [fsharp]
   patterns:
-    - regex: '(?i)Random\\.Next\\s*\\(|new\\s+Random\\s*\\('
-  severity: medium
+    - regex: '(?i)Random\\.Next\\s*\\(|new\\s+Random\\s*\\(''severity: medium
   description: "Insecure random for security"
   remediation: "Use RandomNumberGenerator"
   cwe: "CWE-338"

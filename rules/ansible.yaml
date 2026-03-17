@@ -1,7 +1,7 @@
 - id: ansible-hardcoded-password
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:password|secret|api_?key)\\s*:\\s*[''"]?[a-zA-Z0-9_-]{8,}[''"]?'
+    - regex: '(?i)(?:password|secret|api_?key)\\s*:\\s*['''"]?[a-zA-Z0-9_-]{8,}[''"]?'
   severity: high
   description: "Hardcoded secret"
   remediation: "Use Ansible Vault (ansible-vault)"
@@ -12,8 +12,7 @@
 - id: ansible-command-injection
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:shell|command):\\s*.*\\{\\{\\s*.*\\}\\}'
-  severity: high
+    - regex: '(?i)(?:shell|command):\\s*.*\\{\\{\\s*.*\\}\\}''severity: high
   description: "Command injection via variables"
   remediation: "Use the 'quote' filter: {{ var | quote }}"
   cwe: "CWE-78"
@@ -23,7 +22,7 @@
 - id: ansible-world-writable-file
   languages: [yaml]
   patterns:
-    - regex: '(?i)file:.*mode:\s*[''"]?0?777[''"]?'
+    - regex: '(?i)file:.*mode:\s*['''"]?0?777[''"]?'
   severity: high
   description: "World-writable file permissions"
   remediation: "Use restrictive permissions like 0644 or 0600"
@@ -34,8 +33,7 @@
 - id: ansible-no-ssl-verify
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:get_url|uri):.*validate_certs:\s*(?:no|false)'
-  severity: high
+    - regex: '(?i)(?:get_url|uri):.*validate_certs:\s*(?:no|false)''severity: high
   description: "SSL validation disabled"
   remediation: "Enable certificate validation with validate_certs: yes"
   cwe: "CWE-295"
@@ -45,8 +43,7 @@
 - id: ansible-user-shell-login
   languages: [yaml]
   patterns:
-    - regex: '(?i)user:.*shell:\s*(?:/bin/bash|/bin/sh)(?!(.*system:\s*no))'
-  severity: medium
+    - regex: '(?i)user:.*shell:\s*(?:/bin/bash|/bin/sh))''severity: medium
   description: "System user with login shell"
   remediation: "Assign /usr/sbin/nologin or /bin/false to service accounts"
   cwe: "CWE-269"
@@ -56,8 +53,7 @@
 - id: ansible-raw-module
   languages: [yaml]
   patterns:
-    - regex: '(?i)-\s*raw:\s*'
-  severity: high
+    - regex: '(?i)-\s*raw:\s*''severity: high
   description: "Unsafe raw module execution"
   remediation: "Use specific modules instead of raw"
   cwe: "CWE-78"
@@ -66,8 +62,7 @@
 - id: ansible-script-module-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)-\s*script:\s*(?!.*\bcreates\b)'
-  severity: high
+    - regex: '(?i)-\s*script:\s*''severity: high
   description: "Script execution without idempotency checks"
   remediation: "Use creates or removes parameter"
   cwe: "CWE-20"
@@ -76,8 +71,7 @@
 - id: ansible-disable-host-key
   languages: [yaml]
   patterns:
-    - regex: '(?i)host_key_checking\s*=\s*False|ssh_args\s*=.*StrictHostKeyChecking=no'
-  severity: high
+    - regex: '(?i)host_key_checking\s*=\s*False|ssh_args\s*=.*StrictHostKeyChecking=no''severity: high
   description: "SSH Host Key checking disabled"
   remediation: "Enable host key checking to prevent MITM"
   cwe: "CWE-295"
@@ -86,8 +80,7 @@
 - id: ansible-nopasswd-sudo
   languages: [yaml]
   patterns:
-    - regex: '(?i)NOPASSWD\s*:\s*ALL'
-  severity: critical
+    - regex: '(?i)NOPASSWD\s*:\s*ALL''severity: critical
   description: "Sudo without password permitted"
   remediation: "Require passwords for sudo operations"
   cwe: "CWE-262"
@@ -96,8 +89,7 @@
 - id: ansible-sensitive-no-log
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:password|secret).*\n(?!(?:.*no_log:\s*(?:true|yes)))'
-  severity: medium
+    - regex: '(?i)(?:password|secret).*\n))''severity: medium
   description: "Sensitive task missing no_log"
   remediation: "Add no_log: yes to prevent leaking secrets in output"
   cwe: "CWE-532"
@@ -106,8 +98,7 @@
 - id: ansible-unencrypted-var
   languages: [yaml]
   patterns:
-    - regex: '(?i)aws_access_key.*:[\s\S]*?aws_secret_key'
-  severity: critical
+    - regex: '(?i)aws_access_key.*:[\s\S]*?aws_secret_key''severity: critical
   description: "Plaintext AWS credentials in playbook"
   remediation: "Use ansible-vault or environment variables"
   cwe: "CWE-798"
@@ -116,8 +107,7 @@
 - id: ansible-docker-privileged
   languages: [yaml]
   patterns:
-    - regex: '(?i)docker_container:[\s\S]*?privileged:\s*(?:yes|true)'
-  severity: high
+    - regex: '(?i)docker_container:[\s\S]*?privileged:\s*(?:yes|true)''severity: high
   description: "Privileged Docker container"
   remediation: "Remove privileged mode"
   cwe: "CWE-269"
@@ -128,8 +118,7 @@
 - id: ansible-template-injection
   languages: [yaml]
   patterns:
-    - regex: '(?i)template:.*src:.*\{\{.*\}\}'
-  severity: high
+    - regex: '(?i)template:.*src:.*\{\{.*\}\}''severity: high
   description: "Template path with variables"
   remediation: "Use static template paths"
   cwe: "CWE-94"
@@ -139,8 +128,7 @@
 - id: ansible-template-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)template:[\s\S]*?(?:password|secret|key|token)'
-  severity: critical
+    - regex: '(?i)template:[\s\S]*?(?:password|secret|key|token)''severity: critical
   description: "Template may expose secrets"
   remediation: "Use lookup plugins for secrets"
   cwe: "CWE-200"
@@ -150,8 +138,7 @@
 - id: ansible-undefined-variable
   languages: [yaml]
   patterns:
-    - regex: '\{\{\s*\w+\s*\}\}(?!\s*\|\s*\w+)'
-  severity: medium
+    - regex: '\{\{\s*\w+\s*\}\}''severity: medium
   description: "Potentially undefined variable"
   remediation: "Use default filter: {{ var | default('value') }}"
   cwe: "CWE-20"
@@ -161,8 +148,7 @@
 - id: ansible-dangerous-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)unsafe_writes:\s*true'
-  severity: high
+    - regex: '(?i)unsafe_writes:\s*true''severity: high
   description: "Unsafe file writes enabled"
   remediation: "Set unsafe_writes: false"
   cwe: "CWE-276"
@@ -173,8 +159,7 @@
 - id: ansible-debug-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)-\s*debug:[\s\S]*?(?:msg|var):.*\{\{.*(?:password|secret|key|token)'
-  severity: critical
+    - regex: '(?i)-\s*debug:[\s\S]*?(?:msg|var):.*\{\{.*(?:password|secret|key|token)''severity: critical
   description: "Debug task may expose secrets"
   remediation: "Remove debug with secrets or use no_log"
   cwe: "CWE-200"
@@ -184,8 +169,7 @@
 - id: ansible-async-no-check
   languages: [yaml]
   patterns:
-    - regex: '(?i)async:\s*\d+[\s\S]*?(?!.*check_mode|.*poll)'
-  severity: medium
+    - regex: '(?i)async:\s*\d+[\s\S]*?''severity: medium
   description: "Async task without check mode"
   remediation: "Add check_mode or poll"
   cwe: "CWE-20"
@@ -195,8 +179,7 @@
 - id: ansible-changed-when-false
   languages: [yaml]
   patterns:
-    - regex: '(?i)changed_when:\s*false'
-  severity: medium
+    - regex: '(?i)changed_when:\s*false''severity: medium
   description: "Task marked as never changing"
   remediation: "Remove changed_when false or add proper condition"
   cwe: "CWE-20"
@@ -206,8 +189,7 @@
 - id: ansible-failed-when-false
   languages: [yaml]
   patterns:
-    - regex: '(?i)failed_when:\s*false'
-  severity: high
+    - regex: '(?i)failed_when:\s*false''severity: high
   description: "Task failure is suppressed"
   remediation: "Remove failed_when false or add proper condition"
   cwe: "CWE-20"
@@ -217,8 +199,7 @@
 - id: ansible-run-once-always
   languages: [yaml]
   patterns:
-    - regex: '(?i)run_once:\s*true'
-  severity: medium
+    - regex: '(?i)run_once:\s*true''severity: medium
   description: "Task runs on one host only"
   remediation: "Ensure run_once is intentional"
   cwe: "CWE-20"
@@ -229,8 +210,7 @@
 - id: ansible-var-file-unencrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)vars_files:[\s\S]*?(?:group_vars|host_vars)'
-  severity: high
+    - regex: '(?i)vars_files:[\s\S]*?(?:group_vars|host_vars)''severity: high
   description: "Variable file may not be encrypted"
   remediation: "Use ansible-vault for vars_files"
   cwe: "CWE-798"
@@ -240,8 +220,7 @@
 - id: ansible-yaml-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)\!unsafe\s'
-  severity: critical
+    - regex: '(?i)\!unsafe\s''severity: critical
   description: "Unsafe YAML tag in use"
   remediation: "Remove unsafe tag"
   cwe: "CWE-94"
@@ -251,7 +230,7 @@
 - id: ansible-password-hash
   languages: [yaml]
   patterns:
-    - regex: '(?i)password:\s*[''"]?\w+[''"]?(?!\s*\|)'
+    - regex: '(?i)password:\s*['''"]?\w+[''"]?(?!\s*\|)'
   severity: medium
   description: "Password without hash"
   remediation: "Use password hash: {{ 'password' | password_hash('sha512') }}"
@@ -262,7 +241,7 @@
 - id: ansible-secret-in-vars
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*(?:password|secret|token|key)\s*:\s*[''"]?[\w-]{8,}'
+    - regex: '(?i)^\s*(?:password|secret|token|key)\s*:\s*['''"]?[\w-]{8,}'
   severity: critical
   description: "Secret in plain text variable"
   remediation: "Use vault or lookup plugin"
@@ -274,8 +253,7 @@
 - id: ansible-lookup-plugin
   languages: [yaml]
   patterns:
-    - regex: '(?i)lookup:\s*(?:password|hash|env|file)'
-  severity: medium
+    - regex: '(?i)lookup:\s*(?:password|hash|env|file)''severity: medium
   description: "Lookup plugin may expose secrets"
   remediation: "Use no_log with lookup"
   cwe: "CWE-200"
@@ -285,8 +263,7 @@
 - id: ansible-lineinfile-regex
   languages: [yaml]
   patterns:
-    - regex: '(?i)lineinfile:[\s\S]*?regexp:.*\*'
-  severity: high
+    - regex: '(?i)lineinfile:[\s\S]*?regexp:.*\*''severity: high
   description: "Lineinfile with wildcard regex"
   remediation: "Use specific regex patterns"
   cwe: "CWE-20"
@@ -296,8 +273,7 @@
 - id: ansible-fetch-module
   languages: [yaml]
   patterns:
-    - regex: '(?i)-\s*fetch:[\s\S]*?(?:dest|src)'
-  severity: medium
+    - regex: '(?i)-\s*fetch:[\s\S]*?(?:dest|src)''severity: medium
   description: "Fetch module may expose sensitive files"
   remediation: "Restrict fetch to specific files"
   cwe: "CWE-200"
@@ -307,8 +283,7 @@
 - id: ansible-git-with-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)git:[\s\S]*?(?:key|token|secret|password)'
-  severity: critical
+    - regex: '(?i)git:[\s\S]*?(?:key|token|secret|password)''severity: critical
   description: "Git module with credentials"
   remediation: "Use tokens instead of passwords"
   cwe: "CWE-798"
@@ -318,7 +293,7 @@
 - id: ansible-copy-mode
   languages: [yaml]
   patterns:
-    - regex: '(?i)copy:[\s\S]*?mode:\s*[''"]?0[0-7]{2}[''"]?'
+    - regex: '(?i)copy:[\s\S]*?mode:\s*['''"]?0[0-7]{2}[''"]?'
   severity: high
   description: "File copy with permissive mode"
   remediation: "Use restrictive file permissions"
@@ -329,8 +304,7 @@
 - id: ansible-wget-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)get_url:[\s\S]*?(?:url|dest)'
-  severity: medium
+    - regex: '(?i)get_url:[\s\S]*?(?:url|dest)''severity: medium
   description: "Downloading files from internet"
   remediation: "Verify checksums or use trusted sources"
   cwe: "CWE-494"
@@ -341,8 +315,7 @@
 - id: ansible-become-user
   languages: [yaml]
   patterns:
-    - regex: '(?i)become:\s*true[\s\S]*?become_user:\s*root'
-  severity: high
+    - regex: '(?i)become:\s*true[\s\S]*?become_user:\s*root''severity: high
   description: "Running as root user"
   remediation: "Use specific non-root user"
   cwe: "CWE-250"
@@ -352,8 +325,7 @@
 - id: ansible-become-without-password
   languages: [yaml]
   patterns:
-    - regex: '(?i)become:\s*true[\s\S]*?(?!.*become_pass)'
-  severity: medium
+    - regex: '(?i)become:\s*true[\s\S]*?''severity: medium
   description: "Become without password"
   remediation: "Configure become_pass securely"
   cwe: "CWE-262"
@@ -363,8 +335,7 @@
 - id: ansible-sudo-command
   languages: [yaml]
   patterns:
-    - regex: '(?i)sudo:\s*true|sudo_user:'
-  severity: medium
+    - regex: '(?i)sudo:\s*true|sudo_user:''severity: medium
   description: "Using deprecated sudo"
   remediation: "Use become instead"
   cwe: "CWE-20"
@@ -375,8 +346,7 @@
 - id: ansible-telnet-usage
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:telnet|network)'
-  severity: high
+    - regex: '(?i)(?:telnet|network)''severity: high
   description: "Telnet module in use"
   remediation: "Use SSH instead of telnet"
   cwe: "CWE-319"
@@ -386,8 +356,7 @@
 - id: ansible-insecure-protocol
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:ftp|telnet|rsh|rexec)'
-  severity: high
+    - regex: '(?i)(?:ftp|telnet|rsh|rexec)''severity: high
   description: "Insecure protocol usage"
   remediation: "Use secure alternatives"
   cwe: "CWE-319"
@@ -398,8 +367,7 @@
 - id: ansible-synchronize-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)synchronize:[\s\S]*?delete:\s*yes'
-  severity: medium
+    - regex: '(?i)synchronize:[\s\S]*?delete:\s*yes''severity: medium
   description: "Synchronize module with delete"
   remediation: "Be careful with delete option"
   cwe: "CWE-20"
@@ -409,8 +377,7 @@
 - id: ansible-find-module
   languages: [yaml]
   patterns:
-    - regex: '(?i)find:[\s\S]*?paths:\s*[/\\]'
-  severity: low
+    - regex: '(?i)find:[\s\S]*?paths:\s*[/\\]''severity: low
   description: "Find module on root path"
   remediation: "Restrict search paths"
   cwe: "CWE-20"
@@ -420,8 +387,7 @@
 - id: ansible-file-attributes
   languages: [yaml]
   patterns:
-    - regex: '(?i)file:[\s\S]*?attributes:'
-  severity: medium
+    - regex: '(?i)file:[\s\S]*?attributes:''severity: medium
   description: "Setting file attributes"
   remediation: "Use appropriate attributes"
   cwe: "CWE-20"
@@ -432,8 +398,7 @@
 - id: ansible-pip-from-git
   languages: [yaml]
   patterns:
-    - regex: '(?i)pip:[\s\S]*?git:'
-  severity: high
+    - regex: '(?i)pip:[\s\S]*?git:''severity: high
   description: "Installing pip from git"
   remediation: "Use PyPI or verify git source"
   cwe: "CWE-494"
@@ -443,8 +408,7 @@
 - id: ansible-yum-allow-downgrade
   languages: [yaml]
   patterns:
-    - regex: '(?i)yum:[\s\S]*?allow_downgrade:\s*true'
-  severity: medium
+    - regex: '(?i)yum:[\s\S]*?allow_downgrade:\s*true''severity: medium
   description: "Package downgrade allowed"
   remediation: "Disable allow_downgrade"
   cwe: "CWE-20"
@@ -454,8 +418,7 @@
 - id: ansible-apt-force
   languages: [yaml]
   patterns:
-    - regex: '(?i)apt:[\s\S]*?force_apt_get:\s*true'
-  severity: medium
+    - regex: '(?i)apt:[\s\S]*?force_apt_get:\s*true''severity: medium
   description: "Force apt-get usage"
   remediation: "Use proper apt module options"
   cwe: "CWE-20"
@@ -466,8 +429,7 @@
 - id: ansible-service-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)service:[\s\S]*?enabled:\s*yes'
-  severity: medium
+    - regex: '(?i)service:[\s\S]*?enabled:\s*yes''severity: medium
   description: "Service enabled at startup"
   remediation: "Ensure service is needed"
   cwe: "CWE-20"
@@ -477,8 +439,7 @@
 - id: ansible-systemd-service
   languages: [yaml]
   patterns:
-    - regex: '(?i)systemd:[\s\S]*?daemon_reload:\s*yes'
-  severity: low
+    - regex: '(?i)systemd:[\s\S]*?daemon_reload:\s*yes''severity: low
   description: "Systemd daemon reload"
   remediation: "Use handlers for daemon reload"
   cwe: "CWE-20"
@@ -489,8 +450,7 @@
 - id: ansible-cron-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)cron:[\s\S]*?(?:password|secret|key|token)'
-  severity: critical
+    - regex: '(?i)cron:[\s\S]*?(?:password|secret|key|token)''severity: critical
   description: "Cron job with credentials"
   remediation: "Use environment variables in cron"
   cwe: "CWE-798"
@@ -500,8 +460,7 @@
 - id: ansible-cron-exposed
   languages: [yaml]
   patterns:
-    - regex: '(?i)cron:[\s\S]*?user:\s*root'
-  severity: medium
+    - regex: '(?i)cron:[\s\S]*?user:\s*root''severity: medium
   description: "Cron job runs as root"
   remediation: "Use least privilege user"
   cwe: "CWE-250"
@@ -511,7 +470,7 @@
 - id: ansible-cron-job
   languages: [yaml]
   patterns:
-    - regex: '(?i)cron:[\s\S]*?job:\s*[''"]?\*(?!.*env)'
+    - regex: '(?i)cron:[\s\S]*?job:\s*['''"]?\*(?!.*env)'
   severity: medium
   description: "Cron job without environment"
   remediation: "Set PATH in cron job"
@@ -523,8 +482,7 @@
 - id: ansible-selinux-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)selinux:[\s\S]*?state:\s*disabled'
-  severity: high
+    - regex: '(?i)selinux:[\s\S]*?state:\s*disabled''severity: high
   description: "SELinux disabled"
   remediation: "Enable SELinux in enforcing mode"
   cwe: "CWE-20"
@@ -534,7 +492,7 @@
 - id: ansible-sysctl-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)sysctl:[\s\S]*?value:\s*[''"]?0[''"]?'
+    - regex: '(?i)sysctl:[\s\S]*?value:\s*['''"]?0[''"]?'
   severity: high
   description: "Sysctl setting security disabled"
   remediation: "Set secure sysctl values"
@@ -545,8 +503,7 @@
 - id: ansible-firewall-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)firewalld:[\s\S]*?state:\s*disabled'
-  severity: high
+    - regex: '(?i)firewalld:[\s\S]*?state:\s*disabled''severity: high
   description: "Firewall disabled"
   remediation: "Enable and configure firewall"
   cwe: "CWE-20"
@@ -556,8 +513,7 @@
 - id: ansible-iptables-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)iptables:[\s\S]*?chain:\s*INPUT[\s\S]*?policy:\s*ACCEPT'
-  severity: high
+    - regex: '(?i)iptables:[\s\S]*?chain:\s*INPUT[\s\S]*?policy:\s*ACCEPT''severity: high
   description: "iptables default policy ACCEPT"
   remediation: "Use DROP policy by default"
   cwe: "CWE-284"
@@ -568,8 +524,7 @@
 - id: ansible-aws-insecure
   languages: [yaml]
   patterns:
-    - regex: '(?i)ec2:[\s\S]*?(?:security_token|temporary_credentials)'
-  severity: critical
+    - regex: '(?i)ec2:[\s\S]*?(?:security_token|temporary_credentials)''severity: critical
   description: "Using temporary AWS credentials"
   remediation: "Use IAM roles instead"
   cwe: "CWE-798"
@@ -579,8 +534,7 @@
 - id: ansible-azure-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)azure:[\s\S]*?(?:password|secret|key)'
-  severity: critical
+    - regex: '(?i)azure:[\s\S]*?(?:password|secret|key)''severity: critical
   description: "Azure credentials in playbook"
   remediation: "Use service principal"
   cwe: "CWE-798"
@@ -590,8 +544,7 @@
 - id: ansible-gcp-credentials
   languages: [yaml]
   patterns:
-    - regex: '(?i)gcp:[\s\S]*?(?:credentials_file|service_account_file)'
-  severity: critical
+    - regex: '(?i)gcp:[\s\S]*?(?:credentials_file|service_account_file)''severity: critical
   description: "GCP credentials in playbook"
   remediation: "Use service account"
   cwe: "CWE-798"
@@ -601,8 +554,7 @@
 - id: ansible-s3-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)s3_bucket:[\s\S]*?encryption:\s*false'
-  severity: high
+    - regex: '(?i)s3_bucket:[\s\S]*?encryption:\s*false''severity: high
   description: "S3 bucket encryption disabled"
   remediation: "Enable encryption"
   cwe: "CWE-311"
@@ -613,8 +565,7 @@
 - id: ansible-docker-net-host
   languages: [yaml]
   patterns:
-    - regex: '(?i)docker_container:[\s\S]*?network_mode:\s*host'
-  severity: high
+    - regex: '(?i)docker_container:[\s\S]*?network_mode:\s*host''severity: high
   description: "Docker container using host network"
   remediation: "Use bridge network"
   cwe: "CWE-284"
@@ -624,8 +575,7 @@
 - id: ansible-docker-cap-add
   languages: [yaml]
   patterns:
-    - regex: '(?i)docker_container:[\s\S]*?capabilities_add:'
-  severity: high
+    - regex: '(?i)docker_container:[\s\S]*?capabilities_add:''severity: high
   description: "Docker container with added capabilities"
   remediation: "Avoid adding capabilities"
   cwe: "CWE-250"
@@ -635,7 +585,7 @@
 - id: ansible-docker-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)docker_container:[\s\S]*?volumes:\s*[''"]?/'
+    - regex: '(?i)docker_container:[\s\S]*?volumes:\s*['''"]?/'
   severity: high
   description: "Docker container with root volume mount"
   remediation: "Avoid mounting root filesystem"
@@ -646,8 +596,7 @@
 - id: ansible-podman-privileged
   languages: [yaml]
   patterns:
-    - regex: '(?i)podman:[\s\S]*?privileged:\s*true'
-  severity: high
+    - regex: '(?i)podman:[\s\S]*?privileged:\s*true''severity: high
   description: "Privileged Podman container"
   remediation: "Remove privileged mode"
   cwe: "CWE-250"
@@ -658,8 +607,7 @@
 - id: ansible-vault-encrypt
   languages: [yaml]
   patterns:
-    - regex: '(?i)!vault\s+|\$ANSIBLE_VAULT'
-  severity: low
+    - regex: '(?i)!vault\s+|\$ANSIBLE_VAULT''severity: low
   description: "Vault encrypted content detected"
   remediation: "Good practice - ensure vault is secure"
   cwe: "CWE-200"
@@ -669,8 +617,7 @@
 - id: ansible-vault-password-file
   languages: [yaml]
   patterns:
-    - regex: '(?i)vault_password_file:'
-  severity: high
+    - regex: '(?i)vault_password_file:''severity: high
   description: "Vault password file reference"
   remediation: "Use --vault-id instead"
   cwe: "CWE-798"
@@ -681,8 +628,7 @@
 - id: ansible-handler-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)handlers:[\s\S]*?(?:debug|command|shell):'
-  severity: medium
+    - regex: '(?i)handlers:[\s\S]*?(?:debug|command|shell):''severity: medium
   description: "Handler may expose secrets"
   remediation: "Use no_log in handlers"
   cwe: "CWE-532"
@@ -692,8 +638,7 @@
 - id: ansible-flush-handlers
   languages: [yaml]
   patterns:
-    - regex: '(?i)meta:\s*flush_handlers'
-  severity: low
+    - regex: '(?i)meta:\s*flush_handlers''severity: low
   description: "Flushing handlers mid-play"
   remediation: "Ensure handlers run at end"
   cwe: "CWE-20"
@@ -704,8 +649,7 @@
 - id: ansible-dynamic-include
   languages: [yaml]
   patterns:
-    - regex: '(?i)include:\s'
-  severity: medium
+    - regex: '(?i)include:\s''severity: medium
   description: "Dynamic include in use"
   remediation: "Use static includes when possible"
   cwe: "CWE-20"
@@ -715,8 +659,7 @@
 - id: ansible-import-playbook
   languages: [yaml]
   patterns:
-    - regex: '(?i)import_playbook:'
-  severity: low
+    - regex: '(?i)import_playbook:''severity: low
   description: "Static import of playbook"
   remediation: "Good practice"
   cwe: "CWE-20"
@@ -727,8 +670,7 @@
 - id: ansible-delegate-to
   languages: [yaml]
   patterns:
-    - regex: '(?i)delegate_to:\s*localhost'
-  severity: low
+    - regex: '(?i)delegate_to:\s*localhost''severity: low
   description: "Delegate to localhost"
   remediation: "Ensure delegation is intentional"
   cwe: "CWE-20"
@@ -738,8 +680,7 @@
 - id: ansible-gathering-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)gathering:\s*explicit'
-  severity: low
+    - regex: '(?i)gathering:\s*explicit''severity: low
   description: "Explicit gathering policy"
   remediation: "Ensure gathering is needed"
   cwe: "CWE-20"
@@ -749,8 +690,7 @@
 - id: ansible-facts-cache
   languages: [yaml]
   patterns:
-    - regex: '(?i)fact_caching:\s*jsonfile'
-  severity: low
+    - regex: '(?i)fact_caching:\s*jsonfile''severity: low
   description: "Facts cached to JSON"
   remediation: "Encrypt cache or use redis"
   cwe: "CWE-200"
@@ -761,8 +701,7 @@
 - id: ansible-loop-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)with_\s*:[\s\S]*?(?:password|secret|key)'
-  severity: critical
+    - regex: '(?i)with_\s*:[\s\S]*?(?:password|secret|key)''severity: critical
   description: "Loop with sensitive data"
   remediation: "Use no_log with loop"
   cwe: "CWE-532"
@@ -772,8 +711,7 @@
 - id: ansible-unsafe-loop
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:loop|with_items):[\s\S]*?\{\{.*\}\}'
-  severity: medium
+    - regex: '(?i)(?:loop|with_items):[\s\S]*?\{\{.*\}\}''severity: medium
   description: "Loop with variable"
   remediation: "Use static values or validate"
   cwe: "CWE-20"
@@ -784,8 +722,7 @@
 - id: ansible-block-rescue
   languages: [yaml]
   patterns:
-    - regex: '(?i)block:[\s\S]*?rescue:[\s\S]*?always:'
-  severity: low
+    - regex: '(?i)block:[\s\S]*?rescue:[\s\S]*?always:''severity: low
   description: "Block with rescue and always"
   remediation: "Ensure error handling is proper"
   cwe: "CWE-20"
@@ -796,8 +733,7 @@
 - id: ansible-never-tags
   languages: [yaml]
   patterns:
-    - regex: '(?i)tags:\s*never'
-  severity: low
+    - regex: '(?i)tags:\s*never''severity: low
   description: "Task tagged never"
   remediation: "Remove never tag"
   cwe: "CWE-20"
@@ -808,8 +744,7 @@
 - id: ansible-wait-for-port
   languages: [yaml]
   patterns:
-    - regex: '(?i)wait_for:[\s\S]*?port:\s*[\d]+'
-  severity: low
+    - regex: '(?i)wait_for:[\s\S]*?port:\s*[\d]+''severity: low
   description: "Wait for port"
   remediation: "Ensure timeout is set"
   cwe: "CWE-20"
@@ -819,8 +754,7 @@
 - id: ansible-pause-unattended
   languages: [yaml]
   patterns:
-    - regex: '(?i)pause:\s*(?!.*minutes)'
-  severity: low
+    - regex: '(?i)pause:\s*''severity: low
   description: "Pause without timeout"
   remediation: "Add timeout to pause"
   cwe: "CWE-20"
@@ -831,8 +765,7 @@
 - id: ansible-assert-fail
   languages: [yaml]
   patterns:
-    - regex: '(?i)assert:[\s\S]*?that:.*always'
-  severity: low
+    - regex: '(?i)assert:[\s\S]*?that:.*always''severity: low
   description: "Assert may fail unexpectedly"
   remediation: "Review assert conditions"
   cwe: "CWE-20"
@@ -843,8 +776,7 @@
 - id: ansible-set-fact-secret
   languages: [yaml]
   patterns:
-    - regex: '(?i)set_fact:[\s\S]*?(?:password|secret|key|token)'
-  severity: critical
+    - regex: '(?i)set_fact:[\s\S]*?(?:password|secret|key|token)''severity: critical
   description: "Setting fact with sensitive data"
   remediation: "Use no_log with set_fact"
   cwe: "CWE-532"
@@ -855,8 +787,7 @@
 - id: ansible-role-dependency
   languages: [yaml]
   patterns:
-    - regex: '(?i)dependencies:[\s\S]*?(?:role|include_role)'
-  severity: low
+    - regex: '(?i)dependencies:[\s\S]*?(?:role|include_role)''severity: low
   description: "Role dependencies"
   remediation: "Review role dependencies"
   cwe: "CWE-20"
@@ -866,8 +797,7 @@
 - id: ansible-role-path
   languages: [yaml]
   patterns:
-    - regex: '(?i)roles:[\s\S]*?path:'
-  severity: medium
+    - regex: '(?i)roles:[\s\S]*?path:''severity: medium
   description: "Custom role path"
   remediation: "Use collections instead"
   cwe: "CWE-20"
@@ -878,8 +808,7 @@
 - id: ansible-retry-file
   languages: [yaml]
   patterns:
-    - regex: '(?i)retry_files_enabled:\s*true'
-  severity: low
+    - regex: '(?i)retry_files_enabled:\s*true''severity: low
   description: "Retry files enabled"
   remediation: "Disable retry files"
   cwe: "CWE-20"
@@ -889,8 +818,7 @@
 - id: ansible-display-ok-host
   languages: [yaml]
   patterns:
-    - regex: '(?i)display_ok_hosts:\s*true'
-  severity: low
+    - regex: '(?i)display_ok_hosts:\s*true''severity: low
   description: "Display all hosts"
   remediation: "May expose sensitive output"
   cwe: "CWE-200"
@@ -900,8 +828,7 @@
 - id: ansible-display-skipped
   languages: [yaml]
   patterns:
-    - regex: '(?i)display_skipped_hosts:\s*false'
-  severity: low
+    - regex: '(?i)display_skipped_hosts:\s*false''severity: low
   description: "Hide skipped hosts"
   remediation: "May hide important info"
   cwe: "CWE-20"
@@ -912,7 +839,7 @@
 - id: ansible-when-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)when:\s*[''"]?\w+[''"]?'
+    - regex: '(?i)when:\s*['''"]?\w+[''"]?'
   severity: medium
   description: "Simple when condition"
   remediation: "Use proper conditional expressions"
@@ -923,8 +850,7 @@
 - id: ansible-ignore-errors
   languages: [yaml]
   patterns:
-    - regex: '(?i)ignore_errors:\s*yes'
-  severity: high
+    - regex: '(?i)ignore_errors:\s*yes''severity: high
   description: "Ignoring task errors"
   remediation: "Remove ignore_errors or handle properly"
   cwe: "CWE-20"
@@ -934,8 +860,7 @@
 - id: ansible-ignore-unreachable
   languages: [yaml]
   patterns:
-    - regex: '(?i)ignore_unreachable:\s*yes'
-  severity: medium
+    - regex: '(?i)ignore_unreachable:\s*yes''severity: medium
   description: "Ignoring unreachable hosts"
   remediation: "Remove ignore_unreachable"
   cwe: "CWE-20"
@@ -944,8 +869,7 @@
 - id: ansible-win-shell-var
   languages: [yaml]
   patterns:
-    - regex: '(?i)win_shell:.*\{\{.*\}\}'
-  severity: high
+    - regex: '(?i)win_shell:.*\{\{.*\}\}''severity: high
   description: "Windows shell with variables (Injection risk)"
   remediation: "Use win_command with proper escaping or specific win modules"
   cwe: "CWE-78"
@@ -954,8 +878,7 @@
 - id: ansible-unarchive-remote
   languages: [yaml]
   patterns:
-    - regex: '(?i)unarchive:.*remote_src:\s*yes(?!.*validate_certs:\s*yes)'
-  severity: medium
+    - regex: '(?i)unarchive:.*remote_src:\s*yes''severity: medium
   description: "Unarchive from untrusted remote"
   remediation: "Validate certs or hash when unpacking remote src"
   cwe: "CWE-494"
@@ -964,8 +887,7 @@
 - id: ansible-get-url-http
   languages: [yaml]
   patterns:
-    - regex: '(?i)get_url:.*url:\s*http://'
-  severity: high
+    - regex: '(?i)get_url:.*url:\s*http://''severity: high
   description: "get_url downloading via HTTP"
   remediation: "Use HTTPS for downloads"
   cwe: "CWE-319"
@@ -974,8 +896,7 @@
 - id: ansible-get-url-no-checksum
   languages: [yaml]
   patterns:
-    - regex: '(?i)get_url:(?!.*checksum:)'
-  severity: medium
+    - regex: '(?i)get_url:''severity: medium
   description: "get_url without checksum validation"
   remediation: "Verify file integrity with a checksum"
   cwe: "CWE-353"
@@ -984,8 +905,7 @@
 - id: ansible-uri-no-auth
   languages: [yaml]
   patterns:
-    - regex: '(?i)uri:.*url:\s*https(?!.*user:|.*url_username:)'
-  severity: low
+    - regex: '(?i)uri:.*url:\s*https''severity: low
   description: "URI module used without authentication"
   remediation: "Ensure endpoints don't require auth"
   cwe: "CWE-306"
@@ -994,8 +914,7 @@
 - id: ansible-apt-key-url
   languages: [yaml]
   patterns:
-    - regex: '(?i)apt_key:.*url\s*=\s*http://'
-  severity: high
+    - regex: '(?i)apt_key:.*url\s*=\s*http://''severity: high
   description: "APT key downloaded over HTTP"
   remediation: "Use HTTPS for APT keys"
   cwe: "CWE-319"
@@ -1004,8 +923,7 @@
 - id: ansible-ec2-key
   languages: [yaml]
   patterns:
-    - regex: '(?i)aws_secret_key:\s*(?!\{\{)'
-  severity: critical
+    - regex: '(?i)aws_secret_key:\s*''severity: critical
   description: "Hardcoded EC2 secret key"
   remediation: "Use Ansible vault for AWS keys"
   cwe: "CWE-798"
@@ -1014,7 +932,7 @@
 - id: ansible-azure-secret
   languages: [yaml]
   patterns:
-    - regex: '(?i)secret:\s*[''"][a-zA-Z0-9=+/]{10,}[''"](?!.*\{\{)'
+    - regex: '(?i)secret:\s*['''"][a-zA-Z0-9=+/]{10,}[''"](?!.*\{\{)'
   severity: critical
   description: "Hardcoded Azure secret"
   remediation: "Use Ansible vault for Azure secrets"
@@ -1024,8 +942,7 @@
 - id: ansible-gcp-service-account
   languages: [yaml]
   patterns:
-    - regex: '(?i)service_account_contents:\s*(?!\{\{)'
-  severity: critical
+    - regex: '(?i)service_account_contents:\s*''severity: critical
   description: "Hardcoded GCP Service Account key"
   remediation: "Use Ansible vault"
   cwe: "CWE-798"
@@ -1034,8 +951,7 @@
 - id: ansible-docker-network-host
   languages: [yaml]
   patterns:
-    - regex: '(?i)docker_container:.*network_mode:\s*host'
-  severity: high
+    - regex: '(?i)docker_container:.*network_mode:\s*host''severity: high
   description: "Docker container using host network"
   remediation: "Use bridge or custom networks"
   cwe: "CWE-284"
@@ -1044,8 +960,7 @@
 - id: ansible-postgresql-user-pass
   languages: [yaml]
   patterns:
-    - regex: '(?i)postgresql_user:.*password:\s*(?!\{\{)'
-  severity: critical
+    - regex: '(?i)postgresql_user:.*password:\s*''severity: critical
   description: "Hardcoded PostgreSQL password"
   remediation: "Use Ansible vault"
   cwe: "CWE-798"
@@ -1054,8 +969,7 @@
 - id: ansible-mysql-user-pass
   languages: [yaml]
   patterns:
-    - regex: '(?i)mysql_user:.*password:\s*(?!\{\{)'
-  severity: critical
+    - regex: '(?i)mysql_user:.*password:\s*''severity: critical
   description: "Hardcoded MySQL password"
   remediation: "Use Ansible vault"
   cwe: "CWE-798"
@@ -1064,8 +978,7 @@
 - id: ansible-pip-index-url-http
   languages: [yaml]
   patterns:
-    - regex: '(?i)pip:.*extra_args:\s*.*--index-url\s+http://'
-  severity: high
+    - regex: '(?i)pip:.*extra_args:\s*.*--index-url\s+http://''severity: high
   description: "PIP using insecure index URL"
   remediation: "Use HTTPS for package indexes"
   cwe: "CWE-319"
@@ -1074,8 +987,7 @@
 - id: ansible-k8s-insecure-skip-tls
   languages: [yaml]
   patterns:
-    - regex: '(?i)k8s:.*validate_certs:\s*no'
-  severity: high
+    - regex: '(?i)k8s:.*validate_certs:\s*no''severity: high
   description: "Kubernetes cluster TLS verification disabled"
   remediation: "Enable cert validation for k8s"
   cwe: "CWE-295"
@@ -1084,8 +996,7 @@
 - id: ansible-git-no-verify-commit
   languages: [yaml]
   patterns:
-    - regex: '(?i)git:.*verify_commit:\s*no'
-  severity: medium
+    - regex: '(?i)git:.*verify_commit:\s*no''severity: medium
   description: "Git commit verification disabled"
   remediation: "Enable verify_commit to ensure integrity"
   cwe: "CWE-353"
@@ -1094,8 +1005,7 @@
 - id: ansible-npm-unsafe-perm
   languages: [yaml]
   patterns:
-    - regex: '(?i)npm:.*unsafe_perm:\s*yes'
-  severity: high
+    - regex: '(?i)npm:.*unsafe_perm:\s*yes''severity: high
   description: "NPM running with unsafe permissions"
   remediation: "Avoid using unsafe_perm in npm module"
   cwe: "CWE-269"
@@ -1104,8 +1014,7 @@
 - id: ansible-cron-var
   languages: [yaml]
   patterns:
-    - regex: '(?i)cron:.*job:.*\{\{.*\}\}'
-  severity: medium
+    - regex: '(?i)cron:.*job:.*\{\{.*\}\}''severity: medium
   description: "Cron job definition contains unvalidated variable"
   remediation: "Ensure variables used in cron jobs are safe"
   cwe: "CWE-78"
@@ -1114,7 +1023,7 @@
 - id: ansible-user-password-cleartext
   languages: [yaml]
   patterns:
-    - regex: '(?i)user:.*password:\s*[''"][^$]'
+    - regex: '(?i)user:.*password:\s*['''"][^$]'
   severity: critical
   description: "User password not hashed"
   remediation: "Passwords must be hashed (use password_hash filter)"
@@ -1124,8 +1033,7 @@
 - id: ansible-become-password
   languages: [yaml]
   patterns:
-    - regex: '(?i)become:\s*true[\s\S]*?become_pass:'
-  severity: high
+    - regex: '(?i)become:\s*true[\s\S]*?become_pass:''severity: high
   description: "Become password in plain text"
   remediation: "Use become_password file or variable"
   cwe: "CWE-256"
@@ -1135,8 +1043,7 @@
 - id: ansible-ssh-args
   languages: [yaml]
   patterns:
-    - regex: '(?i)ssh_args:.*-o\s+StrictHostKeyChecking=no'
-  severity: high
+    - regex: '(?i)ssh_args:.*-o\s+StrictHostKeyChecking=no''severity: high
   description: "SSH StrictHostKeyChecking disabled"
   remediation: "Use StrictHostKeyChecking=accept-new"
   cwe: "CWE-295"
@@ -1146,8 +1053,7 @@
 - id: ansible-async-ppoll
   languages: [yaml]
   patterns:
-    - regex: '(?i)async:\s*\d+[\s\S]*?poll:\s*0'
-  severity: medium
+    - regex: '(?i)async:\s*\d+[\s\S]*?poll:\s*0''severity: medium
   description: "Async with poll 0"
   remediation: "Use async with poll > 0"
   cwe: "CWE-400"
@@ -1157,8 +1063,7 @@
 - id: ansible-delegate-to
   languages: [yaml]
   patterns:
-    - regex: '(?i)delegate_to:\s*localhost'
-  severity: low
+    - regex: '(?i)delegate_to:\s*localhost''severity: low
   description: "Delegating to localhost"
   remediation: "Ensure proper delegation"
   cwe: "CWE-284"
@@ -1168,8 +1073,7 @@
 - id: ansible-no-log
   languages: [yaml]
   patterns:
-    - regex: '(?i)no_log:\s*false'
-  severity: medium
+    - regex: '(?i)no_log:\s*false''severity: medium
   description: "Task logging not disabled"
   remediation: "Set no_log: true for sensitive tasks"
   cwe: "CWE-532"

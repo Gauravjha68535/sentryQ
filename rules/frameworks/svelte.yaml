@@ -8,7 +8,7 @@
 - id: svelte-hardcoded-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*[''\"''][^''\"]{8,}[''\"]'
+    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*['''\"''][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password detected in Svelte source code"
   remediation: "Use environment variables via process.env.PASSWORD or a secrets manager like HashiCorp Vault"
@@ -18,7 +18,7 @@
 - id: svelte-hardcoded-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*[''\"''][a-zA-Z0-9]{16,}[''\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*['''\"''][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "Hardcoded API key detected in Svelte source code"
   remediation: "Store API keys in environment variables or use a secure vault service"
@@ -28,7 +28,7 @@
 - id: svelte-hardcoded-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)(secret|token|auth_key)\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]{12,}[''\"]'
+    - regex: '(?i)(secret|token|auth_key)\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]{12,}[''\"]'
   severity: high
   description: "Hardcoded secret or token detected in Svelte code"
   remediation: "Use environment variables and rotate secrets regularly"
@@ -38,7 +38,7 @@
 - id: svelte-hardcoded-jwt-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key|hmac[_-]?secret)\\s*[=:]\\s*[''\"''][^''\"]{8,}[''\"]'
+    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key|hmac[_-]?secret)\\s*[=:]\\s*['''\"''][^''\"]{8,}[''\"]'
   severity: critical
   description: "Hardcoded JWT signing secret detected in Svelte application"
   remediation: "Use environment variables or a secrets manager for JWT secrets"
@@ -48,7 +48,7 @@
 - id: svelte-hardcoded-db-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)(database_uri|db_password|postgres_url)\\s*[=:]\\s*[''\"''][^''\"]{8,}[''\"]'
+    - regex: '(?i)(database_uri|db_password|postgres_url)\\s*[=:]\\s*['''\"''][^''\"]{8,}[''\"]'
   severity: critical
   description: "Database credentials hardcoded in Svelte source code"
   remediation: "Use environment variables for database connection strings"
@@ -58,7 +58,7 @@
 - id: svelte-hardcoded-session-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)session_secret\\s*[=:]\\s*[''\"''][^''\"]{8,}[''\"]'
+    - regex: '(?i)session_secret\\s*[=:]\\s*['''\"''][^''\"]{8,}[''\"]'
   severity: critical
   description: "Session secret hardcoded in Svelte configuration"
   remediation: "Use environment variable SESSION_SECRET from env vars or config store"
@@ -68,7 +68,7 @@
 - id: svelte-hardcoded-crypto-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)crypto_key|encryption_key\\s*[=:]\\s*[''\"''][^''\"]{16,}[''\"]'
+    - regex: '(?i)crypto_key|encryption_key\\s*[=:]\\s*['''\"''][^''\"]{16,}[''\"]'
   severity: critical
   description: "Cryptographic key hardcoded in Svelte code"
   remediation: "Generate encryption keys dynamically or use secure key management"
@@ -78,7 +78,7 @@
 - id: svelte-hardcoded-access-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)access_token\\s*[=:]\\s*[''\"''][^''\"]{16,}[''\"]'
+    - regex: '(?i)access_token\\s*[=:]\\s*['''\"''][^''\"]{16,}[''\"]'
   severity: high
   description: "Access token hardcoded in Svelte source"
   remediation: "Obtain access tokens through proper OAuth flows"
@@ -88,7 +88,7 @@
 - id: svelte-hardcoded-refresh-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)refresh_token\\s*[=:]\\s*[''\"''][^''\"]{16,}[''\"]'
+    - regex: '(?i)refresh_token\\s*[=:]\\s*['''\"''][^''\"]{16,}[''\"]'
   severity: high
   description: "Refresh token hardcoded in Svelte code"
   remediation: "Never hardcode refresh tokens. Use secure token storage"
@@ -98,7 +98,7 @@
 - id: svelte-hardcoded-bearer-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bearer_token\\s*[=:]\\s*[''\"''][^''\"]{16,}[''\"]'
+    - regex: '(?i)bearer_token\\s*[=:]\\s*['''\"''][^''\"]{16,}[''\"]'
   severity: high
   description: "Bearer token hardcoded in Svelte application"
   remediation: "Use environment variables for bearer tokens"
@@ -108,7 +108,7 @@
 - id: svelte-hardcoded-oauth-client-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)oauth_client_id\\s*[=:]\\s*[''\"''][a-zA-Z0-9_]+'
+    - regex: '(?i)oauth_client_id\\s*[=:]\\s*['''\"''][a-zA-Z0-9_]+'
   severity: medium
   description: "OAuth client ID hardcoded in Svelte"
   remediation: "Use environment variables for OAuth client IDs"
@@ -118,7 +118,7 @@
 - id: svelte-hardcoded-oauth-client-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)oauth_client_secret\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]+'
+    - regex: '(?i)oauth_client_secret\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]+'
   severity: critical
   description: "OAuth client secret hardcoded in Svelte"
   remediation: "Never hardcode OAuth secrets. Use secure configuration storage"
@@ -128,8 +128,7 @@
 - id: svelte-hardcoded-stripe-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sk_live_|sk_test_|pk_live_|pk_test_'
-  severity: critical
+    - regex: '(?i)sk_live_|sk_test_|pk_live_|pk_test_''severity: critical
   description: "Stripe API key detected in Svelte code"
   remediation: "Remove Stripe keys from frontend. Use server-side endpoints only"
   cwe: "CWE-798"
@@ -138,8 +137,7 @@
 - id: svelte-hardcoded-sendgrid-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)SG\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+'
-  severity: critical
+    - regex: '(?i)SG\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+''severity: critical
   description: "SendGrid API key detected in Svelte code"
   remediation: "Remove SendGrid keys from frontend code"
   cwe: "CWE-798"
@@ -148,8 +146,7 @@
 - id: svelte-hardcoded-twilio-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)AC[a-zA-Z0-9_]{32}|SK[a-zA-Z0-9_]{32}'
-  severity: critical
+    - regex: '(?i)AC[a-zA-Z0-9_]{32}|SK[a-zA-Z0-9_]{32}''severity: critical
   description: "Twilio Account/Service SID or API Key detected"
   remediation: "Use server-side endpoints for Twilio operations"
   cwe: "CWE-798"
@@ -158,8 +155,7 @@
 - id: svelte-hardcoded-aws-access-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)AKIA[0-9A-Z]{16}'
-  severity: critical
+    - regex: '(?i)AKIA[0-9A-Z]{16}''severity: critical
   description: "AWS Access Key ID detected in Svelte code"
   remediation: "Remove AWS credentials from client-side code"
   cwe: "CWE-798"
@@ -168,7 +164,7 @@
 - id: svelte-hardcoded-aws-secret-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)AWS_SECRET_ACCESS_KEY\\s*[=:]\\s*[''\"''][a-zA-Z0-9/+=]+'
+    - regex: '(?i)AWS_SECRET_ACCESS_KEY\\s*[=:]\\s*['''\"''][a-zA-Z0-9/+=]+'
   severity: critical
   description: "AWS Secret Access Key hardcoded in Svelte"
   remediation: "Never include AWS secrets in frontend applications"
@@ -178,7 +174,7 @@
 - id: svelte-hardcoded-gcp-service-account
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)[\"'']type[\"'']:[\"'']service_account[\"'']'
+    - regex: '(?i)[\"''']type[\"'']:[\"'']service_account[\"'']'
   severity: critical
   description: "GCP Service Account key detected in Svelte"
   remediation: "Use server-side GCP authentication methods"
@@ -188,7 +184,7 @@
 - id: svelte-hardcoded-firebase-config
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)((apiKey|messagingSenderId|appId|projectId)[\"'']:\\s*[''\"])'
+    - regex: '(?i)((apiKey|messagingSenderId|appId|projectId)[\"''']:\\s*[''\"])'
   severity: medium
   description: "Firebase configuration values exposed in source"
   remediation: "Restrict Firebase API keys in Google Cloud Console"
@@ -198,8 +194,7 @@
 - id: svelte-hardcoded-google-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)AIza[a-zA-Z0-9_-]{35}'
-  severity: high
+    - regex: '(?i)AIza[a-zA-Z0-9_-]{35}''severity: high
   description: "Google API key detected in Svelte code"
   remediation: "Use restricted API keys in Google Cloud Console"
   cwe: "CWE-798"
@@ -208,7 +203,7 @@
 - id: svelte-hardcoded-magic-link-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)magic_link_secret|magic_secret\\s*[=:]\\s*[''\"''][^''\"]+'
+    - regex: '(?i)magic_link_secret|magic_secret\\s*[=:]\\s*['''\"''][^''\"]+'
   severity: high
   description: "Magic link secret hardcoded in Svelte"
   remediation: "Use environment variables for magic link secrets"
@@ -218,7 +213,7 @@
 - id: svelte-hardcoded-passport-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)passport_secret|passport\\.Secret\\s*[=:]\\s*[''\"''][^''\"]+'
+    - regex: '(?i)passport_secret|passport\\.Secret\\s*[=:]\\s*['''\"''][^''\"]+'
   severity: high
   description: "Passport.js secret detected in Svelte"
   remediation: "Configure passport secrets through environment variables"
@@ -228,8 +223,7 @@
 - id: svelte-hardcoded-supabase-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)eyJhbGciOiJIUzI1NiJ9.*supabase'
-  severity: high
+    - regex: '(?i)eyJhbGciOiJIUzI1NiJ9.*supabase''severity: high
   description: "Supabase JWT key detected in Svelte"
   remediation: "Use Supabase anon/public keys only in frontend"
   cwe: "CWE-798"
@@ -238,8 +232,7 @@
 - id: svelte-hardcoded-hasura-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)hasura_admin_secret|x-hasura-admin-secret'
-  severity: critical
+    - regex: '(?i)hasura_admin_secret|x-hasura-admin-secret''severity: critical
   description: "Hasura admin secret detected in Svelte"
   remediation: "Never expose Hasura admin secrets in client code"
   cwe: "CWE-798"
@@ -248,7 +241,7 @@
 - id: svelte-hardcoded-prisma-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)prisma[\\._]?[kK]ey\\s*[=:]\\s*[''\"''][^''\"]+'
+    - regex: '(?i)prisma[\\._]?[kK]ey\\s*[=:]\\s*['''\"''][^''\"]+'
   severity: high
   description: "Prisma key potentially hardcoded in Svelte"
   remediation: "Use Prisma on server-side only with env vars"
@@ -258,8 +251,7 @@
 - id: svelte-hardcoded-netlify-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)netlify[\\._]?[sS]ecret|netlify[\\._]?[dD]eploy'
-  severity: high
+    - regex: '(?i)netlify[\\._]?[sS]ecret|netlify[\\._]?[dD]eploy''severity: high
   description: "Netlify credentials detected in Svelte code"
   remediation: "Move Netlify credentials to server environment"
   cwe: "CWE-798"
@@ -268,8 +260,7 @@
 - id: svelte-hardcoded-vercel-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vercel[\\._]?[sS]ecret|vercel[\\._]?[tT]oken'
-  severity: high
+    - regex: '(?i)vercel[\\._]?[sS]ecret|vercel[\\._]?[tT]oken''severity: high
   description: "Vercel secret/token detected in Svelte"
   remediation: "Use Vercel environment variables securely"
   cwe: "CWE-798"
@@ -278,8 +269,7 @@
 - id: svelte-hardcoded-replit-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)replit[\\._]?[sS]ecret|REPLIT_ENV'
-  severity: medium
+    - regex: '(?i)replit[\\._]?[sS]ecret|REPLIT_ENV''severity: medium
   description: "Replit environment secret detected"
   remediation: "Configure Replit secrets through platform settings"
   cwe: "CWE-798"
@@ -288,8 +278,7 @@
 - id: svelte-hardcoded-railway-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)railway[\\._]?[sS]ecret|RAILWAY_ENV'
-  severity: medium
+    - regex: '(?i)railway[\\._]?[sS]ecret|RAILWAY_ENV''severity: medium
   description: "Railway environment secret detected"
   remediation: "Use Railway project secrets feature"
   cwe: "CWE-798"
@@ -298,8 +287,7 @@
 - id: svelte-hardcoded-cloudflare-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cloudflare[\\._]?[kK]ey|CLOUDFLARE_API_KEY'
-  severity: high
+    - regex: '(?i)cloudflare[\\._]?[kK]ey|CLOUDFLARE_API_KEY''severity: high
   description: "Cloudflare API key detected in Svelte"
   remediation: "Use Cloudflare R2/Workers secrets management"
   cwe: "CWE-798"
@@ -308,8 +296,7 @@
 - id: svelte-hardcoded-digitalocean-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)dop_v1_[a-zA-Z0-9_-]+'
-  severity: high
+    - regex: '(?i)dop_v1_[a-zA-Z0-9_-]+''severity: high
   description: "DigitalOcean Personal Access Token detected"
   remediation: "Use DO tokens via server-side proxy only"
   cwe: "CWE-798"
@@ -318,8 +305,7 @@
 - id: svelte-hardcoded-slack-bot-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)xox[baprs]-[0-9a-zA-Z-]+'
-  severity: high
+    - regex: '(?i)xox[baprs]-[0-9a-zA-Z-]+''severity: high
   description: "Slack Bot Token detected in Svelte code"
   remediation: "Configure Slack tokens through server environment"
   cwe: "CWE-798"
@@ -328,8 +314,7 @@
 - id: svelte-hardcoded-discord-bot-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)[a-zA-Z0-9_-]*\\.\\w{23}\\..*'
-  severity: high
+    - regex: '(?i)[a-zA-Z0-9_-]*\\.\\w{23}\\..*''severity: high
   description: "Discord Bot Token pattern detected"
   remediation: "Store Discord tokens in server-side environment variables"
   cwe: "CWE-798"
@@ -338,8 +323,7 @@
 - id: svelte-hardcoded-telegram-bot-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)[:)]?[0-9]+:[a-zA-Z0-9_-]+'
-  severity: high
+    - regex: '(?i)[:)]?[0-9]+:[a-zA-Z0-9_-]+''severity: high
   description: "Telegram Bot Token pattern detected"
   remediation: "Use Telegram bot tokens via server-side endpoints"
   cwe: "CWE-798"
@@ -348,8 +332,7 @@
 - id: svelte-hardcoded-intercom-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)intercom[\\._]?[kK]ey|intercom[\\._]?[sS]ecret'
-  severity: medium
+    - regex: '(?i)intercom[\\._]?[kK]ey|intercom[\\._]?[sS]ecret''severity: medium
   description: "Intercom integration credentials detected"
   remediation: "Configure Intercom through environment variables"
   cwe: "CWE-798"
@@ -358,8 +341,7 @@
 - id: svelte-hardcoded-mailgun-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)key-[a-zA-Z0-9_-]+'
-  severity: high
+    - regex: '(?i)key-[a-zA-Z0-9_-]+''severity: high
   description: "Mailgun API key detected in Svelte"
   remediation: "Move email sending logic to server side"
   cwe: "CWE-798"
@@ -368,8 +350,7 @@
 - id: svelte-hardcoded-postmark-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)postmark[\\._]?[aA]pi[_-]?[kK]ey'
-  severity: high
+    - regex: '(?i)postmark[\\._]?[aA]pi[_-]?[kK]ey''severity: high
   description: "Postmark API key detected"
   remediation: "Use Postmark through server-side proxy"
   cwe: "CWE-798"
@@ -378,8 +359,7 @@
 - id: svelte-hardcoded-zapier-webhook-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)zapier[\\._]?[kK]ey|webhook[\\._]?[sS]ecret'
-  severity: medium
+    - regex: '(?i)zapier[\\._]?[kK]ey|webhook[\\._]?[sS]ecret''severity: medium
   description: "Zapier webhook key detected in Svelte"
   remediation: "Rotate Zapier webhook URLs when possible"
   cwe: "CWE-798"
@@ -388,8 +368,7 @@
 - id: svelte-hardcoded-hubspot-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)hapikey|[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}'
-  severity: high
+    - regex: '(?i)hapikey|[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}''severity: high
   description: "HubSpot API key detected in Svelte"
   remediation: "Configure HubSpot through server environment"
   cwe: "CWE-798"
@@ -398,8 +377,7 @@
 - id: svelte-hardcoded-salesforce-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)salesforce[\\._]?[sS]ession|salesforce[\\._][pP]assword'
-  severity: high
+    - regex: '(?i)salesforce[\\._]?[sS]ession|salesforce[\\._][pP]assword''severity: high
   description: "Salesforce session/password detected"
   remediation: "Use Salesforce login via server-side OAuth"
   cwe: "CWE-798"
@@ -408,8 +386,7 @@
 - id: svelte-hardcoded-atlassian-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)atlassian[\\._][tT]oken|jira[\\._][tT]oken'
-  severity: high
+    - regex: '(?i)atlassian[\\._][tT]oken|jira[\\._][tT]oken''severity: high
   description: "Atlassian/JIRA token detected in Svelte"
   remediation: "Configure Atlassian tokens server-side"
   cwe: "CWE-798"
@@ -418,8 +395,7 @@
 - id: svelte-hardcoded-gitlab-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)glpat-[a-zA-Z0-9_-]+'
-  severity: high
+    - regex: '(?i)glpat-[a-zA-Z0-9_-]+''severity: high
   description: "GitLab Personal Access Token detected"
   remediation: "Use GitLab tokens via CI/CD variables"
   cwe: "CWE-798"
@@ -428,8 +404,7 @@
 - id: svelte-hardcoded-github-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}'
-  severity: critical
+    - regex: '(?i)ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}''severity: critical
   description: "GitHub Personal/OAuth Access Token detected"
   remediation: "Never include GitHub tokens in frontend applications"
   cwe: "CWE-798"
@@ -438,8 +413,7 @@
 - id: svelte-hardcoded-bitbucket-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bitbucket[\\._][aA]pp[_-]?[kK]ey'
-  severity: high
+    - regex: '(?i)bitbucket[\\._][aA]pp[_-]?[kK]ey''severity: high
   description: "Bitbucket App Password detected"
   remediation: "Configure Bitbucket tokens server-side"
   cwe: "CWE-798"
@@ -448,8 +422,7 @@
 - id: svelte-hardcoded-npm-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)npx_\\w+_([a-zA-Z0-9]|[+-]|%)+='
-  severity: high
+    - regex: '(?i)npx_\\w+_([a-zA-Z0-9]|[+-]|%)+=''severity: high
   description: "NPM publish token detected in Svelte"
   remediation: "Use npm tokens in .npmrc or CI/CD variables"
   cwe: "CWE-798"
@@ -458,8 +431,7 @@
 - id: svelte-hardcoded-docker-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)[dD]ocker[\\._][pP]asswd|[dD]ocker[\\._]h[ao]sh'
-  severity: critical
+    - regex: '(?i)[dD]ocker[\\._][pP]asswd|[dD]ocker[\\._]h[ao]sh''severity: critical
   description: "Docker registry credentials detected"
   remediation: "Use Docker buildx/buildkit with proper auth"
   cwe: "CWE-798"
@@ -468,8 +440,7 @@
 - id: svelte-hardcoded-vault-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)v1\\.eyJ[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+'
-  severity: critical
+    - regex: '(?i)v1\\.eyJ[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+''severity: critical
   description: "HashiCorp Vault token detected in Svelte"
   remediation: "Never expose Vault tokens to client applications"
   cwe: "CWE-798"
@@ -478,8 +449,7 @@
 - id: svelte-hardcoded-1password-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)1password[\\._][sS]ecret|op://[a-zA-Z0-9_-]+'
-  severity: high
+    - regex: '(?i)1password[\\._][sS]ecret|op://[a-zA-Z0-9_-]+''severity: high
   description: "1Password API secret detected"
   remediation: "Use 1Password CLI in build scripts or CI/CD"
   cwe: "CWE-798"
@@ -488,8 +458,7 @@
 - id: svelte-hardcoded-lastpass-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)lastpass[\\._][sS]ecret|[lL]astpass[\\._][tT]oken'
-  severity: high
+    - regex: '(?i)lastpass[\\._][sS]ecret|[lL]astpass[\\._][tT]oken''severity: high
   description: "LastPass API credential detected"
   remediation: "Configure LastPass through enterprise SSO"
   cwe: "CWE-798"
@@ -498,8 +467,7 @@
 - id: svelte-hardcoded-enpass-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)enpass[\\._][sS]ecret|[eE]npass[\\._][kK]ey'
-  severity: medium
+    - regex: '(?i)enpass[\\._][sS]ecret|[eE]npass[\\._][kK]ey''severity: medium
   description: "EnPass API key detected in Svelte"
   remediation: "Store passwords locally only in EnPass app"
   cwe: "CWE-798"
@@ -508,8 +476,7 @@
 - id: svelte-hardcoded-keeper-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)keeper[\\._][sS]ecret|[kK]eeper[\\._][tT]oken'
-  severity: high
+    - regex: '(?i)keeper[\\._][sS]ecret|[kK]eeper[\\._][tT]oken''severity: high
   description: "Keeper password manager API key detected"
   remediation: "Use Keeper via desktop/mobile apps only"
   cwe: "CWE-798"
@@ -518,8 +485,7 @@
 - id: svelte-hardcoded-azure-ad-client-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)azuread_client_secret|azureAdClientSecret'
-  severity: critical
+    - regex: '(?i)azuread_client_secret|azureAdClientSecret''severity: critical
   description: "Azure AD Client Secret detected in Svelte"
   remediation: "Use managed identity or Azure CLI instead"
   cwe: "CWE-798"
@@ -528,8 +494,7 @@
 - id: svelte-hardcoded-okta-client-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)oktaClientId|oktaClientSecret'
-  severity: critical
+    - regex: '(?i)oktaClientId|oktaClientSecret''severity: critical
   description: "Okta client secret detected in Svelte"
   remediation: "Use Okta SDK without secrets exposure"
   cwe: "CWE-798"
@@ -538,8 +503,7 @@
 - id: svelte-hardcoded-auth0-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)auth0_client_secret|AUTH0_CLIENT_SECRET'
-  severity: critical
+    - regex: '(?i)auth0_client_secret|AUTH0_CLIENT_SECRET''severity: critical
   description: "Auth0 client secret detected in Svelte"
   remediation: "Use Auth0 Actions/serverless functions for secret operations"
   cwe: "CWE-798"
@@ -548,8 +512,7 @@
 - id: svelte-hardcoded-logto-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)logto_client_secret|LOGTO_CLIENT_SECRET'
-  severity: critical
+    - regex: '(?i)logto_client_secret|LOGTO_CLIENT_SECRET''severity: critical
   description: "Logto client secret detected in Svelte"
   remediation: "Use Logto SDK properly with secrets on backend"
   cwe: "CWE-798"
@@ -558,8 +521,7 @@
 - id: svelte-hardcoded-clerk-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)clerk_publishable_key|clerk_api_key'
-  severity: high
+    - regex: '(?i)clerk_publishable_key|clerk_api_key''severity: high
   description: "Clerk secret/API key detected in Svelte"
   remediation: "Use Clerk's publishable key only in frontend"
   cwe: "CWE-798"
@@ -568,8 +530,7 @@
 - id: svelte-hardcoded-novu-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)novu_api_key|NOVU_API_KEY'
-  severity: high
+    - regex: '(?i)novu_api_key|NOVU_API_KEY''severity: high
   description: "Novu API key detected in Svelte"
   remediation: "Move Novu operations to server-side endpoints"
   cwe: "CWE-798"
@@ -578,8 +539,7 @@
 - id: svelte-hardcoded-airtable-base-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)airtable[\\._][aA]pp[_-]?[kK]ey|AT[A-Za-z0-9]+'
-  severity: medium
+    - regex: '(?i)airtable[\\._][aA]pp[_-]?[kK]ey|AT[A-Za-z0-9]+''severity: medium
   description: "Airtable API key detected in Svelte"
   remediation: "Use Airtable through server-side proxy"
   cwe: "CWE-798"
@@ -588,8 +548,7 @@
 - id: svelte-hardcoded-notion-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)npx_pat_[a-zA-Z0-9]{45,46}'
-  severity: high
+    - regex: '(?i)npx_pat_[a-zA-Z0-9]{45,46}''severity: high
   description: "Notion Integration Token detected"
   remediation: "Configure Notion through server-side integration"
   cwe: "CWE-798"
@@ -598,8 +557,7 @@
 - id: svelte-hardcoded-upwork-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)upwork[\\._][aA]pp[_-]?[kK]ey|UPWORK_APP_KEY'
-  severity: medium
+    - regex: '(?i)upwork[\\._][aA]pp[_-]?[kK]ey|UPWORK_APP_KEY''severity: medium
   description: "Upwork API credentials detected"
   remediation: "Use Upwork API via authenticated proxy"
   cwe: "CWE-798"
@@ -608,8 +566,7 @@
 - id: svelte-hardcoded-shopify-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)shpaa_|shopify[\\._][aA]pp[_-]?[kK]ey'
-  severity: high
+    - regex: '(?i)shpaa_|shopify[\\._][aA]pp[_-]?[kK]ey''severity: high
   description: "Shopify API key detected in Svelte"
   remediation: "Use Shopify storefront API for client access"
   cwe: "CWE-798"
@@ -618,8 +575,7 @@
 - id: svelte-hardcoded-wix-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)wix[\\._][kK]ey|WIX_SECRET_KEY'
-  severity: medium
+    - regex: '(?i)wix[\\._][kK]ey|WIX_SECRET_KEY''severity: medium
   description: "Wix API credentials detected in Svelte"
   remediation: "Configure Wix through Wix Editor SDK only"
   cwe: "CWE-798"
@@ -628,8 +584,7 @@
 - id: svelte-hardcoded-squarespace-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)squarespace[\\._][kK]ey|SQSP_API_KEY'
-  severity: medium
+    - regex: '(?i)squarespace[\\._][kK]ey|SQSP_API_KEY''severity: medium
   description: "Squarespace credentials detected"
   remediation: "Use Squarespace API via authenticated sessions"
   cwe: "CWE-798"
@@ -638,8 +593,7 @@
 - id: svelte-hardcoded-wordpress-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)wordpress[\\._][aA]pp[_-]?[kK]ey|wp[\\._][aA]pi[_-]?[kK]ey'
-  severity: high
+    - regex: '(?i)wordpress[\\._][aA]pp[_-]?[kK]ey|wp[\\._][aA]pi[_-]?[kK]ey''severity: high
   description: "WordPress REST API key detected in Svelte"
   remediation: "Use WordPress headless with authenticated tokens"
   cwe: "CWE-798"
@@ -648,8 +602,7 @@
 - id: svelte-hardcoded-drupal-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)drupal[\\._][aA]uth|[dD]rupal[\\._][tT]oken'
-  severity: high
+    - regex: '(?i)drupal[\\._][aA]uth|[dD]rupal[\\._][tT]oken''severity: high
   description: "Drupal API credentials detected"
   remediation: "Use Drupal JSON API with authenticated sessions"
   cwe: "CWE-798"
@@ -658,8 +611,7 @@
 - id: svelte-hardcoded-joomla-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)joomla[\\._][kK]ey|JOOMLA_API_KEY'
-  severity: medium
+    - regex: '(?i)joomla[\\._][kK]ey|JOOMLA_API_KEY''severity: medium
   description: "Joomla API credentials detected"
   remediation: "Use Joomla REST API with proper auth flow"
   cwe: "CWE-798"
@@ -668,8 +620,7 @@
 - id: svelte-hardcoded-laravel-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)laravel[\\._][aA]pp[_-]?[kK]ey|LARAVEL_APP_KEY'
-  severity: high
+    - regex: '(?i)laravel[\\._][aA]pp[_-]?[kK]ey|LARAVEL_APP_KEY''severity: high
   description: "Laravel API key detected in Svelte"
   remediation: "Use Laravel Sanctum/Passport for API authentication"
   cwe: "CWE-798"
@@ -678,8 +629,7 @@
 - id: svelte-hardcoded-django-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)django[\\._][sS]ecret|[dD]jango[\\._][aA]uth'
-  severity: critical
+    - regex: '(?i)django[\\._][sS]ecret|[dD]jango[\\._][aA]uth''severity: critical
   description: "Django SECRET_KEY detected in Svelte"
   remediation: "Django SECRET_KEY must never be in client code"
   cwe: "CWE-798"
@@ -688,8 +638,7 @@
 - id: svelte-hardcoded-flask-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)flask[\\._][sS]ecret|[fF]lask[\\._][aA]uth'
-  severity: critical
+    - regex: '(?i)flask[\\._][sS]ecret|[fF]lask[\\._][aA]uth''severity: critical
   description: "Flask SECRET_KEY detected in Svelte"
   remediation: "Use Flask SECRET_KEY in Python backend only"
   cwe: "CWE-798"
@@ -698,8 +647,7 @@
 - id: svelte-hardcoded-express-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)express[\\._][sS]ecret|[eE]xpress[\\._][sS]igning'
-  severity: critical
+    - regex: '(?i)express[\\._][sS]ecret|[eE]xpress[\\._][sS]igning''severity: critical
   description: "Express session secret detected in Svelte"
   remediation: "Use Express session secrets in Node.js backend"
   cwe: "CWE-798"
@@ -708,8 +656,7 @@
 - id: svelte-hardcoded-kubernetes-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)k8s[\\._][sS]ecret|[kK]8s[\\._][sS]ervice'
-  severity: critical
+    - regex: '(?i)k8s[\\._][sS]ecret|[kK]8s[\\._][sS]ervice''severity: critical
   description: "Kubernetes secret/service credentials detected"
   remediation: "Never expose K8s secrets in client applications"
   cwe: "CWE-798"
@@ -718,8 +665,7 @@
 - id: svelte-hardcoded-hashicorp-tls-cert
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)-----BEGIN CERTIFICATE-----|-----BEGIN RSA PRIVATE KEY-----'
-  severity: critical
+    - regex: '(?i)-----BEGIN CERTIFICATE-----|-----BEGIN RSA PRIVATE KEY-----''severity: critical
   description: "TLS certificate/private key embedded in Svelte"
   remediation: "Serve TLS certs from server only, not client code"
   cwe: "CWE-321"
@@ -728,8 +674,7 @@
 - id: svelte-hardcoded-ssh-private-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)-----BEGIN OPENSSH PRIVATE KEY-----'
-  severity: critical
+    - regex: '(?i)-----BEGIN OPENSSH PRIVATE KEY-----''severity: critical
   description: "OpenSSH private key detected in Svelte"
   remediation: "Never embed SSH keys in frontend applications"
   cwe: "CWE-321"
@@ -738,8 +683,7 @@
 - id: svelte-hardcoded-gpg-private-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)-----BEGIN PGP PRIVATE KEY BLOCK-----'
-  severity: critical
+    - regex: '(?i)-----BEGIN PGP PRIVATE KEY BLOCK-----''severity: critical
   description: "PGP/GPG private key detected in Svelte"
   remediation: "Keep PGP keys in secure offline storage"
   cwe: "CWE-321"
@@ -748,8 +692,7 @@
 - id: svelte-hardcoded-code-signing-cert
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)-----BEGIN CODE SIGNING CERTIFICATE-----'
-  severity: critical
+    - regex: '(?i)-----BEGIN CODE SIGNING CERTIFICATE-----''severity: critical
   description: "Code signing certificate detected in Svelte"
   remediation: "Store code signing certs in secure HSM/vault"
   cwe: "CWE-321"
@@ -758,7 +701,7 @@
 - id: svelte-hardcoded-pgp-email-identity
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)uid\\s*\\(\\s*[''\"]?[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'
+    - regex: '(?i)uid\\s*\\(\\s*['''\"]?[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'
   severity: medium
   description: "PGP email identity potentially hardcoded"
   remediation: "Use proper PGP key management system"
@@ -768,8 +711,7 @@
 - id: svelte-hardcoded-smtp-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)smtp[sS]erver[\\._][pP]assword|SMTP_PASSWORD\\s*[=:]'
-  severity: critical
+    - regex: '(?i)smtp[sS]erver[\\._][pP]assword|SMTP_PASSWORD\\s*[=:]''severity: critical
   description: "SMTP server password hardcoded in Svelte"
   remediation: "Configure SMTP through server-side mailer"
   cwe: "CWE-798"
@@ -778,8 +720,7 @@
 - id: svelte-hardcoded-imap-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)imap[sS]erver[\\._][pP]assword|IMAP_PASSWORD\\s*[=:]'
-  severity: critical
+    - regex: '(?i)imap[sS]erver[\\._][pP]assword|IMAP_PASSWORD\\s*[=:]''severity: critical
   description: "IMAP server password hardcoded in Svelte"
   remediation: "Never handle IMAP directly from frontend"
   cwe: "CWE-798"
@@ -788,8 +729,7 @@
 - id: svelte-hardcoded-pop3-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pop3[sS]erver[\\._][pP]assword|POP3_PASSWORD\\s*[=:]'
-  severity: critical
+    - regex: '(?i)pop3[sS]erver[\\._][pP]assword|POP3_PASSWORD\\s*[=:]''severity: critical
   description: "POP3 server password hardcoded in Svelte"
   remediation: "Do not access POP3 from browser-based code"
   cwe: "CWE-798"
@@ -798,8 +738,7 @@
 - id: svelte-hardcoded-redis-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)redis[sS]erver[\\._][pP]assword|REDIS_PASSWORD\\s*[=:]'
-  severity: critical
+    - regex: '(?i)redis[sS]erver[\\._][pP]assword|REDIS_PASSWORD\\s*[=:]''severity: critical
   description: "Redis server password hardcoded in Svelte"
   remediation: "Access Redis only through server-side proxies"
   cwe: "CWE-798"
@@ -808,8 +747,7 @@
 - id: svelte-hardcoded-mongo-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mongodb[\\._][pP]assword|MONGODB_URI.*:'
-  severity: critical
+    - regex: '(?i)mongodb[\\._][pP]assword|MONGODB_URI.*:''severity: critical
   description: "MongoDB connection URI with password in Svelte"
   remediation: "Configure MongoDB connections server-side"
   cwe: "CWE-798"
@@ -818,8 +756,7 @@
 - id: svelte-hardcoded-postgres-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)postgresql[\\._][pP]assword|POSTGRES_PASSWORD\\s*[=:]'
-  severity: critical
+    - regex: '(?i)postgresql[\\._][pP]assword|POSTGRES_PASSWORD\\s*[=:]''severity: critical
   description: "PostgreSQL server password hardcoded in Svelte"
   remediation: "Configure PostgreSQL connections server-side"
   cwe: "CWE-798"
@@ -828,8 +765,7 @@
 - id: svelte-hardcoded-sql-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mssql_server|\\sqlserver[\\._][pP]assword|SQL_SERVER_PWD'
-  severity: critical
+    - regex: '(?i)mssql_server|\\sqlserver[\\._][pP]assword|SQL_SERVER_PWD''severity: critical
   description: "SQL Server password hardcoded in Svelte"
   remediation: "Use SQL Server through authenticated middleware"
   cwe: "CWE-798"
@@ -838,8 +774,7 @@
 - id: svelte-hardcoded-oracle-server-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)oracle[\\._][pP]assword|ORACLE_PASSWORD\\s*[=:]'
-  severity: critical
+    - regex: '(?i)oracle[\\._][pP]assword|ORACLE_PASSWORD\\s*[=:]''severity: critical
   description: "Oracle DB password hardcoded in Svelte"
   remediation: "Access Oracle only via secure server layer"
   cwe: "CWE-798"
@@ -848,8 +783,7 @@
 - id: svelte-hardcoded-elasticsearch-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)elastic[\\._][pP]assword|ELASTICSEARCH_PASSWORD\\s*[=:]'
-  severity: high
+    - regex: '(?i)elastic[\\._][pP]assword|ELASTICSEARCH_PASSWORD\\s*[=:]''severity: high
   description: "Elasticsearch server password detected in Svelte"
   remediation: "Connect to Elasticsearch via secured proxy"
   cwe: "CWE-798"
@@ -858,8 +792,7 @@
 - id: svelte-hardcoded-kafka-broker-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)kafka[\\._][bB]roker[\\._][pP]assword|KAFKA_BROKER_PWD'
-  severity: high
+    - regex: '(?i)kafka[\\._][bB]roker[\\._][pP]assword|KAFKA_BROKER_PWD''severity: high
   description: "Kafka broker password hardcoded in Svelte"
   remediation: "Access Kafka through server-side message queue"
   cwe: "CWE-798"
@@ -868,8 +801,7 @@
 - id: svelte-hardcoded-rabbitmq-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rabbitmq[\\._][pP]assword|RABBITMQ_DEFAULT_PASS'
-  severity: high
+    - regex: '(?i)rabbitmq[\\._][pP]assword|RABBITMQ_DEFAULT_PASS''severity: high
   description: "RabbitMQ default password detected in Svelte"
   remediation: "Configure RabbitMQ through secure channel"
   cwe: "CWE-798"
@@ -878,8 +810,7 @@
 - id: svelte-hardcoded-memcached-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)memcached[\\._][pP]assword|MEMCACHE_PASSWORD\\s*[=:]'
-  severity: medium
+    - regex: '(?i)memcached[\\._][pP]assword|MEMCACHE_PASSWORD\\s*[=:]''severity: medium
   description: "Memcached password detected in Svelte"
   remediation: "Isolate Memcached access from client applications"
   cwe: "CWE-798"
@@ -888,8 +819,7 @@
 - id: svelte-hardcoded-influxdb-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)influxdb[\\._][pP]assword|INFLUXDB_PASSWORD\\s*[=:]'
-  severity: high
+    - regex: '(?i)influxdb[\\._][pP]assword|INFLUXDB_PASSWORD\\s*[=:]''severity: high
   description: "InfluxDB password detected in Svelte"
   remediation: "Access InfluxDB through authenticated backend"
   cwe: "CWE-798"
@@ -898,8 +828,7 @@
 - id: svelte-hardcoded-cassandra-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cassandra[\\._][pP]assword|CASSANDRA_PASSWORD\\s*[=:]'
-  severity: high
+    - regex: '(?i)cassandra[\\._][pP]assword|CASSANDRA_PASSWORD\\s*[=:]''severity: high
   description: "Cassandra cluster password detected"
   remediation: "Secure Cassandra access via backend services"
   cwe: "CWE-798"
@@ -908,8 +837,7 @@
 - id: svelte-hardcoded-neo4j-password
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)neo4j[\\._][pP]assword|NEO4J_PASSWORD\\s*[=:]'
-  severity: high
+    - regex: '(?i)neo4j[\\._][pP]assword|NEO4J_PASSWORD\\s*[=:]''severity: high
   description: "Neo4j graph database password detected"
   remediation: "Access Neo4j through GraphQL/REST API"
   cwe: "CWE-798"
@@ -918,8 +846,7 @@
 - id: svelte-hardcoded-graphql-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)graphql[\\._][kK]ey|GRAPHQL_API_KEY\\s*[=:]'
-  severity: high
+    - regex: '(?i)graphql[\\._][kK]ey|GRAPHQL_API_KEY\\s*[=:]''severity: high
   description: "GraphQL API key detected in Svelte"
   remediation: "Protect GraphQL endpoints with proper auth"
   cwe: "CWE-798"
@@ -928,8 +855,7 @@
 - id: svelte-hardcoded-subgraph-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)subgraph[\\._][kK]ey|apollo[\\._][sS]ervice[\\._][sS]ecret'
-  severity: high
+    - regex: '(?i)subgraph[\\._][kK]ey|apollo[\\._][sS]ervice[\\._][sS]ecret''severity: high
   description: "Apollo subgraph secret detected in Svelte"
   remediation: "Share Apollo Federated graph secrets server-side"
   cwe: "CWE-798"
@@ -938,8 +864,7 @@
 - id: svelte-hardcoded-ws-socket-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ws[\\._][tT]oken|websocket[\\._][sS]ecret|WS_SECRET'
-  severity: high
+    - regex: '(?i)ws[\\._][tT]oken|websocket[\\._][sS]ecret|WS_SECRET''severity: high
   description: "WebSocket authentication token hardcoded"
   remediation: "Establish WebSocket connections with proper handshake"
   cwe: "CWE-798"
@@ -948,7 +873,7 @@
 - id: svelte-hardcoded-grpc-metadata-value
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)grpc[\\._][mM]etadata|GRPC_AUTHORIZATION\\s*[\"''\"][^\"''\"]+'
+    - regex: '(?i)grpc[\\._][mM]etadata|GRPC_AUTHORIZATION\\s*[\"'''\"][^\"''\"]+'
   severity: high
   description: "gRPC metadata value potentially hardcoded"
   remediation: "Configure gRPC metadata at runtime"
@@ -958,7 +883,7 @@
 - id: svelte-hardcoded-proto-file-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)[\"'']google.protobuf.FileDescriptorSet[\"'']'
+    - regex: '(?i)[\"''']google.protobuf.FileDescriptorSet[\"'']'
   severity: medium
   description: "Proto descriptor file content detected"
   remediation: "Don't ship proto files to client applications"
@@ -968,7 +893,7 @@
 - id: svelte-hardcoded-model-checksum
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)[a-fA-F0-9]{64}|SHA256_CHECKSUM\\s*[=:]\\s*[''\"''][a-fA-F0-9]+'
+    - regex: '(?i)[a-fA-F0-9]{64}|SHA256_CHECKSUM\\s*[=:]\\s*['''\"''][a-fA-F0-9]+'
   severity: medium
   description: "ML model checksum potentially hardcoded"
   remediation: "Verify ML models before loading, don't hardcode checksums"
@@ -978,8 +903,7 @@
 - id: svelte-hardcoded-ml-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ml[\\._][aA]pi[_-]?[kK]ey|ML_API_KEY\\s*[=:]'
-  severity: high
+    - regex: '(?i)ml[\\._][aA]pi[_-]?[kK]ey|ML_API_KEY\\s*[=:]''severity: high
   description: "ML service API key detected in Svelte"
   remediation: "Route ML requests through authenticated endpoint"
   cwe: "CWE-798"
@@ -988,8 +912,7 @@
 - id: svelte-hardcoded-vector-db-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vector[\\._][dD]b[\\._][kK]ey|QDRANT[\\._][kK]ey'
-  severity: high
+    - regex: '(?i)vector[\\._][dD]b[\\._][kK]ey|QDRANT[\\._][kK]ey''severity: high
   description: "Vector database API key detected in Svelte"
   remediation: "Use vector databases through secure backend"
   cwe: "CWE-798"
@@ -998,8 +921,7 @@
 - id: svelte-hardcoded-graph-db-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)graph[\\._][dD]b[\\._][kK]ey|neo4j[\\._][aA]pi[_-]?[kK]ey'
-  severity: high
+    - regex: '(?i)graph[\\._][dD]b[\\._][kK]ey|neo4j[\\._][aA]pi[_-]?[kK]ey''severity: high
   description: "Graph database API key detected in Svelte"
   remediation: "Secure graph database access via middleware"
   cwe: "CWE-798"
@@ -1008,8 +930,7 @@
 - id: svelte-hardcoded-time-series-db-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)timeseries[\\._][dD]b[\\._][kK]ey|INFLUXDB[\\._][tT]oken'
-  severity: high
+    - regex: '(?i)timeseries[\\._][dD]b[\\._][kK]ey|INFLUXDB[\\._][tT]oken''severity: high
   description: "Time series database API key detected"
   remediation: "Access time series DBs through secure proxies"
   cwe: "CWE-798"
@@ -1018,8 +939,7 @@
 - id: svelte-hardcoded-search-engine-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)search[\\._][eE]ngine[\\._][kK]ey|algolia[\\._][kK]ey'
-  severity: high
+    - regex: '(?i)search[\\._][eE]ngine[\\._][kK]ey|algolia[\\._][kK]ey''severity: high
   description: "Search engine API key detected in Svelte"
   remediation: "Use Algolia Search UI with proper authentication"
   cwe: "CWE-798"
@@ -1028,8 +948,7 @@
 - id: svelte-hardcoded-map-provider-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)map_provider[\\._][kK]ey|mapbox[\\._][pP]ublic\\.'
-  severity: high
+    - regex: '(?i)map_provider[\\._][kK]ey|mapbox[\\._][pP]ublic\\.''severity: high
   description: "Map provider API key detected in Svelte"
   remediation: "Restrict Mapbox/Google Maps keys to domain"
   cwe: "CWE-798"
@@ -1038,8 +957,7 @@
 - id: svelte-hardcoded-analytics-tracking-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tracking[\\._][kK]ey|analytics[\\._][tT]racking'
-  severity: medium
+    - regex: '(?i)tracking[\\._][kK]ey|analytics[\\._][tT]racking''severity: medium
   description: "Analytics tracking key detected in Svelte"
   remediation: "Track analytics with privacy-compliant tools"
   cwe: "CWE-798"
@@ -1048,8 +966,7 @@
 - id: svelte-hardcoded-crud-endpoint-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)crud[\\._][aA]nd[\\._][sS]ecret|CRUD_ENDPOINT_SECRET'
-  severity: high
+    - regex: '(?i)crud[\\._][aA]nd[\\._][sS]ecret|CRUD_ENDPOINT_SECRET''severity: high
   description: "Custom CRUD endpoint secret detected"
   remediation: "Implement proper CRUD access control"
   cwe: "CWE-798"
@@ -1058,8 +975,7 @@
 - id: svelte-hardcoded-payment-gateway-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)payment[\\._][gG]ateway[\\._][sS]ecret|PAYMENT_GW_SECRET'
-  severity: critical
+    - regex: '(?i)payment[\\._][gG]ateway[\\._][sS]ecret|PAYMENT_GW_SECRET''severity: critical
   description: "Payment gateway secret hardcoded in Svelte"
   remediation: "Process payments server-side through payment gateway"
   cwe: "CWE-798"
@@ -1068,8 +984,7 @@
 - id: svelte-hardcoded-webhook-signing-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)webhook[\\._][sS]igning[\\._][sS]ecret|WEBHOOK_SECRET'
-  severity: high
+    - regex: '(?i)webhook[\\._][sS]igning[\\._][sS]ecret|WEBHOOK_SECRET''severity: high
   description: "Webhook signing secret detected in Svelte"
   remediation: "Verify webhook signatures server-side"
   cwe: "CWE-798"
@@ -1078,8 +993,7 @@
 - id: svelte-hardcoded-callback-url-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)callback[\\._][uU]rl[\\._][sS]ecret|CALLBACK_URL_SECRET'
-  severity: high
+    - regex: '(?i)callback[\\._][uU]rl[\\._][sS]ecret|CALLBACK_URL_SECRET''severity: high
   description: "Callback URL secret potentially hardcoded"
   remediation: "Validate callback URLs against allowlist"
   cwe: "CWE-798"
@@ -1088,8 +1002,7 @@
 - id: svelte-hardcoded-session-storage-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)storage[\\._][kK]ey|localStorage[\\._][kK]ey'
-  severity: medium
+    - regex: '(?i)storage[\\._][kK]ey|localStorage[\\._][kK]ey''severity: medium
   description: "Storage key hardcoded for session persistence"
   remediation: "Use secure session management libraries"
   cwe: "CWE-798"
@@ -1098,7 +1011,7 @@
 - id: svelte-hardcoded-encryption-key-iv
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)encryption_iv|ENC_IV\\s*[=:]\\s*[''\"''][a-zA-Z0-9+/=]+'
+    - regex: '(?i)encryption_iv|ENC_IV\\s*[=:]\\s*['''\"''][a-zA-Z0-9+/=]+'
   severity: high
   description: "Encryption IV hardcoded in Svelte"
   remediation: "Generate IVs dynamically per encryption operation"
@@ -1108,7 +1021,7 @@
 - id: svelte-hardcoded-encryption-tag
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)encryption_tag|TAG\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)encryption_tag|TAG\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: high
   description: "AEAD tag hardcoded in Svelte"
   remediation: "Tags should be generated during encryption"
@@ -1118,7 +1031,7 @@
 - id: svelte-hardcoded-salt-value
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)salt_value|SALT\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)salt_value|SALT\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: high
   description: "Salt value hardcoded in Svelte"
   remediation: "Generate random salts per hash operation"
@@ -1128,7 +1041,7 @@
 - id: svelte-hardcoded-pepper-value
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pepper_value|PEPPER\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)pepper_value|PEPPER\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: critical
   description: "Pepper value hardcoded in Svelte"
   remediation: "Store pepper in secure server-side storage only"
@@ -1138,7 +1051,7 @@
 - id: svelte-hardcoded-verification-code
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)verification_code|VERIFY_CODE\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)verification_code|VERIFY_CODE\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: medium
   description: "Verification code hardcoded in Svelte"
   remediation: "Generate verification codes dynamically"
@@ -1148,7 +1061,7 @@
 - id: svelte-hardcoded-reset-code
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)reset_code|RESET_TOKEN\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)reset_code|RESET_TOKEN\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: high
   description: "Reset token hardcoded in Svelte"
   remediation: "Generate reset tokens securely server-side"
@@ -1158,7 +1071,7 @@
 - id: svelte-hardcoded-confirmation-code
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)confirm_code|CONFIRMATION_TOKEN\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)confirm_code|CONFIRMATION_TOKEN\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: high
   description: "Confirmation token hardcoded in Svelte"
   remediation: "Generate confirmation tokens through backend"
@@ -1168,7 +1081,7 @@
 - id: svelte-hardcoded-invitation-code
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)invite_code|INVITE_TOKEN\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)invite_code|INVITE_TOKEN\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: medium
   description: "Invitation code hardcoded in Svelte"
   remediation: "Create invitation codes dynamically"
@@ -1178,7 +1091,7 @@
 - id: svelte-hardcoded-promotion-code
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)promo_code|PROMOTION_CODE\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)promo_code|PROMOTION_CODE\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: medium
   description: "Promotion code hardcoded in Svelte"
   remediation: "Manage promotion codes in database"
@@ -1188,7 +1101,7 @@
 - id: svelte-hardcoded-referral-code
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)referral_code|REFERRAL_CODE\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)referral_code|REFERRAL_CODE\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: medium
   description: "Referral code hardcoded in Svelte"
   remediation: "Generate referral codes securely"
@@ -1198,7 +1111,7 @@
 - id: svelte-hardcoded-license-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)license_key|LICENSE_CODE\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)license_key|LICENSE_CODE\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: critical
   description: "Software license key hardcoded in Svelte"
   remediation: "Implement proper license verification server-side"
@@ -1208,7 +1121,7 @@
 - id: svelte-hardcoded-product-serial-number
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)serial_number|SERIAL_NUM\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)serial_number|SERIAL_NUM\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: medium
   description: "Product serial number hardcoded in Svelte"
   remediation: "Use product serial numbers from inventory system"
@@ -1218,7 +1131,7 @@
 - id: svelte-hardcoded-uac-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)uac_token|UAC_TOKEN\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)uac_token|UAC_TOKEN\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: critical
   description: "UAC token hardcoded in Svelte"
   remediation: "Avoid using UAC tokens in web applications"
@@ -1228,7 +1141,7 @@
 - id: svelte-hardcoded-access-control-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)access_control_token|ACL_TOKEN\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)access_control_token|ACL_TOKEN\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: critical
   description: "Access control token hardcoded in Svelte"
   remediation: "Implement proper RBAC through middleware"
@@ -1238,7 +1151,7 @@
 - id: svelte-hardcoded-permission-flag
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)permission_flag|PERMISSION_FLAG\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)permission_flag|PERMISSION_FLAG\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: high
   description: "Permission flag hardcoded in Svelte"
   remediation: "Use permission flags loaded from backend"
@@ -1248,7 +1161,7 @@
 - id: svelte-hardcoded-role-identifier
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)role_identifier|ROLE_ID\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)role_identifier|ROLE_ID\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: high
   description: "Role identifier hardcoded in Svelte"
   remediation: "Assign roles through authentication flow"
@@ -1258,7 +1171,7 @@
 - id: svelte-hardcoded-group-identifier
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)group_identifier|GROUP_ID\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)group_identifier|GROUP_ID\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: high
   description: "Group identifier hardcoded in Svelte"
   remediation: "Load group assignments dynamically"
@@ -1268,7 +1181,7 @@
 - id: svelte-hardcoded-user-type
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)user_type|USER_TYPE\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)user_type|USER_TYPE\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: medium
   description: "User type hardcoded in Svelte"
   remediation: "Derive user types from user data"
@@ -1278,7 +1191,7 @@
 - id: svelte-hardcoded-account-status
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)account_status|STATUS\\s*[=:]\\s*[''\"''][a-zA-Z0-9]+'
+    - regex: '(?i)account_status|STATUS\\s*[=:]\\s*['''\"''][a-zA-Z0-9]+'
   severity: medium
   description: "Account status hardcoded in Svelte"
   remediation: "Check account status from server-side"
@@ -1288,7 +1201,7 @@
 - id: svelte-hardcoded-session-expiration
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)session_expiration|SESSION_TIMEOUT\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)session_expiration|SESSION_TIMEOUT\\s*[=:]\\s*['''\"''][0-9]+'
   severity: medium
   description: "Session expiration hardcoded in Svelte"
   remediation: "Configure session timeout server-side"
@@ -1298,7 +1211,7 @@
 - id: svelte-hardcoded-cookie-expiration
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cookie_expiration|COOKIE_TTL\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)cookie_expiration|COOKIE_TTL\\s*[=:]\\s*['''\"''][0-9]+'
   severity: medium
   description: "Cookie TTL hardcoded in Svelte"
   remediation: "Set cookie expiration through server response"
@@ -1308,7 +1221,7 @@
 - id: svelte-hardcoded-max-request-size
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)max_request_size|MAX_BODY_SIZE\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)max_request_size|MAX_BODY_SIZE\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Max request size hardcoded in Svelte"
   remediation: "Configure body size limits server-side"
@@ -1318,7 +1231,7 @@
 - id: svelte-hardcoded-rate-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rate_limit|RATE_LIMIT\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)rate_limit|RATE_LIMIT\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Rate limit hardcoded in Svelte"
   remediation: "Implement rate limiting server-side"
@@ -1328,7 +1241,7 @@
 - id: svelte-hardcoded-throttle-count
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)throttle_count|THROTTLE_LIMIT\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)throttle_count|THROTTLE_LIMIT\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Throttle count hardcoded in Svelte"
   remediation: "Apply throttling at server level"
@@ -1338,7 +1251,7 @@
 - id: svelte-hardcoded-burst-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)burst_limit|BURST_MAX\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)burst_limit|BURST_MAX\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Burst limit hardcoded in Svelte"
   remediation: "Implement burst protection server-side"
@@ -1348,7 +1261,7 @@
 - id: svelte-hardcoded-concurrent-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)concurrent_limit|CONCURRENT_REQUESTS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)concurrent_limit|CONCURRENT_REQUESTS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Concurrent request limit hardcoded in Svelte"
   remediation: "Manage concurrency server-side"
@@ -1358,7 +1271,7 @@
 - id: svelte-hardcoded-retry-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)retry_limit|RETRY_COUNT\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)retry_limit|RETRY_COUNT\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Retry limit hardcoded in Svelte"
   remediation: "Configure retry policies server-side"
@@ -1368,7 +1281,7 @@
 - id: svelte-hardcoded-timeout-duration
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)timeout_duration|TIMEOUT_MS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)timeout_duration|TIMEOUT_MS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Timeout duration hardcoded in Svelte"
   remediation: "Set timeouts appropriately server-side"
@@ -1378,7 +1291,7 @@
 - id: svelte-hardcoded-delay-interval
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)delay_interval|DELAY_MS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)delay_interval|DELAY_MS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Delay interval hardcoded in Svelte"
   remediation: "Implement delays at appropriate layer"
@@ -1388,7 +1301,7 @@
 - id: svelte-hardcoded-backoff-multiplier
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)backoff_multiplier|BACKOFF_FACTOR\\s*[=:]\\s*[''\"''][0-9.]+'
+    - regex: '(?i)backoff_multiplier|BACKOFF_FACTOR\\s*[=:]\\s*['''\"''][0-9.]+'
   severity: low
   description: "Backoff multiplier hardcoded in Svelte"
   remediation: "Implement exponential backoff server-side"
@@ -1398,7 +1311,7 @@
 - id: svelte-hardcoded-error-threshold
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)error_threshold|ERROR_RATE\\s*[=:]\\s*[''\"''][0-9.]+'
+    - regex: '(?i)error_threshold|ERROR_RATE\\s*[=:]\\s*['''\"''][0-9.]+'
   severity: low
   description: "Error threshold hardcoded in Svelte"
   remediation: "Monitor errors server-side"
@@ -1408,7 +1321,7 @@
 - id: svelte-hardcoded-healthcheck-interval
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)healthcheck_interval|HEALTH_CHECK\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)healthcheck_interval|HEALTH_CHECK\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Health check interval hardcoded in Svelte"
   remediation: "Configure health checks through monitoring tools"
@@ -1418,7 +1331,7 @@
 - id: svelte-hardcoded-heartbeat-interval
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)heartbeat_interval|HEARTBEAT_MS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)heartbeat_interval|HEARTBEAT_MS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Heartbeat interval hardcoded in Svelte"
   remediation: "Set heartbeat intervals server-side"
@@ -1428,7 +1341,7 @@
 - id: svelte-hardcoded-deadlock-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)deadlock_timeout|DEADLOCK_TIMEOUT_MS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)deadlock_timeout|DEADLOCK_TIMEOUT_MS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: medium
   description: "Deadlock timeout hardcoded in Svelte"
   remediation: "Handle deadlocks through database transactions"
@@ -1438,7 +1351,7 @@
 - id: svelte-hardcoded-lock-wait-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)lock_wait_timeout|LOCK_TIMEOUT_MS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)lock_wait_timeout|LOCK_TIMEOUT_MS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: medium
   description: "Lock wait timeout hardcoded in Svelte"
   remediation: "Optimize locking strategies server-side"
@@ -1448,7 +1361,7 @@
 - id: svelte-hardcoded-pool-size
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pool_size|POOL_MAX\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)pool_size|POOL_MAX\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Connection pool size hardcoded in Svelte"
   remediation: "Configure connection pools server-side"
@@ -1458,7 +1371,7 @@
 - id: svelte-hardcoded-queue-size
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)queue_size|QUEUE_MAX\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)queue_size|QUEUE_MAX\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Queue size hardcoded in Svelte"
   remediation: "Implement queuing server-side"
@@ -1468,7 +1381,7 @@
 - id: svelte-hardcoded-worker-count
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)worker_count|WORKERS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)worker_count|WORKERS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Worker count hardcoded in Svelte"
   remediation: "Configure workers through deployment config"
@@ -1478,7 +1391,7 @@
 - id: svelte-hardcoded-thread-count
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)thread_count|THREADS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)thread_count|THREADS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Thread count hardcoded in Svelte"
   remediation: "Manage threads at application level"
@@ -1488,7 +1401,7 @@
 - id: svelte-hardcoded-memory-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)memory_limit|MEMORY_MB\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)memory_limit|MEMORY_MB\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Memory limit hardcoded in Svelte"
   remediation: "Set memory limits in deployment configs"
@@ -1498,7 +1411,7 @@
 - id: svelte-hardcoded-cpu-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cpu_limit|CPU_CORES\\s*[=:]\\s*[''\"''][0-9.]+'
+    - regex: '(?i)cpu_limit|CPU_CORES\\s*[=:]\\s*['''\"''][0-9.]+'
   severity: low
   description: "CPU limit hardcoded in Svelte"
   remediation: "Configure CPU limits in orchestrators"
@@ -1508,7 +1421,7 @@
 - id: svelte-hardcoded-disk-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)disk_limit|DISK_GB\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)disk_limit|DISK_GB\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Disk limit hardcoded in Svelte"
   remediation: "Set disk quotas in orchestration platform"
@@ -1518,7 +1431,7 @@
 - id: svelte-hardcoded-network-bandwidth
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)network_bandwidth|NETWORK_MBPS\\s*[=:]\\s*[''\"''][0-9]+'
+    - regex: '(?i)network_bandwidth|NETWORK_MBPS\\s*[=:]\\s*['''\"''][0-9]+'
   severity: low
   description: "Network bandwidth limit hardcoded in Svelte"
   remediation: "Configure network limits at infrastructure level"
@@ -1528,7 +1441,7 @@
 - id: svelte-hardcoded-api-version
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)api_version|API_VER\\s*[=:]\\s*[''\"''][vV]?[0-9.]+'
+    - regex: '(?i)api_version|API_VER\\s*[=:]\\s*['''\"''][vV]?[0-9.]+'
   severity: low
   description: "API version hardcoded in Svelte"
   remediation: "Support multiple API versions through routing"
@@ -1538,7 +1451,7 @@
 - id: svelte-hardcoded-feature-flag
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)feature_flag|FEATURE_FLAG\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]+'
+    - regex: '(?i)feature_flag|FEATURE_FLAG\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]+'
   severity: medium
   description: "Feature flag value hardcoded in Svelte"
   remediation: "Use feature flag service for dynamic configuration"
@@ -1548,7 +1461,7 @@
 - id: svelte-hardcoded-audit-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)audit_policy|AUDIT_LOG\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]+'
+    - regex: '(?i)audit_policy|AUDIT_LOG\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]+'
   severity: medium
   description: "Audit policy hardcoded in Svelte"
   remediation: "Configure audit policies server-side"
@@ -1558,7 +1471,7 @@
 - id: svelte-hardcoded-compliance-level
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)compliance_level|COMPLIANCE_LEVEL\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]+'
+    - regex: '(?i)compliance_level|COMPLIANCE_LEVEL\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]+'
   severity: medium
   description: "Compliance level hardcoded in Svelte"
   remediation: "Ensure compliance through organizational policies"
@@ -1568,7 +1481,7 @@
 - id: svelte-hardcoded-privacy-setting
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)privacy_setting|PRIVACY_LEVEL\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]+'
+    - regex: '(?i)privacy_setting|PRIVACY_LEVEL\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]+'
   severity: medium
   description: "Privacy setting hardcoded in Svelte"
   remediation: "Allow users to configure privacy settings"
@@ -1578,7 +1491,7 @@
 - id: svelte-hardcoded-notification-preference
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)notification_pref|NOTIFICATION_SETTING\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]+'
+    - regex: '(?i)notification_pref|NOTIFICATION_SETTING\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]+'
   severity: medium
   description: "Notification preference hardcoded in Svelte"
   remediation: "Respect user notification preferences"
@@ -1588,7 +1501,7 @@
 - id: svelte-hardcoded-language-preference
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)language_preference|LANGUAGE_PREF\\s*[=:]\\s*[''\"''][a-zA-Z0-9_-]+'
+    - regex: '(?i)language_preference|LANGUAGE_PREF\\s*[=:]\\s*['''\"''][a-zA-Z0-9_-]+'
   severity: low
   description: "Language preference hardcoded in Svelte"
   remediation: "Allow language selection by users"
@@ -1598,7 +1511,7 @@
 - id: svelte-hardcoded-theme-color
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)theme_color|THEME_COLOR\\s*[=:]\\s*[''\"]?#[0-9a-fA-F]{3,6}\"?\\s*'
+    - regex: '(?i)theme_color|THEME_COLOR\\s*[=:]\\s*['''\"]?#[0-9a-fA-F]{3,6}\"?\\s*'
   severity: low
   description: "Theme color hardcoded in Svelte"
   remediation: "Allow theme customization through settings"
@@ -1608,7 +1521,7 @@
 - id: svelte-hardcoded-icon-font
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)icon_font|ICON_SET\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)icon_font|ICON_SET\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Icon font hardcoded in Svelte"
   remediation: "Load icon fonts through proper web fonts"
@@ -1618,7 +1531,7 @@
 - id: svelte-hardcoded-analytics-tracking-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tracking_id|TRACKING_ID\\s*[=:]\\s*[''\"]UA-[0-9]+-[0-9]+\"'
+    - regex: '(?i)tracking_id|TRACKING_ID\\s*[=:]\\s*['''\"]UA-[0-9]+-[0-9]+\"'
   severity: medium
   description: "Google Analytics tracking ID hardcoded"
   remediation: "Use Google Tag Manager for analytics configuration"
@@ -1628,7 +1541,7 @@
 - id: svelte-hardcoded-hotjar-site-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)hotjar_site_id|HOTJAR_SITE_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)hotjar_site_id|HOTJAR_SITE_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Hotjar site ID hardcoded in Svelte"
   remediation: "Use Hotjar through GTM if possible"
@@ -1638,7 +1551,7 @@
 - id: svelte-hardcoded-fullstory-org-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)fullstory_org|ORG_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)fullstory_org|ORG_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "FullStory organization ID detected"
   remediation: "Configure FullStory through GTM"
@@ -1648,7 +1561,7 @@
 - id: svelte-hardcoded-amplitude-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)amplitude_api_key|AMPLITUDE_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)amplitude_api_key|AMPLITUDE_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Amplitude API key detected in Svelte"
   remediation: "Configure Amplitude through GTM"
@@ -1658,7 +1571,7 @@
 - id: svelte-hardcoded-mixpanel-project-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mixpanel_project_token|MIXPANEL_PROJECT_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)mixpanel_project_token|MIXPANEL_PROJECT_TOKEN\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Mixpanel project token detected"
   remediation: "Configure Mixpanel through GTM"
@@ -1668,7 +1581,7 @@
 - id: svelte-hardcoded-segment-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)segment_api_key|SEGMENT_WRITE_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)segment_api_key|SEGMENT_WRITE_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Segment API key detected in Svelte"
   remediation: "Configure Segment through GTM"
@@ -1678,7 +1591,7 @@
 - id: svelte-hardcoded-pendo-integration-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pendo_integration|PENDO_INTEGRATION_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)pendo_integration|PENDO_INTEGRATION_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Pendo integration key detected"
   remediation: "Configure Pendo through GTM"
@@ -1688,7 +1601,7 @@
 - id: svelte-hardcoded-optimizely-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)optimizely_project|OPTIMIZELY_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)optimizely_project|OPTIMIZELY_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Optimizely project key detected"
   remediation: "Configure Optimizely through GTM"
@@ -1698,7 +1611,7 @@
 - id: svelte-hardcoded-ab-testing-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ab_testing_key|AB_TEST_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)ab_testing_key|AB_TEST_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "A/B testing key hardcoded in Svelte"
   remediation: "Use A/B testing platforms with proper auth"
@@ -1708,7 +1621,7 @@
 - id: svelte-hardcoded-feature-store-client-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)feature_store_id|FEATURE_STORE_CLIENT\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)feature_store_id|FEATURE_STORE_CLIENT\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Feature store client ID hardcoded"
   remediation: "Use feature flags through backend service"
@@ -1718,7 +1631,7 @@
 - id: svelte-hardcoded-launch-darkly-sdk-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)launch_darkly_key|LD_SDK_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)launch_darkly_key|LD_SDK_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "LaunchDarkly SDK key detected"
   remediation: "Use LaunchDarkly through client library only"
@@ -1728,7 +1641,7 @@
 - id: svelte-hardcoded-unleash-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)unleash_host|UNLEASH_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)unleash_host|UNLEASH_HOST\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Unleash host URL hardcoded"
   remediation: "Configure Unleash through deployment secrets"
@@ -1738,7 +1651,7 @@
 - id: svelte-hardcoded-split-io-sdk-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)split_io_key|SPLIT_SDK_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)split_io_key|SPLIT_SDK_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Split.io SDK key detected"
   remediation: "Use Split.io through client library"
@@ -1748,7 +1661,7 @@
 - id: svelte-hardcoded-statsig-organization-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)statsig_org|STATSIG_ORG_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)statsig_org|STATSIG_ORG_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "StatSig organization ID detected"
   remediation: "Configure StatSig through GTM"
@@ -1758,7 +1671,7 @@
 - id: svelte-hardcoded-config-cat-app-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)config_cat_app|CONFIG_CAT_APP_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)config_cat_app|CONFIG_CAT_APP_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "ConfigCat app key detected"
   remediation: "Configure ConfigCat through GTM"
@@ -1768,7 +1681,7 @@
 - id: svelte-hardcoded-featurebase-organization-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)featurebase_org|FEATUREBASE_ORG_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)featurebase_org|FEATUREBASE_ORG_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Featurebase organization ID detected"
   remediation: "Configure Featurebase through client library"
@@ -1778,7 +1691,7 @@
 - id: svelte-hardcoded-toggl-track-username
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)toggl_track_user|TOGGLE_TRACK_USER\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)toggl_track_user|TOGGLE_TRACK_USER\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Toggl Track username detected"
   remediation: "Authenticate Toggl Track through server"
@@ -1788,7 +1701,7 @@
 - id: svelte-hardcoded-asana-access-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)asana_access|ASANA_ACCESS_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)asana_access|ASANA_ACCESS_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Asana access token detected in Svelte"
   remediation: "Use Asana API through server-side proxy"
@@ -1798,7 +1711,7 @@
 - id: svelte-hardcoded-jira-auth-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)jira_auth|JIRA_AUTH_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)jira_auth|JIRA_AUTH_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Jira auth token detected in Svelte"
   remediation: "Authenticate Jira through backend"
@@ -1808,7 +1721,7 @@
 - id: svelte-hardcoded-slack-bot-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)slack_bot|SLACK_BOT_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)slack_bot|SLACK_BOT_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Slack bot token detected in Svelte"
   remediation: "Send messages through Slack API server-side"
@@ -1818,7 +1731,7 @@
 - id: svelte-hardcoded-discord-bot-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)discord_bot|DISCORD_BOT_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)discord_bot|DISCORD_BOT_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Discord bot token detected in Svelte"
   remediation: "Communicate with Discord through API"
@@ -1828,7 +1741,7 @@
 - id: svelte-hardcoded-teams-bot-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)teams_bot|TEAMS_BOT_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)teams_bot|TEAMS_BOT_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Teams bot token detected in Svelte"
   remediation: "Integrate Teams through Graph API"
@@ -1838,7 +1751,7 @@
 - id: svelte-hardcoded-zapier-webhook-automation
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)zapier_webhook|ZAPIER_WEBHOOK_URL\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)zapier_webhook|ZAPIER_WEBHOOK_URL\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Zapier automation URL detected"
   remediation: "Configure Zapier through authenticated API"
@@ -1848,7 +1761,7 @@
 - id: svelte-hardcoded-make-com-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)make_path|MAKE_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)make_path|MAKE_PATH\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Make.com path detected"
   remediation: "Configure Make.com through server-side integration"
@@ -1858,7 +1771,7 @@
 - id: svelte-hardcoded-n8n-workflow-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)n8n_workflow|N8N_WORKFLOW_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)n8n_workflow|N8N_WORKFLOW_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "n8n workflow ID detected"
   remediation: "Execute n8n workflows server-side"
@@ -1868,7 +1781,7 @@
 - id: svelte-hardcoded-tray-io-integration
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tray_integration|TRAY_INTEGRATION\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)tray_integration|TRAY_INTEGRATION\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Tray.io integration detected"
   remediation: "Use Tray.io through server-side proxy"
@@ -1878,7 +1791,7 @@
 - id: svelte-hardcoded-workato-flow
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)workato_flow|WORKATO_FLOW_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)workato_flow|WORKATO_FLOW_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Workato flow detected"
   remediation: "Trigger Workato flows through authenticated API"
@@ -1888,7 +1801,7 @@
 - id: svelte-hardcoded-parabola-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)parabola_creds|PARABOLA_CREDENTIALS\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)parabola_creds|PARABOLA_CREDENTIALS\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Parabola credentials detected"
   remediation: "Access Parabola through backend services"
@@ -1898,7 +1811,7 @@
 - id: svelte-hardcoded-script-kit-integration
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)script_kit|SCRIPT_KIT_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)script_kit|SCRIPT_KIT_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Script Kit integration detected"
   remediation: "Execute Script Kits through backend"
@@ -1908,7 +1821,7 @@
 - id: svelte-hardcoded-shortcuts-automation
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)shortcuts_auto|SHORTCUTS_AUTOMATION\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)shortcuts_auto|SHORTCUTS_AUTOMATION\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Apple Shortcuts automation detected"
   remediation: "Run Shortcuts through iCloud API"
@@ -1918,7 +1831,7 @@
 - id: svelte-hardcoded-ifttt-webhook-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ifttt_webhook|IFTTT_WEBHOOK_URL\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)ifttt_webhook|IFTTT_WEBHOOK_URL\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "IFTTT webhook URL detected"
   remediation: "Use IFTTT through authenticated API endpoints"
@@ -1928,7 +1841,7 @@
 - id: svelte-hardcoded-pipefy-list-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pipefy_list|PIPEFY_LIST_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)pipefy_list|PIPEFY_LIST_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Pipefy list ID detected"
   remediation: "Interact with Pipefy through authenticated API"
@@ -1938,7 +1851,7 @@
 - id: svelte-hardcoded-coda-document-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)coda_doc|CODA_DOC_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)coda_doc|CODA_DOC_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Coda document key detected"
   remediation: "Access Coda docs through official API"
@@ -1948,7 +1861,7 @@
 - id: svelte-hardcoded-docuSign-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)docusign_auth|DOCUSIGN_AUTH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)docusign_auth|DOCUSIGN_AUTH\\s*[=:]\\s*['''\"]'
   severity: high
   description: "DocuSign authentication detected in Svelte"
   remediation: "Use DocuSign via server-side integration"
@@ -1958,7 +1871,7 @@
 - id: svelte-hardcoded-eSignatures-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)esignatures_key|ESIGNATURES_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)esignatures_key|ESIGNATURES_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "E-Signatures key detected in Svelte"
   remediation: "Handle e-signatures through backend"
@@ -1968,7 +1881,7 @@
 - id: svelte-hardcoded-adobe-acrobat-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)acrobat_token|ACROBAT_ACCESS\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)acrobat_token|ACROBAT_ACCESS\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Acrobat token detected in Svelte"
   remediation: "Use Acrobat services via Adobe I/O"
@@ -1978,7 +1891,7 @@
 - id: svelte-hardcoded-dropbox-app-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)dropbox_token|DROPBOX_APP_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)dropbox_token|DROPBOX_APP_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Dropbox app token detected in Svelte"
   remediation: "Authenticate Dropbox through server"
@@ -1988,7 +1901,7 @@
 - id: svelte-hardcoded-gdrive-drive-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)gdrive_drive|GDRIVE_DRIVE_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)gdrive_drive|GDRIVE_DRIVE_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Google Drive ID detected in Svelte"
   remediation: "Access Drive through authenticated API"
@@ -1998,7 +1911,7 @@
 - id: svelte-hardcoded-onedrive-drive-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)onedrive_drive|ONEDRIVE_DRIVE_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)onedrive_drive|ONEDRIVE_DRIVE_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "OneDrive drive ID detected in Svelte"
   remediation: "Authenticate OneDrive via Microsoft Graph"
@@ -2008,7 +1921,7 @@
 - id: svelte-hardcoded-box-app-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)box_app|BOX_APP_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)box_app|BOX_APP_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Box app token detected in Svelte"
   remediation: "Use Box API through backend proxy"
@@ -2018,7 +1931,7 @@
 - id: svelte-hardcoded-sugarsync-access
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sugarsync_access|SUGARSYNC_ACCESS\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)sugarsync_access|SUGARSYNC_ACCESS\\s*[=:]\\s*['''\"]'
   severity: high
   description: "SugarSync access detected"
   remediation: "Access SugarSync via authenticated API"
@@ -2028,7 +1941,7 @@
 - id: svelte-hardcoded-sync-com-client-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sync_com|SYNC_COM_CLIENT_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)sync_com|SYNC_COM_CLIENT_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Sync.com client ID detected"
   remediation: "Authenticate Sync.com via server-side"
@@ -2038,7 +1951,7 @@
 - id: svelte-hardcoded-pcloud-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pcloud_auth|PCLOUD_AUTHENTICATOR\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)pcloud_auth|PCLOUD_AUTHENTICATOR\\s*[=:]\\s*['''\"]'
   severity: high
   description: "pCloud authentication detected in Svelte"
   remediation: "Use pCloud API via backend proxy"
@@ -2048,7 +1961,7 @@
 - id: svelte-hardcoded-mediafire-upload-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mediafire|MEDIAFIRE_UPLOAD_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)mediafire|MEDIAFIRE_UPLOAD_TOKEN\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "MediaFire upload token detected"
   remediation: "Upload to MediaFire via server-side"
@@ -2058,7 +1971,7 @@
 - id: svelte-hardcoded-weTransfer-access
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)wetransfer|WE_TRANSFER_ACCESS\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)wetransfer|WE_TRANSFER_ACCESS\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "WeTransfer access token detected"
   remediation: "Use WeTransfer API properly"
@@ -2068,7 +1981,7 @@
 - id: svelte-hardcoded-transferfile-server
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)transferfile|TRANSFER_FILE_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)transferfile|TRANSFER_FILE_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "TransferFile key detected in Svelte"
   remediation: "Use transfer services through authenticated API"
@@ -2078,7 +1991,7 @@
 - id: svelte-hardcoded-fileupload-provider
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)fileupload|FILEUPLOAD_PROVIDER\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)fileupload|FILEUPLOAD_PROVIDER\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "File upload provider configured in Svelte"
   remediation: "Configure file upload through server-side service"
@@ -2088,7 +2001,7 @@
 - id: svelte-hardcoded-cdn-origin-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cdn_origin|CDN_ORIGIN_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)cdn_origin|CDN_ORIGIN_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "CDN origin key detected in Svelte"
   remediation: "Access CDN through edge functions or API"
@@ -2098,7 +2011,7 @@
 - id: svelte-hardcoded-s3-bucket-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)s3_bucket_name|S3_BUCKET_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)s3_bucket_name|S3_BUCKET_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "S3 bucket name hardcoded in Svelte"
   remediation: "Use S3 buckets only through backend proxy"
@@ -2108,7 +2021,7 @@
 - id: svelte-hardcoded-gcs-bucket-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)gcs_bucket|GCS_BUCKET_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)gcs_bucket|GCS_BUCKET_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "GCS bucket name detected in Svelte"
   remediation: "Access GCS through backend services"
@@ -2118,7 +2031,7 @@
 - id: svelte-hardcoded-az-blob-container
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)az_blob|AZURE_BLOB_CONTAINER\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)az_blob|AZURE_BLOB_CONTAINER\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Azure Blob container detected in Svelte"
   remediation: "Access blobs through signed URLs or backend"
@@ -2128,7 +2041,7 @@
 - id: svelte-hardcoded-imgur-client-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)imgur|IMGUR_CLIENT_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)imgur|IMGUR_CLIENT_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Imgur client ID detected in Svelte"
   remediation: "Use Imgur API with proper authentication"
@@ -2138,7 +2051,7 @@
 - id: svelte-hardcoded-unsplash-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)unsplash|UNSPLASH_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)unsplash|UNSPLASH_API_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Unsplash API key detected in Svelte"
   remediation: "Use Unsplash API through authenticated proxy"
@@ -2148,7 +2061,7 @@
 - id: svelte-hardcoded-flickr-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)flickr|FLICKR_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)flickr|FLICKR_API_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Flickr API key detected in Svelte"
   remediation: "Use Flickr API through authenticated proxy"
@@ -2158,7 +2071,7 @@
 - id: svelte-hardcoded-instagram-basic-discovery
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)instagram|INSTAGRAM_BASIC_DISCOVERY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)instagram|INSTAGRAM_BASIC_DISCOVERY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Instagram Basic Discovery detected"
   remediation: "Use Instagram Graph API through Meta Business"
@@ -2168,7 +2081,7 @@
 - id: svelte-hardcoded-twitter-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)twitter|TWITTER_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)twitter|TWITTER_API_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Twitter API key detected in Svelte"
   remediation: "Use Twitter API v2 with proper authentication"
@@ -2178,7 +2091,7 @@
 - id: svelte-hardcoded-facebook-page-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)facebook|FACEBOOK_PAGE_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)facebook|FACEBOOK_PAGE_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Facebook Page token detected in Svelte"
   remediation: "Use Facebook Marketing API via backend"
@@ -2188,7 +2101,7 @@
 - id: svelte-hardcoded-pinterest-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pinterest|PINTEREST_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)pinterest|PINTEREST_API_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Pinterest API key detected in Svelte"
   remediation: "Use Pinterest API v5 via backend"
@@ -2198,7 +2111,7 @@
 - id: svelte-hardcoded-youtube-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)youtube|YOUTUBE_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)youtube|YOUTUBE_API_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "YouTube API key detected in Svelte"
   remediation: "Use YouTube Data API v3 through backend"
@@ -2208,7 +2121,7 @@
 - id: svelte-hardcoded-spotify-client-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)spotify|SPOTIFY_CLIENT_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)spotify|SPOTIFY_CLIENT_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Spotify client ID detected in Svelte"
   remediation: "Authenticate Spotify through backend"
@@ -2218,7 +2131,7 @@
 - id: svelte-hardcoded-spotify-client-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)spotify|SPOTIFY_CLIENT_SECRET\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)spotify|SPOTIFY_CLIENT_SECRET\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "Spotify client secret detected in Svelte"
   remediation: "Never expose Spotify secrets to client"
@@ -2228,7 +2141,7 @@
 - id: svelte-hardcoded-podcast-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)podcast|PODCAST_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)podcast|PODCAST_API_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Podcast API key detected in Svelte"
   remediation: "Use podcast RSS feeds or authenticated APIs"
@@ -2238,7 +2151,7 @@
 - id: svelte-hardcoded-news-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)news_api|NEWS_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)news_api|NEWS_API_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "News API key detected in Svelte"
   remediation: "Use news RSS feeds or authenticated APIs"
@@ -2248,7 +2161,7 @@
 - id: svelte-hardcoded-coffee-stack-username
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)coffeestack|COFFEESTACK_USERNAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)coffeestack|COFFEESTACK_USERNAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "CoffeeStack username detected in Svelte"
   remediation: "Use Coffee Stack through server-side API"
@@ -2258,7 +2171,7 @@
 - id: svelte-hardcoded-mattermost-bot-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mattermost|MATTERMOST_BOT_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)mattermost|MATTERMOST_BOT_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Mattermost bot token detected in Svelte"
   remediation: "Send messages via Mattermost webhook"
@@ -2268,7 +2181,7 @@
 - id: svelte-hardcoded-keybase-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)keybase|KEYBASE_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)keybase|KEYBASE_API_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Keybase API key detected in Svelte"
   remediation: "Use Keybase through official SDK"
@@ -2278,7 +2191,7 @@
 - id: svelte-hardcoded-ipfs-pinata-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pinata|PINATA_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)pinata|PINATA_API_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Pinata IPFS API key detected"
   remediation: "Pin files via Pinata dashboard or API"
@@ -2288,7 +2201,7 @@
 - id: svelte-hardcoded-arweave-wallet
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)arweave|ARWEAVE_WALLET\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)arweave|ARWEAVE_WALLET\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Arweave wallet detected in Svelte"
   remediation: "Sign Arweave transactions via backend"
@@ -2298,7 +2211,7 @@
 - id: svelte-hardcoded-lambda-function-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)lambda_url|AWS_LAMBDA_FUNCTION_URL\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)lambda_url|AWS_LAMBDA_FUNCTION_URL\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Lambda function URL hardcoded in Svelte"
   remediation: "Invoke Lambda via backend proxy"
@@ -2308,7 +2221,7 @@
 - id: svelte-hardcoded-step-functions-ar
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)step_functions|STEP_FUNCTIONS_ARN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)step_functions|STEP_FUNCTIONS_ARN\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Step Functions ARN detected in Svelte"
   remediation: "Start Step Functions execution via backend"
@@ -2318,7 +2231,7 @@
 - id: svelte-hardcoded-dynamodb-table-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)dynamodb_table|DYNAMODB_TABLE_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)dynamodb_table|DYNAMODB_TABLE_NAME\\s*[=:]\\s*['''\"]'
   severity: high
   description: "DynamoDB table name detected in Svelte"
   remediation: "Access DynamoDB via backend services"
@@ -2328,7 +2241,7 @@
 - id: svelte-hardcoded-rds-instance-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rds_instance|RDS_INSTANCE_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)rds_instance|RDS_INSTANCE_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "RDS instance ID detected in Svelte"
   remediation: "Access RDS through backend proxy"
@@ -2338,7 +2251,7 @@
 - id: svelte-hardcoded-elasticsearch-cluster-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)elasticsearch|ELASTICSEARCH_CLUSTER_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)elasticsearch|ELASTICSEARCH_CLUSTER_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Elasticsearch cluster ID detected"
   remediation: "Access Elasticsearch through backend"
@@ -2348,7 +2261,7 @@
 - id: svelte-hardcoded-kibana-dashboard-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)kibana|KIBANA_DASHBOARD_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)kibana|KIBANA_DASHBOARD_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Kibana dashboard ID detected in Svelte"
   remediation: "View Kibana dashboards via authorized portal"
@@ -2358,7 +2271,7 @@
 - id: svelte-hardcoded-graphite-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)graphite_host|GRAPHITE_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)graphite_host|GRAPHITE_HOST\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Graphite host detected in Svelte"
   remediation: "Query Graphite via Grafana"
@@ -2368,7 +2281,7 @@
 - id: svelte-hardcoded-prometheus-target
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)prometheus_target|PROMETHEUS_TARGET\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)prometheus_target|PROMETHEUS_TARGET\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Prometheus target detected in Svelte"
   remediation: "Query Prometheus via backend proxy"
@@ -2378,7 +2291,7 @@
 - id: svelte-hardcoded-grafana-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)grafana|GRAFANA_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)grafana|GRAFANA_API_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Grafana API key detected in Svelte"
   remediation: "Access Grafana through authenticated portal"
@@ -2388,7 +2301,7 @@
 - id: svelte-hardcoded-datadog-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)datadog|DATADOG_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)datadog|DATADOG_API_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Datadog API key detected in Svelte"
   remediation: "Use Datadog Agent or API via backend"
@@ -2398,7 +2311,7 @@
 - id: svelte-hardcoded-newrelic-license-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)newrelic|NEWRELIC_LICENSE_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)newrelic|NEWRELIC_LICENSE_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "New Relic license key detected in Svelte"
   remediation: "Use New Relic via backend agent"
@@ -2408,7 +2321,7 @@
 - id: svelte-hardcoded-logsene-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)logsene|LOGSENE_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)logsene|LOGSENE_TOKEN\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Logsene token detected in Svelte"
   remediation: "Forward logs to Logsene via backend"
@@ -2418,7 +2331,7 @@
 - id: svelte-hardcoded-panorama-agent-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)panorama|PANORAMA_AGENT_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)panorama|PANORAMA_AGENT_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Panorama agent ID detected in Svelte"
   remediation: "Install Panorama agents via deployment"
@@ -2428,7 +2341,7 @@
 - id: svelte-hardcoded-signalfx-detector-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)signalfx|SIGNALFX_DETECTOR_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)signalfx|SIGNALFX_DETECTOR_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "SignalFx detector ID detected"
   remediation: "Configure SignalFx via dashboard"
@@ -2438,7 +2351,7 @@
 - id: svelte-hardcoded-apm-service-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)apm_service|APM_SERVICE_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)apm_service|APM_SERVICE_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "APM service name detected in Svelte"
   remediation: "Configure APM via backend instrumentation"
@@ -2448,7 +2361,7 @@
 - id: svelte-hardcoded-jaeger-collector
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)jaeger|JAEGER_COLLECTOR\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)jaeger|JAEGER_COLLECTOR\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Jaeger collector address detected"
   remediation: "Configure Jaeger via OpenTelemetry SDK"
@@ -2458,7 +2371,7 @@
 - id: svelte-hardcoded-opentelemetry-endpoint
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)otel_endpoint|OPEN_TELEMETRY_ENDPOINT\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)otel_endpoint|OPEN_TELEMETRY_ENDPOINT\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "OpenTelemetry endpoint detected in Svelte"
   remediation: "Configure OTEL via backend instrumentation"
@@ -2468,7 +2381,7 @@
 - id: svelte-hardcoded-sentry-dsn
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sentry_dsn|SENTRY_DSN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)sentry_dsn|SENTRY_DSN\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Sentry DSN detected in Svelte"
   remediation: "Use Sentry SDK with proper initialization"
@@ -2478,7 +2391,7 @@
 - id: svelte-hardcoded-rollbar-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rollbar|ROLLBAR_TOKEN\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)rollbar|ROLLBAR_TOKEN\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Rollbar token detected in Svelte"
   remediation: "Initialize Rollbar via JavaScript SDK"
@@ -2488,7 +2401,7 @@
 - id: svelte-hardcoded-bugsnag-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bugsnag|BUGSNAG_API_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)bugsnag|BUGSNAG_API_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Bugsnag API key detected in Svelte"
   remediation: "Use Bugsnag via JavaScript SDK"
@@ -2498,7 +2411,7 @@
 - id: svelte-hardcoded-glitchtip-client-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)glitchtip|GLITCHTIP_CLIENT_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)glitchtip|GLITCHTIP_CLIENT_KEY\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Glitchtip client key detected"
   remediation: "Configure Glitchtip via self-hosted instance"
@@ -2508,7 +2421,7 @@
 - id: svelte-hardcoded-papertrail-query-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)papertrail|PAPERTRAIL_QUERY_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)papertrail|PAPERTRAIL_QUERY_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Papertrail query ID detected"
   remediation: "Use Papertrail queries via authenticated API"
@@ -2518,7 +2431,7 @@
 - id: svelte-hardcoded-logentries-source-guid
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)logentries|LOGENTRIES_SOURCE_GUID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)logentries|LOGENTRIES_SOURCE_GUID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Logentries source GUID detected"
   remediation: "Forward logs via Logentries API"
@@ -2528,7 +2441,7 @@
 - id: svelte-hardcoded-sumologic-collector
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sumologic|SUMOLOGIC_COLLECTOR\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)sumologic|SUMOLOGIC_COLLECTOR\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Sumo Logic collector detected in Svelte"
   remediation: "Use Sumo Logic via authenticated API"
@@ -2538,7 +2451,7 @@
 - id: svelte-hardcoded-elastic-cloud-region
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)elastic_cloud|ELASTIC_CLOUD_REGION\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)elastic_cloud|ELASTIC_CLOUD_REGION\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Elastic Cloud region detected in Svelte"
   remediation: "Access Elastic Cloud via authenticated API"
@@ -2548,7 +2461,7 @@
 - id: svelte-hardcoded-aws-ses-region
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ses_region|AWS_SES_REGION\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)ses_region|AWS_SES_REGION\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "AWS SES region detected in Svelte"
   remediation: "Configure SES via backend service"
@@ -2558,7 +2471,7 @@
 - id: svelte-hardcoded-gcp-bigquery-dataset
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bigquery|BIGQUERY_DATASET_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)bigquery|BIGQUERY_DATASET_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "BigQuery dataset ID detected in Svelte"
   remediation: "Query BigQuery via backend"
@@ -2568,7 +2481,7 @@
 - id: svelte-hardcoded-snowflake-account-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)snowflake|SNOWFLAKE_ACCOUNT_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)snowflake|SNOWFLAKE_ACCOUNT_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Snowflake account name detected in Svelte"
   remediation: "Access Snowflake via backend service"
@@ -2578,7 +2491,7 @@
 - id: svelte-hardcoded-redshift-cluster-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)redshift|REDSHIFT_CLUSTER_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)redshift|REDSHIFT_CLUSTER_ID\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Redshift cluster ID detected in Svelte"
   remediation: "Access Redshift via backend service"
@@ -2588,7 +2501,7 @@
 - id: svelte-hardcoded-neptune-database-endpoint
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)neptune|NEPTUNE_DATABASE_ENDPOINT\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)neptune|NEPTUNE_DATABASE_ENDPOINT\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Neptune database endpoint detected"
   remediation: "Access Neptune via Gremlin API through backend"
@@ -2598,7 +2511,7 @@
 - id: svelte-hardcoded-mysql-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mysql|MYSQL_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)mysql|MYSQL_HOST\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "MySQL server host detected in Svelte"
   remediation: "Always connect to MySQL server-side"
@@ -2608,7 +2521,7 @@
 - id: svelte-hardcoded-mariadb-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mariadb|MARIADB_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)mariadb|MARIADB_HOST\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "MariaDB server host detected in Svelte"
   remediation: "Connect to MariaDB server-side"
@@ -2618,7 +2531,7 @@
 - id: svelte-hardcoded-mongodb-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mongodb|MONGODB_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)mongodb|MONGODB_HOST\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "MongoDB server host detected in Svelte"
   remediation: "Connect to MongoDB via Mongoose server-side"
@@ -2628,7 +2541,7 @@
 - id: svelte-hardcoded-couchdb-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)couchdb|COUCHDB_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)couchdb|COUCHDB_HOST\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "CouchDB server host detected in Svelte"
   remediation: "Access CouchDB via backend service"
@@ -2638,7 +2551,7 @@
 - id: svelte-hardcoded-redis-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)redis|REDIS_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)redis|REDIS_HOST\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "Redis server host detected in Svelte"
   remediation: "Access Redis via backend service"
@@ -2648,7 +2561,7 @@
 - id: svelte-hardcoded-influxdb-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)influxdb|INFLUXDB_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)influxdb|INFLUXDB_HOST\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "InfluxDB server host detected in Svelte"
   remediation: "Query InfluxDB via backend"
@@ -2658,7 +2571,7 @@
 - id: svelte-hardcoded-cassandra-server-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cassandra|CASSANDRA_HOST\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)cassandra|CASSANDRA_HOST\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "Cassandra server host detected in Svelte"
   remediation: "Access Cassandra via backend service"
@@ -2668,7 +2581,7 @@
 - id: svelte-hardcoded-dynamodb-table-name-again
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)dynamodb|DYNAMODB_TABLE_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)dynamodb|DYNAMODB_TABLE_NAME\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "DynamoDB table name detected in Svelte"
   remediation: "Access DynamoDB via backend service"
@@ -2678,7 +2591,7 @@
 - id: svelte-hardcoded-firestore-collection-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)firestore|FIRESTORE_COLLECTION_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)firestore|FIRESTORE_COLLECTION_PATH\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "Firestore collection path detected in Svelte"
   remediation: "Access Firestore via Firebase Backend"
@@ -2688,7 +2601,7 @@
 - id: svelte-hardcoded-supabase-schema-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)supabase|SUPABASE_SCHEMA_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)supabase|SUPABASE_SCHEMA_NAME\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "Supabase schema name detected in Svelte"
   remediation: "Access Supabase via backend Proxy"
@@ -2698,7 +2611,7 @@
 - id: svelte-hardcoded-strapi-api-route
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)strapi|STRAPI_API_ROUTE\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)strapi|STRAPI_API_ROUTE\\s*[=:]\\s*['''\"]'
   severity: critical
   description: "Strapi API route detected in Svelte"
   remediation: "Access Strapi via backend Proxy"
@@ -2708,7 +2621,7 @@
 - id: svelte-hardcoded-plone-site-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)plone|PLONE_SITE_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)plone|PLONE_SITE_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Plone site ID detected in Svelte"
   remediation: "Access Plone via backend Proxy"
@@ -2718,7 +2631,7 @@
 - id: svelte-hardcoded-dotcms-site-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)dotcms|DOTCMS_SITE_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)dotcms|DOTCMS_SITE_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "DotCMS site ID detected in Svelte"
   remediation: "Access DotCMS via backend Proxy"
@@ -2728,7 +2641,7 @@
 - id: svelte-hardcoded-joomla-component-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)joomla|JOOMLA_COMPONENT_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)joomla|JOOMLA_COMPONENT_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Joomla component ID detected in Svelte"
   remediation: "Access Joomla via backend Proxy"
@@ -2738,7 +2651,7 @@
 - id: svelte-hardcoded-drupal-node-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)drupal|DRUPAL_NODE_ID\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)drupal|DRUPAL_NODE_ID\\s*[=:]\\s*['''\"]'
   severity: high
   description: "Drupal node ID detected in Svelte"
   remediation: "Access Drupal via backend Proxy"
@@ -2748,7 +2661,7 @@
 - id: svelte-hardcoded-typo3-extension-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)typo3|TYPO3_EXTENSION_KEY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)typo3|TYPO3_EXTENSION_KEY\\s*[=:]\\s*['''\"]'
   severity: high
   description: "TYPO3 extension key detected in Svelte"
   remediation: "Access TYPO3 via backend Proxy"
@@ -2758,7 +2671,7 @@
 - id: svelte-hardcoded-agilejax-version
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)agilejax|AGILEJAX_VERSION\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)agilejax|AGILEJAX_VERSION\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "AgileJax version detected in Svelte"
   remediation: "Import AgileJax via package manager"
@@ -2768,7 +2681,7 @@
 - id: svelte-hardcoded-react-library-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)react_library|REACT_LIBRARY_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)react_library|REACT_LIBRARY_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "React library name hardcoded in Svelte"
   remediation: "Use React via npm/yarn/pnpm packages"
@@ -2778,7 +2691,7 @@
 - id: svelte-hardcoded-vue-library-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vue_library|VUE_LIBRARY_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)vue_library|VUE_LIBRARY_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Vue library name hardcoded in Svelte"
   remediation: "Use Vue via npm/yarn/pnpm packages"
@@ -2788,7 +2701,7 @@
 - id: svelte-hardcoded-angular-library-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)angular_library|ANGULAR_LIBRARY_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)angular_library|ANGULAR_LIBRARY_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Angular library name hardcoded in Svelte"
   remediation: "Use Angular via npm/yarn/pnpm packages"
@@ -2798,7 +2711,7 @@
 - id: svelte-hardcoded-svelte-library-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)svelte_library|SVELTE_LIBRARY_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)svelte_library|SVELTE_LIBRARY_NAME\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Svelte library name hardcoded in Svelte"
   remediation: "Use Svelte via npm/yarn/pnpm packages"
@@ -2808,7 +2721,7 @@
 - id: svelte-hardcoded-libraries-import
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)libraries_import|LIBRARIES_IMPORT\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)libraries_import|LIBRARIES_IMPORT\\s*[=:]\\s*['''\"]'
   severity: medium
   description: "Libraries import hardcoded in Svelte"
   remediation: "Import libraries via build tool config"
@@ -2818,7 +2731,7 @@
 - id: svelte-hardcoded-framework-version
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)framework_version|FRAMEWORK_VER\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)framework_version|FRAMEWORK_VER\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Framework version hardcoded in Svelte"
   remediation: "Specify versions in package.json"
@@ -2828,7 +2741,7 @@
 - id: svelte-hardcoded-runtime-version
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)runtime_version|RUNTIME_VER\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)runtime_version|RUNTIME_VER\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Runtime version hardcoded in Svelte"
   remediation: "Specify runtime in package.json engines"
@@ -2838,7 +2751,7 @@
 - id: svelte-hardcoded-bundler-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bundler_name|BUNDLER_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)bundler_name|BUNDLER_NAME\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Bundler name hardcoded in Svelte"
   remediation: "Specify bundler in package.json dependencies"
@@ -2848,7 +2761,7 @@
 - id: svelte-hardcoded-test-runner
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)test_runner|TEST_RUNNER\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)test_runner|TEST_RUNNER\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Test runner name hardcoded in Svelte"
   remediation: "Specify test runner in package.json devDependencies"
@@ -2858,7 +2771,7 @@
 - id: svelte-hardcoded-linter-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)linter_name|LINTER_NAME\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)linter_name|LINTER_NAME\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Linter name hardcoded in Svelte"
   remediation: "Configure linter via ESLint/Prettier config"
@@ -2868,7 +2781,7 @@
 - id: svelte-hardcoded-css-preprocessor
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)css_preprocessor|CSS_PREPROCESSOR\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)css_preprocessor|CSS_PREPROCESSOR\\s*[=:]\\s*['''\"]'
   severity: low
   description: "CSS preprocessor name hardcoded in Svelte"
   remediation: "Use CSS preprocessors via config"
@@ -2878,7 +2791,7 @@
 - id: svelte-hardcoded-template-engine
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)template_engine|TEMPLATE_ENGINE\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)template_engine|TEMPLATE_ENGINE\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Template engine name hardcoded in Svelte"
   remediation: "Use template engines via config"
@@ -2888,7 +2801,7 @@
 - id: svelte-hardcoded-build-tool-command
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)build_tool|BUILD_TOOL_COMMAND\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)build_tool|BUILD_TOOL_COMMAND\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Build tool command hardcoded in Svelte"
   remediation: "Configure build tools via config"
@@ -2898,7 +2811,7 @@
 - id: svelte-hardcoded-package-manager
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)package_manager|PACKAGE_MANAGER\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)package_manager|PACKAGE_MANAGER\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Package manager hardcoded in Svelte"
   remediation: "Specify package manager via .nvmrc/.node-version"
@@ -2908,7 +2821,7 @@
 - id: svelte-hardcoded-node-version-range
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)node_version|NODE_VERSION_RANGE\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)node_version|NODE_VERSION_RANGE\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Node version range hardcoded in Svelte"
   remediation: "Specify Node version in .nvmrc"
@@ -2918,7 +2831,7 @@
 - id: svelte-hardcoded-browser-compatibility
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)browser_compatibility|BROWSER_COMPABILITY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)browser_compatibility|BROWSER_COMPABILITY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Browser compatibility hardcoded in Svelte"
   remediation: "Use browserslist for compatibility config"
@@ -2928,7 +2841,7 @@
 - id: svelte-hardcoded-js-polyfills
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)js_polyfills|JS_POLYFILLS\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)js_polyfills|JS_POLYFILLS\\s*[=:]\\s*['''\"]'
   severity: low
   description: "JS polyfills hardcoded in Svelte"
   remediation: "Configure polyfills via Babel plugin"
@@ -2938,7 +2851,7 @@
 - id: svelte-hardcoded-webpack-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)webpack_config|WEBPACK_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)webpack_config|WEBPACK_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Webpack config path hardcoded in Svelte"
   remediation: "Reference config path from package.json"
@@ -2948,7 +2861,7 @@
 - id: svelte-hardcoded-rollup-output-dir
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rollup_output|ROLLUP_OUTPUT_DIR\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)rollup_output|ROLLUP_OUTPUT_DIR\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Rollup output directory hardcoded in Svelte"
   remediation: "Configure Rollup in rollup.config.js"
@@ -2958,7 +2871,7 @@
 - id: svelte-hardcoded-esbuild-outdir
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)esbuild_out|ESBUILD_OUTDIR\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)esbuild_out|ESBUILD_OUTDIR\\s*[=:]\\s*['''\"]'
   severity: low
   description: "ESBuild output dir hardcoded in Svelte"
   remediation: "Configure ESBuild in package.json"
@@ -2968,7 +2881,7 @@
 - id: svelte-hardcoded-vite-port
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vite_port|VITE_PORT\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)vite_port|VITE_PORT\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Vite port hardcoded in Svelte"
   remediation: "Configure Vite via vite.config.js"
@@ -2978,7 +2891,7 @@
 - id: svelte-hardcoded-dev-server-port
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)dev_server_port|DEV_SERVER_PORT\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)dev_server_port|DEV_SERVER_PORT\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Dev server port hardcoded in Svelte"
   remediation: "Configure dev server via tool config"
@@ -2988,7 +2901,7 @@
 - id: svelte-hardcoded-proxy-config
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)proxy_config|PROXY_CONFIG\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)proxy_config|PROXY_CONFIG\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Proxy configuration hardcoded in Svelte"
   remediation: "Configure proxy via dev server config"
@@ -2998,7 +2911,7 @@
 - id: svelte-hardcoded-src-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)src_directory|SRC_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)src_directory|SRC_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Source directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3008,7 +2921,7 @@
 - id: svelte-hardcoded-output-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)output_directory|OUTPUT_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)output_directory|OUTPUT_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Output directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3018,7 +2931,7 @@
 - id: svelte-hardcoded-public-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)public_directory|PUBLIC_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)public_directory|PUBLIC_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Public directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3028,7 +2941,7 @@
 - id: svelte-hardcoded-assets-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)assets_directory|ASSETS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)assets_directory|ASSETS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Assets directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3038,7 +2951,7 @@
 - id: svelte-hardcoded-components-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)components_dir|COMPONENTS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)components_dir|COMPONENTS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Components directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3048,7 +2961,7 @@
 - id: svelte-hardcoded-pages-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pages_directory|PAGES_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)pages_directory|PAGES_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Pages directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3058,7 +2971,7 @@
 - id: svelte-hardcoded-hooks-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)hooks_directory|HOOKS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)hooks_directory|HOOKS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Hooks directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3068,7 +2981,7 @@
 - id: svelte-hardcoded-routes-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)routes_directory|ROUTES_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)routes_directory|ROUTES_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Routes directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3078,7 +2991,7 @@
 - id: svelte-hardcoded-api-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)api_directory|API_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)api_directory|API_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "API directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3088,7 +3001,7 @@
 - id: svelte-hardcoded-lib-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)lib_directory|LIB_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)lib_directory|LIB_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Lib directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3098,7 +3011,7 @@
 - id: svelte-hardcoded-utils-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)utils_directory|UTILS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)utils_directory|UTILS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Utils directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3108,7 +3021,7 @@
 - id: svelte-hardcoded-styles-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)styles_directory|STYLES_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)styles_directory|STYLES_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Styles directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3118,7 +3031,7 @@
 - id: svelte-hardcoded-images-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)images_directory|IMAGES_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)images_directory|IMAGES_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Images directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3128,7 +3041,7 @@
 - id: svelte-hardcoded-fonts-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)fonts_directory|FONTS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)fonts_directory|FONTS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Fonts directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3138,7 +3051,7 @@
 - id: svelte-hardcoded-videos-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)videos_directory|VIDEOS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)videos_directory|VIDEOS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Videos directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3148,7 +3061,7 @@
 - id: svelte-hardcoded-audio-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)audio_directory|AUDIO_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)audio_directory|AUDIO_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Audio directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3158,7 +3071,7 @@
 - id: svelte-hardcoded-i18n-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)i18n_directory|I18N_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)i18n_directory|I18N_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "i18n directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3168,7 +3081,7 @@
 - id: svelte-hardcoded-tests-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tests_directory|TESTS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)tests_directory|TESTS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Tests directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3178,7 +3091,7 @@
 - id: svelte-hardcoded-specs-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)specs_directory|SPECS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)specs_directory|SPECS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Specs directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3188,7 +3101,7 @@
 - id: svelte-hardcoded-fixtures-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)fixtures_directory|FIXTURES_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)fixtures_directory|FIXTURES_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Fixtures directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3198,7 +3111,7 @@
 - id: svelte-hardcoded-mocks-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mocks_directory|MOCKS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)mocks_directory|MOCKS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Mocks directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3208,7 +3121,7 @@
 - id: svelte-hardcoded-stories-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)stories_directory|STORIES_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)stories_directory|STORIES_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Stories directory hardcoded in Svelte"
   remediation: "Configure directory via tool config"
@@ -3218,7 +3131,7 @@
 - id: svelte-hardcoded-playwright-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)playwright_dir|PLAYWRIGHT_DIR\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)playwright_dir|PLAYWRIGHT_DIR\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Playwright directory hardcoded in Svelte"
   remediation: "Configure Playwright via playwright.config.js"
@@ -3228,7 +3141,7 @@
 - id: svelte-hardcoded-cypress-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cypress_directory|CYPRESS_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)cypress_directory|CYPRESS_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Cypress directory hardcoded in Svelte"
   remediation: "Configure Cypress via cypress.config.js"
@@ -3238,7 +3151,7 @@
 - id: svelte-hardcoded-storybook-directory
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)storybook_dir|STORYBOOK_DIRECTORY\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)storybook_dir|STORYBOOK_DIRECTORY\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Storybook directory hardcoded in Svelte"
   remediation: "Configure Storybook via storybook.config.js"
@@ -3248,7 +3161,7 @@
 - id: svelte-hardcoded-eslint-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)eslint_config|ESLINT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)eslint_config|ESLINT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "ESLint config path hardcoded in Svelte"
   remediation: "Reference eslint config via package.json"
@@ -3258,7 +3171,7 @@
 - id: svelte-hardcoded-prettier-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)prettier_config|PRETTIER_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)prettier_config|PRETTIER_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Prettier config path hardcoded in Svelte"
   remediation: "Reference prettier config via package.json"
@@ -3268,7 +3181,7 @@
 - id: svelte-hardcoded-typescript-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tsconfig_path|TYPESCRIPT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)tsconfig_path|TYPESCRIPT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "TypeScript config path hardcoded in Svelte"
   remediation: "Reference tsconfig via package.json"
@@ -3278,7 +3191,7 @@
 - id: svelte-hardcoded-jest-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)jest_config|JEST_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)jest_config|JEST_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Jest config path hardcoded in Svelte"
   remediation: "Reference Jest config via package.json"
@@ -3288,7 +3201,7 @@
 - id: svelte-hardcoded-vitest-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vitest_config|VITEST_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)vitest_config|VITEST_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Vitest config path hardcoded in Svelte"
   remediation: "Reference Vitest config via package.json"
@@ -3298,7 +3211,7 @@
 - id: svelte-hardcoded-playwright-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)playwright_config|PLAYWRIGHT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)playwright_config|PLAYWRIGHT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Playwright config path hardcoded in Svelte"
   remediation: "Reference Playwright config via playwright.config.js"
@@ -3308,7 +3221,7 @@
 - id: svelte-hardcoded-cypress-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cypress_config|CYPRESS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)cypress_config|CYPRESS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Cypress config path hardcoded in Svelte"
   remediation: "Reference Cypress config via cypress.config.js"
@@ -3318,7 +3231,7 @@
 - id: svelte-hardcoded-storybook-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)storybook_config|STORYBOOK_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)storybook_config|STORYBOOK_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Storybook config path hardcoded in Svelte"
   remediation: "Reference Storybook config via storybook.config.js"
@@ -3328,7 +3241,7 @@
 - id: svelte-hardcoded-svelte-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)svelte_config|SVELTE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)svelte_config|SVELTE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Svelte config path hardcoded in Svelte"
   remediation: "Reference Svelte config via package.json"
@@ -3338,7 +3251,7 @@
 - id: svelte-hardcoded-rollup-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rollup_config|ROLLUP_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)rollup_config|ROLLUP_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Rollup config path hardcoded in Svelte"
   remediation: "Reference Rollup config via rollup.config.js"
@@ -3348,7 +3261,7 @@
 - id: svelte-hardcoded-vite-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vite_config|VITE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)vite_config|VITE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Vite config path hardcoded in Svelte"
   remediation: "Reference Vite config via vite.config.js"
@@ -3358,7 +3271,7 @@
 - id: svelte-hardcoded-next-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)next_config|NEXT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)next_config|NEXT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Next config path hardcoded in Svelte"
   remediation: "Reference Next config via next.config.js"
@@ -3368,7 +3281,7 @@
 - id: svelte-hardcoded-nuxt-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)nuxt_config|NUXT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)nuxt_config|NUXT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Nuxt config path hardcoded in Svelte"
   remediation: "Reference Nuxt config via nuxt.config.js"
@@ -3378,7 +3291,7 @@
 - id: svelte-hardcoded-deno-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)deno_config|DENO_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)deno_config|DENO_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Deno config path hardcoded in Svelte"
   remediation: "Reference Deno config via deno.json"
@@ -3388,7 +3301,7 @@
 - id: svelte-hardcoded-bun-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bun_config|BUN_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)bun_config|BUN_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Bun config path hardcoded in Svelte"
   remediation: "Reference Bun config via bunfig.toml"
@@ -3398,7 +3311,7 @@
 - id: svelte-hardcoded-astro-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)astro_config|ASTRO_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)astro_config|ASTRO_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Astro config path hardcoded in Svelte"
   remediation: "Reference Astro config via astro.config.ts"
@@ -3408,7 +3321,7 @@
 - id: svelte-hardcoded-qwik-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)qwik_config|QWIK_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)qwik_config|QWIK_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Qwik config path hardcoded in Svelte"
   remediation: "Reference Qwik config via qwik.config.ts"
@@ -3418,7 +3331,7 @@
 - id: svelte-hardcoded-solid-start-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)solid_start_config|SOLID_START_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)solid_start_config|SOLID_START_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Solid Start config path hardcoded in Svelte"
   remediation: "Reference Solid Start config via solidstart.config.ts"
@@ -3428,7 +3341,7 @@
 - id: svelte-hardcoded-meteor-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)meteor_config|METEOR_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)meteor_config|METEOR_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Meteor config path hardcoded in Svelte"
   remediation: "Reference Meteor config via meteor.json"
@@ -3438,7 +3351,7 @@
 - id: svelte-hardcoded-sails-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sails_config|SAILS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)sails_config|SAILS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Sails config path hardcoded in Svelte"
   remediation: "Reference Sails config via sails.config.js"
@@ -3448,7 +3361,7 @@
 - id: svelte-hardcoded-feathers-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)feathers_config|FEATHERS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)feathers_config|FEATHERS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Feathers config path hardcoded in Svelte"
   remediation: "Reference Feathers config via feathers.config.js"
@@ -3458,7 +3371,7 @@
 - id: svelte-hardcoded-restify-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)restify_config|RESTIFY_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)restify_config|RESTIFY_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Restify config path hardcoded in Svelte"
   remediation: "Reference Restify config via restify.config.js"
@@ -3468,7 +3381,7 @@
 - id: svelte-hardcoded-express-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)express_config|EXPRESS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)express_config|EXPRESS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Express config path hardcoded in Svelte"
   remediation: "Reference Express config via app.js"
@@ -3478,7 +3391,7 @@
 - id: svelte-hardcoded-fastify-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)fastify_config|FASTIFY_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)fastify_config|FASTIFY_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Fastify config path hardcoded in Svelte"
   remediation: "Reference Fastify config via server.js"
@@ -3488,7 +3401,7 @@
 - id: svelte-hardcoded-nestjs-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)nestjs_config|NESTJS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)nestjs_config|NESTJS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "NestJS config path hardcoded in Svelte"
   remediation: "Reference NestJS config via main.ts"
@@ -3498,7 +3411,7 @@
 - id: svelte-hardcoded-koa-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)koa_config|KO_A_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)koa_config|KO_A_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Koa config path hardcoded in Svelte"
   remediation: "Reference Koa config via index.js"
@@ -3508,7 +3421,7 @@
 - id: svelte-hardcoded-connect-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)connect_config|CONNECT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)connect_config|CONNECT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Connect config path hardcoded in Svelte"
   remediation: "Reference Connect config via app.js"
@@ -3518,7 +3431,7 @@
 - id: svelte-hardcoded-http-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)http_config|HTTP_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)http_config|HTTP_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "HTTP config path hardcoded in Svelte"
   remediation: "Reference HTTP config via app.js"
@@ -3528,7 +3441,7 @@
 - id: svelte-hardcoded-serverless-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)serverless_config|SERVERLESS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)serverless_config|SERVERLESS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Serverless config path hardcoded in Svelte"
   remediation: "Reference Serverless config via serverless.yml"
@@ -3538,7 +3451,7 @@
 - id: svelte-hardcoded-azure-functions-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)azure_functions_config|AZURE_FUNCTIONS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)azure_functions_config|AZURE_FUNCTIONS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Azure Functions config path hardcoded in Svelte"
   remediation: "Reference Azure Functions config via host.json"
@@ -3548,7 +3461,7 @@
 - id: svelte-hardcoded-gcf-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)gcf_config|GCF_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)gcf_config|GCF_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "GCF config path hardcoded in Svelte"
   remediation: "Reference GCF config via package.json"
@@ -3558,7 +3471,7 @@
 - id: svelte-hardcoded-lambda-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)lambda_config|LAMBDA_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)lambda_config|LAMBDA_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Lambda config path hardcoded in Svelte"
   remediation: "Reference Lambda config via package.json"
@@ -3568,7 +3481,7 @@
 - id: svelte-hardcoded-faasm-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)faasm_config|FAASM_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)faasm_config|FAASM_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Faasm config path hardcoded in Svelte"
   remediation: "Reference Faasm config via faasm.yaml"
@@ -3578,7 +3491,7 @@
 - id: svelte-hardcoded-openwhisk-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)openwhisk_config|OPENWHISK_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)openwhisk_config|OPENWHISK_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "OpenWhisk config path hardcoded in Svelte"
   remediation: "Reference OpenWhisk config via manifest.yml"
@@ -3588,7 +3501,7 @@
 - id: svelte-hardcoded-ionos-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ionos_config|IONOS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)ionos_config|IONOS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Ionos config path hardcoded in Svelte"
   remediation: "Reference Ionos config via ionos.yaml"
@@ -3598,7 +3511,7 @@
 - id: svelte-hardcoded-deno-publish-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)deno_publish_config|DENO_PUBLISH_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)deno_publish_config|DENO_PUBLISH_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Deno publish config path hardcoded in Svelte"
   remediation: "Reference Deno publish config via deno.json"
@@ -3608,7 +3521,7 @@
 - id: svelte-hardcoded-npm-publish-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)npm_publish_config|NPM_PUBLISH_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)npm_publish_config|NPM_PUBLISH_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "NPM publish config path hardcoded in Svelte"
   remediation: "Reference NPM publish config via package.json"
@@ -3618,7 +3531,7 @@
 - id: svelte-hardcoded-yarn-publish-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)yarn_publish_config|YARN_PUBLISH_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)yarn_publish_config|YARN_PUBLISH_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Yarn publish config path hardcoded in Svelte"
   remediation: "Reference Yarn publish config via package.json"
@@ -3628,7 +3541,7 @@
 - id: svelte-hardcoded-pnpm-publish-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pnpm_publish_config|PNPM_PUBLISH_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)pnpm_publish_config|PNPM_PUBLISH_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "PNPM publish config path hardcoded in Svelte"
   remediation: "Reference PNPM publish config via package.json"
@@ -3638,7 +3551,7 @@
 - id: svelte-hardcoded-bun-publish-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bun_publish_config|BUN_PUBLISH_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)bun_publish_config|BUN_PUBLISH_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Bun publish config path hardcoded in Svelte"
   remediation: "Reference Bun publish config via package.json"
@@ -3648,7 +3561,7 @@
 - id: svelte-hardcoded-github-actions-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)github_actions_config|GITHUB_ACTIONS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)github_actions_config|GITHUB_ACTIONS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "GitHub Actions config path hardcoded in Svelte"
   remediation: "Reference GitHub Actions config via .github/workflows"
@@ -3658,7 +3571,7 @@
 - id: svelte-hardcoded-gitlab-ci-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)gitlab_ci_config|GITLAB_CI_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)gitlab_ci_config|GITLAB_CI_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "GitLab CI config path hardcoded in Svelte"
   remediation: "Reference GitLab CI config via .gitlab-ci.yml"
@@ -3668,7 +3581,7 @@
 - id: svelte-hardcoded-cirrus-ci-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cirrus_ci_config|CIRRUS_CI_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)cirrus_ci_config|CIRRUS_CI_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Cirrus CI config path hardcoded in Svelte"
   remediation: "Reference Cirrus CI config via .cirrus.yml"
@@ -3678,7 +3591,7 @@
 - id: svelte-hardcoded-azure-pipelines-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)azure_pipelines_config|AZURE_PIPELINES_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)azure_pipelines_config|AZURE_PIPELINES_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Azure Pipelines config path hardcoded in Svelte"
   remediation: "Reference Azure Pipelines config via azure-pipelines.yml"
@@ -3688,7 +3601,7 @@
 - id: svelte-hardcoded-travis-ci-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)travis_ci_config|TRAVIS_CI_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)travis_ci_config|TRAVIS_CI_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Travis CI config path hardcoded in Svelte"
   remediation: "Reference Travis CI config via .travis.yml"
@@ -3698,7 +3611,7 @@
 - id: svelte-hardcoded-circleci-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)circleci_config|CIRCLECI_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)circleci_config|CIRCLECI_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "CircleCI config path hardcoded in Svelte"
   remediation: "Reference CircleCI config via .circleci/config.yml"
@@ -3708,7 +3621,7 @@
 - id: svelte-hardcoded-jenkins-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)jenkins_config|JENKINS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)jenkins_config|JENKINS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Jenkins config path hardcoded in Svelte"
   remediation: "Reference Jenkins config via Jenkinsfile"
@@ -3718,7 +3631,7 @@
 - id: svelte-hardcoded-teamcity-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)teamcity_config|TEAMCITY_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)teamcity_config|TEAMCITY_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "TeamCity config path hardcoded in Svelte"
   remediation: "Reference TeamCity config via build.xml"
@@ -3728,7 +3641,7 @@
 - id: svelte-hardcoded-appveyor-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)appveyor_config|APPVEYOR_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)appveyor_config|APPVEYOR_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "AppVeyor config path hardcoded in Svelte"
   remediation: "Reference AppVeyor config via appveyor.yml"
@@ -3738,7 +3651,7 @@
 - id: svelte-hardcoded-semaphore-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)semaphore_config|SEMAPHORE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)semaphore_config|SEMAPHORE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Semaphore config path hardcoded in Svelte"
   remediation: "Reference Semaphore config via semaphore.yml"
@@ -3748,7 +3661,7 @@
 - id: svelte-hardcoded-codefresh-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)codefresh_config|CODEFRESH_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)codefresh_config|CODEFRESH_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Codefresh config path hardcoded in Svelte"
   remediation: "Reference Codefresh config via codefresh.yml"
@@ -3758,7 +3671,7 @@
 - id: svelte-hardcoded-shippable-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)shippable_config|SHIPPABLE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)shippable_config|SHIPPABLE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Shippable config path hardcoded in Svelte"
   remediation: "Reference Shippable config via .shippable.yml"
@@ -3768,7 +3681,7 @@
 - id: svelte-hardcoded-spinnaker-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)spinnaker_config|SPINNAKER_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)spinnaker_config|SPINNAKER_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Spinnaker config path hardcoded in Svelte"
   remediation: "Reference Spinnaker config via spinnaker.yml"
@@ -3778,7 +3691,7 @@
 - id: svelte-hardcoded-wercker-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)wercker_config|WERCKER_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)wercker_config|WERCKER_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Wercker config path hardcoded in Svelte"
   remediation: "Reference Wercker config via wercker.yml"
@@ -3788,7 +3701,7 @@
 - id: svelte-hardcoded-drone-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)drone_config|DRONE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)drone_config|DRONE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Drone config path hardcoded in Svelte"
   remediation: "Reference Drone config via .drone.yml"
@@ -3798,7 +3711,7 @@
 - id: svelte-hardcoded-buildkite-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)buildkite_config|BUILDKITE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)buildkite_config|BUILDKITE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Buildkite config path hardcoded in Svelte"
   remediation: "Reference Buildkite config via buildkite.yml"
@@ -3808,7 +3721,7 @@
 - id: svelte-hardcoded-lighthouse-ci-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)lighthouse_ci_config|LIGHTHOUSE_CI_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)lighthouse_ci_config|LIGHTHOUSE_CI_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Lighthouse CI config path hardcoded in Svelte"
   remediation: "Reference Lighthouse CI config via lighthouserc.json"
@@ -3818,7 +3731,7 @@
 - id: svelte-hardcoded-artifactory-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)artifactory_config|ARTIFACTORY_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)artifactory_config|ARTIFACTORY_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Artifactory config path hardcoded in Svelte"
   remediation: "Reference Artifactory config via artifactory.yml"
@@ -3828,7 +3741,7 @@
 - id: svelte-hardcoded-nexus-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)nexus_config|NEXUS_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)nexus_config|NEXUS_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Nexus config path hardcoded in Svelte"
   remediation: "Reference Nexus config via nexus.yml"
@@ -3838,7 +3751,7 @@
 - id: svelte-hardcoded-bintray-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bintray_config|BINTRAY_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)bintray_config|BINTRAY_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Bintray config path hardcoded in Svelte"
   remediation: "Reference Bintray config via bintray.yml"
@@ -3848,7 +3761,7 @@
 - id: svelte-hardcoded-packagemanager-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)packagemanager_config|PACKAGEMANAGER_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)packagemanager_config|PACKAGEMANAGER_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Packagemanager config path hardcoded in Svelte"
   remediation: "Reference Packagemanager config via packagemanager.yml"
@@ -3858,7 +3771,7 @@
 - id: svelte-hardcoded-terraform-cloud-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)terraform_cloud_config|TF_CLOUD_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)terraform_cloud_config|TF_CLOUD_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Terraform Cloud config path hardcoded in Svelte"
   remediation: "Reference Terraform Cloud config via terraform.cloud.tf"
@@ -3868,7 +3781,7 @@
 - id: svelte-hardcoded-packer-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)packer_config|PACKER_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)packer_config|PACKER_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Packer config path hardcoded in Svelte"
   remediation: "Reference Packer config via packer.json"
@@ -3878,7 +3791,7 @@
 - id: svelte-hardcoded-vagrant-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vagrant_config|VAGRANT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)vagrant_config|VAGRANT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Vagrant config path hardcoded in Svelte"
   remediation: "Reference Vagrant config via Vagrantfile"
@@ -3888,7 +3801,7 @@
 - id: svelte-hardcoded-docker-compose-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)docker_compose_config|DOCKER_COMPOSE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)docker_compose_config|DOCKER_COMPOSE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Docker Compose config path hardcoded in Svelte"
   remediation: "Reference Docker Compose config via docker-compose.yml"
@@ -3898,7 +3811,7 @@
 - id: svelte-hardcoded-kubernetes-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)kubernetes_config|KUBERNETES_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)kubernetes_config|KUBERNETES_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Kubernetes config path hardcoded in Svelte"
   remediation: "Reference Kubernetes config via k8s/*.yaml"
@@ -3908,7 +3821,7 @@
 - id: svelte-hardcoded-helm-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)helm_config|HELM_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)helm_config|HELM_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Helm config path hardcoded in Svelte"
   remediation: "Reference Helm config via helm/templates"
@@ -3918,7 +3831,7 @@
 - id: svelte-hardcoded-ansible-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ansible_config|ANSIBLE_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)ansible_config|ANSIBLE_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Ansible config path hardcoded in Svelte"
   remediation: "Reference Ansible config via ansible.cfg"
@@ -3928,7 +3841,7 @@
 - id: svelte-hardcoded-puppet-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)puppet_config|PUPPET_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)puppet_config|PUPPET_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Puppet config path hardcoded in Svelte"
   remediation: "Reference Puppet config via hiera.yaml"
@@ -3938,7 +3851,7 @@
 - id: svelte-hardcoded-chef-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)chef_config|CHEF_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)chef_config|CHEF_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Chef config path hardcoded in Svelte"
   remediation: "Reference Chef config via knife.rb"
@@ -3948,7 +3861,7 @@
 - id: svelte-hardcoded-saltstack-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)saltstack_config|SALTSTACK_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)saltstack_config|SALTSTACK_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "SaltStack config path hardcoded in Svelte"
   remediation: "Reference SaltStack config via salt/master"
@@ -3958,7 +3871,7 @@
 - id: svelte-hardcoded-tomcat-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tomcat_config|TOMCAT_CONFIG_PATH\\s*[=:]\\s*[''\"]'
+    - regex: '(?i)tomcat_config|TOMCAT_CONFIG_PATH\\s*[=:]\\s*['''\"]'
   severity: low
   description: "Tomcat config path hardcoded in Svelte"
   remediation: "Reference Tomcat config via tomcat/conf/server.xml"
@@ -3968,8 +3881,7 @@
 - id: svelte-hardcoded-jboss-config-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)jboss_config|JBOS_CONFIG|jboss.secret|JBOS_SECRET'
-  severity: medium
+    - regex: '(?i)jboss_config|JBOS_CONFIG|jboss.secret|JBOS_SECRET''severity: medium
   description: "JBoss configuration potentially exposed or hardcoded"
   remediation: "Use environment variables for JBoss secrets and configs"
   cwe: "CWE-798"
@@ -3978,8 +3890,7 @@
 - id: svelte-hardcoded-wildfly-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)wildfly_secret|WILDFLY_PASSWORD|standalone.xml'
-  severity: medium
+    - regex: '(?i)wildfly_secret|WILDFLY_PASSWORD|standalone.xml''severity: medium
   description: "WildFly server secret or XML config detected"
   remediation: "Secure WildFly configurations using CLI or external vaults"
   cwe: "CWE-798"
@@ -3988,8 +3899,7 @@
 - id: svelte-hardcoded-tomcat-manager
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tomcat_manager|tomcat.password|manager.txt'
-  severity: high
+    - regex: '(?i)tomcat_manager|tomcat.password|manager.txt''severity: high
   description: "Tomcat manager credentials detected"
   remediation: "Remove credentials from code; use role-based access"
   cwe: "CWE-798"
@@ -3998,8 +3908,7 @@
 - id: svelte-hardcoded-resin-config
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)resin_password|RESIN_SECRET|config.conf'
-  severity: medium
+    - regex: '(?i)resin_password|RESIN_SECRET|config.conf''severity: medium
   description: "Resin application server password detected"
   remediation: "Move Resin credentials to secure property store"
   cwe: "CWE-798"
@@ -4008,8 +3917,7 @@
 - id: svelte-hardcoded-weblogic-ssl
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)weblogic_ssl|WebLogic.key|wl[key]'
-  severity: high
+    - regex: '(?i)weblogic_ssl|WebLogic.key|wl[key]''severity: high
   description: "WebLogic SSL key path or password detected"
   remediation: "Secure WebLogic keystore paths and passwords"
   cwe: "CWE-798"
@@ -4018,8 +3926,7 @@
 - id: svelte-hardcoded-bea-tuxedo
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tuxedo_service|TMUSER|TUXADMIN'
-  severity: medium
+    - regex: '(?i)tuxedo_service|TMUSER|TUXADMIN''severity: medium
   description: "Bea Tuxedo service account detected"
   remediation: "Use secure credential management for service accounts"
   cwe: "CWE-798"
@@ -4028,8 +3935,7 @@
 - id: svelte-hardcoded-oracle-db-creds
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)oracle_password|SYS_PWD|oracle_sid'
-  severity: critical
+    - regex: '(?i)oracle_password|SYS_PWD|oracle_sid''severity: critical
   description: "Oracle database credentials detected in Svelte"
   remediation: "Move Oracle DB credentials to vault"
   cwe: "CWE-798"
@@ -4038,8 +3944,7 @@
 - id: svelte-hardcoded-hana-database
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)hana_schema|hdbpass|hana_secure'
-  severity: critical
+    - regex: '(?i)hana_schema|hdbpass|hana_secure''severity: critical
   description: "SAP HANA database credentials detected"
   remediation: "Use SAP Secure Store for database credentials"
   cwe: "CWE-798"
@@ -4048,8 +3953,7 @@
 - id: svelte-hardcoded-snowflake-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)snowflake_account|SNOWFLAKE_API_KEY'
-  severity: high
+    - regex: '(?i)snowflake_account|SNOWFLAKE_API_KEY''severity: high
   description: "Snowflake API key detected"
   remediation: "Use Snowflake OAuth or Role-Based Access Control"
   cwe: "CWE-798"
@@ -4058,8 +3962,7 @@
 - id: svelte-hardcoded-bigquery-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)bigquery_api_key|GOOGLE_CLOUD_PRIVATE'
-  severity: high
+    - regex: '(?i)bigquery_api_key|GOOGLE_CLOUD_PRIVATE''severity: high
   description: "BigQuery API key detected"
   remediation: "Bind service account keys to Cloud Run functions"
   cwe: "CWE-798"
@@ -4068,8 +3971,7 @@
 - id: svelte-hardcoded-redshift-cred
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)redshift_master|RedShiftPass|DBUserPass'
-  severity: critical
+    - regex: '(?i)redshift_master|RedShiftPass|DBUserPass''severity: critical
   description: "Amazon Redshift master credentials detected"
   remediation: "Rotate Redshift credentials and use IAM roles"
   cwe: "CWE-798"
@@ -4078,8 +3980,7 @@
 - id: svelte-hardcoded-memcached-pass
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)memcached_pass|mc_cache_key|MC_SECRET'
-  severity: medium
+    - regex: '(?i)memcached_pass|mc_cache_key|MC_SECRET''severity: medium
   description: "Memcached password detected"
   remediation: "Enable SASL authentication for Memcached"
   cwe: "CWE-798"
@@ -4088,8 +3989,7 @@
 - id: svelte-hardcoded-elasticsearch-pass
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)elastic_security_elastic|elk_password|ElasticSearchPass'
-  severity: high
+    - regex: '(?i)elastic_security_elastic|elk_password|ElasticSearchPass''severity: high
   description: "Elasticsearch admin password detected"
   remediation: "Use Elasticsearch Security API for auth"
   cwe: "CWE-798"
@@ -4098,8 +3998,7 @@
 - id: svelte-hardcoded-rabbitmq-pass
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rabbitmq_default_pass|rabbit_secret|RABBIT_MQ_PASS'
-  severity: medium
+    - regex: '(?i)rabbitmq_default_pass|rabbit_secret|RABBIT_MQ_PASS''severity: medium
   description: "RabbitMQ default password detected"
   remediation: "Create dedicated users with strong passwords"
   cwe: "CWE-798"
@@ -4108,8 +4007,7 @@
 - id: svelte-hardcoded-kafka-broker-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)kafka_client_id|KAFKA_SECRET|SCRAM_USERNAME'
-  severity: high
+    - regex: '(?i)kafka_client_id|KAFKA_SECRET|SCRAM_USERNAME''severity: high
   description: "Kafka broker authentication details detected"
   remediation: "Use SASL_SSL for Kafka authentication"
   cwe: "CWE-798"
@@ -4118,8 +4016,7 @@
 - id: svelte-hardcoded-ingress-cert
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ingress_certificate|TLS_SECRET|INGRESS_TLS'
-  severity: high
+    - regex: '(?i)ingress_certificate|TLS_SECRET|INGRESS_TLS''severity: high
   description: "Ingress TLS secret key/path detected"
   remediation: "Manage certificates via cert-manager"
   cwe: "CWE-798"
@@ -4128,8 +4025,7 @@
 - id: svelte-hardcoded-pod-spec-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)podSecretKey|kubernetes_secret_volume|VOLUME_MOUNT'
-  severity: medium
+    - regex: '(?i)podSecretKey|kubernetes_secret_volume|VOLUME_MOUNT''severity: medium
   description: "Kubernetes pod secret volume mount detected"
   remediation: "Use External Secrets Operator"
   cwe: "CWE-798"
@@ -4138,8 +4034,7 @@
 - id: svelte-hardcoded-service-account-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)service_account_json|kube_service_key|SA_TOKEN'
-  severity: critical
+    - regex: '(?i)service_account_json|kube_service_key|SA_TOKEN''severity: critical
   description: "Service account JSON key detected"
   remediation: "Use Workload Identity Federation"
   cwe: "CWE-798"
@@ -4148,8 +4043,7 @@
 - id: svelte-hardcoded-docker-host-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)docker_host_url|docker_daemon_socket'
-  severity: high
+    - regex: '(?i)docker_host_url|docker_daemon_socket''severity: high
   description: "Docker daemon socket URL hardcoded"
   remediation: "Restrict Docker socket access via group permissions"
   cwe: "CWE-798"
@@ -4158,8 +4052,7 @@
 - id: svelte-hardcoded-vault-agent-token
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)vault_agent_token|VAULT_TOKEN_FILE|vault_auth_token'
-  severity: critical
+    - regex: '(?i)vault_agent_token|VAULT_TOKEN_FILE|vault_auth_token''severity: critical
   description: "Vault Agent token detected"
   remediation: "Mount Vault secrets dynamically during runtime"
   cwe: "CWE-798"
@@ -4168,8 +4061,7 @@
 - id: svelte-hardcoded-secrets-manager-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)secrets_manager_access_key|AWS_SECRET_ID'
-  severity: critical
+    - regex: '(?i)secrets_manager_access_key|AWS_SECRET_ID''severity: critical
   description: "Secrets Manager access key detected"
   remediation: "Use IAM instance profiles instead of static keys"
   cwe: "CWE-798"
@@ -4178,8 +4070,7 @@
 - id: svelte-hardcoded-encryption-key-store
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)keystore_file_path|KEYSTORE_STORE_PASS|JKS_PATH'
-  severity: high
+    - regex: '(?i)keystore_file_path|KEYSTORE_STORE_PASS|JKS_PATH''severity: high
   description: "Java Keystore path or password detected"
   remediation: "Encrypt keystore with strong password stored externally"
   cwe: "CWE-798"
@@ -4188,8 +4079,7 @@
 - id: svelte-hardcoded-signature-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)signature_private_key|SIGNATURE_KEY_HEX|sign_key'
-  severity: critical
+    - regex: '(?i)signature_private_key|SIGNATURE_KEY_HEX|sign_key''severity: critical
   description: "Code signing private key detected"
   remediation: "Store signing keys in HSM or cloud KMS"
   cwe: "CWE-798"
@@ -4198,8 +4088,7 @@
 - id: svelte-hardcoded-gpg-private-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)gpg_secret_key|GPG_PASSPHRASE|PGP_SIGN_KEY'
-  severity: critical
+    - regex: '(?i)gpg_secret_key|GPG_PASSPHRASE|PGP_SIGN_KEY''severity: critical
   description: "GPG private key passphrase detected"
   remediation: "Use agent forwarding or keyring for GPG"
   cwe: "CWE-798"
@@ -4208,8 +4097,7 @@
 - id: svelte-hardcoded-ssh-key-data
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ssh_private_key_data|SSH_RSA_KEY|openssh'
-  severity: critical
+    - regex: '(?i)ssh_private_key_data|SSH_RSA_KEY|openssh''severity: critical
   description: "SSH private key data embedded in source"
   remediation: "Use SSH agents or managed identity"
   cwe: "CWE-798"
@@ -4218,8 +4106,7 @@
 - id: svelte-hardcoded-api-rate-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)rate_limit_per_second|RATE_LIMIT=999999|LIMIT_MAX'
-  severity: low
+    - regex: '(?i)rate_limit_per_second|RATE_LIMIT=999999|LIMIT_MAX''severity: low
   description: "High or missing rate limit value configured"
   remediation: "Set reasonable rate limits per endpoint"
   cwe: "CWE-770"
@@ -4228,8 +4115,7 @@
 - id: svelte-hardcoded-error-log-level
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)log_level_debug|LOG_LEVEL=DEBUG|verbose_logging'
-  severity: info
+    - regex: '(?i)log_level_debug|LOG_LEVEL=DEBUG|verbose_logging''severity: info
   description: "Debug logging level hardcoded"
   remediation: "Use env vars to configure log levels"
   cwe: "CWE-532"
@@ -4238,8 +4124,7 @@
 - id: svelte-hardcoded-trace-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)trace_id_header|X-Trace-Id'
-  severity: low
+    - regex: '(?i)trace_id_header|X-Trace-Id''severity: low
   description: "Custom trace ID header detection"
   remediation: "Verify trace ID headers are not sensitive"
   cwe: "CWE-200"
@@ -4248,8 +4133,7 @@
 - id: svelte-hardcoded-feature-flag-dev
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)feature_flag_dev=true|DEV_MODE_ENABLED|debug_feature'
-  severity: medium
+    - regex: '(?i)feature_flag_dev=true|DEV_MODE_ENABLED|debug_feature''severity: medium
   description: "Development feature flag enabled"
   remediation: "Disable dev features in production environments"
   cwe: "CWE-693"
@@ -4258,8 +4142,7 @@
 - id: svelte-hardcoded-debug-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)debug_mode_on|ENABLE_DEBUG=true|DEBUG_ON'
-  severity: high
+    - regex: '(?i)debug_mode_on|ENABLE_DEBUG=true|DEBUG_ON''severity: high
   description: "Debug mode explicitly enabled"
   remediation: "Disable debug mode in production builds"
   cwe: "CWE-489"
@@ -4268,8 +4151,7 @@
 - id: svelte-hardcoded-test-endpoint
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)test_api_endpoint|staging_server_url|localhost_backend'
-  severity: medium
+    - regex: '(?i)test_api_endpoint|staging_server_url|localhost_backend''severity: medium
   description: "Test/staging endpoint hardcoded"
   remediation: "Use environment variables to switch endpoints"
   cwe: "CWE-611"
@@ -4278,8 +4160,7 @@
 - id: svelte-hardcoded-fallback-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)fallback_url=http://|backup_server_url'
-  severity: medium
+    - regex: '(?i)fallback_url=http://|backup_server_url''severity: medium
   description: "Fallback server URL hardcoded"
   remediation: "Ensure fallback URL is secure and validated"
   cwe: "CWE-601"
@@ -4288,8 +4169,7 @@
 - id: svelte-hardcoded-internal-service-ip
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)10\\.\\d{1,3}\\.\\d{1,3}\\.|192\\.168\\.|172\\.16\\.'
-  severity: medium
+    - regex: '(?i)10\\.\\d{1,3}\\.\\d{1,3}\\.|192\\.168\\.|172\\.16\\.''severity: medium
   description: "Internal IP address hardcoded in client code"
   remediation: "Use DNS names for internal services"
   cwe: "CWE-601"
@@ -4298,8 +4178,7 @@
 - id: svelte-hardcoded-redirect-domain-whitelist
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)allow_list_domain=https://example.com'
-  severity: low
+    - regex: '(?i)allow_list_domain=https://example.com''severity: low
   description: "Redirect allowlist domain hardcoded"
   remediation: "Validate against allowlist dynamically"
   cwe: "CWE-601"
@@ -4308,7 +4187,7 @@
 - id: svelte-hardcoded-template-engine-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)templates_path=''./views''|view_dir=''src/templates'''
+    - regex: '(?i)templates_path='''./views''|view_dir=''src/templates'''
   severity: low
   description: "Template engine view directory hardcoded"
   remediation: "Configure template path via environment"
@@ -4318,7 +4197,7 @@
 - id: svelte-hardcoded-upload-temp-dir
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)tmp_upload_dir=''/dev/shm/''|temp_storage_location'
+    - regex: '(?i)tmp_upload_dir='''/dev/shm/''|temp_storage_location'
   severity: low
   description: "Temporary upload directory hardcoded"
   remediation: "Use system temp folders securely"
@@ -4328,8 +4207,7 @@
 - id: svelte-hardcoded-session-timeout-seconds
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)session_timeout_sec=3600|SESSION_TIMEOUT=3600'
-  severity: low
+    - regex: '(?i)session_timeout_sec=3600|SESSION_TIMEOUT=3600''severity: low
   description: "Session timeout seconds hardcoded"
   remediation: "Configurable session timeouts"
   cwe: "CWE-613"
@@ -4338,8 +4216,7 @@
 - id: svelte-hardcoded-cookie-max-age
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cookie_max_age=86400|max_age_seconds='
-  severity: low
+    - regex: '(?i)cookie_max_age=86400|max_age_seconds=''severity: low
   description: "Cookie max age hardcoded"
   remediation: "Set cookie expiry via server logic"
   cwe: "CWE-613"
@@ -4348,7 +4225,7 @@
 - id: svelte-hardcoded-cors-origins
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cors_origins=''https://frontend.com''|allowed_origin='
+    - regex: '(?i)cors_origins='''https://frontend.com''|allowed_origin='
   severity: low
   description: "CORS origins list hardcoded"
   remediation: "Allow CORS origins via configuration"
@@ -4358,7 +4235,7 @@
 - id: svelte-hardcoded-content-type-check
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)allowed_mime_types=[''\"]application/json[''\"]'
+    - regex: '(?i)allowed_mime_types=['''\"]application/json[''\"]'
   severity: low
   description: "Allowed MIME types list hardcoded"
   remediation: "Validate uploads dynamically"
@@ -4368,8 +4245,7 @@
 - id: svelte-hardcoded-request-size-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)max_request_size_mb=10|limit_body_size=10M'
-  severity: low
+    - regex: '(?i)max_request_size_mb=10|limit_body_size=10M''severity: low
   description: "Request body size limit hardcoded"
   remediation: "Configure limits via server middleware"
   cwe: "CWE-770"
@@ -4378,7 +4254,7 @@
 - id: svelte-hardcoded-cache-control-value
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cache_control_no_store=''true''|CACHE_CONTROL=nocache'
+    - regex: '(?i)cache_control_no_store='''true''|CACHE_CONTROL=nocache'
   severity: low
   description: "Cache control header hardcoded"
   remediation: "Set cache headers programmatically"
@@ -4388,8 +4264,7 @@
 - id: svelte-hardcoded-strict-transport-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)hsts_max_age=31536000|STRICT_TRANSPORT_SECURITY'
-  severity: low
+    - regex: '(?i)hsts_max_age=31536000|STRICT_TRANSPORT_SECURITY''severity: low
   description: "HSTS policy hardcoded"
   remediation: "Configure HSTS via middleware"
   cwe: "CWE-319"
@@ -4398,8 +4273,7 @@
 - id: svelte-hardcoded-referrer-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)referrer_policy_same_origin|REFERRER_POLICY=same-origin'
-  severity: low
+    - regex: '(?i)referrer_policy_same_origin|REFERRER_POLICY=same-origin''severity: low
   description: "Referrer Policy hardcoded"
   remediation: "Set via Response Headers"
   cwe: "CWE-200"
@@ -4408,8 +4282,7 @@
 - id: svelte-hardcoded-security-headers
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)x_xss_protection_enabled=1|X-XSS-Protection=1'
-  severity: low
+    - regex: '(?i)x_xss_protection_enabled=1|X-XSS-Protection=1''severity: low
   description: "X-XSS-Protection header hardcoded"
   remediation: "Use modern CSP headers instead"
   cwe: "CWE-693"
@@ -4418,8 +4291,7 @@
 - id: svelte-hardcoded-permissions-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)permissions_policy_geolocation=()|PERMISSIONS_POLICY'
-  severity: low
+    - regex: '(?i)permissions_policy_geolocation=()|PERMISSIONS_POLICY''severity: low
   description: "Permissions Policy hardcoded"
   remediation: "Configure Permissions Policy header"
   cwe: "CWE-693"
@@ -4428,7 +4300,7 @@
 - id: svelte-hardcoded-subresource-integrity
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)integrity=''sha384''|subresource_integrity_hash'
+    - regex: '(?i)integrity='''sha384''|subresource_integrity_hash'
   severity: low
   description: "Subresource Integrity hash hardcoded"
   remediation: "Generate hashes per build/artifact"
@@ -4438,8 +4310,7 @@
 - id: svelte-hardcoded-nosql-query-defaults
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)default_query_limit=100|find_one_default'
-  severity: low
+    - regex: '(?i)default_query_limit=100|find_one_default''severity: low
   description: "Default query limit hardcoded"
   remediation: "Enforce pagination at framework level"
   cwe: "CWE-400"
@@ -4448,8 +4319,7 @@
 - id: svelte-hardcoded-sql-table-privileges
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)grant_select_table_users|table_permission_read'
-  severity: medium
+    - regex: '(?i)grant_select_table_users|table_permission_read''severity: medium
   description: "SQL Table privileges assignment"
   remediation: "Use parameterized queries, verify role separation"
   cwe: "CWE-89"
@@ -4458,8 +4328,7 @@
 - id: svelte-hardcoded-db-retry-count
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)db_retry_count=5|MAX_RETRIES=5'
-  severity: low
+    - regex: '(?i)db_retry_count=5|MAX_RETRIES=5''severity: low
   description: "Database retry count hardcoded"
   remediation: "Adjust retry logic dynamically"
   cwe: "CWE-770"
@@ -4468,8 +4337,7 @@
 - id: svelte-hardcoded-db-connection-pool-size
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pool_size=20|CONNECTION_POOL_MAX'
-  severity: low
+    - regex: '(?i)pool_size=20|CONNECTION_POOL_MAX''severity: low
   description: "Connection pool size hardcoded"
   remediation: "Tune pool size based on workload"
   cwe: "CWE-400"
@@ -4478,8 +4346,7 @@
 - id: svelte-hardcoded-db-connection-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)db_connection_timeout=30s|TIMEOUT_MS=30000'
-  severity: low
+    - regex: '(?i)db_connection_timeout=30s|TIMEOUT_MS=30000''severity: low
   description: "DB connection timeout hardcoded"
   remediation: "Set sensible timeouts via driver"
   cwe: "CWE-770"
@@ -4488,8 +4355,7 @@
 - id: svelte-hardcoded-db-query-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)query_timeout_5min|STATEMENT_TIMEOUT=300'
-  severity: low
+    - regex: '(?i)query_timeout_5min|STATEMENT_TIMEOUT=300''severity: low
   description: "Query timeout hardcoded"
   remediation: "Limit query execution time"
   cwe: "CWE-400"
@@ -4498,8 +4364,7 @@
 - id: svelte-hardcoded-cdn-bucket-name
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)cdn_bucket_name=my-assets|bucket_url='
-  severity: low
+    - regex: '(?i)cdn_bucket_name=my-assets|bucket_url=''severity: low
   description: "CDN bucket name hardcoded"
   remediation: "Use dynamic asset loading"
   cwe: "CWE-200"
@@ -4508,8 +4373,7 @@
 - id: svelte-hardcoded-image-proxy-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)image_proxy=http://proxy.example.com|IMG_PROXY_URL'
-  severity: medium
+    - regex: '(?i)image_proxy=http://proxy.example.com|IMG_PROXY_URL''severity: medium
   description: "Image proxy URL hardcoded"
   remediation: "Update proxy URLs via environment"
   cwe: "CWE-200"
@@ -4518,8 +4382,7 @@
 - id: svelte-hardcoded-font-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)fonts_host=cdn.fonts.com|FONT_SRC='
-  severity: low
+    - regex: '(?i)fonts_host=cdn.fonts.com|FONT_SRC=''severity: low
   description: "Font host hardcoded"
   remediation: "Host fonts locally or use trusted CDN"
   cwe: "CWE-200"
@@ -4528,7 +4391,7 @@
 - id: svelte-hardcoded-map-provider-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)mapbox_token=''pk\\.eyJ...''|google_maps_key'
+    - regex: '(?i)mapbox_token='''pk\\.eyJ...''|google_maps_key'
   severity: high
   description: "Map provider API key detected"
   remediation: "Restrict API key by referrer/domain"
@@ -4538,8 +4401,7 @@
 - id: svelte-hardcoded-chatbot-backend-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)chatbot_websocket_ws://|chatbot_api='
-  severity: medium
+    - regex: '(?i)chatbot_websocket_ws://|chatbot_api=''severity: medium
   description: "Chatbot backend URL hardcoded"
   remediation: "Use dynamic URL resolution"
   cwe: "CWE-200"
@@ -4548,7 +4410,7 @@
 - id: svelte-hardcoded-video-player-source
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)video_source=''https://stream.example.com'''
+    - regex: '(?i)video_source='''https://stream.example.com'''
   severity: low
   description: "Video streaming source hardcoded"
   remediation: "Load video sources from config"
@@ -4558,8 +4420,7 @@
 - id: svelte-hardcoded-webhook-inbound-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)webhook_callback_https://|WEBHOOK_ENDPOINT='
-  severity: medium
+    - regex: '(?i)webhook_callback_https://|WEBHOOK_ENDPOINT=''severity: medium
   description: "Incoming webhook URL hardcoded"
   remediation: "Use webhook signing secrets only"
   cwe: "CWE-798"
@@ -4568,8 +4429,7 @@
 - id: svelte-hardcoded-analytics-tracking-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)analytics_ga_tracking_id=G-XXXXXXX|ANALYTICS_ID='
-  severity: low
+    - regex: '(?i)analytics_ga_tracking_id=G-XXXXXXX|ANALYTICS_ID=''severity: low
   description: "Analytics tracking ID hardcoded"
   remediation: "Load tracking ID dynamically"
   cwe: "CWE-200"
@@ -4578,7 +4438,7 @@
 - id: svelte-hardcoded-push-notification-app-id
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)push_app_id=''com.app.id''|FCM_PROJECT_ID='
+    - regex: '(?i)push_app_id='''com.app.id''|FCM_PROJECT_ID='
   severity: low
   description: "Push notification app ID hardcoded"
   remediation: "Use public FCM keys safely"
@@ -4588,8 +4448,7 @@
 - id: svelte-hardcoded-email-provider-smtp-host
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)smtp_host=mail.example.com|SMTP_PORT=587'
-  severity: medium
+    - regex: '(?i)smtp_host=mail.example.com|SMTP_PORT=587''severity: medium
   description: "SMTP host hardcoded"
   remediation: "Use email provider SDKs"
   cwe: "CWE-200"
@@ -4598,8 +4457,7 @@
 - id: svelte-hardcoded-email-from-address
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)email_from=noreply@example.com|FROM_EMAIL='
-  severity: low
+    - regex: '(?i)email_from=noreply@example.com|FROM_EMAIL=''severity: low
   description: "Sender email address hardcoded"
   remediation: "Configure sender via settings"
   cwe: "CWE-200"
@@ -4608,8 +4466,7 @@
 - id: svelte-hardcoded-ocr-api-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ocr_service_url=https://tesseract.dev|OCR_HOST='
-  severity: medium
+    - regex: '(?i)ocr_service_url=https://tesseract.dev|OCR_HOST=''severity: medium
   description: "OCR service URL hardcoded"
   remediation: "Use local OCR processing if possible"
   cwe: "CWE-200"
@@ -4618,8 +4475,7 @@
 - id: svelte-hardcoded-transcription-api-url
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)transcription_service_url='
-  severity: medium
+    - regex: '(?i)transcription_service_url=''severity: medium
   description: "Speech transcription service URL hardcoded"
   remediation: "Secure speech-to-text APIs"
   cwe: "CWE-200"
@@ -4628,8 +4484,7 @@
 - id: svelte-hardcoded-pdf-generation-api
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pdf_gen_service_url='
-  severity: medium
+    - regex: '(?i)pdf_gen_service_url=''severity: medium
   description: "PDF generation service URL hardcoded"
   remediation: "Host PDF generator internally"
   cwe: "CWE-200"
@@ -4638,8 +4493,7 @@
 - id: svelte-hardcoded-image-processing-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)image_resize_service_url='
-  severity: medium
+    - regex: '(?i)image_resize_service_url=''severity: medium
   description: "Image resize service URL hardcoded"
   remediation: "Process images locally when feasible"
   cwe: "CWE-200"
@@ -4648,8 +4502,7 @@
 - id: svelte-hardcoded-audio-processing-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)audio_normalize_service_url='
-  severity: medium
+    - regex: '(?i)audio_normalize_service_url=''severity: medium
   description: "Audio processing service URL hardcoded"
   remediation: "Use local audio libraries"
   cwe: "CWE-200"
@@ -4658,8 +4511,7 @@
 - id: svelte-hardcoded-video-conversion-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)video_convert_service_url='
-  severity: medium
+    - regex: '(?i)video_convert_service_url=''severity: medium
   description: "Video conversion service URL hardcoded"
   remediation: "Handle encoding locally"
   cwe: "CWE-200"
@@ -4668,8 +4520,7 @@
 - id: svelte-hardcoded-compression-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)gzip_compress_service_url='
-  severity: low
+    - regex: '(?i)gzip_compress_service_url=''severity: low
   description: "Compression service URL hardcoded"
   remediation: "Use native compression libs"
   cwe: "CWE-200"
@@ -4678,8 +4529,7 @@
 - id: svelte-hardcoded-email-validator-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)email_verify_service_url='
-  severity: low
+    - regex: '(?i)email_verify_service_url=''severity: low
   description: "Email verification service URL hardcoded"
   remediation: "Verify locally via SMTP ping"
   cwe: "CWE-200"
@@ -4688,8 +4538,7 @@
 - id: svelte-hardcoded-phone-validator-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)phone_validate_service_url='
-  severity: low
+    - regex: '(?i)phone_validate_service_url=''severity: low
   description: "Phone validation service URL hardcoded"
   remediation: "Use local validation lib"
   cwe: "CWE-200"
@@ -4698,8 +4547,7 @@
 - id: svelte-hardcoded-date-localizer-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)date_format_service_url='
-  severity: low
+    - regex: '(?i)date_format_service_url=''severity: low
   description: "Date localization service URL hardcoded"
   remediation: "Use Intl API"
   cwe: "CWE-200"
@@ -4708,8 +4556,7 @@
 - id: svelte-hardcoded-currency-converter-service
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)currency_rate_service_url='
-  severity: low
+    - regex: '(?i)currency_rate_service_url=''severity: low
   description: "Currency rate service URL hardcoded"
   remediation: "Cache rates locally"
   cwe: "CWE-200"
@@ -4718,7 +4565,7 @@
 - id: svelte-hardcoded-weather-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)weather_api_key=''abc123''|OPEN_WEATHER_MAP'
+    - regex: '(?i)weather_api_key='''abc123''|OPEN_WEATHER_MAP'
   severity: high
   description: "Weather API key detected"
   remediation: "Use proxy API calls through backend"
@@ -4728,8 +4575,7 @@
 - id: svelte-hardcoded-stock-market-api
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)stock_market_api_url='
-  severity: medium
+    - regex: '(?i)stock_market_api_url=''severity: medium
   description: "Stock market API URL hardcoded"
   remediation: "Rate limit stock data fetches"
   cwe: "CWE-918"
@@ -4738,8 +4584,7 @@
 - id: svelte-hardcoded-news-feed-api
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)news_feed_api_base_url='
-  severity: low
+    - regex: '(?i)news_feed_api_base_url=''severity: low
   description: "News feed API URL hardcoded"
   remediation: "Consume RSS feeds locally"
   cwe: "CWE-200"
@@ -4748,8 +4593,7 @@
 - id: svelte-hardcoded-social-media-embed
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)twitter_embed_wid=12345|facebook_page_url'
-  severity: low
+    - regex: '(?i)twitter_embed_wid=12345|facebook_page_url''severity: low
   description: "Social media embed config hardcoded"
   remediation: "Embed social widgets carefully"
   cwe: "CWE-200"
@@ -4758,8 +4602,7 @@
 - id: svelte-hardcoded-third-party-widget
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)third_party_widget_src='
-  severity: low
+    - regex: '(?i)third_party_widget_src=''severity: low
   description: "Third party widget source hardcoded"
   remediation: "Monitor third party domains"
   cwe: "CWE-200"
@@ -4768,7 +4611,7 @@
 - id: svelte-hardcoded-sdk-version-number
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)version_string=''1\\.0\\.0''|SDK_VERSION'
+    - regex: '(?i)version_string='''1\\.0\\.0''|SDK_VERSION'
   severity: low
   description: "SDK version hardcoded"
   remediation: "Read version from package.json"
@@ -4778,8 +4621,7 @@
 - id: svelte-hardcoded-build-time-stamp
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)build_timestamp=123456|BUILD_TIME='
-  severity: low
+    - regex: '(?i)build_timestamp=123456|BUILD_TIME=''severity: low
   description: "Build timestamp hardcoded"
   remediation: "Inject build timestamp dynamically"
   cwe: "CWE-200"
@@ -4788,8 +4630,7 @@
 - id: svelte-hardcoded-git-commit-hash
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)git_commit_sha=a1b2c3d|COMMIT_HASH='
-  severity: low
+    - regex: '(?i)git_commit_sha=a1b2c3d|COMMIT_HASH=''severity: low
   description: "Git commit hash hardcoded"
   remediation: "Embed via build process"
   cwe: "CWE-200"
@@ -4798,7 +4639,7 @@
 - id: svelte-hardcoded-changelog-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)changelog_path=''./CHANGELOG.md'''
+    - regex: '(?i)changelog_path='''./CHANGELOG.md'''
   severity: low
   description: "Changelog path hardcoded"
   remediation: "Externalize changelog handling"
@@ -4808,7 +4649,7 @@
 - id: svelte-hardcoded-license-file-path
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)license_path=''./LICENSE.txt'''
+    - regex: '(?i)license_path='''./LICENSE.txt'''
   severity: low
   description: "License file path hardcoded"
   remediation: "Serve license from web root"
@@ -4818,7 +4659,7 @@
 - id: svelte-hardcoded-pricing-tier-string
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)pricing_tier=''free''|TIER_LEVEL=PRO'
+    - regex: '(?i)pricing_tier='''free''|TIER_LEVEL=PRO'
   severity: low
   description: "Pricing tier string hardcoded"
   remediation: "Dynamic pricing logic"
@@ -4828,7 +4669,7 @@
 - id: svelte-hardcoded-feature-list-array
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)feature_list=[''\"]enabled[''\"]|FEATURE_TOGGLE=[ON]'
+    - regex: '(?i)feature_list=['''\"]enabled[''\"]|FEATURE_TOGGLE=[ON]'
   severity: low
   description: "Feature toggles array hardcoded"
   remediation: "Centralize feature flags"
@@ -4838,8 +4679,7 @@
 - id: svelte-hardcoded-ui-component-version
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)ui_component_ver=v1\\.0'
-  severity: low
+    - regex: '(?i)ui_component_ver=v1\\.0''severity: low
   description: "UI component version hardcoded"
   remediation: "Auto-update UI components"
   cwe: "CWE-693"
@@ -4848,7 +4688,7 @@
 - id: svelte-hardcoded-i18n-language-code
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)i18n_lang_code=en|DEFAULT_LANGUAGE=''en'''
+    - regex: '(?i)i18n_lang_code=en|DEFAULT_LANGUAGE='''en'''
   severity: low
   description: "Default language code hardcoded"
   remediation: "Detect user language preference"
@@ -4858,7 +4698,7 @@
 - id: svelte-hardcoded-timezone-offset
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)timezone_offset=-5|DEFAULT_TZ=''America/New_York'''
+    - regex: '(?i)timezone_offset=-5|DEFAULT_TZ='''America/New_York'''
   severity: low
   description: "Timezone offset hardcoded"
   remediation: "Use browser timezone"
@@ -4868,7 +4708,7 @@
 - id: svelte-hardcoded-unit-of-measurement
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)unit_of_measure=''metric''|UNIT_SYSTEM=SI'
+    - regex: '(?i)unit_of_measure='''metric''|UNIT_SYSTEM=SI'
   severity: low
   description: "Unit of measurement hardcoded"
   remediation: "User-selectable units"
@@ -4878,8 +4718,7 @@
 - id: svelte-hardcoded-display-theme-preference
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)display_theme=dark|THEME=default'
-  severity: low
+    - regex: '(?i)display_theme=dark|THEME=default''severity: low
   description: "Theme preference hardcoded"
   remediation: "Persist theme preference"
   cwe: "CWE-200"
@@ -4888,8 +4727,7 @@
 - id: svelte-hardcoded-layout-sidebar-state
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sidebar_opened=true|SIDEBAR_DEFAULT=open'
-  severity: low
+    - regex: '(?i)sidebar_opened=true|SIDEBAR_DEFAULT=open''severity: low
   description: "Layout sidebar state hardcoded"
   remediation: "Save layout preferences"
   cwe: "CWE-200"
@@ -4898,7 +4736,7 @@
 - id: svelte-hardcoded-sort-direction
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)sort_direction=asc|SORT_ORDER=''ASC'''
+    - regex: '(?i)sort_direction=asc|SORT_ORDER='''ASC'''
   severity: low
   description: "Sort direction hardcoded"
   remediation: "User controlled sorting"
@@ -4908,8 +4746,7 @@
 - id: svelte-hardcoded-page-size
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)page_size=20|LIST_ITEMS_PER_PAGE=20'
-  severity: low
+    - regex: '(?i)page_size=20|LIST_ITEMS_PER_PAGE=20''severity: low
   description: "Page size hardcoded"
   remediation: "Paginate based on user preference"
   cwe: "CWE-200"
@@ -4918,8 +4755,7 @@
 - id: svelte-hardcoded-filter-column-default
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)filter_column=category|DEFAULT_FILTER_BY='
-  severity: low
+    - regex: '(?i)filter_column=category|DEFAULT_FILTER_BY=''severity: low
   description: "Filter column hardcoded"
   remediation: "Clear filters on reset"
   cwe: "CWE-200"

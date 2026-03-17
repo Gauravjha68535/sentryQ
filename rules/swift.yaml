@@ -1,7 +1,7 @@
 - id: swift-hardcoded-password
   languages: [swift]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*[''\\.][^''\\.]{8,}[''\\.]'
+    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*['''\\.][^''\\.]{8,}[''\\.]'
   severity: high
   description: "Hardcoded password detected in Swift source code"
   remediation: "Use Keychain or environment variables for sensitive credentials"
@@ -9,7 +9,7 @@
 - id: swift-hardcoded-api-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*[''\\.][a-zA-Z0-9]{16,}[''\\.]'
+    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*['''\\.][a-zA-Z0-9]{16,}[''\\.]'
   severity: high
   description: "Hardcoded API key detected in Swift source code"
   remediation: "Store API keys in Keychain or use a secure configuration system"
@@ -18,8 +18,7 @@
 - id: swift-insecure-userdefaults
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\..standard\\..set\\.s*\\.(.*password|UserDefaults\\..standard\\..set\\.s*\\.(.*token|UserDefaults\\..standard\\..set\\.s*\\.(.*secret'
-  severity: high
+    - regex: 'UserDefaults\\..standard\\..set\\.s*\\.(.*password|UserDefaults\\..standard\\..set\\.s*\\.(.*token|UserDefaults\\..standard\\..set\\.s*\\.(.*secret''severity: high
   description: "Sensitive data stored in UserDefaults (not secure)"
   remediation: "Use Keychain for storing passwords and sensitive credentials"
 
@@ -27,8 +26,7 @@
 - id: swift-weak-crypto-md5
   languages: [swift]
   patterns:
-    - regex: '(?i)(CC_MD5|CommonCrypto.*MD5|Insecure.MD5)'
-  severity: medium
+    - regex: '(?i)(CC_MD5|CommonCrypto.*MD5|Insecure.MD5)''severity: medium
   description: "Use of weak cryptographic hash function (MD5)"
   remediation: "Use CryptoKit's SHA256 or SHA512 for hashing"
 
@@ -36,7 +34,7 @@
 - id: swift-insecure-http
   languages: [swift]
   patterns:
-    - regex: 'http://[^''\\.\\.s]+'
+    - regex: 'http://[^'''\\.\\.s]+'
   severity: low
   description: "Insecure HTTP URL detected (should use HTTPS)"
   remediation: "Use HTTPS for all network requests to ensure encryption in transit"
@@ -45,8 +43,7 @@
 - id: swift-ats-disabled
   languages: [swift]
   patterns:
-    - regex: '(?i)NSAllowsArbitraryLoads\\.s*=\\.s*true'
-  severity: high
+    - regex: '(?i)NSAllowsArbitraryLoads\\.s*=\\.s*true''severity: high
   description: "App Transport Security disabled - allows insecure HTTP connections"
   remediation: "Enable ATS or specify allowed domains explicitly in Info.plist"
 
@@ -54,7 +51,7 @@
 - id: swift-code-injection
   languages: [swift]
   patterns:
-    - regex: 'NSPredicate\\.s*\\.(format:\\.s*[''\\.].*%@.*[''\\.]'
+    - regex: 'NSPredicate\\.s*\\.(format:\\.s*['''\\.].*%@.*[''\\.]'
   severity: medium
   description: "Potential code injection via NSPredicate format string"
   remediation: "Use parameterized NSPredicate with %K for key names and %? for values"
@@ -63,8 +60,7 @@
 - id: swift-jailbreak-check-missing
   languages: [swift]
   patterns:
-    - regex: '(?i)(canOpenURL|fileExistsAtPath).*jailbreak'
-  severity: low
+    - regex: '(?i)(canOpenURL|fileExistsAtPath).*jailbreak''severity: low
   description: "Jailbreak detection logic detected - ensure it's properly implemented"
   remediation: "Implement comprehensive jailbreak detection using multiple checks"
 
@@ -72,7 +68,7 @@
 - id: swift-hardcoded-bundle-id
   languages: [swift]
   patterns:
-    - regex: 'Bundle\\..main\\..bundleIdentifier\\.s*==\\.s*[''\\.][^''\\.]+[''\\.]'
+    - regex: 'Bundle\\..main\\..bundleIdentifier\\.s*==\\.s*['''\\.][^''\\.]+[''\\.]'
   severity: low
   description: "Hardcoded bundle identifier comparison"
   remediation: "Use configuration files or environment variables for environment-specific values"
@@ -81,8 +77,7 @@
 - id: swift-insecure-keychain
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrAccessible\\.s*=\\.s*kSecAttrAccessibleAlways'
-  severity: medium
+    - regex: '(?i)kSecAttrAccessible\\.s*=\\.s*kSecAttrAccessibleAlways''severity: medium
   description: "Keychain item accessible even when device is locked"
   remediation: "Use kSecAttrAccessibleWhenUnlocked or kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly"
 
@@ -90,7 +85,7 @@
 - id: swift-biometric-bypass
   languages: [swift]
   patterns:
-    - regex: '(?i)LAContext\\..evaluatePolicy.*fallbackString\\.s*=\\.s*[''\\.]skip[''\\.]'
+    - regex: '(?i)LAContext\\..evaluatePolicy.*fallbackString\\.s*=\\.s*['''\\.]skip[''\\.]'
   severity: high
   description: "Biometric authentication can be bypassed with skip option"
   remediation: "Remove skip/fallback options from biometric authentication"
@@ -99,8 +94,7 @@
 - id: swift-sql-injection
   languages: [swift]
   patterns:
-    - regex: '(?i)(NSFetchRequest|executeQuery)\\.s*\\.([^\\.)]*\\.+[^\\.)]+'
-  severity: critical
+    - regex: '(?i)(NSFetchRequest|executeQuery)\\.s*\\.([^\\.)]*\\.+[^\\.)]+''severity: critical
   description: "Potential SQL injection via string concatenation"
   remediation: "Use parameterized queries with ? placeholders"
 
@@ -108,8 +102,7 @@
 - id: swift-command-injection
   languages: [swift]
   patterns:
-    - regex: '(?i)(Process|NSTask)\\.s*\\.([^\\.)]*\\.+[^\\.)]+'
-  severity: critical
+    - regex: '(?i)(Process|NSTask)\\.s*\\.([^\\.)]*\\.+[^\\.)]+''severity: critical
   description: "Potential command injection via Process with string concatenation"
   remediation: "Pass command arguments as separate parameters, not concatenated strings"
 
@@ -117,8 +110,7 @@
 - id: swift-insecure-webview
   languages: [swift]
   patterns:
-    - regex: '(?i)allowsBackForwardNavigationGestures\\.s*=\\.s*true|javaScriptEnabled\\.s*=\\.s*true'
-  severity: medium
+    - regex: '(?i)allowsBackForwardNavigationGestures\\.s*=\\.s*true|javaScriptEnabled\\.s*=\\.s*true''severity: medium
   description: "WebView configured with potentially insecure settings"
   remediation: "Disable JavaScript if not needed, implement proper WKScriptMessageHandler"
 
@@ -126,7 +118,7 @@
 - id: swift-hardcoded-encryption-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(key|iv|secret)\\.s*=\\.s*[''\\.][a-zA-Z0-9+/=]{16,}[''\\.]'
+    - regex: '(?i)(key|iv|secret)\\.s*=\\.s*['''\\.][a-zA-Z0-9+/=]{16,}[''\\.]'
   severity: critical
   description: "Hardcoded encryption key or IV detected"
   remediation: "Generate keys dynamically or store in Keychain/Secure Enclave"
@@ -135,8 +127,7 @@
 - id: swift-debug-logging
   languages: [swift]
   patterns:
-    - regex: '(?i)print\\.s*\\.([^\\.)]*password|print\\.s*\\.([^\\.)]*token|print\\.s*\\.([^\\.)]*secret'
-  severity: medium
+    - regex: '(?i)print\\.s*\\.([^\\.)]*password|print\\.s*\\.([^\\.)]*token|print\\.s*\\.([^\\.)]*secret''severity: medium
   description: "Sensitive data logged via print() statements"
   remediation: "Remove or obfuscate sensitive data in log statements for production"
 
@@ -144,8 +135,7 @@
 - id: swift-unsafe-codable
   languages: [swift]
   patterns:
-    - regex: '(?i)try\\.s*JSONDecoder\\.(\\.)\\..decode\\.s*\\.([^\\.)]*from:\\.s*Data\\.(\\.s*contentsOf'
-  severity: medium
+    - regex: '(?i)try\\.s*JSONDecoder\\.(\\.)\\..decode\\.s*\\.([^\\.)]*from:\\.s*Data\\.(\\.s*contentsOf''severity: medium
   description: "Deserializing from untrusted external data source"
   remediation: "Validate and sanitize external data before decoding"
 
@@ -153,8 +143,7 @@
 - id: swift-cert-pinning-missing
   languages: [swift]
   patterns:
-    - regex: '(?i)URLSessionDelegate|didReceive\\.s*challenge.*completionHandler\\.s*\\.(\\..useCredential'
-  severity: medium
+    - regex: '(?i)URLSessionDelegate|didReceive\\.s*challenge.*completionHandler\\.s*\\.(\\..useCredential''severity: medium
   description: "SSL certificate validation may be bypassed"
   remediation: "Implement proper certificate pinning for sensitive connections"
 
@@ -162,7 +151,7 @@
 - id: swift-biometric-fallback-weak
   languages: [swift]
   patterns:
-    - regex: '(?i)localizedFallback\\.s*=\\.s*[''\\.]Use Password[''\\.]'
+    - regex: '(?i)localizedFallback\\.s*=\\.s*['''\\.]Use Password[''\\.]'
   severity: low
   description: "Biometric authentication has weak password fallback"
   remediation: "Use strong passcode fallback or require biometric for sensitive operations"
@@ -170,9 +159,7 @@
 - id: swift-urlsession-no-tls
   languages: [swift]
   patterns:
-    - regex: '(?i)allowsArbitraryLoads\\.s*:\\.s*true'
-
-  severity: critical
+    - regex: '(?i)allowsArbitraryLoads\\.s*:\\.s*true''severity: critical
   description: "ATS disabled — allows insecure HTTP connections"
   remediation: "Enable ATS. Only add exceptions for specific domains"
   cwe: "CWE-295"
@@ -181,9 +168,7 @@
 - id: swift-print-sensitive
   languages: [swift]
   patterns:
-    - regex: '(?i)print\\.s*\\.\\.s*.*(?:password|token|secret|apiKey|credential)'
-
-  severity: high
+    - regex: '(?i)print\\.s*\\.\\.s*.*(?:password|token|secret|apiKey|credential)''severity: high
   description: "Sensitive data in print() — visible in device logs"
   remediation: "Remove sensitive data from print statements"
   cwe: "CWE-532"
@@ -192,9 +177,7 @@
 - id: swift-realm-unencrypted
   languages: [swift]
   patterns:
-    - regex: 'Realm\\.s*\\.\\.s*\\.'
-
-  severity: medium
+    - regex: 'Realm\\.s*\\.\\.s*\\.''severity: medium
   description: "Realm database without encryption"
   remediation: "Use Realm encryption: Realm.Configuration(encryptionKey: key)"
   cwe: "CWE-311"
@@ -203,9 +186,7 @@
 - id: swift-uipasteboard
   languages: [swift]
   patterns:
-    - regex: 'UIPasteboard\\.(general|\\.string)'
-
-  severity: medium
+    - regex: 'UIPasteboard\\.(general|\\.string)''severity: medium
   description: "Pasteboard access — sensitive data exposure risk"
   remediation: "Clear pasteboard after use. Mark as localOnly"
   cwe: "CWE-200"
@@ -214,9 +195,7 @@
 - id: swift-webview-evaluate-js
   languages: [swift]
   patterns:
-    - regex: 'evaluateJavaScript\\.s*\\.'
-
-  severity: high
+    - regex: 'evaluateJavaScript\\.s*\\.''severity: high
   description: "WebView JavaScript evaluation — injection risk"
   remediation: "Sanitize all data passed to evaluateJavaScript"
   cwe: "CWE-94"
@@ -234,8 +213,7 @@
 - id: swift-ios-delegate-method
   languages: [swift]
   patterns:
-    - regex: '(?i)func\\.s+application\\.s*\\.(.*didFinishLaunching'
-  severity: low
+    - regex: '(?i)func\\.s+application\\.s*\\.(.*didFinishLaunching''severity: low
   description: "iOS app delegate method"
   remediation: "Implement securely"
   cwe: "CWE-693"
@@ -244,8 +222,7 @@
 - id: swift-ios-scene-delegate
   languages: [swift]
   patterns:
-    - regex: '(?i)SceneDelegate|scene\\.s*\\.('
-  severity: low
+    - regex: '(?i)SceneDelegate|scene\\.s*\\.(''severity: low
   description: "iOS scene delegate"
   remediation: "Implement securely"
   cwe: "CWE-693"
@@ -254,8 +231,7 @@
 - id: swift-ios-url-scheme
   languages: [swift]
   patterns:
-    - regex: '(?i)func\\.s+application\\.s*\\.(.*open.*url'
-  severity: medium
+    - regex: '(?i)func\\.s+application\\.s*\\.(.*open.*url''severity: medium
   description: "iOS URL scheme handling"
   remediation: "Validate URL schemes"
   cwe: "CWE-601"
@@ -264,8 +240,7 @@
 - id: swift-ios-universal-link
   languages: [swift]
   patterns:
-    - regex: '(?i)userActivity\\.s*\\.(|NSUserActivity'
-  severity: medium
+    - regex: '(?i)userActivity\\.s*\\.(|NSUserActivity''severity: medium
   description: "iOS Universal Link"
   remediation: "Validate universal links"
   cwe: "CWE-601"
@@ -274,8 +249,7 @@
 - id: swift-ios-app-transport
   languages: [swift]
   patterns:
-    - regex: '(?i)NSAppTransportSecurity|NSAllowsArbitraryLoads'
-  severity: high
+    - regex: '(?i)NSAppTransportSecurity|NSAllowsArbitraryLoads''severity: high
   description: "iOS App Transport Security"
   remediation: "Configure ATS properly"
   cwe: "CWE-295"
@@ -284,8 +258,7 @@
 - id: swift-ios-background-task
   languages: [swift]
   patterns:
-    - regex: '(?i)beginBackgroundTask|endBackgroundTask'
-  severity: low
+    - regex: '(?i)beginBackgroundTask|endBackgroundTask''severity: low
   description: "iOS background task"
   remediation: "Handle background tasks securely"
   cwe: "CWE-693"
@@ -294,8 +267,7 @@
 - id: swift-ios-push-notification
   languages: [swift]
   patterns:
-    - regex: '(?i)didRegisterForRemoteNotifications|didReceiveRemoteNotification'
-  severity: low
+    - regex: '(?i)didRegisterForRemoteNotifications|didReceiveRemoteNotification''severity: low
   description: "iOS push notification"
   remediation: "Validate push notification content"
   cwe: "CWE-20"
@@ -304,8 +276,7 @@
 - id: swift-ios-local-notification
   languages: [swift]
   patterns:
-    - regex: '(?i)UNUserNotificationCenter|UNNotificationRequest'
-  severity: low
+    - regex: '(?i)UNUserNotificationCenter|UNNotificationRequest''severity: low
   description: "iOS local notification"
   remediation: "Validate notification content"
   cwe: "CWE-20"
@@ -314,8 +285,7 @@
 - id: swift-ios-extension
   languages: [swift]
   patterns:
-    - regex: '(?i)extension\\.s+\\.w+.*Widget|Today|Share'
-  severity: low
+    - regex: '(?i)extension\\.s+\\.w+.*Widget|Today|Share''severity: low
   description: "iOS app extension"
   remediation: "Secure extension implementation"
   cwe: "CWE-693"
@@ -324,8 +294,7 @@
 - id: swift-ios-app-group
   languages: [swift]
   patterns:
-    - regex: '(?i)UserDefaults\\.s*\\.(\\.s*suiteName'
-  severity: low
+    - regex: '(?i)UserDefaults\\.s*\\.(\\.s*suiteName''severity: low
   description: "iOS app group"
   remediation: "Secure app group data"
   cwe: "CWE-312"
@@ -334,8 +303,7 @@
 - id: swift-ios-keyboard
   languages: [swift]
   patterns:
-    - regex: '(?i)UITextField|UITextView'
-  severity: low
+    - regex: '(?i)UITextField|UITextView''severity: low
   description: "iOS keyboard input"
   remediation: "Validate keyboard input"
   cwe: "CWE-20"
@@ -344,8 +312,7 @@
 - id: swift-ios-touch-id
   languages: [swift]
   patterns:
-    - regex: '(?i)LAContext|LAPolicy'
-  severity: low
+    - regex: '(?i)LAContext|LAPolicy''severity: low
   description: "iOS Touch ID"
   remediation: "Implement biometric auth securely"
   cwe: "CWE-306"
@@ -354,8 +321,7 @@
 - id: swift-ios-face-id
   languages: [swift]
   patterns:
-    - regex: '(?i)faceID|FaceID|LAPolicy\\..deviceOwnerAuthenticationWithBiometrics'
-  severity: low
+    - regex: '(?i)faceID|FaceID|LAPolicy\\..deviceOwnerAuthenticationWithBiometrics''severity: low
   description: "iOS Face ID"
   remediation: "Implement biometric auth securely"
   cwe: "CWE-306"
@@ -364,8 +330,7 @@
 - id: swift-ios-core-location
   languages: [swift]
   patterns:
-    - regex: '(?i)CLLocationManager|CLLocation'
-  severity: low
+    - regex: '(?i)CLLocationManager|CLLocation''severity: low
   description: "iOS location services"
   remediation: "Request location permission appropriately"
   cwe: "CWE-284"
@@ -374,8 +339,7 @@
 - id: swift-ios-camera
   languages: [swift]
   patterns:
-    - regex: '(?i)UIImagePickerController|AVCaptureSession'
-  severity: low
+    - regex: '(?i)UIImagePickerController|AVCaptureSession''severity: low
   description: "iOS camera access"
   remediation: "Request camera permission appropriately"
   cwe: "CWE-284"
@@ -384,8 +348,7 @@
 - id: swift-ios-microphone
   languages: [swift]
   patterns:
-    - regex: '(?i)AVAudioSession|AVAudioRecorder'
-  severity: low
+    - regex: '(?i)AVAudioSession|AVAudioRecorder''severity: low
   description: "iOS microphone access"
   remediation: "Request microphone permission appropriately"
   cwe: "CWE-284"
@@ -394,8 +357,7 @@
 - id: swift-ios-contacts
   languages: [swift]
   patterns:
-    - regex: '(?i)CNContactStore|CNContact'
-  severity: low
+    - regex: '(?i)CNContactStore|CNContact''severity: low
   description: "iOS contacts access"
   remediation: "Request contacts permission appropriately"
   cwe: "CWE-284"
@@ -404,8 +366,7 @@
 - id: swift-ios-calendar
   languages: [swift]
   patterns:
-    - regex: '(?i)EKEventStore|EKEvent'
-  severity: low
+    - regex: '(?i)EKEventStore|EKEvent''severity: low
   description: "iOS calendar access"
   remediation: "Request calendar permission appropriately"
   cwe: "CWE-284"
@@ -414,8 +375,7 @@
 - id: swift-ios-photos
   languages: [swift]
   patterns:
-    - regex: '(?i)PHPhotoLibrary|PHAsset'
-  severity: low
+    - regex: '(?i)PHPhotoLibrary|PHAsset''severity: low
   description: "iOS photos access"
   remediation: "Request photos permission appropriately"
   cwe: "CWE-284"
@@ -424,8 +384,7 @@
 - id: swift-ios-healthkit
   languages: [swift]
   patterns:
-    - regex: '(?i)HKHealthStore|HKSampleType'
-  severity: low
+    - regex: '(?i)HKHealthStore|HKSampleType''severity: low
   description: "iOS HealthKit"
   remediation: "Request HealthKit permission appropriately"
   cwe: "CWE-284"
@@ -434,8 +393,7 @@
 - id: swift-ios-homekit
   languages: [swift]
   patterns:
-    - regex: '(?i)HMHomeManager|HMAccessory'
-  severity: low
+    - regex: '(?i)HMHomeManager|HMAccessory''severity: low
   description: "iOS HomeKit"
   remediation: "Secure HomeKit implementation"
   cwe: "CWE-284"
@@ -444,8 +402,7 @@
 - id: swift-ios-carplay
   languages: [swift]
   patterns:
-    - regex: '(?i)CPApplicationDelegate|CPInterfaceController'
-  severity: low
+    - regex: '(?i)CPApplicationDelegate|CPInterfaceController''severity: low
   description: "iOS CarPlay"
   remediation: "Secure CarPlay implementation"
   cwe: "CWE-284"
@@ -454,8 +411,7 @@
 - id: swift-ios-watchkit
   languages: [swift]
   patterns:
-    - regex: '(?i)WKInterface|WKExtension'
-  severity: low
+    - regex: '(?i)WKInterface|WKExtension''severity: low
   description: "iOS WatchKit"
   remediation: "Secure WatchKit implementation"
   cwe: "CWE-284"
@@ -464,8 +420,7 @@
 - id: swift-ios-tvkit
   languages: [swift]
   patterns:
-    - regex: '(?i)TVUIKit|TVApplicationController'
-  severity: low
+    - regex: '(?i)TVUIKit|TVApplicationController''severity: low
   description: "iOS TVKit"
   remediation: "Secure TVKit implementation"
   cwe: "CWE-284"
@@ -474,8 +429,7 @@
 - id: swift-ios-ar-kit
   languages: [swift]
   patterns:
-    - regex: '(?i)ARSession|ARView'
-  severity: low
+    - regex: '(?i)ARSession|ARView''severity: low
   description: "iOS ARKit"
   remediation: "Secure ARKit implementation"
   cwe: "CWE-284"
@@ -485,8 +439,7 @@
 - id: swift-macos-app-delegate
   languages: [swift]
   patterns:
-    - regex: '(?i)NSApplicationDelegate|applicationDidFinishLaunching'
-  severity: low
+    - regex: '(?i)NSApplicationDelegate|applicationDidFinishLaunching''severity: low
   description: "macOS app delegate"
   remediation: "Implement securely"
   cwe: "CWE-693"
@@ -495,8 +448,7 @@
 - id: swift-macos-sandbox
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..security\\..app-sandbox'
-  severity: low
+    - regex: '(?i)com\\..apple\\..security\\..app-sandbox''severity: low
   description: "macOS sandbox"
   remediation: "Configure sandbox properly"
   cwe: "CWE-284"
@@ -505,8 +457,7 @@
 - id: swift-macos-hardened-runtime
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..security\\..hardened-runtime'
-  severity: low
+    - regex: '(?i)com\\..apple\\..security\\..hardened-runtime''severity: low
   description: "macOS hardened runtime"
   remediation: "Enable hardened runtime"
   cwe: "CWE-693"
@@ -515,8 +466,7 @@
 - id: swift-macos-notarization
   languages: [swift]
   patterns:
-    - regex: '(?i)notarize|notarization'
-  severity: low
+    - regex: '(?i)notarize|notarization''severity: low
   description: "macOS notarization"
   remediation: "Notarize macOS apps"
   cwe: "CWE-693"
@@ -525,8 +475,7 @@
 - id: swift-macos-keychain-access
   languages: [swift]
   patterns:
-    - regex: '(?i)SecItemAdd|SecItemUpdate'
-  severity: low
+    - regex: '(?i)SecItemAdd|SecItemUpdate''severity: low
   description: "macOS keychain access"
   remediation: "Use keychain for secrets"
   cwe: "CWE-312"
@@ -535,8 +484,7 @@
 - id: swift-macos-file-provider
   languages: [swift]
   patterns:
-    - regex: '(?i)NSFileProvider|FileProvider'
-  severity: low
+    - regex: '(?i)NSFileProvider|FileProvider''severity: low
   description: "macOS file provider"
   remediation: "Secure file provider"
   cwe: "CWE-284"
@@ -545,8 +493,7 @@
 - id: swift-macos-apple-events
   languages: [swift]
   patterns:
-    - regex: '(?i)NSAppleEventManager|NSAppleEvent'
-  severity: medium
+    - regex: '(?i)NSAppleEventManager|NSAppleEvent''severity: medium
   description: "macOS Apple Events"
   remediation: "Validate Apple Events"
   cwe: "CWE-20"
@@ -555,8 +502,7 @@
 - id: swift-macos-scripting
   languages: [swift]
   patterns:
-    - regex: '(?i)NSScriptCommand|NSAppleScript'
-  severity: medium
+    - regex: '(?i)NSScriptCommand|NSAppleScript''severity: medium
   description: "macOS scripting"
   remediation: "Validate script input"
   cwe: "CWE-94"
@@ -565,8 +511,7 @@
 - id: swift-macos-distributed-objects
   languages: [swift]
   patterns:
-    - regex: '(?i)NSConnection|NSDistantObject'
-  severity: medium
+    - regex: '(?i)NSConnection|NSDistantObject''severity: medium
   description: "macOS distributed objects"
   remediation: "Secure distributed objects"
   cwe: "CWE-502"
@@ -575,8 +520,7 @@
 - id: swift-macos-xpc
   languages: [swift]
   patterns:
-    - regex: '(?i)NSXPCConnection|NSXPCListener'
-  severity: medium
+    - regex: '(?i)NSXPCConnection|NSXPCListener''severity: medium
   description: "macOS XPC"
   remediation: "Secure XPC connections"
   cwe: "CWE-284"
@@ -585,8 +529,7 @@
 - id: swift-macos-launch-agent
   languages: [swift]
   patterns:
-    - regex: '(?i)launchd|LaunchAgent|LaunchDaemon'
-  severity: medium
+    - regex: '(?i)launchd|LaunchAgent|LaunchDaemon''severity: medium
   description: "macOS launch agent/daemon"
   remediation: "Secure launch configuration"
   cwe: "CWE-284"
@@ -595,8 +538,7 @@
 - id: swift-macos-preference-pane
   languages: [swift]
   patterns:
-    - regex: '(?i)NSPreferencePane|preferencePane'
-  severity: low
+    - regex: '(?i)NSPreferencePane|preferencePane''severity: low
   description: "macOS preference pane"
   remediation: "Secure preference pane"
   cwe: "CWE-284"
@@ -605,8 +547,7 @@
 - id: swift-macos-input-method
   languages: [swift]
   patterns:
-    - regex: '(?i)InputMethod|TISInputSource'
-  severity: medium
+    - regex: '(?i)InputMethod|TISInputSource''severity: medium
   description: "macOS input method"
   remediation: "Secure input method"
   cwe: "CWE-284"
@@ -615,8 +556,7 @@
 - id: swift-macos-spotlight
   languages: [swift]
   patterns:
-    - regex: '(?i)MDImporter|CoreSpotlight'
-  severity: low
+    - regex: '(?i)MDImporter|CoreSpotlight''severity: low
   description: "macOS Spotlight"
   remediation: "Secure Spotlight importer"
   cwe: "CWE-284"
@@ -625,8 +565,7 @@
 - id: swift-macos-quick-look
   languages: [swift]
   patterns:
-    - regex: '(?i)QLGenerator|QuickLook'
-  severity: low
+    - regex: '(?i)QLGenerator|QuickLook''severity: low
   description: "macOS Quick Look"
   remediation: "Secure Quick Look generator"
   cwe: "CWE-284"
@@ -635,8 +574,7 @@
 - id: swift-macos-service
   languages: [swift]
   patterns:
-    - regex: '(?i)NSServicesMenu|NSService'
-  severity: low
+    - regex: '(?i)NSServicesMenu|NSService''severity: low
   description: "macOS service"
   remediation: "Secure service implementation"
   cwe: "CWE-284"
@@ -645,8 +583,7 @@
 - id: swift-macos-shared-workspace
   languages: [swift]
   patterns:
-    - regex: '(?i)NSWorkspace|NSSharedWorkspace'
-  severity: low
+    - regex: '(?i)NSWorkspace|NSSharedWorkspace''severity: low
   description: "macOS shared workspace"
   remediation: "Secure workspace access"
   cwe: "CWE-284"
@@ -655,8 +592,7 @@
 - id: swift-macos-distributed-notification
   languages: [swift]
   patterns:
-    - regex: '(?i)NSDistributedNotificationCenter'
-  severity: low
+    - regex: '(?i)NSDistributedNotificationCenter''severity: low
   description: "macOS distributed notification"
   remediation: "Validate distributed notifications"
   cwe: "CWE-20"
@@ -665,8 +601,7 @@
 - id: swift-macos-accessibility
   languages: [swift]
   patterns:
-    - regex: '(?i)AXUIElement|AXObserver'
-  severity: medium
+    - regex: '(?i)AXUIElement|AXObserver''severity: medium
   description: "macOS accessibility"
   remediation: "Request accessibility permission appropriately"
   cwe: "CWE-284"
@@ -675,8 +610,7 @@
 - id: swift-macos-screen-recording
   languages: [swift]
   patterns:
-    - regex: '(?i)CGWindowList|screenRecording'
-  severity: medium
+    - regex: '(?i)CGWindowList|screenRecording''severity: medium
   description: "macOS screen recording"
   remediation: "Request screen recording permission appropriately"
   cwe: "CWE-284"
@@ -686,8 +620,7 @@
 - id: swift-network-urlsession
   languages: [swift]
   patterns:
-    - regex: '(?i)URLSession\\.s*\\.('
-  severity: low
+    - regex: '(?i)URLSession\\.s*\\.(''severity: low
   description: "URLSession usage"
   remediation: "Configure URLSession securely"
   cwe: "CWE-295"
@@ -696,8 +629,7 @@
 - id: swift-network-data-task
   languages: [swift]
   patterns:
-    - regex: '(?i)dataTask\\.s*\\.(with'
-  severity: low
+    - regex: '(?i)dataTask\\.s*\\.(with''severity: low
   description: "URLSession data task"
   remediation: "Validate response data"
   cwe: "CWE-20"
@@ -706,8 +638,7 @@
 - id: swift-network-upload-task
   languages: [swift]
   patterns:
-    - regex: '(?i)uploadTask\\.s*\\.(with'
-  severity: low
+    - regex: '(?i)uploadTask\\.s*\\.(with''severity: low
   description: "URLSession upload task"
   remediation: "Validate upload data"
   cwe: "CWE-20"
@@ -716,8 +647,7 @@
 - id: swift-network-download-task
   languages: [swift]
   patterns:
-    - regex: '(?i)downloadTask\\.s*\\.(with'
-  severity: low
+    - regex: '(?i)downloadTask\\.s*\\.(with''severity: low
   description: "URLSession download task"
   remediation: "Validate downloaded files"
   cwe: "CWE-20"
@@ -726,8 +656,7 @@
 - id: swift-network-delegate
   languages: [swift]
   patterns:
-    - regex: '(?i)URLSessionDelegate|URLSessionTaskDelegate'
-  severity: low
+    - regex: '(?i)URLSessionDelegate|URLSessionTaskDelegate''severity: low
   description: "URLSession delegate"
   remediation: "Implement delegate securely"
   cwe: "CWE-295"
@@ -736,8 +665,7 @@
 - id: swift-network-credential
   languages: [swift]
   patterns:
-    - regex: '(?i)URLCredential|URLAuthenticationChallenge'
-  severity: low
+    - regex: '(?i)URLCredential|URLAuthenticationChallenge''severity: low
   description: "Network credential"
   remediation: "Handle credentials securely"
   cwe: "CWE-312"
@@ -746,8 +674,7 @@
 - id: swift-network-cookie
   languages: [swift]
   patterns:
-    - regex: '(?i)HTTPCookie|HTTPCookieStorage'
-  severity: low
+    - regex: '(?i)HTTPCookie|HTTPCookieStorage''severity: low
   description: "HTTP cookie"
   remediation: "Configure cookies securely"
   cwe: "CWE-614"
@@ -756,8 +683,7 @@
 - id: swift-network-cache
   languages: [swift]
   patterns:
-    - regex: '(?i)URLCache|URLRequestCachePolicy'
-  severity: low
+    - regex: '(?i)URLCache|URLRequestCachePolicy''severity: low
   description: "Network cache"
   remediation: "Configure cache policy"
   cwe: "CWE-524"
@@ -766,8 +692,7 @@
 - id: swift-network-pinning
   languages: [swift]
   patterns:
-    - regex: '(?i)certificatePinning|pinning'
-  severity: low
+    - regex: '(?i)certificatePinning|pinning''severity: low
   description: "Certificate pinning"
   remediation: "Implement certificate pinning"
   cwe: "CWE-295"
@@ -776,8 +701,7 @@
 - id: swift-network-alamofire
   languages: [swift]
   patterns:
-    - regex: '(?i)Alamofire\\..|AF\\..'
-  severity: low
+    - regex: '(?i)Alamofire\\..|AF\\..''severity: low
   description: "Alamofire usage"
   remediation: "Configure Alamofire securely"
   cwe: "CWE-295"
@@ -786,8 +710,7 @@
 - id: swift-network-request
   languages: [swift]
   patterns:
-    - regex: '(?i)URLRequest\\.s*\\.('
-  severity: low
+    - regex: '(?i)URLRequest\\.s*\\.(''severity: low
   description: "URLRequest creation"
   remediation: "Validate request parameters"
   cwe: "CWE-20"
@@ -796,8 +719,7 @@
 - id: swift-network-response
   languages: [swift]
   patterns:
-    - regex: '(?i)HTTPURLResponse|URLResponse'
-  severity: low
+    - regex: '(?i)HTTPURLResponse|URLResponse''severity: low
   description: "Network response"
   remediation: "Validate response status"
   cwe: "CWE-20"
@@ -806,8 +728,7 @@
 - id: swift-network-header
   languages: [swift]
   patterns:
-    - regex: '(?i)allHTTPHeaderFields|setValue\\.s*\\.(forHTTPHeaderField'
-  severity: low
+    - regex: '(?i)allHTTPHeaderFields|setValue\\.s*\\.(forHTTPHeaderField''severity: low
   description: "HTTP header"
   remediation: "Validate headers"
   cwe: "CWE-113"
@@ -816,8 +737,7 @@
 - id: swift-network-body
   languages: [swift]
   patterns:
-    - regex: '(?i)httpBody|httpBodyStream'
-  severity: low
+    - regex: '(?i)httpBody|httpBodyStream''severity: low
   description: "HTTP body"
   remediation: "Validate body content"
   cwe: "CWE-20"
@@ -826,8 +746,7 @@
 - id: swift-network-timeout
   languages: [swift]
   patterns:
-    - regex: '(?i)timeoutInterval'
-  severity: low
+    - regex: '(?i)timeoutInterval''severity: low
   description: "Network timeout"
   remediation: "Set appropriate timeouts"
   cwe: "CWE-770"
@@ -836,8 +755,7 @@
 - id: swift-network-retry
   languages: [swift]
   patterns:
-    - regex: '(?i)retry|retryPolicy'
-  severity: low
+    - regex: '(?i)retry|retryPolicy''severity: low
   description: "Network retry"
   remediation: "Implement retry with backoff"
   cwe: "CWE-770"
@@ -846,8 +764,7 @@
 - id: swift-network-websocket
   languages: [swift]
   patterns:
-    - regex: '(?i)URLSessionWebSocketTask|WebSocket'
-  severity: medium
+    - regex: '(?i)URLSessionWebSocketTask|WebSocket''severity: medium
   description: "WebSocket connection"
   remediation: "Use wss:// for WebSocket"
   cwe: "CWE-319"
@@ -856,8 +773,7 @@
 - id: swift-network-bonjour
   languages: [swift]
   patterns:
-    - regex: '(?i)NetService|NetServiceBrowser'
-  severity: low
+    - regex: '(?i)NetService|NetServiceBrowser''severity: low
   description: "Bonjour service"
   remediation: "Validate Bonjour services"
   cwe: "CWE-20"
@@ -866,8 +782,7 @@
 - id: swift-network-multipeer
   languages: [swift]
   patterns:
-    - regex: '(?i)MultipeerConnectivity|MCSession'
-  severity: low
+    - regex: '(?i)MultipeerConnectivity|MCSession''severity: low
   description: "Multipeer connectivity"
   remediation: "Secure multipeer sessions"
   cwe: "CWE-284"
@@ -876,8 +791,7 @@
 - id: swift-network-network-framework
   languages: [swift]
   patterns:
-    - regex: '(?i)NWListener|NWConnection'
-  severity: low
+    - regex: '(?i)NWListener|NWConnection''severity: low
   description: "Network framework"
   remediation: "Configure Network framework securely"
   cwe: "CWE-295"
@@ -886,8 +800,7 @@
 - id: swift-network-tls
   languages: [swift]
   patterns:
-    - regex: '(?i)tlsMinimumProtocolVersion|tlsMaximumProtocolVersion'
-  severity: low
+    - regex: '(?i)tlsMinimumProtocolVersion|tlsMaximumProtocolVersion''severity: low
   description: "TLS configuration"
   remediation: "Use TLS 1.2 or higher"
   cwe: "CWE-326"
@@ -896,8 +809,7 @@
 - id: swift-network-trust
   languages: [swift]
   patterns:
-    - regex: '(?i)SecTrust|SecTrustEvaluate'
-  severity: low
+    - regex: '(?i)SecTrust|SecTrustEvaluate''severity: low
   description: "Certificate trust"
   remediation: "Evaluate certificate trust properly"
   cwe: "CWE-295"
@@ -906,8 +818,7 @@
 - id: swift-network-policy
   languages: [swift]
   patterns:
-    - regex: '(?i)NetworkFramework|NWPathMonitor'
-  severity: low
+    - regex: '(?i)NetworkFramework|NWPathMonitor''severity: low
   description: "Network policy"
   remediation: "Monitor network path"
   cwe: "CWE-693"
@@ -916,8 +827,7 @@
 - id: swift-network-reachability
   languages: [swift]
   patterns:
-    - regex: '(?i)Reachability|SCNetworkReachability'
-  severity: low
+    - regex: '(?i)Reachability|SCNetworkReachability''severity: low
   description: "Network reachability"
   remediation: "Monitor network reachability"
   cwe: "CWE-693"
@@ -926,8 +836,7 @@
 - id: swift-network-proxy
   languages: [swift]
   patterns:
-    - regex: '(?i)connectionProxyDictionary|proxy'
-  severity: low
+    - regex: '(?i)connectionProxyDictionary|proxy''severity: low
   description: "Network proxy"
   remediation: "Configure proxy securely"
   cwe: "CWE-284"
@@ -937,8 +846,7 @@
 - id: swift-data-encryption
   languages: [swift]
   patterns:
-    - regex: '(?i)CommonCrypto|CryptoKit'
-  severity: low
+    - regex: '(?i)CommonCrypto|CryptoKit''severity: low
   description: "Data encryption"
   remediation: "Use strong encryption"
   cwe: "CWE-327"
@@ -947,8 +855,7 @@
 - id: swift-data-decryption
   languages: [swift]
   patterns:
-    - regex: '(?i)decrypt|decryption'
-  severity: low
+    - regex: '(?i)decrypt|decryption''severity: low
   description: "Data decryption"
   remediation: "Validate decrypted data"
   cwe: "CWE-20"
@@ -957,8 +864,7 @@
 - id: swift-data-hashing
   languages: [swift]
   patterns:
-    - regex: '(?i)SHA256|SHA512|hash\\.s*\\.('
-  severity: low
+    - regex: '(?i)SHA256|SHA512|hash\\.s*\\.(''severity: low
   description: "Data hashing"
   remediation: "Use strong hash functions"
   cwe: "CWE-327"
@@ -967,8 +873,7 @@
 - id: swift-data-encoding
   languages: [swift]
   patterns:
-    - regex: '(?i)base64|Base64'
-  severity: low
+    - regex: '(?i)base64|Base64''severity: low
   description: "Data encoding"
   remediation: "Use encoding appropriately"
   cwe: "CWE-311"
@@ -977,8 +882,7 @@
 - id: swift-data-serialization
   languages: [swift]
   patterns:
-    - regex: '(?i)JSONSerialization|Codable'
-  severity: low
+    - regex: '(?i)JSONSerialization|Codable''severity: low
   description: "Data serialization"
   remediation: "Validate serialized data"
   cwe: "CWE-502"
@@ -987,8 +891,7 @@
 - id: swift-data-persistence
   languages: [swift]
   patterns:
-    - regex: '(?i)CoreData|NSPersistentStore'
-  severity: low
+    - regex: '(?i)CoreData|NSPersistentStore''severity: low
   description: "Data persistence"
   remediation: "Encrypt persistent data"
   cwe: "CWE-311"
@@ -997,8 +900,7 @@
 - id: swift-data-sqlite
   languages: [swift]
   patterns:
-    - regex: '(?i)SQLite|FMDB'
-  severity: low
+    - regex: '(?i)SQLite|FMDB''severity: low
   description: "SQLite database"
   remediation: "Encrypt SQLite database"
   cwe: "CWE-311"
@@ -1007,8 +909,7 @@
 - id: swift-data-realm
   languages: [swift]
   patterns:
-    - regex: '(?i)Realm\\..|RealmDatabase'
-  severity: low
+    - regex: '(?i)Realm\\..|RealmDatabase''severity: low
   description: "Realm database"
   remediation: "Encrypt Realm database"
   cwe: "CWE-311"
@@ -1017,8 +918,7 @@
 - id: swift-data-file-manager
   languages: [swift]
   patterns:
-    - regex: '(?i)FileManager\\.s*\\..'
-  severity: low
+    - regex: '(?i)FileManager\\.s*\\..''severity: low
   description: "File manager"
   remediation: "Validate file operations"
   cwe: "CWE-22"
@@ -1027,8 +927,7 @@
 - id: swift-data-file-protection
   languages: [swift]
   patterns:
-    - regex: '(?i)FileProtectionType|NSFileProtection'
-  severity: low
+    - regex: '(?i)FileProtectionType|NSFileProtection''severity: low
   description: "File protection"
   remediation: "Use file protection"
   cwe: "CWE-311"
@@ -1037,8 +936,7 @@
 - id: swift-data-icloud
   languages: [swift]
   patterns:
-    - regex: '(?i)Ubiquity|NSUbiquitousKeyValueStore'
-  severity: low
+    - regex: '(?i)Ubiquity|NSUbiquitousKeyValueStore''severity: low
   description: "iCloud storage"
   remediation: "Don't store sensitive data in iCloud"
   cwe: "CWE-311"
@@ -1047,8 +945,7 @@
 - id: swift-data-airdrop
   languages: [swift]
   patterns:
-    - regex: '(?i)UIActivityTypeAirDrop|UIActivityViewController'
-  severity: low
+    - regex: '(?i)UIActivityTypeAirDrop|UIActivityViewController''severity: low
   description: "AirDrop sharing"
   remediation: "Don't share sensitive data via AirDrop"
   cwe: "CWE-311"
@@ -1057,8 +954,7 @@
 - id: swift-data-share-extension
   languages: [swift]
   patterns:
-    - regex: '(?i)ShareExtension|UIActivityItemSource'
-  severity: low
+    - regex: '(?i)ShareExtension|UIActivityItemSource''severity: low
   description: "Share extension"
   remediation: "Secure share extension"
   cwe: "CWE-284"
@@ -1067,8 +963,7 @@
 - id: swift-data-document-browser
   languages: [swift]
   patterns:
-    - regex: '(?i)UIDocumentBrowser|UIDocument'
-  severity: low
+    - regex: '(?i)UIDocumentBrowser|UIDocument''severity: low
   description: "Document browser"
   remediation: "Validate document access"
   cwe: "CWE-284"
@@ -1077,8 +972,7 @@
 - id: swift-data-files-app
   languages: [swift]
   patterns:
-    - regex: '(?i)Files\\..app|LSSupportsOpeningDocumentsInPlace'
-  severity: low
+    - regex: '(?i)Files\\..app|LSSupportsOpeningDocumentsInPlace''severity: low
   description: "Files app integration"
   remediation: "Configure Files app access"
   cwe: "CWE-284"
@@ -1087,8 +981,7 @@
 - id: swift-data-temporary
   languages: [swift]
   patterns:
-    - regex: '(?i)NSTemporaryDirectory|temporaryDirectory'
-  severity: low
+    - regex: '(?i)NSTemporaryDirectory|temporaryDirectory''severity: low
   description: "Temporary directory"
   remediation: "Clean temporary files"
   cwe: "CWE-775"
@@ -1097,8 +990,7 @@
 - id: swift-data-cache-directory
   languages: [swift]
   patterns:
-    - regex: '(?i)CachesDirectory|Library/Caches'
-  severity: low
+    - regex: '(?i)CachesDirectory|Library/Caches''severity: low
   description: "Cache directory"
   remediation: "Don't store sensitive data in cache"
   cwe: "CWE-311"
@@ -1107,8 +999,7 @@
 - id: swift-data-document-directory
   languages: [swift]
   patterns:
-    - regex: '(?i)DocumentDirectory|Documents'
-  severity: low
+    - regex: '(?i)DocumentDirectory|Documents''severity: low
   description: "Document directory"
   remediation: "Protect document directory"
   cwe: "CWE-311"
@@ -1117,8 +1008,7 @@
 - id: swift-data-application-support
   languages: [swift]
   patterns:
-    - regex: '(?i)ApplicationSupportDirectory'
-  severity: low
+    - regex: '(?i)ApplicationSupportDirectory''severity: low
   description: "Application Support directory"
   remediation: "Protect Application Support"
   cwe: "CWE-311"
@@ -1127,8 +1017,7 @@
 - id: swift-data-group-container
   languages: [swift]
   patterns:
-    - regex: '(?i)groupIdentifier|AppGroup'
-  severity: low
+    - regex: '(?i)groupIdentifier|AppGroup''severity: low
   description: "App group container"
   remediation: "Secure app group data"
   cwe: "CWE-312"
@@ -1137,8 +1026,7 @@
 - id: swift-data-wal
   languages: [swift]
   patterns:
-    - regex: '(?i)-wal|-shm'
-  severity: low
+    - regex: '(?i)-wal|-shm''severity: low
   description: "SQLite WAL files"
   remediation: "Clean WAL files"
   cwe: "CWE-775"
@@ -1147,8 +1035,7 @@
 - id: swift-data-backup
   languages: [swift]
   patterns:
-    - regex: '(?i)isExcludedFromBackup|NSURLIsExcludedFromBackupKey'
-  severity: low
+    - regex: '(?i)isExcludedFromBackup|NSURLIsExcludedFromBackupKey''severity: low
   description: "Backup exclusion"
   remediation: "Exclude sensitive data from backup"
   cwe: "CWE-311"
@@ -1157,8 +1044,7 @@
 - id: swift-data-protection-complete
   languages: [swift]
   patterns:
-    - regex: '(?i)FileProtectionType\\..complete'
-  severity: low
+    - regex: '(?i)FileProtectionType\\..complete''severity: low
   description: "Complete file protection"
   remediation: "Use complete protection for sensitive data"
   cwe: "CWE-311"
@@ -1167,8 +1053,7 @@
 - id: swift-data-protection-unless
   languages: [swift]
   patterns:
-    - regex: '(?i)FileProtectionType\\..completeUnlessOpen'
-  severity: low
+    - regex: '(?i)FileProtectionType\\..completeUnlessOpen''severity: low
   description: "Complete unless open protection"
   remediation: "Use appropriate protection level"
   cwe: "CWE-311"
@@ -1177,8 +1062,7 @@
 - id: swift-data-protection-until
   languages: [swift]
   patterns:
-    - regex: '(?i)FileProtectionType\\..completeUntilFirstUserAuthentication'
-  severity: low
+    - regex: '(?i)FileProtectionType\\..completeUntilFirstUserAuthentication''severity: low
   description: "Complete until first auth"
   remediation: "Use appropriate protection level"
   cwe: "CWE-311"
@@ -1188,8 +1072,7 @@
 - id: swift-keychain-add
   languages: [swift]
   patterns:
-    - regex: '(?i)SecItemAdd\\.s*\\.('
-  severity: low
+    - regex: '(?i)SecItemAdd\\.s*\\.(''severity: low
   description: "Keychain add"
   remediation: "Use appropriate access control"
   cwe: "CWE-312"
@@ -1198,8 +1081,7 @@
 - id: swift-keychain-update
   languages: [swift]
   patterns:
-    - regex: '(?i)SecItemUpdate\\.s*\\.('
-  severity: low
+    - regex: '(?i)SecItemUpdate\\.s*\\.(''severity: low
   description: "Keychain update"
   remediation: "Validate update parameters"
   cwe: "CWE-312"
@@ -1208,8 +1090,7 @@
 - id: swift-keychain-delete
   languages: [swift]
   patterns:
-    - regex: '(?i)SecItemDelete\\.s*\\.('
-  severity: low
+    - regex: '(?i)SecItemDelete\\.s*\\.(''severity: low
   description: "Keychain delete"
   remediation: "Clean up keychain items"
   cwe: "CWE-775"
@@ -1218,8 +1099,7 @@
 - id: swift-keychain-query
   languages: [swift]
   patterns:
-    - regex: '(?i)SecItemCopyMatching\\.s*\\.('
-  severity: low
+    - regex: '(?i)SecItemCopyMatching\\.s*\\.(''severity: low
   description: "Keychain query"
   remediation: "Use specific queries"
   cwe: "CWE-312"
@@ -1228,8 +1108,7 @@
 - id: swift-keychain-accessible
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrAccessible'
-  severity: low
+    - regex: '(?i)kSecAttrAccessible''severity: low
   description: "Keychain accessibility"
   remediation: "Use most restrictive accessibility"
   cwe: "CWE-312"
@@ -1238,8 +1117,7 @@
 - id: swift-keychain-access-group
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrAccessGroup'
-  severity: low
+    - regex: '(?i)kSecAttrAccessGroup''severity: low
   description: "Keychain access group"
   remediation: "Configure access groups"
   cwe: "CWE-312"
@@ -1248,8 +1126,7 @@
 - id: swift-keychain-synchronizable
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrSynchronizable'
-  severity: low
+    - regex: '(?i)kSecAttrSynchronizable''severity: low
   description: "Keychain sync"
   remediation: "Don't sync sensitive data"
   cwe: "CWE-311"
@@ -1258,8 +1135,7 @@
 - id: swift-keychain-touch-id
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAccessControlBiometryCurrentSet'
-  severity: low
+    - regex: '(?i)kSecAccessControlBiometryCurrentSet''severity: low
   description: "Keychain Touch ID"
   remediation: "Use biometric access control"
   cwe: "CWE-312"
@@ -1268,8 +1144,7 @@
 - id: swift-keychain-device-passcode
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAccessControlDevicePasscode'
-  severity: low
+    - regex: '(?i)kSecAccessControlDevicePasscode''severity: low
   description: "Keychain device passcode"
   remediation: "Require device passcode"
   cwe: "CWE-312"
@@ -1278,8 +1153,7 @@
 - id: swift-keychain-private-key
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrKeyType|PrivateKey'
-  severity: low
+    - regex: '(?i)kSecAttrKeyType|PrivateKey''severity: low
   description: "Keychain private key"
   remediation: "Protect private keys"
   cwe: "CWE-312"
@@ -1288,8 +1162,7 @@
 - id: swift-keychain-certificate
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecClassCertificate|certificate'
-  severity: low
+    - regex: '(?i)kSecClassCertificate|certificate''severity: low
   description: "Keychain certificate"
   remediation: "Validate certificates"
   cwe: "CWE-295"
@@ -1298,8 +1171,7 @@
 - id: swift-keychain-identity
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecClassIdentity|identity'
-  severity: low
+    - regex: '(?i)kSecClassIdentity|identity''severity: low
   description: "Keychain identity"
   remediation: "Protect identities"
   cwe: "CWE-312"
@@ -1308,8 +1180,7 @@
 - id: swift-keychain-generic
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecClassGenericPassword'
-  severity: low
+    - regex: '(?i)kSecClassGenericPassword''severity: low
   description: "Keychain generic password"
   remediation: "Use generic password for secrets"
   cwe: "CWE-312"
@@ -1318,8 +1189,7 @@
 - id: swift-keychain-internet
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecClassInternetPassword'
-  severity: low
+    - regex: '(?i)kSecClassInternetPassword''severity: low
   description: "Keychain internet password"
   remediation: "Use internet password for web credentials"
   cwe: "CWE-312"
@@ -1328,8 +1198,7 @@
 - id: swift-keychain-key
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecClassKey|kSecAttrKeyType'
-  severity: low
+    - regex: '(?i)kSecClassKey|kSecAttrKeyType''severity: low
   description: "Keychain key"
   remediation: "Protect cryptographic keys"
   cwe: "CWE-312"
@@ -1338,8 +1207,7 @@
 - id: swift-keychain-usage-policy
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrKeyUsagePolicy'
-  severity: low
+    - regex: '(?i)kSecAttrKeyUsagePolicy''severity: low
   description: "Keychain key usage policy"
   remediation: "Set key usage policy"
   cwe: "CWE-312"
@@ -1348,8 +1216,7 @@
 - id: swift-keychain-operation
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrKeyOperationType'
-  severity: low
+    - regex: '(?i)kSecAttrKeyOperationType''severity: low
   description: "Keychain key operation"
   remediation: "Restrict key operations"
   cwe: "CWE-312"
@@ -1358,8 +1225,7 @@
 - id: swift-keychain-application-tag
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrApplicationTag'
-  severity: low
+    - regex: '(?i)kSecAttrApplicationTag''severity: low
   description: "Keychain application tag"
   remediation: "Use unique application tags"
   cwe: "CWE-312"
@@ -1368,8 +1234,7 @@
 - id: swift-keychain-service
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrService'
-  severity: low
+    - regex: '(?i)kSecAttrService''severity: low
   description: "Keychain service"
   remediation: "Use unique service names"
   cwe: "CWE-312"
@@ -1378,8 +1243,7 @@
 - id: swift-keychain-account
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrAccount'
-  severity: low
+    - regex: '(?i)kSecAttrAccount''severity: low
   description: "Keychain account"
   remediation: "Use unique account names"
   cwe: "CWE-312"
@@ -1388,8 +1252,7 @@
 - id: swift-keychain-label
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrLabel'
-  severity: low
+    - regex: '(?i)kSecAttrLabel''severity: low
   description: "Keychain label"
   remediation: "Use descriptive labels"
   cwe: "CWE-312"
@@ -1398,8 +1261,7 @@
 - id: swift-keychain-comment
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrComment'
-  severity: low
+    - regex: '(?i)kSecAttrComment''severity: low
   description: "Keychain comment"
   remediation: "Add comments for keychain items"
   cwe: "CWE-312"
@@ -1408,8 +1270,7 @@
 - id: swift-keychain-creation-date
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrCreationDate'
-  severity: low
+    - regex: '(?i)kSecAttrCreationDate''severity: low
   description: "Keychain creation date"
   remediation: "Track keychain item creation"
   cwe: "CWE-312"
@@ -1418,8 +1279,7 @@
 - id: swift-keychain-modification-date
   languages: [swift]
   patterns:
-    - regex: '(?i)kSecAttrModificationDate'
-  severity: low
+    - regex: '(?i)kSecAttrModificationDate''severity: low
   description: "Keychain modification date"
   remediation: "Track keychain item modifications"
   cwe: "CWE-312"
@@ -1428,8 +1288,7 @@
 - id: swift-keychain-access-control
   languages: [swift]
   patterns:
-    - regex: '(?i)SecAccessControlCreateWithFlags'
-  severity: low
+    - regex: '(?i)SecAccessControlCreateWithFlags''severity: low
   description: "Keychain access control"
   remediation: "Use strong access control"
   cwe: "CWE-312"
@@ -1439,8 +1298,7 @@
 - id: swift-entitlements-file
   languages: [swift]
   patterns:
-    - regex: '(?i)\\..entitlements'
-  severity: low
+    - regex: '(?i)\\..entitlements''severity: low
   description: "Entitlements file"
   remediation: "Configure entitlements properly"
   cwe: "CWE-284"
@@ -1449,8 +1307,7 @@
 - id: swift-entitlements-keychain
   languages: [swift]
   patterns:
-    - regex: '(?i)keychain-access-groups'
-  severity: low
+    - regex: '(?i)keychain-access-groups''severity: low
   description: "Keychain entitlement"
   remediation: "Configure keychain groups"
   cwe: "CWE-312"
@@ -1459,8 +1316,7 @@
 - id: swift-entitlements-push
   languages: [swift]
   patterns:
-    - regex: '(?i)aps-environment'
-  severity: low
+    - regex: '(?i)aps-environment''severity: low
   description: "Push notification entitlement"
   remediation: "Configure push environment"
   cwe: "CWE-284"
@@ -1469,8 +1325,7 @@
 - id: swift-entitlements-associated-domains
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..associated-domains'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..associated-domains''severity: low
   description: "Associated domains entitlement"
   remediation: "Configure associated domains"
   cwe: "CWE-284"
@@ -1479,8 +1334,7 @@
 - id: swift-entitlements-app-groups
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..security\\..application-groups'
-  severity: low
+    - regex: '(?i)com\\..apple\\..security\\..application-groups''severity: low
   description: "App groups entitlement"
   remediation: "Configure app groups"
   cwe: "CWE-284"
@@ -1489,8 +1343,7 @@
 - id: swift-entitlements-healthkit
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..healthkit'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..healthkit''severity: low
   description: "HealthKit entitlement"
   remediation: "Configure HealthKit"
   cwe: "CWE-284"
@@ -1499,8 +1352,7 @@
 - id: swift-entitlements-homekit
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..homekit'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..homekit''severity: low
   description: "HomeKit entitlement"
   remediation: "Configure HomeKit"
   cwe: "CWE-284"
@@ -1509,8 +1361,7 @@
 - id: swift-entitlements-wallet
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..passbook'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..passbook''severity: low
   description: "Wallet entitlement"
   remediation: "Configure Wallet"
   cwe: "CWE-284"
@@ -1519,8 +1370,7 @@
 - id: swift-entitlements-apple-pay
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..merchantid'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..merchantid''severity: low
   description: "Apple Pay entitlement"
   remediation: "Configure Apple Pay"
   cwe: "CWE-284"
@@ -1529,8 +1379,7 @@
 - id: swift-entitlements-sign-in
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..applesignin'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..applesignin''severity: low
   description: "Sign in with Apple entitlement"
   remediation: "Configure Sign in with Apple"
   cwe: "CWE-284"
@@ -1539,8 +1388,7 @@
 - id: swift-entitlements-network-extension
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..networking'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..networking''severity: low
   description: "Network extension entitlement"
   remediation: "Configure network extension"
   cwe: "CWE-284"
@@ -1549,8 +1397,7 @@
 - id: swift-entitlements-hotspot
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..networking\\..hotspot'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..networking\\..hotspot''severity: low
   description: "Hotspot entitlement"
   remediation: "Configure hotspot"
   cwe: "CWE-284"
@@ -1559,8 +1406,7 @@
 - id: swift-entitlements-nfc
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..nfc'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..nfc''severity: low
   description: "NFC entitlement"
   remediation: "Configure NFC"
   cwe: "CWE-284"
@@ -1569,8 +1415,7 @@
 - id: swift-entitlements-ar
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..arkit'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..arkit''severity: low
   description: "ARKit entitlement"
   remediation: "Configure ARKit"
   cwe: "CWE-284"
@@ -1579,8 +1424,7 @@
 - id: swift-entitlements-classkit
   languages: [swift]
   patterns:
-    - regex: '(?i)com\\..apple\\..developer\\..ClassKit'
-  severity: low
+    - regex: '(?i)com\\..apple\\..developer\\..ClassKit''severity: low
   description: "ClassKit entitlement"
   remediation: "Configure ClassKit"
   cwe: "CWE-284"
@@ -1590,8 +1434,7 @@
 - id: swift-runtime-objc
   languages: [swift]
   patterns:
-    - regex: '(?i)@objc|dynamic'
-  severity: low
+    - regex: '(?i)@objc|dynamic''severity: low
   description: "Objective-C runtime"
   remediation: "Limit Objective-C runtime exposure"
   cwe: "CWE-693"
@@ -1600,8 +1443,7 @@
 - id: swift-runtime-reflect
   languages: [swift]
   patterns:
-    - regex: '(?i)Mirror\\.s*\\.(|reflect\\.s*\\.('
-  severity: low
+    - regex: '(?i)Mirror\\.s*\\.(|reflect\\.s*\\.(''severity: low
   description: "Swift reflection"
   remediation: "Limit reflection usage"
   cwe: "CWE-693"
@@ -1610,8 +1452,7 @@
 - id: swift-runtime-type-erasure
   languages: [swift]
   patterns:
-    - regex: '(?i)Any\\.s|AnyObject'
-  severity: low
+    - regex: '(?i)Any\\.s|AnyObject''severity: low
   description: "Type erasure"
   remediation: "Use specific types"
   cwe: "CWE-693"
@@ -1620,8 +1461,7 @@
 - id: swift-runtime-protocol
   languages: [swift]
   patterns:
-    - regex: '(?i)protocol\\.s+\\.w+'
-  severity: low
+    - regex: '(?i)protocol\\.s+\\.w+''severity: low
   description: "Protocol definition"
   remediation: "Define protocols securely"
   cwe: "CWE-693"
@@ -1630,8 +1470,7 @@
 - id: swift-runtime-extension
   languages: [swift]
   patterns:
-    - regex: '(?i)extension\\.s+\\.w+'
-  severity: low
+    - regex: '(?i)extension\\.s+\\.w+''severity: low
   description: "Type extension"
   remediation: "Extend types securely"
   cwe: "CWE-693"
@@ -1640,8 +1479,7 @@
 - id: swift-runtime-generic
   languages: [swift]
   patterns:
-    - regex: '(?i)<\\.s*\\.w+\\.s*>'
-  severity: low
+    - regex: '(?i)<\\.s*\\.w+\\.s*>''severity: low
   description: "Generic type"
   remediation: "Constrain generics"
   cwe: "CWE-693"
@@ -1650,8 +1488,7 @@
 - id: swift-runtime-associated-type
   languages: [swift]
   patterns:
-    - regex: '(?i)associatedtype\\.s+\\.w+'
-  severity: low
+    - regex: '(?i)associatedtype\\.s+\\.w+''severity: low
   description: "Associated type"
   remediation: "Constrain associated types"
   cwe: "CWE-693"
@@ -1660,8 +1497,7 @@
 - id: swift-runtime-where-clause
   languages: [swift]
   patterns:
-    - regex: '(?i)where\\.s+\\.w+\\.s*:'
-  severity: low
+    - regex: '(?i)where\\.s+\\.w+\\.s*:''severity: low
   description: "Where clause"
   remediation: "Use where clauses for constraints"
   cwe: "CWE-693"
@@ -1670,8 +1506,7 @@
 - id: swift-runtime-result-builder
   languages: [swift]
   patterns:
-    - regex: '(?i)@resultBuilder|@_functionBuilder'
-  severity: low
+    - regex: '(?i)@resultBuilder|@_functionBuilder''severity: low
   description: "Result builder"
   remediation: "Use result builders securely"
   cwe: "CWE-693"
@@ -1680,8 +1515,7 @@
 - id: swift-runtime-property-wrapper
   languages: [swift]
   patterns:
-    - regex: '(?i)@propertyWrapper|@propertyWrapper'
-  severity: low
+    - regex: '(?i)@propertyWrapper|@propertyWrapper''severity: low
   description: "Property wrapper"
   remediation: "Implement property wrappers securely"
   cwe: "CWE-693"
@@ -1690,8 +1524,7 @@
 - id: swift-runtime-function-builder
   languages: [swift]
   patterns:
-    - regex: '(?i)@_functionBuilder|functionBuilder'
-  severity: low
+    - regex: '(?i)@_functionBuilder|functionBuilder''severity: low
   description: "Function builder"
   remediation: "Use function builders securely"
   cwe: "CWE-693"
@@ -1700,8 +1533,7 @@
 - id: swift-runtime-macro
   languages: [swift]
   patterns:
-    - regex: '(?i)#\\.w+|@macro'
-  severity: low
+    - regex: '(?i)#\\.w+|@macro''severity: low
   description: "Swift macro"
   remediation: "Use macros securely"
   cwe: "CWE-693"
@@ -1710,8 +1542,7 @@
 - id: swift-runtime-async
   languages: [swift]
   patterns:
-    - regex: '(?i)async\\.s+func|await\\.s+'
-  severity: low
+    - regex: '(?i)async\\.s+func|await\\.s+''severity: low
   description: "Async/await"
   remediation: "Handle async errors"
   cwe: "CWE-754"
@@ -1720,8 +1551,7 @@
 - id: swift-runtime-actor
   languages: [swift]
   patterns:
-    - regex: '(?i)actor\\.s+\\.w+'
-  severity: low
+    - regex: '(?i)actor\\.s+\\.w+''severity: low
   description: "Swift actor"
   remediation: "Use actors for concurrency"
   cwe: "CWE-362"
@@ -1730,8 +1560,7 @@
 - id: swift-runtime-sendable
   languages: [swift]
   patterns:
-    - regex: '(?i)Sendable|@Sendable'
-  severity: low
+    - regex: '(?i)Sendable|@Sendable''severity: low
   description: "Sendable protocol"
   remediation: "Conform to Sendable"
   cwe: "CWE-362"
@@ -1746,9 +1575,7 @@
 - id: swift-app-transport-security
   languages: [swift]
   patterns:
-    - regex: 'NSAppTransportSecurity.*?NSAllowsArbitraryLoads\\.s*=\\.s*true'
-
-  severity: critical
+    - regex: 'NSAppTransportSecurity.*?NSAllowsArbitraryLoads\\.s*=\\.s*true''severity: critical
   description: "ATS disabled - allows insecure HTTP connections"
   remediation: "Enable ATS or specify exceptions for specific domains only"
   cwe: "CWE-319"
@@ -1757,9 +1584,7 @@
 - id: swift-ats-exception-allows-insecure
   languages: [swift]
   patterns:
-    - regex: 'NSExceptionAllowsInsecureHTTPLoads\\.s*=\\.s*true'
-
-  severity: high
+    - regex: 'NSExceptionAllowsInsecureHTTPLoads\\.s*=\\.s*true''severity: high
   description: "Domain allows insecure HTTP loads"
   remediation: "Remove or set to false; use HTTPS instead"
   cwe: "CWE-319"
@@ -1768,9 +1593,7 @@
 - id: swift-ats-exception-minimum-tls
   languages: [swift]
   patterns:
-    - regex: 'NSExceptionMinimumTLSVersion\\.s*=\\.s*\\.TLSv1\\.[01]\\.'
-
-  severity: high
+    - regex: 'NSExceptionMinimumTLSVersion\\.s*=\\.s*\\.TLSv1\\.[01]\\.''severity: high
   description: "Minimum TLS version too low (TLS 1.0 or 1.1)"
   remediation: "Set to TLSv1.2 or higher"
   cwe: "CWE-326"
@@ -1779,9 +1602,7 @@
 - id: swift-ats-exception-forward-secrecy
   languages: [swift]
   patterns:
-    - regex: 'NSExceptionRequiresForwardSecrecy\\.s*=\\.s*false'
-
-  severity: medium
+    - regex: 'NSExceptionRequiresForwardSecrecy\\.s*=\\.s*false''severity: medium
   description: "Forward secrecy not required (weaker security)"
   remediation: "Set to true to require perfect forward secrecy"
   cwe: "CWE-326"
@@ -1790,9 +1611,7 @@
 - id: swift-ats-third-party-cookies
   languages: [swift]
   patterns:
-    - regex: 'NSThirdPartyExceptionAllowsInsecureHTTPLoads\\.s*=\\.s*true'
-
-  severity: high
+    - regex: 'NSThirdPartyExceptionAllowsInsecureHTTPLoads\\.s*=\\.s*true''severity: high
   description: "Third-party domain allows insecure HTTP"
   remediation: "Remove or require HTTPS"
   cwe: "CWE-319"
@@ -1801,9 +1620,7 @@
 - id: swift-ats-local-networking
   languages: [swift]
   patterns:
-    - regex: 'NSAllowsLocalNetworking\\.s*=\\.s*true'
-
-  severity: low
+    - regex: 'NSAllowsLocalNetworking\\.s*=\\.s*true''severity: low
   description: "Allows local network connections (may bypass ATS)"
   remediation: "Restrict to development builds only"
   cwe: "CWE-319"
@@ -1812,9 +1629,7 @@
 - id: swift-app-delegate-methods
   languages: [swift]
   patterns:
-    - regex: 'func application\\._ application: UIApplication, didFinishLaunchingWithOptions'
-
-  severity: low
+    - regex: 'func application\\._ application: UIApplication, didFinishLaunchingWithOptions''severity: low
   description: "App delegate launch method"
   remediation: "Initialize securely, don't store sensitive data"
   cwe: "CWE-693"
@@ -1823,9 +1638,7 @@
 - id: swift-scene-delegate
   languages: [swift]
   patterns:
-    - regex: 'UISceneConfiguration|scene\\._ scene: UIScene, willConnectTo'
-
-  severity: low
+    - regex: 'UISceneConfiguration|scene\\._ scene: UIScene, willConnectTo''severity: low
   description: "Scene delegate (iOS 13+)"
   remediation: "Handle scene configuration securely"
   cwe: "CWE-693"
@@ -1834,9 +1647,7 @@
 - id: swift-app-state-restoration
   languages: [swift]
   patterns:
-    - regex: 'shouldRestoreApplicationState|shouldSaveApplicationState'
-
-  severity: medium
+    - regex: 'shouldRestoreApplicationState|shouldSaveApplicationState''severity: medium
   description: "App state restoration (may persist sensitive data)"
   remediation: "Don't restore sensitive UI state"
   cwe: "CWE-312"
@@ -1845,9 +1656,7 @@
 - id: swift-background-task
   languages: [swift]
   patterns:
-    - regex: 'beginBackgroundTask|endBackgroundTask'
-
-  severity: low
+    - regex: 'beginBackgroundTask|endBackgroundTask''severity: low
   description: "Background task handling"
   remediation: "Always end background tasks"
   cwe: "CWE-401"
@@ -1856,9 +1665,7 @@
 - id: swift-background-task-not-ended
   languages: [swift]
   patterns:
-    - regex: 'beginBackgroundTask.*?(?!endBackgroundTask)'
-
-  severity: high
+    - regex: 'beginBackgroundTask.*?''severity: high
   description: "Background task started but not ended (may kill app)"
   remediation: "Always call endBackgroundTask"
   cwe: "CWE-401"
@@ -1867,9 +1674,7 @@
 - id: swift-app-extension
   languages: [swift]
   patterns:
-    - regex: 'NSExtensionPrincipalClass|NSExtensionPointIdentifier'
-
-  severity: low
+    - regex: 'NSExtensionPrincipalClass|NSExtensionPointIdentifier''severity: low
   description: "App extension configured"
   remediation: "Secure inter-app communication"
   cwe: "CWE-284"
@@ -1878,9 +1683,7 @@
 - id: swift-app-group
   languages: [swift]
   patterns:
-    - regex: 'group\\.[a-zA-Z0-9.]+'
-
-  severity: low
+    - regex: 'group\\.[a-zA-Z0-9.]+''severity: low
   description: "App group identifier"
   remediation: "Use for sharing data between apps securely"
   cwe: "CWE-312"
@@ -1889,9 +1692,7 @@
 - id: swift-app-group-sensitive
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.suiteName:.*?group\\.[^)]+\\.'
-
-  severity: high
+    - regex: 'UserDefaults\\.suiteName:.*?group\\.[^)]+\\.''severity: high
   description: "Shared UserDefaults with app group (data shared)"
   remediation: "Encrypt sensitive shared data"
   cwe: "CWE-312"
@@ -1902,9 +1703,7 @@
 - id: swift-url-scheme-handler
   languages: [swift]
   patterns:
-    - regex: 'func application\\._ app: UIApplication, open url: URL, options'
-
-  severity: high
+    - regex: 'func application\\._ app: UIApplication, open url: URL, options''severity: high
   description: "URL scheme handler (validate input)"
   remediation: "Validate URL, source app, and parameters"
   cwe: "CWE-601"
@@ -1913,9 +1712,7 @@
 - id: swift-url-scheme-handler-legacy
   languages: [swift]
   patterns:
-    - regex: 'func application\\._ application: UIApplication, handleOpen url: URL\\.'
-
-  severity: high
+    - regex: 'func application\\._ application: UIApplication, handleOpen url: URL\\.''severity: high
   description: "Legacy URL scheme handler (less secure)"
   remediation: "Use modern openURL handler with options"
   cwe: "CWE-601"
@@ -1924,9 +1721,7 @@
 - id: swift-url-scheme-source-application
   languages: [swift]
   patterns:
-    - regex: 'options\\.\\.sourceApplication\\.'
-
-  severity: low
+    - regex: 'options\\.\\.sourceApplication\\.''severity: low
   description: "Checking source application"
   remediation: "Validate source app bundle ID"
   cwe: "CWE-287"
@@ -1935,9 +1730,7 @@
 - id: swift-url-scheme-source-verification
   languages: [swift]
   patterns:
-    - regex: 'options\\.\\.sourceApplication\\.\\.s*==\\.s*[\\.\\.]com\\.example\\.app[\\.\\.]'
-
-  severity: low
+    - regex: 'options\\.\\.sourceApplication\\.\\.s*==\\.s*[\\.\\.]com\\.example\\.app[\\.\\.]''severity: low
   description: "Verifying source app bundle ID (good)"
   remediation: "Good practice"
   cwe: "CWE-287"
@@ -1946,9 +1739,7 @@
 - id: swift-url-scheme-source-missing
   languages: [swift]
   patterns:
-    - regex: 'openURL.*?(?!sourceApplication)'
-
-  severity: high
+    - regex: 'openURL.*?''severity: high
   description: "Opening URL without checking source (trusts any caller)"
   remediation: "Always validate source application"
   cwe: "CWE-287"
@@ -1957,9 +1748,7 @@
 - id: swift-url-scheme-parameters
   languages: [swift]
   patterns:
-    - regex: 'url\\.query|url\\.fragment|URLComponents'
-
-  severity: medium
+    - regex: 'url\\.query|url\\.fragment|URLComponents''severity: medium
   description: "Parsing URL parameters"
   remediation: "Validate all parameters"
   cwe: "CWE-20"
@@ -1968,9 +1757,7 @@
 - id: swift-url-scheme-path
   languages: [swift]
   patterns:
-    - regex: 'url\\.path|url\\.lastPathComponent'
-
-  severity: medium
+    - regex: 'url\\.path|url\\.lastPathComponent''severity: medium
   description: "Parsing URL path"
   remediation: "Validate path components"
   cwe: "CWE-20"
@@ -1979,9 +1766,7 @@
 - id: swift-universal-links
   languages: [swift]
   patterns:
-    - regex: 'apple-app-site-association|.well-known/apple-app-site-association'
-
-  severity: low
+    - regex: 'apple-app-site-association|.well-known/apple-app-site-association''severity: low
   description: "Universal links configured (more secure than URL schemes)"
   remediation: "Host association file on HTTPS server"
   cwe: "CWE-601"
@@ -1990,9 +1775,7 @@
 - id: swift-universal-links-handler
   languages: [swift]
   patterns:
-    - regex: 'userActivity\\.activityType\\.s*==\\.s*NSUserActivityTypeBrowsingWeb'
-
-  severity: low
+    - regex: 'userActivity\\.activityType\\.s*==\\.s*NSUserActivityTypeBrowsingWeb''severity: low
   description: "Universal link handler"
   remediation: "Validate universal link URLs"
   cwe: "CWE-601"
@@ -2001,9 +1784,7 @@
 - id: swift-universal-links-webpage-url
   languages: [swift]
   patterns:
-    - regex: 'userActivity\\.webpageURL'
-
-  severity: low
+    - regex: 'userActivity\\.webpageURL''severity: low
   description: "Accessing universal link URL"
   remediation: "Validate and sanitize URL"
   cwe: "CWE-601"
@@ -2012,9 +1793,7 @@
 - id: swift-universal-links-continue
   languages: [swift]
   patterns:
-    - regex: 'func application\\._ application: UIApplication, continue userActivity: NSUserActivity'
-
-  severity: low
+    - regex: 'func application\\._ application: UIApplication, continue userActivity: NSUserActivity''severity: low
   description: "Continue user activity (universal links)"
   remediation: "Handle universal links securely"
   cwe: "CWE-601"
@@ -2023,9 +1802,7 @@
 - id: swift-url-scheme-open-settings
   languages: [swift]
   patterns:
-    - regex: 'UIApplication\\.openSettingsURLString'
-
-  severity: low
+    - regex: 'UIApplication\\.openSettingsURLString''severity: low
   description: "Opening settings URL (safe)"
   remediation: "Use for directing users to settings"
   cwe: "CWE-693"
@@ -2034,9 +1811,7 @@
 - id: swift-url-scheme-mailto
   languages: [swift]
   patterns:
-    - regex: 'mailto:'
-
-  severity: low
+    - regex: 'mailto:''severity: low
   description: "Mailto URL scheme"
   remediation: "Validate email addresses"
   cwe: "CWE-20"
@@ -2045,9 +1820,7 @@
 - id: swift-url-scheme-tel
   languages: [swift]
   patterns:
-    - regex: 'tel:|telprompt:'
-
-  severity: low
+    - regex: 'tel:|telprompt:''severity: low
   description: "Telephone URL scheme"
   remediation: "Validate phone numbers"
   cwe: "CWE-20"
@@ -2056,9 +1829,7 @@
 - id: swift-url-scheme-sms
   languages: [swift]
   patterns:
-    - regex: 'sms:'
-
-  severity: low
+    - regex: 'sms:''severity: low
   description: "SMS URL scheme"
   remediation: "Validate phone numbers"
   cwe: "CWE-20"
@@ -2067,9 +1838,7 @@
 - id: swift-url-scheme-face-time
   languages: [swift]
   patterns:
-    - regex: 'facetime:|facetime-audio:'
-
-  severity: low
+    - regex: 'facetime:|facetime-audio:''severity: low
   description: "FaceTime URL scheme"
   remediation: "Validate contacts"
   cwe: "CWE-20"
@@ -2078,9 +1847,7 @@
 - id: swift-url-scheme-maps
   languages: [swift]
   patterns:
-    - regex: 'maps:|http://maps.apple.com/'
-
-  severity: low
+    - regex: 'maps:|http://maps.apple.com/''severity: low
   description: "Maps URL scheme"
   remediation: "Validate locations"
   cwe: "CWE-20"
@@ -2089,9 +1856,7 @@
 - id: swift-url-scheme-itms
   languages: [swift]
   patterns:
-    - regex: 'itms:|itms-apps:'
-
-  severity: low
+    - regex: 'itms:|itms-apps:''severity: low
   description: "iTunes/App Store URL scheme"
   remediation: "Use for app store links"
   cwe: "CWE-693"
@@ -2100,9 +1865,7 @@
 - id: swift-url-scheme-unknown
   languages: [swift]
   patterns:
-    - regex: 'canOpenURL.*?(?!known)'
-
-  severity: medium
+    - regex: 'canOpenURL.*?''severity: medium
   description: "Checking if URL can be opened without validation"
   remediation: "Validate URL scheme before checking"
   cwe: "CWE-20"
@@ -2111,9 +1874,7 @@
 - id: swift-url-scheme-query-items
   languages: [swift]
   patterns:
-    - regex: 'URLComponents.*?queryItems'
-
-  severity: low
+    - regex: 'URLComponents.*?queryItems''severity: low
   description: "Parsing URL query items"
   remediation: "Validate each query item"
   cwe: "CWE-20"
@@ -2122,9 +1883,7 @@
 - id: swift-url-scheme-host-validation
   languages: [swift]
   patterns:
-    - regex: 'url\\.host\\.s*==\\.s*[\\.\\.](?!expected)'
-
-  severity: medium
+    - regex: 'url\\.host\\.s*==\\.s*[\\.\\.]''severity: medium
   description: "URL host checked against hardcoded value"
   remediation: "Use allowlist or configuration"
   cwe: "CWE-20"
@@ -2133,9 +1892,7 @@
 - id: swift-keychain-synchronizable-true
   languages: [swift]
   patterns:
-    - regex: 'kSecAttrSynchronizable\\.s*=\\.s*kCFBooleanTrue'
-
-  severity: critical
+    - regex: 'kSecAttrSynchronizable\\.s*=\\.s*kCFBooleanTrue''severity: critical
   description: "Keychain item synchronizes via iCloud (may leak)"
   remediation: "Disable sync for sensitive data"
   cwe: "CWE-312"
@@ -2144,9 +1901,7 @@
 - id: swift-keychain-return-data
   languages: [swift]
   patterns:
-    - regex: 'kSecReturnData\\.s*=\\.s*kCFBooleanTrue'
-
-  severity: low
+    - regex: 'kSecReturnData\\.s*=\\.s*kCFBooleanTrue''severity: low
   description: "Returning keychain data"
   remediation: "Handle data securely"
   cwe: "CWE-312"
@@ -2155,9 +1910,7 @@
 - id: swift-keychain-return-attributes
   languages: [swift]
   patterns:
-    - regex: 'kSecReturnAttributes\\.s*=\\.s*kCFBooleanTrue'
-
-  severity: low
+    - regex: 'kSecReturnAttributes\\.s*=\\.s*kCFBooleanTrue''severity: low
   description: "Returning keychain attributes"
   remediation: "Handle metadata securely"
   cwe: "CWE-312"
@@ -2166,9 +1919,7 @@
 - id: swift-keychain-return-ref
   languages: [swift]
   patterns:
-    - regex: 'kSecReturnRef\\.s*=\\.s*kCFBooleanTrue'
-
-  severity: low
+    - regex: 'kSecReturnRef\\.s*=\\.s*kCFBooleanTrue''severity: low
   description: "Returning keychain reference"
   remediation: "Manage reference securely"
   cwe: "CWE-312"
@@ -2177,9 +1928,7 @@
 - id: swift-keychain-return-persistent-ref
   languages: [swift]
   patterns:
-    - regex: 'kSecReturnPersistentRef\\.s*=\\.s*kCFBooleanTrue'
-
-  severity: low
+    - regex: 'kSecReturnPersistentRef\\.s*=\\.s*kCFBooleanTrue''severity: low
   description: "Returning persistent keychain reference"
   remediation: "Store references securely"
   cwe: "CWE-312"
@@ -2188,9 +1937,7 @@
 - id: swift-keychain-authentication-ui-skip
   languages: [swift]
   patterns:
-    - regex: 'kSecUseAuthenticationUI\\.s*=\\.s*kSecUseAuthenticationUISkip'
-
-  severity: high
+    - regex: 'kSecUseAuthenticationUI\\.s*=\\.s*kSecUseAuthenticationUISkip''severity: high
   description: "Skipping authentication UI (bypasses biometrics)"
   remediation: "Don't skip authentication for protected items"
   cwe: "CWE-287"
@@ -2201,9 +1948,7 @@
 - id: swift-userdefaults-set
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.set\\..*?forKey:'
-
-  severity: medium
+    - regex: 'UserDefaults\\.standard\\.set\\..*?forKey:''severity: medium
   description: "UserDefaults set (plaintext storage)"
   remediation: "Don't store sensitive data in UserDefaults"
   cwe: "CWE-312"
@@ -2212,9 +1957,7 @@
 - id: swift-userdefaults-sensitive
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.set\\..*?(?:password|token|key|secret).*?forKey:'
-
-  severity: high
+    - regex: 'UserDefaults\\.standard\\.set\\..*?(?:password|token|key|secret).*?forKey:''severity: high
   description: "Sensitive data stored in UserDefaults"
   remediation: "Use Keychain for sensitive data"
   cwe: "CWE-312"
@@ -2223,9 +1966,7 @@
 - id: swift-userdefaults-bool
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.bool\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.bool\\.forKey:''severity: low
   description: "Reading boolean from UserDefaults"
   remediation: "Safe for non-sensitive settings"
   cwe: "CWE-312"
@@ -2234,9 +1975,7 @@
 - id: swift-userdefaults-integer
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.integer\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.integer\\.forKey:''severity: low
   description: "Reading integer from UserDefaults"
   remediation: "Safe for non-sensitive numbers"
   cwe: "CWE-312"
@@ -2245,9 +1984,7 @@
 - id: swift-userdefaults-string
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.string\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.string\\.forKey:''severity: low
   description: "Reading string from UserDefaults"
   remediation: "Avoid for sensitive strings"
   cwe: "CWE-312"
@@ -2256,9 +1993,7 @@
 - id: swift-userdefaults-array
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.array\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.array\\.forKey:''severity: low
   description: "Reading array from UserDefaults"
   remediation: "Validate array contents"
   cwe: "CWE-20"
@@ -2267,9 +2002,7 @@
 - id: swift-userdefaults-dictionary
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.dictionary\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.dictionary\\.forKey:''severity: low
   description: "Reading dictionary from UserDefaults"
   remediation: "Validate dictionary contents"
   cwe: "CWE-20"
@@ -2278,9 +2011,7 @@
 - id: swift-userdefaults-data
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.data\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.data\\.forKey:''severity: low
   description: "Reading data from UserDefaults"
   remediation: "Decrypt if encrypted"
   cwe: "CWE-312"
@@ -2289,9 +2020,7 @@
 - id: swift-userdefaults-url
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.url\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.url\\.forKey:''severity: low
   description: "Reading URL from UserDefaults"
   remediation: "Validate URL"
   cwe: "CWE-20"
@@ -2300,9 +2029,7 @@
 - id: swift-userdefaults-object
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.object\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.object\\.forKey:''severity: low
   description: "Reading object from UserDefaults"
   remediation: "Cast and validate"
   cwe: "CWE-20"
@@ -2311,9 +2038,7 @@
 - id: swift-userdefaults-register
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.register\\.defaults:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.register\\.defaults:''severity: low
   description: "Registering default values"
   remediation: "Set safe defaults"
   cwe: "CWE-693"
@@ -2322,9 +2047,7 @@
 - id: swift-userdefaults-remove
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.removeObject\\.forKey:'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.removeObject\\.forKey:''severity: low
   description: "Removing UserDefaults object"
   remediation: "Clean up on logout"
   cwe: "CWE-312"
@@ -2333,9 +2056,7 @@
 - id: swift-userdefaults-synchronize
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.synchronize\\.\\.'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.synchronize\\.\\.''severity: low
   description: "Synchronizing UserDefaults (deprecated)"
   remediation: "Not needed in modern iOS"
   cwe: "CWE-693"
@@ -2344,9 +2065,7 @@
 - id: swift-userdefaults-suite
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.suiteName:'
-
-  severity: low
+    - regex: 'UserDefaults\\.suiteName:''severity: low
   description: "UserDefaults with suite name (shared)"
   remediation: "Be careful with shared defaults"
   cwe: "CWE-312"
@@ -2355,9 +2074,7 @@
 - id: swift-userdefaults-suite-sensitive
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.suiteName:.*?\\.\\.set\\..*?(?:password|token|key)'
-
-  severity: critical
+    - regex: 'UserDefaults\\.suiteName:.*?\\.\\.set\\..*?(?:password|token|key)''severity: critical
   description: "Sensitive data in shared UserDefaults (accessible by other apps)"
   remediation: "Never share sensitive data via UserDefaults"
   cwe: "CWE-312"
@@ -2366,9 +2083,7 @@
 - id: swift-userdefaults-volatile
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.volatileDomain'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.volatileDomain''severity: low
   description: "Volatile domain (not persisted)"
   remediation: "Good for temporary data"
   cwe: "CWE-312"
@@ -2377,9 +2092,7 @@
 - id: swift-userdefaults-persistent
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.persistentDomain'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.persistentDomain''severity: low
   description: "Persistent domain"
   remediation: "Don't store sensitive data"
   cwe: "CWE-312"
@@ -2388,9 +2101,7 @@
 - id: swift-userdefaults-add-suite
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.addSuite'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.addSuite''severity: low
   description: "Adding suite to UserDefaults"
   remediation: "Be careful with suite names"
   cwe: "CWE-312"
@@ -2399,9 +2110,7 @@
 - id: swift-userdefaults-remove-suite
   languages: [swift]
   patterns:
-    - regex: 'UserDefaults\\.standard\\.removeSuite'
-
-  severity: low
+    - regex: 'UserDefaults\\.standard\\.removeSuite''severity: low
   description: "Removing suite"
   remediation: "Clean up"
   cwe: "CWE-312"
@@ -2410,9 +2119,7 @@
 - id: swift-nsuserdefaults
   languages: [swift]
   patterns:
-    - regex: 'NSUserDefaults\\.standardUserDefaults'
-
-  severity: low
+    - regex: 'NSUserDefaults\\.standardUserDefaults''severity: low
   description: "NSUserDefaults (Objective-C style)"
   remediation: "Use Swift UserDefaults"
   cwe: "CWE-312"
@@ -2423,9 +2130,7 @@
 - id: swift-file-manager
   languages: [swift]
   patterns:
-    - regex: 'FileManager\\.default'
-
-  severity: low
+    - regex: 'FileManager\\.default''severity: low
   description: "FileManager usage"
   remediation: "Handle file operations securely"
   cwe: "CWE-22"
@@ -2434,9 +2139,7 @@
 - id: swift-file-create
   languages: [swift]
   patterns:
-    - regex: 'createFile\\.atPath:'
-
-  severity: medium
+    - regex: 'createFile\\.atPath:''severity: medium
   description: "Creating file"
   remediation: "Use secure file permissions"
   cwe: "CWE-732"
@@ -2445,9 +2148,7 @@
 - id: swift-file-create-sensitive
   languages: [swift]
   patterns:
-    - regex: 'createFile\\.atPath:.*?\\.write.*?(?:password|token|key)'
-
-  severity: high
+    - regex: 'createFile\\.atPath:.*?\\.write.*?(?:password|token|key)''severity: high
   description: "Writing sensitive data to file"
   remediation: "Encrypt sensitive files or use Keychain"
   cwe: "CWE-312"
@@ -2456,9 +2157,7 @@
 - id: swift-file-write
   languages: [swift]
   patterns:
-    - regex: 'write\\.to:'
-
-  severity: medium
+    - regex: 'write\\.to:''severity: medium
   description: "Writing data to file"
   remediation: "Use appropriate file protection"
   cwe: "CWE-732"
@@ -2467,9 +2166,7 @@
 - id: swift-file-write-sensitive
   languages: [swift]
   patterns:
-    - regex: 'write\\.to:.*?\\.data\\.using:\\.?.*?(?:password|token|key)'
-
-  severity: high
+    - regex: 'write\\.to:.*?\\.data\\.using:\\.?.*?(?:password|token|key)''severity: high
   description: "Writing sensitive data to file"
   remediation: "Encrypt data before writing"
   cwe: "CWE-312"
@@ -2478,9 +2175,7 @@
 - id: swift-file-read
   languages: [swift]
   patterns:
-    - regex: 'Data\\.contentsOf:'
-
-  severity: medium
+    - regex: 'Data\\.contentsOf:''severity: medium
   description: "Reading file"
   remediation: "Handle errors and validate content"
   cwe: "CWE-20"
@@ -2489,9 +2184,7 @@
 - id: swift-file-read-sensitive
   languages: [swift]
   patterns:
-    - regex: 'Data\\.contentsOf:.*?\\.(?:password|token|key)'
-
-  severity: high
+    - regex: 'Data\\.contentsOf:.*?\\.(?:password|token|key)''severity: high
   description: "Reading sensitive data from file"
   remediation: "Decrypt after reading"
   cwe: "CWE-312"
@@ -2500,9 +2193,7 @@
 - id: swift-file-remove
   languages: [swift]
   patterns:
-    - regex: 'removeItem\\.at:'
-
-  severity: low
+    - regex: 'removeItem\\.at:''severity: low
   description: "Removing file"
   remediation: "Clean up temporary files"
   cwe: "CWE-404"
@@ -2511,9 +2202,7 @@
 - id: swift-file-copy
   languages: [swift]
   patterns:
-    - regex: 'copyItem\\.at:to:'
-
-  severity: low
+    - regex: 'copyItem\\.at:to:''severity: low
   description: "Copying file"
   remediation: "Maintain file permissions"
   cwe: "CWE-732"
@@ -2522,9 +2211,7 @@
 - id: swift-file-move
   languages: [swift]
   patterns:
-    - regex: 'moveItem\\.at:to:'
-
-  severity: low
+    - regex: 'moveItem\\.at:to:''severity: low
   description: "Moving file"
   remediation: "Maintain file permissions"
   cwe: "CWE-732"
@@ -2533,9 +2220,7 @@
 - id: swift-file-attributes
   languages: [swift]
   patterns:
-    - regex: 'setAttributes\\.ofItemAtPath:'
-
-  severity: low
+    - regex: 'setAttributes\\.ofItemAtPath:''severity: low
   description: "Setting file attributes"
   remediation: "Set appropriate protection"
   cwe: "CWE-732"
@@ -2544,9 +2229,7 @@
 - id: swift-file-protection-complete
   languages: [swift]
   patterns:
-    - regex: 'FileProtectionType\\.complete'
-
-  severity: low
+    - regex: 'FileProtectionType\\.complete''severity: low
   description: "Complete file protection (encrypted when locked)"
   remediation: "Good for sensitive files"
   cwe: "CWE-312"
@@ -2555,9 +2238,7 @@
 - id: swift-file-protection-complete-unless-open
   languages: [swift]
   patterns:
-    - regex: 'FileProtectionType\\.completeUnlessOpen'
-
-  severity: medium
+    - regex: 'FileProtectionType\\.completeUnlessOpen''severity: medium
   description: "File protected unless open (may be accessible)"
   remediation: "Use complete for sensitive data"
   cwe: "CWE-312"
@@ -2566,9 +2247,7 @@
 - id: swift-file-protection-complete-until-first-auth
   languages: [swift]
   patterns:
-    - regex: 'FileProtectionType\\.completeUntilFirstUserAuthentication'
-
-  severity: medium
+    - regex: 'FileProtectionType\\.completeUntilFirstUserAuthentication''severity: medium
   description: "File protected until first unlock"
   remediation: "Good for background access"
   cwe: "CWE-312"
@@ -2577,9 +2256,7 @@
 - id: swift-file-protection-none
   languages: [swift]
   patterns:
-    - regex: 'FileProtectionType\\.none'
-
-  severity: critical
+    - regex: 'FileProtectionType\\.none''severity: critical
   description: "No file protection (data accessible when device locked)"
   remediation: "Never use for sensitive data"
   cwe: "CWE-312"
@@ -2588,9 +2265,7 @@
 - id: swift-file-protection-missing
   languages: [swift]
   patterns:
-    - regex: 'write\\.to:.*?options:.*?(?!\\.complete)'
-
-  severity: high
+    - regex: 'write\\.to:.*?options:.*?''severity: high
   description: "Writing file without protection options"
   remediation: "Specify .completeFileProtection option"
   cwe: "CWE-312"
@@ -2599,9 +2274,7 @@
 - id: swift-file-url-bookmark
   languages: [swift]
   patterns:
-    - regex: 'bookmarkData\\.options:'
-
-  severity: low
+    - regex: 'bookmarkData\\.options:''severity: low
   description: "Creating file bookmark"
   remediation: "Secure bookmark data"
   cwe: "CWE-312"
@@ -2610,9 +2283,7 @@
 - id: swift-file-url-resolve-bookmark
   languages: [swift]
   patterns:
-    - regex: 'URL\\.resolvingBookmarkData:'
-
-  severity: low
+    - regex: 'URL\\.resolvingBookmarkData:''severity: low
   description: "Resolving file bookmark"
   remediation: "Validate resolved URL"
   cwe: "CWE-20"
@@ -2621,9 +2292,7 @@
 - id: swift-file-url-start-without-stop
   languages: [swift]
   patterns:
-    - regex: 'startAccessingSecurityScopedResource.*?(?!stopAccessing)'
-
-  severity: high
+    - regex: 'startAccessingSecurityScopedResource.*?''severity: high
   description: "Security-scoped resource accessed but not stopped"
   remediation: "Always stop accessing when done"
   cwe: "CWE-401"
@@ -2632,9 +2301,7 @@
 - id: swift-temporary-directory
   languages: [swift]
   patterns:
-    - regex: 'NSTemporaryDirectory\\.\\.|FileManager\\.default\\.temporaryDirectory'
-
-  severity: low
+    - regex: 'NSTemporaryDirectory\\.\\.|FileManager\\.default\\.temporaryDirectory''severity: low
   description: "Temporary directory usage"
   remediation: "Clean up temp files"
   cwe: "CWE-377"
@@ -2643,9 +2310,7 @@
 - id: swift-temporary-file
   languages: [swift]
   patterns:
-    - regex: 'URL\\.fileURLWithPath:.*NSTemporaryDirectory'
-
-  severity: low
+    - regex: 'URL\\.fileURLWithPath:.*NSTemporaryDirectory''severity: low
   description: "Creating temporary file"
   remediation: "Use unique names and clean up"
   cwe: "CWE-377"
@@ -2654,9 +2319,7 @@
 - id: swift-documents-directory
   languages: [swift]
   patterns:
-    - regex: 'FileManager\\.default\\.urls\\.for:\\.documentDirectory'
-
-  severity: low
+    - regex: 'FileManager\\.default\\.urls\\.for:\\.documentDirectory''severity: low
   description: "Documents directory (user data)"
   remediation: "Use appropriate file protection"
   cwe: "CWE-312"
@@ -2665,9 +2328,7 @@
 - id: swift-caches-directory
   languages: [swift]
   patterns:
-    - regex: 'FileManager\\.default\\.urls\\.for:\\.cachesDirectory'
-
-  severity: low
+    - regex: 'FileManager\\.default\\.urls\\.for:\\.cachesDirectory''severity: low
   description: "Caches directory (may be cleared)"
   remediation: "Don't store persistent data"
   cwe: "CWE-312"
@@ -2676,9 +2337,7 @@
 - id: swift-application-support-directory
   languages: [swift]
   patterns:
-    - regex: 'FileManager\\.default\\.urls\\.for:\\.applicationSupportDirectory'
-
-  severity: low
+    - regex: 'FileManager\\.default\\.urls\\.for:\\.applicationSupportDirectory''severity: low
   description: "Application Support directory"
   remediation: "Use for app data"
   cwe: "CWE-312"
@@ -2689,9 +2348,7 @@
 - id: swift-url-session
   languages: [swift]
   patterns:
-    - regex: 'URLSession\\.shared|URLSession\\.configuration:'
-
-  severity: low
+    - regex: 'URLSession\\.shared|URLSession\\.configuration:''severity: low
   description: "URLSession usage"
   remediation: "Configure with timeouts and policies"
   cwe: "CWE-770"
@@ -2700,9 +2357,7 @@
 - id: swift-url-session-delegate
   languages: [swift]
   patterns:
-    - regex: 'URLSessionDelegate|URLSessionTaskDelegate'
-
-  severity: low
+    - regex: 'URLSessionDelegate|URLSessionTaskDelegate''severity: low
   description: "URLSession delegate"
   remediation: "Implement authentication challenges"
   cwe: "CWE-295"
@@ -2711,9 +2366,7 @@
 - id: swift-url-session-auth-challenge
   languages: [swift]
   patterns:
-    - regex: 'didReceive challenge: URLAuthenticationChallenge'
-
-  severity: low
+    - regex: 'didReceive challenge: URLAuthenticationChallenge''severity: low
   description: "Authentication challenge handler"
   remediation: "Validate server credentials"
   cwe: "CWE-295"
@@ -2722,9 +2375,7 @@
 - id: swift-url-session-auth-challenge-ignore
   languages: [swift]
   patterns:
-    - regex: 'challenge\\.sender\\.\\.performDefaultHandling|challenge\\.sender\\.\\.continueWithoutCredential'
-
-  severity: high
+    - regex: 'challenge\\.sender\\.\\.performDefaultHandling|challenge\\.sender\\.\\.continueWithoutCredential''severity: high
   description: "Ignoring auth challenge (accepts any certificate)"
   remediation: "Implement proper certificate validation"
   cwe: "CWE-295"
@@ -2733,9 +2384,7 @@
 - id: swift-url-session-auth-challenge-accept-all
   languages: [swift]
   patterns:
-    - regex: 'challenge\\.sender\\.\\.use\\.URLCredential\\.trust:'
-
-  severity: critical
+    - regex: 'challenge\\.sender\\.\\.use\\.URLCredential\\.trust:''severity: critical
   description: "Accepting any server trust (MITM risk)"
   remediation: "Never accept all certificates"
   cwe: "CWE-295"
@@ -2744,9 +2393,7 @@
 - id: swift-url-session-server-trust
   languages: [swift]
   patterns:
-    - regex: 'SecTrustEvaluate|serverTrust'
-
-  severity: low
+    - regex: 'SecTrustEvaluate|serverTrust''severity: low
   description: "Server trust evaluation"
   remediation: "Implement proper certificate validation"
   cwe: "CWE-295"
@@ -2755,9 +2402,7 @@
 - id: swift-url-session-server-trust-ignore
   languages: [swift]
   patterns:
-    - regex: 'SecTrustEvaluate.*?==\\.s*kSecTrustResultProceed|==\\.s*kSecTrustResultUnspecified'
-
-  severity: high
+    - regex: 'SecTrustEvaluate.*?==\\.s*kSecTrustResultProceed|==\\.s*kSecTrustResultUnspecified''severity: high
   description: "Accepting any trust result (may accept invalid certs)"
   remediation: "Check for specific trust results"
   cwe: "CWE-295"
@@ -2766,9 +2411,7 @@
 - id: swift-url-session-pinning
   languages: [swift]
   patterns:
-    - regex: 'publicKeyHash|certificatePinning'
-
-  severity: low
+    - regex: 'publicKeyHash|certificatePinning''severity: low
   description: "Certificate pinning implemented (good)"
   remediation: "Good for sensitive apps"
   cwe: "CWE-295"
@@ -2777,9 +2420,7 @@
 - id: swift-url-session-pinning-hashes
   languages: [swift]
   patterns:
-    - regex: 'let pinnedHashes = \\..*?\\.'
-
-  severity: low
+    - regex: 'let pinnedHashes = \\..*?\\.''severity: low
   description: "Pinned certificate hashes"
   remediation: "Store hashes securely"
   cwe: "CWE-295"
@@ -2788,9 +2429,7 @@
 - id: swift-url-session-timeout
   languages: [swift]
   patterns:
-    - regex: 'timeoutIntervalForRequest|timeoutIntervalForResource'
-
-  severity: low
+    - regex: 'timeoutIntervalForRequest|timeoutIntervalForResource''severity: low
   description: "URLSession timeout configuration"
   remediation: "Set appropriate timeouts"
   cwe: "CWE-770"
@@ -2799,9 +2438,7 @@
 - id: swift-url-session-timeout-missing
   languages: [swift]
   patterns:
-    - regex: 'URLSessionConfiguration\\.default.*?(?!timeout)'
-
-  severity: medium
+    - regex: 'URLSessionConfiguration\\.default.*?''severity: medium
   description: "URLSession without custom timeout (may block indefinitely)"
   remediation: "Set timeout intervals"
   cwe: "CWE-770"
@@ -2810,9 +2447,7 @@
 - id: swift-url-session-cache-policy
   languages: [swift]
   patterns:
-    - regex: 'requestCachePolicy|URLCache'
-
-  severity: low
+    - regex: 'requestCachePolicy|URLCache''severity: low
   description: "Cache policy configured"
   remediation: "Don't cache sensitive responses"
   cwe: "CWE-524"
@@ -2821,9 +2456,7 @@
 - id: swift-url-session-cache-sensitive
   languages: [swift]
   patterns:
-    - regex: 'cachePolicy.*?\\.useProtocolCachePolicy.*?(?:password|token|key)'
-
-  severity: high
+    - regex: 'cachePolicy.*?\\.useProtocolCachePolicy.*?(?:password|token|key)''severity: high
   description: "Caching sensitive responses (may leak to disk)"
   remediation: "Use .reloadIgnoringLocalCacheData"
   cwe: "CWE-312"
@@ -2832,9 +2465,7 @@
 - id: swift-url-session-cookie-policy
   languages: [swift]
   patterns:
-    - regex: 'httpCookieAcceptPolicy|HTTPCookieStorage'
-
-  severity: low
+    - regex: 'httpCookieAcceptPolicy|HTTPCookieStorage''severity: low
   description: "Cookie policy configured"
   remediation: "Use appropriate policy"
   cwe: "CWE-539"
@@ -2843,9 +2474,7 @@
 - id: swift-url-session-cookie-sensitive
   languages: [swift]
   patterns:
-    - regex: 'cookies\\.\\.contains.*?(?:session|token)'
-
-  severity: medium
+    - regex: 'cookies\\.\\.contains.*?(?:session|token)''severity: medium
   description: "Accessing session cookies"
   remediation: "Handle cookies securely"
   cwe: "CWE-312"
@@ -2854,9 +2483,7 @@
 - id: swift-url-session-headers-sensitive
   languages: [swift]
   patterns:
-    - regex: 'setValue\\..*?(?:token|key|auth).*?, forHTTPHeaderField:'
-
-  severity: high
+    - regex: 'setValue\\..*?(?:token|key|auth).*?, forHTTPHeaderField:''severity: high
   description: "Sensitive data in HTTP headers"
   remediation: "Use secure header storage"
   cwe: "CWE-200"
@@ -2865,9 +2492,7 @@
 - id: swift-url-session-authorization-header
   languages: [swift]
   patterns:
-    - regex: 'Authorization: Bearer|Authorization: Basic'
-
-  severity: medium
+    - regex: 'Authorization: Bearer|Authorization: Basic''severity: medium
   description: "Authorization header"
   remediation: "Ensure HTTPS is used"
   cwe: "CWE-319"
@@ -2876,9 +2501,7 @@
 - id: swift-url-session-bearer-token
   languages: [swift]
   patterns:
-    - regex: 'Bearer\\.s+[\\.\\.]?[a-zA-Z0-9._-]+[\\.\\.]?'
-
-  severity: high
+    - regex: 'Bearer\\.s+[\\.\\.]?[a-zA-Z0-9._-]+[\\.\\.]?''severity: high
   description: "Bearer token in code (hardcoded)"
   remediation: "Retrieve tokens securely at runtime"
   cwe: "CWE-798"
@@ -2887,9 +2510,7 @@
 - id: swift-url-session-basic-auth
   languages: [swift]
   patterns:
-    - regex: 'Basic\\.s+[a-zA-Z0-9+/=]+'
-
-  severity: critical
+    - regex: 'Basic\\.s+[a-zA-Z0-9+/=]+''severity: critical
   description: "Basic auth credentials hardcoded"
   remediation: "Never hardcode credentials"
   cwe: "CWE-798"
@@ -2898,9 +2519,7 @@
 - id: swift-url-session-data-task
   languages: [swift]
   patterns:
-    - regex: 'dataTask\\.with:'
-
-  severity: low
+    - regex: 'dataTask\\.with:''severity: low
   description: "Data task creation"
   remediation: "Handle responses properly"
   cwe: "CWE-754"
@@ -2909,9 +2528,7 @@
 - id: swift-url-session-download-task
   languages: [swift]
   patterns:
-    - regex: 'downloadTask\\.with:'
-
-  severity: low
+    - regex: 'downloadTask\\.with:''severity: low
   description: "Download task"
   remediation: "Validate downloaded files"
   cwe: "CWE-20"
@@ -2920,9 +2537,7 @@
 - id: swift-url-session-upload-task
   languages: [swift]
   patterns:
-    - regex: 'uploadTask\\.with:from:'
-
-  severity: low
+    - regex: 'uploadTask\\.with:from:''severity: low
   description: "Upload task"
   remediation: "Validate uploaded data"
   cwe: "CWE-20"
@@ -2931,9 +2546,7 @@
 - id: swift-url-session-resume
   languages: [swift]
   patterns:
-    - regex: 'resume\\.\\.'
-
-  severity: low
+    - regex: 'resume\\.\\.''severity: low
   description: "Resuming URLSession task"
   remediation: "Always call resume()"
   cwe: "CWE-754"
@@ -2942,9 +2555,7 @@
 - id: swift-url-session-resume-missing
   languages: [swift]
   patterns:
-    - regex: 'dataTask\\.with:.*?\\.(?!\\.resume)'
-
-  severity: medium
+    - regex: 'dataTask\\.with:.*?\\.''severity: medium
   description: "URLSession task created but not resumed"
   remediation: "Always call resume()"
   cwe: "CWE-754"
@@ -2953,9 +2564,7 @@
 - id: swift-url-session-completion-handler
   languages: [swift]
   patterns:
-    - regex: 'completionHandler:'
-
-  severity: low
+    - regex: 'completionHandler:''severity: low
   description: "Completion handler for URLSession"
   remediation: "Check for errors and data"
   cwe: "CWE-754"
@@ -2964,9 +2573,7 @@
 - id: swift-url-session-response-check
   languages: [swift]
   patterns:
-    - regex: 'response\\.statusCode.*?200'
-
-  severity: low
+    - regex: 'response\\.statusCode.*?200''severity: low
   description: "Checking response status code"
   remediation: "Good practice"
   cwe: "CWE-754"
@@ -2975,9 +2582,7 @@
 - id: swift-url-session-response-no-check
   languages: [swift]
   patterns:
-    - regex: 'completionHandler.*?data(?!.*if.*response)'
-
-  severity: high
+    - regex: 'completionHandler.*?data''severity: high
   description: "Processing response data without checking status"
   remediation: "Always check HTTP status code"
   cwe: "CWE-754"
@@ -2986,9 +2591,7 @@
 - id: swift-url-session-error-handling
   languages: [swift]
   patterns:
-    - regex: 'completionHandler.*?error.*?if'
-
-  severity: low
+    - regex: 'completionHandler.*?error.*?if''severity: low
   description: "Error handling in URLSession"
   remediation: "Good practice"
   cwe: "CWE-754"
@@ -2997,9 +2600,7 @@
 - id: swift-url-session-error-ignore
   languages: [swift]
   patterns:
-    - regex: 'completionHandler.*?error(?!.*if)'
-
-  severity: high
+    - regex: 'completionHandler.*?error''severity: high
   description: "Error ignored in URLSession completion"
   remediation: "Always handle errors"
   cwe: "CWE-754"
@@ -3008,9 +2609,7 @@
 - id: swift-local-authentication
   languages: [swift]
   patterns:
-    - regex: 'LAContext\\.\\.'
-
-  severity: low
+    - regex: 'LAContext\\.\\.''severity: low
   description: "Local Authentication context"
   remediation: "Use for biometric authentication"
   cwe: "CWE-306"
@@ -3019,9 +2618,7 @@
 - id: swift-la-policy-device-owner-auth
   languages: [swift]
   patterns:
-    - regex: 'LAPolicy\\.deviceOwnerAuthentication'
-
-  severity: low
+    - regex: 'LAPolicy\\.deviceOwnerAuthentication''severity: low
   description: "Device owner authentication (biometric or passcode)"
   remediation: "Good for general auth"
   cwe: "CWE-306"
@@ -3030,9 +2627,7 @@
 - id: swift-la-policy-device-owner-with-biometrics
   languages: [swift]
   patterns:
-    - regex: 'LAPolicy\\.deviceOwnerAuthenticationWithBiometrics'
-
-  severity: low
+    - regex: 'LAPolicy\\.deviceOwnerAuthenticationWithBiometrics''severity: low
   description: "Biometric-only authentication"
   remediation: "Provide passcode fallback"
   cwe: "CWE-306"
@@ -3041,9 +2636,7 @@
 - id: swift-la-error-handling
   languages: [swift]
   patterns:
-    - regex: 'LAError\\.(authenticationFailed|userCancel|userFallback|systemCancel|passcodeNotSet|biometryNotAvailable|biometryNotEnrolled|biometryLockout)'
-
-  severity: low
+    - regex: 'LAError\\.(authenticationFailed|userCancel|userFallback|systemCancel|passcodeNotSet|biometryNotAvailable|biometryNotEnrolled|biometryLockout)''severity: low
   description: "Local Authentication error handling"
   remediation: "Handle each error appropriately"
   cwe: "CWE-306"
@@ -3052,9 +2645,7 @@
 - id: swift-la-error-ignore
   languages: [swift]
   patterns:
-    - regex: 'evaluatePolicy.*?error(?!.*switch|.*if)'
-
-  severity: high
+    - regex: 'evaluatePolicy.*?error''severity: high
   description: "Biometric auth error ignored"
   remediation: "Always handle authentication errors"
   cwe: "CWE-754"
@@ -3063,9 +2654,7 @@
 - id: swift-la-success-without-check
   languages: [swift]
   patterns:
-    - regex: 'evaluatePolicy.*?success.*?true'
-
-  severity: low
+    - regex: 'evaluatePolicy.*?success.*?true''severity: low
   description: "Biometric success handling"
   remediation: "Perform sensitive operation"
   cwe: "CWE-306"
@@ -3074,9 +2663,7 @@
 - id: swift-la-failure-handling
   languages: [swift]
   patterns:
-    - regex: 'evaluatePolicy.*?success.*?false'
-
-  severity: low
+    - regex: 'evaluatePolicy.*?success.*?false''severity: low
   description: "Biometric failure handling"
   remediation: "Fall back to passcode"
   cwe: "CWE-306"
@@ -3085,9 +2672,7 @@
 - id: swift-la-invalidate
   languages: [swift]
   patterns:
-    - regex: 'invalidate\\.\\.'
-
-  severity: low
+    - regex: 'invalidate\\.\\.''severity: low
   description: "Invalidating LA context"
   remediation: "Clean up context"
   cwe: "CWE-401"
@@ -3096,9 +2681,7 @@
 - id: swift-biometric-prompt
   languages: [swift]
   patterns:
-    - regex: 'LBABiometricPrompt|LABiometricPrompt'
-
-  severity: low
+    - regex: 'LBABiometricPrompt|LABiometricPrompt''severity: low
   description: "Biometric prompt (iOS 15+)"
   remediation: "Modern biometric API"
   cwe: "CWE-306"
@@ -3107,9 +2690,7 @@
 - id: swift-biometric-prompt-start
   languages: [swift]
   patterns:
-    - regex: 'start\\.with:'
-
-  severity: low
+    - regex: 'start\\.with:''severity: low
   description: "Starting biometric prompt"
   remediation: "Handle completion"
   cwe: "CWE-306"
@@ -3120,8 +2701,7 @@
 - id: swift-crypto-commoncrypto
   languages: [swift]
   patterns:
-    - regex: 'import CommonCrypto|CC_'
-  severity: low
+    - regex: 'import CommonCrypto|CC_''severity: low
   description: "CommonCrypto usage"
   remediation: "Consider CryptoKit for modern Swift"
   cwe: "CWE-327"
@@ -3130,9 +2710,7 @@
 - id: swift-crypto-kit
   languages: [swift]
   patterns:
-    - regex: 'import CryptoKit'
-
-  severity: low
+    - regex: 'import CryptoKit''severity: low
   description: "CryptoKit usage (modern, secure)"
   remediation: "Good choice"
   cwe: "CWE-327"
@@ -3141,9 +2719,7 @@
 - id: swift-crypto-md5
   languages: [swift]
   patterns:
-    - regex: 'Insecure\\.MD5|CC_MD5'
-
-  severity: high
+    - regex: 'Insecure\\.MD5|CC_MD5''severity: high
   description: "MD5 hash used (cryptographically broken)"
   remediation: "Use SHA256"
   cwe: "CWE-327"
@@ -3152,9 +2728,7 @@
 - id: swift-crypto-sha1
   languages: [swift]
   patterns:
-    - regex: 'Insecure\\.SHA1|CC_SHA1'
-
-  severity: high
+    - regex: 'Insecure\\.SHA1|CC_SHA1''severity: high
   description: "SHA-1 hash used (cryptographically weak)"
   remediation: "Use SHA256"
   cwe: "CWE-327"
@@ -3163,9 +2737,7 @@
 - id: swift-crypto-sha256
   languages: [swift]
   patterns:
-    - regex: 'SHA256|CC_SHA256'
-
-  severity: low
+    - regex: 'SHA256|CC_SHA256''severity: low
   description: "SHA-256 hash (good)"
   remediation: "Good for general hashing"
   cwe: "CWE-327"
@@ -3174,9 +2746,7 @@
 - id: swift-crypto-sha512
   languages: [swift]
   patterns:
-    - regex: 'SHA512|CC_SHA512'
-
-  severity: low
+    - regex: 'SHA512|CC_SHA512''severity: low
   description: "SHA-512 hash (strong)"
   remediation: "Good for high-security"
   cwe: "CWE-327"
@@ -3185,9 +2755,7 @@
 - id: swift-crypto-aes
   languages: [swift]
   patterns:
-    - regex: 'AES\\.GCM|AES\\.CBC'
-
-  severity: low
+    - regex: 'AES\\.GCM|AES\\.CBC''severity: low
   description: "AES encryption"
   remediation: "Use AES.GCM for authenticated encryption"
   cwe: "CWE-327"
@@ -3196,9 +2764,7 @@
 - id: swift-crypto-aes-gcm
   languages: [swift]
   patterns:
-    - regex: 'AES\\.GCM'
-
-  severity: low
+    - regex: 'AES\\.GCM''severity: low
   description: "AES-GCM (authenticated encryption)"
   remediation: "Good choice, ensure nonces are unique"
   cwe: "CWE-327"
@@ -3207,9 +2773,7 @@
 - id: swift-crypto-aes-cbc
   languages: [swift]
   patterns:
-    - regex: 'AES\\.CBC'
-
-  severity: high
+    - regex: 'AES\\.CBC''severity: high
   description: "AES-CBC without authentication (padding oracle risk)"
   remediation: "Use AES-GCM for authenticated encryption"
   cwe: "CWE-327"
@@ -3218,9 +2782,7 @@
 - id: swift-crypto-chacha20
   languages: [swift]
   patterns:
-    - regex: 'ChaChaPoly|ChaCha20'
-
-  severity: low
+    - regex: 'ChaChaPoly|ChaCha20''severity: low
   description: "ChaCha20-Poly1305 (authenticated encryption)"
   remediation: "Good alternative to AES-GCM"
   cwe: "CWE-327"
@@ -3229,9 +2791,7 @@
 - id: swift-crypto-hmac-with-key
   languages: [swift]
   patterns:
-    - regex: 'HMAC<.*?>.authenticationCode'
-
-  severity: low
+    - regex: 'HMAC<.*?>.authenticationCode''severity: low
   description: "HMAC authentication code"
   remediation: "Store keys securely"
   cwe: "CWE-321"
@@ -3240,9 +2800,7 @@
 - id: swift-crypto-symmetric-key-init
   languages: [swift]
   patterns:
-    - regex: 'SymmetricKey\\.data:'
-
-  severity: high
+    - regex: 'SymmetricKey\\.data:''severity: high
   description: "Symmetric key from data (may be hardcoded)"
   remediation: "Derive from password or use Keychain"
   cwe: "CWE-321"
@@ -3251,9 +2809,7 @@
 - id: swift-crypto-symmetric-key-from-password
   languages: [swift]
   patterns:
-    - regex: 'SymmetricKey\\.data:.*?\\.data\\.using:'
-
-  severity: medium
+    - regex: 'SymmetricKey\\.data:.*?\\.data\\.using:''severity: medium
   description: "Symmetric key derived from string (use PBKDF2)"
   remediation: "Use key derivation function"
   cwe: "CWE-326"
@@ -3262,9 +2818,7 @@
 - id: swift-crypto-pbkdf2-iterations
   languages: [swift]
   patterns:
-    - regex: 'iterations:\\.s*[0-9]{1,4}'
-
-  severity: high
+    - regex: 'iterations:\\.s*[0-9]{1,4}''severity: high
   description: "PBKDF2 iterations too low (<10000)"
   remediation: "Use at least 100,000 iterations"
   cwe: "CWE-916"
@@ -3273,9 +2827,7 @@
 - id: swift-crypto-secure-enclave-p256
   languages: [swift]
   patterns:
-    - regex: 'SecureEnclave\\.P256'
-
-  severity: low
+    - regex: 'SecureEnclave\\.P256''severity: low
   description: "P-256 key in Secure Enclave"
   remediation: "Best for key protection"
   cwe: "CWE-321"
@@ -3284,9 +2836,7 @@
 - id: swift-crypto-x963
   languages: [swift]
   patterns:
-    - regex: 'X9.63'
-
-  severity: low
+    - regex: 'X9.63''severity: low
   description: "X9.63 key derivation"
   remediation: "Standard key derivation"
   cwe: "CWE-327"
@@ -3295,9 +2845,7 @@
 - id: swift-crypto-ciphertext-authenticity
   languages: [swift]
   patterns:
-    - regex: 'seal\\..*?\\.\\.combined|open\\..*?\\.'
-
-  severity: low
+    - regex: 'seal\\..*?\\.\\.combined|open\\..*?\\.''severity: low
   description: "Authenticated encryption (combined mode)"
   remediation: "Good practice"
   cwe: "CWE-327"
@@ -3306,9 +2854,7 @@
 - id: swift-crypto-nonce-generation
   languages: [swift]
   patterns:
-    - regex: 'AES\\.GCM\\.Nonce\\.\\.'
-
-  severity: low
+    - regex: 'AES\\.GCM\\.Nonce\\.\\.''severity: low
   description: "Random nonce generation"
   remediation: "Good - uses random nonces"
   cwe: "CWE-326"
@@ -3317,9 +2863,7 @@
 - id: swift-crypto-nonce-static
   languages: [swift]
   patterns:
-    - regex: 'AES\\.GCM\\.Nonce\\.data: Data\\.\\..*?\\.\\.\\.'
-
-  severity: critical
+    - regex: 'AES\\.GCM\\.Nonce\\.data: Data\\.\\..*?\\.\\.\\.''severity: critical
   description: "Static nonce (catastrophic for GCM)"
   remediation: "Never reuse nonces"
   cwe: "CWE-326"
@@ -3330,9 +2874,7 @@
 - id: swift-wkwebview-javascript-enabled
   languages: [swift]
   patterns:
-    - regex: 'webView\\.configuration\\.preferences\\.javaScriptEnabled\\.s*=\\.s*true'
-
-  severity: high
+    - regex: 'webView\\.configuration\\.preferences\\.javaScriptEnabled\\.s*=\\.s*true''severity: high
   description: "WebView with JavaScript enabled (XSS risk)"
   remediation: "Disable unless necessary"
   cwe: "CWE-79"
@@ -3341,9 +2883,7 @@
 - id: swift-wkwebview-javascript-can-open-windows
   languages: [swift]
   patterns:
-    - regex: 'javaScriptCanOpenWindowsAutomatically\\.s*=\\.s*true'
-
-  severity: medium
+    - regex: 'javaScriptCanOpenWindowsAutomatically\\.s*=\\.s*true''severity: medium
   description: "JavaScript can open windows automatically"
   remediation: "Set to false"
   cwe: "CWE-79"
@@ -3352,9 +2892,7 @@
 - id: swift-wkwebview-allow-file-access
   languages: [swift]
   patterns:
-    - regex: 'allowsAirPlayForMediaPlayback|allowsPictureInPictureMediaPlayback'
-
-  severity: low
+    - regex: 'allowsAirPlayForMediaPlayback|allowsPictureInPictureMediaPlayback''severity: low
   description: "Media playback settings"
   remediation: "Configure as needed"
   cwe: "CWE-693"
@@ -3363,9 +2901,7 @@
 - id: swift-wkwebview-message-handler
   languages: [swift]
   patterns:
-    - regex: 'add\\._ scriptMessageHandler:, name:'
-
-  severity: critical
+    - regex: 'add\\._ scriptMessageHandler:, name:''severity: critical
   description: "JavaScript message handler (JavaScript to Swift bridge)"
   remediation: "Validate all messages"
   cwe: "CWE-94"
@@ -3374,9 +2910,7 @@
 - id: swift-wkwebview-message-handler-sensitive
   languages: [swift]
   patterns:
-    - regex: 'messageHandler.*?body.*?(?:password|token|key)'
-
-  severity: high
+    - regex: 'messageHandler.*?body.*?(?:password|token|key)''severity: high
   description: "Sensitive data from JavaScript message"
   remediation: "Encrypt or validate"
   cwe: "CWE-312"
@@ -3385,9 +2919,7 @@
 - id: swift-wkwebview-load-request
   languages: [swift]
   patterns:
-    - regex: 'load\\.URLRequest'
-
-  severity: low
+    - regex: 'load\\.URLRequest''severity: low
   description: "Loading URL request"
   remediation: "Validate URLs"
   cwe: "CWE-20"
@@ -3396,9 +2928,7 @@
 - id: swift-wkwebview-load-html-user-input
   languages: [swift]
   patterns:
-    - regex: 'loadHTMLString.*?r\\.(FormValue|URL\\.Query)'
-
-  severity: high
+    - regex: 'loadHTMLString.*?r\\.(FormValue|URL\\.Query)''severity: high
   description: "Loading user input as HTML (XSS risk)"
   remediation: "Escape or sanitize"
   cwe: "CWE-79"
@@ -3407,9 +2937,7 @@
 - id: swift-wkwebview-load-data
   languages: [swift]
   patterns:
-    - regex: 'load\\._ data: Data'
-
-  severity: medium
+    - regex: 'load\\._ data: Data''severity: medium
   description: "Loading data into WebView"
   remediation: "Validate MIME type"
   cwe: "CWE-20"
@@ -3418,9 +2946,7 @@
 - id: swift-wkwebview-evaluate-javascript-user-input
   languages: [swift]
   patterns:
-    - regex: 'evaluateJavaScript.*?r\\.(FormValue|URL\\.Query)'
-
-  severity: critical
+    - regex: 'evaluateJavaScript.*?r\\.(FormValue|URL\\.Query)''severity: critical
   description: "Evaluating user input as JavaScript (RCE)"
   remediation: "Never do this"
   cwe: "CWE-94"
@@ -3429,9 +2955,7 @@
 - id: swift-wkwebview-website-data-store-non-persistent
   languages: [swift]
   patterns:
-    - regex: 'WKWebsiteDataStore\\.nonPersistent\\.\\.'
-
-  severity: low
+    - regex: 'WKWebsiteDataStore\\.nonPersistent\\.\\.''severity: low
   description: "Non-persistent data store (good for sensitive)"
   remediation: "Good choice"
   cwe: "CWE-312"
@@ -3440,9 +2964,7 @@
 - id: swift-wkwebview-clear-data
   languages: [swift]
   patterns:
-    - regex: 'WKWebsiteDataStore\\.default\\.\\.\\.removeData'
-
-  severity: low
+    - regex: 'WKWebsiteDataStore\\.default\\.\\.\\.removeData''severity: low
   description: "Clearing website data"
   remediation: "Good for logout"
   cwe: "CWE-312"
@@ -3453,9 +2975,7 @@
 - id: swift-codable
   languages: [swift]
   patterns:
-    - regex: ': Codable|: Decodable|: Encodable'
-
-  severity: low
+    - regex: ': Codable|: Decodable|: Encodable''severity: low
   description: "Codable protocol conformance"
   remediation: "Be careful with sensitive data"
   cwe: "CWE-502"
@@ -3464,9 +2984,7 @@
 - id: swift-codable-sensitive
   languages: [swift]
   patterns:
-    - regex: 'struct.*?: Codable.*?\\.(?:[^}]*?(?:password|token|key|secret)[^}]*?)\\.'
-
-  severity: high
+    - regex: 'struct.*?: Codable.*?\\.(?:[^}]*?(?:password|token|key|secret)[^}]*?)\\.''severity: high
   description: "Sensitive data in Codable struct"
   remediation: "Exclude from encoding/decoding"
   cwe: "CWE-312"
@@ -3475,9 +2993,7 @@
 - id: swift-codable-exclude-coding-keys
   languages: [swift]
   patterns:
-    - regex: 'enum CodingKeys:.*?case\\.s+\\.w+(?!.*?=)'
-
-  severity: low
+    - regex: 'enum CodingKeys:.*?case\\.s+\\.w+''severity: low
   description: "Custom CodingKeys (good for excluding fields)"
   remediation: "Exclude sensitive fields"
   cwe: "CWE-312"
@@ -3486,9 +3002,7 @@
 - id: swift-codable-exclude-sensitive
   languages: [swift]
   patterns:
-    - regex: 'CodingKeys.*?case\\.s+(?!password|token|key|secret)'
-
-  severity: low
+    - regex: 'CodingKeys.*?case\\.s+''severity: low
   description: "Excluding sensitive fields from Codable"
   remediation: "Good practice"
   cwe: "CWE-312"
@@ -3497,9 +3011,7 @@
 - id: swift-json-decoder
   languages: [swift]
   patterns:
-    - regex: 'JSONDecoder\\.\\.'
-
-  severity: low
+    - regex: 'JSONDecoder\\.\\.''severity: low
   description: "JSONDecoder instance"
   remediation: "Configure date decoding strategy"
   cwe: "CWE-502"
@@ -3508,9 +3020,7 @@
 - id: swift-json-decoder-decode
   languages: [swift]
   patterns:
-    - regex: 'decode\\._ from: Data'
-
-  severity: low
+    - regex: 'decode\\._ from: Data''severity: low
   description: "Decoding JSON"
   remediation: "Handle decoding errors"
   cwe: "CWE-754"
@@ -3519,9 +3029,7 @@
 - id: swift-json-decoder-decode-untrusted
   languages: [swift]
   patterns:
-    - regex: 'decode\\._ from:.*?r\\.(FormValue|URL\\.Query)'
-
-  severity: high
+    - regex: 'decode\\._ from:.*?r\\.(FormValue|URL\\.Query)''severity: high
   description: "Decoding JSON from user input"
   remediation: "Validate JSON structure"
   cwe: "CWE-20"
@@ -3530,9 +3038,7 @@
 - id: swift-json-encoder
   languages: [swift]
   patterns:
-    - regex: 'JSONEncoder\\.\\.'
-
-  severity: low
+    - regex: 'JSONEncoder\\.\\.''severity: low
   description: "JSONEncoder instance"
   remediation: "Configure output formatting"
   cwe: "CWE-502"
@@ -3541,9 +3047,7 @@
 - id: swift-json-encoder-encode
   languages: [swift]
   patterns:
-    - regex: 'encode\\._'
-
-  severity: low
+    - regex: 'encode\\._''severity: low
   description: "Encoding to JSON"
   remediation: "Handle encoding errors"
   cwe: "CWE-754"
@@ -3552,9 +3056,7 @@
 - id: swift-property-list-decoder
   languages: [swift]
   patterns:
-    - regex: 'PropertyListDecoder\\.\\.'
-
-  severity: low
+    - regex: 'PropertyListDecoder\\.\\.''severity: low
   description: "Property list decoder"
   remediation: "Use for plist files"
   cwe: "CWE-502"
@@ -3563,9 +3065,7 @@
 - id: swift-property-list-encoder
   languages: [swift]
   patterns:
-    - regex: 'PropertyListEncoder\\.\\.'
-
-  severity: low
+    - regex: 'PropertyListEncoder\\.\\.''severity: low
   description: "Property list encoder"
   remediation: "Use for plist files"
   cwe: "CWE-502"
@@ -3574,9 +3074,7 @@
 - id: swift-nscoding
   languages: [swift]
   patterns:
-    - regex: 'NSCoding|NSSecureCoding'
-
-  severity: medium
+    - regex: 'NSCoding|NSSecureCoding''severity: medium
   description: "NSCoding (Objective-C serialization)"
   remediation: "Use NSSecureCoding"
   cwe: "CWE-502"
@@ -3585,9 +3083,7 @@
 - id: swift-nssecurecoding
   languages: [swift]
   patterns:
-    - regex: 'classForCoder|classForKeyedArchiver'
-
-  severity: low
+    - regex: 'classForCoder|classForKeyedArchiver''severity: low
   description: "NSSecureCoding (safer than NSCoding)"
   remediation: "Implement properly"
   cwe: "CWE-502"
@@ -3596,9 +3092,7 @@
 - id: swift-nssecurecoding-validate
   languages: [swift]
   patterns:
-    - regex: 'decodeObject(of: forKey:)|decodeObjectOfClass'
-
-  severity: low
+    - regex: 'decodeObject(of: forKey:)|decodeObjectOfClass''severity: low
   description: "Decoding with class validation (good)"
   remediation: "Good practice"
   cwe: "CWE-502"
@@ -3607,9 +3101,7 @@
 - id: swift-nssecurecoding-validate-missing
   languages: [swift]
   patterns:
-    - regex: 'decodeObject\\.forKey:'
-
-  severity: high
+    - regex: 'decodeObject\\.forKey:''severity: high
   description: "Decoding without class validation"
   remediation: "Use decodeObject(of:forKey:)"
   cwe: "CWE-502"
@@ -3620,9 +3112,7 @@
 - id: swift-dispatch-queue-main
   languages: [swift]
   patterns:
-    - regex: 'DispatchQueue\\.main'
-
-  severity: low
+    - regex: 'DispatchQueue\\.main''severity: low
   description: "Main queue (UI updates)"
   remediation: "Use for UI updates"
   cwe: "CWE-693"
@@ -3631,9 +3121,7 @@
 - id: swift-dispatch-queue-global
   languages: [swift]
   patterns:
-    - regex: 'DispatchQueue\\.global'
-
-  severity: low
+    - regex: 'DispatchQueue\\.global''severity: low
   description: "Global queue (background tasks)"
   remediation: "Use appropriate QoS"
   cwe: "CWE-770"
@@ -3642,9 +3130,7 @@
 - id: swift-dispatch-queue-custom
   languages: [swift]
   patterns:
-    - regex: 'DispatchQueue\\.label:'
-
-  severity: low
+    - regex: 'DispatchQueue\\.label:''severity: low
   description: "Custom dispatch queue"
   remediation: "Set QoS and attributes"
   cwe: "CWE-693"
@@ -3653,9 +3139,7 @@
 - id: swift-dispatch-queue-async
   languages: [swift]
   patterns:
-    - regex: '\\.async\\.s*\\.'
-
-  severity: low
+    - regex: '\\.async\\.s*\\.''severity: low
   description: "Async dispatch"
   remediation: "Capture [weak self] appropriately"
   cwe: "CWE-401"
@@ -3664,9 +3148,7 @@
 - id: swift-dispatch-queue-async-weak-self
   languages: [swift]
   patterns:
-    - regex: '\\.async\\.s*\\.\\.s*\\.\\.s*weak\\.s+self\\.s*\\.'
-
-  severity: low
+    - regex: '\\.async\\.s*\\.\\.s*\\.\\.s*weak\\.s+self\\.s*\\.''severity: low
   description: "Async with [weak self] (good for avoiding retain cycles)"
   remediation: "Good practice"
   cwe: "CWE-401"
@@ -3675,9 +3157,7 @@
 - id: swift-dispatch-queue-async-strong-self
   languages: [swift]
   patterns:
-    - regex: '\\.async\\.s*\\.\\.s*\\.\\.s*unowned\\.s+self\\.s*\\.'
-
-  severity: medium
+    - regex: '\\.async\\.s*\\.\\.s*\\.\\.s*unowned\\.s+self\\.s*\\.''severity: medium
   description: "Async with [unowned self] (risk if self deallocated)"
   remediation: "Use [weak self] unless certain"
   cwe: "CWE-416"
@@ -3686,9 +3166,7 @@
 - id: swift-dispatch-queue-async-no-capture
   languages: [swift]
   patterns:
-    - regex: '\\.async\\.s*\\.\\.s*self\\.'
-
-  severity: high
+    - regex: '\\.async\\.s*\\.\\.s*self\\.''severity: high
   description: "Async block capturing self strongly (retain cycle risk)"
   remediation: "Use [weak self]"
   cwe: "CWE-401"
@@ -3697,9 +3175,7 @@
 - id: swift-dispatch-queue-sync
   languages: [swift]
   patterns:
-    - regex: '\\.sync\\.s*\\.'
-
-  severity: medium
+    - regex: '\\.sync\\.s*\\.''severity: medium
   description: "Sync dispatch (may deadlock)"
   remediation: "Avoid sync on same queue"
   cwe: "CWE-833"
@@ -3708,9 +3184,7 @@
 - id: swift-dispatch-queue-after
   languages: [swift]
   patterns:
-    - regex: '\\.asyncAfter'
-
-  severity: low
+    - regex: '\\.asyncAfter''severity: low
   description: "Delayed async"
   remediation: "Use with caution"
   cwe: "CWE-770"
@@ -3719,9 +3193,7 @@
 - id: swift-dispatch-work-item-cancel
   languages: [swift]
   patterns:
-    - regex: 'workItem\\.cancel'
-
-  severity: low
+    - regex: 'workItem\\.cancel''severity: low
   description: "Cancelling work item"
   remediation: "Check isCancelled"
   cwe: "CWE-754"
@@ -3730,9 +3202,7 @@
 - id: swift-dispatch-semaphore-wait
   languages: [swift]
   patterns:
-    - regex: 'wait\\.timeout:'
-
-  severity: low
+    - regex: 'wait\\.timeout:''severity: low
   description: "Semaphore wait with timeout"
   remediation: "Use timeout to avoid deadlocks"
   cwe: "CWE-833"
@@ -3741,9 +3211,7 @@
 - id: swift-dispatch-semaphore-wait-forever
   languages: [swift]
   patterns:
-    - regex: 'wait\\.\\.'
-
-  severity: medium
+    - regex: 'wait\\.\\.''severity: medium
   description: "Semaphore wait forever (may deadlock)"
   remediation: "Use timeout"
   cwe: "CWE-833"
@@ -3752,9 +3220,7 @@
 - id: swift-dispatch-semaphore-signal
   languages: [swift]
   patterns:
-    - regex: 'signal\\.\\.'
-
-  severity: low
+    - regex: 'signal\\.\\.''severity: low
   description: "Signaling semaphore"
   remediation: "Ensure signal called"
   cwe: "CWE-667"
@@ -3763,9 +3229,7 @@
 - id: swift-dispatch-group-enter
   languages: [swift]
   patterns:
-    - regex: 'group\\.enter'
-
-  severity: low
+    - regex: 'group\\.enter''severity: low
   description: "Entering dispatch group"
   remediation: "Always leave when done"
   cwe: "CWE-401"
@@ -3774,9 +3238,7 @@
 - id: swift-dispatch-group-leave
   languages: [swift]
   patterns:
-    - regex: 'group\\.leave'
-
-  severity: low
+    - regex: 'group\\.leave''severity: low
   description: "Leaving dispatch group"
   remediation: "Ensure leave matches enter"
   cwe: "CWE-401"
@@ -3785,9 +3247,7 @@
 - id: swift-dispatch-group-notify
   languages: [swift]
   patterns:
-    - regex: 'group\\.notify'
-
-  severity: low
+    - regex: 'group\\.notify''severity: low
   description: "Group notification"
   remediation: "Handle completion"
   cwe: "CWE-754"
@@ -3796,9 +3256,7 @@
 - id: swift-dispatch-group-wait
   languages: [swift]
   patterns:
-    - regex: 'group\\.wait'
-
-  severity: low
+    - regex: 'group\\.wait''severity: low
   description: "Waiting for group"
   remediation: "Use timeout"
   cwe: "CWE-833"
@@ -3807,9 +3265,7 @@
 - id: swift-operation-queue-max-concurrent
   languages: [swift]
   patterns:
-    - regex: 'maxConcurrentOperationCount\\.s*=\\.s*[0-9]+'
-
-  severity: low
+    - regex: 'maxConcurrentOperationCount\\.s*=\\.s*[0-9]+''severity: low
   description: "Setting max concurrent operations"
   remediation: "Limit concurrency"
   cwe: "CWE-770"
@@ -3818,9 +3274,7 @@
 - id: swift-operation
   languages: [swift]
   patterns:
-    - regex: 'Operation|BlockOperation'
-
-  severity: low
+    - regex: 'Operation|BlockOperation''severity: low
   description: "Operation subclass"
   remediation: "Make operations cancellable"
   cwe: "CWE-693"
@@ -3829,9 +3283,7 @@
 - id: swift-operation-cancel
   languages: [swift]
   patterns:
-    - regex: 'cancel\\.\\.'
-
-  severity: low
+    - regex: 'cancel\\.\\.''severity: low
   description: "Cancelling operation"
   remediation: "Check isCancelled"
   cwe: "CWE-754"
@@ -3840,9 +3292,7 @@
 - id: swift-thread
   languages: [swift]
   patterns:
-    - regex: 'Thread\\.block:'
-
-  severity: high
+    - regex: 'Thread\\.block:''severity: high
   description: "Manual thread creation (use DispatchQueue instead)"
   remediation: "Use OperationQueue or DispatchQueue"
   cwe: "CWE-693"
@@ -3851,9 +3301,7 @@
 - id: swift-thread-start
   languages: [swift]
   patterns:
-    - regex: 'thread\\.start\\.\\.'
-
-  severity: high
+    - regex: 'thread\\.start\\.\\.''severity: high
   description: "Starting manual thread"
   remediation: "Use GCD"
   cwe: "CWE-693"
@@ -3862,9 +3310,7 @@
 - id: swift-thread-sleep
   languages: [swift]
   patterns:
-    - regex: 'Thread\\.sleep'
-
-  severity: medium
+    - regex: 'Thread\\.sleep''severity: medium
   description: "Thread.sleep (blocks thread)"
   remediation: "Use async timer"
   cwe: "CWE-770"
@@ -3875,9 +3321,7 @@
 - id: swift-try-catch
   languages: [swift]
   patterns:
-    - regex: 'do\\.s*\\..*?catch'
-
-  severity: low
+    - regex: 'do\\.s*\\..*?catch''severity: low
   description: "Do-catch error handling"
   remediation: "Handle specific errors"
   cwe: "CWE-754"
@@ -3886,9 +3330,7 @@
 - id: swift-try-catch-generic
   languages: [swift]
   patterns:
-    - regex: 'catch\\.s*\\..*?\\.'
-
-  severity: low
+    - regex: 'catch\\.s*\\..*?\\.''severity: low
   description: "Generic catch (all errors)"
   remediation: "Catch specific error types"
   cwe: "CWE-754"
@@ -3897,9 +3339,7 @@
 - id: swift-try-catch-ignore
   languages: [swift]
   patterns:
-    - regex: 'catch\\.s*\\.\\.s*\\.'
-
-  severity: high
+    - regex: 'catch\\.s*\\.\\.s*\\.''severity: high
   description: "Empty catch block (silently ignores errors)"
   remediation: "Always handle errors"
   cwe: "CWE-754"
@@ -3908,9 +3348,7 @@
 - id: swift-try-catch-print
   languages: [swift]
   patterns:
-    - regex: 'catch\\.s*\\.\\.s*print'
-
-  severity: low
+    - regex: 'catch\\.s*\\.\\.s*print''severity: low
   description: "Catch block with print (logging only)"
   remediation: "Take corrective action"
   cwe: "CWE-754"
@@ -3919,9 +3357,7 @@
 - id: swift-try-question
   languages: [swift]
   patterns:
-    - regex: 'try\\.'
-
-  severity: medium
+    - regex: 'try\\.''severity: medium
   description: "try? (converts error to nil)"
   remediation: "Use only if nil is acceptable"
   cwe: "CWE-754"
@@ -3930,9 +3366,7 @@
 - id: swift-try-exclamation
   languages: [swift]
   patterns:
-    - regex: 'try!'
-
-  severity: critical
+    - regex: 'try!''severity: critical
   description: "try! (crashes on error)"
   remediation: "Never use in production"
   cwe: "CWE-754"
@@ -3941,9 +3375,7 @@
 - id: swift-try-exclamation-sensitive
   languages: [swift]
   patterns:
-    - regex: 'try!.*?(?:password|token|key|secret)'
-
-  severity: critical
+    - regex: 'try!.*?(?:password|token|key|secret)''severity: critical
   description: "try! on sensitive operation (will crash if fails)"
   remediation: "Handle errors gracefully"
   cwe: "CWE-754"
@@ -3952,9 +3384,7 @@
 - id: swift-assert
   languages: [swift]
   patterns:
-    - regex: 'assert\\.'
-
-  severity: low
+    - regex: 'assert\\.''severity: low
   description: "assert (removed in release builds)"
   remediation: "Use precondition for required conditions"
   cwe: "CWE-754"
@@ -3963,9 +3393,7 @@
 - id: swift-assertion-failure
   languages: [swift]
   patterns:
-    - regex: 'assertionFailure\\.'
-
-  severity: medium
+    - regex: 'assertionFailure\\.''severity: medium
   description: "assertionFailure (removed in release)"
   remediation: "Use fatalError for unrecoverable states"
   cwe: "CWE-754"
@@ -3974,9 +3402,7 @@
 - id: swift-precondition
   languages: [swift]
   patterns:
-    - regex: 'precondition\\.'
-
-  severity: medium
+    - regex: 'precondition\\.''severity: medium
   description: "precondition (crashes in release)"
   remediation: "Use error handling when possible"
   cwe: "CWE-754"
@@ -3985,9 +3411,7 @@
 - id: swift-precondition-failure
   languages: [swift]
   patterns:
-    - regex: 'preconditionFailure\\.'
-
-  severity: high
+    - regex: 'preconditionFailure\\.''severity: high
   description: "preconditionFailure (crashes in release)"
   remediation: "Return error instead"
   cwe: "CWE-754"
@@ -3996,9 +3420,7 @@
 - id: swift-fatal-error
   languages: [swift]
   patterns:
-    - regex: 'fatalError\\.'
-
-  severity: high
+    - regex: 'fatalError\\.''severity: high
   description: "fatalError (crashes)"
   remediation: "Use only for unrecoverable states"
   cwe: "CWE-754"
@@ -4007,9 +3429,7 @@
 - id: swift-fatal-error-message
   languages: [swift]
   patterns:
-    - regex: 'fatalError\\.[\\.\\.][^\\.\\.]*?(?:password|token|key|secret)'
-
-  severity: critical
+    - regex: 'fatalError\\.[\\.\\.][^\\.\\.]*?(?:password|token|key|secret)''severity: critical
   description: "fatalError with sensitive message"
   remediation: "Don't include sensitive data"
   cwe: "CWE-200"
@@ -4018,9 +3438,7 @@
 - id: swift-optional-binding
   languages: [swift]
   patterns:
-    - regex: 'if\\.s+let|guard\\.s+let|guard\\.s+let\\.s+\\.w+\\.s*=\\.s*\\.w+'
-
-  severity: low
+    - regex: 'if\\.s+let|guard\\.s+let|guard\\.s+let\\.s+\\.w+\\.s*=\\.s*\\.w+''severity: low
   description: "Optional binding (safe unwrapping)"
   remediation: "Good practice"
   cwe: "CWE-20"
@@ -4029,9 +3447,7 @@
 - id: swift-optional-binding-missing
   languages: [swift]
   patterns:
-    - regex: '\\.w+!\\.s*(?!if|guard)'
-
-  severity: high
+    - regex: '\\.w+!\\.s*''severity: high
   description: "Force unwrap (may crash)"
   remediation: "Use optional binding"
   cwe: "CWE-754"
@@ -4040,9 +3456,7 @@
 - id: swift-force-unwrap
   languages: [swift]
   patterns:
-    - regex: '!\\.s*(?:\\.|$)'
-
-  severity: high
+    - regex: '!\\.s*(?:\\.|$)''severity: high
   description: "Force unwrap operator (crash risk)"
   remediation: "Use optional binding"
   cwe: "CWE-754"
@@ -4051,9 +3465,7 @@
 - id: swift-force-unwrap-sensitive
   languages: [swift]
   patterns:
-    - regex: '(?:password|token|key|secret)\\.s*!'
-
-  severity: critical
+    - regex: '(?:password|token|key|secret)\\.s*!''severity: critical
   description: "Force unwrapping sensitive optional"
   remediation: "Handle nil case gracefully"
   cwe: "CWE-754"
@@ -4062,9 +3474,7 @@
 - id: swift-implicitly-unwrapped-optional
   languages: [swift]
   patterns:
-    - regex: '!\\.s*$'
-
-  severity: medium
+    - regex: '!\\.s*$''severity: medium
   description: "Implicitly unwrapped optional (IUO)"
   remediation: "Use optional or assign in init"
   cwe: "CWE-754"
@@ -4073,9 +3483,7 @@
 - id: swift-guard-else
   languages: [swift]
   patterns:
-    - regex: 'guard\\.s+let.*?else\\.s*\\.'
-
-  severity: low
+    - regex: 'guard\\.s+let.*?else\\.s*\\.''severity: low
   description: "guard let (early exit)"
   remediation: "Good for validation"
   cwe: "CWE-20"
@@ -4084,9 +3492,7 @@
 - id: swift-guard-else-return
   languages: [swift]
   patterns:
-    - regex: 'guard.*?else\\.s*\\.\\.s*return\\.s*\\.'
-
-  severity: low
+    - regex: 'guard.*?else\\.s*\\.\\.s*return\\.s*\\.''severity: low
   description: "guard returning on failure"
   remediation: "Good for early returns"
   cwe: "CWE-20"
@@ -4097,9 +3503,7 @@
 - id: swift-hardcoded-password
   languages: [swift]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*[\\.\\.][^\\.\\.]{8,}[\\.\\.]'
-
-  severity: high
+    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*[\\.\\.][^\\.\\.]{8,}[\\.\\.]''severity: high
   description: "Hardcoded password detected"
   remediation: "Use Keychain for sensitive credentials"
   cwe: "CWE-798"
@@ -4108,9 +3512,7 @@
 - id: swift-hardcoded-api-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*[\\.\\.][a-zA-Z0-9]{16,}[\\.\\.]'
-
-  severity: high
+    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*[\\.\\.][a-zA-Z0-9]{16,}[\\.\\.]''severity: high
   description: "Hardcoded API key detected"
   remediation: "Store API keys in Keychain"
   cwe: "CWE-798"
@@ -4119,9 +3521,7 @@
 - id: swift-hardcoded-jwt-secret
   languages: [swift]
   patterns:
-    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key)\\.s*=\\.s*[\\.\\.][^\\.\\.]{8,}[\\.\\.]'
-
-  severity: critical
+    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key)\\.s*=\\.s*[\\.\\.][^\\.\\.]{8,}[\\.\\.]''severity: critical
   description: "Hardcoded JWT signing secret"
   remediation: "Use Keychain or environment"
   cwe: "CWE-798"
@@ -4130,9 +3530,7 @@
 - id: swift-hardcoded-aws-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(AKIA|ASIA)[A-Z0-9]{16}'
-
-  severity: critical
+    - regex: '(?i)(AKIA|ASIA)[A-Z0-9]{16}''severity: critical
   description: "AWS Access Key ID hardcoded"
   remediation: "Use AWS Cognito or environment"
   cwe: "CWE-798"
@@ -4141,9 +3539,7 @@
 - id: swift-hardcoded-google-api-key
   languages: [swift]
   patterns:
-    - regex: '(?i)AIza[a-zA-Z0-9_-]{35}'
-
-  severity: high
+    - regex: '(?i)AIza[a-zA-Z0-9_-]{35}''severity: high
   description: "Google API key hardcoded"
   remediation: "Restrict API key in Google Cloud Console"
   cwe: "CWE-798"
@@ -4152,9 +3548,7 @@
 - id: swift-hardcoded-firebase-config
   languages: [swift]
   patterns:
-    - regex: 'apiKey:\\.s*[\\.\\.]AIza[a-zA-Z0-9_-]{35}[\\.\\.]|messagingSenderId|appId|projectId'
-
-  severity: medium
+    - regex: 'apiKey:\\.s*[\\.\\.]AIza[a-zA-Z0-9_-]{35}[\\.\\.]|messagingSenderId|appId|projectId''severity: medium
   description: "Firebase config values exposed"
   remediation: "Restrict Firebase API keys"
   cwe: "CWE-798"
@@ -4163,9 +3557,7 @@
 - id: swift-hardcoded-stripe-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(pk|sk)_(live|test)_[a-zA-Z0-9]{24,}'
-
-  severity: critical
+    - regex: '(?i)(pk|sk)_(live|test)_[a-zA-Z0-9]{24,}''severity: critical
   description: "Stripe API key hardcoded"
   remediation: "Use backend for payment processing"
   cwe: "CWE-798"
@@ -4174,9 +3566,7 @@
 - id: swift-hardcoded-twilio-key
   languages: [swift]
   patterns:
-    - regex: '(?i)AC[a-f0-9]{32}|SK[a-f0-9]{32}'
-
-  severity: high
+    - regex: '(?i)AC[a-f0-9]{32}|SK[a-f0-9]{32}''severity: high
   description: "Twilio Account SID or API Key hardcoded"
   remediation: "Use Keychain or environment"
   cwe: "CWE-798"
@@ -4185,9 +3575,7 @@
 - id: swift-hardcoded-sendgrid-key
   languages: [swift]
   patterns:
-    - regex: '(?i)SG\\.[a-zA-Z0-9_-]{22}\\.[a-zA-Z0-9_-]{43}'
-
-  severity: high
+    - regex: '(?i)SG\\.[a-zA-Z0-9_-]{22}\\.[a-zA-Z0-9_-]{43}''severity: high
   description: "SendGrid API key hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -4196,9 +3584,7 @@
 - id: swift-hardcoded-github-token
   languages: [swift]
   patterns:
-    - regex: '(?i)ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}'
-
-  severity: critical
+    - regex: '(?i)ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}''severity: critical
   description: "GitHub token hardcoded"
   remediation: "Use GitHub Actions secrets"
   cwe: "CWE-798"
@@ -4207,9 +3593,7 @@
 - id: swift-hardcoded-slack-token
   languages: [swift]
   patterns:
-    - regex: '(?i)xox[baprs]-[0-9]{11,13}-[0-9]{11,13}-[a-zA-Z0-9]{24}'
-
-  severity: high
+    - regex: '(?i)xox[baprs]-[0-9]{11,13}-[0-9]{11,13}-[a-zA-Z0-9]{24}''severity: high
   description: "Slack token hardcoded"
   remediation: "Use Keychain"
   cwe: "CWE-798"
@@ -4218,9 +3602,7 @@
 - id: swift-hardcoded-discord-token
   languages: [swift]
   patterns:
-    - regex: '(?i)[a-zA-Z0-9_-]{24}\\.[a-zA-Z0-9_-]{6}\\.[a-zA-Z0-9_-]{27}'
-
-  severity: high
+    - regex: '(?i)[a-zA-Z0-9_-]{24}\\.[a-zA-Z0-9_-]{6}\\.[a-zA-Z0-9_-]{27}''severity: high
   description: "Discord bot token hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -4229,9 +3611,7 @@
 - id: swift-hardcoded-telegram-token
   languages: [swift]
   patterns:
-    - regex: '(?i)[0-9]{8,10}:[a-zA-Z0-9_-]{35}'
-
-  severity: high
+    - regex: '(?i)[0-9]{8,10}:[a-zA-Z0-9_-]{35}''severity: high
   description: "Telegram bot token hardcoded"
   remediation: "Use Keychain"
   cwe: "CWE-798"
@@ -4240,9 +3620,7 @@
 - id: swift-hardcoded-connection-string
   languages: [swift]
   patterns:
-    - regex: '(?i)(postgres|mysql|mongodb|redis)://[^:]+:[^@]+@'
-
-  severity: critical
+    - regex: '(?i)(postgres|mysql|mongodb|redis)://[^:]+:[^@]+@''severity: critical
   description: "Database connection string with credentials"
   remediation: "Use Keychain or environment"
   cwe: "CWE-798"
@@ -4251,9 +3629,7 @@
 - id: swift-hardcoded-oauth-secret
   languages: [swift]
   patterns:
-    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\\.s*=\\.s*[\\.\\.][^\\.\\.]+[\\.\\.]'
-
-  severity: critical
+    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\\.s*=\\.s*[\\.\\.][^\\.\\.]+[\\.\\.]''severity: critical
   description: "OAuth client secret hardcoded"
   remediation: "Use Keychain"
   cwe: "CWE-798"
@@ -4262,9 +3638,7 @@
 - id: swift-hardcoded-jwt-token
   languages: [swift]
   patterns:
-    - regex: 'eyJ[a-zA-Z0-9_-]*\\.[a-zA-Z0-9_-]*\\.[a-zA-Z0-9_-]*'
-
-  severity: high
+    - regex: 'eyJ[a-zA-Z0-9_-]*\\.[a-zA-Z0-9_-]*\\.[a-zA-Z0-9_-]*''severity: high
   description: "JWT token hardcoded in code"
   remediation: "Never hardcode tokens"
   cwe: "CWE-798"
@@ -4273,9 +3647,7 @@
 - id: swift-hardcoded-private-key
   languages: [swift]
   patterns:
-    - regex: '-----BEGIN (RSA|EC|PRIVATE) KEY-----'
-
-  severity: critical
+    - regex: '-----BEGIN (RSA|EC|PRIVATE) KEY-----''severity: critical
   description: "Private key embedded in code"
   remediation: "Use Keychain or Secure Enclave"
   cwe: "CWE-321"
@@ -4284,9 +3656,7 @@
 - id: swift-hardcoded-certificate
   languages: [swift]
   patterns:
-    - regex: '-----BEGIN CERTIFICATE-----'
-
-  severity: high
+    - regex: '-----BEGIN CERTIFICATE-----''severity: high
   description: "Certificate embedded in code"
   remediation: "Load from bundle or network"
   cwe: "CWE-321"
@@ -4295,9 +3665,7 @@
 - id: swift-hardcoded-encryption-key
   languages: [swift]
   patterns:
-    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*Data\\.\\.[0-9,\\.s]+\\.\\.'
-
-  severity: critical
+    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*Data\\.\\.[0-9,\\.s]+\\.\\.''severity: critical
   description: "Hardcoded encryption key bytes"
   remediation: "Use Keychain for keys"
   cwe: "CWE-321"
@@ -4306,9 +3674,7 @@
 - id: swift-hardcoded-encryption-key-string
   languages: [swift]
   patterns:
-    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*[\\.\\.][a-zA-Z0-9+/=]{16,}[\\.\\.]'
-
-  severity: critical
+    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*[\\.\\.][a-zA-Z0-9+/=]{16,}[\\.\\.]''severity: critical
   description: "Hardcoded encryption key string"
   remediation: "Use Keychain for keys"
   cwe: "CWE-321"
@@ -4319,9 +3685,7 @@
 - id: swift-print-sensitive
   languages: [swift]
   patterns:
-    - regex: 'print\\..*?(?:password|token|key|secret)'
-
-  severity: high
+    - regex: 'print\\..*?(?:password|token|key|secret)''severity: high
   description: "Sensitive data printed to console"
   remediation: "Remove debug prints"
   cwe: "CWE-532"
@@ -4330,9 +3694,7 @@
 - id: swift-debug-print-sensitive
   languages: [swift]
   patterns:
-    - regex: 'debugPrint\\..*?(?:password|token|key|secret)'
-
-  severity: high
+    - regex: 'debugPrint\\..*?(?:password|token|key|secret)''severity: high
   description: "Sensitive data in debugPrint"
   remediation: "Remove debug prints"
   cwe: "CWE-532"
@@ -4341,9 +3703,7 @@
 - id: swift-dump-sensitive
   languages: [swift]
   patterns:
-    - regex: 'dump\\..*?(?:password|token|key|secret)'
-
-  severity: high
+    - regex: 'dump\\..*?(?:password|token|key|secret)''severity: high
   description: "Sensitive data in dump()"
   remediation: "Avoid dumping sensitive objects"
   cwe: "CWE-532"
@@ -4352,9 +3712,7 @@
 - id: swift-nslog-sensitive
   languages: [swift]
   patterns:
-    - regex: 'NSLog\\..*?(?:password|token|key|secret)'
-
-  severity: high
+    - regex: 'NSLog\\..*?(?:password|token|key|secret)''severity: high
   description: "Sensitive data in NSLog (logs to system)"
   remediation: "Remove NSLog for sensitive data"
   cwe: "CWE-532"
@@ -4363,9 +3721,7 @@
 - id: swift-os-log-private
   languages: [swift]
   patterns:
-    - regex: 'os_log.*?\\.private'
-
-  severity: low
+    - regex: 'os_log.*?\\.private''severity: low
   description: "os_log with .private (good for sensitive)"
   remediation: "Good practice"
   cwe: "CWE-532"
@@ -4374,9 +3730,7 @@
 - id: swift-os-log-public
   languages: [swift]
   patterns:
-    - regex: 'os_log.*?\\.public'
-
-  severity: high
+    - regex: 'os_log.*?\\.public''severity: high
   description: "os_log with .public (may expose sensitive)"
   remediation: "Use .private for sensitive data"
   cwe: "CWE-532"
@@ -4385,9 +3739,7 @@
 - id: swift-os-log-sensitive-missing-private
   languages: [swift]
   patterns:
-    - regex: 'os_log\\..*?(?:password|token|key|secret).*?\\.(?!\\.private)'
-
-  severity: medium
+    - regex: 'os_log\\..*?(?:password|token|key|secret).*?\\.''severity: medium
   description: "Logging sensitive data without .private"
   remediation: "Use .private privacy annotation"
   cwe: "CWE-532"
@@ -4396,9 +3748,7 @@
 - id: swift-crashlytics-log
   languages: [swift]
   patterns:
-    - regex: 'Crashlytics\\.crashlytics\\.\\.\\.log'
-
-  severity: medium
+    - regex: 'Crashlytics\\.crashlytics\\.\\.\\.log''severity: medium
   description: "Crashlytics logging"
   remediation: "Don't log PII to Crashlytics"
   cwe: "CWE-532"
@@ -4407,9 +3757,7 @@
 - id: swift-crashlytics-set-custom-value
   languages: [swift]
   patterns:
-    - regex: 'setCustomValue\\..*?(?:password|token|key|email)'
-
-  severity: high
+    - regex: 'setCustomValue\\..*?(?:password|token|key|email)''severity: high
   description: "Sensitive data sent to Crashlytics"
   remediation: "Avoid sending PII to analytics"
   cwe: "CWE-200"
@@ -4418,9 +3766,7 @@
 - id: swift-crashlytics-record-error
   languages: [swift]
   patterns:
-    - regex: 'record\\.error:'
-
-  severity: low
+    - regex: 'record\\.error:''severity: low
   description: "Recording error to Crashlytics"
   remediation: "Ensure error doesn't contain PII"
   cwe: "CWE-532"
@@ -4429,9 +3775,7 @@
 - id: swift-analytics-log-event
   languages: [swift]
   patterns:
-    - regex: 'Analytics\\.logEvent'
-
-  severity: medium
+    - regex: 'Analytics\\.logEvent''severity: medium
   description: "Analytics event logging"
   remediation: "Don't log PII"
   cwe: "CWE-200"
@@ -4440,9 +3784,7 @@
 - id: swift-analytics-log-event-sensitive
   languages: [swift]
   patterns:
-    - regex: 'logEvent.*?parameters:.*?(?:password|token|email)'
-
-  severity: high
+    - regex: 'logEvent.*?parameters:.*?(?:password|token|email)''severity: high
   description: "Sensitive data in analytics event"
   remediation: "Remove PII from analytics"
   cwe: "CWE-200"
@@ -4451,9 +3793,7 @@
 - id: swift-analytics-set-user-property
   languages: [swift]
   patterns:
-    - regex: 'setUserProperty.*?value:.*?(?:email|phone)'
-
-  severity: high
+    - regex: 'setUserProperty.*?value:.*?(?:email|phone)''severity: high
   description: "PII as user property in analytics"
   remediation: "Use anonymous IDs"
   cwe: "CWE-200"
@@ -4462,9 +3802,7 @@
 - id: swift-debug-only-build
   languages: [swift]
   patterns:
-    - regex: '#if DEBUG.*?#endif'
-
-  severity: low
+    - regex: '#if DEBUG.*?#endif''severity: low
   description: "DEBUG-only code"
   remediation: "Ensure sensitive code not in release"
   cwe: "CWE-489"
@@ -4473,9 +3811,7 @@
 - id: swift-debug-only-sensitive
   languages: [swift]
   patterns:
-    - regex: '#if DEBUG.*?(?:password|token|key).*?#endif'
-
-  severity: high
+    - regex: '#if DEBUG.*?(?:password|token|key).*?#endif''severity: high
   description: "Sensitive data in DEBUG-only section"
   remediation: "Remove from release builds"
   cwe: "CWE-489"
@@ -4484,9 +3820,7 @@
 - id: swift-assertion-failure-sensitive
   languages: [swift]
   patterns:
-    - regex: 'assertionFailure\\.[\\.\\.][^\\.\\.]*?(?:password|token|key)'
-
-  severity: high
+    - regex: 'assertionFailure\\.[\\.\\.][^\\.\\.]*?(?:password|token|key)''severity: high
   description: "Sensitive data in assertionFailure"
   remediation: "Remove sensitive data"
   cwe: "CWE-200"
@@ -4495,9 +3829,7 @@
 - id: swift-precondition-failure-sensitive
   languages: [swift]
   patterns:
-    - regex: 'preconditionFailure\\.[\\.\\.][^\\.\\.]*?(?:password|token|key)'
-
-  severity: critical
+    - regex: 'preconditionFailure\\.[\\.\\.][^\\.\\.]*?(?:password|token|key)''severity: critical
   description: "Sensitive data in preconditionFailure"
   remediation: "Remove sensitive data"
   cwe: "CWE-200"
@@ -4506,9 +3838,7 @@
 - id: swift-fatal-error-sensitive
   languages: [swift]
   patterns:
-    - regex: 'fatalError\\.[\\.\\.][^\\.\\.]*?(?:password|token|key)'
-
-  severity: critical
+    - regex: 'fatalError\\.[\\.\\.][^\\.\\.]*?(?:password|token|key)''severity: critical
   description: "Sensitive data in fatalError"
   remediation: "Remove sensitive data"
   cwe: "CWE-200"
@@ -4519,9 +3849,7 @@
 - id: swiftui-view
   languages: [swift]
   patterns:
-    - regex: 'struct.*?: View'
-
-  severity: low
+    - regex: 'struct.*?: View''severity: low
   description: "SwiftUI View"
   remediation: "Ensure data binding is secure"
   cwe: "CWE-693"
@@ -4530,9 +3858,7 @@
 - id: swiftui-state
   languages: [swift]
   patterns:
-    - regex: '@State'
-
-  severity: low
+    - regex: '@State''severity: low
   description: "@State property wrapper"
   remediation: "Don't store sensitive data in State"
   cwe: "CWE-312"
@@ -4541,9 +3867,7 @@
 - id: swiftui-state-sensitive
   languages: [swift]
   patterns:
-    - regex: '@State\\.s+var\\.s+\\.w+\\.s*:\\.s*(?:String|Data).*?(?:password|token|key)'
-
-  severity: high
+    - regex: '@State\\.s+var\\.s+\\.w+\\.s*:\\.s*(?:String|Data).*?(?:password|token|key)''severity: high
   description: "Sensitive data in @State (in memory)"
   remediation: "Use @State for UI only"
   cwe: "CWE-312"
@@ -4552,9 +3876,7 @@
 - id: swiftui-binding
   languages: [swift]
   patterns:
-    - regex: '@Binding'
-
-  severity: low
+    - regex: '@Binding''severity: low
   description: "@Binding property wrapper"
   remediation: "Validate bound data"
   cwe: "CWE-20"
@@ -4563,9 +3885,7 @@
 - id: swiftui-observed-object
   languages: [swift]
   patterns:
-    - regex: '@ObservedObject'
-
-  severity: low
+    - regex: '@ObservedObject''severity: low
   description: "@ObservedObject property wrapper"
   remediation: "Ensure ObservableObject is thread-safe"
   cwe: "CWE-362"
@@ -4574,9 +3894,7 @@
 - id: swiftui-state-object
   languages: [swift]
   patterns:
-    - regex: '@StateObject'
-
-  severity: low
+    - regex: '@StateObject''severity: low
   description: "@StateObject property wrapper"
   remediation: "Good for owning ObservableObject"
   cwe: "CWE-693"
@@ -4585,9 +3903,7 @@
 - id: swiftui-environment-object
   languages: [swift]
   patterns:
-    - regex: '@EnvironmentObject'
-
-  severity: medium
+    - regex: '@EnvironmentObject''severity: medium
   description: "@EnvironmentObject (shared across views)"
   remediation: "Don't put sensitive data in EnvironmentObject"
   cwe: "CWE-312"
@@ -4596,9 +3912,7 @@
 - id: swiftui-environment
   languages: [swift]
   patterns:
-    - regex: '@Environment'
-
-  severity: low
+    - regex: '@Environment''severity: low
   description: "@Environment property wrapper"
   remediation: "Use system environment values"
   cwe: "CWE-693"
@@ -4607,9 +3921,7 @@
 - id: swiftui-app-storage
   languages: [swift]
   patterns:
-    - regex: '@AppStorage'
-
-  severity: high
+    - regex: '@AppStorage''severity: high
   description: "@AppStorage (persisted in UserDefaults)"
   remediation: "Don't store sensitive data"
   cwe: "CWE-312"
@@ -4618,9 +3930,7 @@
 - id: swiftui-app-storage-sensitive
   languages: [swift]
   patterns:
-    - regex: '@AppStorage.*?(?:password|token|key|secret)'
-
-  severity: medium
+    - regex: '@AppStorage.*?(?:password|token|key|secret)''severity: medium
   description: "Sensitive data in @AppStorage (plaintext)"
   remediation: "Use Keychain instead"
   cwe: "CWE-312"
@@ -4629,9 +3939,7 @@
 - id: swiftui-scene-storage
   languages: [swift]
   patterns:
-    - regex: '@SceneStorage'
-
-  severity: medium
+    - regex: '@SceneStorage''severity: medium
   description: "@SceneStorage (scene persistence)"
   remediation: "Don't store sensitive data"
   cwe: "CWE-312"
@@ -4640,9 +3948,7 @@
 - id: swiftui-fetch-request
   languages: [swift]
   patterns:
-    - regex: '@FetchRequest'
-
-  severity: low
+    - regex: '@FetchRequest''severity: low
   description: "@FetchRequest for Core Data"
   remediation: "Use predicates to filter"
   cwe: "CWE-89"
@@ -4651,9 +3957,7 @@
 - id: swiftui-fetch-request-predicate
   languages: [swift]
   patterns:
-    - regex: 'FetchRequest.*?predicate:.*?\\.format:'
-
-  severity: medium
+    - regex: 'FetchRequest.*?predicate:.*?\\.format:''severity: medium
   description: "FetchRequest with predicate"
   remediation: "Use typed predicates"
   cwe: "CWE-89"
@@ -4662,9 +3966,7 @@
 - id: swiftui-fetch-request-sort
   languages: [swift]
   patterns:
-    - regex: 'FetchRequest.*?sortDescriptors'
-
-  severity: low
+    - regex: 'FetchRequest.*?sortDescriptors''severity: low
   description: "FetchRequest with sort descriptors"
   remediation: "Validate sort keys"
   cwe: "CWE-20"
@@ -4673,9 +3975,7 @@
 - id: swiftui-sectioned-fetch-request
   languages: [swift]
   patterns:
-    - regex: '@SectionedFetchRequest'
-
-  severity: low
+    - regex: '@SectionedFetchRequest''severity: low
   description: "Sectioned fetch request"
   remediation: "Validate section key path"
   cwe: "CWE-20"
@@ -4684,9 +3984,7 @@
 - id: swiftui-nsmanaged-object
   languages: [swift]
   patterns:
-    - regex: '@NSManagedObject'
-
-  severity: low
+    - regex: '@NSManagedObject''severity: low
   description: "NSManagedObject subclass"
   remediation: "Use in Core Data"
   cwe: "CWE-312"
@@ -4695,9 +3993,7 @@
 - id: swiftui-view-builder
   languages: [swift]
   patterns:
-    - regex: '@ViewBuilder'
-
-  severity: low
+    - regex: '@ViewBuilder''severity: low
   description: "@ViewBuilder for conditional views"
   remediation: "Good for complex layouts"
   cwe: "CWE-693"
@@ -4706,9 +4002,7 @@
 - id: swiftui-gesture
   languages: [swift]
   patterns:
-    - regex: 'gesture\\.|onTapGesture'
-
-  severity: low
+    - regex: 'gesture\\.|onTapGesture''severity: low
   description: "SwiftUI gestures"
   remediation: "Handle gestures securely"
   cwe: "CWE-693"
@@ -4717,9 +4011,7 @@
 - id: swiftui-textfield
   languages: [swift]
   patterns:
-    - regex: 'TextField|SecureField'
-
-  severity: low
+    - regex: 'TextField|SecureField''severity: low
   description: "Text input field"
   remediation: "Validate input"
   cwe: "CWE-20"
@@ -4728,9 +4020,7 @@
 - id: swiftui-textfield-input-validation
   languages: [swift]
   patterns:
-    - regex: 'TextField.*?text:.*?(?!validation)'
-
-  severity: high
+    - regex: 'TextField.*?text:.*?''severity: high
   description: "TextField without input validation"
   remediation: "Validate user input"
   cwe: "CWE-20"
@@ -4739,9 +4029,7 @@
 - id: swiftui-alert
   languages: [swift]
   patterns:
-    - regex: 'alert\\.|Alert\\.|\\.alert'
-
-  severity: low
+    - regex: 'alert\\.|Alert\\.|\\.alert''severity: low
   description: "Alert presentation"
   remediation: "Don't show sensitive data"
   cwe: "CWE-200"
@@ -4750,9 +4038,7 @@
 - id: swiftui-alert-sensitive
   languages: [swift]
   patterns:
-    - regex: 'alert.*?message:.*?(?:password|token|key)'
-
-  severity: high
+    - regex: 'alert.*?message:.*?(?:password|token|key)''severity: high
   description: "Sensitive data in alert"
   remediation: "Remove sensitive data"
   cwe: "CWE-200"
@@ -4761,9 +4047,7 @@
 - id: swiftui-sheet
   languages: [swift]
   patterns:
-    - regex: 'sheet\\.|\\.sheet'
-
-  severity: low
+    - regex: 'sheet\\.|\\.sheet''severity: low
   description: "Sheet presentation"
   remediation: "Secure sheet content"
   cwe: "CWE-693"

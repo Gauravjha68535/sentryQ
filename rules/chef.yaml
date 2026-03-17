@@ -1,7 +1,7 @@
 - id: chef-hardcoded-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:password|secret|api_key)\\s*[=:]\\s*[''"]'
+    - regex: '(?i)(?:password|secret|api_key)\\s*[=:]\\s*['''"]'
   severity: high
   description: "Hardcoded credential"
   remediation: "Use Chef data bags or external secrets store"
@@ -12,8 +12,7 @@
 - id: chef-execute-injection
   languages: [ruby]
   patterns:
-    - regex: '(?i)execute\\s+.*command.*\\$\\{'
-  severity: high
+    - regex: '(?i)execute\\s+.*command.*\\$\\{''severity: high
   description: "Command injection in execute block"
   remediation: "Sanitize all inputs to execute blocks"
   cwe: "CWE-78"
@@ -23,8 +22,7 @@
 - id: chef-file-world-writable
   languages: [ruby]
   patterns:
-    - regex: '(?i)mode.*0777'
-  severity: high
+    - regex: '(?i)mode.*0777''severity: high
   description: "World-writable file"
   remediation: "Use restrictive permissions"
   cwe: "CWE-732"
@@ -34,7 +32,7 @@
 - id: chef-remote-file-insecure
   languages: [ruby]
   patterns:
-    - regex: '(?i)remote_file\\s+.*source\\s+(?:''|\\")http://'
+    - regex: '(?i)remote_file\\s+.*source\\s+(?:'''|\\")http://'
   severity: medium
   description: "Insecure HTTP download"
   remediation: "Use HTTPS and specify checksum"
@@ -45,8 +43,7 @@
 - id: chef-hardcoded-ssh-key
   languages: [ruby]
   patterns:
-    - regex: '(?i)-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----'
-  severity: high
+    - regex: '(?i)-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----''severity: high
   description: "Hardcoded SSH private key"
   remediation: "Use Chef encrypted data bags"
   cwe: "CWE-798"
@@ -56,7 +53,7 @@
 - id: chef-hardcoded-aws-key
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:aws_access_key_id|aws_secret_access_key)\\s*[=:]\\s*[''\\"][A-Z0-9]{16,}'
+    - regex: '(?i)(?:aws_access_key_id|aws_secret_access_key)\\s*[=:]\\s*['''\\"][A-Z0-9]{16,}'
   severity: critical
   description: "Hardcoded AWS credentials"
   remediation: "Use IAM roles or secrets manager"
@@ -67,7 +64,7 @@
 - id: chef-hardcoded-api-token
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:api[_-]?token|auth[_-]?token|access[_-]?token)\\s*[=:]\\s*[''\\"][a-zA-Z0-9_-]{20,}'
+    - regex: '(?i)(?:api[_-]?token|auth[_-]?token|access[_-]?token)\\s*[=:]\\s*['''\\"][a-zA-Z0-9_-]{20,}'
   severity: high
   description: "Hardcoded API token"
   remediation: "Use external secrets management"
@@ -78,8 +75,7 @@
 - id: chef-sql-injection
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:mysql|postgresql|database)::[a-z_]+\\s+.*\\$\\{'
-  severity: high
+    - regex: '(?i)(?:mysql|postgresql|database)::[a-z_]+\\s+.*\\$\\{''severity: high
   description: "Potential SQL injection in database config"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -89,7 +85,7 @@
 - id: chef-insecure-service
   languages: [ruby]
   patterns:
-    - regex: '(?i)service\\s+.*user\\s*[''\\"]?\\s*[=:]\\s*[''\\"]root[''\\"]'
+    - regex: '(?i)service\\s+.*user\\s*['''\\"]?\\s*[=:]\\s*[''\\"]root[''\\"]'
   severity: medium
   description: "Service running as root"
   remediation: "Use dedicated service accounts"
@@ -100,8 +96,7 @@
 - id: chef-http-no-ssl
   languages: [ruby]
   patterns:
-    - regex: 'http://(?!localhost|127\\.0\\.0\\.1)'
-  severity: medium
+    - regex: 'http://''severity: medium
   description: "Non-HTTPS URL in use"
   remediation: "Use HTTPS for sensitive data"
   cwe: "CWE-295"
@@ -111,8 +106,7 @@
 - id: chef-sudo-nopasswd
   languages: [ruby]
   patterns:
-    - regex: '(?i)sudoers.*NOPASSWD'
-  severity: high
+    - regex: '(?i)sudoers.*NOPASSWD''severity: high
   description: "Sudo without password"
   remediation: "Require password for sudo"
   cwe: "CWE-269"
@@ -122,7 +116,7 @@
 - id: chef-default-credentials
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:username|user)\\s*[''\\"]?\\s*[=:]\\s*[''\\"]admin[''\\"].*password.*[''\\"]password[''\\"]'
+    - regex: '(?i)(?:username|user)\\s*['''\\"]?\\s*[=:]\\s*[''\\"]admin[''\\"].*password.*[''\\"]password[''\\"]'
   severity: critical
   description: "Default credentials detected"
   remediation: "Change default credentials"
@@ -133,7 +127,7 @@
 - id: chef-hardcoded-database-url
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:database|db)::connection\\s*[''\\"]?\\s*[=:]\\s*[''\\"]jdbc:.*password='
+    - regex: '(?i)(?:database|db)::connection\\s*['''\\"]?\\s*[=:]\\s*[''\\"]jdbc:.*password='
   severity: critical
   description: "Hardcoded database connection with credentials"
   remediation: "Use credential management"
@@ -144,7 +138,7 @@
 - id: chef-hardcoded-rabbitmq-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)rabbitmq.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)rabbitmq.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded RabbitMQ password"
   remediation: "Use secure password"
@@ -155,7 +149,7 @@
 - id: chef-hardcoded-redis-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)redis.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)redis.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Redis password"
   remediation: "Use Redis ACLs"
@@ -166,7 +160,7 @@
 - id: chef-hardcoded-mysql-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)mysql.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)mysql.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded MySQL password"
   remediation: "Use MySQL secure password"
@@ -177,7 +171,7 @@
 - id: chef-hardcoded-postgres-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)postgresql.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)postgresql.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded PostgreSQL password"
   remediation: "Use PostgreSQL secure password"
@@ -188,8 +182,7 @@
 - id: chef-ssh-root-login
   languages: [ruby]
   patterns:
-    - regex: '(?i)sshd_config.*PermitRootLogin\\s+yes'
-  severity: high
+    - regex: '(?i)sshd_config.*PermitRootLogin\\s+yes''severity: high
   description: "SSH root login enabled"
   remediation: "Disable root login"
   cwe: "CWE-798"
@@ -199,8 +192,7 @@
 - id: chef-ssl-disabled
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:ssl|https|tls)\\s*[=:]\\s*false'
-  severity: high
+    - regex: '(?i)(?:ssl|https|tls)\\s*[=:]\\s*false''severity: high
   description: "SSL/TLS disabled"
   remediation: "Enable SSL/TLS"
   cwe: "CWE-295"
@@ -210,7 +202,7 @@
 - id: chef-weak-cipher
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:cipher|ciphers)\\s*[=:]\\s*[''\\"](?:rc4|des|md5|null)'
+    - regex: '(?i)(?:cipher|ciphers)\\s*[=:]\\s*['''\\"](?:rc4|des|md5|null)'
   severity: high
   description: "Weak encryption cipher"
   remediation: "Use strong ciphers"
@@ -221,7 +213,7 @@
 - id: chef-telnet-enabled
   languages: [ruby]
   patterns:
-    - regex: '(?i)package\\s+[''\\"]telnet[''\\"]'
+    - regex: '(?i)package\\s+['''\\"]telnet[''\\"]'
   severity: medium
   description: "Telnet package installed"
   remediation: "Remove telnet and use SSH"
@@ -232,8 +224,7 @@
 - id: chef-insecure-iptables
   languages: [ruby]
   patterns:
-    - regex: '(?i)iptables.*ACCEPT.*0\\.0\\.0\\.0/0'
-  severity: high
+    - regex: '(?i)iptables.*ACCEPT.*0\\.0\\.0\\.0/0''severity: high
   description: "Allowing all traffic in firewall"
   remediation: "Restrict to specific IPs"
   cwe: "CWE-770"
@@ -243,8 +234,7 @@
 - id: chef-debug-mode
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:debug|trace)\\s*[=:]\\s*true'
-  severity: low
+    - regex: '(?i)(?:debug|trace)\\s*[=:]\\s*true''severity: low
   description: "Debug or trace mode enabled"
   remediation: "Disable in production"
   cwe: "CWE-11"
@@ -254,7 +244,7 @@
 - id: chef-hardcoded-private-key-pass
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:passphrase|private_key_password)\\s*[=:]\\s*[''\\"]'
+    - regex: '(?i)(?:passphrase|private_key_password)\\s*[=:]\\s*['''\\"]'
   severity: high
   description: "Hardcoded private key passphrase"
   remediation: "Use key management"
@@ -265,7 +255,7 @@
 - id: chef-hardcoded-mongodb-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)mongodb.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)mongodb.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded MongoDB password"
   remediation: "Use MongoDB authentication"
@@ -276,7 +266,7 @@
 - id: chef-hardcoded-elasticsearch-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)elasticsearch.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)elasticsearch.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Elasticsearch password"
   remediation: "Use Elasticsearch secure password"
@@ -287,7 +277,7 @@
 - id: chef-hardcoded-kafka-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)kafka.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)kafka.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Kafka password"
   remediation: "Use Kafka secure password"
@@ -298,7 +288,7 @@
 - id: chef-hardcoded-influxdb-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)influxdb.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)influxdb.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded InfluxDB password"
   remediation: "Use InfluxDB secure password"
@@ -309,7 +299,7 @@
 - id: chef-hardcoded-grafana-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)grafana.*admin_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)grafana.*admin_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Grafana admin password"
   remediation: "Use Grafana secure password"
@@ -320,7 +310,7 @@
 - id: chef-hardcoded-jenkins-api-token
   languages: [ruby]
   patterns:
-    - regex: '(?i)jenkins.*api_token\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)jenkins.*api_token\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Jenkins API token"
   remediation: "Use Jenkins secure token"
@@ -331,7 +321,7 @@
 - id: chef-hardcoded-nagios-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)nagios.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)nagios.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Nagios password"
   remediation: "Use Nagios secure password"
@@ -342,7 +332,7 @@
 - id: chef-hardcoded-zabbix-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)zabbix.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)zabbix.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Zabbix password"
   remediation: "Use Zabbix secure password"
@@ -353,7 +343,7 @@
 - id: chef-hardcoded-ldap-bind-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)ldap.*bind_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)ldap.*bind_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded LDAP bind password"
   remediation: "Use secure LDAP password"
@@ -364,7 +354,7 @@
 - id: chef-hardcoded-nginx-basic-auth
   languages: [ruby]
   patterns:
-    - regex: '(?i)nginx.*htpasswd.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)nginx.*htpasswd.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Nginx basic auth password"
   remediation: "Use secure Nginx auth"
@@ -375,7 +365,7 @@
 - id: chef-hardcoded-apache-basic-auth
   languages: [ruby]
   patterns:
-    - regex: '(?i)apache.*htpasswd.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)apache.*htpasswd.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Apache htpasswd password"
   remediation: "Use secure Apache auth"
@@ -386,8 +376,7 @@
 - id: chef-hardcoded-haproxy-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)haproxy.*user.*password'
-  severity: high
+    - regex: '(?i)haproxy.*user.*password''severity: high
   description: "Hardcoded HAProxy password"
   remediation: "Use secure HAProxy auth"
   cwe: "CWE-798"
@@ -397,7 +386,7 @@
 - id: chef-hardcoded-openvpn-secret
   languages: [ruby]
   patterns:
-    - regex: '(?i)openvpn.*secret\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)openvpn.*secret\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded OpenVPN secret"
   remediation: "Use secure OpenVPN secret"
@@ -408,7 +397,7 @@
 - id: chef-hardcoded-wireguard-key
   languages: [ruby]
   patterns:
-    - regex: '(?i)wireguard.*private_key\\s*[=:]\\s*[''\\"][A-Za-z0-9+/=]{43}'
+    - regex: '(?i)wireguard.*private_key\\s*[=:]\\s*['''\\"][A-Za-z0-9+/=]{43}'
   severity: critical
   description: "Hardcoded WireGuard private key"
   remediation: "Use secure WireGuard key"
@@ -419,7 +408,7 @@
 - id: chef-hardcoded-samba-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)samba.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)samba.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Samba password"
   remediation: "Use secure Samba password"
@@ -430,7 +419,7 @@
 - id: chef-hardcoded-kerberos-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)kerberos.*master_key\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)kerberos.*master_key\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Kerberos master key"
   remediation: "Use secure Kerberos key"
@@ -441,7 +430,7 @@
 - id: chef-hardcoded-nfs-secret
   languages: [ruby]
   patterns:
-    - regex: '(?i)nfs.*mount_secret\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)nfs.*mount_secret\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded NFS secret"
   remediation: "Use secure NFS secret"
@@ -452,8 +441,7 @@
 - id: chef-privileged-container
   languages: [ruby]
   patterns:
-    - regex: '(?i)docker.*privileged\\s*[=:]\\s*true'
-  severity: critical
+    - regex: '(?i)docker.*privileged\\s*[=:]\\s*true''severity: critical
   description: "Privileged container"
   remediation: "Avoid privileged containers"
   cwe: "CWE-250"
@@ -463,8 +451,7 @@
 - id: chef-ssh-password-auth
   languages: [ruby]
   patterns:
-    - regex: '(?i)sshd_config.*PasswordAuthentication\\s+yes'
-  severity: high
+    - regex: '(?i)sshd_config.*PasswordAuthentication\\s+yes''severity: high
   description: "SSH password authentication enabled"
   remediation: "Use key-based authentication"
   cwe: "CWE-798"
@@ -474,8 +461,7 @@
 - id: chef-weak-ssh-cipher
   languages: [ruby]
   patterns:
-    - regex: '(?i)sshd_config.*Ciphers.*(aes128-cbc|aes192-cbc|aes256-cbc|3des-cbc)'
-  severity: high
+    - regex: '(?i)sshd_config.*Ciphers.*(aes128-cbc|aes192-cbc|aes256-cbc|3des-cbc)''severity: high
   description: "Weak SSH cipher"
   remediation: "Use strong ciphers"
   cwe: "CWE-327"
@@ -485,8 +471,7 @@
 - id: chef-insecure-tmp
   languages: [ruby]
   patterns:
-    - regex: '(?i)/tmp.*mode.*777'
-  severity: high
+    - regex: '(?i)/tmp.*mode.*777''severity: high
   description: "Insecure /tmp directory"
   remediation: "Use restricted /tmp with sticky bit"
   cwe: "CWE-377"
@@ -496,8 +481,7 @@
 - id: chef-anonymous-ftp
   languages: [ruby]
   patterns:
-    - regex: '(?i)vsftpd.*anonymous_enable\\s*[=:]\\s*YES'
-  severity: high
+    - regex: '(?i)vsftpd.*anonymous_enable\\s*[=:]\\s*YES''severity: high
   description: "Anonymous FTP enabled"
   remediation: "Disable anonymous FTP"
   cwe: "CWE-284"
@@ -507,7 +491,7 @@
 - id: chef-cleartext-ftp
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:ftp|ftps).*[''\\\"]ftp://'
+    - regex: '(?i)(?:ftp|ftps).*['''\\\"]ftp://'
   severity: high
   description: "FTP protocol in use"
   remediation: "Use SFTP or secure transfer"
@@ -518,8 +502,7 @@
 - id: chef-env-var-secret
   languages: [ruby]
   patterns:
-    - regex: '(?i)environment\\s*[=:]\\s*\\{.*(?:PASSWORD|SECRET|TOKEN|KEY)'
-  severity: high
+    - regex: '(?i)environment\\s*[=:]\\s*\\{.*(?:PASSWORD|SECRET|TOKEN|KEY)''severity: high
   description: "Secrets in environment variables"
   remediation: "Use secrets management"
   cwe: "CWE-798"
@@ -529,7 +512,7 @@
 - id: chef-backdoor-user
   languages: [ruby]
   patterns:
-    - regex: '(?i)user\\s+.*name\\s*[=:]\\s*[''\\"](?:backdoor|admin|guest)'
+    - regex: '(?i)user\\s+.*name\\s*[=:]\\s*['''\\"](?:backdoor|admin|guest)'
   severity: critical
   description: "Potential backdoor user account"
   remediation: "Remove suspicious accounts"
@@ -540,7 +523,7 @@
 - id: chef-hardcoded-oracle-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)oracle.*system_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)oracle.*system_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Oracle system password"
   remediation: "Use secure Oracle password"
@@ -551,7 +534,7 @@
 - id: chef-hardcoded-sqlserver-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)sqlserver.*sa_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)sqlserver.*sa_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded SQL Server sa password"
   remediation: "Use secure SQL Server password"
@@ -562,7 +545,7 @@
 - id: chef-hardcoded-cassandra-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)cassandra.*authenticator_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)cassandra.*authenticator_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Cassandra password"
   remediation: "Use Cassandra secure password"
@@ -573,7 +556,7 @@
 - id: chef-hardcoded-couchdb-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)couchdb.*admin_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)couchdb.*admin_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded CouchDB admin password"
   remediation: "Use CouchDB secure password"
@@ -584,7 +567,7 @@
 - id: chef-hardcoded-zookeeper-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)zookeeper.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)zookeeper.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded ZooKeeper password"
   remediation: "Use ZooKeeper secure password"
@@ -595,7 +578,7 @@
 - id: chef-hardcoded-consul-token
   languages: [ruby]
   patterns:
-    - regex: '(?i)consul.*acl_token\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)consul.*acl_token\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Consul ACL token"
   remediation: "Use Consul secure token"
@@ -606,7 +589,7 @@
 - id: chef-hardcoded-vault-token
   languages: [ruby]
   patterns:
-    - regex: '(?i)vault.*token\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)vault.*token\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Vault token"
   remediation: "Use Vault secure token"
@@ -617,8 +600,7 @@
 - id: chef-hardcoded-gitlab-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)gitlab.*initial_root_password\\s*[=:]'
-  severity: critical
+    - regex: '(?i)gitlab.*initial_root_password\\s*[=:]''severity: critical
   description: "Hardcoded GitLab root password"
   remediation: "Use GitLab secure password"
   cwe: "CWE-798"
@@ -628,7 +610,7 @@
 - id: chef-hardcoded-datadog-api-key
   languages: [ruby]
   patterns:
-    - regex: '(?i)datadog.*api_key\\s*[=:]\\s*[''\\"][a-zA-Z0-9]{32}'
+    - regex: '(?i)datadog.*api_key\\s*[=:]\\s*['''\\"][a-zA-Z0-9]{32}'
   severity: critical
   description: "Hardcoded Datadog API key"
   remediation: "Use Datadog secure API key"
@@ -639,8 +621,7 @@
 - id: chef-hardcoded-insecure-ldap
   languages: [ruby]
   patterns:
-    - regex: '(?i)ldap.*ssl\\s*[=:]\\s*false'
-  severity: high
+    - regex: '(?i)ldap.*ssl\\s*[=:]\\s*false''severity: high
   description: "LDAP without SSL"
   remediation: "Use LDAPS or StartTLS"
   cwe: "CWE-295"
@@ -650,7 +631,7 @@
 - id: chef-insecure-selinux
   languages: [ruby]
   patterns:
-    - regex: '(?i)selinux.*mode\\s*[=:]\\s*[''\\"]disabled[''\\"]'
+    - regex: '(?i)selinux.*mode\\s*[=:]\\s*['''\\"]disabled[''\\"]'
   severity: medium
   description: "SELinux disabled"
   remediation: "Enable SELinux in enforcing mode"
@@ -661,7 +642,7 @@
 - id: chef-hardcoded-activemq-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)activemq.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)activemq.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded ActiveMQ admin password"
   remediation: "Use secure ActiveMQ password"
@@ -672,7 +653,7 @@
 - id: chef-hardcoded-tomcat-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)tomcat.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)tomcat.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Tomcat password"
   remediation: "Use secure Tomcat password"
@@ -683,7 +664,7 @@
 - id: chef-hardcoded-jetty-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)jetty.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)jetty.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Jetty password"
   remediation: "Use secure Jetty password"
@@ -694,7 +675,7 @@
 - id: chef-hardcoded-weblogic-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)weblogic.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)weblogic.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded WebLogic password"
   remediation: "Use secure WebLogic password"
@@ -705,7 +686,7 @@
 - id: chef-hardcoded-websphere-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)websphere.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)websphere.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded WebSphere password"
   remediation: "Use secure WebSphere password"
@@ -716,7 +697,7 @@
 - id: chef-hardcoded-jboss-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)jboss.*admin_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)jboss.*admin_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded JBoss admin password"
   remediation: "Use secure JBoss password"
@@ -727,7 +708,7 @@
 - id: chef-hardcoded-wildfly-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)wildfly.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)wildfly.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded WildFly password"
   remediation: "Use secure WildFly password"
@@ -738,7 +719,7 @@
 - id: chef-hardcoded-payara-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)payara.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)payara.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Payara password"
   remediation: "Use secure Payara password"
@@ -749,7 +730,7 @@
 - id: chef-hardcoded-glassfish-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)glassfish.*admin_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)glassfish.*admin_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded GlassFish admin password"
   remediation: "Use secure GlassFish password"
@@ -760,7 +741,7 @@
 - id: chef-hardcoded-nexus-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)nexus.*admin_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)nexus.*admin_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Nexus admin password"
   remediation: "Use Nexus secure password"
@@ -771,7 +752,7 @@
 - id: chef-hardcoded-sonarqube-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)sonarqube.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)sonarqube.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded SonarQube password"
   remediation: "Use SonarQube secure password"
@@ -782,7 +763,7 @@
 - id: chef-hardcoded-jira-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)jira.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)jira.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Jira password"
   remediation: "Use Jira secure password"
@@ -793,7 +774,7 @@
 - id: chef-hardcoded-confluence-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)confluence.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)confluence.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Confluence password"
   remediation: "Use Confluence secure password"
@@ -804,8 +785,7 @@
 - id: chef-hardcoded-prometheus-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)prometheus.*basic_auth_users'
-  severity: high
+    - regex: '(?i)prometheus.*basic_auth_users''severity: high
   description: "Hardcoded Prometheus basic auth"
   remediation: "Use secure authentication"
   cwe: "CWE-798"
@@ -815,7 +795,7 @@
 - id: chef-hardcoded-splunk-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)splunk.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)splunk.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Splunk password"
   remediation: "Use Splunk secure password"
@@ -826,7 +806,7 @@
 - id: chef-hardcoded-postfix-sasl-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)postfix.*smtp_sasl_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)postfix.*smtp_sasl_password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Postfix SASL password"
   remediation: "Use secure SASL password"
@@ -837,7 +817,7 @@
 - id: chef-hardcoded-dovecot-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)dovecot.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)dovecot.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Dovecot password"
   remediation: "Use secure Dovecot password"
@@ -848,7 +828,7 @@
 - id: chef-hardcoded-exim-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)exim.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)exim.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Exim password"
   remediation: "Use secure Exim password"
@@ -859,7 +839,7 @@
 - id: chef-hardcoded-ipsec-secret
   languages: [ruby]
   patterns:
-    - regex: '(?i)ipsec.*secret\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)ipsec.*secret\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded IPSec secret"
   remediation: "Use secure IPSec secret"
@@ -870,7 +850,7 @@
 - id: chef-hardcoded-etcd-key
   languages: [ruby]
   patterns:
-    - regex: '(?i)etcd.*cluster_token\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)etcd.*cluster_token\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded etcd cluster token"
   remediation: "Use secure etcd token"
@@ -881,7 +861,7 @@
 - id: chef-hardcoded-riak-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)riak.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)riak.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Riak password"
   remediation: "Use Riak secure password"
@@ -892,7 +872,7 @@
 - id: chef-hardcoded-courier-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)courier.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)courier.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Courier password"
   remediation: "Use secure Courier password"
@@ -903,7 +883,7 @@
 - id: chef-hardcoded-proftpd-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)proftpd.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)proftpd.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded ProFTPD password"
   remediation: "Use secure ProFTPD password"
@@ -914,7 +894,7 @@
 - id: chef-hardcoded-pureftpd-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)pureftpd.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)pureftpd.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Pure-FTPd password"
   remediation: "Use secure Pure-FTPd password"
@@ -925,7 +905,7 @@
 - id: chef-hardcoded-vsftpd-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)vsftpd.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)vsftpd.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded vsftpd password"
   remediation: "Use secure vsftpd password"
@@ -936,7 +916,7 @@
 - id: chef-hardcoded-freeipa-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)freeipa.*admin_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)freeipa.*admin_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded FreeIPA admin password"
   remediation: "Use secure IPA password"
@@ -947,7 +927,7 @@
 - id: chef-hardcoded-horizon-secret
   languages: [ruby]
   patterns:
-    - regex: '(?i)horizon.*secret_key\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)horizon.*secret_key\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Horizon secret key"
   remediation: "Use Horizon secure secret"
@@ -958,7 +938,7 @@
 - id: chef-hardcoded-keystone-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)keystone.*admin_password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)keystone.*admin_password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Keystone password"
   remediation: "Use Keystone secure password"
@@ -969,7 +949,7 @@
 - id: chef-hardcoded-nova-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)nova.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)nova.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Nova password"
   remediation: "Use Nova secure password"
@@ -980,7 +960,7 @@
 - id: chef-hardcoded-neutron-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)neutron.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)neutron.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Neutron password"
   remediation: "Use Neutron secure password"
@@ -991,7 +971,7 @@
 - id: chef-hardcoded-swift-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)swift.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)swift.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Swift password"
   remediation: "Use Swift secure password"
@@ -1002,7 +982,7 @@
 - id: chef-hardcoded-cinder-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)cinder.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)cinder.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Cinder password"
   remediation: "Use Cinder secure password"
@@ -1013,7 +993,7 @@
 - id: chef-hardcoded-heat-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)heat.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)heat.*password\\s*[=:]\\s*['''\\"][^'''
   severity: critical
   description: "Hardcoded Heat password"
   remediation: "Use Heat secure password"
@@ -1024,7 +1004,7 @@
 - id: chef-hardcoded-glance-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)glance.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)glance.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Glance password"
   remediation: "Use Glance secure password"
@@ -1035,7 +1015,7 @@
 - id: chef-hardcoded-ceilometer-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)ceilometer.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)ceilometer.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Ceilometer password"
   remediation: "Use Ceilometer secure password"
@@ -1046,7 +1026,7 @@
 - id: chef-hardcoded-kibana-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)kibana.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)kibana.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Kibana password"
   remediation: "Use Kibana secure password"
@@ -1057,7 +1037,7 @@
 - id: chef-hardcoded-logstash-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)logstash.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)logstash.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Logstash password"
   remediation: "Use Logstash secure password"
@@ -1068,7 +1048,7 @@
 - id: chef-hardcoded-firebird-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)firebird.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)firebird.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Firebird password"
   remediation: "Use secure Firebird password"
@@ -1079,7 +1059,7 @@
 - id: chef-hardcoded-sybase-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)sybase.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)sybase.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded Sybase password"
   remediation: "Use secure Sybase password"
@@ -1090,7 +1070,7 @@
 - id: chef-hardcoded-interbase-password
   languages: [ruby]
   patterns:
-    - regex: '(?i)interbase.*password\\s*[=:]\\s*[''\\"][^'''
+    - regex: '(?i)interbase.*password\\s*[=:]\\s*['''\\"][^'''
   severity: high
   description: "Hardcoded InterBase password"
   remediation: "Use secure InterBase password"
@@ -1101,8 +1081,7 @@
 - id: chef-weak-random
   languages: [ruby]
   patterns:
-    - regex: '(?i)random.*(?:rand|srand)'
-  severity: medium
+    - regex: '(?i)random.*(?:rand|srand)''severity: medium
   description: "Weak random number generation"
   remediation: "Use secure random generators"
   cwe: "CWE-338"
@@ -1112,7 +1091,7 @@
 - id: chef-world-readable-sensitive
   languages: [ruby]
   patterns:
-    - regex: '(?i)mode\\s+[''\\"]?0?6[0-7][0-7]'
+    - regex: '(?i)mode\\s+['''\\"]?0?6[0-7][0-7]'
   severity: medium
   description: "World-readable sensitive file"
   remediation: "Use more restrictive permissions"
@@ -1123,8 +1102,7 @@
 - id: chef-unsafe-archive-extract
   languages: [ruby]
   patterns:
-    - regex: '(?i)archive_file.*extract\\s*[=:]\\s*true'
-  severity: medium
+    - regex: '(?i)archive_file.*extract\\s*[=:]\\s*true''severity: medium
   description: "Unsafe archive extraction"
   remediation: "Validate archive sources"
   cwe: "CWE-22"
@@ -1134,8 +1112,7 @@
 - id: chef-cron-unsafe-variable
   languages: [ruby]
   patterns:
-    - regex: '(?i)cron.*command.*\\$\\{'
-  severity: high
+    - regex: '(?i)cron.*command.*\\$\\{''severity: high
   description: "Unsafe variable in cron command"
   remediation: "Validate cron variables"
   cwe: "CWE-78"
@@ -1145,8 +1122,7 @@
 - id: chef-insecure-nfs-mount
   languages: [ruby]
   patterns:
-    - regex: '(?i)nfs_mount.*options.*rw.*no_root_squash'
-  severity: high
+    - regex: '(?i)nfs_mount.*options.*rw.*no_root_squash''severity: high
   description: "Insecure NFS mount"
   remediation: "Use secure NFS options"
   cwe: "CWE-732"
@@ -1156,8 +1132,7 @@
 - id: chef-insecure-smb-mount
   languages: [ruby]
   patterns:
-    - regex: '(?i)cifs_mount.*guest'
-  severity: high
+    - regex: '(?i)cifs_mount.*guest''severity: high
   description: "Unsecured SMB/CIFS mount"
   remediation: "Require authentication"
   cwe: "CWE-732"
@@ -1167,8 +1142,7 @@
 - id: chef-httpd-weak-ssl
   languages: [ruby]
   patterns:
-    - regex: '(?i)apache.*ssl_protocol.*TLSv1'
-  severity: high
+    - regex: '(?i)apache.*ssl_protocol.*TLSv1''severity: high
   description: "Weak SSL/TLS protocol in Apache"
   remediation: "Use TLSv1.2 or higher"
   cwe: "CWE-327"
@@ -1178,8 +1152,7 @@
 - id: chef-nginx-weak-ssl
   languages: [ruby]
   patterns:
-    - regex: '(?i)nginx.*ssl_protocols.*TLSv1'
-  severity: high
+    - regex: '(?i)nginx.*ssl_protocols.*TLSv1''severity: high
   description: "Weak SSL/TLS protocol in Nginx"
   remediation: "Use TLSv1.2 or higher"
   cwe: "CWE-327"
@@ -1189,7 +1162,7 @@
 - id: chef-verbose-logging
   languages: [ruby]
   patterns:
-    - regex: '(?i)log_level\\s*[=:]\\s*[''\\"]debug[''\\"]'
+    - regex: '(?i)log_level\\s*[=:]\\s*['''\\"]debug[''\\"]'
   severity: low
   description: "Verbose logging enabled"
   remediation: "Use appropriate log levels"
@@ -1200,7 +1173,7 @@
 - id: chef-hardcoded-ip
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:bind_address|listen|host)\\s*[=:]\\s*[''\\"]\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
+    - regex: '(?i)(?:bind_address|listen|host)\\s*[=:]\\s*['''\\"]\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
   severity: low
   description: "Hardcoded IP address"
   remediation: "Use environment variables"
@@ -1211,8 +1184,7 @@
 - id: chef-insecure-repository
   languages: [ruby]
   patterns:
-    - regex: '(?i)(?:yum|apt)::repo.*source.*http://'
-  severity: high
+    - regex: '(?i)(?:yum|apt)::repo.*source.*http://''severity: high
   description: "Insecure package repository"
   remediation: "Use HTTPS repositories"
   cwe: "CWE-494"
@@ -1222,7 +1194,7 @@
 - id: chef-sudo-nopasswd
   languages: [ruby]
   patterns:
-    - regex: '(?i)sudo\s+''NOPASSWD'''
+    - regex: '(?i)sudo\s+'''NOPASSWD'''
   severity: critical
   description: "Sudo without password"
   remediation: "Require password for sudo"
@@ -1233,7 +1205,7 @@
 - id: chef-encrypted-paths
   languages: [ruby]
   patterns:
-    - regex: '(?i) cookbook_path\s*=\s*\[\s*'''
+    - regex: '(?i) cookbook_path\s*=\s*\[\s*''''
   severity: low
   description: "Cookbook paths defined"
   remediation: "Use secure cookbook paths"
@@ -1244,8 +1216,7 @@
 - id: chef-data-bag-encryption
   languages: [ruby]
   patterns:
-    - regex: '(?i)data_bag\s*\(.*\)\s*[\s\S]*?item\s*\('
-  severity: medium
+    - regex: '(?i)data_bag\s*\(.*\)\s*[\s\S]*?item\s*\(''severity: medium
   description: "Data bag encryption"
   remediation: "Encrypt sensitive data bags"
   cwe: "CWE-311"
@@ -1255,7 +1226,7 @@
 - id: chef-attribute-encryption
   languages: [ruby]
   patterns:
-    - regex: '(?i)node\.set\[|''node\[''|node\.attribute'
+    - regex: '(?i)node\.set\[|'''node\[''|node\.attribute'
   severity: low
   description: "Node attribute access"
   remediation: "Validate attribute sources"
@@ -1266,7 +1237,7 @@
 - id: chef-resource-convergence
   languages: [ruby]
   patterns:
-    - regex: '(?i)action\s+\[\s*:'''
+    - regex: '(?i)action\s+\[\s*:''''
   severity: medium
   description: "Resource action defined"
   remediation: "Use idempotent actions"

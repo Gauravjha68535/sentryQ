@@ -2,6 +2,7 @@ package ai
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -38,7 +39,7 @@ type JudgeVerdictItem struct {
 	Severity     string `json:"final_severity,omitempty"`
 }
 
-const maxJudgeBatchSize = 80 // Max findings per Judge prompt to stay within context limits
+const maxJudgeBatchSize = 40 // Reduced batch size for better reliability with local LLMs
 
 // JudgeFindings takes two independent reports (static and AI) and uses a Judge LLM
 // to deduplicate, remove false positives, and merge them into one master report.
@@ -177,6 +178,10 @@ func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Find
 func runJudgeBatch(findings []JudgeFinding, modelName string) ([]JudgeVerdictItem, error) {
 	findingsJSON, _ := json.MarshalIndent(findings, "", "  ")
 
+	// Create a fresh context for this judge request - don't reuse potentially cancelled context
+	judgeCtx, judgeCancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer judgeCancel()
+
 	prompt := fmt.Sprintf(`You are a Supreme Security Auditor and Judge. You have received findings from TWO independent security scanners that analyzed the same codebase:
 
 1. **Static Scanner** (source: "static") — regex patterns, AST parsing, taint analysis, dependency checks
@@ -228,11 +233,20 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 
 	reqJSON, _ := json.Marshal(reqBody)
 
-	client := &http.Client{
-		Timeout: 30 * time.Minute, // Judge can take a long time on large batches
-	}
-	resp, err := client.Post(ollamaAPIURL, "application/json", bytes.NewBuffer(reqJSON))
+	req, err := http.NewRequestWithContext(judgeCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
 	if err != nil {
+		return nil, fmt.Errorf("failed to create judge request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{
+		Timeout: 5 * time.Minute, // Judge can take up to 5 minutes on large batches
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		if strings.Contains(err.Error(), "context canceled") {
+			return nil, fmt.Errorf("judge evaluation interrupted")
+		}
 		return nil, fmt.Errorf("judge LLM request failed: %v", err)
 	}
 	defer resp.Body.Close()

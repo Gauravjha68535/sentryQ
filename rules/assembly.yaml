@@ -1,8 +1,7 @@
 - id: asm-buffer-overflow-rep-movs
   languages: [assembly]
   patterns:
-    - regex: '(?i)rep\\s+movs[bwd]?'
-  severity: high
+    - regex: '(?i)rep\\s+movs[bwd]?''severity: high
   description: "Block memory copy without bounds checking"
   remediation: "Add bounds checking before rep movs"
   cwe: "CWE-120"
@@ -12,8 +11,7 @@
 - id: asm-stack-buffer
   languages: [assembly]
   patterns:
-    - regex: '(?i)sub\\s+(?:esp|rsp)\\s*,\\s*(?:0x[0-9a-f]{4,}|[0-9]{4,})'
-  severity: medium
+    - regex: '(?i)sub\\s+(?:esp|rsp)\\s*,\\s*(?:0x[0-9a-f]{4,}|[0-9]{4,})''severity: medium
   description: "Large stack buffer allocation - potential overflow target"
   remediation: "Use heap allocation for large buffers"
   cwe: "CWE-121"
@@ -23,8 +21,7 @@
 - id: asm-no-stack-canary
   languages: [assembly]
   patterns:
-    - regex: '(?i)push\\s+ebp\\s*\\n\\s*mov\\s+ebp\\s*,\\s*esp(?!.*__stack_chk)'
-  severity: high
+    - regex: '(?i)push\\s+ebp\\s*\\n\\s*mov\\s+ebp\\s*,\\s*esp''severity: high
   description: "Function prologue without stack canary"
   remediation: "Enable stack protection (-fstack-protector)"
   cwe: "CWE-121"
@@ -34,8 +31,7 @@
 - id: asm-syscall-exec
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:mov.*eax|mov.*rax).*(?:0x0?b|59)\\s*.*(?:int\\s+0x80|syscall)'
-  severity: critical
+    - regex: '(?i)(?:mov.*eax|mov.*rax).*(?:0x0?b|59)\\s*.*(?:int\\s+0x80|syscall)''severity: critical
   description: "execve syscall - code execution"
   remediation: "Validate all arguments before syscall"
   cwe: "CWE-78"
@@ -45,8 +41,7 @@
 - id: asm-int-0x80
   languages: [assembly]
   patterns:
-    - regex: '(?i)int\\s+0x80'
-  severity: high
+    - regex: '(?i)int\\s+0x80''severity: high
   description: "Linux syscall interrupt"
   remediation: "Ensure proper argument validation before syscall"
   cwe: "CWE-78"
@@ -56,8 +51,7 @@
 - id: asm-shellcode-pattern
   languages: [assembly]
   patterns:
-    - regex: '(?i)\\\\x31\\\\xc0.*\\\\x50.*\\\\x89\\\\xe3.*\\\\xcd\\\\x80'
-  severity: critical
+    - regex: '(?i)\\x31\\xc0.*\\x50.*\\x89\\xe3.*\\xcd\\x80''severity: critical
   description: "Potential shellcode pattern detected"
   remediation: "Review for malicious code injection"
   cwe: "CWE-94"
@@ -67,8 +61,7 @@
 - id: asm-jmp-register
   languages: [assembly]
   patterns:
-    - regex: '(?i)jmp\\s+(?:eax|ebx|ecx|edx|esi|edi|rax|rbx|rcx|rdx)'
-  severity: high
+    - regex: '(?i)jmp\\s+(?:eax|ebx|ecx|edx|esi|edi|rax|rbx|rcx|rdx)''severity: high
   description: "Jump to register - potential ROP gadget"
   remediation: "Avoid indirect jumps to registers"
   cwe: "CWE-94"
@@ -78,8 +71,7 @@
 - id: asm-call-register
   languages: [assembly]
   patterns:
-    - regex: '(?i)call\\s+(?:eax|ebx|ecx|edx|rax|rbx|rcx|rdx)'
-  severity: high
+    - regex: '(?i)call\\s+(?:eax|ebx|ecx|edx|rax|rbx|rcx|rdx)''severity: high
   description: "Call via register - potential ROP gadget"
   remediation: "Use direct function calls"
   cwe: "CWE-94"
@@ -89,8 +81,7 @@
 - id: asm-ret-gadget
   languages: [assembly]
   patterns:
-    - regex: '(?i)pop\\s+(?:eax|ebx|ecx|edx|rax|rbx|rcx|rdx)\\s*;?\\s*ret'
-  severity: high
+    - regex: '(?i)pop\\s+(?:eax|ebx|ecx|edx|rax|rbx|rcx|rdx)\\s*;?\\s*ret''severity: high
   description: "Potential ROP gadget: pop-ret sequence"
   remediation: "Minimize pop-ret sequences, enable ASLR"
   cwe: "CWE-94"
@@ -100,8 +91,7 @@
 - id: asm-nop-sled
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:nop\\s*){5,}|(?:\\\\x90){5,}'
-  severity: high
+    - regex: '(?i)(?:nop\\s*){5,}|(?:\\x90){5,}''severity: high
   description: "NOP sled detected - potential exploit payload"
   remediation: "Review for exploit code"
   cwe: "CWE-94"
@@ -111,8 +101,7 @@
 - id: asm-disable-interrupts
   languages: [assembly]
   patterns:
-    - regex: '(?i)\\bcli\\b'
-  severity: medium
+    - regex: '(?i)\\bcli\\b''severity: medium
   description: "Interrupts disabled - potential DoS"
   remediation: "Minimize interrupt disable duration"
   cwe: "CWE-400"
@@ -122,8 +111,7 @@
 - id: asm-writable-executable
   languages: [assembly]
   patterns:
-    - regex: '(?i)section.*(?:wx|rwx)|PROT_EXEC.*PROT_WRITE'
-  severity: critical
+    - regex: '(?i)section.*(?:wx|rwx)|PROT_EXEC.*PROT_WRITE''severity: critical
   description: "Memory region both writable and executable"
   remediation: "Use W^X (write xor execute) policy"
   cwe: "CWE-119"
@@ -133,8 +121,7 @@
 - id: asm-hardcoded-address
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:mov|jmp|call)\\s+(?:0x[4-7][0-9a-f]{7})'
-  severity: medium
+    - regex: '(?i)(?:mov|jmp|call)\\s+(?:0x[4-7][0-9a-f]{7})''severity: medium
   description: "Hardcoded memory address - ASLR bypass"
   remediation: "Use position-independent code (PIC)"
   cwe: "CWE-330"
@@ -144,8 +131,7 @@
 - id: asm-self-modifying
   languages: [assembly]
   patterns:
-    - regex: '(?i)mov\\s+byte\\s+\\[.*\\+.*\\]\\s*,\\s*0x'
-  severity: high
+    - regex: '(?i)mov\\s+byte\\s+\\[.*\\+.*\\]\\s*,\\s*0x''severity: high
   description: "Self-modifying code detected"
   remediation: "Avoid self-modifying code for security"
   cwe: "CWE-94"
@@ -155,8 +141,7 @@
 - id: asm-div-zero
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:div|idiv)\\s+(?:eax|ebx|ecx|edx|rax)(?!.*(?:test|cmp|jnz|jne))'
-  severity: medium
+    - regex: '(?i)(?:div|idiv)\\s+(?:eax|ebx|ecx|edx|rax))''severity: medium
   description: "Division without zero check"
   remediation: "Add zero check before division"
   cwe: "CWE-369"
@@ -166,8 +151,7 @@
 - id: asm-format-string
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:lea|mov).*%s.*(?:push|rdx)'
-  severity: high
+    - regex: '(?i)(?:lea|mov).*%s.*(?:push|rdx)''severity: high
   description: "Format string vulnerability"
   remediation: "Validate format strings, use format specifiers"
   cwe: "CWE-134"
@@ -177,8 +161,7 @@
 - id: asm-leaked-pointer
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:mov|movq).*(?:esp|rsp|eip|rip).*\\['
-  severity: medium
+    - regex: '(?i)(?:mov|movq).*(?:esp|rsp|eip|rip).*\\[''severity: medium
   description: "Potential pointer leakage"
   remediation: "Avoid exposing stack pointers"
   cwe: "CWE-200"
@@ -188,8 +171,7 @@
 - id: asm-privilege-escalation
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:mov|or).*cr0.*|mov.*rax.*0xc0000080'
-  severity: critical
+    - regex: '(?i)(?:mov|or).*cr0.*|mov.*rax.*0xc0000080''severity: critical
   description: "Privilege escalation attempt"
   remediation: "Monitor for privilege changes"
   cwe: "CWE-269"
@@ -199,8 +181,7 @@
 - id: asm-syscall-write
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:mov.*eax|mov.*rax).*(?:0x01|1)\\s*(?:int\\s+0x80|syscall)'
-  severity: medium
+    - regex: '(?i)(?:mov.*eax|mov.*rax).*(?:0x01|1)\\s*(?:int\\s+0x80|syscall)''severity: medium
   description: "Direct syscalls for file write"
   remediation: "Validate file write operations"
   cwe: "CWE-78"
@@ -210,8 +191,7 @@
 - id: asm-syscall-read
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:mov.*eax|mov.*rax).*(?:0x03|3)\\s*(?:int\\s+0x80|syscall)'
-  severity: medium
+    - regex: '(?i)(?:mov.*eax|mov.*rax).*(?:0x03|3)\\s*(?:int\\s+0x80|syscall)''severity: medium
   description: "Direct syscalls for file read"
   remediation: "Validate file read operations"
   cwe: "CWE-22"
@@ -221,8 +201,7 @@
 - id: asm-mprotect-rwx
   languages: [assembly]
   patterns:
-    - regex: '(?i)mprotect\\s*\\(.*7\\s*\\)|mprotect\\s*\\(.*PROT_READ|PROT_WRITE|PROT_EXEC'
-  severity: critical
+    - regex: '(?i)mprotect\\s*\\(.*7\\s*\\)|mprotect\\s*\\(.*PROT_READ|PROT_WRITE|PROT_EXEC''severity: critical
   description: "mprotect to set RWX permissions"
   remediation: "Avoid making memory both writable and executable"
   cwe: "CWE-119"
@@ -232,8 +211,7 @@
 - id: asm-rootkit-patterns
   languages: [assembly]
   patterns:
-    - regex: '(?i)\\\\xeb\\\\xfe|\\\\x90\\\\x90.*jmp|hide.*process|inline.*hook'
-  severity: critical
+    - regex: '(?i)\\xeb\\xfe|\\x90\\x90.*jmp|hide.*process|inline.*hook''severity: critical
   description: "Potential rootkit/hook patterns"
   remediation: "Investigate for malicious code"
   cwe: "CWE-506"
@@ -243,8 +221,7 @@
 - id: asm-unsafe-constants
   languages: [assembly]
   patterns:
-    - regex: '(?i)(?:db|dw|dd)\\s+0x[a-f0-9]{2,}'
-  severity: low
+    - regex: '(?i)(?:db|dw|dd)\\s+0x[a-f0-9]{2,}''severity: low
   description: "Embedded binary constants"
   remediation: "Review embedded data"
   cwe: "CWE-200"

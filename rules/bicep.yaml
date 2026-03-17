@@ -1,8 +1,7 @@
 - id: bicep-public-storage
   languages: [bicep]
   patterns:
-    - regex: '(?i)allowBlobPublicAccess\\s*:\\s*true'
-  severity: critical
+    - regex: '(?i)allowBlobPublicAccess\\s*:\\s*true''severity: critical
   description: "Public storage account"
   remediation: "Disable public blob access"
   cwe: "CWE-284"
@@ -12,7 +11,7 @@
 - id: bicep-sg-open-port
   languages: [bicep]
   patterns:
-    - regex: '(?i)destinationPortRange\\s*:\\s*''(?:22|3389)''.*sourceAddressPrefix\\s*:\\s*''*'''
+    - regex: '(?i)destinationPortRange\\s*:\\s*'''(?:22|3389)''.*sourceAddressPrefix\\s*:\\s*''*'''
   severity: high
   description: "Open management ports"
   remediation: "Restrict source IP for management ports"
@@ -23,7 +22,7 @@
 - id: bicep-hardcoded-password
   languages: [bicep]
   patterns:
-    - regex: '(?i)(?:password|secret)\\s*=\\s*''(?!\\w*\\()'
+    - regex: '(?i)(?:password|secret)\\s*=\\s*'''(?!\\w*\\()'
   severity: high
   description: "Hardcoded secret"
   remediation: "Use KeyVault referencing"
@@ -34,8 +33,7 @@
 - id: bicep-no-https-only
   languages: [bicep]
   patterns:
-    - regex: '(?i)supportsHttpsTrafficOnly\\s*:\\s*false'
-  severity: medium
+    - regex: '(?i)supportsHttpsTrafficOnly\\s*:\\s*false''severity: medium
   description: "HTTPS not enforced"
   remediation: "Enable supportsHttpsTrafficOnly"
   cwe: "CWE-319"
@@ -45,8 +43,7 @@
 - id: bicep-storage-secure-transfer
   languages: [bicep]
   patterns:
-    - regex: '(?i)supportsHttpsTrafficOnly:\s*false'
-  severity: high
+    - regex: '(?i)supportsHttpsTrafficOnly:\s*false''severity: high
   description: "Storage account allows HTTP"
   remediation: "Set supportsHttpsTrafficOnly to true"
   cwe: "CWE-319"
@@ -55,8 +52,7 @@
 - id: bicep-keyvault-purge
   languages: [bicep]
   patterns:
-    - regex: '(?i)enablePurgeProtection:\s*false'
-  severity: high
+    - regex: '(?i)enablePurgeProtection:\s*false''severity: high
   description: "KeyVault purge protection disabled"
   remediation: "Enable purge protection to prevent data loss"
   cwe: "CWE-276"
@@ -65,8 +61,7 @@
 - id: bicep-aks-rbac
   languages: [bicep]
   patterns:
-    - regex: '(?i)enableRBAC:\s*false'
-  severity: critical
+    - regex: '(?i)enableRBAC:\s*false''severity: critical
   description: "AKS cluster without RBAC"
   remediation: "Enable RBAC on AKS"
   cwe: "CWE-284"
@@ -75,7 +70,7 @@
 - id: bicep-sql-auditing
   languages: [bicep]
   patterns:
-    - regex: '(?i)state:\s*''Disabled''[\s\S]*?(?:auditingSettings|dbAuditingSettings)'
+    - regex: '(?i)state:\s*'''Disabled''[\s\S]*?(?:auditingSettings|dbAuditingSettings)'
   severity: high
   description: "SQL Auditing is disabled"
   remediation: "Enable SQL server auditing"
@@ -85,7 +80,7 @@
 - id: bicep-admin-password
   languages: [bicep]
   patterns:
-    - regex: '(?i)adminPassword\s*=\s*''.*'''
+    - regex: '(?i)adminPassword\s*=\s*'''.*'''
   severity: critical
   description: "Hardcoded admin password"
   remediation: "Use secure parameters referencing KeyVault"
@@ -95,7 +90,7 @@
 - id: bicep-cosmos-public
   languages: [bicep]
   patterns:
-    - regex: '(?i)publicNetworkAccess:\\s*''Enabled'''
+    - regex: '(?i)publicNetworkAccess:\\s*'''Enabled'''
   severity: high
   description: "CosmosDB publicly accessible"
   remediation: "Restrict public network access"
@@ -107,8 +102,7 @@
 - id: bicep-vm-no-nsg
   languages: [bicep]
   patterns:
-    - regex: '(?i)networkInterfaceConfigurations:[\s\S]*?(?!.*networkSecurityGroup)'
-  severity: high
+    - regex: '(?i)networkInterfaceConfigurations:[\s\S]*?''severity: high
   description: "VM without NSG"
   remediation: "Attach NSG to VM network interface"
   cwe: "CWE-284"
@@ -118,7 +112,7 @@
 - id: bicep-vm-weak-password
   languages: [bicep]
   patterns:
-    - regex: '(?i)adminPassword:\\s*''[a-zA-Z0-9]{1,12}'''
+    - regex: '(?i)adminPassword:\\s*'''[a-zA-Z0-9]{1,12}'''
   severity: high
   description: "VM weak password"
   remediation: "Use strong password or KeyVault"
@@ -129,8 +123,7 @@
 - id: bicep-vm-no-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)storageProfile:[\s\S]*?encryptionSettings:[\s\S]*?enabled:\\s*false'
-  severity: high
+    - regex: '(?i)storageProfile:[\s\S]*?encryptionSettings:[\s\S]*?enabled:\\s*false''severity: high
   description: "VM disk encryption disabled"
   remediation: "Enable disk encryption"
   cwe: "CWE-311"
@@ -140,8 +133,7 @@
 - id: bicep-vm-public-ip
   languages: [bicep]
   patterns:
-    - regex: '(?i)publicIPAddressConfiguration:'
-  severity: high
+    - regex: '(?i)publicIPAddressConfiguration:''severity: high
   description: "VM with public IP"
   remediation: "Use private IP"
   cwe: "CWE-284"
@@ -151,8 +143,7 @@
 - id: bicep-vm-boot-diagnostics
   languages: [bicep]
   patterns:
-    - regex: '(?i)bootDiagnostics:[\s\S]*?enabled:\\s*false'
-  severity: low
+    - regex: '(?i)bootDiagnostics:[\s\S]*?enabled:\\s*false''severity: low
   description: "Boot diagnostics disabled"
   remediation: "Enable boot diagnostics"
   cwe: "CWE-778"
@@ -162,7 +153,7 @@
 - id: bicep-vm-os-disk-caching
   languages: [bicep]
   patterns:
-    - regex: '(?i)caching:\\s*''ReadWrite'''
+    - regex: '(?i)caching:\\s*'''ReadWrite'''
   severity: low
   description: "OS disk with write caching"
   remediation: "Use ReadOnly for OS disk"
@@ -174,8 +165,7 @@
 - id: bicep-appservice-https-only
   languages: [bicep]
   patterns:
-    - regex: '(?i)httpsOnly:\\s*false'
-  severity: high
+    - regex: '(?i)httpsOnly:\\s*false''severity: high
   description: "App Service HTTP enabled"
   remediation: "Set httpsOnly to true"
   cwe: "CWE-319"
@@ -185,8 +175,7 @@
 - id: bicep-appservice-auth
   languages: [bicep]
   patterns:
-    - regex: '(?i)authSettings:[\s\S]*?enabled:\\s*false'
-  severity: high
+    - regex: '(?i)authSettings:[\s\S]*?enabled:\\s*false''severity: high
   description: "App Service authentication disabled"
   remediation: "Enable authentication"
   cwe: "CWE-284"
@@ -196,8 +185,7 @@
 - id: bicep-appservice-debug
   languages: [bicep]
   patterns:
-    - regex: '(?i)remoteDebuggingEnabled:\\s*true'
-  severity: high
+    - regex: '(?i)remoteDebuggingEnabled:\\s*true''severity: high
   description: "App Service remote debug enabled"
   remediation: "Disable remote debugging"
   cwe: "CWE-200"
@@ -207,7 +195,7 @@
 - id: bicep-appservice-tls-version
   languages: [bicep]
   patterns:
-    - regex: '(?i)minTlsVersion:\\s*''1\\.0'''
+    - regex: '(?i)minTlsVersion:\\s*'''1\\.0'''
   severity: high
   description: "Weak TLS version"
   remediation: "Use TLS 1.2 or higher"
@@ -218,8 +206,7 @@
 - id: bicep-appservice-client-cert
   languages: [bicep]
   patterns:
-    - regex: '(?i)clientCertEnabled:\\s*false'
-  severity: medium
+    - regex: '(?i)clientCertEnabled:\\s*false''severity: medium
   description: "Client certificates disabled"
   remediation: "Enable for mutual TLS"
   cwe: "CWE-295"
@@ -229,8 +216,7 @@
 - id: bicep-appservice-vnet-integration
   languages: [bicep]
   patterns:
-    - regex: '(?i)subnetResourceId:'
-  severity: medium
+    - regex: '(?i)subnetResourceId:''severity: medium
   description: "No VNet integration"
   remediation: "Use VNet integration"
   cwe: "CWE-284"
@@ -241,7 +227,7 @@
 - id: bicep-sql-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)transparentDataEncryption:\\s*''Disabled'''
+    - regex: '(?i)transparentDataEncryption:\\s*'''Disabled'''
   severity: high
   description: "SQL encryption at rest disabled"
   remediation: "Enable transparent data encryption"
@@ -252,7 +238,7 @@
 - id: bicep-sql-firewall
   languages: [bicep]
   patterns:
-    - regex: '(?i)startIpAddress:\\s*''0\\.0\\.0\\.0'''
+    - regex: '(?i)startIpAddress:\\s*'''0\\.0\\.0\\.0'''
   severity: critical
   description: "SQL firewall allows all IPs"
   remediation: "Restrict firewall rules"
@@ -263,7 +249,7 @@
 - id: bicep-sql-tls
   languages: [bicep]
   patterns:
-    - regex: '(?i)minimumTlsVersion:\\s*''1\\.0'''
+    - regex: '(?i)minimumTlsVersion:\\s*'''1\\.0'''
   severity: high
   description: "SQL weak TLS version"
   remediation: "Use TLS 1.2"
@@ -274,8 +260,7 @@
 - id: bicep-sql-aad-auth
   languages: [bicep]
   patterns:
-    - regex: '(?i)administrators:[\s\S]*?(?!.*aad)'
-  severity: medium
+    - regex: '(?i)administrators:[\s\S]*?''severity: medium
   description: "SQL not using AAD auth"
   remediation: "Use Azure AD authentication"
   cwe: "CWE-287"
@@ -285,7 +270,7 @@
 - id: bicep-sql-threat-detection
   languages: [bicep]
   patterns:
-    - regex: '(?i)threatDetectionPolicy:[\s\S]*?state:\\s*''Disabled'''
+    - regex: '(?i)threatDetectionPolicy:[\s\S]*?state:\\s*'''Disabled'''
   severity: high
   description: "SQL threat detection disabled"
   remediation: "Enable threat detection"
@@ -297,8 +282,7 @@
 - id: bicep-storage-firewall
   languages: [bicep]
   patterns:
-    - regex: '(?i)networkAcls:\\s*\\{\\s*\\}'
-  severity: high
+    - regex: '(?i)networkAcls:\\s*\\{\\s*\\}''severity: high
   description: "Storage account firewall not configured"
   remediation: "Configure network rules"
   cwe: "CWE-284"
@@ -308,8 +292,7 @@
 - id: bicep-storage-cors
   languages: [bicep]
   patterns:
-    - regex: '(?i)cors:[\s\S]*?corsRules:[\s\S]*?\\*'
-  severity: medium
+    - regex: '(?i)cors:[\s\S]*?corsRules:[\s\S]*?\\*''severity: medium
   description: "Storage CORS allows all origins"
   remediation: "Restrict CORS rules"
   cwe: "CWE-346"
@@ -319,8 +302,7 @@
 - id: bicep-storage-logging
   languages: [bicep]
   patterns:
-    - regex: '(?i)logging:[\s\S]*?delete:\\s*false'
-  severity: medium
+    - regex: '(?i)logging:[\s\S]*?delete:\\s*false''severity: medium
   description: "Storage delete logging disabled"
   remediation: "Enable delete logging"
   cwe: "CWE-778"
@@ -330,8 +312,7 @@
 - id: bicep-storage-versioning
   languages: [bicep]
   patterns:
-    - regex: '(?i)isVersioningEnabled:\\s*false'
-  severity: medium
+    - regex: '(?i)isVersioningEnabled:\\s*false''severity: medium
   description: "Storage versioning disabled"
   remediation: "Enable versioning"
   cwe: "CWE-778"
@@ -341,8 +322,7 @@
 - id: bicep-storage-soft-delete
   languages: [bicep]
   patterns:
-    - regex: '(?i)deleteRetentionPolicy:[\s\S]*?enabled:\\s*false'
-  severity: medium
+    - regex: '(?i)deleteRetentionPolicy:[\s\S]*?enabled:\\s*false''severity: medium
   description: "Storage soft delete disabled"
   remediation: "Enable soft delete"
   cwe: "CWE-778"
@@ -353,8 +333,7 @@
 - id: bicep-kv-firewall
   languages: [bicep]
   patterns:
-    - regex: '(?i)networkAcls:\\s*\\{\\s*\\}'
-  severity: high
+    - regex: '(?i)networkAcls:\\s*\\{\\s*\\}''severity: high
   description: "Key Vault firewall not configured"
   remediation: "Configure network rules"
   cwe: "CWE-284"
@@ -364,8 +343,7 @@
 - id: bicep-kv-soft-delete
   languages: [bicep]
   patterns:
-    - regex: '(?i)enableSoftDelete:\\s*false'
-  severity: high
+    - regex: '(?i)enableSoftDelete:\\s*false''severity: high
   description: "Key Vault soft delete disabled"
   remediation: "Enable soft delete"
   cwe: "CWE-276"
@@ -375,8 +353,7 @@
 - id: bicep-kv-access-policy
   languages: [bicep]
   patterns:
-    - regex: '(?i)accessPolicies:[\s\S]*?tenant:\\s*\\*'
-  severity: critical
+    - regex: '(?i)accessPolicies:[\s\S]*?tenant:\\s*\\*''severity: critical
   description: "Key Vault wildcard tenant"
   remediation: "Specify exact tenant ID"
   cwe: "CWE-284"
@@ -386,7 +363,7 @@
 - id: bicep-kv-skus
   languages: [bicep]
   patterns:
-    - regex: '(?i)sku:\\s*''standard'''
+    - regex: '(?i)sku:\\s*'''standard'''
   severity: medium
   description: "Key Vault using standard SKU"
   remediation: "Use premium for HSM"
@@ -398,7 +375,7 @@
 - id: bicep-aks-network-plugin
   languages: [bicep]
   patterns:
-    - regex: '(?i)networkPlugin:\\s*''kubenet'''
+    - regex: '(?i)networkPlugin:\\s*'''kubenet'''
   severity: medium
   description: "AKS using kubenet"
   remediation: "Use Azure CNI"
@@ -409,8 +386,7 @@
 - id: bicep-aks-api-server-access
   languages: [bicep]
   patterns:
-    - regex: '(?i)apiServerAccessProfile:[\s\S]*?enablePrivateCluster:\\s*false'
-  severity: high
+    - regex: '(?i)apiServerAccessProfile:[\s\S]*?enablePrivateCluster:\\s*false''severity: high
   description: "AKS API server public"
   remediation: "Enable private cluster"
   cwe: "CWE-284"
@@ -420,8 +396,7 @@
 - id: bicep-aks-agent-pool-profile
   languages: [bicep]
   patterns:
-    - regex: '(?i)enableNodePublicIP:\\s*true'
-  severity: high
+    - regex: '(?i)enableNodePublicIP:\\s*true''severity: high
   description: "AKS nodes have public IPs"
   remediation: "Disable node public IP"
   cwe: "CWE-284"
@@ -431,8 +406,7 @@
 - id: bicep-aks-monitoring
   languages: [bicep]
   patterns:
-    - regex: '(?i)addonProfiles:[\s\S]*?omsAgent:\\s*enabled:\\s*false'
-  severity: medium
+    - regex: '(?i)addonProfiles:[\s\S]*?omsAgent:\\s*enabled:\\s*false''severity: medium
   description: "AKS monitoring disabled"
   remediation: "Enable monitoring"
   cwe: "CWE-778"
@@ -442,8 +416,7 @@
 - id: bicep-aks-http-routing
   languages: [bicep]
   patterns:
-    - regex: '(?i)httpApplicationRouting:\\s*enabled:\\s*true'
-  severity: medium
+    - regex: '(?i)httpApplicationRouting:\\s*enabled:\\s*true''severity: medium
   description: "AKS HTTP routing enabled"
   remediation: "Disable if not needed"
   cwe: "CWE-284"
@@ -454,7 +427,7 @@
 - id: bicep-apim-ssl
   languages: [bicep]
   patterns:
-    - regex: '(?i)clientCertificates:[\s\S]*?mode:\\s*''Ignore'''
+    - regex: '(?i)clientCertificates:[\s\S]*?mode:\\s*'''Ignore'''
   severity: high
   description: "APIM client cert validation disabled"
   remediation: "Set mode to 'Mandatory'"
@@ -465,8 +438,7 @@
 - id: bicep-apim-auth
   languages: [bicep]
   patterns:
-    - regex: '(?i)authenticationSettings:[\s\S]*?enabled:\\s*false'
-  severity: high
+    - regex: '(?i)authenticationSettings:[\s\S]*?enabled:\\s*false''severity: high
   description: "APIM authentication disabled"
   remediation: "Enable authentication"
   cwe: "CWE-284"
@@ -476,7 +448,7 @@
 - id: bicep-apim-protocol
   languages: [bicep]
   patterns:
-    - regex: '(?i)protocols:\\s*\\[''http''\\]'
+    - regex: '(?i)protocols:\\s*\\['''http''\\]'
   severity: high
   description: "APIM allows HTTP"
   remediation: "Use HTTPS only"
@@ -487,7 +459,7 @@
 - id: bicep-apim-rate-limit
   languages: [bicep]
   patterns:
-    - regex: '(?i)rateLimitBy:\\s*''Ip'''
+    - regex: '(?i)rateLimitBy:\\s*'''Ip'''
   severity: medium
   description: "APIM rate limiting by IP"
   remediation: "Use subscription-based rate limiting"
@@ -499,8 +471,7 @@
 - id: bicep-functions-auth
   languages: [bicep]
   patterns:
-    - regex: '(?i)authSettings:[\s\S]*?enabled:\\s*false'
-  severity: high
+    - regex: '(?i)authSettings:[\s\S]*?enabled:\\s*false''severity: high
   description: "Functions auth disabled"
   remediation: "Enable authentication"
   cwe: "CWE-284"
@@ -510,8 +481,7 @@
 - id: bicep-functions-https
   languages: [bicep]
   patterns:
-    - regex: '(?i)httpsOnly:\\s*false'
-  severity: high
+    - regex: '(?i)httpsOnly:\\s*false''severity: high
   description: "Functions HTTP enabled"
   remediation: "Set httpsOnly to true"
   cwe: "CWE-319"
@@ -521,7 +491,7 @@
 - id: bicep-functions-tls
   languages: [bicep]
   patterns:
-    - regex: '(?i)minTlsVersion:\\s*''1\\.0'''
+    - regex: '(?i)minTlsVersion:\\s*'''1\\.0'''
   severity: high
   description: "Functions weak TLS"
   remediation: "Use TLS 1.2"
@@ -532,8 +502,7 @@
 - id: bicep-functions-vnet
   languages: [bicep]
   patterns:
-    - regex: '(?i)virtualNetworkSubnetId:'
-  severity: medium
+    - regex: '(?i)virtualNetworkSubnetId:''severity: medium
   description: "No VNet integration"
   remediation: "Use VNet integration"
   cwe: "CWE-284"
@@ -544,8 +513,7 @@
 - id: bicep-vnet-nsg
   languages: [bicep]
   patterns:
-    - regex: '(?i)subnets:[\s\S]*?(?!.*networkSecurityGroup)'
-  severity: high
+    - regex: '(?i)subnets:[\s\S]*?''severity: high
   description: "Subnet without NSG"
   remediation: "Attach NSG to subnet"
   cwe: "CWE-284"
@@ -555,8 +523,7 @@
 - id: bicep-vnet-service-endpoint
   languages: [bicep]
   patterns:
-    - regex: '(?i)serviceEndpoints:'
-  severity: medium
+    - regex: '(?i)serviceEndpoints:''severity: medium
   description: "Service endpoints enabled"
   remediation: "Use private endpoints"
   cwe: "CWE-284"
@@ -566,8 +533,7 @@
 - id: bicep-vnet-private-endpoint
   languages: [bicep]
   patterns:
-    - regex: '(?i)privateEndpointConnections:'
-  severity: medium
+    - regex: '(?i)privateEndpointConnections:''severity: medium
   description: "No private endpoint"
   remediation: "Use private endpoints"
   cwe: "CWE-284"
@@ -577,8 +543,7 @@
 - id: bicep-subnet-delegation
   languages: [bicep]
   patterns:
-    - regex: '(?i)delegations:'
-  severity: low
+    - regex: '(?i)delegations:''severity: low
   description: "Subnet delegation defined"
   remediation: "Ensure proper delegation"
   cwe: "CWE-20"
@@ -589,8 +554,7 @@
 - id: bicep-redis-ssl
   languages: [bicep]
   patterns:
-    - regex: '(?i)sslConfig:[\s\S]*?enabled:\\s*false'
-  severity: critical
+    - regex: '(?i)sslConfig:[\s\S]*?enabled:\\s*false''severity: critical
   description: "Redis SSL disabled"
   remediation: "Enable SSL"
   cwe: "CWE-319"
@@ -600,8 +564,7 @@
 - id: bicep-redis-firewall
   languages: [bicep]
   patterns:
-    - regex: '(?i)redisCacheConfiguration:[\s\S]*?firewallRules:'
-  severity: medium
+    - regex: '(?i)redisCacheConfiguration:[\s\S]*?firewallRules:''severity: medium
   description: "Redis firewall rules"
   remediation: "Restrict IP ranges"
   cwe: "CWE-284"
@@ -611,7 +574,7 @@
 - id: bicep-redis-public
   languages: [bicep]
   patterns:
-    - regex: '(?i)publicNetworkAccess:\\s*''Enabled'''
+    - regex: '(?i)publicNetworkAccess:\\s*'''Enabled'''
   severity: high
   description: "Redis publicly accessible"
   remediation: "Disable public access"
@@ -623,7 +586,7 @@
 - id: bicep-postgres-ssl
   languages: [bicep]
   patterns:
-    - regex: '(?i)sslEnforcement:\\s*''Disabled'''
+    - regex: '(?i)sslEnforcement:\\s*'''Disabled'''
   severity: critical
   description: "PostgreSQL SSL disabled"
   remediation: "Enable SSL enforcement"
@@ -634,7 +597,7 @@
 - id: bicep-mysql-ssl
   languages: [bicep]
   patterns:
-    - regex: '(?i)sslEnforcement:\\s*''Disabled'''
+    - regex: '(?i)sslEnforcement:\\s*'''Disabled'''
   severity: critical
   description: "MySQL SSL disabled"
   remediation: "Enable SSL enforcement"
@@ -645,7 +608,7 @@
 - id: bicep-postgres-firewall
   languages: [bicep]
   patterns:
-    - regex: '(?i)startIpAddress:\\s*''0\\.0\\.0\\.0'''
+    - regex: '(?i)startIpAddress:\\s*'''0\\.0\\.0\\.0'''
   severity: critical
   description: "PostgreSQL firewall open"
   remediation: "Restrict IP ranges"
@@ -656,7 +619,7 @@
 - id: bicep-mysql-firewall
   languages: [bicep]
   patterns:
-    - regex: '(?i)startIpAddress:\\s*''0\\.0\\.0\\.0'''
+    - regex: '(?i)startIpAddress:\\s*'''0\\.0\\.0\\.0'''
   severity: critical
   description: "MySQL firewall open"
   remediation: "Restrict IP ranges"
@@ -667,8 +630,7 @@
 - id: bicep-mysql-aad
   languages: [bicep]
   patterns:
-    - regex: '(?i)aadAuthEnabled:\\s*false'
-  severity: medium
+    - regex: '(?i)aadAuthEnabled:\\s*false''severity: medium
   description: "MySQL not using AAD"
   remediation: "Enable AAD auth"
   cwe: "CWE-287"
@@ -679,8 +641,7 @@
 - id: bicep-acr-admin
   languages: [bicep]
   patterns:
-    - regex: '(?i)adminUserEnabled:\\s*true'
-  severity: high
+    - regex: '(?i)adminUserEnabled:\\s*true''severity: high
   description: "ACR admin user enabled"
   remediation: "Disable admin user"
   cwe: "CWE-284"
@@ -690,7 +651,7 @@
 - id: bicep-acr-public
   languages: [bicep]
   patterns:
-    - regex: '(?i)publicNetworkAccess:\\s*''Enabled'''
+    - regex: '(?i)publicNetworkAccess:\\s*'''Enabled'''
   severity: high
   description: "ACR publicly accessible"
   remediation: "Disable public access"
@@ -701,7 +662,7 @@
 - id: bicep-acr-sku
   languages: [bicep]
   patterns:
-    - regex: '(?i)sku:\\s*''Basic'''
+    - regex: '(?i)sku:\\s*'''Basic'''
   severity: low
   description: "ACR using Basic SKU"
   remediation: "Use Standard or Premium"
@@ -712,8 +673,7 @@
 - id: bicep-acr-geo-replication
   languages: [bicep]
   patterns:
-    - regex: '(?i)georeplicationLocations:'
-  severity: medium
+    - regex: '(?i)georeplicationLocations:''severity: medium
   description: "No geo-replication"
   remediation: "Enable geo-replication"
   cwe: "CWE-778"
@@ -724,7 +684,7 @@
 - id: bicep-nsg-default-rules
   languages: [bicep]
   patterns:
-    - regex: '(?i)defaultSecurityRules:[\s\S]*?access:\\s*''Allow'''
+    - regex: '(?i)defaultSecurityRules:[\s\S]*?access:\\s*'''Allow'''
   severity: high
   description: "NSG allows default traffic"
   remediation: "Deny default traffic"
@@ -735,8 +695,7 @@
 - id: bicep-ddos-protection
   languages: [bicep]
   patterns:
-    - regex: '(?i)ddosProtectionPlan:\\s*\\{\\s*\\}'
-  severity: medium
+    - regex: '(?i)ddosProtectionPlan:\\s*\\{\\s*\\}''severity: medium
   description: "DDoS protection not configured"
   remediation: "Enable DDoS protection"
   cwe: "CWE-284"
@@ -746,8 +705,7 @@
 - id: bicep-firewall-policy
   languages: [bicep]
   patterns:
-    - regex: '(?i)firewallPolicyRule:'
-  severity: medium
+    - regex: '(?i)firewallPolicyRule:''severity: medium
   description: "Azure Firewall policy defined"
   remediation: "Configure properly"
   cwe: "CWE-284"
@@ -758,8 +716,7 @@
 - id: bicep-user-mfa
   languages: [bicep]
   patterns:
-    - regex: '(?i)enforceSignInMfa:\\s*false'
-  severity: high
+    - regex: '(?i)enforceSignInMfa:\\s*false''severity: high
   description: "MFA not enforced"
   remediation: "Enforce MFA"
   cwe: "CWE-308"
@@ -769,7 +726,7 @@
 - id: bicep-managed-identity
   languages: [bicep]
   patterns:
-    - regex: '(?i)type:\\s*''UserAssigned'''
+    - regex: '(?i)type:\\s*'''UserAssigned'''
   severity: low
   description: "User-assigned managed identity"
   remediation: "Use system-assigned if possible"
@@ -780,8 +737,7 @@
 - id: bicep-service-principal
   languages: [bicep]
   patterns:
-    - regex: '(?i)passwordCredentials:'
-  severity: high
+    - regex: '(?i)passwordCredentials:''severity: high
   description: "Service principal with password"
   remediation: "Use certificate or managed identity"
   cwe: "CWE-798"
@@ -792,8 +748,7 @@
 - id: bicep-diag-settings
   languages: [bicep]
   patterns:
-    - regex: '(?i)diagnosticSettings:'
-  severity: medium
+    - regex: '(?i)diagnosticSettings:''severity: medium
   description: "No diagnostic settings"
   remediation: "Configure diagnostics"
   cwe: "CWE-778"
@@ -803,8 +758,7 @@
 - id: bicep-log-analytics
   languages: [bicep]
   patterns:
-    - regex: '(?i)retentionInDays:\\s*30'
-  severity: low
+    - regex: '(?i)retentionInDays:\\s*30''severity: low
   description: "Log retention too short"
   remediation: "Increase retention"
   cwe: "CWE-778"
@@ -815,8 +769,7 @@
 - id: bicep-backup-policy
   languages: [bicep]
   patterns:
-    - regex: '(?i)backupPolicy:'
-  severity: medium
+    - regex: '(?i)backupPolicy:''severity: medium
   description: "No backup policy"
   remediation: "Configure backup policy"
   cwe: "CWE-778"
@@ -826,8 +779,7 @@
 - id: bicep-backup-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)encryption:\\s*\\{\\s*\\}'
-  severity: high
+    - regex: '(?i)encryption:\\s*\\{\\s*\\}''severity: high
   description: "Backup encryption not configured"
   remediation: "Enable encryption"
   cwe: "CWE-311"
@@ -838,7 +790,7 @@
 - id: bicep-eventhub-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)encryption:\\s*''FIPS'''
+    - regex: '(?i)encryption:\\s*'''FIPS'''
   severity: medium
   description: "Event Hub encryption"
   remediation: "Use customer-managed keys"
@@ -849,8 +801,7 @@
 - id: bicep-eventhub-capture
   languages: [bicep]
   patterns:
-    - regex: '(?i)captureDescription:'
-  severity: medium
+    - regex: '(?i)captureDescription:''severity: medium
   description: "Event Hub capture not enabled"
   remediation: "Enable capture"
   cwe: "CWE-778"
@@ -860,8 +811,7 @@
 - id: bicep-eventhub-firewall
   languages: [bicep]
   patterns:
-    - regex: '(?i)ipRules:'
-  severity: medium
+    - regex: '(?i)ipRules:''severity: medium
   description: "Event Hub firewall rules"
   remediation: "Restrict IP rules"
   cwe: "CWE-284"
@@ -872,7 +822,7 @@
 - id: bicep-datalake-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)encryptionState:\\s*''Disabled'''
+    - regex: '(?i)encryptionState:\\s*'''Disabled'''
   severity: high
   description: "Data Lake encryption disabled"
   remediation: "Enable encryption"
@@ -883,7 +833,7 @@
 - id: bicep-datalake-kerberos
   languages: [bicep]
   patterns:
-    - regex: '(?i)kerberosTicketBasedAuth:\\s*''true'''
+    - regex: '(?i)kerberosTicketBasedAuth:\\s*'''true'''
   severity: medium
   description: "Data Lake Kerberos auth"
   remediation: "Use AD auth"
@@ -895,7 +845,7 @@
 - id: bicep-servicebus-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)encryption:\\s*''FIPS'''
+    - regex: '(?i)encryption:\\s*'''FIPS'''
   severity: medium
   description: "Service Bus encryption"
   remediation: "Use customer-managed keys"
@@ -906,8 +856,7 @@
 - id: bicep-servicebus-namespace
   languages: [bicep]
   patterns:
-    - regex: '(?i)namespaceNetworkRuleSet:'
-  severity: medium
+    - regex: '(?i)namespaceNetworkRuleSet:''severity: medium
   description: "Service Bus network rules"
   remediation: "Configure properly"
   cwe: "CWE-284"
@@ -918,8 +867,7 @@
 - id: bicep-logicapp-access-control
   languages: [bicep]
   patterns:
-    - regex: '(?i)accessControl:\\s*\\{\\s*\\}'
-  severity: high
+    - regex: '(?i)accessControl:\\s*\\{\\s*\\}''severity: high
   description: "Logic App access control not configured"
   remediation: "Configure access control"
   cwe: "CWE-284"
@@ -929,8 +877,7 @@
 - id: bicep-logicapp-trigger
   languages: [bicep]
   patterns:
-    - regex: '(?i)triggerSchema:'
-  severity: medium
+    - regex: '(?i)triggerSchema:''severity: medium
   description: "Logic App trigger configuration"
   remediation: "Validate trigger settings"
   cwe: "CWE-20"
@@ -941,7 +888,7 @@
 - id: bicep-cdn-https
   languages: [bicep]
   patterns:
-    - regex: '(?i)protocolType:\\s*''http'''
+    - regex: '(?i)protocolType:\\s*'''http'''
   severity: high
   description: "CDN HTTP only"
   remediation: "Use HTTPS"
@@ -952,8 +899,7 @@
 - id: bicep-cdn-waf
   languages: [bicep]
   patterns:
-    - regex: '(?i)webApplicationFirewallPolicyLink:'
-  severity: medium
+    - regex: '(?i)webApplicationFirewallPolicyLink:''severity: medium
   description: "CDN WAF not linked"
   remediation: "Link WAF policy"
   cwe: "CWE-284"
@@ -964,7 +910,7 @@
 - id: bicep-batch-public
   languages: [bicep]
   patterns:
-    - regex: '(?i)publicNetworkAccess:\\s*''Enabled'''
+    - regex: '(?i)publicNetworkAccess:\\s*'''Enabled'''
   severity: high
   description: "Batch publicly accessible"
   remediation: "Disable public access"
@@ -975,7 +921,7 @@
 - id: bicep-batch-account
   languages: [bicep]
   patterns:
-    - regex: '(?i)accountType:\\s*''Standard'''
+    - regex: '(?i)accountType:\\s*'''Standard'''
   severity: low
   description: "Batch account type"
   remediation: "Use Premium if needed"
@@ -987,7 +933,7 @@
 - id: bicep-df-public
   languages: [bicep]
   patterns:
-    - regex: '(?i)publicNetworkAccess:\\s*''Enabled'''
+    - regex: '(?i)publicNetworkAccess:\\s*'''Enabled'''
   severity: high
   description: "Data Factory public access"
   remediation: "Disable public access"
@@ -998,8 +944,7 @@
 - id: bicep-df-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)encryption:\\s*\\{\\s*\\}'
-  severity: high
+    - regex: '(?i)encryption:\\s*\\{\\s*\\}''severity: high
   description: "Data Factory encryption"
   remediation: "Enable encryption"
   cwe: "CWE-311"
@@ -1010,7 +955,7 @@
 - id: bicep-synapse-public
   languages: [bicep]
   patterns:
-    - regex: '(?i)publicNetworkAccess:\\s*''Enabled'''
+    - regex: '(?i)publicNetworkAccess:\\s*'''Enabled'''
   severity: high
   description: "Synapse public access"
   remediation: "Disable public access"
@@ -1021,8 +966,7 @@
 - id: bicep-synapse-sql-aad
   languages: [bicep]
   patterns:
-    - regex: '(?i)aadOnlyIntegration:'
-  severity: medium
+    - regex: '(?i)aadOnlyIntegration:''severity: medium
   description: "Synapse AAD integration"
   remediation: "Enable AAD-only"
   cwe: "CWE-287"
@@ -1031,8 +975,7 @@
 - id: bicep-appservice-https-only
   languages: [bicep]
   patterns:
-    - regex: '(?i)httpsOnly:\s*false'
-  severity: high
+    - regex: '(?i)httpsOnly:\s*false''severity: high
   description: "AppService allows HTTP traffic"
   remediation: "Set httpsOnly to true"
   cwe: "CWE-319"
@@ -1041,7 +984,7 @@
 - id: bicep-appservice-min-tls
   languages: [bicep]
   patterns:
-    - regex: '(?i)minTlsVersion:\s*''1\.[01]'''
+    - regex: '(?i)minTlsVersion:\s*'''1\.[01]'''
   severity: medium
   description: "AppService using weak TLS version"
   remediation: "Use TLS 1.2 or higher"
@@ -1051,7 +994,7 @@
 - id: bicep-sql-transparent-encryption
   languages: [bicep]
   patterns:
-    - regex: '(?i)transparentDataEncryption:\s*''Disabled'''
+    - regex: '(?i)transparentDataEncryption:\s*'''Disabled'''
   severity: high
   description: "SQL transparent encryption disabled"
   remediation: "Enable TDE on SQL databases"
@@ -1061,7 +1004,7 @@
 - id: bicep-storage-network-acls
   languages: [bicep]
   patterns:
-    - regex: '(?i)networkAcls:\s*\{\s*defaultAction:\s*''Allow'''
+    - regex: '(?i)networkAcls:\s*\{\s*defaultAction:\s*'''Allow'''
   severity: high
   description: "Storage account allows access from any network"
   remediation: "Set defaultAction to Deny"
@@ -1071,8 +1014,7 @@
 - id: bicep-functionapp-client-cert
   languages: [bicep]
   patterns:
-    - regex: '(?i)clientCertEnabled:\s*false'
-  severity: low
+    - regex: '(?i)clientCertEnabled:\s*false''severity: low
   description: "FunctionApp client cert disabled"
   remediation: "Enable client certs for mTLS"
   cwe: "CWE-295"
@@ -1081,7 +1023,7 @@
 - id: bicep-postgres-ssl
   languages: [bicep]
   patterns:
-    - regex: '(?i)sslEnforcement:\s*''Disabled'''
+    - regex: '(?i)sslEnforcement:\s*'''Disabled'''
   severity: high
   description: "PostgreSQL SSL enforcement disabled"
   remediation: "Enable SSL enforcement"
@@ -1091,8 +1033,7 @@
 - id: bicep-redis-non-ssl
   languages: [bicep]
   patterns:
-    - regex: '(?i)enableNonSslPort:\s*true'
-  severity: high
+    - regex: '(?i)enableNonSslPort:\s*true''severity: high
   description: "Redis non-SSL port enabled"
   remediation: "Disable the non-SSL port"
   cwe: "CWE-319"
@@ -1101,8 +1042,7 @@
 - id: bicep-appgw-waf
   languages: [bicep]
   patterns:
-    - regex: '(?i)WebApplicationFirewallConfiguration(?!.*enabled:\s*true)'
-  severity: medium
+    - regex: '(?i)WebApplicationFirewallConfiguration''severity: medium
   description: "AppGateway WAF is disabled"
   remediation: "Enable the Web Application Firewall"
   cwe: "CWE-306"
@@ -1111,8 +1051,7 @@
 - id: bicep-acr-admin-user
   languages: [bicep]
   patterns:
-    - regex: '(?i)adminUserEnabled:\s*true'
-  severity: medium
+    - regex: '(?i)adminUserEnabled:\s*true''severity: medium
   description: "ACR admin user is enabled"
   remediation: "Use Azure AD instead of the admin user for ACR"
   cwe: "CWE-287"
@@ -1121,7 +1060,7 @@
 - id: bicep-keyvault-network
   languages: [bicep]
   patterns:
-    - regex: '(?i)networkAcls:\s*\{\s*defaultAction:\s*''Allow'''
+    - regex: '(?i)networkAcls:\s*\{\s*defaultAction:\s*'''Allow'''
   severity: high
   description: "KeyVault default action is strictly Allow"
   remediation: "Restrict KeyVault network access to specific subnets"
@@ -1131,8 +1070,7 @@
 - id: bicep-servicebus-local-auth
   languages: [bicep]
   patterns:
-    - regex: '(?i)disableLocalAuth:\s*false'
-  severity: low
+    - regex: '(?i)disableLocalAuth:\s*false''severity: low
   description: "ServiceBus local authentication enabled"
   remediation: "Use Managed Identities by disabling local auth"
   cwe: "CWE-287"
@@ -1141,8 +1079,7 @@
 - id: bicep-eventhub-local-auth
   languages: [bicep]
   patterns:
-    - regex: '(?i)disableLocalAuth:\s*false'
-  severity: low
+    - regex: '(?i)disableLocalAuth:\s*false''severity: low
   description: "EventHub local authentication enabled"
   remediation: "Use Managed Identities by disabling local auth"
   cwe: "CWE-287"
@@ -1151,7 +1088,7 @@
 - id: bicep-cosmosdb-backup
   languages: [bicep]
   patterns:
-    - regex: '(?i)backupPolicy:\s*\{\s*type:\s*''None'''
+    - regex: '(?i)backupPolicy:\s*\{\s*type:\s*'''None'''
   severity: medium
   description: "CosmosDB missing backup policy"
   remediation: "Enable Periodic or Continuous backups"
@@ -1161,8 +1098,7 @@
 - id: bicep-storage-blob-versioning
   languages: [bicep]
   patterns:
-    - regex: '(?i)isVersioningEnabled:\s*false'
-  severity: medium
+    - regex: '(?i)isVersioningEnabled:\s*false''severity: medium
   description: "Blob storage versioning disabled"
   remediation: "Enable versioning for recovery"
   cwe: "CWE-119"
@@ -1171,8 +1107,7 @@
 - id: bicep-vnet-ddos
   languages: [bicep]
   patterns:
-    - regex: '(?i)enableDdosProtection:\s*false'
-  severity: low
+    - regex: '(?i)enableDdosProtection:\s*false''severity: low
   description: "VNET DDoS protection disabled"
   remediation: "Enable DDoS standard protection"
   cwe: "CWE-400"
@@ -1181,8 +1116,7 @@
 - id: bicep-keyvault-soft-delete
   languages: [bicep]
   patterns:
-    - regex: '(?i)softDeleteEnabled:\s*false'
-  severity: high
+    - regex: '(?i)softDeleteEnabled:\s*false''severity: high
   description: "Key Vault soft delete disabled"
   remediation: "Enable soft delete"
   cwe: "CWE-933"
@@ -1192,8 +1126,7 @@
 - id: bicep-app-service-auth
   languages: [bicep]
   patterns:
-    - regex: '(?i)authEnabled:\s*false'
-  severity: high
+    - regex: '(?i)authEnabled:\s*false''severity: high
   description: "App Service authentication disabled"
   remediation: "Enable authentication"
   cwe: "CWE-284"
@@ -1203,8 +1136,7 @@
 - id: bicep-function-keys
   languages: [bicep]
   patterns:
-    - regex: '(?i)keyVaultSecretName:|functionKeys:'
-  severity: high
+    - regex: '(?i)keyVaultSecretName:|functionKeys:''severity: high
   description: "Function keys in code"
   remediation: "Use Key Vault references"
   cwe: "CWE-798"
@@ -1214,8 +1146,7 @@
 - id: bicep-sql-auditing
   languages: [bicep]
   patterns:
-    - regex: '(?i)state:\s*Disabled'
-  severity: medium
+    - regex: '(?i)state:\s*Disabled''severity: medium
   description: "SQL auditing disabled"
   remediation: "Enable auditing"
   cwe: "CWE-933"
@@ -1225,8 +1156,7 @@
 - id: bicep-container-registry-admin
   languages: [bicep]
   patterns:
-    - regex: '(?i)adminUserEnabled:\s*true'
-  severity: high
+    - regex: '(?i)adminUserEnabled:\s*true''severity: high
   description: "Container registry admin enabled"
   remediation: "Disable admin user"
   cwe: "CWE-284"

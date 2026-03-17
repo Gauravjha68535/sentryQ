@@ -1,7 +1,7 @@
 - id: java-hardcoded-password
   languages: [java]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
+    - regex: '(?i)(password|passwd|pwd)\\s*=\\s*['''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password detected in Java source code"
   remediation: "Use environment variables or Java system properties. Consider using a secrets manager"
@@ -9,7 +9,7 @@
 - id: java-hardcoded-api-key
   languages: [java]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*[''\"][a-zA-Z0-9]{16,}[''\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*['''\"][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "Hardcoded API key detected in Java source code"
   remediation: "Store API keys in environment variables or use AWS Secrets Manager/HashiCorp Vault"
@@ -17,15 +17,14 @@
 - id: java-hardcoded-aws-credentials
   languages: [java]
   patterns:
-    - regex: 'AKIA[0-9A-Z]{16}'
-  severity: critical
+    - regex: 'AKIA[0-9A-Z]{16}''severity: critical
   description: "AWS Access Key ID detected in Java source code"
   remediation: "Remove AWS credentials from code. Use IAM roles or AWS Secrets Manager"
 
 - id: java-hardcoded-jdbc
   languages: [java]
   patterns:
-    - regex: '(?i)jdbc:[^''\"]*password=[^''\"]+'
+    - regex: '(?i)jdbc:[^'''\"]*password=[^''\"]+'
   severity: high
   description: "Database credentials in JDBC connection string"
   remediation: "Use environment variables or JNDI for database credentials. Never hardcode passwords"
@@ -34,24 +33,21 @@
 - id: java-sql-injection
   languages: [java]
   patterns:
-    - regex: '(?i)(executeQuery|executeUpdate|execute)\\s*\\(\\s*.*\\+.*\\)'
-  severity: critical
+    - regex: '(?i)(executeQuery|executeUpdate|execute)\\s*\\(\\s*.*\\+.*\\)''severity: critical
   description: "Potential SQL injection via string concatenation"
   remediation: "Use PreparedStatement with parameterized queries. Never concatenate user input into SQL"
 
 - id: java-sql-injection-statement
   languages: [java]
   patterns:
-    - regex: '(?i)createStatement\\s*\\(\\s*\\).*execute.*(\".*\\+|String\\.format)'
-  severity: critical
+    - regex: '(?i)createStatement\\s*\\(\\s*\\).*execute.*(\".*\\+|String\\.format)''severity: critical
   description: "SQL injection via Statement instead of PreparedStatement"
   remediation: "Replace Statement with PreparedStatement and use parameterized queries"
 
 - id: java-hibernate-hql-injection
   languages: [java]
   patterns:
-    - regex: '(?i)createQuery\\s*\\(\\s*\".*\\+.*\\)|createSQLQuery\\s*\\(\\s*\".*\\+.*\\)'
-  severity: critical
+    - regex: '(?i)createQuery\\s*\\(\\s*\".*\\+.*\\)|createSQLQuery\\s*\\(\\s*\".*\\+.*\\)''severity: critical
   description: "HQL/SQL injection via string concatenation in Hibernate query"
   remediation: "Use named parameters: createQuery('FROM User WHERE name = :name').setParameter('name', input)"
 
@@ -59,8 +55,7 @@
 - id: java-command-injection
   languages: [java]
   patterns:
-    - regex: '(?i)(Runtime\\.getRuntime|ProcessBuilder)\\s*.*\\(\\s*.*\\+.*\\)'
-  severity: critical
+    - regex: '(?i)(Runtime\\.getRuntime|ProcessBuilder)\\s*.*\\(\\s*.*\\+.*\\)''severity: critical
   description: "Potential command injection via Runtime.exec or ProcessBuilder"
   remediation: "Avoid executing shell commands. If necessary, validate and sanitize all inputs"
 
@@ -68,16 +63,14 @@
 - id: java-insecure-deserialization
   languages: [java]
   patterns:
-    - regex: '(?i)(ObjectInputStream|readObject|XMLDecoder)'
-  severity: high
+    - regex: '(?i)(ObjectInputStream|readObject|XMLDecoder)''severity: high
   description: "Java deserialization detected which can lead to remote code execution"
   remediation: "Avoid deserializing untrusted data. Use JSON or other safe serialization formats"
 
 - id: java-unsafe-xmldecoder
   languages: [java]
   patterns:
-    - regex: 'XMLDecoder\\s*\\(\\s*new\\s+BufferedInputStream'
-  severity: critical
+    - regex: 'XMLDecoder\\s*\\(\\s*new\\s+BufferedInputStream''severity: critical
   description: "XMLDecoder can execute arbitrary code during deserialization"
   remediation: "Never use XMLDecoder on untrusted input. Use JAXB or Jackson instead"
 
@@ -85,7 +78,7 @@
 - id: java-weak-crypto-md5
   languages: [java]
   patterns:
-    - regex: '(?i)(MessageDigest\\.getInstance\\s*\\(\\s*[''\"](?:MD5|SHA-1)[''\"]))'
+    - regex: '(?i)(MessageDigest\\.getInstance\\s*\\(\\s*['''\"](?:MD5|SHA-1)[''\"]))'
   severity: medium
   description: "Use of weak cryptographic hash function (MD5/SHA1)"
   remediation: "Use SHA-256 or SHA-512. For passwords, use bcrypt, scrypt, or Argon2"
@@ -93,7 +86,7 @@
 - id: java-weak-cipher-ecb
   languages: [java]
   patterns:
-    - regex: '(?i)Cipher\\.getInstance\\s*\\(\\s*[''\"](?:AES/ECB|DES|DESede|RC4)[''\"]'
+    - regex: '(?i)Cipher\\.getInstance\\s*\\(\\s*['''\"](?:AES/ECB|DES|DESede|RC4)[''\"]'
   severity: high
   description: "Use of weak cipher mode (ECB) or deprecated algorithm (DES/RC4)"
   remediation: "Use AES/GCM/NoPadding or AES/CBC/PKCS5Padding with random IV"
@@ -101,7 +94,7 @@
 - id: java-hardcoded-crypto-key
   languages: [java]
   patterns:
-    - regex: 'new\\s+SecretKeySpec\\s*\\(\\s*[''\"].*[''\"]'
+    - regex: 'new\\s+SecretKeySpec\\s*\\(\\s*['''\"].*[''\"]'
   severity: critical
   description: "Hardcoded encryption key in SecretKeySpec"
   remediation: "Generate keys using KeyGenerator and store in KeyStore"
@@ -109,8 +102,7 @@
 - id: java-insecure-random
   languages: [java]
   patterns:
-    - regex: 'new\\s+Random\\s*\\(\\)|java\\.util\\.Random'
-  severity: medium
+    - regex: 'new\\s+Random\\s*\\(\\)|java\\.util\\.Random''severity: medium
   description: "Using insecure Random for security-sensitive operations"
   remediation: "Use java.security.SecureRandom for security-critical random numbers"
 
@@ -118,8 +110,7 @@
 - id: java-xxe-vulnerability
   languages: [java]
   patterns:
-    - regex: '(?i)(DocumentBuilderFactory|XMLInputFactory|SAXParserFactory|TransformerFactory)'
-  severity: high
+    - regex: '(?i)(DocumentBuilderFactory|XMLInputFactory|SAXParserFactory|TransformerFactory)''severity: high
   description: "XML parser instantiation without disabling external entities (XXE risk)"
   remediation: "Disable external entities: factory.setFeature('http://xml.org/sax/features/external-general-entities', false)"
 
@@ -127,8 +118,7 @@
 - id: java-path-traversal
   languages: [java]
   patterns:
-    - regex: '(?i)(FileInputStream|FileOutputStream|new File)\\s*\\(\\s*.*\\+.*\\)'
-  severity: high
+    - regex: '(?i)(FileInputStream|FileOutputStream|new File)\\s*\\(\\s*.*\\+.*\\)''severity: high
   description: "Potential path traversal vulnerability"
   remediation: "Validate and sanitize file paths. Use allowlists for permitted directories"
 
@@ -136,8 +126,7 @@
 - id: java-ssrf
   languages: [java]
   patterns:
-    - regex: '(?i)new\\s+URL\\s*\\(\\s*.*request\\.getParameter|HttpURLConnection.*request\\.getParameter'
-  severity: high
+    - regex: '(?i)new\\s+URL\\s*\\(\\s*.*request\\.getParameter|HttpURLConnection.*request\\.getParameter''severity: high
   description: "Server-Side Request Forgery via user-controlled URL"
   remediation: "Validate URLs against allowlists. Block private/internal IP ranges"
 
@@ -145,32 +134,28 @@
 - id: java-spring-sql-injection
   languages: [java]
   patterns:
-    - regex: '(?i)JdbcTemplate\\s*\\.\\s*(query|update|execute)\\s*\\(\\s*\".*\\+'
-  severity: critical
+    - regex: '(?i)JdbcTemplate\\s*\\.\\s*(query|update|execute)\\s*\\(\\s*\".*\\+''severity: critical
   description: "SQL injection in Spring JdbcTemplate via string concatenation"
   remediation: "Use parameterized queries with ? placeholders in JdbcTemplate"
 
 - id: java-spring-open-redirect
   languages: [java]
   patterns:
-    - regex: '(?i)redirect:\\s*\"\\s*\\+\\s*request\\.getParameter|sendRedirect\\s*\\(\\s*request\\.getParameter'
-  severity: high
+    - regex: '(?i)redirect:\\s*\"\\s*\\+\\s*request\\.getParameter|sendRedirect\\s*\\(\\s*request\\.getParameter''severity: high
   description: "Open redirect via user-controlled redirect URL"
   remediation: "Validate redirect URLs against allowlist. Never redirect to user-controlled URL"
 
 - id: java-spring-csrf-disabled
   languages: [java]
   patterns:
-    - regex: '(?i)csrf\\s*\\(\\s*\\)\\s*\\.\\s*disable|@CrossOrigin.*allowCredentials.*true'
-  severity: high
+    - regex: '(?i)csrf\\s*\\(\\s*\\)\\s*\\.\\s*disable|@CrossOrigin.*allowCredentials.*true''severity: high
   description: "CSRF protection disabled in Spring Security"
   remediation: "Enable CSRF protection for state-changing operations"
 
 - id: java-spring-actuator-exposed
   languages: [java]
   patterns:
-    - regex: 'management\\.endpoints\\.web\\.exposure\\.include\\s*=\\s*\\*'
-  severity: high
+    - regex: 'management\\.endpoints\\.web\\.exposure\\.include\\s*=\\s*\\*''severity: high
   description: "Spring Boot Actuator endpoints exposed to all"
   remediation: "Restrict actuator endpoints to specific paths behind authentication"
 
@@ -178,8 +163,7 @@
 - id: java-ldap-injection
   languages: [java]
   patterns:
-    - regex: '(?i)DirContext.*search\\s*\\(.*\\+.*request|NamingEnumeration.*search.*String\\.format'
-  severity: critical
+    - regex: '(?i)DirContext.*search\\s*\\(.*\\+.*request|NamingEnumeration.*search.*String\\.format''severity: critical
   description: "LDAP injection via string concatenation in search filter"
   remediation: "Use parameterized LDAP queries with proper escaping"
 
@@ -187,16 +171,14 @@
 - id: java-xss-response
   languages: [java]
   patterns:
-    - regex: '(?i)response\\.getWriter\\s*\\(\\s*\\)\\s*\\.\\s*(print|write)\\s*\\(\\s*request\\.getParameter'
-  severity: high
+    - regex: '(?i)response\\.getWriter\\s*\\(\\s*\\)\\s*\\.\\s*(print|write)\\s*\\(\\s*request\\.getParameter''severity: high
   description: "XSS via direct output of user input in HTTP response"
   remediation: "Escape HTML output using OWASP ESAPI or Apache Commons Text"
 
 - id: java-jsp-scriptlet
   languages: [java]
   patterns:
-    - regex: '<%=.*request\\.getParameter'
-  severity: high
+    - regex: '<%=.*request\\.getParameter''severity: high
   description: "XSS via unescaped JSP expression with user input"
   remediation: "Use JSTL <c:out> or ${fn:escapeXml()} for output encoding"
 
@@ -204,8 +186,7 @@
 - id: java-log-injection
   languages: [java]
   patterns:
-    - regex: '(?i)(log|logger)\\.(info|debug|warn|error)\\s*\\(\\s*.*request\\.getParameter'
-  severity: medium
+    - regex: '(?i)(log|logger)\\.(info|debug|warn|error)\\s*\\(\\s*.*request\\.getParameter''severity: medium
   description: "Log injection via unsanitized user input in log statements"
   remediation: "Sanitize user input before logging. Remove newlines and control characters"
 
@@ -213,15 +194,14 @@
 - id: java-android-insecure-webview
   languages: [java]
   patterns:
-    - regex: 'setJavaScriptEnabled\\s*\\(\\s*true|addJavascriptInterface'
-  severity: high
+    - regex: 'setJavaScriptEnabled\\s*\\(\\s*true|addJavascriptInterface''severity: high
   description: "JavaScript enabled in Android WebView without proper security controls"
   remediation: "Disable JavaScript if not needed; annotate JS interfaces with @JavascriptInterface"
 
 - id: java-android-exported-component
   languages: [java]
   patterns:
-    - regex: 'android:exported\\s*=\\s*[''\"]true[''\"]'
+    - regex: 'android:exported\\s*=\\s*['''\"]true[''\"]'
   severity: medium
   description: "Android component exported without permission protection"
   remediation: "Set exported=false or add custom permission requirements"
@@ -229,24 +209,21 @@
 - id: java-android-insecure-storage
   languages: [java]
   patterns:
-    - regex: 'MODE_WORLD_READABLE|MODE_WORLD_WRITEABLE|getExternalStorageDirectory'
-  severity: high
+    - regex: 'MODE_WORLD_READABLE|MODE_WORLD_WRITEABLE|getExternalStorageDirectory''severity: high
   description: "Insecure file storage using world-readable/writeable or external storage"
   remediation: "Use MODE_PRIVATE and internal storage. Use Scoped Storage on Android 10+"
 
 - id: java-android-debug-logging
   languages: [java]
   patterns:
-    - regex: 'Log\\.(d|v|i)\\s*\\([^\\)]*(password|token|secret|key|credential)'
-  severity: medium
+    - regex: 'Log\\.(d|v|i)\\s*\\([^\\)]*(password|token|secret|key|credential)''severity: medium
   description: "Sensitive data logged in Android debug statements"
   remediation: "Remove sensitive data from log statements in production builds"
 # ======================== NoSQL Injection ========================
 - id: java-nosql-injection
   languages: [java]
   patterns:
-    - regex: '(?i)(BasicDBObject|Document)\\s*\\(.*\\+.*request|MongoClient.*find.*\\+.*getParameter'
-  severity: critical
+    - regex: '(?i)(BasicDBObject|Document)\\s*\\(.*\\+.*request|MongoClient.*find.*\\+.*getParameter''severity: critical
   description: "NoSQL injection via user input in MongoDB query"
   remediation: "Use MongoDB Java Driver filters: Filters.eq(\"name\", userInput)"
   cwe: "CWE-943"
@@ -256,8 +233,7 @@
 - id: java-redos
   languages: [java]
   patterns:
-    - regex: 'Pattern\\.compile\\s*\\(\\s*request\\.getParameter|Pattern\\.compile\\s*\\(\\s*userInput'
-  severity: high
+    - regex: 'Pattern\\.compile\\s*\\(\\s*request\\.getParameter|Pattern\\.compile\\s*\\(\\s*userInput''severity: high
   description: "ReDoS via user-controlled regex pattern"
   remediation: "Never compile user input as regex. Use fixed patterns"
   cwe: "CWE-1333"
@@ -267,8 +243,7 @@
 - id: java-insecure-file-upload
   languages: [java]
   patterns:
-    - regex: '(?i)(transferTo|FileCopyUtils\\.copy|Files\\.write).*getOriginalFilename|Part.*write.*getSubmittedFileName'
-  severity: high
+    - regex: '(?i)(transferTo|FileCopyUtils\\.copy|Files\\.write).*getOriginalFilename|Part.*write.*getSubmittedFileName''severity: high
   description: "File upload using original filename without validation"
   remediation: "Validate file type, extension, and size. Generate random filenames"
   cwe: "CWE-434"
@@ -278,8 +253,7 @@
 - id: java-auth-bypass-jwt
   languages: [java]
   patterns:
-    - regex: '(?i)Jwts\\.parser\\(\\)\\.parse\\s*\\(|setSigningKey\\s*\\(\\s*\"\"|algorithm.*none'
-  severity: critical
+    - regex: '(?i)Jwts\\.parser\\(\\)\\.parse\\s*\\(|setSigningKey\\s*\\(\\s*\"\"|algorithm.*none''severity: critical
   description: "JWT parsed without proper verification"
   remediation: "Use Jwts.parser().setSigningKey(key).parseClaimsJws(token) with proper key"
   cwe: "CWE-287"
@@ -289,8 +263,7 @@
 - id: java-idor
   languages: [java]
   patterns:
-    - regex: '(?i)\\.findById\\s*\\(\\s*request\\.getParameter|repository\\.findById\\s*\\(.*getId\\(\\)'
-  severity: high
+    - regex: '(?i)\\.findById\\s*\\(\\s*request\\.getParameter|repository\\.findById\\s*\\(.*getId\\(\\)''severity: high
   description: "Potential IDOR — direct use of user-supplied ID"
   remediation: "Verify user authorization. Check resource ownership before returning"
   cwe: "CWE-639"
@@ -300,8 +273,7 @@
 - id: java-sensitive-data-log
   languages: [java]
   patterns:
-    - regex: '(?i)(System\\.out\\.println|logger\\.(info|debug|warn)).*(?:password|secret|token|creditCard)'
-  severity: medium
+    - regex: '(?i)(System\\.out\\.println|logger\\.(info|debug|warn)).*(?:password|secret|token|creditCard)''severity: medium
   description: "Sensitive data potentially exposed in log output"
   remediation: "Remove sensitive data from logs. Use data masking"
   cwe: "CWE-200"
@@ -311,8 +283,7 @@
 - id: java-format-string
   languages: [java]
   patterns:
-    - regex: 'String\\.format\\s*\\(\\s*request\\.getParameter|PrintWriter\\.printf\\s*\\(\\s*request'
-  severity: high
+    - regex: 'String\\.format\\s*\\(\\s*request\\.getParameter|PrintWriter\\.printf\\s*\\(\\s*request''severity: high
   description: "Format string vulnerability via user-controlled format"
   remediation: "Never use user input as format string: String.format(\"%s\", input)"
   cwe: "CWE-134"
@@ -322,8 +293,7 @@
 - id: java-xpath-injection
   languages: [java]
   patterns:
-    - regex: '(?i)xpath\\.evaluate\\s*\\(.*\\+.*request|XPathExpression.*\\+.*getParameter'
-  severity: critical
+    - regex: '(?i)xpath\\.evaluate\\s*\\(.*\\+.*request|XPathExpression.*\\+.*getParameter''severity: critical
   description: "XPath injection via user input"
   remediation: "Use XPath variables: xpath.setXPathVariableResolver()"
   cwe: "CWE-643"
@@ -333,8 +303,7 @@
 - id: java-connection-string-injection
   languages: [java]
   patterns:
-    - regex: 'DriverManager\\.getConnection\\s*\\(.*\\+.*request|DataSource.*url.*\\+.*getParameter'
-  severity: high
+    - regex: 'DriverManager\\.getConnection\\s*\\(.*\\+.*request|DataSource.*url.*\\+.*getParameter''severity: high
   description: "JDBC connection string with user-controlled input"
   remediation: "Use environment variables for connection strings"
   cwe: "CWE-798"
@@ -344,8 +313,7 @@
 - id: java-zip-traversal
   languages: [java]
   patterns:
-    - regex: 'ZipEntry.*getName\\s*\\(\\s*\\).*(?!\\.\\.|normalize)|ZipInputStream.*getNextEntry'
-  severity: high
+    - regex: 'ZipEntry.*getName\\s*\\(\\s*\\).*|ZipInputStream.*getNextEntry''severity: high
   description: "Zip extraction without path validation — Zip Slip vulnerability"
   remediation: "Validate: if (!destFile.getCanonicalPath().startsWith(destDir)) throw exception"
   cwe: "CWE-22"
@@ -355,8 +323,7 @@
 - id: java-ssti-thymeleaf
   languages: [java]
   patterns:
-    - regex: '(?i)templateEngine\\.process\\s*\\(.*request|StandardExpressionParser.*parseExpression.*request'
-  severity: critical
+    - regex: '(?i)templateEngine\\.process\\s*\\(.*request|StandardExpressionParser.*parseExpression.*request''severity: critical
   description: "Server-side template injection via Thymeleaf"
   remediation: "Never pass user input as template content. Use model attributes"
   cwe: "CWE-1336"
@@ -365,8 +332,7 @@
 - id: java-ssti-freemarker
   languages: [java]
   patterns:
-    - regex: '(?i)Template.*new StringReader\\s*\\(.*request|freemarker.*process.*request'
-  severity: critical
+    - regex: '(?i)Template.*new StringReader\\s*\\(.*request|freemarker.*process.*request''severity: critical
   description: "FreeMarker template injection via user input"
   remediation: "Load templates from files only. Never create templates from user input"
   cwe: "CWE-1336"
@@ -376,8 +342,7 @@
 - id: java-file-inclusion
   languages: [java]
   patterns:
-    - regex: '(?i)Class\\.forName\\s*\\(.*request|URLClassLoader.*request\\.getParameter'
-  severity: critical
+    - regex: '(?i)Class\\.forName\\s*\\(.*request|URLClassLoader.*request\\.getParameter''severity: critical
   description: "Dynamic class loading with user input — code execution risk"
   remediation: "Use allowlist of permitted classes. Never load classes based on user input"
   cwe: "CWE-98"
@@ -387,8 +352,7 @@
 - id: java-integer-overflow
   languages: [java]
   patterns:
-    - regex: '(?i)(int|short)\\s+\\w+\\s*=.*parseInt.*\\*|\\(int\\).*\\*'
-  severity: medium
+    - regex: '(?i)(int|short)\\s+\\w+\\s*=.*parseInt.*\\*|\\(int\\).*\\*''severity: medium
   description: "Integer overflow in arithmetic operation"
   remediation: "Use Math.multiplyExact() or check bounds before arithmetic"
   cwe: "CWE-190"
@@ -398,8 +362,7 @@
 - id: java-dos-xml-bomb
   languages: [java]
   patterns:
-    - regex: '(?i)DocumentBuilderFactory\\.newInstance\\(\\)(?!.*setFeature.*disallow-doctype)'
-  severity: high
+    - regex: '(?i)DocumentBuilderFactory\\.newInstance\\(\\)''severity: high
   description: "XML parser without entity limits — vulnerable to billion-laughs attack"
   remediation: "Disable DTDs: factory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true)"
   cwe: "CWE-400"
@@ -409,8 +372,7 @@
 - id: java-resource-injection
   languages: [java]
   patterns:
-    - regex: '(?i)new Socket\\s*\\(.*request\\.getParameter|ServerSocket.*request'
-  severity: high
+    - regex: '(?i)new Socket\\s*\\(.*request\\.getParameter|ServerSocket.*request''severity: high
   description: "Resource injection via user-controlled host/port"
   remediation: "Validate host/port against allowlist"
   cwe: "CWE-99"
@@ -420,8 +382,7 @@
 - id: java-log-forging
   languages: [java]
   patterns:
-    - regex: '(?i)logger\\.(info|warn|error|debug)\\s*\\(.*request\\.getParameter'
-  severity: medium
+    - regex: '(?i)logger\\.(info|warn|error|debug)\\s*\\(.*request\\.getParameter''severity: medium
   description: "Log forging via unsanitized user input"
   remediation: "Sanitize log input: remove \\n, \\r, and control characters"
   cwe: "CWE-117"
@@ -431,8 +392,7 @@
 - id: java-open-redirect-response
   languages: [java]
   patterns:
-    - regex: 'response\\.sendRedirect\\s*\\(\\s*request\\.getParameter'
-  severity: high
+    - regex: 'response\\.sendRedirect\\s*\\(\\s*request\\.getParameter''severity: high
   description: "Open redirect via user-controlled URL parameter"
   remediation: "Validate redirect URL against allowlist. Use relative paths only"
   cwe: "CWE-601"
@@ -442,8 +402,7 @@
 - id: java-symlink-attack
   languages: [java]
   patterns:
-    - regex: 'Files\\.createSymbolicLink.*request|Path.*toRealPath\\s*\\(\\s*LinkOption\\.NOFOLLOW'
-  severity: medium
+    - regex: 'Files\\.createSymbolicLink.*request|Path.*toRealPath\\s*\\(\\s*LinkOption\\.NOFOLLOW''severity: medium
   description: "Symlink-related file operation with user input"
   remediation: "Use toRealPath() to resolve symlinks and validate against base directory"
   cwe: "CWE-59"
@@ -453,8 +412,7 @@
 - id: java-dangerous-runtime-exec
   languages: [java]
   patterns:
-    - regex: 'Runtime\.getRuntime\(\)\.exec\s*\('
-  severity: critical
+    - regex: 'Runtime\.getRuntime\(\)\.exec\s*\(''severity: critical
   description: "Runtime.exec() — command execution detected"
   remediation: "Avoid Runtime.exec(). Use ProcessBuilder with argument list"
   cwe: "CWE-78"
@@ -463,8 +421,7 @@
 - id: java-processbuilder
   languages: [java]
   patterns:
-    - regex: 'new ProcessBuilder\s*\('
-  severity: high
+    - regex: 'new ProcessBuilder\s*\(''severity: high
   description: "ProcessBuilder usage — ensure no user input in commands"
   remediation: "Validate and sanitize all arguments to ProcessBuilder"
   cwe: "CWE-78"
@@ -473,8 +430,7 @@
 - id: java-objectinputstream
   languages: [java]
   patterns:
-    - regex: '(?i)(ObjectInputStream|readObject|readUnshared)\s*\('
-  severity: critical
+    - regex: '(?i)(ObjectInputStream|readObject|readUnshared)\s*\(''severity: critical
   description: "Object deserialization — remote code execution risk"
   remediation: "Use ObjectInputFilter (Java 9+). Avoid deserializing untrusted data"
   cwe: "CWE-502"
@@ -483,8 +439,7 @@
 - id: java-sql-string-concat
   languages: [java]
   patterns:
-    - regex: '(?i)(executeQuery|executeUpdate|execute)\s*\(\s*".*\+'
-  severity: critical
+    - regex: '(?i)(executeQuery|executeUpdate|execute)\s*\(\s*".*\+''severity: critical
   description: "SQL query built with string concatenation"
   remediation: "Use PreparedStatement with parameterized queries"
   cwe: "CWE-89"
@@ -493,8 +448,7 @@
 - id: java-sql-string-format
   languages: [java]
   patterns:
-    - regex: '(?i)String\.format\s*\(\s*".*(?:SELECT|INSERT|UPDATE|DELETE)'
-  severity: high
+    - regex: '(?i)String\.format\s*\(\s*".*(?:SELECT|INSERT|UPDATE|DELETE)''severity: high
   description: "SQL query built with String.format()"
   remediation: "Use PreparedStatement instead of String.format for SQL"
   cwe: "CWE-89"
@@ -503,8 +457,7 @@
 - id: java-file-user-input
   languages: [java]
   patterns:
-    - regex: 'new File\s*\(\s*.*request\.getParameter'
-  severity: high
+    - regex: 'new File\s*\(\s*.*request\.getParameter''severity: high
   description: "File created from user input — path traversal risk"
   remediation: "Validate path: use getCanonicalPath() and check against base dir"
   cwe: "CWE-22"
@@ -513,8 +466,7 @@
 - id: java-xxe-docbuilder
   languages: [java]
   patterns:
-    - regex: 'DocumentBuilderFactory\.newInstance\s*\('
-  severity: medium
+    - regex: 'DocumentBuilderFactory\.newInstance\s*\(''severity: medium
   description: "XML parser — ensure external entities are disabled"
   remediation: "factory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true)"
   cwe: "CWE-611"
@@ -523,8 +475,7 @@
 - id: java-saxparser
   languages: [java]
   patterns:
-    - regex: 'SAXParserFactory\.newInstance\s*\('
-  severity: medium
+    - regex: 'SAXParserFactory\.newInstance\s*\(''severity: medium
   description: "SAX XML parser — ensure external entities are disabled"
   remediation: "Disable DTDs and external entities in SAXParserFactory"
   cwe: "CWE-611"
@@ -533,8 +484,7 @@
 - id: java-xmlinputfactory
   languages: [java]
   patterns:
-    - regex: 'XMLInputFactory\.newInstance\s*\('
-  severity: medium
+    - regex: 'XMLInputFactory\.newInstance\s*\(''severity: medium
   description: "StAX XML parser — ensure external entities are disabled"
   remediation: "Set IS_SUPPORTING_EXTERNAL_ENTITIES to false"
   cwe: "CWE-611"
@@ -543,8 +493,7 @@
 - id: java-response-getwriter
   languages: [java]
   patterns:
-    - regex: '(?i)(getWriter|getOutputStream)\(\)\.write.*request\.getParameter'
-  severity: high
+    - regex: '(?i)(getWriter|getOutputStream)\(\)\.write.*request\.getParameter''severity: high
   description: "Direct output of user input — XSS vulnerability"
   remediation: "Encode output with OWASP ESAPI or StringEscapeUtils"
   cwe: "CWE-79"
@@ -553,8 +502,7 @@
 - id: java-zipentry-path
   languages: [java]
   patterns:
-    - regex: '(?i)ZipEntry|ZipInputStream|ZipFile'
-  severity: medium
+    - regex: '(?i)ZipEntry|ZipInputStream|ZipFile''severity: medium
   description: "Zip file handling — ensure path traversal protection"
   remediation: "Validate entry names: reject entries containing ../"
   cwe: "CWE-22"
@@ -563,8 +511,7 @@
 - id: java-ldap-search
   languages: [java]
   patterns:
-    - regex: '(?i)(DirContext|LdapContext|InitialDirContext).*search\s*\('
-  severity: high
+    - regex: '(?i)(DirContext|LdapContext|InitialDirContext).*search\s*\(''severity: high
   description: "LDAP search operation — ensure filter is sanitized"
   remediation: "Use parameterized LDAP filters"
   cwe: "CWE-90"
@@ -574,8 +521,7 @@
 - id: java-jdbc-connection-param
   languages: [java]
   patterns:
-    - regex: 'jdbc:.*request\.getParameter'
-  severity: critical
+    - regex: 'jdbc:.*request\.getParameter''severity: critical
   description: "JDBC connection string with user-controlled parameter"
   remediation: "Use environment variables for JDBC connection strings"
   cwe: "CWE-798"
@@ -584,8 +530,7 @@
 - id: java-file-constructor
   languages: [java]
   patterns:
-    - regex: 'new\s+File\s*\('
-  severity: medium
+    - regex: 'new\s+File\s*\(''severity: medium
   description: "File object creation — validate path if user-influenced"
   remediation: "Use getCanonicalPath() and verify against base directory"
   cwe: "CWE-22"
@@ -594,8 +539,7 @@
 - id: java-deserialization-chain
   languages: [java]
   patterns:
-    - regex: 'new\s+ObjectInputStream\s*\('
-  severity: critical
+    - regex: 'new\s+ObjectInputStream\s*\(''severity: critical
   description: "ObjectInputStream instantiation — deserialization attack vector"
   remediation: "Use ObjectInputFilter. Avoid deserializing untrusted data entirely"
   cwe: "CWE-502"
@@ -604,8 +548,7 @@
 - id: java-readobject-method
   languages: [java]
   patterns:
-    - regex: '\.readObject\s*\(\s*\)'
-  severity: critical
+    - regex: '\.readObject\s*\(\s*\)''severity: critical
   description: "readObject() call — unsafe deserialization"
   remediation: "Implement ObjectInputFilter or use JSON/XML serialization"
   cwe: "CWE-502"
@@ -614,8 +557,7 @@
 - id: java-statement-execute
   languages: [java]
   patterns:
-    - regex: '(?i)Statement.*execute(Query|Update)?\s*\('
-  severity: high
+    - regex: '(?i)Statement.*execute(Query|Update)?\s*\(''severity: high
   description: "Statement.execute() — use PreparedStatement instead"
   remediation: "Replace Statement with PreparedStatement for parameterized queries"
   cwe: "CWE-89"
@@ -624,8 +566,7 @@
 - id: java-string-concat-sql
   languages: [java]
   patterns:
-    - regex: '(?i)".*(?:SELECT|INSERT|UPDATE|DELETE|WHERE).*"\s*\+'
-  severity: critical
+    - regex: '(?i)".*(?:SELECT|INSERT|UPDATE|DELETE|WHERE).*"\s*\+''severity: critical
   description: "SQL string concatenation detected"
   remediation: "Use PreparedStatement with ? placeholders"
   cwe: "CWE-89"
@@ -634,8 +575,7 @@
 - id: java-xmlreader
   languages: [java]
   patterns:
-    - regex: '(?i)(XMLReader|SAXReader|SAXBuilder)\s*'
-  severity: medium
+    - regex: '(?i)(XMLReader|SAXReader|SAXBuilder)\s*''severity: medium
   description: "XML reader/parser — ensure external entities disabled"
   remediation: "Set feature: disallow-doctype-decl = true"
   cwe: "CWE-611"
@@ -644,8 +584,7 @@
 - id: java-transformer
   languages: [java]
   patterns:
-    - regex: 'TransformerFactory\.newInstance\s*\('
-  severity: medium
+    - regex: 'TransformerFactory\.newInstance\s*\(''severity: medium
   description: "XML transformer — ensure external entities disabled"
   remediation: "Set ACCESS_EXTERNAL_DTD and ACCESS_EXTERNAL_STYLESHEET to empty"
   cwe: "CWE-611"
@@ -654,8 +593,7 @@
 - id: java-serialize-to-file
   languages: [java]
   patterns:
-    - regex: 'new\s+ObjectOutputStream\s*\('
-  severity: medium
+    - regex: 'new\s+ObjectOutputStream\s*\(''severity: medium
   description: "Object serialization to stream — verify data is not intercepted"
   remediation: "Use encryption for serialized data. Prefer JSON"
   cwe: "CWE-502"
@@ -664,8 +602,7 @@
 - id: java-spring-modelandview
   languages: [java]
   patterns:
-    - regex: '(?i)ModelAndView\s*\(\s*.*request\.getParameter'
-  severity: high
+    - regex: '(?i)ModelAndView\s*\(\s*.*request\.getParameter''severity: high
   description: "Spring ModelAndView with user input — potential SSTI"
   remediation: "Never use user input as view name. Use fixed view names"
   cwe: "CWE-1336"
@@ -677,7 +614,7 @@
 - id: java-cache-poisoning-headers
   languages: [java]
   patterns:
-    - regex: 'request\.getHeader\s*\(\s*(?i)["''](x-forwarded-host|x-forwarded-scheme|x-original-url|x-rewrite-url)["'']'
+    - regex: 'request\.getHeader\s*\(\s*(?i)["'''](x-forwarded-host|x-forwarded-scheme|x-original-url|x-rewrite-url)["'']'
   severity: medium
   description: "Cache poisoning via unkeyed HTTP header"
   remediation: "Validate forwarded headers; set correct Vary headers"
@@ -688,8 +625,7 @@
 - id: java-regex-dos
   languages: [java]
   patterns:
-    - regex: 'Pattern\.compile\s*\(\s*".*\(\.\*\).*(\+|\*|\{.*\}).*\)\s*"'
-  severity: medium
+    - regex: 'Pattern\.compile\s*\(\s*".*\(\.\*\).*(\+|\*|\{.*\}).*\)\s*"''severity: medium
   description: "ReDoS via catastrophic backtracking in regex"
   remediation: "Avoid nested quantifiers in regex patterns"
   cwe: "CWE-1333"
@@ -699,8 +635,7 @@
 - id: java-open-redirect-sendredirect
   languages: [java]
   patterns:
-    - regex: 'response\.sendRedirect\s*\(\s*request\.getParameter\s*\('
-  severity: high
+    - regex: 'response\.sendRedirect\s*\(\s*request\.getParameter\s*\(''severity: high
   description: "Open redirect via user-controlled parameter"
   remediation: "Validate redirect URLs against domain whitelist"
   cwe: "CWE-601"
@@ -710,7 +645,7 @@
 - id: java-cors-wildcard
   languages: [java]
   patterns:
-    - regex: 'setHeader\s*\(\s*["'']Access-Control-Allow-Origin["'']\s*,\s*["'']\*["'']\s*\)'
+    - regex: 'setHeader\s*\(\s*["''']Access-Control-Allow-Origin["'']\s*,\s*["'']\*["'']\s*\)'
   severity: high
   description: "CORS wildcard allows any origin"
   remediation: "Explicitly list allowed origins"
@@ -720,7 +655,7 @@
 - id: java-cors-reflected
   languages: [java]
   patterns:
-    - regex: 'setHeader\s*\(\s*["'']Access-Control-Allow-Origin["'']\s*,\s*request\.getHeader\s*\(\s*["'']Origin["'']\s*\)\s*\)'
+    - regex: 'setHeader\s*\(\s*["''']Access-Control-Allow-Origin["'']\s*,\s*request\.getHeader\s*\(\s*["'']Origin["'']\s*\)\s*\)'
   severity: critical
   description: "CORS origin reflected without validation"
   remediation: "Validate Origin against whitelist before reflecting"
@@ -731,8 +666,7 @@
 - id: java-file-upload-no-validation
   languages: [java]
   patterns:
-    - regex: 'MultipartFile\.transferTo\s*\(\s*new\s*File\s*\('
-  severity: high
+    - regex: 'MultipartFile\.transferTo\s*\(\s*new\s*File\s*\(''severity: high
   description: "File upload without extension/content validation"
   remediation: "Validate file extension and MIME type"
   cwe: "CWE-434"
@@ -742,8 +676,7 @@
 - id: java-format-string
   languages: [java]
   patterns:
-    - regex: 'String\.format\s*\(\s*request\.getParameter\s*\('
-  severity: high
+    - regex: 'String\.format\s*\(\s*request\.getParameter\s*\(''severity: high
   description: "Format string injection with user input"
   remediation: "Sanitize user input before using in format strings"
   cwe: "CWE-134"
@@ -753,8 +686,7 @@
 - id: java-race-condition
   languages: [java]
   patterns:
-    - regex: 'if\s*\(!.*\.exists\(\)\)\s*\{[^}]*.*\.createNewFile\(\)'
-  severity: medium
+    - regex: 'if\s*\(!.*\.exists\(\)\)\s*\{[^}]*.*\.createNewFile\(\)''severity: medium
   description: "TOCTOU race condition in file creation"
   remediation: "Use atomic file constraints or locking"
   cwe: "CWE-367"
@@ -763,8 +695,7 @@
 - id: java-mass-assignment
   languages: [java]
   patterns:
-    - regex: '@ModelAttribute\s+[A-Za-z0-9_]+\s+[A-Za-z0-9_]+(?!\s*@Valid)'
-  severity: medium
+    - regex: '@ModelAttribute\s+[A-Za-z0-9_]+\s+[A-Za-z0-9_]+''severity: medium
   description: "Potential mass assignment in Spring MVC without validation"
   remediation: "Use DTOs tailored to the specific request; avoid binding domain objects directly"
   cwe: "CWE-915"
@@ -782,8 +713,7 @@
 - id: java-spring-security-config
   languages: [java]
   patterns:
-    - regex: '@EnableWebSecurity'
-  severity: low
+    - regex: '@EnableWebSecurity''severity: low
   description: "Spring Security enabled"
   remediation: "Configure security properly"
   cwe: "CWE-306"
@@ -792,8 +722,7 @@
 - id: java-spring-security-http
   languages: [java]
   patterns:
-    - regex: 'http\\s*\\.\\s*authorizeRequests\\s*\\('
-  severity: low
+    - regex: 'http\\s*\\.\\s*authorizeRequests\\s*\\(''severity: low
   description: "Spring Security HTTP config"
   remediation: "Configure authorization rules"
   cwe: "CWE-284"
@@ -802,8 +731,7 @@
 - id: java-spring-security-permit-all
   languages: [java]
   patterns:
-    - regex: '\\.permitAll\\s*\\('
-  severity: medium
+    - regex: '\\.permitAll\\s*\\(''severity: medium
   description: "Spring Security permitAll"
   remediation: "Review permitAll endpoints"
   cwe: "CWE-284"
@@ -812,8 +740,7 @@
 - id: java-spring-security-authenticated
   languages: [java]
   patterns:
-    - regex: '\\.authenticated\\s*\\('
-  severity: low
+    - regex: '\\.authenticated\\s*\\(''severity: low
   description: "Spring Security authenticated"
   remediation: "Good practice for protected endpoints"
   cwe: "CWE-306"
@@ -822,8 +749,7 @@
 - id: java-spring-security-has-role
   languages: [java]
   patterns:
-    - regex: '\\.hasRole\\s*\\('
-  severity: low
+    - regex: '\\.hasRole\\s*\\(''severity: low
   description: "Spring Security role check"
   remediation: "Define roles properly"
   cwe: "CWE-284"
@@ -832,8 +758,7 @@
 - id: java-spring-security-has-authority
   languages: [java]
   patterns:
-    - regex: '\\.hasAuthority\\s*\\('
-  severity: low
+    - regex: '\\.hasAuthority\\s*\\(''severity: low
   description: "Spring Security authority check"
   remediation: "Define authorities properly"
   cwe: "CWE-284"
@@ -842,8 +767,7 @@
 - id: java-spring-security-csrf-config
   languages: [java]
   patterns:
-    - regex: '\\.csrf\\s*\\('
-  severity: low
+    - regex: '\\.csrf\\s*\\(''severity: low
   description: "Spring Security CSRF config"
   remediation: "Keep CSRF enabled"
   cwe: "CWE-352"
@@ -852,8 +776,7 @@
 - id: java-spring-security-cors-config
   languages: [java]
   patterns:
-    - regex: '\\.cors\\s*\\('
-  severity: low
+    - regex: '\\.cors\\s*\\(''severity: low
   description: "Spring Security CORS config"
   remediation: "Configure CORS properly"
   cwe: "CWE-942"
@@ -862,8 +785,7 @@
 - id: java-spring-security-headers-config
   languages: [java]
   patterns:
-    - regex: '\\.headers\\s*\\('
-  severity: low
+    - regex: '\\.headers\\s*\\(''severity: low
   description: "Spring Security headers config"
   remediation: "Configure security headers"
   cwe: "CWE-693"
@@ -872,8 +794,7 @@
 - id: java-spring-security-frame-options
   languages: [java]
   patterns:
-    - regex: '\\.frameOptions\\s*\\('
-  severity: low
+    - regex: '\\.frameOptions\\s*\\(''severity: low
   description: "Spring Security frame options"
   remediation: "Configure X-Frame-Options"
   cwe: "CWE-1021"
@@ -882,8 +803,7 @@
 - id: java-spring-security-content-type
   languages: [java]
   patterns:
-    - regex: '\\.contentTypeOptions\\s*\\('
-  severity: low
+    - regex: '\\.contentTypeOptions\\s*\\(''severity: low
   description: "Spring Security content type options"
   remediation: "Configure X-Content-Type-Options"
   cwe: "CWE-693"
@@ -892,8 +812,7 @@
 - id: java-spring-security-xss-protection
   languages: [java]
   patterns:
-    - regex: '\\.xssProtection\\s*\\('
-  severity: low
+    - regex: '\\.xssProtection\\s*\\(''severity: low
   description: "Spring Security XSS protection"
   remediation: "Configure XSS-Protection header"
   cwe: "CWE-79"
@@ -902,8 +821,7 @@
 - id: java-spring-security-hsts
   languages: [java]
   patterns:
-    - regex: '\\.httpStrictTransportSecurity\\s*\\('
-  severity: low
+    - regex: '\\.httpStrictTransportSecurity\\s*\\(''severity: low
   description: "Spring Security HSTS"
   remediation: "Configure HSTS properly"
   cwe: "CWE-319"
@@ -912,8 +830,7 @@
 - id: java-spring-security-cache-control
   languages: [java]
   patterns:
-    - regex: '\\.cacheControl\\s*\\('
-  severity: low
+    - regex: '\\.cacheControl\\s*\\(''severity: low
   description: "Spring Security cache control"
   remediation: "Configure cache headers"
   cwe: "CWE-524"
@@ -922,8 +839,7 @@
 - id: java-spring-security-password-encoder
   languages: [java]
   patterns:
-    - regex: 'PasswordEncoder\\s*\\('
-  severity: low
+    - regex: 'PasswordEncoder\\s*\\(''severity: low
   description: "Spring Security password encoder"
   remediation: "Use BCrypt or Argon2"
   cwe: "CWE-328"
@@ -932,8 +848,7 @@
 - id: java-spring-security-oauth2
   languages: [java]
   patterns:
-    - regex: 'oauth2Login\\s*\\('
-  severity: low
+    - regex: 'oauth2Login\\s*\\(''severity: low
   description: "Spring Security OAuth2"
   remediation: "Configure OAuth2 properly"
   cwe: "CWE-306"
@@ -942,8 +857,7 @@
 - id: java-spring-security-saml2
   languages: [java]
   patterns:
-    - regex: 'saml2Login\\s*\\('
-  severity: low
+    - regex: 'saml2Login\\s*\\(''severity: low
   description: "Spring Security SAML2"
   remediation: "Configure SAML2 properly"
   cwe: "CWE-306"
@@ -952,8 +866,7 @@
 - id: java-spring-security-ldap
   languages: [java]
   patterns:
-    - regex: 'ldapAuthentication\\s*\\('
-  severity: low
+    - regex: 'ldapAuthentication\\s*\\(''severity: low
   description: "Spring Security LDAP"
   remediation: "Configure LDAP securely"
   cwe: "CWE-90"
@@ -962,8 +875,7 @@
 - id: java-spring-security-jdbc
   languages: [java]
   patterns:
-    - regex: 'jdbcAuthentication\\s*\\('
-  severity: low
+    - regex: 'jdbcAuthentication\\s*\\(''severity: low
   description: "Spring Security JDBC"
   remediation: "Secure JDBC authentication"
   cwe: "CWE-89"
@@ -972,8 +884,7 @@
 - id: java-spring-security-in-memory
   languages: [java]
   patterns:
-    - regex: 'inMemoryAuthentication\\s*\\('
-  severity: medium
+    - regex: 'inMemoryAuthentication\\s*\\(''severity: medium
   description: "Spring Security in-memory auth"
   remediation: "Don't use in production"
   cwe: "CWE-798"
@@ -982,8 +893,7 @@
 - id: java-hibernate-entity
   languages: [java]
   patterns:
-    - regex: '@Entity'
-  severity: low
+    - regex: '@Entity''severity: low
   description: "Hibernate entity"
   remediation: "Don't expose entities directly"
   cwe: "CWE-200"
@@ -992,8 +902,7 @@
 - id: java-hibernate-table
   languages: [java]
   patterns:
-    - regex: '@Table'
-  severity: low
+    - regex: '@Table''severity: low
   description: "Hibernate table mapping"
   remediation: "Review table mappings"
   cwe: "CWE-89"
@@ -1002,8 +911,7 @@
 - id: java-hibernate-column
   languages: [java]
   patterns:
-    - regex: '@Column'
-  severity: low
+    - regex: '@Column''severity: low
   description: "Hibernate column mapping"
   remediation: "Don't expose sensitive columns"
   cwe: "CWE-200"
@@ -1012,8 +920,7 @@
 - id: java-hibernate-id
   languages: [java]
   patterns:
-    - regex: '@Id'
-  severity: low
+    - regex: '@Id''severity: low
   description: "Hibernate ID mapping"
   remediation: "Use appropriate ID generation"
   cwe: "CWE-89"
@@ -1022,8 +929,7 @@
 - id: java-hibernate-generated-value
   languages: [java]
   patterns:
-    - regex: '@GeneratedValue'
-  severity: low
+    - regex: '@GeneratedValue''severity: low
   description: "Hibernate generated value"
   remediation: "Use appropriate generation strategy"
   cwe: "CWE-89"
@@ -1032,8 +938,7 @@
 - id: java-hibernate-one-to-many
   languages: [java]
   patterns:
-    - regex: '@OneToMany'
-  severity: low
+    - regex: '@OneToMany''severity: low
   description: "Hibernate OneToMany"
   remediation: "Configure fetch type properly"
   cwe: "CWE-89"
@@ -1042,8 +947,7 @@
 - id: java-hibernate-many-to-one
   languages: [java]
   patterns:
-    - regex: '@ManyToOne'
-  severity: low
+    - regex: '@ManyToOne''severity: low
   description: "Hibernate ManyToOne"
   remediation: "Configure fetch type properly"
   cwe: "CWE-89"
@@ -1052,8 +956,7 @@
 - id: java-hibernate-one-to-one
   languages: [java]
   patterns:
-    - regex: '@OneToOne'
-  severity: low
+    - regex: '@OneToOne''severity: low
   description: "Hibernate OneToOne"
   remediation: "Configure fetch type properly"
   cwe: "CWE-89"
@@ -1062,8 +965,7 @@
 - id: java-hibernate-many-to-many
   languages: [java]
   patterns:
-    - regex: '@ManyToMany'
-  severity: low
+    - regex: '@ManyToMany''severity: low
   description: "Hibernate ManyToMany"
   remediation: "Configure fetch type properly"
   cwe: "CWE-89"
@@ -1072,8 +974,7 @@
 - id: java-hibernate-fetch-type
   languages: [java]
   patterns:
-    - regex: 'fetch\\s*=\\s*FetchType\\.EAGER'
-  severity: medium
+    - regex: 'fetch\\s*=\\s*FetchType\\.EAGER''severity: medium
   description: "Hibernate EAGER fetch"
   remediation: "Use LAZY fetch to avoid N+1"
   cwe: "CWE-770"
@@ -1082,8 +983,7 @@
 - id: java-hibernate-cascade
   languages: [java]
   patterns:
-    - regex: 'cascade\\s*=\\s*CascadeType\\.ALL'
-  severity: medium
+    - regex: 'cascade\\s*=\\s*CascadeType\\.ALL''severity: medium
   description: "Hibernate cascade ALL"
   remediation: "Use specific cascade types"
   cwe: "CWE-89"
@@ -1092,8 +992,7 @@
 - id: java-hibernate-orphan-removal
   languages: [java]
   patterns:
-    - regex: 'orphanRemoval\\s*=\\s*true'
-  severity: low
+    - regex: 'orphanRemoval\\s*=\\s*true''severity: low
   description: "Hibernate orphan removal"
   remediation: "Review orphan removal logic"
   cwe: "CWE-89"
@@ -1102,8 +1001,7 @@
 - id: java-hibernate-transient
   languages: [java]
   patterns:
-    - regex: '@Transient'
-  severity: low
+    - regex: '@Transient''severity: low
   description: "Hibernate transient field"
   remediation: "Don't store sensitive data"
   cwe: "CWE-312"
@@ -1112,8 +1010,7 @@
 - id: java-hibernate-version
   languages: [java]
   patterns:
-    - regex: '@Version'
-  severity: low
+    - regex: '@Version''severity: low
   description: "Hibernate version field"
   remediation: "Good for optimistic locking"
   cwe: "CWE-362"
@@ -1122,8 +1019,7 @@
 - id: java-hibernate-embeddable
   languages: [java]
   patterns:
-    - regex: '@Embeddable'
-  severity: low
+    - regex: '@Embeddable''severity: low
   description: "Hibernate embeddable"
   remediation: "Review embeddable content"
   cwe: "CWE-89"
@@ -1132,8 +1028,7 @@
 - id: java-hibernate-embedded
   languages: [java]
   patterns:
-    - regex: '@Embedded'
-  severity: low
+    - regex: '@Embedded''severity: low
   description: "Hibernate embedded"
   remediation: "Review embedded content"
   cwe: "CWE-89"
@@ -1142,8 +1037,7 @@
 - id: java-hibernate-formula
   languages: [java]
   patterns:
-    - regex: '@Formula'
-  severity: medium
+    - regex: '@Formula''severity: medium
   description: "Hibernate formula"
   remediation: "Review formula for SQL injection"
   cwe: "CWE-89"
@@ -1152,8 +1046,7 @@
 - id: java-hibernate-sql-restriction
   languages: [java]
   patterns:
-    - regex: '@SQLRestriction'
-  severity: medium
+    - regex: '@SQLRestriction''severity: medium
   description: "Hibernate SQL restriction"
   remediation: "Review for SQL injection"
   cwe: "CWE-89"
@@ -1162,8 +1055,7 @@
 - id: java-hibernate-named-query
   languages: [java]
   patterns:
-    - regex: '@NamedQuery'
-  severity: low
+    - regex: '@NamedQuery''severity: low
   description: "Hibernate named query"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -1172,8 +1064,7 @@
 - id: java-hibernate-named-native-query
   languages: [java]
   patterns:
-    - regex: '@NamedNativeQuery'
-  severity: medium
+    - regex: '@NamedNativeQuery''severity: medium
   description: "Hibernate named native query"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -1182,8 +1073,7 @@
 - id: java-servlet-http-servlet
   languages: [java]
   patterns:
-    - regex: 'extends\\s+HttpServlet'
-  severity: low
+    - regex: 'extends\\s+HttpServlet''severity: low
   description: "HTTP Servlet"
   remediation: "Implement security in servlets"
   cwe: "CWE-306"
@@ -1192,8 +1082,7 @@
 - id: java-servlet-do-get
   languages: [java]
   patterns:
-    - regex: 'doGet\\s*\\('
-  severity: low
+    - regex: 'doGet\\s*\\(''severity: low
   description: "Servlet doGet"
   remediation: "Don't use GET for state changes"
   cwe: "CWE-352"
@@ -1202,8 +1091,7 @@
 - id: java-servlet-do-post
   languages: [java]
   patterns:
-    - regex: 'doPost\\s*\\('
-  severity: low
+    - regex: 'doPost\\s*\\(''severity: low
   description: "Servlet doPost"
   remediation: "Implement CSRF protection"
   cwe: "CWE-352"
@@ -1212,8 +1100,7 @@
 - id: java-servlet-do-put
   languages: [java]
   patterns:
-    - regex: 'doPut\\s*\\('
-  severity: low
+    - regex: 'doPut\\s*\\(''severity: low
   description: "Servlet doPut"
   remediation: "Implement authorization"
   cwe: "CWE-284"
@@ -1222,8 +1109,7 @@
 - id: java-servlet-do-delete
   languages: [java]
   patterns:
-    - regex: 'doDelete\\s*\\('
-  severity: low
+    - regex: 'doDelete\\s*\\(''severity: low
   description: "Servlet doDelete"
   remediation: "Implement authorization"
   cwe: "CWE-284"
@@ -1232,8 +1118,7 @@
 - id: java-servlet-forward
   languages: [java]
   patterns:
-    - regex: '\\.forward\\s*\\('
-  severity: medium
+    - regex: '\\.forward\\s*\\(''severity: medium
   description: "Servlet forward"
   remediation: "Validate forward paths"
   cwe: "CWE-98"
@@ -1242,8 +1127,7 @@
 - id: java-servlet-include
   languages: [java]
   patterns:
-    - regex: '\\.include\\s*\\('
-  severity: medium
+    - regex: '\\.include\\s*\\(''severity: medium
   description: "Servlet include"
   remediation: "Validate include paths"
   cwe: "CWE-98"
@@ -1252,8 +1136,7 @@
 - id: java-servlet-send-redirect
   languages: [java]
   patterns:
-    - regex: 'sendRedirect\\s*\\('
-  severity: medium
+    - regex: 'sendRedirect\\s*\\(''severity: medium
   description: "Servlet sendRedirect"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -1262,8 +1145,7 @@
 - id: java-servlet-session
   languages: [java]
   patterns:
-    - regex: 'getSession\\s*\\('
-  severity: low
+    - regex: 'getSession\\s*\\(''severity: low
   description: "Servlet session"
   remediation: "Configure session securely"
   cwe: "CWE-613"
@@ -1272,8 +1154,7 @@
 - id: java-servlet-cookie
   languages: [java]
   patterns:
-    - regex: 'new\\s+Cookie\\s*\\('
-  severity: medium
+    - regex: 'new\\s+Cookie\\s*\\(''severity: medium
   description: "Servlet cookie"
   remediation: "Set Secure and HttpOnly"
   cwe: "CWE-614"
@@ -1282,8 +1163,7 @@
 - id: java-servlet-filter
   languages: [java]
   patterns:
-    - regex: 'implements\\s+Filter'
-  severity: low
+    - regex: 'implements\\s+Filter''severity: low
   description: "Servlet filter"
   remediation: "Implement security filters"
   cwe: "CWE-306"
@@ -1292,8 +1172,7 @@
 - id: java-servlet-listener
   languages: [java]
   patterns:
-    - regex: 'implements\\s+.*Listener'
-  severity: low
+    - regex: 'implements\\s+.*Listener''severity: low
   description: "Servlet listener"
   remediation: "Secure listener implementation"
   cwe: "CWE-693"
@@ -1302,8 +1181,7 @@
 - id: java-jsp-scriptlet
   languages: [java]
   patterns:
-    - regex: '<%[^@]'
-  severity: high
+    - regex: '<%[^@]''severity: high
   description: "JSP scriptlet"
   remediation: "Use JSTL instead of scriptlets"
   cwe: "CWE-79"
@@ -1312,8 +1190,7 @@
 - id: java-jsp-expression
   languages: [java]
   patterns:
-    - regex: '<%='
-  severity: high
+    - regex: '<%=''severity: high
   description: "JSP expression"
   remediation: "Escape output properly"
   cwe: "CWE-79"
@@ -1322,8 +1199,7 @@
 - id: java-jsp-declaration
   languages: [java]
   patterns:
-    - regex: '<%!'
-  severity: medium
+    - regex: '<%!''severity: medium
   description: "JSP declaration"
   remediation: "Avoid JSP declarations"
   cwe: "CWE-79"
@@ -1332,8 +1208,7 @@
 - id: java-jsp-jstl
   languages: [java]
   patterns:
-    - regex: '<c:out'
-  severity: low
+    - regex: '<c:out''severity: low
   description: "JSTL out tag"
   remediation: "Good for escaping output"
   cwe: "CWE-79"
@@ -1342,8 +1217,7 @@
 - id: java-jsp-jstl-foreach
   languages: [java]
   patterns:
-    - regex: '<c:forEach'
-  severity: low
+    - regex: '<c:forEach''severity: low
   description: "JSTL forEach tag"
   remediation: "Validate iteration data"
   cwe: "CWE-20"
@@ -1352,8 +1226,7 @@
 - id: java-jsp-jstl-if
   languages: [java]
   patterns:
-    - regex: '<c:if'
-  severity: low
+    - regex: '<c:if''severity: low
   description: "JSTL if tag"
   remediation: "Validate condition"
   cwe: "CWE-20"
@@ -1362,8 +1235,7 @@
 - id: java-jsp-jstl-choose
   languages: [java]
   patterns:
-    - regex: '<c:choose'
-  severity: low
+    - regex: '<c:choose''severity: low
   description: "JSTL choose tag"
   remediation: "Validate conditions"
   cwe: "CWE-20"
@@ -1372,8 +1244,7 @@
 - id: java-jsp-taglib
   languages: [java]
   patterns:
-    - regex: '<%@\\s*taglib'
-  severity: low
+    - regex: '<%@\\s*taglib''severity: low
   description: "JSP taglib"
   remediation: "Use trusted tag libraries"
   cwe: "CWE-693"
@@ -1382,8 +1253,7 @@
 - id: java-jsp-include
   languages: [java]
   patterns:
-    - regex: '<%@\\s*include'
-  severity: medium
+    - regex: '<%@\\s*include''severity: medium
   description: "JSP include"
   remediation: "Validate included files"
   cwe: "CWE-98"
@@ -1392,8 +1262,7 @@
 - id: java-jsp-page-directive
   languages: [java]
   patterns:
-    - regex: '<%@\\s*page'
-  severity: low
+    - regex: '<%@\\s*page''severity: low
   description: "JSP page directive"
   remediation: "Configure page securely"
   cwe: "CWE-693"
@@ -1402,8 +1271,7 @@
 - id: java-jsp-error-page
   languages: [java]
   patterns:
-    - regex: 'errorPage\\s*='
-  severity: low
+    - regex: 'errorPage\\s*=''severity: low
   description: "JSP error page"
   remediation: "Don't expose error details"
   cwe: "CWE-209"
@@ -1412,8 +1280,7 @@
 - id: java-jsp-is-error-page
   languages: [java]
   patterns:
-    - regex: 'isErrorPage\\s*='
-  severity: low
+    - regex: 'isErrorPage\\s*=''severity: low
   description: "JSP error page flag"
   remediation: "Handle errors securely"
   cwe: "CWE-209"
@@ -1423,8 +1290,7 @@
 - id: java-log4j-config
   languages: [java]
   patterns:
-    - regex: 'log4j\\.properties|log4j2\\.xml'
-  severity: low
+    - regex: 'log4j\\.properties|log4j2\\.xml''severity: low
   description: "Log4j configuration"
   remediation: "Configure logging securely"
   cwe: "CWE-532"
@@ -1433,8 +1299,7 @@
 - id: java-logback-config
   languages: [java]
   patterns:
-    - regex: 'logback\\.xml'
-  severity: low
+    - regex: 'logback\\.xml''severity: low
   description: "Logback configuration"
   remediation: "Configure logging securely"
   cwe: "CWE-532"
@@ -1443,8 +1308,7 @@
 - id: java-log4j-appender
   languages: [java]
   patterns:
-    - regex: 'ConsoleAppender|FileAppender'
-  severity: low
+    - regex: 'ConsoleAppender|FileAppender''severity: low
   description: "Log4j appender"
   remediation: "Configure appenders securely"
   cwe: "CWE-532"
@@ -1453,8 +1317,7 @@
 - id: java-slf4j-logger
   languages: [java]
   patterns:
-    - regex: 'LoggerFactory\\.getLogger'
-  severity: low
+    - regex: 'LoggerFactory\\.getLogger''severity: low
   description: "SLF4J logger"
   remediation: "Configure logging properly"
   cwe: "CWE-532"
@@ -1463,8 +1326,7 @@
 - id: java-commons-logging
   languages: [java]
   patterns:
-    - regex: 'LogFactory\\.getLog'
-  severity: low
+    - regex: 'LogFactory\\.getLog''severity: low
   description: "Commons Logging"
   remediation: "Migrate to SLF4J"
   cwe: "CWE-693"
@@ -1473,8 +1335,7 @@
 - id: java-java-util-logging
   languages: [java]
   patterns:
-    - regex: 'Logger\\.getLogger'
-  severity: low
+    - regex: 'Logger\\.getLogger''severity: low
   description: "Java Util Logging"
   remediation: "Configure logging properly"
   cwe: "CWE-532"
@@ -1483,8 +1344,7 @@
 - id: java-log-level-debug
   languages: [java]
   patterns:
-    - regex: '\\.debug\\s*\\('
-  severity: low
+    - regex: '\\.debug\\s*\\(''severity: low
   description: "Debug logging"
   remediation: "Disable in production"
   cwe: "CWE-532"
@@ -1493,8 +1353,7 @@
 - id: java-log-level-trace
   languages: [java]
   patterns:
-    - regex: '\\.trace\\s*\\('
-  severity: low
+    - regex: '\\.trace\\s*\\(''severity: low
   description: "Trace logging"
   remediation: "Disable in production"
   cwe: "CWE-532"
@@ -1503,8 +1362,7 @@
 - id: java-log-level-info
   languages: [java]
   patterns:
-    - regex: '\\.info\\s*\\('
-  severity: low
+    - regex: '\\.info\\s*\\(''severity: low
   description: "Info logging"
   remediation: "Don't log sensitive data"
   cwe: "CWE-532"
@@ -1513,8 +1371,7 @@
 - id: java-log-level-warn
   languages: [java]
   patterns:
-    - regex: '\\.warn\\s*\\('
-  severity: low
+    - regex: '\\.warn\\s*\\(''severity: low
   description: "Warning logging"
   remediation: "Don't log sensitive data"
   cwe: "CWE-532"
@@ -1523,8 +1380,7 @@
 - id: java-log-level-error
   languages: [java]
   patterns:
-    - regex: '\\.error\\s*\\('
-  severity: low
+    - regex: '\\.error\\s*\\(''severity: low
   description: "Error logging"
   remediation: "Don't expose stack traces"
   cwe: "CWE-209"
@@ -1533,8 +1389,7 @@
 - id: java-micrometer-metrics
   languages: [java]
   patterns:
-    - regex: 'MeterRegistry|micrometer'
-  severity: low
+    - regex: 'MeterRegistry|micrometer''severity: low
   description: "Micrometer metrics"
   remediation: "Secure metrics endpoint"
   cwe: "CWE-200"
@@ -1543,8 +1398,7 @@
 - id: java-prometheus-endpoint
   languages: [java]
   patterns:
-    - regex: '/prometheus|/metrics'
-  severity: medium
+    - regex: '/prometheus|/metrics''severity: medium
   description: "Prometheus metrics endpoint"
   remediation: "Secure metrics endpoint"
   cwe: "CWE-200"
@@ -1553,8 +1407,7 @@
 - id: java-health-endpoint
   languages: [java]
   patterns:
-    - regex: '/health|/actuator/health'
-  severity: low
+    - regex: '/health|/actuator/health''severity: low
   description: "Health endpoint"
   remediation: "Limit health endpoint exposure"
   cwe: "CWE-200"
@@ -1563,8 +1416,7 @@
 - id: java-info-endpoint
   languages: [java]
   patterns:
-    - regex: '/info|/actuator/info'
-  severity: medium
+    - regex: '/info|/actuator/info''severity: medium
   description: "Info endpoint"
   remediation: "Limit info endpoint exposure"
   cwe: "CWE-200"
@@ -1573,8 +1425,7 @@
 - id: java-env-endpoint
   languages: [java]
   patterns:
-    - regex: '/env|/actuator/env'
-  severity: high
+    - regex: '/env|/actuator/env''severity: high
   description: "Environment endpoint"
   remediation: "Secure environment endpoint"
   cwe: "CWE-200"
@@ -1583,8 +1434,7 @@
 - id: java-beans-endpoint
   languages: [java]
   patterns:
-    - regex: '/beans|/actuator/beans'
-  severity: medium
+    - regex: '/beans|/actuator/beans''severity: medium
   description: "Beans endpoint"
   remediation: "Secure beans endpoint"
   cwe: "CWE-200"
@@ -1593,8 +1443,7 @@
 - id: java-mappings-endpoint
   languages: [java]
   patterns:
-    - regex: '/mappings|/actuator/mappings'
-  severity: medium
+    - regex: '/mappings|/actuator/mappings''severity: medium
   description: "Mappings endpoint"
   remediation: "Secure mappings endpoint"
   cwe: "CWE-200"
@@ -1603,8 +1452,7 @@
 - id: java-heapdump-endpoint
   languages: [java]
   patterns:
-    - regex: '/heapdump|/actuator/heapdump'
-  severity: high
+    - regex: '/heapdump|/actuator/heapdump''severity: high
   description: "Heap dump endpoint"
   remediation: "Secure heap dump endpoint"
   cwe: "CWE-200"
@@ -1613,8 +1461,7 @@
 - id: java-threaddump-endpoint
   languages: [java]
   patterns:
-    - regex: '/threaddump|/actuator/threaddump'
-  severity: medium
+    - regex: '/threaddump|/actuator/threaddump''severity: medium
   description: "Thread dump endpoint"
   remediation: "Secure thread dump endpoint"
   cwe: "CWE-200"
@@ -1623,8 +1470,7 @@
 - id: java-logfile-endpoint
   languages: [java]
   patterns:
-    - regex: '/logfile|/actuator/logfile'
-  severity: high
+    - regex: '/logfile|/actuator/logfile''severity: high
   description: "Log file endpoint"
   remediation: "Secure log file endpoint"
   cwe: "CWE-532"
@@ -1633,8 +1479,7 @@
 - id: java-httptrace-endpoint
   languages: [java]
   patterns:
-    - regex: '/httptrace|/actuator/httptrace'
-  severity: medium
+    - regex: '/httptrace|/actuator/httptrace''severity: medium
   description: "HTTP trace endpoint"
   remediation: "Secure HTTP trace endpoint"
   cwe: "CWE-200"
@@ -1643,8 +1488,7 @@
 - id: java-auditevents-endpoint
   languages: [java]
   patterns:
-    - regex: '/auditevents|/actuator/auditevents'
-  severity: low
+    - regex: '/auditevents|/actuator/auditevents''severity: low
   description: "Audit events endpoint"
   remediation: "Secure audit events endpoint"
   cwe: "CWE-778"
@@ -1653,8 +1497,7 @@
 - id: java-conditions-endpoint
   languages: [java]
   patterns:
-    - regex: '/conditions|/actuator/conditions'
-  severity: low
+    - regex: '/conditions|/actuator/conditions''severity: low
   description: "Conditions endpoint"
   remediation: "Secure conditions endpoint"
   cwe: "CWE-200"
@@ -1664,8 +1507,7 @@
 - id: java-maven-pom
   languages: [java]
   patterns:
-    - regex: 'pom\\.xml'
-  severity: low
+    - regex: 'pom\\.xml''severity: low
   description: "Maven POM file"
   remediation: "Review dependencies"
   cwe: "CWE-1391"
@@ -1674,8 +1516,7 @@
 - id: java-maven-dependency
   languages: [java]
   patterns:
-    - regex: '<dependency>'
-  severity: low
+    - regex: '<dependency>''severity: low
   description: "Maven dependency"
   remediation: "Pin dependency versions"
   cwe: "CWE-1391"
@@ -1684,8 +1525,7 @@
 - id: java-maven-plugin
   languages: [java]
   patterns:
-    - regex: '<plugin>'
-  severity: low
+    - regex: '<plugin>''severity: low
   description: "Maven plugin"
   remediation: "Pin plugin versions"
   cwe: "CWE-1391"
@@ -1694,8 +1534,7 @@
 - id: java-gradle-build
   languages: [java]
   patterns:
-    - regex: 'build\\.gradle'
-  severity: low
+    - regex: 'build\\.gradle''severity: low
   description: "Gradle build file"
   remediation: "Review dependencies"
   cwe: "CWE-1391"
@@ -1704,7 +1543,7 @@
 - id: java-gradle-dependency
   languages: [java]
   patterns:
-    - regex: 'implementation\\s*''|compile\\s*'''
+    - regex: 'implementation\\s*'''|compile\\s*'''
   severity: low
   description: "Gradle dependency"
   remediation: "Pin dependency versions"
@@ -1714,8 +1553,7 @@
 - id: java-gradle-plugin
   languages: [java]
   patterns:
-    - regex: 'apply\\s*plugin'
-  severity: low
+    - regex: 'apply\\s*plugin''severity: low
   description: "Gradle plugin"
   remediation: "Pin plugin versions"
   cwe: "CWE-1391"
@@ -1724,8 +1562,7 @@
 - id: java-kubernetes-manifest
   languages: [java]
   patterns:
-    - regex: '\\.yaml|\\.yml'
-  severity: low
+    - regex: '\\.yaml|\\.yml''severity: low
   description: "Kubernetes manifest"
   remediation: "Secure Kubernetes configuration"
   cwe: "CWE-693"
@@ -1734,8 +1571,7 @@
 - id: java-helm-chart
   languages: [java]
   patterns:
-    - regex: 'Chart\\.yaml|values\\.yaml'
-  severity: low
+    - regex: 'Chart\\.yaml|values\\.yaml''severity: low
   description: "Helm chart"
   remediation: "Secure Helm configuration"
   cwe: "CWE-693"
@@ -1744,8 +1580,7 @@
 - id: java-terraform-config
   languages: [java]
   patterns:
-    - regex: '\\.tf$'
-  severity: low
+    - regex: '\\.tf$''severity: low
   description: "Terraform configuration"
   remediation: "Secure Terraform configuration"
   cwe: "CWE-693"
@@ -1754,8 +1589,7 @@
 - id: java-ansible-playbook
   languages: [java]
   patterns:
-    - regex: '\\.yml$|\\.yaml$'
-  severity: low
+    - regex: '\\.yml$|\\.yaml$''severity: low
   description: "Ansible playbook"
   remediation: "Secure Ansible configuration"
   cwe: "CWE-693"
@@ -1764,8 +1598,7 @@
 - id: java-properties-file
   languages: [java]
   patterns:
-    - regex: '\\.properties$'
-  severity: medium
+    - regex: '\\.properties$''severity: medium
   description: "Properties file"
   remediation: "Don't store secrets in properties"
   cwe: "CWE-312"
@@ -1774,8 +1607,7 @@
 - id: java-yaml-file
   languages: [java]
   patterns:
-    - regex: '\\.yml$|\\.yaml$'
-  severity: medium
+    - regex: '\\.yml$|\\.yaml$''severity: medium
   description: "YAML file"
   remediation: "Don't store secrets in YAML"
   cwe: "CWE-312"
@@ -1784,8 +1616,7 @@
 - id: java-xml-config
   languages: [java]
   patterns:
-    - regex: '\\.xml$'
-  severity: low
+    - regex: '\\.xml$''severity: low
   description: "XML configuration"
   remediation: "Secure XML configuration"
   cwe: "CWE-693"
@@ -1794,8 +1625,7 @@
 - id: java-json-config
   languages: [java]
   patterns:
-    - regex: '\\.json$'
-  severity: low
+    - regex: '\\.json$''severity: low
   description: "JSON configuration"
   remediation: "Don't store secrets in JSON"
   cwe: "CWE-312"
@@ -1804,8 +1634,7 @@
 - id: java-env-file
   languages: [java]
   patterns:
-    - regex: '\\.env$'
-  severity: medium
+    - regex: '\\.env$''severity: medium
   description: "Environment file"
   remediation: "Don't commit .env files"
   cwe: "CWE-530"
@@ -1814,8 +1643,7 @@
 - id: java-gitignore
   languages: [java]
   patterns:
-    - regex: '\\.gitignore'
-  severity: low
+    - regex: '\\.gitignore''severity: low
   description: "Git ignore file"
   remediation: "Ensure secrets are gitignored"
   cwe: "CWE-530"
@@ -1824,8 +1652,7 @@
 - id: java-gitattributes
   languages: [java]
   patterns:
-    - regex: '\\.gitattributes'
-  severity: low
+    - regex: '\\.gitattributes''severity: low
   description: "Git attributes"
   remediation: "Configure git attributes"
   cwe: "CWE-693"
@@ -1834,8 +1661,7 @@
 - id: java-editorconfig
   languages: [java]
   patterns:
-    - regex: '\\.editorconfig'
-  severity: low
+    - regex: '\\.editorconfig''severity: low
   description: "Editor config"
   remediation: "Review editor configuration"
   cwe: "CWE-693"
@@ -1844,8 +1670,7 @@
 - id: java-checkstyle
   languages: [java]
   patterns:
-    - regex: 'checkstyle\\.xml'
-  severity: low
+    - regex: 'checkstyle\\.xml''severity: low
   description: "Checkstyle configuration"
   remediation: "Include security checks"
   cwe: "CWE-693"
@@ -1854,8 +1679,7 @@
 - id: java-pmd
   languages: [java]
   patterns:
-    - regex: 'pmd\\.xml'
-  severity: low
+    - regex: 'pmd\\.xml''severity: low
   description: "PMD configuration"
   remediation: "Include security rules"
   cwe: "CWE-693"
@@ -1864,8 +1688,7 @@
 - id: java-spotbugs
   languages: [java]
   patterns:
-    - regex: 'spotbugs\\.xml|findbugs'
-  severity: low
+    - regex: 'spotbugs\\.xml|findbugs''severity: low
   description: "SpotBugs configuration"
   remediation: "Include security rules"
   cwe: "CWE-693"
@@ -1874,8 +1697,7 @@
 - id: java-sonarqube
   languages: [java]
   patterns:
-    - regex: 'sonar\\.properties|sonar-project'
-  severity: low
+    - regex: 'sonar\\.properties|sonar-project''severity: low
   description: "SonarQube configuration"
   remediation: "Configure security analysis"
   cwe: "CWE-693"
@@ -1884,8 +1706,7 @@
 - id: java-dependency-check
   languages: [java]
   patterns:
-    - regex: 'dependency-check|OWASP'
-  severity: low
+    - regex: 'dependency-check|OWASP''severity: low
   description: "Dependency check"
   remediation: "Run dependency checks"
   cwe: "CWE-1391"
@@ -1895,8 +1716,7 @@
 - id: java-junit-test
   languages: [java]
   patterns:
-    - regex: '@Test'
-  severity: low
+    - regex: '@Test''severity: low
   description: "JUnit test"
   remediation: "Include security tests"
   cwe: "CWE-693"
@@ -1905,8 +1725,7 @@
 - id: java-junit-before
   languages: [java]
   patterns:
-    - regex: '@Before|@BeforeEach'
-  severity: low
+    - regex: '@Before|@BeforeEach''severity: low
   description: "JUnit before method"
   remediation: "Set up test data securely"
   cwe: "CWE-693"
@@ -1915,8 +1734,7 @@
 - id: java-junit-after
   languages: [java]
   patterns:
-    - regex: '@After|@AfterEach'
-  severity: low
+    - regex: '@After|@AfterEach''severity: low
   description: "JUnit after method"
   remediation: "Clean up test data"
   cwe: "CWE-775"
@@ -1925,8 +1743,7 @@
 - id: java-junit-mock
   languages: [java]
   patterns:
-    - regex: '@Mock|Mockito'
-  severity: low
+    - regex: '@Mock|Mockito''severity: low
   description: "JUnit mock"
   remediation: "Mock securely"
   cwe: "CWE-693"
@@ -1935,8 +1752,7 @@
 - id: java-junit-spy
   languages: [java]
   patterns:
-    - regex: '@Spy'
-  severity: low
+    - regex: '@Spy''severity: low
   description: "JUnit spy"
   remediation: "Spy securely"
   cwe: "CWE-693"
@@ -1945,8 +1761,7 @@
 - id: java-testng-test
   languages: [java]
   patterns:
-    - regex: '@org\\.testng\\.annotations\\.Test'
-  severity: low
+    - regex: '@org\\.testng\\.annotations\\.Test''severity: low
   description: "TestNG test"
   remediation: "Include security tests"
   cwe: "CWE-693"
@@ -1955,8 +1770,7 @@
 - id: java-testng-before
   languages: [java]
   patterns:
-    - regex: '@BeforeMethod|@BeforeClass'
-  severity: low
+    - regex: '@BeforeMethod|@BeforeClass''severity: low
   description: "TestNG before method"
   remediation: "Set up test data securely"
   cwe: "CWE-693"
@@ -1965,8 +1779,7 @@
 - id: java-testng-after
   languages: [java]
   patterns:
-    - regex: '@AfterMethod|@AfterClass'
-  severity: low
+    - regex: '@AfterMethod|@AfterClass''severity: low
   description: "TestNG after method"
   remediation: "Clean up test data"
   cwe: "CWE-775"
@@ -1975,8 +1788,7 @@
 - id: java-mockito-mock
   languages: [java]
   patterns:
-    - regex: 'Mockito\\.mock'
-  severity: low
+    - regex: 'Mockito\\.mock''severity: low
   description: "Mockito mock"
   remediation: "Mock securely"
   cwe: "CWE-693"
@@ -1985,8 +1797,7 @@
 - id: java-mockito-when
   languages: [java]
   patterns:
-    - regex: 'Mockito\\.when'
-  severity: low
+    - regex: 'Mockito\\.when''severity: low
   description: "Mockito when"
   remediation: "Configure mocks securely"
   cwe: "CWE-693"
@@ -1995,8 +1806,7 @@
 - id: java-mockito-verify
   languages: [java]
   patterns:
-    - regex: 'Mockito\\.verify'
-  severity: low
+    - regex: 'Mockito\\.verify''severity: low
   description: "Mockito verify"
   remediation: "Verify interactions"
   cwe: "CWE-693"
@@ -2005,8 +1815,7 @@
 - id: java-assertj-assert
   languages: [java]
   patterns:
-    - regex: 'Assertions\\.assertThat'
-  severity: low
+    - regex: 'Assertions\\.assertThat''severity: low
   description: "AssertJ assertion"
   remediation: "Write comprehensive assertions"
   cwe: "CWE-693"
@@ -2015,8 +1824,7 @@
 - id: java-hamcrest-match
   languages: [java]
   patterns:
-    - regex: 'MatcherAssert\\.assertThat'
-  severity: low
+    - regex: 'MatcherAssert\\.assertThat''severity: low
   description: "Hamcrest matcher"
   remediation: "Write comprehensive matchers"
   cwe: "CWE-693"
@@ -2025,8 +1833,7 @@
 - id: java-rest-assured
   languages: [java]
   patterns:
-    - regex: 'RestAssured\\.given'
-  severity: low
+    - regex: 'RestAssured\\.given''severity: low
   description: "REST Assured test"
   remediation: "Include security tests"
   cwe: "CWE-693"
@@ -2035,8 +1842,7 @@
 - id: java-selenium-test
   languages: [java]
   patterns:
-    - regex: 'WebDriver|Selenium'
-  severity: low
+    - regex: 'WebDriver|Selenium''severity: low
   description: "Selenium test"
   remediation: "Include security tests"
   cwe: "CWE-693"
@@ -2045,8 +1851,7 @@
 - id: java-cucumber-test
   languages: [java]
   patterns:
-    - regex: '@Given|@When|@Then'
-  severity: low
+    - regex: '@Given|@When|@Then''severity: low
   description: "Cucumber test"
   remediation: "Include security scenarios"
   cwe: "CWE-693"
@@ -2055,8 +1860,7 @@
 - id: java-spock-test
   languages: [java]
   patterns:
-    - regex: 'class.*extends\\s+Specification'
-  severity: low
+    - regex: 'class.*extends\\s+Specification''severity: low
   description: "Spock test"
   remediation: "Include security tests"
   cwe: "CWE-693"
@@ -2065,8 +1869,7 @@
 - id: java-powermock
   languages: [java]
   patterns:
-    - regex: 'PowerMock|@PrepareForTest'
-  severity: low
+    - regex: 'PowerMock|@PrepareForTest''severity: low
   description: "PowerMock"
   remediation: "Use sparingly"
   cwe: "CWE-693"
@@ -2075,8 +1878,7 @@
 - id: java-archunit
   languages: [java]
   patterns:
-    - regex: 'ArchUnit|@AnalyzeClasses'
-  severity: low
+    - regex: 'ArchUnit|@AnalyzeClasses''severity: low
   description: "ArchUnit test"
   remediation: "Define security rules"
   cwe: "CWE-693"
@@ -2085,8 +1887,7 @@
 - id: java-pitest
   languages: [java]
   patterns:
-    - regex: 'pitest|mutation'
-  severity: low
+    - regex: 'pitest|mutation''severity: low
   description: "PIT mutation testing"
   remediation: "Run mutation tests"
   cwe: "CWE-693"
@@ -2095,8 +1896,7 @@
 - id: java-jacoco
   languages: [java]
   patterns:
-    - regex: 'jacoco|coverage'
-  severity: low
+    - regex: 'jacoco|coverage''severity: low
   description: "JaCoCo coverage"
   remediation: "Maintain good coverage"
   cwe: "CWE-693"
@@ -2105,8 +1905,7 @@
 - id: java-owasp-dependency-check
   languages: [java]
   patterns:
-    - regex: 'dependency-check-maven|OWASP'
-  severity: low
+    - regex: 'dependency-check-maven|OWASP''severity: low
   description: "OWASP Dependency Check"
   remediation: "Run dependency checks"
   cwe: "CWE-1391"
@@ -2115,8 +1914,7 @@
 - id: java-snyk
   languages: [java]
   patterns:
-    - regex: 'snyk|snyk test'
-  severity: low
+    - regex: 'snyk|snyk test''severity: low
   description: "Snyk security"
   remediation: "Run Snyk checks"
   cwe: "CWE-1391"

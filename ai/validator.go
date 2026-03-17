@@ -4,6 +4,7 @@ import (
 	"QWEN_SCR_24_FEB_2026/reporter"
 	"QWEN_SCR_24_FEB_2026/utils"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -107,14 +108,18 @@ Return ONLY a valid JSON object in the final part of your response:
 		return nil, fmt.Errorf("failed to marshal request: %v", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(globalCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
+	// Create a fresh context for validation requests
+	valCtx, valCancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer valCancel()
+
+	httpReq, err := http.NewRequestWithContext(valCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{
-		Timeout: 15 * time.Minute, // Increased timeout for slow models / heavy loads
+		Timeout: 3 * time.Minute, // Reasonable timeout for validation requests
 	}
 
 	resp, err := client.Do(httpReq)

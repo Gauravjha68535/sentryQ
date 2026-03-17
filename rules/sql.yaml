@@ -1,8 +1,7 @@
 - id: sql-dynamic-exec
   languages: [sql]
   patterns:
-    - regex: '(?i)EXEC(?:UTE)?\\s*\\(\\s*@|EXEC(?:UTE)?\\s+sp_executesql'
-  severity: critical
+    - regex: '(?i)EXEC(?:UTE)?\\s*\\(\\s*@|EXEC(?:UTE)?\\s+sp_executesql''severity: critical
   description: "Dynamic SQL execution - potential SQL injection"
   remediation: "Use parameterized sp_executesql with parameters"
   cwe: "CWE-89"
@@ -12,8 +11,7 @@
 - id: sql-exec-concat
   languages: [sql]
   patterns:
-    - regex: '(?i)EXEC(?:UTE)?\\s*\\(.*\\+\\s*@'
-  severity: critical
+    - regex: '(?i)EXEC(?:UTE)?\\s*\\(.*\\+\\s*@''severity: critical
   description: "Dynamic SQL via string concatenation"
   remediation: "Use sp_executesql with parameterized queries"
   cwe: "CWE-89"
@@ -23,8 +21,7 @@
 - id: sql-xp-cmdshell
   languages: [sql]
   patterns:
-    - regex: '(?i)xp_cmdshell'
-  severity: critical
+    - regex: '(?i)xp_cmdshell''severity: critical
   description: "OS command execution via xp_cmdshell"
   remediation: "Disable xp_cmdshell, use application-level alternatives"
   cwe: "CWE-78"
@@ -34,8 +31,7 @@
 - id: sql-xp-regread
   languages: [sql]
   patterns:
-    - regex: '(?i)xp_regread|xp_regwrite'
-  severity: high
+    - regex: '(?i)xp_regread|xp_regwrite''severity: high
   description: "Registry access via extended stored procedure"
   remediation: "Avoid direct registry manipulation from SQL"
   cwe: "CWE-284"
@@ -45,8 +41,7 @@
 - id: sql-openrowset
   languages: [sql]
   patterns:
-    - regex: '(?i)OPENROWSET\\s*\\('
-  severity: high
+    - regex: '(?i)OPENROWSET\\s*\\(''severity: high
   description: "OPENROWSET can access external data sources"
   remediation: "Restrict OPENROWSET usage with Ad Hoc Distributed Queries"
   cwe: "CWE-284"
@@ -56,8 +51,7 @@
 - id: sql-opendatasource
   languages: [sql]
   patterns:
-    - regex: '(?i)OPENDATASOURCE\\s*\\('
-  severity: high
+    - regex: '(?i)OPENDATASOURCE\\s*\\(''severity: high
   description: "OPENDATASOURCE can access external data sources"
   remediation: "Restrict usage and use linked servers instead"
   cwe: "CWE-284"
@@ -67,8 +61,7 @@
 - id: sql-grant-public
   languages: [sql]
   patterns:
-    - regex: '(?i)GRANT\\s+.*\\s+TO\\s+PUBLIC'
-  severity: high
+    - regex: '(?i)GRANT\\s+.*\\s+TO\\s+PUBLIC''severity: high
   description: "Excessive privileges granted to PUBLIC role"
   remediation: "Grant permissions to specific roles/users only"
   cwe: "CWE-269"
@@ -78,8 +71,7 @@
 - id: sql-grant-all
   languages: [sql]
   patterns:
-    - regex: '(?i)GRANT\\s+ALL\\s+'
-  severity: high
+    - regex: '(?i)GRANT\\s+ALL\\s+''severity: high
   description: "Granting ALL privileges"
   remediation: "Grant only specific required privileges"
   cwe: "CWE-269"
@@ -89,8 +81,7 @@
 - id: sql-execute-as-owner
   languages: [sql]
   patterns:
-    - regex: '(?i)EXECUTE\\s+AS\\s+(?:OWNER|SELF)'
-  severity: medium
+    - regex: '(?i)EXECUTE\\s+AS\\s+(?:OWNER|SELF)''severity: medium
   description: "Procedure executes with elevated privileges"
   remediation: "Use EXECUTE AS CALLER where possible"
   cwe: "CWE-269"
@@ -100,7 +91,7 @@
 - id: sql-hardcoded-password
   languages: [sql]
   patterns:
-    - regex: '(?i)(?:PASSWORD|PWD)\\s*=\\s*''[^'']{4,}'''
+    - regex: '(?i)(?:PASSWORD|PWD)\\s*=\\s*'''[^'']{4,}'''
   severity: high
   description: "Hardcoded password in SQL script"
   remediation: "Use environment variables or secret management"
@@ -111,8 +102,7 @@
 - id: sql-hardcoded-connection
   languages: [sql]
   patterns:
-    - regex: '(?i)(?:Server|Data Source)\\s*=.*(?:Password|PWD)\\s*='
-  severity: high
+    - regex: '(?i)(?:Server|Data Source)\\s*=.*(?:Password|PWD)\\s*=''severity: high
   description: "Hardcoded connection string with credentials"
   remediation: "Use integrated security or secret management"
   cwe: "CWE-798"
@@ -122,8 +112,7 @@
 - id: sql-cursor-insecure
   languages: [sql]
   patterns:
-    - regex: '(?i)CURSOR\\s+FOR\\s+.*\\+\\s*@'
-  severity: high
+    - regex: '(?i)CURSOR\\s+FOR\\s+.*\\+\\s*@''severity: high
   description: "Dynamic cursor with concatenated SQL"
   remediation: "Use parameterized queries in cursor definitions"
   cwe: "CWE-89"
@@ -133,8 +122,7 @@
 - id: sql-drop-table
   languages: [sql]
   patterns:
-    - regex: '(?i)DROP\\s+TABLE\\s+(?:IF\\s+EXISTS\\s+)?.*\\+\\s*@'
-  severity: critical
+    - regex: '(?i)DROP\\s+TABLE\\s+(?:IF\\s+EXISTS\\s+)?.*\\+\\s*@''severity: critical
   description: "Dynamic DROP TABLE with user input"
   remediation: "Never construct DROP statements from user input"
   cwe: "CWE-89"
@@ -144,8 +132,7 @@
 - id: sql-truncate
   languages: [sql]
   patterns:
-    - regex: '(?i)TRUNCATE\\s+TABLE\\s+.*\\+\\s*@'
-  severity: critical
+    - regex: '(?i)TRUNCATE\\s+TABLE\\s+.*\\+\\s*@''severity: critical
   description: "Dynamic TRUNCATE with user input"
   remediation: "Never construct TRUNCATE from user input"
   cwe: "CWE-89"
@@ -155,7 +142,7 @@
 - id: sql-weak-encryption
   languages: [sql]
   patterns:
-    - regex: '(?i)ENCRYPTBYPASSPHRASE\\s*\\(\\s*'''
+    - regex: '(?i)ENCRYPTBYPASSPHRASE\\s*\\(\\s*''''
   severity: medium
   description: "Weak encryption with hardcoded passphrase"
   remediation: "Use ENCRYPTBYKEY with proper key management"
@@ -166,8 +153,7 @@
 - id: sql-sa-login
   languages: [sql]
   patterns:
-    - regex: '(?i)ALTER\\s+LOGIN\\s+sa\\s+'
-  severity: critical
+    - regex: '(?i)ALTER\\s+LOGIN\\s+sa\\s+''severity: critical
   description: "Modifying SA account - high privilege operation"
   remediation: "Disable SA account, use dedicated admin accounts"
   cwe: "CWE-269"
@@ -177,8 +163,7 @@
 - id: sql-trustworthy-on
   languages: [sql]
   patterns:
-    - regex: '(?i)SET\\s+TRUSTWORTHY\\s+ON'
-  severity: high
+    - regex: '(?i)SET\\s+TRUSTWORTHY\\s+ON''severity: high
   description: "TRUSTWORTHY database property enabled"
   remediation: "Keep TRUSTWORTHY OFF to prevent privilege escalation"
   cwe: "CWE-269"
@@ -188,8 +173,7 @@
 - id: sql-clr-unsafe
   languages: [sql]
   patterns:
-    - regex: '(?i)PERMISSION_SET\\s*=\\s*UNSAFE'
-  severity: high
+    - regex: '(?i)PERMISSION_SET\\s*=\\s*UNSAFE''severity: high
   description: "CLR assembly with UNSAFE permission"
   remediation: "Use SAFE or EXTERNAL_ACCESS permission set"
   cwe: "CWE-269"
@@ -199,8 +183,7 @@
 - id: sql-dblink-hardcoded
   languages: [sql]
   patterns:
-    - regex: '(?i)DBMS_SCHEDULER.*password|CREATE\\s+DATABASE\\s+LINK.*IDENTIFIED\\s+BY'
-  severity: high
+    - regex: '(?i)DBMS_SCHEDULER.*password|CREATE\\s+DATABASE\\s+LINK.*IDENTIFIED\\s+BY''severity: high
   description: "Hardcoded password in database link"
   remediation: "Use wallet or external password store"
   cwe: "CWE-798"
@@ -210,8 +193,7 @@
 - id: sql-plsql-execute-immediate
   languages: [sql]
   patterns:
-    - regex: '(?i)EXECUTE\\s+IMMEDIATE\\s+.*\\|\\|'
-  severity: critical
+    - regex: '(?i)EXECUTE\\s+IMMEDIATE\\s+.*\\|\\|''severity: critical
   description: "PL/SQL dynamic SQL via concatenation"
   remediation: "Use bind variables with EXECUTE IMMEDIATE"
   cwe: "CWE-89"
@@ -221,8 +203,7 @@
 - id: sql-plsql-dbms-sql
   languages: [sql]
   patterns:
-    - regex: '(?i)DBMS_SQL\\.PARSE\\s*\\(.*\\|\\|'
-  severity: critical
+    - regex: '(?i)DBMS_SQL\\.PARSE\\s*\\(.*\\|\\|''severity: critical
   description: "Dynamic SQL via DBMS_SQL with concatenation"
   remediation: "Use bind variables instead of concatenation"
   cwe: "CWE-89"
@@ -232,7 +213,7 @@
 - id: sql-plpgsql-execute
   languages: [sql]
   patterns:
-    - regex: '(?i)EXECUTE\\s+''.*''\\s*\\|\\|'
+    - regex: '(?i)EXECUTE\\s+'''.*''\\s*\\|\\|'
   severity: critical
   description: "PL/pgSQL dynamic SQL via concatenation"
   remediation: "Use EXECUTE with $1,$2 parameters and USING clause"
@@ -243,8 +224,7 @@
 - id: sql-plpgsql-format
   languages: [sql]
   patterns:
-    - regex: '(?i)EXECUTE\\s+format\\s*\\(.*%s'
-  severity: high
+    - regex: '(?i)EXECUTE\\s+format\\s*\\(.*%s''severity: high
   description: "PL/pgSQL format with %s - potential SQL injection"
   remediation: "Use %I for identifiers and %L for literals"
   cwe: "CWE-89"
@@ -254,7 +234,7 @@
 - id: sql-create-user-nopassword
   languages: [sql]
   patterns:
-    - regex: '(?i)CREATE\\s+USER.*WITHOUT\\s+LOGIN|CREATE\\s+LOGIN.*WITH\\s+PASSWORD\\s*=\\s*'''''
+    - regex: '(?i)CREATE\\s+USER.*WITHOUT\\s+LOGIN|CREATE\\s+LOGIN.*WITH\\s+PASSWORD\\s*=\\s*''''''
   severity: high
   description: "User/login created without password or authentication"
   remediation: "Require strong passwords for all accounts"
@@ -265,8 +245,7 @@
 - id: sql-audit-disable
   languages: [sql]
   patterns:
-    - regex: '(?i)ALTER\\s+SERVER\\s+AUDIT.*STATE\\s*=\\s*OFF|DROP\\s+SERVER\\s+AUDIT'
-  severity: high
+    - regex: '(?i)ALTER\\s+SERVER\\s+AUDIT.*STATE\\s*=\\s*OFF|DROP\\s+SERVER\\s+AUDIT''severity: high
   description: "Server audit disabled or dropped"
   remediation: "Maintain server auditing for compliance"
   cwe: "CWE-778"
@@ -276,8 +255,7 @@
 - id: sql-nolock-hint
   languages: [sql]
   patterns:
-    - regex: '(?i)WITH\\s*\\(\\s*NOLOCK\\s*\\)'
-  severity: low
+    - regex: '(?i)WITH\\s*\\(\\s*NOLOCK\\s*\\)''severity: low
   description: "NOLOCK hint allows dirty reads"
   remediation: "Use appropriate isolation level instead of NOLOCK"
   cwe: "CWE-362"
@@ -287,8 +265,7 @@
 - id: sql-dangerous-trigger
   languages: [sql]
   patterns:
-    - regex: '(?i)CREATE\\s+TRIGGER.*(?:xp_cmdshell|EXEC\\s*\\()'
-  severity: critical
+    - regex: '(?i)CREATE\\s+TRIGGER.*(?:xp_cmdshell|EXEC\\s*\\()''severity: critical
   description: "Trigger with dangerous operations"
   remediation: "Avoid command execution in triggers"
   cwe: "CWE-78"
@@ -298,8 +275,7 @@
 - id: sql-linked-server
   languages: [sql]
   patterns:
-    - regex: '(?i)sp_addlinkedserver'
-  severity: medium
+    - regex: '(?i)sp_addlinkedserver''severity: medium
   description: "Linked server creation - potential lateral movement"
   remediation: "Restrict linked server access and use minimal permissions"
   cwe: "CWE-284"
@@ -309,7 +285,7 @@
 - id: sql-bulk-insert
   languages: [sql]
   patterns:
-    - regex: '(?i)BULK\\s+INSERT.*FROM\\s+''\\\\\\\\'
+    - regex: '(?i)BULK\\s+INSERT.*FROM\\s+'''\\\\\\\\'
   severity: medium
   description: "BULK INSERT from network path - potential data exfiltration"
   remediation: "Restrict BULK INSERT to local authorized paths"
@@ -320,7 +296,7 @@
 - id: sql-backup-to-network
   languages: [sql]
   patterns:
-    - regex: '(?i)BACKUP\\s+DATABASE.*TO\\s+DISK\\s*=\\s*''\\\\\\\\'
+    - regex: '(?i)BACKUP\\s+DATABASE.*TO\\s+DISK\\s*=\\s*'''\\\\\\\\'
   severity: medium
   description: "Database backup to network share"
   remediation: "Ensure network shares are properly secured"
@@ -331,8 +307,7 @@
 - id: sql-postgres-copy-program
   languages: [sql]
   patterns:
-    - regex: '(?i)COPY\s+[\w\.]+\s+(?:FROM|TO)\s+PROGRAM'
-  severity: critical
+    - regex: '(?i)COPY\s+[\w\.]+\s+(?:FROM|TO)\s+PROGRAM''severity: critical
   description: "PostgreSQL COPY FROM PROGRAM"
   remediation: "Disable or restrict COPY"
   cwe: "CWE-78"
@@ -341,8 +316,7 @@
 - id: sql-postgres-read-file
   languages: [sql]
   patterns:
-    - regex: '(?i)pg_read_file\s*\('
-  severity: high
+    - regex: '(?i)pg_read_file\s*\(''severity: high
   description: "pg_read_file used"
   remediation: "Restrict read privileges"
   cwe: "CWE-200"
@@ -351,8 +325,7 @@
 - id: sql-postgres-dblink
   languages: [sql]
   patterns:
-    - regex: '(?i)dblink_connect\s*\([\s\S]*?user='
-  severity: high
+    - regex: '(?i)dblink_connect\s*\([\s\S]*?user=''severity: high
   description: "dblink connection with user"
   remediation: "Use secure connections"
   cwe: "CWE-522"
@@ -361,8 +334,7 @@
 - id: sql-mssql-openrowset
   languages: [sql]
   patterns:
-    - regex: '(?i)OPENROWSET\s*\('
-  severity: critical
+    - regex: '(?i)OPENROWSET\s*\(''severity: critical
   description: "SQL Server OPENROWSET used"
   remediation: "Disable OPENROWSET"
   cwe: "CWE-284"
@@ -371,8 +343,7 @@
 - id: sql-mssql-opendatasource
   languages: [sql]
   patterns:
-    - regex: '(?i)OPENDATASOURCE\s*\('
-  severity: critical
+    - regex: '(?i)OPENDATASOURCE\s*\(''severity: critical
   description: "SQL Server OPENDATASOURCE used"
   remediation: "Disable OPENDATASOURCE"
   cwe: "CWE-284"
@@ -381,8 +352,7 @@
 - id: sql-mssql-sp-makewebtask
   languages: [sql]
   patterns:
-    - regex: '(?i)sp_makewebtask'
-  severity: critical
+    - regex: '(?i)sp_makewebtask''severity: critical
   description: "sp_makewebtask used"
   remediation: "Disable sp_makewebtask"
   cwe: "CWE-284"
@@ -391,8 +361,7 @@
 - id: sql-mssql-xp-regread
   languages: [sql]
   patterns:
-    - regex: '(?i)xp_regread'
-  severity: high
+    - regex: '(?i)xp_regread''severity: high
   description: "xp_regread used"
   remediation: "Disable xp_regread"
   cwe: "CWE-200"
@@ -401,8 +370,7 @@
 - id: sql-oracle-dbms-lob
   languages: [sql]
   patterns:
-    - regex: '(?i)DBMS_LOB\.LOADFROMFILE'
-  severity: high
+    - regex: '(?i)DBMS_LOB\.LOADFROMFILE''severity: high
   description: "DBMS_LOB.LOADFROMFILE used"
   remediation: "Restrict access"
   cwe: "CWE-284"
@@ -411,8 +379,7 @@
 - id: sql-oracle-utl-file
   languages: [sql]
   patterns:
-    - regex: '(?i)UTL_FILE\.FOPEN'
-  severity: high
+    - regex: '(?i)UTL_FILE\.FOPEN''severity: high
   description: "UTL_FILE.FOPEN used"
   remediation: "Restrict access"
   cwe: "CWE-284"
@@ -421,8 +388,7 @@
 - id: sql-oracle-utl-http
   languages: [sql]
   patterns:
-    - regex: '(?i)UTL_HTTP\.REQUEST'
-  severity: high
+    - regex: '(?i)UTL_HTTP\.REQUEST''severity: high
   description: "UTL_HTTP.REQUEST used"
   remediation: "Restrict access"
   cwe: "CWE-918"
@@ -431,8 +397,7 @@
 - id: sql-oracle-dbms-sql
   languages: [sql]
   patterns:
-    - regex: '(?i)DBMS_SQL\.EXECUTE'
-  severity: high
+    - regex: '(?i)DBMS_SQL\.EXECUTE''severity: high
   description: "DBMS_SQL.EXECUTE used"
   remediation: "Validate dynamic SQL"
   cwe: "CWE-89"
@@ -441,8 +406,7 @@
 - id: sql-mysql-load-data
   languages: [sql]
   patterns:
-    - regex: '(?i)LOAD\s+DATA\s+(?:LOCAL\s+)?INFILE'
-  severity: critical
+    - regex: '(?i)LOAD\s+DATA\s+(?:LOCAL\s+)?INFILE''severity: critical
   description: "MySQL LOAD DATA INFILE"
   remediation: "Disable LOCAL INFILE"
   cwe: "CWE-434"
@@ -451,8 +415,7 @@
 - id: sql-mysql-into-outfile
   languages: [sql]
   patterns:
-    - regex: '(?i)INTO\s+(?:(?:DUMP|OUT)FILE)'
-  severity: critical
+    - regex: '(?i)INTO\s+(?:(?:DUMP|OUT)FILE)''severity: critical
   description: "MySQL INTO OUTFILE or DUMPFILE"
   remediation: "Restrict write access limits"
   cwe: "CWE-434"
@@ -461,8 +424,7 @@
 - id: sql-sqlite-pragma-legacy
   languages: [sql]
   patterns:
-    - regex: '(?i)PRAGMA\s+legacy_file_format'
-  severity: medium
+    - regex: '(?i)PRAGMA\s+legacy_file_format''severity: medium
   description: "SQLite legacy_file_format"
   remediation: "Disable legacy format for security"
   cwe: "CWE-284"
@@ -471,8 +433,7 @@
 - id: sql-sqlite-pragma-secure-delete
   languages: [sql]
   patterns:
-    - regex: '(?i)PRAGMA\s+secure_delete\s*=\s*0'
-  severity: medium
+    - regex: '(?i)PRAGMA\s+secure_delete\s*=\s*0''severity: medium
   description: "SQLite secure_delete is disabled"
   remediation: "Enable secure_delete=1 to wipe memory"
   cwe: "CWE-200"
@@ -481,7 +442,7 @@
 - id: sql-generic-exec-immediate
   languages: [sql]
   patterns:
-    - regex: '(?i)EXECUTE\s+IMMEDIATE\s+[''"].*\|\|'
+    - regex: '(?i)EXECUTE\s+IMMEDIATE\s+['''"].*\|\|'
   severity: critical
   description: "Dynamic SQL execution via EXECUTE IMMEDIATE"
   remediation: "Use parameterized queries"
@@ -491,8 +452,7 @@
 - id: sql-generic-always-true-where
   languages: [sql]
   patterns:
-    - regex: '(?i)WHERE[\s\S]*?(\d+)\s*=\s*\1'
-  severity: critical
+    - regex: '(?i)WHERE[\s\S]*?(\d+)\s*=\s*\1''severity: critical
   description: "Tautology in WHERE clause (e.g., 1=1)"
   remediation: "Remove tautology logic"
   cwe: "CWE-89"
@@ -501,8 +461,7 @@
 - id: sql-generic-comment-dash
   languages: [sql]
   patterns:
-    - regex: '(?i)SELECT[\s\S]*?--'
-  severity: low
+    - regex: '(?i)SELECT[\s\S]*?--''severity: low
   description: "SQL comment bypass indicator"
   remediation: "Ensure user input doesn't inject comments"
   cwe: "CWE-89"
@@ -511,8 +470,7 @@
 - id: sql-generic-comment-slash
   languages: [sql]
   patterns:
-    - regex: '(?i)/\*.*\*/'
-  severity: low
+    - regex: '(?i)/\*.*\*/''severity: low
   description: "Multi-line SQL comment bypass indicator"
   remediation: "Ensure user input doesn't inject comments"
   cwe: "CWE-89"
@@ -521,8 +479,7 @@
 - id: sql-generic-order-by-injection
   languages: [sql]
   patterns:
-    - regex: '(?i)ORDER\s+BY\s+(?:\%s|\?\d*)'
-  severity: high
+    - regex: '(?i)ORDER\s+BY\s+(?:\%s|\?\d*)''severity: high
   description: "Dynamic ORDER BY (Injection risk)"
   remediation: "Validate sort columns against a strict allowlist"
   cwe: "CWE-89"
@@ -531,8 +488,7 @@
 - id: sql-generic-limit-injection
   languages: [sql]
   patterns:
-    - regex: '(?i)LIMIT\s+(?:\%s|\?\d*)'
-  severity: high
+    - regex: '(?i)LIMIT\s+(?:\%s|\?\d*)''severity: high
   description: "Dynamic LIMIT (Injection risk)"
   remediation: "Cast LIMIT inputs to strict integers"
   cwe: "CWE-89"
@@ -541,8 +497,7 @@
 - id: sql-generic-union-select
   languages: [sql]
   patterns:
-    - regex: '(?i)UNION\s+(?:ALL\s+)?SELECT'
-  severity: medium
+    - regex: '(?i)UNION\s+(?:ALL\s+)?SELECT''severity: medium
   description: "UNION SELECT used"
   remediation: "Ensure schema isn't exposed through UNION queries"
   cwe: "CWE-89"
@@ -551,8 +506,7 @@
 - id: sql-generic-sleep
   languages: [sql]
   patterns:
-    - regex: '(?i)(?:pg_sleep|SLEEP|WAITFOR\s+DELAY)\s*\('
-  severity: high
+    - regex: '(?i)(?:pg_sleep|SLEEP|WAITFOR\s+DELAY)\s*\(''severity: high
   description: "Time-delay function used (Blind SQLi risk)"
   remediation: "Remove time delay functions from production strings"
   cwe: "CWE-89"
@@ -561,8 +515,7 @@
 - id: sql-generic-md5-password
   languages: [sql]
   patterns:
-    - regex: '(?i)(?:MD5|SHA1)\s*\(\s*(?:password|pwd)'
-  severity: high
+    - regex: '(?i)(?:MD5|SHA1)\s*\(\s*(?:password|pwd)''severity: high
   description: "Weak hashing for passwords in SQL"
   remediation: "Use strong salt/hash functions (e.g., pgcrypto bcrypt)"
   cwe: "CWE-327"
@@ -571,8 +524,7 @@
 - id: sql-xp-cmdshell
   languages: [sql]
   patterns:
-    - regex: '(?i)xp_cmdshell\\s+'
-  severity: critical
+    - regex: '(?i)xp_cmdshell\\s+''severity: critical
   description: "OS command execution via xp_cmdshell"
   remediation: "Disable xp_cmdshell"
   cwe: "CWE-78"
@@ -581,8 +533,7 @@
 - id: sql-linked-server
   languages: [sql]
   patterns:
-    - regex: '(?i)sp_addlinkedserver'
-  severity: high
+    - regex: '(?i)sp_addlinkedserver''severity: high
   description: "Linked server configuration"
   remediation: "Secure linked server access"
   cwe: "CWE-284"
@@ -591,8 +542,7 @@
 - id: sql-trusted-connection
   languages: [sql]
   patterns:
-    - regex: '(?i)Trusted_Connection\\s*=\\s*Yes|Integrated\\s+Security'
-  severity: medium
+    - regex: '(?i)Trusted_Connection\\s*=\\s*Yes|Integrated\\s+Security''severity: medium
   description: "Windows integrated authentication"
   remediation: "Use SQL authentication with secure password"
   cwe: "CWE-287"
@@ -601,8 +551,7 @@
 - id: sql-ole-automation
   languages: [sql]
   patterns:
-    - regex: '(?i)sp_OACreate|sp_OAMethod'
-  severity: high
+    - regex: '(?i)sp_OACreate|sp_OAMethod''severity: high
   description: "OLE Automation procedures enabled"
   remediation: "Disable OLE Automation"
   cwe: "CWE-94"

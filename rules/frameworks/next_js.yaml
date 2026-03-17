@@ -10,8 +10,7 @@
 - id: nextjs-ssr-user-input
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getServerSideProps.*req\\.query|getServerSideProps.*req\\.query\\.'
-  severity: high
+    - regex: 'getServerSideProps.*req\\.query|getServerSideProps.*req\\.query\\.''severity: high
   description: "User input from getServerSideProps query without validation"
   remediation: "Validate and sanitize all query parameters before use"
   cwe: "CWE-20"
@@ -20,8 +19,7 @@
 - id: nextjs-ssr-params-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getServerSideProps.*context\\.params|context\\.params\\.'
-  severity: high
+    - regex: 'getServerSideProps.*context\\.params|context\\.params\\.''severity: high
   description: "Route params in getServerSideProps without validation"
   remediation: "Validate route parameters before database queries"
   cwe: "CWE-20"
@@ -30,8 +28,7 @@
 - id: nextjs-ssr-redirect-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'redirect:\\s*\\{\\s*destination:\\s*.*req\\.query|redirect:.*query\\.'
-  severity: high
+    - regex: 'redirect:\\s*\\{\\s*destination:\\s*.*req\\.query|redirect:.*query\\.''severity: high
   description: "Open redirect via getServerSideProps redirect with user input"
   remediation: "Validate redirect URLs against allowlist"
   cwe: "CWE-601"
@@ -40,8 +37,7 @@
 - id: nextjs-ssr-props-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'return\\s*\\{\\s*props:\\s*\\{.*req\\.query'
-  severity: medium
+    - regex: 'return\\s*\\{\\s*props:\\s*\\{.*req\\.query''severity: medium
   description: "Passing user input to props without sanitization"
   remediation: "Sanitize data before passing to props"
   cwe: "CWE-79"
@@ -50,8 +46,7 @@
 - id: nextjs-ssr-server-side-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getServerSideProps.*query\\[.*\\]|query\\[.*\\]'
-  severity: high
+    - regex: 'getServerSideProps.*query\\[.*\\]|query\\[.*\\]''severity: high
   description: "Direct query parameter access in SSR"
   remediation: "Validate and sanitize query parameters"
   cwe: "CWE-20"
@@ -60,8 +55,7 @@
 - id: nextjs-ssr-get-static-props
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getStaticProps.*context\\.params|getStaticPaths'
-  severity: medium
+    - regex: 'getStaticProps.*context\\.params|getStaticPaths''severity: medium
   description: "getStaticProps/Paths with dynamic params"
   remediation: "Validate paths in getStaticPaths"
   cwe: "CWE-20"
@@ -70,8 +64,7 @@
 - id: nextjs-ssr-fallback-true
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fallback:\\s*true'
-  severity: medium
+    - regex: 'fallback:\\s*true''severity: medium
   description: "SSG fallback enabled may expose incomplete pages"
   remediation: "Use fallback: 'blocking' for better security"
   cwe: "CWE-200"
@@ -80,8 +73,7 @@
 - id: nextjs-ssr-get-initial-props
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getInitialProps.*ctx\\.req|getInitialProps.*ctx\\.query'
-  severity: medium
+    - regex: 'getInitialProps.*ctx\\.req|getInitialProps.*ctx\\.query''severity: medium
   description: "getInitialProps with request data"
   remediation: "Validate all context data"
   cwe: "CWE-20"
@@ -90,8 +82,7 @@
 - id: nextjs-ssr-server-component-env
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+async\\s+function\\s+generateMetadata|generateStaticParams'
-  severity: low
+    - regex: 'export\\s+async\\s+function\\s+generateMetadata|generateStaticParams''severity: low
   description: "Server component with metadata generation"
   remediation: "Validate metadata inputs"
   cwe: "CWE-20"
@@ -100,7 +91,7 @@
 - id: nextjs-ssr-server-action
   languages: [javascript, typescript]
   patterns:
-    - regex: '''use server''|''use client'''
+    - regex: ''''use server''|''use client'''
   severity: low
   description: "Server/Client component directive"
   remediation: "Ensure proper separation of concerns"
@@ -110,7 +101,7 @@
 - id: nextjs-ssr-action-mutation
   languages: [javascript, typescript]
   patterns:
-    - regex: '''use server''.*mutation|server action'
+    - regex: ''''use server''.*mutation|server action'
   severity: medium
   description: "Server action with potential mutation"
   remediation: "Validate server action inputs"
@@ -120,8 +111,7 @@
 - id: nextjs-ssr-form-action
   languages: [javascript, typescript]
   patterns:
-    - regex: 'action=\\\"[^\\\"]*\\\"|action=\\{[^}]*\\}'
-  severity: medium
+    - regex: 'action=\\\"[^\\\"]*\\\"|action=\\{[^}]*\\}''severity: medium
   description: "Form action handler"
   remediation: "Validate form action handlers"
   cwe: "CWE-20"
@@ -130,8 +120,7 @@
 - id: nextjs-ssr-server-component-fetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'async.*function.*fetch\\(|fetch\\(.*process\\.env'
-  severity: medium
+    - regex: 'async.*function.*fetch\\(|fetch\\(.*process\\.env''severity: medium
   description: "Server component with fetch"
   remediation: "Validate fetch URLs"
   cwe: "CWE-918"
@@ -140,8 +129,7 @@
 - id: nextjs-ssr-dynamic-import
   languages: [javascript, typescript]
   patterns:
-    - regex: 'import\\s*\\(.*process\\.env|dynamic\\s*\\(\\s*import'
-  severity: medium
+    - regex: 'import\\s*\\(.*process\\.env|dynamic\\s*\\(\\s*import''severity: medium
   description: "Dynamic import with environment variables"
   remediation: "Validate dynamic imports"
   cwe: "CWE-94"
@@ -150,8 +138,7 @@
 - id: nextjs-ssr-image-optimization
   languages: [javascript, typescript]
   patterns:
-    - regex: '<Image\\s+src=|<Image\\s+src='
-  severity: low
+    - regex: '<Image\\s+src=|<Image\\s+src=''severity: low
   description: "Next.js Image component"
   remediation: "Validate image sources"
   cwe: "CWE-20"
@@ -160,8 +147,7 @@
 - id: nextjs-ssr-image-external
   languages: [javascript, typescript]
   patterns:
-    - regex: '<Image.*domains=|images:\\s*\\{\\s*domains:'
-  severity: low
+    - regex: '<Image.*domains=|images:\\s*\\{\\s*domains:''severity: low
   description: "External image domains configured"
   remediation: "Restrict allowed image domains"
   cwe: "CWE-20"
@@ -170,7 +156,7 @@
 - id: nextjs-ssr-redirect-external
   languages: [javascript, typescript]
   patterns:
-    - regex: 'redirect\\s*\\(\\s*[''\"]http'
+    - regex: 'redirect\\s*\\(\\s*['''\"]http'
   severity: medium
   description: "External redirect in Next.js"
   remediation: "Validate redirect URLs"
@@ -180,8 +166,7 @@
 - id: nextjs-ssr-rewrite-external
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rewrites.*destination.*http|rewrites:.*http'
-  severity: medium
+    - regex: 'rewrites.*destination.*http|rewrites:.*http''severity: medium
   description: "External rewrite configured"
   remediation: "Validate rewrite destinations"
   cwe: "CWE-601"
@@ -190,8 +175,7 @@
 - id: nextjs-ssr-middleware-redirect
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*Next\\.redirect|Next\\.redirect\\('
-  severity: medium
+    - regex: 'middleware.*Next\\.redirect|Next\\.redirect\\(''severity: medium
   description: "Middleware redirect"
   remediation: "Validate redirect URLs in middleware"
   cwe: "CWE-601"
@@ -200,8 +184,7 @@
 - id: nextjs-ssr-middleware-rewrite
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*Next\\.rewrite|Next\\.rewrite\\('
-  severity: medium
+    - regex: 'middleware.*Next\\.rewrite|Next\\.rewrite\\(''severity: medium
   description: "Middleware rewrite"
   remediation: "Validate rewrite URLs"
   cwe: "CWE-601"
@@ -211,8 +194,7 @@
 - id: nextjs-api-route-handler
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+async\\s+function\\s+(GET|POST|PUT|DELETE|PATCH)|export\\s+function\\s+(GET|POST|PUT|DELETE|PATCH)'
-  severity: low
+    - regex: 'export\\s+async\\s+function\\s+(GET|POST|PUT|DELETE|PATCH)|export\\s+function\\s+(GET|POST|PUT|DELETE|PATCH)''severity: low
   description: "API route handler"
   remediation: "Implement proper authentication and validation"
   cwe: "CWE-284"
@@ -221,8 +203,7 @@
 - id: nextjs-api-get-handler
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+async\\s+function\\s+GET|export\\s+function\\s+GET'
-  severity: low
+    - regex: 'export\\s+async\\s+function\\s+GET|export\\s+function\\s+GET''severity: low
   description: "GET handler in API route"
   remediation: "Validate query parameters"
   cwe: "CWE-20"
@@ -231,8 +212,7 @@
 - id: nextjs-api-post-handler
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+async\\s+function\\s+POST|export\\s+function\\s+POST'
-  severity: medium
+    - regex: 'export\\s+async\\s+function\\s+POST|export\\s+function\\s+POST''severity: medium
   description: "POST handler in API route"
   remediation: "Validate request body and implement auth"
   cwe: "CWE-20"
@@ -241,8 +221,7 @@
 - id: nextjs-api-put-handler
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+async\\s+function\\s+PUT|export\\s+function\\s+PUT'
-  severity: medium
+    - regex: 'export\\s+async\\s+function\\s+PUT|export\\s+function\\s+PUT''severity: medium
   description: "PUT handler in API route"
   remediation: "Validate request body and implement auth"
   cwe: "CWE-20"
@@ -251,8 +230,7 @@
 - id: nextjs-api-delete-handler
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+async\\s+function\\s+DELETE|export\\s+function\\s+DELETE'
-  severity: medium
+    - regex: 'export\\s+async\\s+function\\s+DELETE|export\\s+function\\s+DELETE''severity: medium
   description: "DELETE handler in API route"
   remediation: "Implement proper authorization"
   cwe: "CWE-284"
@@ -261,8 +239,7 @@
 - id: nextjs-api-patch-handler
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+async\\s+function\\s+PATCH|export\\s+function\\s+PATCH'
-  severity: medium
+    - regex: 'export\\s+async\\s+function\\s+PATCH|export\\s+function\\s+PATCH''severity: medium
   description: "PATCH handler in API route"
   remediation: "Validate request body and implement auth"
   cwe: "CWE-20"
@@ -271,8 +248,7 @@
 - id: nextjs-api-request-body
   languages: [javascript, typescript]
   patterns:
-    - regex: 'await\\s+req\\.json\\(\\)|req\\.json\\(\\)'
-  severity: medium
+    - regex: 'await\\s+req\\.json\\(\\)|req\\.json\\(\\)''severity: medium
   description: "Request body parsing"
   remediation: "Validate request body schema"
   cwe: "CWE-20"
@@ -281,8 +257,7 @@
 - id: nextjs-api-response-json
   languages: [javascript, typescript]
   patterns:
-    - regex: 'return\\s+Response\\.json|Response\\.json\\('
-  severity: low
+    - regex: 'return\\s+Response\\.json|Response\\.json\\(''severity: low
   description: "JSON response"
   remediation: "Don't expose sensitive data in responses"
   cwe: "CWE-200"
@@ -291,8 +266,7 @@
 - id: nextjs-api-response-redirect
   languages: [javascript, typescript]
   patterns:
-    - regex: 'return\\s+Response\\.redirect|Response\\.redirect\\('
-  severity: medium
+    - regex: 'return\\s+Response\\.redirect|Response\\.redirect\\(''severity: medium
   description: "Response redirect"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -301,8 +275,7 @@
 - id: nextjs-api-response-rewrite
   languages: [javascript, typescript]
   patterns:
-    - regex: 'return\\s+Response\\.rewrite|Response\\.rewrite\\('
-  severity: medium
+    - regex: 'return\\s+Response\\.rewrite|Response\\.rewrite\\(''severity: medium
   description: "Response rewrite"
   remediation: "Validate rewrite URLs"
   cwe: "CWE-601"
@@ -311,8 +284,7 @@
 - id: nextjs-api-middleware-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware\\.ts|middleware\\.js'
-  severity: low
+    - regex: 'middleware\\.ts|middleware\\.js''severity: low
   description: "Middleware file"
   remediation: "Implement proper authentication in middleware"
   cwe: "CWE-306"
@@ -321,8 +293,7 @@
 - id: nextjs-api-route-config
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+const\\s+config\\s*=|export\\s+const\\s+runtime'
-  severity: low
+    - regex: 'export\\s+const\\s+config\\s*=|export\\s+const\\s+runtime''severity: low
   description: "API route configuration"
   remediation: "Configure runtime appropriately"
   cwe: "CWE-693"
@@ -331,7 +302,7 @@
 - id: nextjs-api-route-dynamic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'export\\s+const\\s+dynamic\\s*=|dynamic\\s*=\\s*[''\"]'
+    - regex: 'export\\s+const\\s+dynamic\\s*=|dynamic\\s*=\\s*['''\"]'
   severity: low
   description: "Dynamic rendering configuration"
   remediation: "Configure rendering strategy appropriately"
@@ -341,8 +312,7 @@
 - id: nextjs-api-route-redirect-config
   languages: [javascript, typescript]
   patterns:
-    - regex: 'redirects\\s*\\(\\s*\\)|redirects:.*\\['
-  severity: low
+    - regex: 'redirects\\s*\\(\\s*\\)|redirects:.*\\[''severity: low
   description: "Redirects configuration"
   remediation: "Validate redirect destinations"
   cwe: "CWE-601"
@@ -351,8 +321,7 @@
 - id: nextjs-api-route-rewrite-config
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rewrites\\s*\\(\\s*\\)|rewrites:.*\\['
-  severity: low
+    - regex: 'rewrites\\s*\\(\\s*\\)|rewrites:.*\\[''severity: low
   description: "Rewrites configuration"
   remediation: "Validate rewrite destinations"
   cwe: "CWE-601"
@@ -361,8 +330,7 @@
 - id: nextjs-api-route-headers-config
   languages: [javascript, typescript]
   patterns:
-    - regex: 'headers\\s*\\(\\s*\\)|headers:.*\\['
-  severity: low
+    - regex: 'headers\\s*\\(\\s*\\)|headers:.*\\[''severity: low
   description: "Headers configuration"
   remediation: "Configure security headers"
   cwe: "CWE-693"
@@ -371,8 +339,7 @@
 - id: nextjs-api-route-dynamic-segment
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\[.*\\]|\\[\\[\\.\\.\\.\\]\\]'
-  severity: low
+    - regex: '\\[.*\\]|\\[\\[\\.\\.\\.\\]\\]''severity: low
   description: "Dynamic route segment"
   remediation: "Validate dynamic route parameters"
   cwe: "CWE-20"
@@ -381,8 +348,7 @@
 - id: nextjs-api-route-catch-all
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\[\\[\\.\\.\\.\\w+\\]\\]'
-  severity: medium
+    - regex: '\\[\\[\\.\\.\\.\\w+\\]\\]''severity: medium
   description: "Catch-all route"
   remediation: "Validate catch-all route parameters"
   cwe: "CWE-20"
@@ -391,8 +357,7 @@
 - id: nextjs-api-route-optional-catch-all
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\[\\[\\.\\.\\.'
-  severity: medium
+    - regex: '\\[\\[\\.\\.\\.''severity: medium
   description: "Optional catch-all route"
   remediation: "Validate optional catch-all parameters"
   cwe: "CWE-20"
@@ -402,8 +367,7 @@
 - id: nextjs-auth-session
   languages: [javascript, typescript]
   patterns:
-    - regex: 'useSession\\s*\\(|useSession\\('
-  severity: low
+    - regex: 'useSession\\s*\\(|useSession\\(''severity: low
   description: "Session hook usage"
   remediation: "Implement proper session management"
   cwe: "CWE-613"
@@ -412,8 +376,7 @@
 - id: nextjs-auth-signin
   languages: [javascript, typescript]
   patterns:
-    - regex: 'signIn\\s*\\(|signIn\\('
-  severity: low
+    - regex: 'signIn\\s*\\(|signIn\\(''severity: low
   description: "Sign in function"
   remediation: "Implement proper authentication"
   cwe: "CWE-306"
@@ -422,8 +385,7 @@
 - id: nextjs-auth-signout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'signOut\\s*\\(|signOut\\('
-  severity: low
+    - regex: 'signOut\\s*\\(|signOut\\(''severity: low
   description: "Sign out function"
   remediation: "Implement proper session cleanup"
   cwe: "CWE-613"
@@ -432,8 +394,7 @@
 - id: nextjs-auth-get-session
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getSession\\s*\\(|getSession\\('
-  severity: low
+    - regex: 'getSession\\s*\\(|getSession\\(''severity: low
   description: "Get session function"
   remediation: "Validate session properly"
   cwe: "CWE-306"
@@ -442,8 +403,7 @@
 - id: nextjs-auth-server-session
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getServerSession\\s*\\(|getServerSession\\('
-  severity: low
+    - regex: 'getServerSession\\s*\\(|getServerSession\\(''severity: low
   description: "Server session function"
   remediation: "Validate server session properly"
   cwe: "CWE-306"
@@ -452,8 +412,7 @@
 - id: nextjs-auth-callback
   languages: [javascript, typescript]
   patterns:
-    - regex: 'callbacks:\\s*\\{|callbacks:.*\\{'
-  severity: low
+    - regex: 'callbacks:\\s*\\{|callbacks:.*\\{''severity: low
   description: "Auth callbacks configuration"
   remediation: "Implement secure callback handlers"
   cwe: "CWE-306"
@@ -462,8 +421,7 @@
 - id: nextjs-auth-jwt-callback
   languages: [javascript, typescript]
   patterns:
-    - regex: 'jwt:\\s*\\{|jwt:.*\\{'
-  severity: low
+    - regex: 'jwt:\\s*\\{|jwt:.*\\{''severity: low
   description: "JWT callback configuration"
   remediation: "Implement secure JWT handling"
   cwe: "CWE-327"
@@ -472,8 +430,7 @@
 - id: nextjs-auth-session-callback
   languages: [javascript, typescript]
   patterns:
-    - regex: 'session:\\s*\\{|session:.*\\{'
-  severity: low
+    - regex: 'session:\\s*\\{|session:.*\\{''severity: low
   description: "Session callback configuration"
   remediation: "Implement secure session handling"
   cwe: "CWE-613"
@@ -482,8 +439,7 @@
 - id: nextjs-auth-signin-callback
   languages: [javascript, typescript]
   patterns:
-    - regex: 'signIn:\\s*\\(|signIn:.*\\('
-  severity: low
+    - regex: 'signIn:\\s*\\(|signIn:.*\\(''severity: low
   description: "Sign in callback"
   remediation: "Implement secure sign in"
   cwe: "CWE-306"
@@ -492,8 +448,7 @@
 - id: nextjs-auth-signout-callback
   languages: [javascript, typescript]
   patterns:
-    - regex: 'signOut:\\s*\\(|signOut:.*\\('
-  severity: low
+    - regex: 'signOut:\\s*\\(|signOut:.*\\(''severity: low
   description: "Sign out callback"
   remediation: "Implement secure sign out"
   cwe: "CWE-613"
@@ -502,8 +457,7 @@
 - id: nextjs-auth-jwt-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JWT_SECRET|JWT_SECRET_KEY|NEXTAUTH_SECRET'
-  severity: high
+    - regex: 'JWT_SECRET|JWT_SECRET_KEY|NEXTAUTH_SECRET''severity: high
   description: "JWT secret environment variable"
   remediation: "Ensure secret is properly secured"
   cwe: "CWE-798"
@@ -512,8 +466,7 @@
 - id: nextjs-auth-secret-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'NEXTAUTH_SECRET|NEXTAUTH_URL'
-  severity: high
+    - regex: 'NEXTAUTH_SECRET|NEXTAUTH_URL''severity: high
   description: "NextAuth secret configuration"
   remediation: "Ensure secret is properly secured"
   cwe: "CWE-798"
@@ -522,8 +475,7 @@
 - id: nextjs-auth-provider
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Providers\\.Google|Providers\\.GitHub|Providers\\.Credentials'
-  severity: low
+    - regex: 'Providers\\.Google|Providers\\.GitHub|Providers\\.Credentials''severity: low
   description: "Auth provider configuration"
   remediation: "Configure providers securely"
   cwe: "CWE-306"
@@ -532,8 +484,7 @@
 - id: nextjs-auth-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Credentials\\s*\\(|Credentials:.*\\{'
-  severity: low
+    - regex: 'Credentials\\s*\\(|Credentials:.*\\{''severity: low
   description: "Credentials provider"
   remediation: "Implement secure credential handling"
   cwe: "CWE-306"
@@ -542,8 +493,7 @@
 - id: nextjs-auth-oauth-provider
   languages: [javascript, typescript]
   patterns:
-    - regex: 'OAuthConfig|oauth.*config'
-  severity: low
+    - regex: 'OAuthConfig|oauth.*config''severity: low
   description: "OAuth provider configuration"
   remediation: "Configure OAuth securely"
   cwe: "CWE-306"
@@ -552,8 +502,7 @@
 - id: nextjs-auth-provider-client-id
   languages: [javascript, typescript]
   patterns:
-    - regex: 'clientId:|clientId:'
-  severity: low
+    - regex: 'clientId:|clientId:''severity: low
   description: "OAuth client ID"
   remediation: "Secure client ID configuration"
   cwe: "CWE-798"
@@ -562,8 +511,7 @@
 - id: nextjs-auth-provider-client-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'clientSecret:|clientSecret:'
-  severity: high
+    - regex: 'clientSecret:|clientSecret:''severity: high
   description: "OAuth client secret"
   remediation: "Store client secret securely"
   cwe: "CWE-798"
@@ -572,8 +520,7 @@
 - id: nextjs-auth-callback-url
   languages: [javascript, typescript]
   patterns:
-    - regex: 'callbackUrl:|callbackUrl:'
-  severity: medium
+    - regex: 'callbackUrl:|callbackUrl:''severity: medium
   description: "Callback URL configuration"
   remediation: "Validate callback URLs"
   cwe: "CWE-601"
@@ -582,8 +529,7 @@
 - id: nextjs-auth-session-strategy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'session:\\s*\\{\\s*strategy:'
-  severity: low
+    - regex: 'session:\\s*\\{\\s*strategy:''severity: low
   description: "Session strategy configuration"
   remediation: "Choose appropriate session strategy"
   cwe: "CWE-613"
@@ -592,7 +538,7 @@
 - id: nextjs-auth-jwt-strategy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'strategy:\\s*[''\"]jwt[''\"]'
+    - regex: 'strategy:\\s*['''\"]jwt[''\"]'
   severity: low
   description: "JWT session strategy"
   remediation: "Configure JWT securely"
@@ -603,8 +549,7 @@
 - id: nextjs-env-public
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.NEXT_PUBLIC_|process\\.env\\.NEXT_PUBLIC'
-  severity: low
+    - regex: 'process\\.env\\.NEXT_PUBLIC_|process\\.env\\.NEXT_PUBLIC''severity: low
   description: "Public environment variable (exposed to client)"
   remediation: "Don't store secrets in NEXT_PUBLIC_ variables"
   cwe: "CWE-200"
@@ -613,8 +558,7 @@
 - id: nextjs-env-private
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.(?!NEXT_PUBLIC)[A-Z_]+'
-  severity: low
+    - regex: 'process\\.env\\.[A-Z_]+''severity: low
   description: "Private environment variable"
   remediation: "Ensure secrets are not exposed"
   cwe: "CWE-798"
@@ -623,8 +567,7 @@
 - id: nextjs-env-database-url
   languages: [javascript, typescript]
   patterns:
-    - regex: 'DATABASE_URL|DATABASE_URL'
-  severity: high
+    - regex: 'DATABASE_URL|DATABASE_URL''severity: high
   description: "Database URL environment variable"
   remediation: "Secure database credentials"
   cwe: "CWE-798"
@@ -633,8 +576,7 @@
 - id: nextjs-env-api-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'API_KEY|API_KEY|APIKEY'
-  severity: high
+    - regex: 'API_KEY|API_KEY|APIKEY''severity: high
   description: "API key environment variable"
   remediation: "Secure API keys"
   cwe: "CWE-798"
@@ -643,8 +585,7 @@
 - id: nextjs-env-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'SECRET|SECRET_KEY|SECRET'
-  severity: high
+    - regex: 'SECRET|SECRET_KEY|SECRET''severity: high
   description: "Secret environment variable"
   remediation: "Secure all secrets"
   cwe: "CWE-798"
@@ -653,8 +594,7 @@
 - id: nextjs-env-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'TOKEN|ACCESS_TOKEN|TOKEN'
-  severity: high
+    - regex: 'TOKEN|ACCESS_TOKEN|TOKEN''severity: high
   description: "Token environment variable"
   remediation: "Secure tokens"
   cwe: "CWE-798"
@@ -663,8 +603,7 @@
 - id: nextjs-env-password
   languages: [javascript, typescript]
   patterns:
-    - regex: 'PASSWORD|PASSWORD|PASSWD'
-  severity: high
+    - regex: 'PASSWORD|PASSWORD|PASSWD''severity: high
   description: "Password environment variable"
   remediation: "Secure passwords"
   cwe: "CWE-798"
@@ -673,8 +612,7 @@
 - id: nextjs-env-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'KEY|_KEY|_KEY'
-  severity: high
+    - regex: 'KEY|_KEY|_KEY''severity: high
   description: "Key environment variable"
   remediation: "Secure all keys"
   cwe: "CWE-798"
@@ -683,8 +621,7 @@
 - id: nextjs-env-private-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'PRIVATE_KEY|PRIVATE_KEY|PRIVATE'
-  severity: critical
+    - regex: 'PRIVATE_KEY|PRIVATE_KEY|PRIVATE''severity: critical
   description: "Private key environment variable"
   remediation: "Never expose private keys"
   cwe: "CWE-321"
@@ -693,8 +630,7 @@
 - id: nextjs-env-secret-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'SECRET_KEY|SECRET_KEY|NEXTAUTH_SECRET'
-  severity: critical
+    - regex: 'SECRET_KEY|SECRET_KEY|NEXTAUTH_SECRET''severity: critical
   description: "Secret key environment variable"
   remediation: "Secure secret keys"
   cwe: "CWE-798"
@@ -703,8 +639,7 @@
 - id: nextjs-env-auth-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'AUTH_SECRET|AUTH_SECRET'
-  severity: high
+    - regex: 'AUTH_SECRET|AUTH_SECRET''severity: high
   description: "Auth secret environment variable"
   remediation: "Secure auth secrets"
   cwe: "CWE-798"
@@ -713,8 +648,7 @@
 - id: nextjs-env-jwt-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JWT_SECRET|JWT_SECRET'
-  severity: high
+    - regex: 'JWT_SECRET|JWT_SECRET''severity: high
   description: "JWT secret environment variable"
   remediation: "Secure JWT secrets"
   cwe: "CWE-798"
@@ -723,8 +657,7 @@
 - id: nextjs-env-api-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'API_SECRET|API_SECRET'
-  severity: high
+    - regex: 'API_SECRET|API_SECRET''severity: high
   description: "API secret environment variable"
   remediation: "Secure API secrets"
   cwe: "CWE-798"
@@ -733,8 +666,7 @@
 - id: nextjs-env-access-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ACCESS_TOKEN|ACCESS_TOKEN'
-  severity: high
+    - regex: 'ACCESS_TOKEN|ACCESS_TOKEN''severity: high
   description: "Access token environment variable"
   remediation: "Secure access tokens"
   cwe: "CWE-798"
@@ -743,8 +675,7 @@
 - id: nextjs-env-refresh-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'REFRESH_TOKEN|REFRESH_TOKEN'
-  severity: high
+    - regex: 'REFRESH_TOKEN|REFRESH_TOKEN''severity: high
   description: "Refresh token environment variable"
   remediation: "Secure refresh tokens"
   cwe: "CWE-798"
@@ -753,8 +684,7 @@
 - id: nextjs-env-client-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'CLIENT_SECRET|CLIENT_SECRET'
-  severity: high
+    - regex: 'CLIENT_SECRET|CLIENT_SECRET''severity: high
   description: "Client secret environment variable"
   remediation: "Secure client secrets"
   cwe: "CWE-798"
@@ -763,8 +693,7 @@
 - id: nextjs-env-client-id
   languages: [javascript, typescript]
   patterns:
-    - regex: 'CLIENT_ID|CLIENT_ID'
-  severity: low
+    - regex: 'CLIENT_ID|CLIENT_ID''severity: low
   description: "Client ID environment variable"
   remediation: "Secure client IDs"
   cwe: "CWE-798"
@@ -773,8 +702,7 @@
 - id: nextjs-env-app-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'APP_KEY|APP_KEY'
-  severity: high
+    - regex: 'APP_KEY|APP_KEY''severity: high
   description: "App key environment variable"
   remediation: "Secure app keys"
   cwe: "CWE-798"
@@ -783,8 +711,7 @@
 - id: nextjs-env-app-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'APP_SECRET|APP_SECRET'
-  severity: high
+    - regex: 'APP_SECRET|APP_SECRET''severity: high
   description: "App secret environment variable"
   remediation: "Secure app secrets"
   cwe: "CWE-798"
@@ -793,8 +720,7 @@
 - id: nextjs-env-nextauth-url
   languages: [javascript, typescript]
   patterns:
-    - regex: 'NEXTAUTH_URL|NEXTAUTH_URL'
-  severity: low
+    - regex: 'NEXTAUTH_URL|NEXTAUTH_URL''severity: low
   description: "NextAuth URL environment variable"
   remediation: "Configure URL properly"
   cwe: "CWE-693"
@@ -804,8 +730,7 @@
 - id: nextjs-xss-dangerously-set
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerouslySetInnerHTML|dangerouslySetInnerHTML'
-  severity: high
+    - regex: 'dangerouslySetInnerHTML|dangerouslySetInnerHTML''severity: high
   description: "dangerouslySetInnerHTML usage"
   remediation: "Sanitize HTML before using dangerouslySetInnerHTML"
   cwe: "CWE-79"
@@ -814,8 +739,7 @@
 - id: nextjs-xss-dangerously-set-inner-html
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerouslySetInnerHTML.*__html'
-  severity: high
+    - regex: 'dangerouslySetInnerHTML.*__html''severity: high
   description: "dangerouslySetInnerHTML with __html"
   remediation: "Sanitize HTML content"
   cwe: "CWE-79"
@@ -824,8 +748,7 @@
 - id: nextjs-xss-inner-html
   languages: [javascript, typescript]
   patterns:
-    - regex: 'innerHTML\\s*=|innerHTML:'
-  severity: high
+    - regex: 'innerHTML\\s*=|innerHTML:''severity: high
   description: "innerHTML assignment"
   remediation: "Sanitize HTML before assignment"
   cwe: "CWE-79"
@@ -834,8 +757,7 @@
 - id: nextjs-xss-danger-html
   languages: [javascript, typescript]
   patterns:
-    - regex: '__html|__html'
-  severity: high
+    - regex: '__html|__html''severity: high
   description: "__html property usage"
   remediation: "Sanitize HTML content"
   cwe: "CWE-79"
@@ -844,8 +766,7 @@
 - id: nextjs-xss-html-sanitizer
   languages: [javascript, typescript]
   patterns:
-    - regex: 'DOMPurify|sanitize|sanitizeHtml'
-  severity: low
+    - regex: 'DOMPurify|sanitize|sanitizeHtml''severity: low
   description: "HTML sanitizer usage"
   remediation: "Good practice for XSS prevention"
   cwe: "CWE-79"
@@ -854,8 +775,7 @@
 - id: nextjs-xss-dangerous-html
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerously|dangerously'
-  severity: high
+    - regex: 'dangerously|dangerously''severity: high
   description: "Dangerous HTML rendering"
   remediation: "Sanitize all user input"
   cwe: "CWE-79"
@@ -864,8 +784,7 @@
 - id: nextjs-xss-raw-html
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerouslySetInnerHTML.*\\{|dangerouslySetInnerHTML.*\\{'
-  severity: high
+    - regex: 'dangerouslySetInnerHTML.*\\{|dangerouslySetInnerHTML.*\\{''severity: high
   description: "Raw HTML in dangerouslySetInnerHTML"
   remediation: "Sanitize HTML content"
   cwe: "CWE-79"
@@ -874,8 +793,7 @@
 - id: nextjs-xss-html-content
   languages: [javascript, typescript]
   patterns:
-    - regex: '__html:\\s*\\{|__html:\\s*\\{'
-  severity: high
+    - regex: '__html:\\s*\\{|__html:\\s*\\{''severity: high
   description: "HTML content in dangerouslySetInnerHTML"
   remediation: "Sanitize HTML content"
   cwe: "CWE-79"
@@ -884,8 +802,7 @@
 - id: nextjs-xss-user-input
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerouslySetInnerHTML.*user|dangerouslySetInnerHTML.*user'
-  severity: critical
+    - regex: 'dangerouslySetInnerHTML.*user|dangerouslySetInnerHTML.*user''severity: critical
   description: "User input in dangerouslySetInnerHTML"
   remediation: "Never use user input in dangerouslySetInnerHTML"
   cwe: "CWE-79"
@@ -894,8 +811,7 @@
 - id: nextjs-xss-dangerous-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerously.*user|dangerously.*user'
-  severity: critical
+    - regex: 'dangerously.*user|dangerously.*user''severity: critical
   description: "Dangerous user input rendering"
   remediation: "Sanitize all user input"
   cwe: "CWE-79"
@@ -904,8 +820,7 @@
 - id: nextjs-xss-inner-html-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'innerHTML.*user|innerHTML.*user'
-  severity: critical
+    - regex: 'innerHTML.*user|innerHTML.*user''severity: critical
   description: "User input in innerHTML"
   remediation: "Sanitize user input"
   cwe: "CWE-79"
@@ -914,8 +829,7 @@
 - id: nextjs-xss-dangerous-content
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerously.*content|dangerously.*content'
-  severity: critical
+    - regex: 'dangerously.*content|dangerously.*content''severity: critical
   description: "Dangerous content rendering"
   remediation: "Sanitize all content"
   cwe: "CWE-79"
@@ -924,8 +838,7 @@
 - id: nextjs-xss-html-dangerous
   languages: [javascript, typescript]
   patterns:
-    - regex: 'html.*dangerous|html.*dangerous'
-  severity: critical
+    - regex: 'html.*dangerous|html.*dangerous''severity: critical
   description: "Dangerous HTML usage"
   remediation: "Sanitize HTML"
   cwe: "CWE-79"
@@ -934,8 +847,7 @@
 - id: nextjs-xss-dangerous-render
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerous.*render|dangerous.*render'
-  severity: critical
+    - regex: 'dangerous.*render|dangerous.*render''severity: critical
   description: "Dangerous rendering"
   remediation: "Sanitize before rendering"
   cwe: "CWE-79"
@@ -944,8 +856,7 @@
 - id: nextjs-xss-unsafe-html
   languages: [javascript, typescript]
   patterns:
-    - regex: 'unsafe.*html|unsafe.*html'
-  severity: critical
+    - regex: 'unsafe.*html|unsafe.*html''severity: critical
   description: "Unsafe HTML usage"
   remediation: "Sanitize HTML"
   cwe: "CWE-79"
@@ -954,8 +865,7 @@
 - id: nextjs-xss-raw-content
   languages: [javascript, typescript]
   patterns:
-    - regex: 'raw.*content|raw.*content'
-  severity: critical
+    - regex: 'raw.*content|raw.*content''severity: critical
   description: "Raw content rendering"
   remediation: "Sanitize content"
   cwe: "CWE-79"
@@ -964,8 +874,7 @@
 - id: nextjs-xss-unsafe-content
   languages: [javascript, typescript]
   patterns:
-    - regex: 'unsafe.*content|unsafe.*content'
-  severity: critical
+    - regex: 'unsafe.*content|unsafe.*content''severity: critical
   description: "Unsafe content"
   remediation: "Sanitize content"
   cwe: "CWE-79"
@@ -974,8 +883,7 @@
 - id: nextjs-xss-dangerous-input
   languages: [javascript, typescript]
   patterns:
-    - regex: 'dangerous.*input|dangerous.*input'
-  severity: critical
+    - regex: 'dangerous.*input|dangerous.*input''severity: critical
   description: "Dangerous input rendering"
   remediation: "Sanitize input"
   cwe: "CWE-79"
@@ -984,8 +892,7 @@
 - id: nextjs-xss-unsafe-input
   languages: [javascript, typescript]
   patterns:
-    - regex: 'unsafe.*input|unsafe.*input'
-  severity: critical
+    - regex: 'unsafe.*input|unsafe.*input''severity: critical
   description: "Unsafe input rendering"
   remediation: "Sanitize input"
   cwe: "CWE-79"
@@ -994,8 +901,7 @@
 - id: nextjs-xss-user-content
   languages: [javascript, typescript]
   patterns:
-    - regex: 'user.*content|user.*content'
-  severity: high
+    - regex: 'user.*content|user.*content''severity: high
   description: "User content rendering"
   remediation: "Sanitize user content"
   cwe: "CWE-79"
@@ -1005,8 +911,7 @@
 - id: nextjs-csrf-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'csrfToken|csrf_token|csrf'
-  severity: low
+    - regex: 'csrfToken|csrf_token|csrf''severity: low
   description: "CSRF token usage"
   remediation: "Implement CSRF protection"
   cwe: "CWE-352"
@@ -1015,8 +920,7 @@
 - id: nextjs-csrf-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'csrf.*protection|csrf.*protection'
-  severity: low
+    - regex: 'csrf.*protection|csrf.*protection''severity: low
   description: "CSRF protection configuration"
   remediation: "Enable CSRF protection"
   cwe: "CWE-352"
@@ -1025,8 +929,7 @@
 - id: nextjs-csrf-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'csrf.*disabled|csrf.*disabled'
-  severity: high
+    - regex: 'csrf.*disabled|csrf.*disabled''severity: high
   description: "CSRF protection disabled"
   remediation: "Enable CSRF protection"
   cwe: "CWE-352"
@@ -1035,8 +938,7 @@
 - id: nextjs-csrf-disabled-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'csrf.*disable|csrf.*disable'
-  severity: high
+    - regex: 'csrf.*disable|csrf.*disable''severity: high
   description: "CSRF disabled"
   remediation: "Enable CSRF protection"
   cwe: "CWE-352"
@@ -1045,8 +947,7 @@
 - id: nextjs-csrf-no-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*csrf|no.*csrf'
-  severity: high
+    - regex: 'no.*csrf|no.*csrf''severity: high
   description: "No CSRF protection"
   remediation: "Enable CSRF protection"
   cwe: "CWE-352"
@@ -1055,8 +956,7 @@
 - id: nextjs-csrf-protection-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'protection.*disabled|protection.*disabled'
-  severity: high
+    - regex: 'protection.*disabled|protection.*disabled''severity: high
   description: "Protection disabled"
   remediation: "Enable protection"
   cwe: "CWE-352"
@@ -1065,8 +965,7 @@
 - id: nextjs-csrf-disabled-csrf
   languages: [javascript, typescript]
   patterns:
-    - regex: 'disabled.*csrf|disabled.*csrf'
-  severity: high
+    - regex: 'disabled.*csrf|disabled.*csrf''severity: high
   description: "CSRF disabled"
   remediation: "Enable CSRF"
   cwe: "CWE-352"
@@ -1075,8 +974,7 @@
 - id: nextjs-csrf-no-csrf
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*csrf|no.*csrf'
-  severity: high
+    - regex: 'no.*csrf|no.*csrf''severity: high
   description: "No CSRF"
   remediation: "Enable CSRF"
   cwe: "CWE-352"
@@ -1085,8 +983,7 @@
 - id: nextjs-csrf-csrf-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'csrf.*disabled|csrf.*disabled'
-  severity: high
+    - regex: 'csrf.*disabled|csrf.*disabled''severity: high
   description: "CSRF disabled"
   remediation: "Enable CSRF"
   cwe: "CWE-352"
@@ -1095,8 +992,7 @@
 - id: nextjs-csrf-protection-off
   languages: [javascript, typescript]
   patterns:
-    - regex: 'protection.*off|protection.*off'
-  severity: high
+    - regex: 'protection.*off|protection.*off''severity: high
   description: "Protection off"
   remediation: "Enable protection"
   cwe: "CWE-352"
@@ -1105,8 +1001,7 @@
 - id: nextjs-csrf-off-csrf
   languages: [javascript, typescript]
   patterns:
-    - regex: 'off.*csrf|off.*csrf'
-  severity: high
+    - regex: 'off.*csrf|off.*csrf''severity: high
   description: "CSRF off"
   remediation: "Enable CSRF"
   cwe: "CWE-352"
@@ -1115,8 +1010,7 @@
 - id: nextjs-csrf-disabled-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'disabled.*protection|disabled.*protection'
-  severity: high
+    - regex: 'disabled.*protection|disabled.*protection''severity: high
   description: "Protection disabled"
   remediation: "Enable protection"
   cwe: "CWE-352"
@@ -1125,8 +1019,7 @@
 - id: nextjs-csrf-protection-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'protection.*disabled|protection.*disabled'
-  severity: high
+    - regex: 'protection.*disabled|protection.*disabled''severity: high
   description: "Protection disabled"
   remediation: "Enable protection"
   cwe: "CWE-352"
@@ -1135,8 +1028,7 @@
 - id: nextjs-csrf-no-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*token|no.*token'
-  severity: high
+    - regex: 'no.*token|no.*token''severity: high
   description: "No token"
   remediation: "Use tokens"
   cwe: "CWE-352"
@@ -1145,8 +1037,7 @@
 - id: nextjs-csrf-token-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'token.*missing|token.*missing'
-  severity: high
+    - regex: 'token.*missing|token.*missing''severity: high
   description: "Token missing"
   remediation: "Add token"
   cwe: "CWE-352"
@@ -1155,8 +1046,7 @@
 - id: nextjs-csrf-missing-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'missing.*token|missing.*token'
-  severity: high
+    - regex: 'missing.*token|missing.*token''severity: high
   description: "Missing token"
   remediation: "Add token"
   cwe: "CWE-352"
@@ -1165,8 +1055,7 @@
 - id: nextjs-csrf-no-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*protection|no.*protection'
-  severity: high
+    - regex: 'no.*protection|no.*protection''severity: high
   description: "No protection"
   remediation: "Add protection"
   cwe: "CWE-352"
@@ -1175,8 +1064,7 @@
 - id: nextjs-csrf-protection-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'protection.*missing|protection.*missing'
-  severity: high
+    - regex: 'protection.*missing|protection.*missing''severity: high
   description: "Protection missing"
   remediation: "Add protection"
   cwe: "CWE-352"
@@ -1185,8 +1073,7 @@
 - id: nextjs-csrf-missing-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'missing.*protection|missing.*protection'
-  severity: high
+    - regex: 'missing.*protection|missing.*protection''severity: high
   description: "Missing protection"
   remediation: "Add protection"
   cwe: "CWE-352"
@@ -1195,8 +1082,7 @@
 - id: nextjs-csrf-no-csrf-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*csrf.*protection|no.*csrf.*protection'
-  severity: high
+    - regex: 'no.*csrf.*protection|no.*csrf.*protection''severity: high
   description: "No CSRF protection"
   remediation: "Enable CSRF protection"
   cwe: "CWE-352"
@@ -1206,8 +1092,7 @@
 - id: nextjs-api-security
   languages: [javascript, typescript]
   patterns:
-    - regex: 'api.*security|api.*security'
-  severity: low
+    - regex: 'api.*security|api.*security''severity: low
   description: "API security configuration"
   remediation: "Configure API security"
   cwe: "CWE-284"
@@ -1216,8 +1101,7 @@
 - id: nextjs-api-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'api.*auth|api.*auth'
-  severity: low
+    - regex: 'api.*auth|api.*auth''severity: low
   description: "API authentication"
   remediation: "Implement API auth"
   cwe: "CWE-306"
@@ -1226,8 +1110,7 @@
 - id: nextjs-api-authentication
   languages: [javascript, typescript]
   patterns:
-    - regex: 'api.*authentication|api.*authentication'
-  severity: low
+    - regex: 'api.*authentication|api.*authentication''severity: low
   description: "API authentication"
   remediation: "Implement API auth"
   cwe: "CWE-306"
@@ -1236,8 +1119,7 @@
 - id: nextjs-api-authorization
   languages: [javascript, typescript]
   patterns:
-    - regex: 'api.*authorization|api.*authorization'
-  severity: low
+    - regex: 'api.*authorization|api.*authorization''severity: low
   description: "API authorization"
   remediation: "Implement API authorization"
   cwe: "CWE-284"
@@ -1246,8 +1128,7 @@
 - id: nextjs-api-authentication-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'authentication.*missing|authentication.*missing'
-  severity: high
+    - regex: 'authentication.*missing|authentication.*missing''severity: high
   description: "Authentication missing"
   remediation: "Add authentication"
   cwe: "CWE-306"
@@ -1256,8 +1137,7 @@
 - id: nextjs-api-authorization-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'authorization.*missing|authorization.*missing'
-  severity: high
+    - regex: 'authorization.*missing|authorization.*missing''severity: high
   description: "Authorization missing"
   remediation: "Add authorization"
   cwe: "CWE-284"
@@ -1266,8 +1146,7 @@
 - id: nextjs-api-no-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*auth|no.*auth'
-  severity: high
+    - regex: 'no.*auth|no.*auth''severity: high
   description: "No auth"
   remediation: "Add auth"
   cwe: "CWE-306"
@@ -1276,8 +1155,7 @@
 - id: nextjs-api-no-authentication
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*authentication|no.*authentication'
-  severity: high
+    - regex: 'no.*authentication|no.*authentication''severity: high
   description: "No authentication"
   remediation: "Add authentication"
   cwe: "CWE-306"
@@ -1286,8 +1164,7 @@
 - id: nextjs-api-no-authorization
   languages: [javascript, typescript]
   patterns:
-    - regex: 'no.*authorization|no.*authorization'
-  severity: high
+    - regex: 'no.*authorization|no.*authorization''severity: high
   description: "No authorization"
   remediation: "Add authorization"
   cwe: "CWE-284"
@@ -1296,8 +1173,7 @@
 - id: nextjs-api-auth-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'auth.*disabled|auth.*disabled'
-  severity: high
+    - regex: 'auth.*disabled|auth.*disabled''severity: high
   description: "Auth disabled"
   remediation: "Enable auth"
   cwe: "CWE-306"
@@ -1306,8 +1182,7 @@
 - id: nextjs-api-authentication-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'authentication.*disabled|authentication.*disabled'
-  severity: high
+    - regex: 'authentication.*disabled|authentication.*disabled''severity: high
   description: "Authentication disabled"
   remediation: "Enable authentication"
   cwe: "CWE-306"
@@ -1316,8 +1191,7 @@
 - id: nextjs-api-authorization-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'authorization.*disabled|authorization.*disabled'
-  severity: high
+    - regex: 'authorization.*disabled|authorization.*disabled''severity: high
   description: "Authorization disabled"
   remediation: "Enable authorization"
   cwe: "CWE-284"
@@ -1326,8 +1200,7 @@
 - id: nextjs-api-disabled-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'disabled.*auth|disabled.*auth'
-  severity: high
+    - regex: 'disabled.*auth|disabled.*auth''severity: high
   description: "Auth disabled"
   remediation: "Enable auth"
   cwe: "CWE-306"
@@ -1336,8 +1209,7 @@
 - id: nextjs-api-disabled-authentication
   languages: [javascript, typescript]
   patterns:
-    - regex: 'disabled.*authentication|disabled.*authentication'
-  severity: high
+    - regex: 'disabled.*authentication|disabled.*authentication''severity: high
   description: "Authentication disabled"
   remediation: "Enable authentication"
   cwe: "CWE-306"
@@ -1346,8 +1218,7 @@
 - id: nextjs-api-disabled-authorization
   languages: [javascript, typescript]
   patterns:
-    - regex: 'disabled.*authorization|disabled.*authorization'
-  severity: high
+    - regex: 'disabled.*authorization|disabled.*authorization''severity: high
   description: "Authorization disabled"
   remediation: "Enable authorization"
   cwe: "CWE-284"
@@ -1356,8 +1227,7 @@
 - id: nextjs-api-missing-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'missing.*auth|missing.*auth'
-  severity: high
+    - regex: 'missing.*auth|missing.*auth''severity: high
   description: "Missing auth"
   remediation: "Add auth"
   cwe: "CWE-306"
@@ -1366,8 +1236,7 @@
 - id: nextjs-api-missing-authentication
   languages: [javascript, typescript]
   patterns:
-    - regex: 'missing.*authentication|missing.*authentication'
-  severity: high
+    - regex: 'missing.*authentication|missing.*authentication''severity: high
   description: "Missing authentication"
   remediation: "Add authentication"
   cwe: "CWE-306"
@@ -1376,8 +1245,7 @@
 - id: nextjs-api-missing-authorization
   languages: [javascript, typescript]
   patterns:
-    - regex: 'missing.*authorization|missing.*authorization'
-  severity: high
+    - regex: 'missing.*authorization|missing.*authorization''severity: high
   description: "Missing authorization"
   remediation: "Add authorization"
   cwe: "CWE-284"
@@ -1386,8 +1254,7 @@
 - id: nextjs-api-auth-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'auth.*missing|auth.*missing'
-  severity: high
+    - regex: 'auth.*missing|auth.*missing''severity: high
   description: "Auth missing"
   remediation: "Add auth"
   cwe: "CWE-306"
@@ -1396,8 +1263,7 @@
 - id: nextjs-api-authentication-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'authentication.*missing|authentication.*missing'
-  severity: high
+    - regex: 'authentication.*missing|authentication.*missing''severity: high
   description: "Authentication missing"
   remediation: "Add authentication"
   cwe: "CWE-306"
@@ -1407,8 +1273,7 @@
 - id: nextjs-middleware-security
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*security|middleware.*security'
-  severity: low
+    - regex: 'middleware.*security|middleware.*security''severity: low
   description: "Middleware security"
   remediation: "Configure middleware security"
   cwe: "CWE-693"
@@ -1417,8 +1282,7 @@
 - id: nextjs-middleware-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*auth|middleware.*auth'
-  severity: low
+    - regex: 'middleware.*auth|middleware.*auth''severity: low
   description: "Middleware auth"
   remediation: "Configure middleware auth"
   cwe: "CWE-306"
@@ -1427,8 +1291,7 @@
 - id: nextjs-middleware-authentication
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*authentication|middleware.*authentication'
-  severity: low
+    - regex: 'middleware.*authentication|middleware.*authentication''severity: low
   description: "Middleware authentication"
   remediation: "Configure middleware authentication"
   cwe: "CWE-306"
@@ -1437,8 +1300,7 @@
 - id: nextjs-middleware-authorization
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*authorization|middleware.*authorization'
-  severity: low
+    - regex: 'middleware.*authorization|middleware.*authorization''severity: low
   description: "Middleware authorization"
   remediation: "Configure middleware authorization"
   cwe: "CWE-284"
@@ -1447,8 +1309,7 @@
 - id: nextjs-middleware-auth-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*auth.*missing|middleware.*auth.*missing'
-  severity: high
+    - regex: 'middleware.*auth.*missing|middleware.*auth.*missing''severity: high
   description: "Middleware auth missing"
   remediation: "Add middleware auth"
   cwe: "CWE-306"
@@ -1457,8 +1318,7 @@
 - id: nextjs-middleware-authentication-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*authentication.*missing|middleware.*authentication.*missing'
-  severity: high
+    - regex: 'middleware.*authentication.*missing|middleware.*authentication.*missing''severity: high
   description: "Middleware authentication missing"
   remediation: "Add middleware authentication"
   cwe: "CWE-306"
@@ -1467,8 +1327,7 @@
 - id: nextjs-middleware-authorization-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*authorization.*missing|middleware.*authorization.*missing'
-  severity: high
+    - regex: 'middleware.*authorization.*missing|middleware.*authorization.*missing''severity: high
   description: "Middleware authorization missing"
   remediation: "Add middleware authorization"
   cwe: "CWE-284"
@@ -1477,8 +1336,7 @@
 - id: nextjs-middleware-missing-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*missing.*auth|middleware.*missing.*auth'
-  severity: high
+    - regex: 'middleware.*missing.*auth|middleware.*missing.*auth''severity: high
   description: "Middleware missing auth"
   remediation: "Add middleware auth"
   cwe: "CWE-306"
@@ -1487,8 +1345,7 @@
 - id: nextjs-middleware-missing-authentication
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*missing.*authentication|middleware.*missing.*authentication'
-  severity: high
+    - regex: 'middleware.*missing.*authentication|middleware.*missing.*authentication''severity: high
   description: "Middleware missing authentication"
   remediation: "Add middleware authentication"
   cwe: "CWE-306"
@@ -1497,8 +1354,7 @@
 - id: nextjs-middleware-missing-authorization
   languages: [javascript, typescript]
   patterns:
-    - regex: 'middleware.*missing.*authorization|middleware.*missing.*authorization'
-  severity: high
+    - regex: 'middleware.*missing.*authorization|middleware.*missing.*authorization''severity: high
   description: "Middleware missing authorization"
   remediation: "Add middleware authorization"
   cwe: "CWE-284"

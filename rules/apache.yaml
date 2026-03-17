@@ -1,8 +1,7 @@
 - id: apache-options-indexes
   languages: [apache]
   patterns:
-    - regex: '(?i)Options\\s+.*Indexes'
-  severity: medium
+    - regex: '(?i)Options\\s+.*Indexes''severity: medium
   description: "Directory listing enabled"
   remediation: "Remove Indexes from Options or use -Indexes"
   cwe: "CWE-548"
@@ -11,8 +10,7 @@
 - id: apache-server-signature
   languages: [apache]
   patterns:
-    - regex: '(?i)ServerSignature\\s+On'
-  severity: low
+    - regex: '(?i)ServerSignature\\s+On''severity: low
   description: "Server signature exposed"
   remediation: "Set ServerSignature Off"
   cwe: "CWE-200"
@@ -21,8 +19,7 @@
 - id: apache-server-tokens
   languages: [apache]
   patterns:
-    - regex: '(?i)ServerTokens\\s+(?:Full|OS|Minor|Minimal)'
-  severity: low
+    - regex: '(?i)ServerTokens\\s+(?:Full|OS|Minor|Minimal)''severity: low
   description: "Server tokens exposed"
   remediation: "Set ServerTokens Prod"
   cwe: "CWE-200"
@@ -31,8 +28,7 @@
 - id: apache-trace-enable
   languages: [apache]
   patterns:
-    - regex: '(?i)TraceEnable\\s+On'
-  severity: medium
+    - regex: '(?i)TraceEnable\\s+On''severity: medium
   description: "Trace method enabled (XST risk)"
   remediation: "Set TraceEnable Off"
   cwe: "CWE-693"
@@ -41,8 +37,7 @@
 - id: apache-insecure-ssl
   languages: [apache]
   patterns:
-    - regex: '(?i)SSLProtocol\\s+.*(?:\\+|-)?(?:SSLv2|SSLv3|TLSv1\\b|TLSv1\\.1)'
-  severity: high
+    - regex: '(?i)SSLProtocol\\s+.*(?:\\+|-)?(?:SSLv2|SSLv3|TLSv1\\b|TLSv1\\.1)''severity: high
   description: "Insecure SSL/TLS protocols"
   remediation: "Use TLSv1.2 and TLSv1.3 only"
   cwe: "CWE-327"
@@ -52,8 +47,7 @@
 - id: apache-missing-hsts
   languages: [apache]
   patterns:
-    - regex: '(?i)Header\s+(?:always|set)\s+Strict-Transport-Security(?!.*max-age)'
-  severity: medium
+    - regex: '(?i)Header\s+(?:always|set)\s+Strict-Transport-Security''severity: medium
   description: "HSTS header improperly configured"
   remediation: "Set max-age correctly"
   cwe: "CWE-319"
@@ -62,8 +56,7 @@
 - id: apache-weak-ciphers
   languages: [apache]
   patterns:
-    - regex: '(?i)SSLCipherSuite\s+.*(?:RC4|DES|MD5|EXPORT)'
-  severity: high
+    - regex: '(?i)SSLCipherSuite\s+.*(?:RC4|DES|MD5|EXPORT)''severity: high
   description: "Weak SSL/TLS ciphers"
   remediation: "Use strong ciphers"
   cwe: "CWE-327"
@@ -72,8 +65,7 @@
 - id: apache-allow-override-all
   languages: [apache]
   patterns:
-    - regex: '(?i)AllowOverride\s+All'
-  severity: medium
+    - regex: '(?i)AllowOverride\s+All''severity: medium
   description: "AllowOverride All enables .htaccess execution"
   remediation: "Set AllowOverride None unless necessary"
   cwe: "CWE-269"
@@ -82,8 +74,7 @@
 - id: apache-directory-slash
   languages: [apache]
   patterns:
-    - regex: '(?i)<Directory\s+/>[\s\S]*?Require\s+all\s+granted'
-  severity: high
+    - regex: '(?i)<Directory\s+/>[\s\S]*?Require\s+all\s+granted''severity: high
   description: "Root directory access granted"
   remediation: "Set Require all denied for /"
   cwe: "CWE-284"
@@ -92,8 +83,7 @@
 - id: apache-info-module
   languages: [apache]
   patterns:
-    - regex: '(?i)SetHandler\s+server-info'
-  severity: medium
+    - regex: '(?i)SetHandler\s+server-info''severity: medium
   description: "server-info handler exposed"
   remediation: "Restrict IP access to server-info"
   cwe: "CWE-200"
@@ -102,8 +92,7 @@
 - id: apache-server-tokens
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ServerTokens\s+(?:OS|Full|Minimal|Minor)'
-  severity: medium
+    - regex: '(?i)^\s*ServerTokens\s+(?:OS|Full|Minimal|Minor)''severity: medium
   description: "ServerTokens set to verbose (Information Disclosure)"
   remediation: "Set `ServerTokens Prod` to minimize version leakage."
   cwe: "CWE-200"
@@ -112,8 +101,7 @@
 - id: apache-server-signature
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ServerSignature\s+On'
-  severity: medium
+    - regex: '(?i)^\s*ServerSignature\s+On''severity: medium
   description: "ServerSignature is enabled"
   remediation: "Set `ServerSignature Off` to hide Apache version on error pages."
   cwe: "CWE-200"
@@ -122,8 +110,7 @@
 - id: apache-directory-indexes
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Options[\s\S]*?Indexes'
-  severity: high
+    - regex: '(?i)^\s*Options[\s\S]*?Indexes''severity: high
   description: "Directory listing enabled (Information Disclosure)"
   remediation: "Remove `Indexes` from Options, or use `-Indexes`."
   cwe: "CWE-548"
@@ -132,8 +119,7 @@
 - id: apache-trace-enable
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*TraceEnable\s+(?:On|extended)'
-  severity: high
+    - regex: '(?i)^\s*TraceEnable\s+(?:On|extended)''severity: high
   description: "TRACE method enabled (Cross-Site Tracing)"
   remediation: "Set `TraceEnable Off` globally."
   cwe: "CWE-693"
@@ -142,8 +128,7 @@
 - id: apache-filee-etag
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*FileETag\s+(?:INode\s+MTime\s+Size|All)'
-  severity: low
+    - regex: '(?i)^\s*FileETag\s+(?:INode\s+MTime\s+Size|All)''severity: low
   description: "FileETag exposes inode details"
   remediation: "Set `FileETag None` or limit to MTime/Size to prevent inode tracking."
   cwe: "CWE-200"
@@ -152,8 +137,7 @@
 - id: apache-allowoverride-all
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AllowOverride\s+All'
-  severity: high
+    - regex: '(?i)^\s*AllowOverride\s+All''severity: high
   description: "AllowOverride All configured (.htaccess parsing)"
   remediation: "This incurs massive performance overhead and allows directory-level configuration overrides by attackers. Set to `None` and manage via main conf."
   cwe: "CWE-284"
@@ -162,7 +146,7 @@
 - id: apache-root-directory-permissions
   languages: [apache]
   patterns:
-    - regex: '(?i)<Directory\s+(?:"|'')?/(?:"|'')?\s*>[\s\S]*?(?:Require\s+all\s+granted|Allow\s+from\s+all)'
+    - regex: '(?i)<Directory\s+(?:"|''')?/(?:"|'')?\s*>[\s\S]*?(?:Require\s+all\s+granted|Allow\s+from\s+all)'
   severity: critical
   description: "Root directory (/) access is granted globally"
   remediation: "Enforce `Require all denied` on the root `/` directory and selectively grant access to DocumentRoots."
@@ -172,8 +156,7 @@
 - id: apache-ssl-protocol-weak
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SSLProtocol[\s\S]*?\+(?:SSLv2|SSLv3|TLSv1|TLSv1\.1)'
-  severity: critical
+    - regex: '(?i)^\s*SSLProtocol[\s\S]*?\+(?:SSLv2|SSLv3|TLSv1|TLSv1\.1)''severity: critical
   description: "Weak SSL/TLS protocols allowed"
   remediation: "Use `SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1` to enforce TLS 1.2+."
   cwe: "CWE-327"
@@ -182,8 +165,7 @@
 - id: apache-ssl-cipher-suite-weak
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SSLCipherSuite[\s\S]*?(?:RC4|MD5|DES|NULL|EXPORT|LOW)'
-  severity: high
+    - regex: '(?i)^\s*SSLCipherSuite[\s\S]*?(?:RC4|MD5|DES|NULL|EXPORT|LOW)''severity: high
   description: "Weak SSL Cipher Suite configured"
   remediation: "Implement strong, modern Mozilla Recommended profiles."
   cwe: "CWE-327"
@@ -192,8 +174,7 @@
 - id: apache-ssl-honor-cipher-order
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SSLHonorCipherOrder\s+off'
-  severity: medium
+    - regex: '(?i)^\s*SSLHonorCipherOrder\s+off''severity: medium
   description: "Server cipher order not strictly honored"
   remediation: "Set `SSLHonorCipherOrder On` to enforce server cipher suite preference."
   cwe: "CWE-319"
@@ -202,8 +183,7 @@
 - id: apache-ssl-compression
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SSLCompression\s+on'
-  severity: high
+    - regex: '(?i)^\s*SSLCompression\s+on''severity: high
   description: "SSL Compression enabled (CRIME vulnerability)"
   remediation: "Set `SSLCompression Off` to mitigate CRIME attacks."
   cwe: "CWE-319"
@@ -212,8 +192,7 @@
 - id: apache-missing-hsts
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost\s+.*:443>[\s\S]*?(?!.*Header\s+(?:always\s+)?set\s+Strict-Transport-Security)'
-  severity: medium
+    - regex: '(?i)<VirtualHost\s+.*:443>[\s\S]*??set\s+Strict-Transport-Security)''severity: medium
   description: "Missing HSTS in 443 VirtualHost"
   remediation: "Add `Header always set Strict-Transport-Security \"max-age=31536000\"`."
   cwe: "CWE-319"
@@ -222,8 +201,7 @@
 - id: apache-missing-x-frame-options
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost[\s\S]*?(?!.*Header\s+(?:always\s+)?(?:set|append)\s+X-Frame-Options)'
-  severity: medium
+    - regex: '(?i)<VirtualHost[\s\S]*??(?:set|append)\s+X-Frame-Options)''severity: medium
   description: "Missing X-Frame-Options (Clickjacking protection)"
   remediation: "Add `Header always append X-Frame-Options SAMEORIGIN`."
   cwe: "CWE-693"
@@ -232,8 +210,7 @@
 - id: apache-missing-x-xss-protection
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost[\s\S]*?(?!.*Header\s+(?:always\s+)?(?:set|append)\s+X-XSS-Protection)'
-  severity: low
+    - regex: '(?i)<VirtualHost[\s\S]*??(?:set|append)\s+X-XSS-Protection)''severity: low
   description: "Missing X-XSS-Protection"
   remediation: "Add `Header always set X-XSS-Protection \"1; mode=block\"` for legacy compatibility."
   cwe: "CWE-693"
@@ -242,8 +219,7 @@
 - id: apache-missing-x-content-type
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost[\s\S]*?(?!.*Header\s+(?:always\s+)?(?:set|append)\s+X-Content-Type-Options)'
-  severity: low
+    - regex: '(?i)<VirtualHost[\s\S]*??(?:set|append)\s+X-Content-Type-Options)''severity: low
   description: "Missing X-Content-Type-Options"
   remediation: "Add `Header always set X-Content-Type-Options nosniff`."
   cwe: "CWE-693"
@@ -252,8 +228,7 @@
 - id: apache-reqtimeout-missing
   languages: [apache]
   patterns:
-    - regex: '(?i)(?!.*LoadModule\s+reqtimeout_module)[\s\S]+'
-  severity: medium
+    - regex: '(?i)[\s\S]+''severity: medium
   description: "mod_reqtimeout not loaded (Slowloris risk)"
   remediation: "Load mod_reqtimeout and configure `RequestReadTimeout` to mitigate slow request attacks."
   cwe: "CWE-400"
@@ -262,8 +237,7 @@
 - id: apache-timeout-long
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Timeout\s+(?:(?:[6-9]\d+)|\d{3,})'
-  severity: medium
+    - regex: '(?i)^\s*Timeout\s+(?:(?:[6-9]\d+)|\d{3,})''severity: medium
   description: "Timeout directive is excessively long"
   remediation: "Lower the Timeout setting to 30-60 seconds to drop idle connections faster."
   cwe: "CWE-400"
@@ -272,8 +246,7 @@
 - id: apache-keepalive-timeout-long
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*KeepAliveTimeout\s+(?:(?:[2-9]\d+)|\d{3,})'
-  severity: low
+    - regex: '(?i)^\s*KeepAliveTimeout\s+(?:(?:[2-9]\d+)|\d{3,})''severity: low
   description: "KeepAliveTimeout is excessively long"
   remediation: "Keep KeepAliveTimeout strictly between 2 to 5 seconds to free up workers quickly."
   cwe: "CWE-400"
@@ -282,8 +255,7 @@
 - id: apache-limitrequestbody-infinite
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LimitRequestBody\s+(?:0|2147483647)'
-  severity: high
+    - regex: '(?i)^\s*LimitRequestBody\s+(?:0|2147483647)''severity: high
   description: "LimitRequestBody set to unlimited (DoS potential)"
   remediation: "Set an explicit value (e.g., 10485760 for 10MB) depending on application upload requirements."
   cwe: "CWE-400"
@@ -292,8 +264,7 @@
 - id: apache-max-request-workers-huge
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*MaxRequestWorkers\s+(?:[2-9]\d{3}|\d{5,})'
-  severity: low
+    - regex: '(?i)^\s*MaxRequestWorkers\s+(?:[2-9]\d{3}|\d{5,})''severity: low
   description: "Extremely high MaxRequestWorkers"
   remediation: "Too many workers without sufficient RAM will cause thrashing and OOM (Out of Memory) crashes."
   cwe: "CWE-400"
@@ -302,8 +273,7 @@
 - id: apache-proxy-requests-on
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyRequests\s+On'
-  severity: critical
+    - regex: '(?i)^\s*ProxyRequests\s+On''severity: critical
   description: "ProxyRequests On makes server an open forward proxy"
   remediation: "Set `ProxyRequests Off` unless explicitly acting as a network forward proxy (requiring strict ACLs)."
   cwe: "CWE-284"
@@ -312,8 +282,7 @@
 - id: apache-proxy-via-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyVia\s+(?:On|Full)'
-  severity: low
+    - regex: '(?i)^\s*ProxyVia\s+(?:On|Full)''severity: low
   description: "ProxyVia is enabled (Internal IP routing exposure)"
   remediation: "Set `ProxyVia Off` or `Block` to prevent leaking internal proxy hops."
   cwe: "CWE-200"
@@ -322,8 +291,7 @@
 - id: apache-proxy-pass-missing-validateURL
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyPassInterpolateEnv\s+On'
-  severity: medium
+    - regex: '(?i)^\s*ProxyPassInterpolateEnv\s+On''severity: medium
   description: "ProxyPass environmental interpolation enabled"
   remediation: "If variable injection occurs inside a ProxyPass mapping, SSRF vulnerabilities emerge. Avoid `ProxyPassInterpolateEnv`."
   cwe: "CWE-918"
@@ -332,8 +300,7 @@
 - id: apache-server-status-public
   languages: [apache]
   patterns:
-    - regex: '(?i)<Location\s+(?:/server-status)>(?![\s\S]*?Require\s+ip\s+(?:127\.|10\.|192\.168\.|172\.))'
-  severity: high
+    - regex: '(?i)<Location\s+(?:/server-status)>)''severity: high
   description: "mod_status endpoint (/server-status) exposed publicly"
   remediation: "Wrap mod_status in a `<RequireAny><Require ip 127.0.0.1>...` block."
   cwe: "CWE-200"
@@ -342,8 +309,7 @@
 - id: apache-server-info-public
   languages: [apache]
   patterns:
-    - regex: '(?i)<Location\s+(?:/server-info)>(?![\s\S]*?Require\s+ip\s+(?:127\.|10\.|192\.168\.|172\.))'
-  severity: high
+    - regex: '(?i)<Location\s+(?:/server-info)>)''severity: high
   description: "mod_info endpoint (/server-info) exposed publicly"
   remediation: "Wrap mod_info in a strict IP `Require` block."
   cwe: "CWE-200"
@@ -352,8 +318,7 @@
 - id: apache-mod-userdir-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LoadModule\s+userdir_module'
-  severity: medium
+    - regex: '(?i)^\s*LoadModule\s+userdir_module''severity: medium
   description: "mod_userdir loaded (Username enumeration / Tilde Expansion leaks)"
   remediation: "Disable mod_userdir unless actively hosting legacy multi-tenant shell user sites."
   cwe: "CWE-200"
@@ -362,8 +327,7 @@
 - id: apache-mod-autoindex-loaded
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LoadModule\s+autoindex_module'
-  severity: low
+    - regex: '(?i)^\s*LoadModule\s+autoindex_module''severity: low
   description: "mod_autoindex loaded (Allows directory listing)"
   remediation: "Disable module completely if directory listing is never required globally."
   cwe: "CWE-548"
@@ -372,8 +336,7 @@
 - id: apache-includes-exec-cmd
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Options[\s\S]*?Includes(?![\s\S]*?IncludesNOEXEC)'
-  severity: high
+    - regex: '(?i)^\s*Options[\s\S]*?Includes''severity: high
   description: "SSI Includes allowed without NOEXEC"
   remediation: "Server-Side Includes can lead to RCE via `<!--#exec cmd=... -->`. Use `IncludesNOEXEC`."
   cwe: "CWE-94"
@@ -382,8 +345,7 @@
 - id: apache-scriptalias-outside-cgi
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ScriptAlias\s+(?:/cgi-bin/).*?(?<!/(?:cgi-bin/|www/))\n'
-  severity: medium
+    - regex: '(?i)^\s*ScriptAlias\s+(?:/cgi-bin/).*?)\n''severity: medium
   description: "ScriptAlias pointing to non-standard or risky directories"
   remediation: "Ensure CGI scripts are corralled into a strictly controlled `cgi-bin` directory exclusively."
   cwe: "CWE-284"
@@ -392,8 +354,7 @@
 - id: apache-cgi-options-exec-cgi
   languages: [apache]
   patterns:
-    - regex: '(?i)<Directory\s+.*?>[\s\S]*?Options[\s\S]*?ExecCGI(?![\s\S]*?Require\s+all\s+denied)'
-  severity: high
+    - regex: '(?i)<Directory\s+.*?>[\s\S]*?Options[\s\S]*?ExecCGI''severity: high
   description: "ExecCGI enabled inside a directory (Presents RCE potential if uploads are allowed)"
   remediation: "Combine ExecCGI exclusively with upload restrictions and strict handler definitions."
   cwe: "CWE-434"
@@ -402,8 +363,7 @@
 - id: apache-htaccess-unprotected
   languages: [apache]
   patterns:
-    - regex: '(?i)(?!<FilesMatch\s+"^\.(?:ht|git|svn|env)">)'
-  severity: medium
+    - regex: '(?i)">)''severity: medium
   description: "Missing protection for hidden configuration files"
   remediation: "Ensure a global `<FilesMatch \"^\\.\"> Require all denied </FilesMatch>` exists."
   cwe: "CWE-284"
@@ -412,8 +372,7 @@
 - id: apache-rewrite-rule-ssrf
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*RewriteRule\s+.*?(?:http|https)://%\{[a-zA-Z_]+\}'
-  severity: critical
+    - regex: '(?i)^\s*RewriteRule\s+.*?(?:http|https)://%\{[a-zA-Z_]+\}''severity: critical
   description: "RewriteRule dynamically builds proxy URLs from user input (SSRF via mod_rewrite)"
   remediation: "Do not use HTTP_HOST or user-controlled params to form RewriteRule destinations when the [P] proxy flag is used."
   cwe: "CWE-918"
@@ -422,8 +381,7 @@
 - id: apache-rewrite-rule-lfi
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*RewriteRule\s+.*?(?:file)://%\{[a-zA-Z_]+\}'
-  severity: critical
+    - regex: '(?i)^\s*RewriteRule\s+.*?(?:file)://%\{[a-zA-Z_]+\}''severity: critical
   description: "RewriteRule using file:// wrappers (Local File Read)"
   remediation: "Avoid mapping dynamic user variables to local file path handlers."
   cwe: "CWE-22"
@@ -432,7 +390,7 @@
 - id: apache-documentroot-root
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*DocumentRoot\s+(?:"|'')?/(?:"|'')?\s*$'
+    - regex: '(?i)^\s*DocumentRoot\s+(?:"|''')?/(?:"|'')?\s*$'
   severity: critical
   description: "DocumentRoot set to server root /"
   remediation: "Set DocumentRoot to a specific, isolated web directory (e.g. /var/www/html)."
@@ -442,8 +400,7 @@
 - id: apache-alias-symlinks-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Options[\s\S]*?FollowSymLinks(?![\s\S]*?SymLinksIfOwnerMatch)'
-  severity: medium
+    - regex: '(?i)^\s*Options[\s\S]*?FollowSymLinks''severity: medium
   description: "FollowSymLinks enabled without OwnerMatch (Privilege Escalation)"
   remediation: "Use `SymLinksIfOwnerMatch` to prevent users from linking to sensitive files via symlinks."
   cwe: "CWE-284"
@@ -452,8 +409,7 @@
 - id: apache-limit-except-require-all
   languages: [apache]
   patterns:
-    - regex: '(?i)<LimitExcept[\s\S]*?Require\s+all\s+granted'
-  severity: high
+    - regex: '(?i)<LimitExcept[\s\S]*?Require\s+all\s+granted''severity: high
   description: "LimitExcept block is globally open"
   remediation: "Strictly limit HTTP methods using `Require all denied` for unauthorized methods."
   cwe: "CWE-653"
@@ -462,8 +418,7 @@
 - id: apache-cgid-script-sock-tmp
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ScriptSock\s+(?:/tmp|/var/tmp)/'
-  severity: medium
+    - regex: '(?i)^\s*ScriptSock\s+(?:/tmp|/var/tmp)/''severity: medium
   description: "ScriptSock located in public /tmp directory"
   remediation: "Move ScriptSock to a protected run directory like /var/run/apache2."
   cwe: "CWE-377"
@@ -472,8 +427,7 @@
 - id: apache-logformat-x-forwarded-for-trusted
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LogFormat\s+.*%\{X-Forwarded-For\}i'
-  severity: low
+    - regex: '(?i)^\s*LogFormat\s+.*%\{X-Forwarded-For\}i''severity: low
   description: "Logging X-Forwarded-For without validation"
   remediation: "Header can be spoofed. Understand logs may contain forged IPs."
   cwe: "CWE-346"
@@ -482,8 +436,7 @@
 - id: apache-mod-status-extended-on
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ExtendedStatus\s+On'
-  severity: low
+    - regex: '(?i)^\s*ExtendedStatus\s+On''severity: low
   description: "ExtendedStatus enabled (Heavy performance tracking)"
   remediation: "Ensure the /server-status endpoint is heavily protected if ExtendedStatus is required."
   cwe: "CWE-200"
@@ -492,8 +445,7 @@
 - id: apache-setenvif-x-forwarded-for-allow
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SetEnvIf\s+X-Forwarded-For\s+.*\s+AllowAccess'
-  severity: medium
+    - regex: '(?i)^\s*SetEnvIf\s+X-Forwarded-For\s+.*\s+AllowAccess''severity: medium
   description: "Access control based on X-Forwarded-For"
   remediation: "X-Forwarded-For is easily spoofed; do not use it for strictly allowing access."
   cwe: "CWE-346"
@@ -502,7 +454,7 @@
 - id: apache-header-set-access-control-allow-origin-wildcard
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Header\s+(?:always\s+)?set\s+Access-Control-Allow-Origin\s+(?:"|'')?\*'
+    - regex: '(?i)^\s*Header\s+(?:always\s+)?set\s+Access-Control-Allow-Origin\s+(?:"|''')?\*'
   severity: high
   description: "Wildcard Access-Control-Allow-Origin"
   remediation: "Use specific origin lists instead of wildcards for CORS."
@@ -512,7 +464,7 @@
 - id: apache-header-set-access-control-allow-credentials
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Header\s+(?:always\s+)?set\s+Access-Control-Allow-Credentials\s+(?:"|'')?true'
+    - regex: '(?i)^\s*Header\s+(?:always\s+)?set\s+Access-Control-Allow-Credentials\s+(?:"|''')?true'
   severity: high
   description: "Access-Control-Allow-Credentials header is true"
   remediation: "Ensure this is not paired with a wildcard origin."
@@ -522,8 +474,7 @@
 - id: apache-mod-security-secruleengine-off
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SecRuleEngine\s+Off'
-  severity: critical
+    - regex: '(?i)^\s*SecRuleEngine\s+Off''severity: critical
   description: "ModSecurity WAF engine disabled"
   remediation: "Turn `SecRuleEngine On` to actively block web attacks."
   cwe: "CWE-693"
@@ -532,8 +483,7 @@
 - id: apache-mod-security-secruleengine-detectiononly
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SecRuleEngine\s+DetectionOnly'
-  severity: medium
+    - regex: '(?i)^\s*SecRuleEngine\s+DetectionOnly''severity: medium
   description: "ModSecurity WAF in detection-only mode"
   remediation: "Consider turning `SecRuleEngine On` for active blocking."
   cwe: "CWE-693"
@@ -542,8 +492,7 @@
 - id: apache-mod-evasive-doshashtablesize-small
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*DOSHashTableSize\s+(?:[1-9][0-9]?\b|10[0-9]|1[0-1]\d\d\b)'
-  severity: low
+    - regex: '(?i)^\s*DOSHashTableSize\s+(?:[1-9][0-9]?\b|10[0-9]|1[0-1]\d\d\b)''severity: low
   description: "ModEvasive hash table size too small"
   remediation: "Increase `DOSHashTableSize` for busy servers to properly track DoS IPs."
   cwe: "CWE-400"
@@ -552,8 +501,7 @@
 - id: apache-ssl-strictsnivhostcheck-off
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SSLStrictSNIVHostCheck\s+off'
-  severity: medium
+    - regex: '(?i)^\s*SSLStrictSNIVHostCheck\s+off''severity: medium
   description: "Strict SNI virtual host parsing disabled"
   remediation: "Set `SSLStrictSNIVHostCheck On` to drop connections where client SNI doesn't match a defined VHost."
   cwe: "CWE-295"
@@ -562,8 +510,7 @@
 - id: apache-ssl-proxy-verify-none
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SSLProxyVerify\s+none'
-  severity: critical
+    - regex: '(?i)^\s*SSLProxyVerify\s+none''severity: critical
   description: "SSL Proxy verification disabled"
   remediation: "Enable SSLProxyVerify and provide trust anchors to prevent MiTM on proxy endpoints."
   cwe: "CWE-295"
@@ -572,8 +519,7 @@
 - id: apache-proxy-preserve-host-off
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyPreserveHost\s+Off'
-  severity: low
+    - regex: '(?i)^\s*ProxyPreserveHost\s+Off''severity: low
   description: "ProxyPreserveHost disabled"
   remediation: "Backend servers will not see the original Host header, potentially breaking application routing logic."
   cwe: "CWE-113"
@@ -582,8 +528,7 @@
 - id: apache-proxy-error-override-off
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyErrorOverride\s+Off'
-  severity: low
+    - regex: '(?i)^\s*ProxyErrorOverride\s+Off''severity: low
   description: "ProxyErrorOverride disabled"
   remediation: "Apache will send raw backend backend errors instead of configured generic error pages."
   cwe: "CWE-200"
@@ -592,8 +537,7 @@
 - id: apache-ssl-renegotiation-unrestricted
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SSLInsecureRenegotiation\s+on'
-  severity: high
+    - regex: '(?i)^\s*SSLInsecureRenegotiation\s+on''severity: high
   description: "Insecure SSL Renegotiation enabled (MiTM risk)"
   remediation: "Disable legacy renegotiation implementations."
   cwe: "CWE-319"
@@ -602,8 +546,7 @@
 - id: apache-php-admin-flag-allow-url-fopen
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*php_admin_flag\s+allow_url_fopen\s+on'
-  severity: critical
+    - regex: '(?i)^\s*php_admin_flag\s+allow_url_fopen\s+on''severity: critical
   description: "allow_url_fopen enabled in VHost (SSRF/RFI Risk)"
   remediation: "Turn off allow_url_fopen unless absolutely strictly required."
   cwe: "CWE-918"
@@ -612,8 +555,7 @@
 - id: apache-php-admin-flag-display-errors
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*php_admin_flag\s+display_errors\s+on'
-  severity: medium
+    - regex: '(?i)^\s*php_admin_flag\s+display_errors\s+on''severity: medium
   description: "PHP errors displayed via Apache config"
   remediation: "Turn off display_errors in production to prevent source code leaks."
   cwe: "CWE-200"
@@ -622,8 +564,7 @@
 - id: apache-require-ip-all
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Require\s+ip\s+0\.0\.0\.0/0'
-  severity: medium
+    - regex: '(?i)^\s*Require\s+ip\s+0\.0\.0\.0/0''severity: medium
   description: "Explicit Require all IPs granted"
   remediation: "Use `Require all granted` standard, but verify this location truly needs public access."
   cwe: "CWE-284"
@@ -632,8 +573,7 @@
 - id: apache-timeout-short
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Timeout\s+(?:[1-9]\b)'
-  severity: low
+    - regex: '(?i)^\s*Timeout\s+(?:[1-9]\b)''severity: low
   description: "Timeout excessively short"
   remediation: "Timeouts under 10 seconds might prematurely drop legitimate slow clients."
   cwe: "CWE-400"
@@ -642,8 +582,7 @@
 - id: apache-cache-control-missing
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost[\s\S]*?(?!.*Header\s+(?:always\s+)?set\s+Cache-Control)'
-  severity: low
+    - regex: '(?i)<VirtualHost[\s\S]*??set\s+Cache-Control)''severity: low
   description: "Missing explicit Cache-Control headers"
   remediation: "Drop in `Header set Cache-Control \"no-cache, no-store, must-revalidate\"` for sensitive locations."
   cwe: "CWE-524"
@@ -652,8 +591,7 @@
 - id: apache-pragma-no-cache-missing
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost[\s\S]*?(?!.*Header\s+(?:always\s+)?set\s+Pragma)'
-  severity: low
+    - regex: '(?i)<VirtualHost[\s\S]*??set\s+Pragma)''severity: low
   description: "Missing Pragma no-cache header"
   remediation: "Add `Header set Pragma \"no-cache\"` for HTTP/1.0 backward compatibility."
   cwe: "CWE-524"
@@ -662,8 +600,7 @@
 - id: apache-x-content-type-options-disable
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Header\s+(?:always\s+)?unset\s+X-Content-Type-Options'
-  severity: medium
+    - regex: '(?i)^\s*Header\s+(?:always\s+)?unset\s+X-Content-Type-Options''severity: medium
   description: "X-Content-Type-Options explicitly removed"
   remediation: "MIME sniffing protection disabled. Ensure this is absolutely necessary."
   cwe: "CWE-693"
@@ -672,8 +609,7 @@
 - id: apache-server-admin-default
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ServerAdmin\s+(?:webmaster@localhost|admin@example\.com)'
-  severity: low
+    - regex: '(?i)^\s*ServerAdmin\s+(?:webmaster@localhost|admin@example\.com)''severity: low
   description: "Default ServerAdmin email used"
   remediation: "Change to a valid administrative contact or abuse alias."
   cwe: "CWE-200"
@@ -682,8 +618,7 @@
 - id: apache-addhandler-cgi-bin
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AddHandler\s+cgi-script\s+\.(?:cgi|pl|py|sh|rb)'
-  severity: high
+    - regex: '(?i)^\s*AddHandler\s+cgi-script\s+\.(?:cgi|pl|py|sh|rb)''severity: high
   description: "AddHandler maps active scripts globally"
   remediation: "Avoid using `AddHandler` safely inside specific directories. Use `SetHandler` inside `<FilesMatch>` instead."
   cwe: "CWE-434"
@@ -692,8 +627,7 @@
 - id: apache-sethandler-server-status
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SetHandler\s+server-status'
-  severity: high
+    - regex: '(?i)^\s*SetHandler\s+server-status''severity: high
   description: "Server status handler mapped"
   remediation: "Ensure the `<Location>` block heavily restricts IP access using `Require ip`."
   cwe: "CWE-200"
@@ -702,8 +636,7 @@
 - id: apache-sethandler-ldap-status
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SetHandler\s+ldap-status'
-  severity: high
+    - regex: '(?i)^\s*SetHandler\s+ldap-status''severity: high
   description: "LDAP status handler mapped"
   remediation: "Ensure LDAP cache details are hidden from public IPs."
   cwe: "CWE-200"
@@ -712,8 +645,7 @@
 - id: apache-include-optional-wildcard
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*IncludeOptional\s+.*?/\*\.conf'
-  severity: low
+    - regex: '(?i)^\s*IncludeOptional\s+.*?/\*\.conf''severity: low
   description: "Wildcard IncludeOptional drops in everything"
   remediation: "Ensure strict Linux file permissions on the conf.d directory to prevent attackers putting malicious configs there."
   cwe: "CWE-284"
@@ -722,8 +654,7 @@
 - id: apache-limitrequestfields
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LimitRequestFields\s+(?:(?:[2-9]\d{2})|\d{4,})'
-  severity: medium
+    - regex: '(?i)^\s*LimitRequestFields\s+(?:(?:[2-9]\d{2})|\d{4,})''severity: medium
   description: "LimitRequestFields excessively high"
   remediation: "Set to ~100 to prevent header explosion DoS attacks."
   cwe: "CWE-400"
@@ -732,8 +663,7 @@
 - id: apache-limitrequestfieldsize
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LimitRequestFieldSize\s+(?:(?:[1-9]\d{4,}))'
-  severity: medium
+    - regex: '(?i)^\s*LimitRequestFieldSize\s+(?:(?:[1-9]\d{4,}))''severity: medium
   description: "LimitRequestFieldSize excessively high"
   remediation: "Set to ~8190 to prevent massive headers crashing the request line."
   cwe: "CWE-400"
@@ -742,8 +672,7 @@
 - id: apache-limitrequestline
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LimitRequestLine\s+(?:(?:[1-9]\d{4,}))'
-  severity: medium
+    - regex: '(?i)^\s*LimitRequestLine\s+(?:(?:[1-9]\d{4,}))''severity: medium
   description: "LimitRequestLine excessively high"
   remediation: "Set to ~8190 to prevent massive URI parsing crashes."
   cwe: "CWE-400"
@@ -752,8 +681,7 @@
 - id: apache-limitxmlrequestbody
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LimitXMLRequestBody\s+(?:(?:[2-9]\d{6,})|0)'
-  severity: high
+    - regex: '(?i)^\s*LimitXMLRequestBody\s+(?:(?:[2-9]\d{6,})|0)''severity: high
   description: "LimitXMLRequestBody is huge or unlimited"
   remediation: "Set to 1000000 (1MB) to prevent XML bomb (Billion Laughs) DoS attacks."
   cwe: "CWE-400"
@@ -762,8 +690,7 @@
 - id: apache-maxkeepaliverequests
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*MaxKeepAliveRequests\s+(?:0|2147483647)'
-  severity: medium
+    - regex: '(?i)^\s*MaxKeepAliveRequests\s+(?:0|2147483647)''severity: medium
   description: "MaxKeepAliveRequests set to infinite"
   remediation: "Set to ~100 to force connections to cycle and free workers."
   cwe: "CWE-400"
@@ -772,8 +699,7 @@
 - id: apache-errorlog-missing
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost[\s\S]*?(?!.*ErrorLog)'
-  severity: high
+    - regex: '(?i)<VirtualHost[\s\S]*?''severity: high
   description: "VirtualHost missing isolated ErrorLog"
   remediation: "Define an `ErrorLog` per VirtualHost for forensic tracking."
   cwe: "CWE-778"
@@ -782,8 +708,7 @@
 - id: apache-customlog-missing
   languages: [apache]
   patterns:
-    - regex: '(?i)<VirtualHost[\s\S]*?(?!.*CustomLog)'
-  severity: high
+    - regex: '(?i)<VirtualHost[\s\S]*?''severity: high
   description: "VirtualHost missing isolated CustomLog"
   remediation: "Define an `CustomLog` per VirtualHost for access tracking."
   cwe: "CWE-778"
@@ -792,8 +717,7 @@
 - id: apache-loglevel-debug
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*LogLevel\s+debug'
-  severity: low
+    - regex: '(?i)^\s*LogLevel\s+debug''severity: low
   description: "LogLevel is set to debug globally"
   remediation: "Lower verbosity to `warn` to save disk space and limit sensitive leakages."
   cwe: "CWE-532"
@@ -802,8 +726,7 @@
 - id: apache-forensiclog-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ForensicLog\s+'
-  severity: low
+    - regex: '(?i)^\s*ForensicLog\s+''severity: low
   description: "mod_log_forensic enabled"
   remediation: "Ensure logs are exported securely, as forensic logs capture full request bodies."
   cwe: "CWE-532"
@@ -812,8 +735,7 @@
 - id: apache-authbasicprovider-file
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AuthBasicProvider\s+file'
-  severity: low
+    - regex: '(?i)^\s*AuthBasicProvider\s+file''severity: low
   description: "Basic authentication using raw files"
   remediation: "Basic Auth over HTTP is extremely weak. Ensure HTTPS is strictly enforced."
   cwe: "CWE-287"
@@ -822,7 +744,7 @@
 - id: apache-authname-exposed
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AuthName\s+(?:"|'')?(?:Internal|Admin|Secret|Database)(?:"|'')?'
+    - regex: '(?i)^\s*AuthName\s+(?:"|''')?(?:Internal|Admin|Secret|Database)(?:"|'')?'
   severity: low
   description: "AuthName reveals functional purpose"
   remediation: "Use generic AuthNames to avoid enticing attackers."
@@ -832,8 +754,7 @@
 - id: apache-order-allow-deny
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Order\s+allow,deny'
-  severity: medium
+    - regex: '(?i)^\s*Order\s+allow,deny''severity: medium
   description: "Legacy Order Allow,Deny syntax used"
   remediation: "Migrate to Apache 2.4+ `Require` syntax. Legacy syntax is deprecated and bypassable."
   cwe: "CWE-284"
@@ -842,8 +763,7 @@
 - id: apache-satisfy-any
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Satisfy\s+Any'
-  severity: high
+    - regex: '(?i)^\s*Satisfy\s+Any''severity: high
   description: "Satisfy Any allows ACL bypass"
   remediation: "If IP matches OR password matches, access is granted. Ensure this OR condition is intentional."
   cwe: "CWE-284"
@@ -852,8 +772,7 @@
 - id: apache-require-valid-user-missing-auth
   languages: [apache]
   patterns:
-    - regex: '(?i)Require\s+valid-user(?![\s\S]*?AuthType)'
-  severity: critical
+    - regex: '(?i)Require\s+valid-user''severity: critical
   description: "Require valid-user without AuthType defined"
   remediation: "Will break access control or throw 500s. Define AuthType Basic/Digest."
   cwe: "CWE-287"
@@ -862,8 +781,7 @@
 - id: apache-authdbmuserfile
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AuthDBMUserFile\s+'
-  severity: low
+    - regex: '(?i)^\s*AuthDBMUserFile\s+''severity: low
   description: "DBM file used for Auth"
   remediation: "Ensure the DBM file is located fully outside the web root."
   cwe: "CWE-284"
@@ -872,7 +790,7 @@
 - id: apache-authldapurl-insecure
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AuthLDAPURL\s+(?:"|'')?ldap://'
+    - regex: '(?i)^\s*AuthLDAPURL\s+(?:"|''')?ldap://'
   severity: high
   description: "LDAP authentication over plaintext"
   remediation: "Use `ldaps://` to secure LDAP credential checking."
@@ -882,8 +800,7 @@
 - id: apache-proxypassreverse-missing
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyPass\s+/(?:\w+)\s+http(?!.*ProxyPassReverse)'
-  severity: medium
+    - regex: '(?i)^\s*ProxyPass\s+/(?:\w+)\s+http''severity: medium
   description: "ProxyPass mapped without ProxyPassReverse"
   remediation: "Backend redirect headers (Location, Content-Location) will map to internal IPs, breaking the client."
   cwe: "CWE-200"
@@ -892,8 +809,7 @@
 - id: apache-proxy-timeout
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyTimeout\s+(?:(?:[6-9]\d{2})|\d{4,})'
-  severity: medium
+    - regex: '(?i)^\s*ProxyTimeout\s+(?:(?:[6-9]\d{2})|\d{4,})''severity: medium
   description: "ProxyTimeout extremely long"
   remediation: "Drop slow backend connections quickly to save Apache workers."
   cwe: "CWE-400"
@@ -902,8 +818,7 @@
 - id: apache-proxy-sourceaddress
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxySourceAddress\s+.*'
-  severity: low
+    - regex: '(?i)^\s*ProxySourceAddress\s+.*''severity: low
   description: "ProxySourceAddress strictly defined"
   remediation: "Ensure this IP correlates to allowed Firewall mapping logic."
   cwe: "CWE-284"
@@ -912,8 +827,7 @@
 - id: apache-proxy-receivebuffersize
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyReceiveBufferSize\s+.*'
-  severity: low
+    - regex: '(?i)^\s*ProxyReceiveBufferSize\s+.*''severity: low
   description: "Proxy buffer explicitly sized"
   remediation: "Track memory allocation per worker proxying heavy traffic."
   cwe: "CWE-400"
@@ -922,8 +836,7 @@
 - id: apache-proxywebsocket-fallback
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ProxyPass\s+.*\s+ws://'
-  severity: medium
+    - regex: '(?i)^\s*ProxyPass\s+.*\s+ws://''severity: medium
   description: "Unencrypted WebSocket proxy mappings"
   remediation: "Use `wss://` to proxy WebSocket traffic securely to backend NodeJS/Python servers."
   cwe: "CWE-319"
@@ -932,8 +845,7 @@
 - id: apache-header-always-unset-server
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Header\s+always\s+(?:unset|edit)\s+Server'
-  severity: low
+    - regex: '(?i)^\s*Header\s+always\s+(?:unset|edit)\s+Server''severity: low
   description: "Actively unsetting Server header via mod_headers"
   remediation: "This is the correct approach if `ServerTokens Minimal` isn't quiet enough."
   cwe: "CWE-200"
@@ -942,8 +854,7 @@
 - id: apache-usertrack-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*CookieTracking\s+on'
-  severity: low
+    - regex: '(?i)^\s*CookieTracking\s+on''severity: low
   description: "mod_usertrack enabled"
   remediation: "Generates tracking cookies for all users. Check GDPR implications."
   cwe: "CWE-200"
@@ -952,8 +863,7 @@
 - id: apache-setenvif-regex-injection
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SetEnvIf\s+User-Agent\s+".*?\(\.\*\)"'
-  severity: low
+    - regex: '(?i)^\s*SetEnvIf\s+User-Agent\s+".*?\(\.\*\)"''severity: low
   description: "Wildcard regex in SetEnvIf"
   remediation: "Heavy regex parsing on every request creates ReDoS vectors."
   cwe: "CWE-400"
@@ -962,8 +872,7 @@
 - id: apache-mod-rewrite-log
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*RewriteLogLevel\s+(?:[3-9])'
-  severity: medium
+    - regex: '(?i)^\s*RewriteLogLevel\s+(?:[3-9])''severity: medium
   description: "RewriteLogLevel is highly verbose"
   remediation: "Will tank server performance and disclose URI mapping logic."
   cwe: "CWE-532"
@@ -972,8 +881,7 @@
 - id: apache-rewritecond-http-host
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*RewriteCond\s+%\{HTTP_HOST\}\s+\^\.\*\$'
-  severity: low
+    - regex: '(?i)^\s*RewriteCond\s+%\{HTTP_HOST\}\s+\^\.\*\$''severity: low
   description: "RewriteCond blindly captures Host Header"
   remediation: "Hardcode expected hostnames instead of capturing arbitrary client input."
   cwe: "CWE-113"
@@ -982,8 +890,7 @@
 - id: apache-rewritecond-request-uri
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*RewriteCond\s+%\{REQUEST_URI\}'
-  severity: low
+    - regex: '(?i)^\s*RewriteCond\s+%\{REQUEST_URI\}''severity: low
   description: "RewriteCond uses unparsed REQUEST_URI"
   remediation: "Filter or sanitize `%{{REQUEST_URI}}` thoroughly before appending to local file paths."
   cwe: "CWE-22"
@@ -992,8 +899,7 @@
 - id: apache-aliasmatch-regex
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AliasMatch\s+\^/(.*?)\s+/(?:var|etc|usr|opt|bin)/\1'
-  severity: critical
+    - regex: '(?i)^\s*AliasMatch\s+\^/(.*?)\s+/(?:var|etc|usr|opt|bin)/\1''severity: critical
   description: "AliasMatch constructs file paths dynamically into root filesystem (LFR)"
   remediation: "Never use regex groupings to alias straight to root filesystem directories."
   cwe: "CWE-22"
@@ -1002,8 +908,7 @@
 - id: apache-redirectmatch-regex
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*RedirectMatch\s+.*\s+(?:http|https)://(.*?)/\1'
-  severity: high
+    - regex: '(?i)^\s*RedirectMatch\s+.*\s+(?:http|https)://(.*?)/\1''severity: high
   description: "RedirectMatch dynamically builds Open Redirects"
   remediation: "Hardcode hosts or explicitly validate regex capture groups."
   cwe: "CWE-601"
@@ -1012,8 +917,7 @@
 - id: apache-scriptaliasmatch-regex
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ScriptAliasMatch\s+.*?\s+/(?:var|etc)/'
-  severity: critical
+    - regex: '(?i)^\s*ScriptAliasMatch\s+.*?\s+/(?:var|etc)/''severity: critical
   description: "ScriptAliasMatch dynamically executes outside cgi-bin"
   remediation: "Massive RCE risk. Do not execute dynamic paths."
   cwe: "CWE-94"
@@ -1022,8 +926,7 @@
 - id: apache-user-dir-public-html
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*UserDir\s+public_html'
-  severity: medium
+    - regex: '(?i)^\s*UserDir\s+public_html''severity: medium
   description: "UserDir resolves to local public_html"
   remediation: "Allows enumeration of Linux users `/~username`. Disable if not actively hosting user content."
   cwe: "CWE-200"
@@ -1032,8 +935,7 @@
 - id: apache-mod-dumpio-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*DumpIOInput\s+On'
-  severity: high
+    - regex: '(?i)^\s*DumpIOInput\s+On''severity: high
   description: "mod_dumpio dumping raw IO"
   remediation: "Dumps plaintext passwords and forms to error log."
   cwe: "CWE-532"
@@ -1042,8 +944,7 @@
 - id: apache-mod-dav-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*Dav\s+On'
-  severity: high
+    - regex: '(?i)^\s*Dav\s+On''severity: high
   description: "WebDAV enabled"
   remediation: "Allows PUT/DELETE/PROPFIND. Exposes severe attack surface. Restrict heavily."
   cwe: "CWE-284"
@@ -1052,8 +953,7 @@
 - id: apache-mod-dav-depth-infinity
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*DavDepthInfinity\s+On'
-  severity: medium
+    - regex: '(?i)^\s*DavDepthInfinity\s+On''severity: medium
   description: "WebDAV PROPFIND allows Depth Infinity"
   remediation: "Huge DoS risk traversing deep document structures."
   cwe: "CWE-400"
@@ -1062,8 +962,7 @@
 - id: apache-sethandler-proxy-fcgi
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*SetHandler\s+"proxy:fcgi://.*\$1'
-  severity: high
+    - regex: '(?i)^\s*SetHandler\s+"proxy:fcgi://.*\$1''severity: high
   description: "FastCGI dynamic proxy routing"
   remediation: "Do not route FastCGI using untrusted URL regex groups."
   cwe: "CWE-918"
@@ -1072,8 +971,7 @@
 - id: apache-coreurnd-enabled
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*CoreDumpDirectory\s+'
-  severity: low
+    - regex: '(?i)^\s*CoreDumpDirectory\s+''severity: low
   description: "Core dumps enabled for Apache"
   remediation: "Ensure the directory is heavily restricted so attackers cannot download core memory dumps."
   cwe: "CWE-200"
@@ -1082,8 +980,7 @@
 - id: apache-listen-backlog-huge
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ListenBacklog\s+(?:[5-9]\d{3,})'
-  severity: low
+    - regex: '(?i)^\s*ListenBacklog\s+(?:[5-9]\d{3,})''severity: low
   description: "ListenBacklog extremely large"
   remediation: "Can exhaust OS resources under SYN floods."
   cwe: "CWE-400"
@@ -1092,8 +989,7 @@
 - id: apache-securesignatures-off
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ServerSignature\s+email'
-  severity: low
+    - regex: '(?i)^\s*ServerSignature\s+email''severity: low
   description: "ServerSignature displays admin email"
   remediation: "Unnecessary exposure."
   cwe: "CWE-200"
@@ -1102,8 +998,7 @@
 - id: apache-addoutputfilterbytype-deflate
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*AddOutputFilterByType\s+DEFLATE\s+text/html'
-  severity: medium
+    - regex: '(?i)^\s*AddOutputFilterByType\s+DEFLATE\s+text/html''severity: medium
   description: "Deflate compression on HTML (BREACH Risk)"
   remediation: "HTML combined with tokens and compression is vulnerable to BREACH."
   cwe: "CWE-319"
@@ -1112,8 +1007,7 @@
 - id: apache-extfilterdefine-exec
   languages: [apache]
   patterns:
-    - regex: '(?i)^\s*ExtFilterDefine\s+.*?cmd=.*'
-  severity: critical
+    - regex: '(?i)^\s*ExtFilterDefine\s+.*?cmd=.*''severity: critical
   description: "ExtFilterDefine executes external commands"
   remediation: "Ensure external commands are heavily whitelisted and not influenced by request data."
   cwe: "CWE-78"
@@ -1122,8 +1016,7 @@
 - id: apache-allow-override-all
   languages: [apache]
   patterns:
-    - regex: '(?i)<Directory.*>[\s\S]*?AllowOverride\s+All'
-  severity: high
+    - regex: '(?i)<Directory.*>[\s\S]*?AllowOverride\s+All''severity: high
   description: "AllowOverride All enabled"
   remediation: "Use AllowOverride None or specific directives"
   cwe: "CWE-284"
@@ -1133,8 +1026,7 @@
 - id: apache-satisfy-any
   languages: [apache]
   patterns:
-    - regex: '(?i)Satisfy\s+Any'
-  severity: high
+    - regex: '(?i)Satisfy\s+Any''severity: high
   description: "Satisfy Any enabled"
   remediation: "Use Satisfy All"
   cwe: "CWE-284"
@@ -1144,8 +1036,7 @@
 - id: apache-trace-enable
   languages: [apache]
   patterns:
-    - regex: '(?i)TraceEnable\s+On'
-  severity: medium
+    - regex: '(?i)TraceEnable\s+On''severity: medium
   description: "HTTP TRACE enabled"
   remediation: "Set TraceEnable Off"
   cwe: "CWE-200"
@@ -1155,8 +1046,7 @@
 - id: apache-limit-except
   languages: [apache]
   patterns:
-    - regex: '(?i)<LimitExcept>.*GET.*POST</LimitExcept>'
-  severity: medium
+    - regex: '(?i)<LimitExcept>.*GET.*POST</LimitExcept>''severity: medium
   description: "Limiting HTTP methods"
   remediation: "Restrict to needed methods"
   cwe: "CWE-284"
@@ -1166,8 +1056,7 @@
 - id: apache-timeout-high
   languages: [apache]
   patterns:
-    - regex: '(?i)Timeout\s+\d{4,}'
-  severity: medium
+    - regex: '(?i)Timeout\s+\d{4,}''severity: medium
   description: "High timeout value"
   remediation: "Use lower timeout values"
   cwe: "CWE-400"

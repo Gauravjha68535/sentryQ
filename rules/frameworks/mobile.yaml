@@ -1,0 +1,24 @@
+- id: react-native-async-storage-sensitive
+  languages: [javascript, typescript, jsx, tsx]
+  patterns:
+    - regex: 'AsyncStorage\.setItem\s*\(\s*['''"][^'']*(?:password|token|secret|key)'
+  severity: high
+  description: "Storing sensitive data in AsyncStorage (unencrypted)"
+  remediation: "Use react-native-keychain or react-native-encrypted-storage instead."
+  cwe: "CWE-312"
+
+- id: react-native-sensitive-info-leak
+  languages: [javascript, typescript, jsx, tsx]
+  patterns:
+    - regex: 'console\.(log|debug|info|warn)\s*\(\s*.*(?:password|token|secret|key|credential)''severity: high
+  description: "Sensitive data leaked to React Native logs"
+  remediation: "Remove sensitive logs before production builds."
+  cwe: "CWE-532"
+
+- id: react-native-insecure-webview
+  languages: [javascript, typescript, jsx, tsx]
+  patterns:
+    - regex: '<WebView[^>]*javaScriptEnabled\s*=\s*\{\s*true\s*\}''severity: medium
+  description: "React Native WebView with JS enabled"
+  remediation: "Ensure the content source is trusted."
+  cwe: "CWE-79"

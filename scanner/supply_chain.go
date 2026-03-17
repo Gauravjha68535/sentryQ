@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -42,7 +43,7 @@ func NewSupplyChainScanner() *SupplyChainScanner {
 }
 
 // ScanSupplyChain performs comprehensive supply chain security analysis
-func (scs *SupplyChainScanner) ScanSupplyChain(targetDir string) ([]reporter.Finding, error) {
+func (scs *SupplyChainScanner) ScanSupplyChain(ctx context.Context, targetDir string) ([]reporter.Finding, error) {
 	var findings []reporter.Finding
 
 	utils.LogInfo("Starting supply chain security analysis...")
@@ -55,7 +56,7 @@ func (scs *SupplyChainScanner) ScanSupplyChain(targetDir string) ([]reporter.Fin
 	scs.generateSBOM()
 
 	// Check for vulnerabilities
-	vulnFindings := scs.checkDependencyVulnerabilities()
+	vulnFindings := scs.checkDependencyVulnerabilities(ctx)
 	findings = append(findings, vulnFindings...)
 
 	// Check for typosquatting
@@ -112,13 +113,13 @@ func (scs *SupplyChainScanner) generateSBOM() {
 	}
 }
 
-func (scs *SupplyChainScanner) checkDependencyVulnerabilities() []reporter.Finding {
+func (scs *SupplyChainScanner) checkDependencyVulnerabilities(ctx context.Context) []reporter.Finding {
 	var findings []reporter.Finding
 	srNo := 1
 
 	// Check against OSV database
 	for _, dep := range scs.dependencies {
-		vulns, err := queryOSV(dep)
+		vulns, err := queryOSV(ctx, dep)
 		if err != nil {
 			continue
 		}

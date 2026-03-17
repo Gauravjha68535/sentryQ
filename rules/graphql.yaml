@@ -7,7 +7,7 @@
 - id: gql-injection-query-concat
   languages: [graphql, javascript, typescript, python, ruby, java, go]
   patterns:
-    - regex: '(?i)(query|mutation|subscription)\\s*[''\"]\\s*\\+|gql\\s*`[^`]*\\$\\{.*(req|params|body|input)|graphql\\s*\\(\\s*[''\"].*\\+\\s*(req|params)'
+    - regex: '(?i)(query|mutation|subscription)\\s*['''\"]\\s*\\+|gql\\s*`[^`]*\\$\\{.*(req|params|body|input)|graphql\\s*\\(\\s*[''\"].*\\+\\s*(req|params)'
   severity: critical
   description: "GraphQL query constructed via string concatenation with user input - allows attackers to modify query structure"
   remediation: "Use GraphQL variables exclusively: query($id: ID!) { user(id: $id) }. Never concatenate user input into query strings."
@@ -17,8 +17,7 @@
 - id: gql-injection-template-literal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'gql\\s*`[^`]*\\$\\{[^}]*\\}'
-  severity: high
+    - regex: 'gql\\s*`[^`]*\\$\\{[^}]*\\}''severity: high
   description: "GraphQL query uses template literal with dynamic values - enables query structure manipulation"
   remediation: "Replace template interpolation with GraphQL variables. Example: gql`query($id:ID!){user(id:$id)}`"
   cwe: "CWE-89"
@@ -27,8 +26,7 @@
 - id: gql-injection-field-name
   languages: [graphql, javascript, typescript, python]
   patterns:
-    - regex: 'field(?:Name)?\\s*[:=]\\s*(?:req|params|body|input)'
-  severity: high
+    - regex: 'field(?:Name)?\\s*[:=]\\s*(?:req|params|body|input)''severity: high
   description: "Dynamic field names from user input - allows attackers to query unauthorized fields"
   remediation: "Validate field names against an allowlist. Never use user input directly as field names."
   cwe: "CWE-89"
@@ -37,8 +35,7 @@
 - id: gql-injection-directive-name
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: '@\\$\\{[^}]*\\}|@\"\\s*\\+\\s*(?:req|params)'
-  severity: high
+    - regex: '@\\$\\{[^}]*\\}|@\"\\s*\\+\\s*(?:req|params)''severity: high
   description: "Dynamic directive names from user input - can bypass authorization directives"
   remediation: "Use static directive names only. Validate any dynamic directive usage against allowlist."
   cwe: "CWE-89"
@@ -47,8 +44,7 @@
 - id: gql-injection-typename
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: '__typename.*\\$\\{|__typename.*\\+.*(?:req|params)'
-  severity: medium
+    - regex: '__typename.*\\$\\{|__typename.*\\+.*(?:req|params)''severity: medium
   description: "Dynamic __typename usage with user input - can expose internal type information"
   remediation: "Avoid using __typename with user input. Use fragments with static type conditions."
   cwe: "CWE-200"
@@ -57,8 +53,7 @@
 - id: gql-injection-argument-name
   languages: [graphql, javascript, typescript, python]
   patterns:
-    - regex: 'args\\[.*(?:req|params|body|input)\\]|arguments\\[.*user'
-  severity: high
+    - regex: 'args\\[.*(?:req|params|body|input)\\]|arguments\\[.*user''severity: high
   description: "Dynamic argument names from user input - allows attackers to manipulate query logic"
   remediation: "Use fixed argument names. Validate any dynamic argument names against an allowlist."
   cwe: "CWE-89"
@@ -67,7 +62,7 @@
 - id: gql-injection-raw-sql
   languages: [javascript, typescript, python, ruby, java]
   patterns:
-    - regex: 'db\\.(?:query|execute|raw)\\s*\\(\\s*[''\"].*\\$\\{.*args|db\\.(?:query|execute).*\\+\\s*args\\.'
+    - regex: 'db\\.(?:query|execute|raw)\\s*\\(\\s*['''\"].*\\$\\{.*args|db\\.(?:query|execute).*\\+\\s*args\\.'
   severity: critical
   description: "SQL injection via GraphQL args passed directly to database queries"
   remediation: "Use ORM/ODM with parameterized queries. Never interpolate args into SQL strings."
@@ -77,8 +72,7 @@
 - id: gql-injection-nosql
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'db\\.(?:find|insert|update|aggregate)\\s*\\(\\s*\\{[^}]*args\\.[^}]*\\}'
-  severity: high
+    - regex: 'db\\.(?:find|insert|update|aggregate)\\s*\\(\\s*\\{[^}]*args\\.[^}]*\\}''severity: high
   description: "NoSQL injection via GraphQL args passed to MongoDB queries"
   remediation: "Validate and sanitize args before using in NoSQL queries. Use schema validation."
   cwe: "CWE-943"
@@ -87,7 +81,7 @@
 - id: gql-injection-rest-call
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'axios\\.(?:get|post|put|delete)\\s*\\(\\s*[''\"].*\\$\\{.*args|fetch\\(\\s*[''\"].*\\+\\s*args'
+    - regex: 'axios\\.(?:get|post|put|delete)\\s*\\(\\s*['''\"].*\\$\\{.*args|fetch\\(\\s*[''\"].*\\+\\s*args'
   severity: high
   description: "REST API URL injection via GraphQL args - SSRF vulnerability"
   remediation: "Validate URLs against allowlist. Use environment variables for API endpoints."
@@ -97,7 +91,7 @@
 - id: gql-injection-redis
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'redis\\.(?:get|set|hset|hget)\\s*\\(\\s*[''\"].*\\$\\{.*args|redis\\.call.*\\+\\s*args'
+    - regex: 'redis\\.(?:get|set|hset|hget)\\s*\\(\\s*['''\"].*\\$\\{.*args|redis\\.call.*\\+\\s*args'
   severity: high
   description: "Redis command injection via GraphQL args - can manipulate cache data"
   remediation: "Use parameterized Redis commands. Validate cache keys against patterns."
@@ -107,8 +101,7 @@
 - id: gql-injection-elasticsearch
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'elastic\\.(?:search|index|update)\\s*\\(\\s*\\{[^}]*args\\.[^}]*\\}'
-  severity: high
+    - regex: 'elastic\\.(?:search|index|update)\\s*\\(\\s*\\{[^}]*args\\.[^}]*\\}''severity: high
   description: "Elasticsearch query injection via GraphQL args"
   remediation: "Use Elasticsearch query builders with strict schema validation."
   cwe: "CWE-943"
@@ -117,7 +110,7 @@
 - id: gql-injection-ldap
   languages: [javascript, typescript, python, java]
   patterns:
-    - regex: 'ldap\\.(?:search|bind)\\s*\\(\\s*[''\"].*\\$\\{.*args|ldap\\.search.*\\+\\s*args'
+    - regex: 'ldap\\.(?:search|bind)\\s*\\(\\s*['''\"].*\\$\\{.*args|ldap\\.search.*\\+\\s*args'
   severity: critical
   description: "LDAP injection via GraphQL args - can bypass authentication"
   remediation: "Use LDAP escaping libraries. Never interpolate user input into LDAP filters."
@@ -127,7 +120,7 @@
 - id: gql-injection-command
   languages: [javascript, typescript, python, ruby]
   patterns:
-    - regex: 'exec(?:Sync)?\\s*\\(\\s*[''\"].*\\$\\{.*args|spawn\\s*\\(\\s*[''\"].*\\+\\s*args'
+    - regex: 'exec(?:Sync)?\\s*\\(\\s*['''\"].*\\$\\{.*args|spawn\\s*\\(\\s*[''\"].*\\+\\s*args'
   severity: critical
   description: "Command injection via GraphQL args - RCE vulnerability"
   remediation: "Avoid shell commands entirely. Use safe APIs for system operations."
@@ -137,7 +130,7 @@
 - id: gql-injection-xpath
   languages: [javascript, typescript, python, java]
   patterns:
-    - regex: 'xpath\\.(?:query|evaluate)\\s*\\(\\s*[''\"].*\\$\\{.*args|xpath.*\\+\\s*args'
+    - regex: 'xpath\\.(?:query|evaluate)\\s*\\(\\s*['''\"].*\\$\\{.*args|xpath.*\\+\\s*args'
   severity: high
   description: "XPath injection via GraphQL args - can access unauthorized XML data"
   remediation: "Use parameterized XPath queries. Validate and escape user input."
@@ -147,8 +140,7 @@
 - id: gql-injection-graphql-variables
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'variables:\\s*\\{[^}]*req\\.|variables:\\s*\\{[^}]*params\\.'
-  severity: medium
+    - regex: 'variables:\\s*\\{[^}]*req\\.|variables:\\s*\\{[^}]*params\\.''severity: medium
   description: "GraphQL variables populated directly from request data without validation"
   remediation: "Validate and sanitize all variable inputs against the schema before processing."
   cwe: "CWE-20"
@@ -160,8 +152,7 @@
 - id: gql-dos-deep-nesting
   languages: [graphql]
   patterns:
-    - regex: '\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+'
-  severity: critical
+    - regex: '\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+''severity: critical
   description: "Extremely deep nested query - can cause stack overflow and CPU exhaustion"
   remediation: "Implement depth limiting (max depth 5-7). Use graphql-depth-limit middleware."
   cwe: "CWE-400"
@@ -170,8 +161,7 @@
 - id: gql-dos-circular-fragments
   languages: [graphql]
   patterns:
-    - regex: '\\.\\.\\.\\w+.*\\{\\s*\\.\\.\\.\\w+.*\\{\\s*\\.\\.\\.\\w+'
-  severity: high
+    - regex: '\\.\\.\\.\\w+.*\\{\\s*\\.\\.\\.\\w+.*\\{\\s*\\.\\.\\.\\w+''severity: high
   description: "Circular fragment references can cause infinite query expansion and memory exhaustion"
   remediation: "Implement fragment cycle detection in validation layer. Limit fragment recursion depth."
   cwe: "CWE-835"
@@ -180,8 +170,7 @@
 - id: gql-dos-array-batching
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: '\\[.*\\].*\\[.*\\].*\\[.*\\].*\\[.*\\]|\\w+\\(\\s*\\[.*,\\s*.*,\\s*.*,\\s*.*,\\s*.*\\]'
-  severity: high
+    - regex: '\\[.*\\].*\\[.*\\].*\\[.*\\].*\\[.*\\]|\\w+\\(\\s*\\[.*,\\s*.*,\\s*.*,\\s*.*,\\s*.*\\]''severity: high
   description: "Array-based query batching with many elements - resource exhaustion DoS"
   remediation: "Limit array sizes (max 10-20 elements). Implement pagination instead of large arrays."
   cwe: "CWE-770"
@@ -190,8 +179,7 @@
 - id: gql-dos-aliases-overload
   languages: [graphql]
   patterns:
-    - regex: '\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+'
-  severity: medium
+    - regex: '\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+''severity: medium
   description: "Excessive field aliases (5+) - can cause response explosion and CPU overload"
   remediation: "Limit aliases per query (max 10). Implement cost analysis based on alias count."
   cwe: "CWE-770"
@@ -200,8 +188,7 @@
 - id: gql-dos-directive-spam
   languages: [graphql]
   patterns:
-    - regex: '@\\w+.*@\\w+.*@\\w+.*@\\w+.*@\\w+.*@\\w+'
-  severity: medium
+    - regex: '@\\w+.*@\\w+.*@\\w+.*@\\w+.*@\\w+.*@\\w+''severity: medium
   description: "Excessive directive usage (6+) - can cause directive execution overhead"
   remediation: "Limit directives per field and per query. Implement directive cost analysis."
   cwe: "CWE-770"
@@ -210,8 +197,7 @@
 - id: gql-dos-fragment-spread
   languages: [graphql]
   patterns:
-    - regex: '\\.\\.\\.\\w+.*\\.\\.\\.\\w+.*\\.\\.\\.\\w+.*\\.\\.\\.\\w+.*\\.\\.\\.\\w+'
-  severity: high
+    - regex: '\\.\\.\\.\\w+.*\\.\\.\\.\\w+.*\\.\\.\\.\\w+.*\\.\\.\\.\\w+.*\\.\\.\\.\\w+''severity: high
   description: "Excessive fragment spreading (5+) - can cause query explosion and memory issues"
   remediation: "Limit fragment spreads. Implement maximum query size limits."
   cwe: "CWE-770"
@@ -220,8 +206,7 @@
 - id: gql-dos-field-duplication
   languages: [graphql]
   patterns:
-    - regex: '\\w+\\s*\\{\\s*\\w+\\s*\\w+\\s*\\w+\\s*\\w+\\s*\\w+\\s*\\w+'
-  severity: low
+    - regex: '\\w+\\s*\\{\\s*\\w+\\s*\\w+\\s*\\w+\\s*\\w+\\s*\\w+\\s*\\w+''severity: low
   description: "Multiple fields without spacing - potential query parser DoS"
   remediation: "Implement query size limits. Use query cost analysis."
   cwe: "CWE-770"
@@ -230,8 +215,7 @@
 - id: gql-dos-mutation-batching
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'mutation.*\\{.*\\{.*\\}.*\\{.*\\}.*\\{.*\\}.*\\{.*\\}|batch.*mutation'
-  severity: high
+    - regex: 'mutation.*\\{.*\\{.*\\}.*\\{.*\\}.*\\{.*\\}.*\\{.*\\}|batch.*mutation''severity: high
   description: "Multiple mutations in single request - can cause state-changing DoS"
   remediation: "Limit mutations per request. Implement rate limiting per mutation type."
   cwe: "CWE-770"
@@ -240,8 +224,7 @@
 - id: gql-dos-subscription-events
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'subscription.*\\{.*\\{.*\\}.*\\{.*\\}.*\\{.*\\}|asyncIterator.*multiple'
-  severity: high
+    - regex: 'subscription.*\\{.*\\{.*\\}.*\\{.*\\}.*\\{.*\\}|asyncIterator.*multiple''severity: high
   description: "Subscriptions with multiple event streams - event loop starvation"
   remediation: "Limit concurrent subscriptions per client. Implement event throttling."
   cwe: "CWE-770"
@@ -250,8 +233,7 @@
 - id: gql-dos-introspection-abuse
   languages: [graphql]
   patterns:
-    - regex: '__schema\\s*\\{\\s*__.*__.*__.*__.*__|__type\\s*\\(.*\\).*\\{.*__'
-  severity: medium
+    - regex: '__schema\\s*\\{\\s*__.*__.*__.*__.*__|__type\\s*\\(.*\\).*\\{.*__''severity: medium
   description: "Introspection queries requesting excessive metadata - information disclosure + DoS"
   remediation: "Disable introspection in production. Rate limit introspection queries."
   cwe: "CWE-200"
@@ -260,8 +242,7 @@
 - id: gql-dos-cost-analysis-missing
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'ApolloServer\\s*\\(\\s*\\{[^}]*(?!validationRules|costAnalysis|queryComplexity)'
-  severity: high
+    - regex: 'ApolloServer\\s*\\(\\s*\\{[^}]*''severity: high
   description: "GraphQL server without query cost analysis - vulnerable to expensive query DoS"
   remediation: "Implement graphql-query-complexity with field costs. Set maximum cost limit."
   cwe: "CWE-770"
@@ -270,8 +251,7 @@
 - id: gql-dos-depth-limit-missing
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'ApolloServer\\s*\\(\\s*\\{[^}]*(?!depthLimit|validationRules.*depth)'
-  severity: high
+    - regex: 'ApolloServer\\s*\\(\\s*\\{[^}]*''severity: high
   description: "No query depth limiting - attackers can send deeply nested queries"
   remediation: "Implement graphql-depth-limit with max depth of 5-7 levels."
   cwe: "CWE-770"
@@ -280,8 +260,7 @@
 - id: gql-dos-pagination-unlimited
   languages: [graphql]
   patterns:
-    - regex: 'first:\\s*\\d{4,}|last:\\s*\\d{4,}|limit:\\s*\\d{4,}|take:\\s*\\d{4,}'
-  severity: high
+    - regex: 'first:\\s*\\d{4,}|last:\\s*\\d{4,}|limit:\\s*\\d{4,}|take:\\s*\\d{4,}''severity: high
   description: "Pagination with very large limits (1000+) - can cause database overload"
   remediation: "Set maximum page size (e.g., max 100). Implement cursor-based pagination."
   cwe: "CWE-770"
@@ -290,8 +269,7 @@
 - id: gql-dos-recursive-fragments
   languages: [graphql]
   patterns:
-    - regex: 'fragment\\s+\\w+\\s+on\\s+\\w+\\s*\\{[^}]*\\.\\.\\.\\1'
-  severity: critical
+    - regex: 'fragment\\s+\\w+\\s+on\\s+\\w+\\s*\\{[^}]*\\.\\.\\.\\1''severity: critical
   description: "Self-recursive fragment - infinite loop and stack overflow"
   remediation: "Implement fragment cycle detection. Reject queries with recursive fragments."
   cwe: "CWE-835"
@@ -300,8 +278,7 @@
 - id: gql-dos-query-size
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'query\\s*\\{.{5000,}|mutation\\s*\\{.{5000,}'
-  severity: medium
+    - regex: 'query\\s*\\{.{5000,}|mutation\\s*\\{.{5000,}''severity: medium
   description: "Extremely large query (5000+ chars) - parser and memory DoS"
   remediation: "Implement maximum query length limits (e.g., 2000 chars)."
   cwe: "CWE-770"
@@ -310,8 +287,7 @@
 - id: gql-dos-token-count
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: '\\w+.{1000,}|\\s+.{1000,}'
-  severity: medium
+    - regex: '\\w+.{1000,}|\\s+.{1000,}''severity: medium
   description: "Query with excessive tokens - parsing and validation DoS"
   remediation: "Limit total tokens per query. Implement query cost analysis."
   cwe: "CWE-770"
@@ -320,8 +296,7 @@
 - id: gql-dos-http-batching
   languages: [javascript, typescript]
   patterns:
-    - regex: 'allowBatchedHttpRequests\\s*:\\s*true.*(?!maxBatchSize)'
-  severity: high
+    - regex: 'allowBatchedHttpRequests\\s*:\\s*true.*''severity: high
   description: "HTTP batching enabled without batch size limits - amplification DoS"
   remediation: "Set maxBatchSize (e.g., 5-10). Implement per-batch rate limiting."
   cwe: "CWE-770"
@@ -330,8 +305,7 @@
 - id: gql-dos-persisted-queries-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persistedQueries\\s*:\\s*false'
-  severity: medium
+    - regex: 'persistedQueries\\s*:\\s*false''severity: medium
   description: "Persisted queries disabled - clients can send arbitrary expensive queries"
   remediation: "Enable automatic persisted queries (APQ) and use operation allowlist."
   cwe: "CWE-770"
@@ -340,8 +314,7 @@
 - id: gql-dos-subscription-connections
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions\\s*:\\s*\\{[^}]*(?!maxConnections|maxListeners)'
-  severity: high
+    - regex: 'subscriptions\\s*:\\s*\\{[^}]*''severity: high
   description: "No limit on subscription connections - WebSocket connection exhaustion"
   remediation: "Set maxConnections per client (e.g., 5). Implement connection rate limiting."
   cwe: "CWE-770"
@@ -350,8 +323,7 @@
 - id: gql-dos-resolver-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'resolver.*\\{[^}]*(?!timeout)'
-  severity: medium
+    - regex: 'resolver.*\\{[^}]*''severity: medium
   description: "Resolvers without timeouts - can hang indefinitely on slow operations"
   remediation: "Implement resolver timeouts (e.g., 5-10 seconds). Use Promise.race with timeout."
   cwe: "CWE-770"
@@ -363,8 +335,7 @@
 - id: gql-auth-missing-mutation
   languages: [graphql]
   patterns:
-    - regex: 'type\\s+Mutation\\s*\\{[^}]*(?!@auth|@authorized|@hasRole|@hasScope)'
-  severity: critical
+    - regex: 'type\\s+Mutation\\s*\\{[^}]*''severity: critical
   description: "Mutations defined without any authorization directives - unauthenticated state changes"
   remediation: "Apply @auth or @hasRole directives to ALL mutations. Implement resolver-level auth checks."
   cwe: "CWE-862"
@@ -373,8 +344,7 @@
 - id: gql-auth-missing-query-sensitive
   languages: [graphql]
   patterns:
-    - regex: '(?:email|password|token|secret|credit|ssn|private)\\s*:\\s*\\w+(?!@auth|@hasRole)'
-  severity: high
+    - regex: '(?:email|password|token|secret|credit|ssn|private)\\s*:\\s*\\w+''severity: high
   description: "Sensitive fields exposed without authorization - data leakage"
   remediation: "Add field-level authorization directives. Implement data filtering in resolvers."
   cwe: "CWE-200"
@@ -383,7 +353,7 @@
 - id: gql-auth-role-escalation
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'role:\\s*[''\"]admin[''\"]|roles.*includes.*[''\"]admin[''\"]'
+    - regex: 'role:\\s*['''\"]admin[''\"]|roles.*includes.*[''\"]admin[''\"]'
   severity: critical
   description: "Role assignment based on user input - privilege escalation vulnerability"
   remediation: "Never accept roles from client. Set roles server-side based on authentication."
@@ -393,8 +363,7 @@
 - id: gql-auth-field-skipping
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*!user\\s*\\)\\s*\\{\\s*return\\s+null|if.*!token.*return.*null'
-  severity: high
+    - regex: 'if\\s*\\(\\s*!user\\s*\\)\\s*\\{\\s*return\\s+null|if.*!token.*return.*null''severity: high
   description: "Auth returns null instead of throwing - allows partial data access"
   remediation: "Throw authentication errors (AuthenticationError). Never return partial data."
   cwe: "CWE-306"
@@ -403,8 +372,7 @@
 - id: gql-auth-context-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'context:\\s*\\{[^}]*req\\.[^}]*\\}|context:\\s*\\(\\s*req\\s*\\)'
-  severity: medium
+    - regex: 'context:\\s*\\{[^}]*req\\.[^}]*\\}|context:\\s*\\(\\s*req\\s*\\)''severity: medium
   description: "Context populated directly from request without validation"
   remediation: "Validate and sanitize all request data before adding to context."
   cwe: "CWE-20"
@@ -413,7 +381,7 @@
 - id: gql-auth-jwt-none-algorithm
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'algorithms?:\\s*\\[?[''\"]none[''\"]|verify.*\\{\\s*algorithm.*none'
+    - regex: 'algorithms?:\\s*\\[?['''\"]none[''\"]|verify.*\\{\\s*algorithm.*none'
   severity: critical
   description: "JWT validation accepting 'none' algorithm - authentication bypass"
   remediation: "Always specify allowed algorithms (HS256, RS256). Never allow 'none'."
@@ -423,7 +391,7 @@
 - id: gql-auth-jwt-weak-secret
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'secret:\\s*[''\"]\\w{1,15}[''\"]|jwt\\.sign.*[''\"]\\w{1,15}[''\"]'
+    - regex: 'secret:\\s*['''\"]\\w{1,15}[''\"]|jwt\\.sign.*[''\"]\\w{1,15}[''\"]'
   severity: high
   description: "Weak JWT secret (<16 chars) - token forgery vulnerability"
   remediation: "Use strong secrets (min 32 chars). Store secrets in environment variables."
@@ -433,8 +401,7 @@
 - id: gql-auth-jwt-no-expiry
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'jwt\\.sign\\([^,]+,\\s*[^,]+,\\s*(?!.*expiresIn)'
-  severity: high
+    - regex: 'jwt\\.sign\\([^,]+,\\s*[^,]+,\\s*''severity: high
   description: "JWT created without expiration - tokens valid indefinitely"
   remediation: "Always set expiresIn (e.g., '15m' for access tokens, '7d' for refresh tokens)."
   cwe: "CWE-613"
@@ -443,8 +410,7 @@
 - id: gql-auth-bypass-null-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*!token\\s*\\)\\s*\\{\\s*return\\s*\\{\\s*\\}\\s*\\}|if.*!token.*next'
-  severity: critical
+    - regex: 'if\\s*\\(\\s*!token\\s*\\)\\s*\\{\\s*return\\s*\\{\\s*\\}\\s*\\}|if.*!token.*next''severity: critical
   description: "Auth middleware proceeds with null token - authentication bypass"
   remediation: "Reject requests with missing/invalid tokens. Don't proceed without auth."
   cwe: "CWE-306"
@@ -453,8 +419,7 @@
 - id: gql-auth-unauthorized-field-suggestions
   languages: [javascript, typescript]
   patterns:
-    - regex: 'hideSuggestions:\\s*false|hideSchemaDetailsFromClientErrors:\\s*false'
-  severity: medium
+    - regex: 'hideSuggestions:\\s*false|hideSchemaDetailsFromClientErrors:\\s*false''severity: medium
   description: "Field suggestions enabled - helps attackers enumerate schema"
   remediation: "Set hideSuggestions: true in production. Disable schema leak in errors."
   cwe: "CWE-200"
@@ -463,8 +428,7 @@
 - id: gql-auth-data-loader-cache-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+DataLoader\\([^,]+,\\s*\\{\\s*cache:\\s*true'
-  severity: high
+    - regex: 'new\\s+DataLoader\\([^,]+,\\s*\\{\\s*cache:\\s*true''severity: high
   description: "DataLoader cache enabled across requests - user data leakage"
   remediation: "Create new DataLoader per request. Disable caching for user-specific data."
   cwe: "CWE-524"
@@ -473,8 +437,7 @@
 - id: gql-auth-field-filtering-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'resolve\\s*:\\s*async.*return.*db.*find|resolve.*return.*data'
-  severity: medium
+    - regex: 'resolve\\s*:\\s*async.*return.*db.*find|resolve.*return.*data''severity: medium
   description: "Resolver returns all data without field-level filtering"
   remediation: "Filter fields based on user permissions. Use projection in database queries."
   cwe: "CWE-862"
@@ -483,8 +446,7 @@
 - id: gql-auth-query-complexity-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cost.*analysis.*(?!auth|token|user)'
-  severity: medium
+    - regex: 'cost.*analysis.*''severity: medium
   description: "Query cost analysis without authentication context"
   remediation: "Implement authenticated cost analysis - higher costs for unauthenticated users."
   cwe: "CWE-862"
@@ -493,8 +455,7 @@
 - id: gql-auth-rate-limit-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rateLimit.*(?!user|token|ip)'
-  severity: medium
+    - regex: 'rateLimit.*''severity: medium
   description: "Rate limiting without user context - can be bypassed via IP rotation"
   remediation: "Rate limit based on user ID when authenticated, fallback to IP."
   cwe: "CWE-770"
@@ -503,8 +464,7 @@
 - id: gql-auth-operation-name-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'validationRules.*(?!operationName)'
-  severity: low
+    - regex: 'validationRules.*''severity: low
   description: "Operation name not validated - can hide malicious queries"
   remediation: "Validate operation names against allowlist. Log unknown operation names."
   cwe: "CWE-20"
@@ -516,8 +476,7 @@
 - id: gql-info-introspection-enabled
   languages: [graphql, javascript, typescript, python]
   patterns:
-    - regex: '__schema|__type|introspection:\\s*true'
-  severity: high
+    - regex: '__schema|__type|introspection:\\s*true''severity: high
   description: "Introspection enabled in production - full schema exposure to attackers"
   remediation: "Set introspection: false in production. Use conditional introspection based on NODE_ENV."
   cwe: "CWE-200"
@@ -526,8 +485,7 @@
 - id: gql-info-stacktrace-exposed
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'debug:\\s*true|stacktrace:\\s*true|includeStacktraceInErrorResponses:\\s*true'
-  severity: high
+    - regex: 'debug:\\s*true|stacktrace:\\s*true|includeStacktraceInErrorResponses:\\s*true''severity: high
   description: "Stack traces exposed in error messages - internal code leakage"
   remediation: "Set debug: false. Mask error details in production. Log errors internally only."
   cwe: "CWE-209"
@@ -536,8 +494,7 @@
 - id: gql-info-internal-error-messages
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'formatError.*message.*error|error.*internal.*message'
-  severity: medium
+    - regex: 'formatError.*message.*error|error.*internal.*message''severity: medium
   description: "Internal error messages exposed to clients - system information leak"
   remediation: "Use generic error messages. Map internal errors to client-safe errors."
   cwe: "CWE-209"
@@ -546,8 +503,7 @@
 - id: gql-info-verbose-graphql-errors
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'formatError.*extensions|error.*extensions.*exception'
-  severity: high
+    - regex: 'formatError.*extensions|error.*extensions.*exception''severity: high
   description: "Verbose GraphQL errors with extensions - exposes internal details"
   remediation: "Strip extensions in production. Use custom error formatter to hide details."
   cwe: "CWE-209"
@@ -556,7 +512,7 @@
 - id: gql-info-debug-headers
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.headers\\[''x-debug''\\]|req\\.headers\\[''debug''\\]|X-Debug-Token'
+    - regex: 'req\\.headers\\['''x-debug''\\]|req\\.headers\\[''debug''\\]|X-Debug-Token'
   severity: medium
   description: "Debug headers enabled - can expose sensitive debugging information"
   remediation: "Disable debug headers in production. Use authenticated debug modes only."
@@ -566,8 +522,7 @@
 - id: gql-info-query-logging
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'console\\.log.*query|logger\\.info.*query|console\\.log.*gql'
-  severity: medium
+    - regex: 'console\\.log.*query|logger\\.info.*query|console\\.log.*gql''severity: medium
   description: "Full queries logged - may contain PII or tokens in variables"
   remediation: "Redact sensitive data from logs. Log only operation names and metadata."
   cwe: "CWE-532"
@@ -576,8 +531,7 @@
 - id: gql-info-variable-logging
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'console\\.log.*variables|logger\\.info.*variables'
-  severity: high
+    - regex: 'console\\.log.*variables|logger\\.info.*variables''severity: high
   description: "GraphQL variables logged - passwords, tokens exposed in logs"
   remediation: "Never log variables. Mask sensitive fields before logging."
   cwe: "CWE-532"
@@ -586,8 +540,7 @@
 - id: gql-info-schema-descriptions
   languages: [graphql]
   patterns:
-    - regex: '\"\"\".*(password|secret|key|internal).*\"\"\"|\".*(password|secret).*\"'
-  severity: high
+    - regex: '\"\"\".*(password|secret|key|internal).*\"\"\"|\".*(password|secret).*\"''severity: high
   description: "Sensitive information in schema descriptions - exposed via introspection"
   remediation: "Remove sensitive comments from schema descriptions. Use external docs."
   cwe: "CWE-200"
@@ -596,8 +549,7 @@
 - id: gql-info-field-deprecation-reasons
   languages: [graphql]
   patterns:
-    - regex: '@deprecated\\(\\s*reason:\\s*\"[^\"]*(vulnerable|insecure|private)'
-  severity: medium
+    - regex: '@deprecated\\(\\s*reason:\\s*\"[^\"]*(vulnerable|insecure|private)''severity: medium
   description: "Deprecation reasons reveal security issues or private fields"
   remediation: "Use generic deprecation reasons. Don't mention security in deprecation."
   cwe: "CWE-200"
@@ -606,7 +558,7 @@
 - id: gql-info-default-values
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*[''\"](password|secret|key|token)[''\"]|defaultValue:\\s*[''\"]\\w+[''\"]'
+    - regex: 'default:\\s*['''\"](password|secret|key|token)[''\"]|defaultValue:\\s*[''\"]\\w+[''\"]'
   severity: medium
   description: "Sensitive default values in schema - exposed via introspection"
   remediation: "Remove default values for sensitive fields. Use null defaults."
@@ -616,8 +568,7 @@
 - id: gql-info-http-method-in-errors
   languages: [javascript, typescript]
   patterns:
-    - regex: 'formatError.*req\\.method|error.*HTTP.*method'
-  severity: low
+    - regex: 'formatError.*req\\.method|error.*HTTP.*method''severity: low
   description: "HTTP method exposed in errors - aids attacker reconnaissance"
   remediation: "Remove HTTP method from error responses. Use generic error messages."
   cwe: "CWE-200"
@@ -626,8 +577,7 @@
 - id: gql-info-server-version
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-Powered-By|Server:\\s*express|graphql-version|apollo-server-version'
-  severity: low
+    - regex: 'X-Powered-By|Server:\\s*express|graphql-version|apollo-server-version''severity: low
   description: "Server version headers exposed - helps attackers target version-specific exploits"
   remediation: "Remove version headers. Use helmet.js to hide server info."
   cwe: "CWE-200"
@@ -636,8 +586,7 @@
 - id: gql-info-tracing-enabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'tracing:\\s*true|apollo-tracing:\\s*true'
-  severity: medium
+    - regex: 'tracing:\\s*true|apollo-tracing:\\s*true''severity: medium
   description: "Apollo tracing enabled in production - exposes resolver performance metrics"
   remediation: "Set tracing: false in production. Use monitoring tools internally."
   cwe: "CWE-200"
@@ -646,8 +595,7 @@
 - id: gql-info-query-timing-header
   languages: [javascript, typescript]
   patterns:
-    - regex: 'x-query-cost|x-depth|x-complexity'
-  severity: low
+    - regex: 'x-query-cost|x-depth|x-complexity''severity: low
   description: "Query analysis headers exposed - reveals cost analysis logic"
   remediation: "Remove cost analysis headers. Use internal logging only."
   cwe: "CWE-200"
@@ -656,7 +604,7 @@
 - id: gql-info-error-codes
   languages: [javascript, typescript]
   patterns:
-    - regex: 'errorCode:\\s*''\\w+''|code:\\s*\\d{4,}'
+    - regex: 'errorCode:\\s*'''\\w+''|code:\\s*\\d{4,}'
   severity: low
   description: "Detailed error codes exposed - helps attackers understand system"
   remediation: "Use generic error codes. Map internal codes to standard HTTP status codes."
@@ -669,8 +617,7 @@
 - id: gql-subscription-no-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions:\\s*\\{[^}]*(?!onConnect|auth|authenticate)'
-  severity: critical
+    - regex: 'subscriptions:\\s*\\{[^}]*''severity: critical
   description: "Subscriptions without authentication - unauthenticated real-time data access"
   remediation: "Implement onConnect handler to authenticate WebSocket connections."
   cwe: "CWE-306"
@@ -679,8 +626,7 @@
 - id: gql-subscription-auth-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'onConnect.*return\\s*true|onConnect.*return\\s*\\{\\s*\\}'
-  severity: high
+    - regex: 'onConnect.*return\\s*true|onConnect.*return\\s*\\{\\s*\\}''severity: high
   description: "onConnect always returns true - authentication bypass for subscriptions"
   remediation: "Validate connectionParams (token) in onConnect. Reject invalid connections."
   cwe: "CWE-306"
@@ -689,8 +635,7 @@
 - id: gql-subscription-no-channel-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscribe.*resolve.*return.*pubsub\\.asyncIterator|subscribe.*\\{\\s*return.*asyncIterator'
-  severity: high
+    - regex: 'subscribe.*resolve.*return.*pubsub\\.asyncIterator|subscribe.*\\{\\s*return.*asyncIterator''severity: high
   description: "Subscriptions without channel-level authorization"
   remediation: "Implement channel-based auth using withFilter. Check permissions per event."
   cwe: "CWE-862"
@@ -699,7 +644,7 @@
 - id: gql-subscription-event-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'publish\\(\\s*[''\"].*[''\"]\\s*,\\s*\\{[^}]*\\}'
+    - regex: 'publish\\(\\s*['''\"].*[''\"]\\s*,\\s*\\{[^}]*\\}'
   severity: high
   description: "Events published without audience filtering - broadcasts to all subscribers"
   remediation: "Implement room/channel-based publishing. Filter subscribers by permissions."
@@ -709,8 +654,7 @@
 - id: gql-subscription-rate-limit-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions:\\s*\\{[^}]*(?!rateLimit|throttle)'
-  severity: high
+    - regex: 'subscriptions:\\s*\\{[^}]*''severity: high
   description: "No rate limiting on subscriptions - WebSocket message flood DoS"
   remediation: "Implement message rate limiting (e.g., 100 messages/minute per connection)."
   cwe: "CWE-770"
@@ -719,8 +663,7 @@
 - id: gql-subscription-connection-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions:\\s*\\{[^}]*(?!maxConnections|maxConcurrent)'
-  severity: high
+    - regex: 'subscriptions:\\s*\\{[^}]*''severity: high
   description: "No connection limits - WebSocket exhaustion DoS"
   remediation: "Set maxConnections per client (e.g., 5). Implement connection pooling."
   cwe: "CWE-770"
@@ -729,7 +672,7 @@
 - id: gql-subscription-ws-no-tls
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ws://|new\\s+WebSocket\\(\\s*[''\"]ws:'
+    - regex: 'ws://|new\\s+WebSocket\\(\\s*['''\"]ws:'
   severity: critical
   description: "WebSocket connection without TLS - credentials/tokens exposed"
   remediation: "Use wss:// for all WebSocket connections. Enforce TLS in production."
@@ -739,8 +682,7 @@
 - id: gql-subscription-connection-params-logging
   languages: [javascript, typescript]
   patterns:
-    - regex: 'onConnect.*console\\.log.*connectionParams|logger\\.info.*connectionParams'
-  severity: high
+    - regex: 'onConnect.*console\\.log.*connectionParams|logger\\.info.*connectionParams''severity: high
   description: "Connection params logged - tokens/credentials exposed in logs"
   remediation: "Never log connection params. Log only connection success/failure."
   cwe: "CWE-532"
@@ -749,7 +691,7 @@
 - id: gql-subscription-filter-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'withFilter\\([^,]+,\\s*\\(''?true''?\\)|withFilter.*return.*true'
+    - regex: 'withFilter\\([^,]+,\\s*\\('''?true''?\\)|withFilter.*return.*true'
   severity: high
   description: "withFilter always returns true - authorization filter bypass"
   remediation: "Implement proper filter functions checking user permissions."
@@ -759,8 +701,7 @@
 - id: gql-subscription-no-disconnect
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions:\\s*\\{[^}]*(?!onDisconnect)'
-  severity: medium
+    - regex: 'subscriptions:\\s*\\{[^}]*''severity: medium
   description: "No onDisconnect handler - connections not cleaned up properly"
   remediation: "Implement onDisconnect to clean up resources and update connection state."
   cwe: "CWE-775"
@@ -769,8 +710,7 @@
 - id: gql-subscription-memory-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'asyncIterator\\s*\\([^)]*\\)(?!.*return|.*finally)'
-  severity: medium
+    - regex: 'asyncIterator\\s*\\([^)]*\\)''severity: medium
   description: "Async iterators not closed properly - memory leak"
   remediation: "Ensure iterators are cleaned up in onDisconnect. Use try/finally blocks."
   cwe: "CWE-770"
@@ -779,8 +719,7 @@
 - id: gql-subscription-reconnection-attack
   languages: [javascript, typescript]
   patterns:
-    - regex: 'reconnect:\\s*true.*(?!maxReconnectAttempts)'
-  severity: medium
+    - regex: 'reconnect:\\s*true.*''severity: medium
   description: "Auto-reconnect without limits - connection cycling DoS"
   remediation: "Set maxReconnectAttempts (e.g., 5). Implement exponential backoff."
   cwe: "CWE-770"
@@ -789,8 +728,7 @@
 - id: gql-subscription-idle-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions:\\s*\\{[^}]*(?!idleTimeout)'
-  severity: medium
+    - regex: 'subscriptions:\\s*\\{[^}]*''severity: medium
   description: "No idle timeout - zombie connections consume resources"
   remediation: "Set idleTimeout (e.g., 5 minutes) to close inactive connections."
   cwe: "CWE-770"
@@ -799,8 +737,7 @@
 - id: gql-subscription-payload-overload
   languages: [javascript, typescript]
   patterns:
-    - regex: 'publish.*\\{[^\\}]{1000,}|asyncIterator.*\\{[^\\}]{1000,}'
-  severity: medium
+    - regex: 'publish.*\\{[^\\}]{1000,}|asyncIterator.*\\{[^\\}]{1000,}''severity: medium
   description: "Large subscription payloads - memory and bandwidth exhaustion"
   remediation: "Limit payload size. Filter fields based on subscription query."
   cwe: "CWE-770"
@@ -809,7 +746,7 @@
 - id: gql-subscription-cross-tenant
   languages: [javascript, typescript]
   patterns:
-    - regex: 'publish\\(\\s*[''\"]global|broadcast|all[''\"]'
+    - regex: 'publish\\(\\s*['''\"]global|broadcast|all[''\"]'
   severity: high
   description: "Global broadcast subscriptions - cross-tenant data leakage"
   remediation: "Implement tenant-isolated channels. Never broadcast to all tenants."
@@ -822,7 +759,7 @@
 - id: gql-cors-allow-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'origin:\\s*[''\"]\\*[''\"]|Access-Control-Allow-Origin:\\s*\\*'
+    - regex: 'origin:\\s*['''\"]\\*[''\"]|Access-Control-Allow-Origin:\\s*\\*'
   severity: critical
   description: "CORS allows all origins - CSRF attacks, data theft"
   remediation: "Restrict origins to specific domains. Never use * with credentials."
@@ -832,7 +769,7 @@
 - id: gql-cors-credentials-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'credentials:\\s*true.*origin:\\s*[''\"]\\*|Access-Control-Allow-Credentials.*origin:\\s*\\*'
+    - regex: 'credentials:\\s*true.*origin:\\s*['''\"]\\*|Access-Control-Allow-Credentials.*origin:\\s*\\*'
   severity: critical
   description: "Credentials allowed with wildcard origin - complete security bypass"
   remediation: "Specify exact origins when allowing credentials. Never use * with credentials."
@@ -842,7 +779,7 @@
 - id: gql-cors-methods-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'methods:\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]|Access-Control-Allow-Methods:\\s*\\*'
+    - regex: 'methods:\\s*\\[\\s*['''\"]\\*[''\"]\\s*\\]|Access-Control-Allow-Methods:\\s*\\*'
   severity: high
   description: "CORS allows all HTTP methods - can enable unintended operations"
   remediation: "Restrict methods to those actually used (GET, POST, OPTIONS)."
@@ -852,7 +789,7 @@
 - id: gql-cors-headers-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'allowedHeaders:\\s*\\[\\s*[''\"]\\*[''\"]\\s*\\]|Access-Control-Allow-Headers:\\s*\\*'
+    - regex: 'allowedHeaders:\\s*\\[\\s*['''\"]\\*[''\"]\\s*\\]|Access-Control-Allow-Headers:\\s*\\*'
   severity: high
   description: "CORS allows all headers - can bypass security headers"
   remediation: "Restrict headers to required ones (Content-Type, Authorization)."
@@ -862,8 +799,7 @@
 - id: gql-cors-max-age-long
   languages: [javascript, typescript]
   patterns:
-    - regex: 'maxAge:\\s*[6-9]\\d{4,}|Access-Control-Max-Age:\\s*[6-9]\\d{4,}'
-  severity: low
+    - regex: 'maxAge:\\s*[6-9]\\d{4,}|Access-Control-Max-Age:\\s*[6-9]\\d{4,}''severity: low
   description: "CORS preflight cache too long - configuration changes delayed"
   remediation: "Set reasonable maxAge (e.g., 600 seconds for production)."
   cwe: "CWE-942"
@@ -872,8 +808,7 @@
 - id: gql-cors-expose-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'exposedHeaders:\\s*\\[.*(?:token|auth|key|secret).*\\]'
-  severity: high
+    - regex: 'exposedHeaders:\\s*\\[.*(?:token|auth|key|secret).*\\]''severity: high
   description: "Sensitive headers exposed to CORS requests - information leak"
   remediation: "Never expose auth tokens or API keys via exposedHeaders."
   cwe: "CWE-200"
@@ -882,8 +817,7 @@
 - id: gql-http-method-override
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-HTTP-Method-Override|X-HTTP-Method|X-METHOD-OVERRIDE'
-  severity: high
+    - regex: 'X-HTTP-Method-Override|X-HTTP-Method|X-METHOD-OVERRIDE''severity: high
   description: "HTTP method override enabled - can bypass method restrictions"
   remediation: "Disable method override. Use standard HTTP methods only."
   cwe: "CWE-284"
@@ -892,7 +826,7 @@
 - id: gql-http-get-mutations
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.get\\([''\"]/graphql|server\\.get\\([''\"]/graphql'
+    - regex: 'app\\.get\\(['''\"]/graphql|server\\.get\\([''\"]/graphql'
   severity: high
   description: "GraphQL GET endpoint accepts queries - mutations via CSRF"
   remediation: "Reject mutations on GET requests. Only allow POST for mutations."
@@ -902,7 +836,7 @@
 - id: gql-http-cache-control-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'res\\.setHeader\\([''\"]Cache-Control[''\"](?!.*no-cache|.*no-store|.*private)'
+    - regex: 'res\\.setHeader\\(['''\"]Cache-Control[''\"](?!.*no-cache|.*no-store|.*private)'
   severity: medium
   description: "No cache control headers - sensitive data cached"
   remediation: "Set Cache-Control: no-cache, no-store, private for authenticated responses."
@@ -912,8 +846,7 @@
 - id: gql-http-security-headers-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'helmet\\(|csp|X-Frame-Options|X-Content-Type-Options|X-XSS-Protection'
-  severity: medium
+    - regex: 'helmet\\(|csp|X-Frame-Options|X-Content-Type-Options|X-XSS-Protection''severity: medium
   description: "Security headers missing - XSS and clickjacking vulnerabilities"
   remediation: "Use helmet.js. Set CSP, X-Frame-Options, and other security headers."
   cwe: "CWE-79"
@@ -922,7 +855,7 @@
 - id: gql-http-hsts-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Strict-Transport-Security|res\\.setHeader\\([''\"]Strict-Transport-Security'
+    - regex: 'Strict-Transport-Security|res\\.setHeader\\(['''\"]Strict-Transport-Security'
   severity: high
   description: "HSTS header missing - SSL stripping attacks possible"
   remediation: "Enable HSTS with includeSubDomains and preload for production."
@@ -932,8 +865,7 @@
 - id: gql-http-referrer-policy-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Referrer-Policy|Referer-Policy'
-  severity: low
+    - regex: 'Referrer-Policy|Referer-Policy''severity: low
   description: "Referrer-Policy missing - URL leakage in referrer header"
   remediation: "Set Referrer-Policy: same-origin or strict-origin-when-cross-origin."
   cwe: "CWE-200"
@@ -942,8 +874,7 @@
 - id: gql-http-permissions-policy-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Permissions-Policy|Feature-Policy'
-  severity: low
+    - regex: 'Permissions-Policy|Feature-Policy''severity: low
   description: "Permissions-Policy missing - browser features exposed"
   remediation: "Set Permissions-Policy to disable unnecessary features (geolocation, camera)."
   cwe: "CWE-200"
@@ -952,8 +883,7 @@
 - id: gql-http-content-type-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Content-Type:\\s*application/graphql'
-  severity: medium
+    - regex: 'Content-Type:\\s*application/graphql''severity: medium
   description: "Using deprecated application/graphql content type"
   remediation: "Use application/json content type. Send query in JSON body."
   cwe: "CWE-20"
@@ -962,7 +892,7 @@
 - id: gql-http-cors-preflight-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.options\\([''\"]\\*|server\\.options\\([''\"]\\*'
+    - regex: 'app\\.options\\(['''\"]\\*|server\\.options\\([''\"]\\*'
   severity: medium
   description: "OPTIONS handler allows all - preflight request bypass"
   remediation: "Handle OPTIONS requests properly with CORS middleware."
@@ -975,8 +905,7 @@
 - id: gql-upload-file-size-unlimited
   languages: [javascript, typescript]
   patterns:
-    - regex: 'graphql-upload|scalar\\s+Upload(?!.*maxFileSize|.*maxSize)'
-  severity: high
+    - regex: 'graphql-upload|scalar\\s+Upload''severity: high
   description: "File upload enabled without size limits - disk space exhaustion DoS"
   remediation: "Set maxFileSize (e.g., 5MB). Use streaming uploads with size checks."
   cwe: "CWE-770"
@@ -985,8 +914,7 @@
 - id: gql-upload-file-type-validation-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Upload.*resolve\\s*:\\s*.*stream|processUpload.*(?!mime|type|extname)'
-  severity: critical
+    - regex: 'Upload.*resolve\\s*:\\s*.*stream|processUpload.*''severity: critical
   description: "No file type validation - malicious file upload (RCE, XSS)"
   remediation: "Validate file MIME types against allowlist. Never trust file extensions."
   cwe: "CWE-434"
@@ -995,8 +923,7 @@
 - id: gql-upload-file-name-validation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'filename:\\s*.*(?:req|params|args)\\.|fileName:\\s*.*user'
-  severity: high
+    - regex: 'filename:\\s*.*(?:req|params|args)\\.|fileName:\\s*.*user''severity: high
   description: "Filename taken from user input - path traversal"
   remediation: "Generate random filenames. Never use user-provided filenames."
   cwe: "CWE-22"
@@ -1005,7 +932,7 @@
 - id: gql-upload-file-storage-path
   languages: [javascript, typescript]
   patterns:
-    - regex: 'createWriteStream\\(\\s*[''\"].*\\+.*filename|path\\.join\\(\\s*.*\\+.*filename'
+    - regex: 'createWriteStream\\(\\s*['''\"].*\\+.*filename|path\\.join\\(\\s*.*\\+.*filename'
   severity: critical
   description: "File path constructed from user input - directory traversal"
   remediation: "Use absolute paths with validation. Store files in isolated directories."
@@ -1015,8 +942,7 @@
 - id: gql-upload-file-content-scanning
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Upload.*resolve.*(?!virus|malware|scan)'
-  severity: high
+    - regex: 'Upload.*resolve.*''severity: high
   description: "Uploaded files not scanned for malware"
   remediation: "Integrate virus scanning before file storage. Reject infected files."
   cwe: "CWE-434"
@@ -1025,7 +951,7 @@
 - id: gql-upload-file-executable-extensions
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\.(?:exe|sh|php|py|rb|jar|jsp|asp|aspx|cgi|pl|dll|bat|cmd)\\s*[''\"]'
+    - regex: '\\.(?:exe|sh|php|py|rb|jar|jsp|asp|aspx|cgi|pl|dll|bat|cmd)\\s*['''\"]'
   severity: critical
   description: "Executable file extensions allowed - RCE vulnerability"
   remediation: "Block executable extensions. Store files with safe extensions only."
@@ -1035,7 +961,7 @@
 - id: gql-upload-file-html-svg
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\.(?:html?|svg|xhtml?|xml)\\s*[''\"]'
+    - regex: '\\.(?:html?|svg|xhtml?|xml)\\s*['''\"]'
   severity: high
   description: "HTML/SVG uploads allowed - XSS attacks on file view"
   remediation: "Block HTML/SVG uploads or sanitize content. Serve with correct Content-Type."
@@ -1045,8 +971,7 @@
 - id: gql-upload-file-parallel-uploads
   languages: [javascript, typescript]
   patterns:
-    - regex: 'multiple:\\s*true(?!.*maxFiles|.*maxParallel)'
-  severity: medium
+    - regex: 'multiple:\\s*true''severity: medium
   description: "Multiple parallel uploads without limits - resource exhaustion"
   remediation: "Set maxFiles (e.g., 5) and maxParallel (e.g., 2)."
   cwe: "CWE-770"
@@ -1055,7 +980,7 @@
 - id: gql-upload-file-path-traversal-filename
   languages: [javascript, typescript]
   patterns:
-    - regex: 'filename\\.replace\\s*\\(\\s*[''\"][^'']*[''\"]\\s*,\\s*[''\"][^'']*[''\"]|filename\\.split'
+    - regex: 'filename\\.replace\\s*\\(\\s*['''\"][^'']*[''\"]\\s*,\\s*[''\"][^'']*[''\"]|filename\\.split'
   severity: medium
   description: "Manual filename sanitization - easily bypassed path traversal"
   remediation: "Use dedicated path validation libraries. Never trust sanitized filenames."
@@ -1065,8 +990,7 @@
 - id: gql-upload-file-decompression-bomb
   languages: [javascript, typescript]
   patterns:
-    - regex: 'unzip|gunzip|decompress.*upload|extract.*archive'
-  severity: high
+    - regex: 'unzip|gunzip|decompress.*upload|extract.*archive''severity: high
   description: "Archive decompression without limits - zip bomb DoS"
   remediation: "Limit decompression size and file count. Check compression ratio."
   cwe: "CWE-409"
@@ -1078,8 +1002,7 @@
 - id: gql-rate-limit-missing
   languages: [javascript, typescript, python]
   patterns:
-    - regex: 'ApolloServer\\s*\\(\\s*\\{[^}]*(?!rateLimit|throttle)'
-  severity: high
+    - regex: 'ApolloServer\\s*\\(\\s*\\{[^}]*''severity: high
   description: "No rate limiting implemented - brute force and DoS attacks"
   remediation: "Implement rate limiting per IP, per user, and per operation type."
   cwe: "CWE-770"
@@ -1088,8 +1011,7 @@
 - id: gql-rate-limit-user-context-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rateLimit.*(?!user|token|apiKey|session)'
-  severity: medium
+    - regex: 'rateLimit.*''severity: medium
   description: "Rate limiting without user context - bypass via IP rotation"
   remediation: "Rate limit by authenticated user ID. Use IP as fallback only."
   cwe: "CWE-770"
@@ -1098,8 +1020,7 @@
 - id: gql-rate-limit-operation-based
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rateLimit.*global|rateLimit.*all'
-  severity: medium
+    - regex: 'rateLimit.*global|rateLimit.*all''severity: medium
   description: "Global rate limiting - expensive operations not properly limited"
   remediation: "Implement operation-specific rate limits. Stricter limits for mutations."
   cwe: "CWE-770"
@@ -1108,8 +1029,7 @@
 - id: gql-rate-limit-bypass-cost-analysis
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rateLimit.*(?!cost|complexity)'
-  severity: low
+    - regex: 'rateLimit.*''severity: low
   description: "Rate limiting not tied to query cost - expensive queries allowed"
   remediation: "Rate limit based on cumulative query cost, not just request count."
   cwe: "CWE-770"
@@ -1118,7 +1038,7 @@
 - id: gql-rate-limit-window-too-long
   languages: [javascript, typescript]
   patterns:
-    - regex: 'windowMs:\\s*[6-9]\\d{5,}|window:\\s*''[^'']*day'
+    - regex: 'windowMs:\\s*[6-9]\\d{5,}|window:\\s*'''[^'']*day'
   severity: low
   description: "Rate limit window too long (hours/days) - brute force possible"
   remediation: "Use shorter windows (minutes). Implement sliding windows for APIs."
@@ -1128,8 +1048,7 @@
 - id: gql-rate-limit-max-too-high
   languages: [javascript, typescript]
   patterns:
-    - regex: 'max:\\s*[1-9]\\d{3,}|limit:\\s*[1-9]\\d{3,}'
-  severity: medium
+    - regex: 'max:\\s*[1-9]\\d{3,}|limit:\\s*[1-9]\\d{3,}''severity: medium
   description: "Rate limit maximum too high (1000+) - ineffective protection"
   remediation: "Set realistic limits (e.g., 100 requests/minute per user)."
   cwe: "CWE-770"
@@ -1138,8 +1057,7 @@
 - id: gql-rate-limit-headers-enabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rateLimit.*headers:\\s*true|sendHeaders:\\s*true'
-  severity: low
+    - regex: 'rateLimit.*headers:\\s*true|sendHeaders:\\s*true''severity: low
   description: "Rate limit headers enabled - reveals internal limits"
   remediation: "Disable rate limit headers in production. Use internal monitoring only."
   cwe: "CWE-200"
@@ -1148,8 +1066,7 @@
 - id: gql-rate-limit-batch-handling
   languages: [javascript, typescript]
   patterns:
-    - regex: 'batchedRequests.*(?!rateLimit|cost)'
-  severity: high
+    - regex: 'batchedRequests.*''severity: high
   description: "Batch requests not rate limited - bypass via batching"
   remediation: "Apply rate limits to batch requests. Count each operation in batch."
   cwe: "CWE-770"
@@ -1158,8 +1075,7 @@
 - id: gql-rate-limit-subscription-events
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!rateLimit|throttle)'
-  severity: medium
+    - regex: 'subscriptions.*''severity: medium
   description: "Subscription events not rate limited - event flood DoS"
   remediation: "Implement event rate limiting (e.g., 100 events/minute per connection)."
   cwe: "CWE-770"
@@ -1168,8 +1084,7 @@
 - id: gql-rate-limit-persisted-queries
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persistedQueries.*(?!rateLimit)'
-  severity: low
+    - regex: 'persistedQueries.*''severity: low
   description: "Persisted queries not rate limited - abuse of cached operations"
   remediation: "Apply rate limiting to persisted queries. Cache expiration on limits."
   cwe: "CWE-770"
@@ -1181,8 +1096,7 @@
 - id: gql-persisted-queries-disabled
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persistedQueries:\\s*false|APQ:\\s*false'
-  severity: medium
+    - regex: 'persistedQueries:\\s*false|APQ:\\s*false''severity: medium
   description: "Persisted queries disabled - clients can send arbitrary operations"
   remediation: "Enable APQ and maintain operation allowlist for production."
   cwe: "CWE-770"
@@ -1191,8 +1105,7 @@
 - id: gql-allowlist-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'validationRules.*(?!allowlist|whitelist|persisted)'
-  severity: high
+    - regex: 'validationRules.*''severity: high
   description: "No operation allowlist - any query can be executed"
   remediation: "Implement operation allowlist. Only allow pre-registered operations."
   cwe: "CWE-770"
@@ -1201,8 +1114,7 @@
 - id: gql-allowlist-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if.*!operationName.*next|!operationName.*return'
-  severity: high
+    - regex: 'if.*!operationName.*next|!operationName.*return''severity: high
   description: "Allowlist bypass via missing operation name - falls back to default"
   remediation: "Reject requests without operation name. Require operationName for all."
   cwe: "CWE-20"
@@ -1211,8 +1123,7 @@
 - id: gql-allowlist-patterns-weak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'allowlist\\.includes.*operationName|whitelist\\.indexOf'
-  severity: medium
+    - regex: 'allowlist\\.includes.*operationName|whitelist\\.indexOf''severity: medium
   description: "Simple array includes check - O(N) performance issues"
   remediation: "Use Set or Map for O(1) lookups. Cache allowlist results."
   cwe: "CWE-400"
@@ -1221,8 +1132,7 @@
 - id: gql-persisted-queries-cache-poisoning
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persistedQueries.*cache.*(?!ttl|maxSize)'
-  severity: high
+    - regex: 'persistedQueries.*cache.*''severity: high
   description: "Persisted query cache without limits - cache poisoning"
   remediation: "Set TTL and maxSize for query cache. Validate query before caching."
   cwe: "CWE-524"
@@ -1231,8 +1141,7 @@
 - id: gql-persisted-queries-auth-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persistedQueries.*(?!auth|user)'
-  severity: high
+    - regex: 'persistedQueries.*''severity: high
   description: "Persisted queries without authentication - unauthenticated access"
   remediation: "Authenticate all persisted query requests. Cache per user if needed."
   cwe: "CWE-306"
@@ -1241,8 +1150,7 @@
 - id: gql-allowlist-update-insecure
   languages: [javascript, typescript]
   patterns:
-    - regex: 'updateAllowlist.*(?!auth|admin|role)'
-  severity: critical
+    - regex: 'updateAllowlist.*''severity: critical
   description: "Allowlist update endpoint without authentication - unauthorized changes"
   remediation: "Protect allowlist updates with admin authentication and audit logs."
   cwe: "CWE-862"
@@ -1251,8 +1159,7 @@
 - id: gql-persisted-queries-hash-collision
   languages: [javascript, typescript]
   patterns:
-    - regex: 'createHash.*update.*query.*digest|hash.*query.*hex'
-  severity: low
+    - regex: 'createHash.*update.*query.*digest|hash.*query.*hex''severity: low
   description: "Weak query hashing - hash collisions possible"
   remediation: "Use strong hash algorithms (SHA-256). Verify query matches hash."
   cwe: "CWE-328"
@@ -1261,7 +1168,7 @@
 - id: gql-persisted-queries-ttl-too-long
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ttl:\\s*[6-9]\\d{5,}|expiresIn:\\s*''[^'']*month|expiresIn:\\s*''[^'']*year'
+    - regex: 'ttl:\\s*[6-9]\\d{5,}|expiresIn:\\s*'''[^'']*month|expiresIn:\\s*''[^'']*year'
   severity: low
   description: "Persisted query cache TTL too long - stale operations"
   remediation: "Set reasonable TTL (e.g., 1 day for non-critical operations)."
@@ -1271,8 +1178,7 @@
 - id: gql-allowlist-operation-name-validation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'operationName.*(?!match|regex|valid)'
-  severity: medium
+    - regex: 'operationName.*''severity: medium
   description: "Operation name not validated - injection attacks"
   remediation: "Validate operation names against allowlist. Reject unexpected names."
   cwe: "CWE-20"
@@ -1284,8 +1190,7 @@
 - id: gql-federation-service-auth-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'buildFederatedSchema.*(?!auth|@key.*@requires.*@provides)'
-  severity: critical
+    - regex: 'buildFederatedSchema.*''severity: critical
   description: "Federation services without authentication - cross-service data leakage"
   remediation: "Implement authentication between services. Use JWT or API keys."
   cwe: "CWE-306"
@@ -1294,8 +1199,7 @@
 - id: gql-federation-gateway-auth-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ApolloGateway.*(?!context.*auth|headers.*auth)'
-  severity: high
+    - regex: 'ApolloGateway.*''severity: high
   description: "Federation gateway forwards unauthenticated requests to services"
   remediation: "Validate auth at gateway. Forward auth context to subgraphs."
   cwe: "CWE-306"
@@ -1304,8 +1208,7 @@
 - id: gql-federation-entity-resolution-auth
   languages: [graphql]
   patterns:
-    - regex: '_entities.*\\{.*\\}(?!@auth|@requires)'
-  severity: high
+    - regex: '_entities.*\\{.*\\}''severity: high
   description: "Entity resolution without authorization - unauthorized data access"
   remediation: "Add @auth directives to entity resolvers. Check permissions per entity."
   cwe: "CWE-862"
@@ -1314,8 +1217,7 @@
 - id: gql-federation-field-requires-auth
   languages: [graphql]
   patterns:
-    - regex: '@requires\\(fields:.*\"[^\"]*\"\\)(?!.*@auth)'
-  severity: high
+    - regex: '@requires\\(fields:.*\"[^\"]*\"\\)''severity: high
   description: "@requires fields accessible without authorization"
   remediation: "Add @auth to fields that require authentication for resolution."
   cwe: "CWE-862"
@@ -1324,8 +1226,7 @@
 - id: gql-federation-key-field-exposure
   languages: [graphql]
   patterns:
-    - regex: '@key\\(fields:.*\"[^\"]*(?:id|email|ssn|account).*\"\\)'
-  severity: high
+    - regex: '@key\\(fields:.*\"[^\"]*(?:id|email|ssn|account).*\"\\)''severity: high
   description: "Sensitive fields used as @key - exposed across services"
   remediation: "Use opaque internal IDs for federation keys. Never use PII as keys."
   cwe: "CWE-200"
@@ -1334,8 +1235,7 @@
 - id: gql-federation-external-field-injection
   languages: [graphql]
   patterns:
-    - regex: '@external.*@requires|@external.*@provides'
-  severity: medium
+    - regex: '@external.*@requires|@external.*@provides''severity: medium
   description: "@external fields can be manipulated - field injection"
   remediation: "Validate external fields. Ensure they come from trusted services."
   cwe: "CWE-20"
@@ -1344,7 +1244,7 @@
 - id: gql-federation-subgraph-ssrf
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subgraph.*url:\\s*[''\"].*\\$\\{.*\\}|subgraph.*url:\\s*[''\"].*\\+.*input'
+    - regex: 'subgraph.*url:\\s*['''\"].*\\$\\{.*\\}|subgraph.*url:\\s*[''\"].*\\+.*input'
   severity: critical
   description: "Dynamic subgraph URL from user input - SSRF vulnerability"
   remediation: "Use static subgraph URLs. Never allow dynamic service discovery."
@@ -1354,8 +1254,7 @@
 - id: gql-federation-subgraph-token-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subgraph.*headers.*authorization.*process\\.env|subgraph.*headers.*apiKey'
-  severity: high
+    - regex: 'subgraph.*headers.*authorization.*process\\.env|subgraph.*headers.*apiKey''severity: high
   description: "Subgraph auth tokens in code - credential exposure"
   remediation: "Use environment variables. Rotate tokens regularly."
   cwe: "CWE-798"
@@ -1364,8 +1263,7 @@
 - id: gql-federation-service-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'service.*url.*(?!timeout)'
-  severity: medium
+    - regex: 'service.*url.*''severity: medium
   description: "No timeout for subgraph requests - cascading failures"
   remediation: "Set reasonable timeouts for all subgraph calls (e.g., 5 seconds)."
   cwe: "CWE-770"
@@ -1374,8 +1272,7 @@
 - id: gql-federation-circuit-breaker
   languages: [javascript, typescript]
   patterns:
-    - regex: 'gateway.*(?!circuitBreaker|retry|fallback)'
-  severity: high
+    - regex: 'gateway.*''severity: high
   description: "No circuit breaker for subgraph failures - cascading DoS"
   remediation: "Implement circuit breakers for unhealthy subgraphs."
   cwe: "CWE-770"
@@ -1387,8 +1284,7 @@
 - id: gql-cache-control-sensitive-data
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: '@cacheControl.*maxAge:\\s*[1-9]\\d*.*(?:email|private|internal|token)'
-  severity: critical
+    - regex: '@cacheControl.*maxAge:\\s*[1-9]\\d*.*(?:email|private|internal|token)''severity: critical
   description: "Sensitive data with cache control - cached across users"
   remediation: "Set @cacheControl(maxAge: 0, scope: PRIVATE) for sensitive fields."
   cwe: "CWE-524"
@@ -1397,7 +1293,7 @@
 - id: gql-cache-redis-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: 'redis.*password:\\s*[''\"][^''\"]+[''\"]|redis\\.auth.*[''\"]\\w+'
+    - regex: 'redis.*password:\\s*['''\"][^''\"]+[''\"]|redis\\.auth.*[''\"]\\w+'
   severity: high
   description: "Redis credentials hardcoded - cache access compromise"
   remediation: "Use environment variables. Use Redis ACLs and TLS."
@@ -1407,8 +1303,7 @@
 - id: gql-cache-ttl-too-long
   languages: [graphql]
   patterns:
-    - regex: '@cacheControl.*maxAge:\\s*[6-9]\\d{4,}|@cacheControl.*maxAge:\\s*[1-9]\\d{5,}'
-  severity: medium
+    - regex: '@cacheControl.*maxAge:\\s*[6-9]\\d{4,}|@cacheControl.*maxAge:\\s*[1-9]\\d{5,}''severity: medium
   description: "Cache TTL too long - stale data served"
   remediation: "Set appropriate TTL based on data freshness requirements (e.g., 60s)."
   cwe: "CWE-524"
@@ -1417,8 +1312,7 @@
 - id: gql-cache-scope-missing
   languages: [graphql]
   patterns:
-    - regex: '@cacheControl.*maxAge.*(?!scope)'
-  severity: medium
+    - regex: '@cacheControl.*maxAge.*''severity: medium
   description: "Cache scope not defined - public cache for private data"
   remediation: "Always specify scope: PRIVATE for user-specific data."
   cwe: "CWE-524"
@@ -1427,8 +1321,7 @@
 - id: gql-cache-invalidation-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mutation.*\\{.*\\}.*(?!cache.*invalidate|purge.*cache)'
-  severity: high
+    - regex: 'mutation.*\\{.*\\}.*''severity: high
   description: "Mutations without cache invalidation - stale data"
   remediation: "Invalidate related cache entries after mutations."
   cwe: "CWE-524"
@@ -1437,7 +1330,7 @@
 - id: gql-cache-keys-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cache\\.(?:get|set)\\s*\\(\\s*[''\"]\\w*\\+\\s*args|cacheKey.*\\+.*input'
+    - regex: 'cache\\.(?:get|set)\\s*\\(\\s*['''\"]\\w*\\+\\s*args|cacheKey.*\\+.*input'
   severity: high
   description: "Cache keys constructed from user input - cache poisoning"
   remediation: "Use static cache keys. Validate input before key construction."
@@ -1447,8 +1340,7 @@
 - id: gql-cache-data-serialization
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.stringify.*args|JSON\\.parse.*cache.*data'
-  severity: medium
+    - regex: 'JSON\\.stringify.*args|JSON\\.parse.*cache.*data''severity: medium
   description: "Insecure deserialization from cache - RCE vulnerability"
   remediation: "Use safe serialization. Validate cached data before use."
   cwe: "CWE-502"
@@ -1457,8 +1349,7 @@
 - id: gql-cache-memory-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'InMemoryCache|new\\s+Cache|LRUCache.*(?!maxSize|maxItems)'
-  severity: medium
+    - regex: 'InMemoryCache|new\\s+Cache|LRUCache.*''severity: medium
   description: "In-memory cache without size limits - memory exhaustion"
   remediation: "Set maxSize for memory caches. Use Redis for production."
   cwe: "CWE-770"
@@ -1467,8 +1358,7 @@
 - id: gql-cache-no-encryption
   languages: [javascript, typescript]
   patterns:
-    - regex: 'redis.*(?!tls|ssl)'
-  severity: medium
+    - regex: 'redis.*''severity: medium
   description: "Redis without TLS - data in transit exposed"
   remediation: "Enable TLS for Redis connections. Use encrypted Redis instances."
   cwe: "CWE-319"
@@ -1477,8 +1367,7 @@
 - id: gql-cache-auth-data
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cache\\.set.*user|cache\\.set.*token|cache\\.set.*session'
-  severity: high
+    - regex: 'cache\\.set.*user|cache\\.set.*token|cache\\.set.*session''severity: high
   description: "Sensitive auth data cached - credential exposure"
   remediation: "Don't cache auth tokens. Use secure session stores."
   cwe: "CWE-312"
@@ -1490,8 +1379,7 @@
 - id: gql-execution-max-parallel
   languages: [javascript, typescript]
   patterns:
-    - regex: 'graphql\\.(?:execute|parse|validate).*Promise\\.all.*map'
-  severity: high
+    - regex: 'graphql\\.(?:execute|parse|validate).*Promise\\.all.*map''severity: high
   description: "Parallel execution without limits - resource exhaustion"
   remediation: "Limit parallel resolver execution. Use batching with DataLoader."
   cwe: "CWE-770"
@@ -1500,8 +1388,7 @@
 - id: gql-execution-resolver-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'resolve\\s*:\\s*async.*(?!timeout)'
-  severity: high
+    - regex: 'resolve\\s*:\\s*async.*''severity: high
   description: "Async resolvers without timeout - hanging requests"
   remediation: "Implement resolver timeouts. Use Promise.race with timeout."
   cwe: "CWE-770"
@@ -1510,8 +1397,7 @@
 - id: gql-execution-data-loader-batching
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+DataLoader\\(.*(?!maxBatchSize)'
-  severity: medium
+    - regex: 'new\\s+DataLoader\\(.*''severity: medium
   description: "DataLoader without batch size limits - memory issues"
   remediation: "Set maxBatchSize (e.g., 100). Monitor batch performance."
   cwe: "CWE-770"
@@ -1520,8 +1406,7 @@
 - id: gql-execution-field-order-attack
   languages: [graphql]
   patterns:
-    - regex: '\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+'
-  severity: low
+    - regex: '\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+''severity: low
   description: "Field order attack - CPU exhaustion via sorting"
   remediation: "Cost analysis should consider field count. Limit total fields."
   cwe: "CWE-400"
@@ -1530,8 +1415,7 @@
 - id: gql-execution-error-rethrow
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch.*throw\\s+error|catch.*throw\\s+err'
-  severity: medium
+    - regex: 'catch.*throw\\s+error|catch.*throw\\s+err''severity: medium
   description: "Errors rethrown without sanitization - internal error exposure"
   remediation: "Wrap errors. Convert to safe error types before throwing."
   cwe: "CWE-209"
@@ -1540,8 +1424,7 @@
 - id: gql-execution-context-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'context\\s*=\\s*\\{[^}]*req\\.(?:db|redis|secret)'
-  severity: high
+    - regex: 'context\\s*=\\s*\\{[^}]*req\\.(?:db|redis|secret)''severity: high
   description: "Sensitive services exposed in context - privilege escalation"
   remediation: "Expose only necessary services. Use interface segregation."
   cwe: "CWE-200"
@@ -1550,8 +1433,7 @@
 - id: gql-execution-middleware-order
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.use\\(.*graphql\\)(?!.*app\\.use\\(.*auth)'
-  severity: high
+    - regex: 'app\\.use\\(.*graphql\\)''severity: high
   description: "GraphQL middleware before auth - unauthenticated access"
   remediation: "Place auth middleware before GraphQL handler."
   cwe: "CWE-306"
@@ -1560,8 +1442,7 @@
 - id: gql-execution-error-handler-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'graphql\\(.*\\).catch\\(.*\\)(?!.*500)'
-  severity: medium
+    - regex: 'graphql\\(.*\\).catch\\(.*\\)''severity: medium
   description: "Unhandled promise rejections in resolvers - crash"
   remediation: "Add error handling to all async resolvers. Use global error handler."
   cwe: "CWE-754"
@@ -1570,8 +1451,7 @@
 - id: gql-execution-query-plan-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'queryPlanStore.*(?!private)'
-  severity: low
+    - regex: 'queryPlanStore.*''severity: low
   description: "Query plans cached - performance insights exposed"
   remediation: "Use private query plan caching. Disable logging in production."
   cwe: "CWE-200"
@@ -1580,8 +1460,7 @@
 - id: gql-execution-batch-context-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'batch.*(?!context)'
-  severity: high
+    - regex: 'batch.*''severity: high
   description: "Batch requests share context - user data leakage"
   remediation: "Create new context per operation in batch. Isolate user data."
   cwe: "CWE-200"
@@ -1592,8 +1471,7 @@
 - id: gql-introspection-field-duplication
   languages: [graphql]
   patterns:
-    - regex: '__schema\\s*\\{\\s*(?:types\\s*\\{[^}]*\\}\\s*){3,}|__type\\s*\\([^)]+\\)\\s*\\{[^}]*\\}[^}]*\\}'
-  severity: medium
+    - regex: '__schema\\s*\\{\\s*(?:types\\s*\\{[^}]*\\}\\s*){3,}|__type\\s*\\([^)]+\\)\\s*\\{[^}]*\\}[^}]*\\}''severity: medium
   description: "Aggressive introspection queries can reveal complete schema structure"
   remediation: "Disable introspection in production. If needed, implement rate limiting on introspection queries."
   cwe: "CWE-200"
@@ -1602,8 +1480,7 @@
 - id: gql-introspection-conditional
   languages: [graphql]
   patterns:
-    - regex: 'query\\s+IntrospectionQuery|query\\s+Introspection|fragment\\s+FullType'
-  severity: low
+    - regex: 'query\\s+IntrospectionQuery|query\\s+Introspection|fragment\\s+FullType''severity: low
   description: "Standard introspection query names indicate automated schema scraping"
   remediation: "Monitor for standard introspection query names and block suspicious clients."
   cwe: "CWE-200"
@@ -1612,7 +1489,7 @@
 - id: gql-introspection-type-repetition
   languages: [graphql]
   patterns:
-    - regex: '__type\\(name:\\s*[''\"]\\w+[''\"]\\)\\s*\\{[^}]*\\}(?:\\s*__type.*){5,}'
+    - regex: '__type\\(name:\\s*['''\"]\\w+[''\"]\\)\\s*\\{[^}]*\\}(?:\\s*__type.*){5,}'
   severity: medium
   description: "Multiple __type queries in single request - systematic schema enumeration"
   remediation: "Limit number of __type queries per request. Implement query cost analysis."
@@ -1622,8 +1499,7 @@
 - id: gql-introspection-typename-leak
   languages: [graphql]
   patterns:
-    - regex: '__typename.*on\\s+\\w+|__typename.*\\{\\s*\\w+'
-  severity: low
+    - regex: '__typename.*on\\s+\\w+|__typename.*\\{\\s*\\w+''severity: low
   description: "__typename used excessively - can reveal interface/union implementations"
   remediation: "Limit __typename usage. Consider removing from production queries."
   cwe: "CWE-200"
@@ -1632,8 +1508,7 @@
 - id: gql-introspection-description-leak
   languages: [graphql]
   patterns:
-    - regex: '__.*\\{[^}]*description[^}]*\\}'
-  severity: medium
+    - regex: '__.*\\{[^}]*description[^}]*\\}''severity: medium
   description: "Description fields in introspection - may contain sensitive comments"
   remediation: "Strip descriptions from production schema or ensure no sensitive data in descriptions."
   cwe: "CWE-200"
@@ -1642,8 +1517,7 @@
 - id: gql-introspection-isrepeatable-leak
   languages: [graphql]
   patterns:
-    - regex: 'isRepeatable|isDeprecated|deprecationReason'
-  severity: low
+    - regex: 'isRepeatable|isDeprecated|deprecationReason''severity: low
   description: "Directive metadata exposes internal implementation details"
   remediation: "Remove or sanitize deprecation reasons and directive metadata."
   cwe: "CWE-200"
@@ -1652,8 +1526,7 @@
 - id: gql-introspection-interleaved
   languages: [graphql]
   patterns:
-    - regex: '__schema.*\\{\\s*\\w+\\s*__typename|__typename.*\\{\\s*__schema'
-  severity: medium
+    - regex: '__schema.*\\{\\s*\\w+\\s*__typename|__typename.*\\{\\s*__schema''severity: medium
   description: "Introspection mixed with data queries - attempts to hide schema scraping"
   remediation: "Detect and block queries mixing introspection and data fields."
   cwe: "CWE-200"
@@ -1662,8 +1535,7 @@
 - id: gql-introspection-fragments
   languages: [graphql]
   patterns:
-    - regex: 'fragment\\s+\\w+\\s+on\\s+__|fragment.*__Type|fragment.*__Field'
-  severity: high
+    - regex: 'fragment\\s+\\w+\\s+on\\s+__|fragment.*__Type|fragment.*__Field''severity: high
   description: "Fragments on introspection types - advanced schema enumeration"
   remediation: "Block fragments on introspection types. Disable introspection in production."
   cwe: "CWE-200"
@@ -1672,8 +1544,7 @@
 - id: gql-introspection-aliased
   languages: [graphql]
   patterns:
-    - regex: '\\w+\\s*:\\s*__schema|\\w+\\s*:\\s*__type|\\w+\\s*:\\s*__typename'
-  severity: medium
+    - regex: '\\w+\\s*:\\s*__schema|\\w+\\s*:\\s*__type|\\w+\\s*:\\s*__typename''severity: medium
   description: "Aliased introspection fields - attempts to hide introspection usage"
   remediation: "Detect aliased introspection fields regardless of alias names."
   cwe: "CWE-200"
@@ -1682,8 +1553,7 @@
 - id: gql-introspection-directive-locations
   languages: [graphql]
   patterns:
-    - regex: '__directive.*locations|locations.*__directive'
-  severity: low
+    - regex: '__directive.*locations|locations.*__directive''severity: low
   description: "Directive location enumeration - reveals where directives can be applied"
   remediation: "Restrict directive information in production schemas."
   cwe: "CWE-200"
@@ -1692,8 +1562,7 @@
 - id: gql-introspection-input-fields
   languages: [graphql]
   patterns:
-    - regex: '__inputValue.*__type|inputFields.*__type'
-  severity: low
+    - regex: '__inputValue.*__type|inputFields.*__type''severity: low
   description: "Input field enumeration - reveals mutation/query parameter structure"
   remediation: "Limit input field exposure. Use generic input types."
   cwe: "CWE-200"
@@ -1702,8 +1571,7 @@
 - id: gql-introspection-enum-values
   languages: [graphql]
   patterns:
-    - regex: '__enumValue|enumValues.*\\{.*name.*description'
-  severity: low
+    - regex: '__enumValue|enumValues.*\\{.*name.*description''severity: low
   description: "Enum value enumeration - reveals valid enum options"
   remediation: "Consider using opaque enum values. Don't expose internal enum meanings."
   cwe: "CWE-200"
@@ -1712,8 +1580,7 @@
 - id: gql-introspection-possible-types
   languages: [graphql]
   patterns:
-    - regex: 'possibleTypes|__type.*possibleTypes'
-  severity: medium
+    - regex: 'possibleTypes|__type.*possibleTypes''severity: medium
   description: "Union/interface possible types - reveals all implementations"
   remediation: "Hide possibleTypes in production. Use resolvers to determine types dynamically."
   cwe: "CWE-200"
@@ -1722,8 +1589,7 @@
 - id: gql-introspection-ofKind
   languages: [graphql]
   patterns:
-    - regex: 'ofKind|__type.*ofKind|kind\\s*:\\s*NON_NULL|kind\\s*:\\s*LIST'
-  severity: low
+    - regex: 'ofKind|__type.*ofKind|kind\\s*:\\s*NON_NULL|kind\\s*:\\s*LIST''severity: low
   description: "Type kind enumeration - reveals wrapping types (List, NonNull)"
   remediation: "Consider hiding type wrapping information in production."
   cwe: "CWE-200"
@@ -1732,8 +1598,7 @@
 - id: gql-introspection-interfaces
   languages: [graphql]
   patterns:
-    - regex: 'interfaces|__type.*interfaces'
-  severity: low
+    - regex: 'interfaces|__type.*interfaces''severity: low
   description: "Interface implementation enumeration - reveals inheritance hierarchy"
   remediation: "Hide interface implementations. Use composition over inheritance."
   cwe: "CWE-200"
@@ -1742,8 +1607,7 @@
 - id: gql-introspection-args
   languages: [graphql]
   patterns:
-    - regex: 'args.*\\{.*name.*type.*defaultValue|__field.*args'
-  severity: medium
+    - regex: 'args.*\\{.*name.*type.*defaultValue|__field.*args''severity: medium
   description: "Argument enumeration with default values - reveals business logic defaults"
   remediation: "Remove default values from production schema or make them generic."
   cwe: "CWE-200"
@@ -1752,8 +1616,7 @@
 - id: gql-introspection-isOneOf
   languages: [graphql]
   patterns:
-    - regex: 'isOneOf|oneOf'
-  severity: low
+    - regex: 'isOneOf|oneOf''severity: low
   description: "OneOf directive exposure - reveals mutually exclusive field groups"
   remediation: "Hide OneOf implementation details in production."
   cwe: "CWE-200"
@@ -1762,8 +1625,7 @@
 - id: gql-introspection-specifiedBy
   languages: [graphql]
   patterns:
-    - regex: 'specifiedByURL|specifiedBy'
-  severity: low
+    - regex: 'specifiedByURL|specifiedBy''severity: low
   description: "Custom scalar specification URLs - may reveal internal documentation"
   remediation: "Remove or internalize custom scalar specification URLs."
   cwe: "CWE-200"
@@ -1772,8 +1634,7 @@
 - id: gql-introspection-repeat-query
   languages: [graphql]
   patterns:
-    - regex: '(?:__schema|__type).*\\{\\s*(?:__schema|__type).*\\{\\s*(?:__schema|__type)'
-  severity: high
+    - regex: '(?:__schema|__type).*\\{\\s*(?:__schema|__type).*\\{\\s*(?:__schema|__type)''severity: high
   description: "Repeated introspection in single query - aggressive schema scraping"
   remediation: "Block queries with multiple introspection operations. Implement query complexity limits."
   cwe: "CWE-200"
@@ -1782,8 +1643,7 @@
 - id: gql-introspection-with-variables
   languages: [graphql]
   patterns:
-    - regex: 'query\\s+\\w+\\(\\$\\w+:[^)]+\\)\\s*\\{\\s*__|mutation.*\\{\\s*__'
-  severity: high
+    - regex: 'query\\s+\\w+\\(\\$\\w+:[^)]+\\)\\s*\\{\\s*__|mutation.*\\{\\s*__''severity: high
   description: "Introspection with variables - attempts to probe schema dynamically"
   remediation: "Block all introspection queries in production regardless of variables."
   cwe: "CWE-200"
@@ -1794,8 +1654,7 @@
 - id: gql-input-injection-scalar
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'scalar\\s+\\w+\\s*\\{[^}]*(?!validate|sanitize)'
-  severity: high
+    - regex: 'scalar\\s+\\w+\\s*\\{[^}]*''severity: high
   description: "Custom scalar without validation - accepts arbitrary input"
   remediation: "Implement validation and sanitization in all custom scalars."
   cwe: "CWE-20"
@@ -1804,8 +1663,7 @@
 - id: gql-input-email-validation-weak
   languages: [graphql]
   patterns:
-    - regex: 'email:\\s*String|email:\\s*\\[String\\]'
-  severity: medium
+    - regex: 'email:\\s*String|email:\\s*\\[String\\]''severity: medium
   description: "Email field as plain String without email validation"
   remediation: "Use custom Email scalar with RFC 5322 validation. Never use plain String for emails."
   cwe: "CWE-20"
@@ -1814,8 +1672,7 @@
 - id: gql-input-password-plaintext
   languages: [graphql]
   patterns:
-    - regex: 'password:\\s*String|passwd:\\s*String|pwd:\\s*String'
-  severity: critical
+    - regex: 'password:\\s*String|passwd:\\s*String|pwd:\\s*String''severity: critical
   description: "Password field as plain String - no validation or constraints"
   remediation: "Use custom Password scalar with strength validation. Never log or return passwords."
   cwe: "CWE-20"
@@ -1824,8 +1681,7 @@
 - id: gql-input-phone-number-weak
   languages: [graphql]
   patterns:
-    - regex: 'phone(?:Number)?:\\s*String|mobile:\\s*String'
-  severity: medium
+    - regex: 'phone(?:Number)?:\\s*String|mobile:\\s*String''severity: medium
   description: "Phone number as plain String - accepts any format"
   remediation: "Use PhoneNumber scalar with E.164 validation. Normalize before storage."
   cwe: "CWE-20"
@@ -1834,8 +1690,7 @@
 - id: gql-input-url-validation-missing
   languages: [graphql]
   patterns:
-    - regex: 'url:\\s*String|website:\\s*String|link:\\s*String'
-  severity: medium
+    - regex: 'url:\\s*String|website:\\s*String|link:\\s*String''severity: medium
   description: "URL field as plain String - SSRF and open redirect risks"
   remediation: "Use URL scalar with protocol validation and domain allowlisting."
   cwe: "CWE-20"
@@ -1844,8 +1699,7 @@
 - id: gql-input-date-validation-missing
   languages: [graphql]
   patterns:
-    - regex: 'date:\\s*String|datetime:\\s*String|timestamp:\\s*String'
-  severity: low
+    - regex: 'date:\\s*String|datetime:\\s*String|timestamp:\\s*String''severity: low
   description: "Date field as plain String - inconsistent date formats"
   remediation: "Use DateTime scalar with ISO 8601 validation. Never accept arbitrary strings."
   cwe: "CWE-20"
@@ -1854,8 +1708,7 @@
 - id: gql-input-json-validation-missing
   languages: [graphql]
   patterns:
-    - regex: 'json:\\s*String|metadata:\\s*String|attributes:\\s*String'
-  severity: high
+    - regex: 'json:\\s*String|metadata:\\s*String|attributes:\\s*String''severity: high
   description: "JSON field as String - no structure validation"
   remediation: "Use JSON scalar with schema validation. Parse and validate structure."
   cwe: "CWE-20"
@@ -1864,8 +1717,7 @@
 - id: gql-input-id-injection
   languages: [graphql]
   patterns:
-    - regex: 'id:\\s*String|identifier:\\s*String|\\w+Id:\\s*String'
-  severity: high
+    - regex: 'id:\\s*String|identifier:\\s*String|\\w+Id:\\s*String''severity: high
   description: "ID fields as String - potential injection attacks"
   remediation: "Use ID scalar which ensures proper formatting. Never trust client-provided IDs."
   cwe: "CWE-20"
@@ -1874,8 +1726,7 @@
 - id: gql-input-numeric-range-missing
   languages: [graphql]
   patterns:
-    - regex: '(?:age|count|limit|offset|page|quantity|amount):\\s*Int|Float'
-  severity: medium
+    - regex: '(?:age|count|limit|offset|page|quantity|amount):\\s*Int|Float''severity: medium
   description: "Numeric field without range validation - accepts negative or excessive values"
   remediation: "Use custom numeric scalars with min/max validation. Add @range directive."
   cwe: "CWE-20"
@@ -1884,8 +1735,7 @@
 - id: gql-input-string-length-missing
   languages: [graphql]
   patterns:
-    - regex: '(?:name|title|description|comment|message):\\s*String(?!.*@length|.*@maxLength)'
-  severity: medium
+    - regex: '(?:name|title|description|comment|message):\\s*String''severity: medium
   description: "String field without length limits - DoS via large strings"
   remediation: "Add @length or @maxLength directives. Limit string sizes (e.g., 255 chars)."
   cwe: "CWE-770"
@@ -1894,8 +1744,7 @@
 - id: gql-input-regex-validation-missing
   languages: [graphql]
   patterns:
-    - regex: '(?:code|token|key|reference|handle):\\s*String(?!.*@pattern)'
-  severity: medium
+    - regex: '(?:code|token|key|reference|handle):\\s*String''severity: medium
   description: "Code/token field without format validation"
   remediation: "Use @pattern directive with strict regex validation. Never accept arbitrary formats."
   cwe: "CWE-20"
@@ -1904,8 +1753,7 @@
 - id: gql-input-array-size-missing
   languages: [graphql]
   patterns:
-    - regex: '\\[.*\\]\\s*\\w+\\s*\\([^)]*\\)(?!.*@size|.*@maxItems)'
-  severity: high
+    - regex: '\\[.*\\]\\s*\\w+\\s*\\([^)]*\\)''severity: high
   description: "Array input without size limits - resource exhaustion"
   remediation: "Add @size or @maxItems directive. Limit array sizes (e.g., max 100 items)."
   cwe: "CWE-770"
@@ -1914,8 +1762,7 @@
 - id: gql-input-nested-deep
   languages: [graphql]
   patterns:
-    - regex: 'input\\s+\\w+\\s*\\{[^}]*\\w+\\s*:\\s*\\w+\\s*\\{[^}]*\\w+\\s*:\\s*\\w+\\s*\\{'
-  severity: medium
+    - regex: 'input\\s+\\w+\\s*\\{[^}]*\\w+\\s*:\\s*\\w+\\s*\\{[^}]*\\w+\\s*:\\s*\\w+\\s*\\{''severity: medium
   description: "Deeply nested input types - recursive parsing DoS"
   remediation: "Limit input nesting depth. Flatten complex input structures."
   cwe: "CWE-400"
@@ -1924,8 +1771,7 @@
 - id: gql-input-self-referential
   languages: [graphql]
   patterns:
-    - regex: 'input\\s+(\\w+)\\s*\\{[^}]*\\1\\s*:|\\1\\s*:\\s*\\[?\\1\\]?'
-  severity: high
+    - regex: 'input\\s+(\\w+)\\s*\\{[^}]*\\1\\s*:|\\1\\s*:\\s*\\[?\\1\\]?''severity: high
   description: "Self-referential input type - infinite recursion risk"
   remediation: "Avoid self-referential inputs. Use separate input types for nested data."
   cwe: "CWE-835"
@@ -1934,8 +1780,7 @@
 - id: gql-input-union-injection
   languages: [graphql]
   patterns:
-    - regex: 'input.*union|union.*input|__typename.*input'
-  severity: medium
+    - regex: 'input.*union|union.*input|__typename.*input''severity: medium
   description: "Union in input position - GraphQL spec violation, may cause parsing issues"
   remediation: "Unions cannot be used as inputs. Use interfaces or separate input types."
   cwe: "CWE-20"
@@ -1944,8 +1789,7 @@
 - id: gql-input-interface
   languages: [graphql]
   patterns:
-    - regex: 'input.*implements|implements.*input'
-  severity: medium
+    - regex: 'input.*implements|implements.*input''severity: medium
   description: "Interface implementation on input type - not supported"
   remediation: "Input types cannot implement interfaces. Use composition instead."
   cwe: "CWE-20"
@@ -1954,7 +1798,7 @@
 - id: gql-input-default-sql
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*[''\"].*(?:SELECT|INSERT|UPDATE|DELETE|DROP|UNION).*[''\"]'
+    - regex: 'default:\\s*['''\"].*(?:SELECT|INSERT|UPDATE|DELETE|DROP|UNION).*[''\"]'
   severity: critical
   description: "SQL injection payload in default value - potential backdoor"
   remediation: "Never use SQL as default values. Remove suspicious defaults."
@@ -1964,7 +1808,7 @@
 - id: gql-input-default-command
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*[''\"].*(?:exec|system|eval|require|process).*[''\"]'
+    - regex: 'default:\\s*['''\"].*(?:exec|system|eval|require|process).*[''\"]'
   severity: critical
   description: "Command injection payload in default value - RCE risk"
   remediation: "Remove all command-like strings from default values."
@@ -1974,7 +1818,7 @@
 - id: gql-input-default-html
   languages: [graphql]
   patterns:
-    - regex: 'default:\\s*[''\"].*<script>.*[''\"]'
+    - regex: 'default:\\s*['''\"].*<script>.*[''\"]'
   severity: high
   description: "XSS payload in default value - reflected XSS risk"
   remediation: "Remove HTML/script tags from default values. Escape all defaults."
@@ -1984,8 +1828,7 @@
 - id: gql-input-required-field-after-optional
   languages: [graphql]
   patterns:
-    - regex: '\\w+!.*\\s+\\w+:\\s*\\w+(?!!)'
-  severity: low
+    - regex: '\\w+!.*\\s+\\w+:\\s*\\w+''severity: low
   description: "Required field after optional - API design flaw, client confusion"
   remediation: "Place required fields before optional ones in input definitions."
   cwe: "CWE-20"
@@ -1994,8 +1837,7 @@
 - id: gql-input-mutually-exclusive
   languages: [graphql]
   patterns:
-    - regex: 'input\\s+\\w+\\s*\\{[^}]*(?:\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+){3,}'
-  severity: medium
+    - regex: 'input\\s+\\w+\\s*\\{[^}]*(?:\\w+\\s*:\\s*\\w+.*\\w+\\s*:\\s*\\w+){3,}''severity: medium
   description: "Input with many fields but no validation - ambiguous API"
   remediation: "Use OneOf directive for mutually exclusive fields. Add input validation rules."
   cwe: "CWE-20"
@@ -2004,8 +1846,7 @@
 - id: gql-input-sensitive-in-enum
   languages: [graphql]
   patterns:
-    - regex: 'enum\\s+\\w+\\s*\\{[^}]*(?:ADMIN|ROOT|SUPER|OWNER|INTERNAL|PRIVATE)'
-  severity: high
+    - regex: 'enum\\s+\\w+\\s*\\{[^}]*(?:ADMIN|ROOT|SUPER|OWNER|INTERNAL|PRIVATE)''severity: high
   description: "Sensitive role/enum values exposed - privilege escalation"
   remediation: "Remove sensitive enum values. Map internal roles to client-safe enums."
   cwe: "CWE-200"
@@ -2014,8 +1855,7 @@
 - id: gql-input-empty-enum
   languages: [graphql]
   patterns:
-    - regex: 'enum\\s+\\w+\\s*\\{\\s*\\}'
-  severity: low
+    - regex: 'enum\\s+\\w+\\s*\\{\\s*\\}''severity: low
   description: "Empty enum definition - schema parsing error risk"
   remediation: "Remove empty enums or add valid values."
   cwe: "CWE-20"
@@ -2024,8 +1864,7 @@
 - id: gql-input-duplicate-values
   languages: [graphql]
   patterns:
-    - regex: 'enum\\s+\\w+\\s*\\{[^}]*(\\w+)[^}]*\\1[^}]*\\1'
-  severity: low
+    - regex: 'enum\\s+\\w+\\s*\\{[^}]*(\\w+)[^}]*\\1[^}]*\\1''severity: low
   description: "Duplicate enum values - client confusion"
   remediation: "Remove duplicate enum values. Keep enum unique."
   cwe: "CWE-20"
@@ -2034,7 +1873,7 @@
 - id: gql-input-deprecated-values
   languages: [graphql]
   patterns:
-    - regex: '@deprecated.*reason:\\s*[''\"]([^''\"]*)[''\"]'
+    - regex: '@deprecated.*reason:\\s*['''\"]([^''\"]*)[''\"]'
   severity: low
   description: "Deprecated enum values - may still be used by clients"
   remediation: "Plan removal of deprecated values. Monitor usage before removal."
@@ -2046,8 +1885,7 @@
 - id: gql-biz-rate-limit-auth-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rateLimit.*(?!authenticated|user|token)'
-  severity: high
+    - regex: 'rateLimit.*''severity: high
   description: "Rate limiting applies equally to auth and non-auth users - auth bypass possible"
   remediation: "Apply stricter rate limits for unauthenticated users. Different limits per endpoint."
   cwe: "CWE-770"
@@ -2056,8 +1894,7 @@
 - id: gql-biz-cost-analysis-auth-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'costAnalysis.*maxCost:\\s*\\d+(?!.*auth)'
-  severity: medium
+    - regex: 'costAnalysis.*maxCost:\\s*\\d+''severity: medium
   description: "Same cost limits for all users - auth bypass for expensive queries"
   remediation: "Implement tiered cost limits: lower for unauthenticated, higher for authenticated."
   cwe: "CWE-862"
@@ -2066,8 +1903,7 @@
 - id: gql-biz-query-whitespace-attack
   languages: [graphql]
   patterns:
-    - regex: '\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\}'
-  severity: medium
+    - regex: '\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\{\\s*\\w+\\s*\\}''severity: medium
   description: "Excessive whitespace in queries - parser CPU exhaustion"
   remediation: "Normalize queries before processing. Strip excess whitespace."
   cwe: "CWE-400"
@@ -2076,8 +1912,7 @@
 - id: gql-biz-comment-abuse
   languages: [graphql]
   patterns:
-    - regex: '#[^\\n]*\\n#[^\\n]*\\n#[^\\n]*\\n#[^\\n]*\\n#[^\\n]*'
-  severity: low
+    - regex: '#[^\\n]*\\n#[^\\n]*\\n#[^\\n]*\\n#[^\\n]*\\n#[^\\n]*''severity: low
   description: "Excessive comments in query - parser overhead"
   remediation: "Strip comments before parsing. Limit query size including comments."
   cwe: "CWE-400"
@@ -2086,8 +1921,7 @@
 - id: gql-biz-operation-name-confusion
   languages: [graphql]
   patterns:
-    - regex: 'query\\s+(?:Query|Mutation|Subscription)\\s*\\{|mutation\\s+(?:Query|Mutation|Subscription)'
-  severity: medium
+    - regex: 'query\\s+(?:Query|Mutation|Subscription)\\s*\\{|mutation\\s+(?:Query|Mutation|Subscription)''severity: medium
   description: "Operation name doesn't match operation type - client confusion"
   remediation: "Enforce naming conventions: queries start with 'get' or 'fetch', mutations with action verbs."
   cwe: "CWE-20"
@@ -2096,8 +1930,7 @@
 - id: gql-biz-multiple-operations
   languages: [graphql]
   patterns:
-    - regex: 'query\\s+\\w+\\s*\\{[^}]*\\}\\s*(?:query|mutation)\\s+\\w+'
-  severity: high
+    - regex: 'query\\s+\\w+\\s*\\{[^}]*\\}\\s*(?:query|mutation)\\s+\\w+''severity: high
   description: "Multiple operations in single request - can hide malicious query"
   remediation: "Allow only one operation per request. Require operationName."
   cwe: "CWE-20"
@@ -2106,8 +1939,7 @@
 - id: gql-biz-operation-name-missing
   languages: [graphql]
   patterns:
-    - regex: '^(?!query\\s+\\w+|mutation\\s+\\w+|subscription\\s+\\w+)\\{'
-  severity: low
+    - regex: '^\\{''severity: low
   description: "Anonymous query without operation name - harder to monitor/log"
   remediation: "Require operation names for all queries. Reject anonymous operations."
   cwe: "CWE-778"
@@ -2116,8 +1948,7 @@
 - id: gql-biz-fragment-name-collision
   languages: [graphql]
   patterns:
-    - regex: 'fragment\\s+(\\w+).*fragment\\s+\\1'
-  severity: medium
+    - regex: 'fragment\\s+(\\w+).*fragment\\s+\\1''severity: medium
   description: "Duplicate fragment names - parsing ambiguity"
   remediation: "Ensure unique fragment names. Use namespacing for fragments."
   cwe: "CWE-20"
@@ -2126,8 +1957,7 @@
 - id: gql-biz-query-repetition
   languages: [javascript, typescript]
   patterns:
-    - regex: 'identicalQueryCount.*[1-9]\\d{2,}|sameQuery.*[1-9]\\d{2,}'
-  severity: medium
+    - regex: 'identicalQueryCount.*[1-9]\\d{2,}|sameQuery.*[1-9]\\d{2,}''severity: medium
   description: "Repeated identical queries - probing or DoS attempt"
   remediation: "Cache identical query results. Rate limit repeated queries."
   cwe: "CWE-770"
@@ -2136,8 +1966,7 @@
 - id: gql-biz-field-suggestions-enumeration
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'didYouMean|suggestions.*field|field.*suggestions'
-  severity: high
+    - regex: 'didYouMean|suggestions.*field|field.*suggestions''severity: high
   description: "Field suggestions in errors - helps attackers discover fields"
   remediation: "Disable field suggestions in production. Return generic errors."
   cwe: "CWE-200"
@@ -2146,8 +1975,7 @@
 - id: gql-biz-type-suggestions
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'didYouMeanType|type.*suggestions|suggestedType'
-  severity: high
+    - regex: 'didYouMeanType|type.*suggestions|suggestedType''severity: high
   description: "Type suggestions in errors - reveals schema structure"
   remediation: "Disable type suggestions. Return generic type errors."
   cwe: "CWE-200"
@@ -2156,8 +1984,7 @@
 - id: gql-biz-argument-suggestions
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'didYouMeanArgument|argument.*suggestions|suggestedArg'
-  severity: high
+    - regex: 'didYouMeanArgument|argument.*suggestions|suggestedArg''severity: high
   description: "Argument suggestions - reveals available arguments"
   remediation: "Disable argument suggestions. Use generic error messages."
   cwe: "CWE-200"
@@ -2166,8 +1993,7 @@
 - id: gql-biz-error-detail-timing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'error.*timing|performance.*error|execution.*time'
-  severity: medium
+    - regex: 'error.*timing|performance.*error|execution.*time''severity: medium
   description: "Error messages reveal timing information - timing attacks possible"
   remediation: "Ensure consistent error response times. Remove timing from errors."
   cwe: "CWE-208"
@@ -2176,8 +2002,7 @@
 - id: gql-biz-error-auth-detail
   languages: [javascript, typescript]
   patterns:
-    - regex: 'invalid\\s+(?:password|token|credential)|user\\s+not\\s+found|account.*locked'
-  severity: high
+    - regex: 'invalid\\s+(?:password|token|credential)|user\\s+not\\s+found|account.*locked''severity: high
   description: "Specific auth errors - user enumeration"
   remediation: "Use generic messages: 'Invalid credentials'. Same message for all auth failures."
   cwe: "CWE-204"
@@ -2186,8 +2011,7 @@
 - id: gql-biz-error-resource-existence
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?:not\\s+found|does\\s+not\\s+exist|no\\s+such)'
-  severity: medium
+    - regex: '(?:not\\s+found|does\\s+not\\s+exist|no\\s+such)''severity: medium
   description: "Error messages reveal resource existence - enumeration"
   remediation: "Return 404 with same message for both missing and unauthorized resources."
   cwe: "CWE-204"
@@ -2196,8 +2020,7 @@
 - id: gql-biz-batch-operation-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'batch.*(?!max|limit)'
-  severity: high
+    - regex: 'batch.*''severity: high
   description: "Batch requests without operation limits - amplification attack"
   remediation: "Limit operations per batch (e.g., 5). Apply rate limits to each operation."
   cwe: "CWE-770"
@@ -2206,8 +2029,7 @@
 - id: gql-biz-batch-mix-types
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\[\\s*\\{[^}]*query[^}]*\\}\\s*,\\s*\\{[^}]*mutation[^}]*\\}\\s*\\]'
-  severity: high
+    - regex: '\\[\\s*\\{[^}]*query[^}]*\\}\\s*,\\s*\\{[^}]*mutation[^}]*\\}\\s*\\]''severity: high
   description: "Batch mixing queries and mutations - CSRF/state change risks"
   remediation: "Don't allow mixing query and mutation in same batch. Separate batches by type."
   cwe: "CWE-352"
@@ -2216,8 +2038,7 @@
 - id: gql-biz-pagination-cursor-injection
   languages: [graphql, javascript, typescript]
   patterns:
-    - regex: 'cursor:\\s*\\$\\w+|after:\\s*\\$\\w+|before:\\s*\\$\\w+'
-  severity: high
+    - regex: 'cursor:\\s*\\$\\w+|after:\\s*\\$\\w+|before:\\s*\\$\\w+''severity: high
   description: "Cursor from user input without validation - pagination bypass"
   remediation: "Validate cursor format and ownership. Use encrypted/signed cursors."
   cwe: "CWE-20"
@@ -2226,8 +2047,7 @@
 - id: gql-biz-pagination-offset-large
   languages: [graphql]
   patterns:
-    - regex: 'offset:\\s*[1-9]\\d{5,}|skip:\\s*[1-9]\\d{5,}'
-  severity: high
+    - regex: 'offset:\\s*[1-9]\\d{5,}|skip:\\s*[1-9]\\d{5,}''severity: high
   description: "Extremely large offset - database performance issue"
   remediation: "Disable offset pagination. Use cursor-based pagination exclusively."
   cwe: "CWE-770"
@@ -2236,8 +2056,7 @@
 - id: gql-biz-orderby-injection
   languages: [graphql]
   patterns:
-    - regex: 'orderBy:\\s*\\w+|sort:\\s*\\w+|order:\\s*\\w+'
-  severity: medium
+    - regex: 'orderBy:\\s*\\w+|sort:\\s*\\w+|order:\\s*\\w+''severity: medium
   description: "Order by field from user input - may reveal indexing strategy"
   remediation: "Validate orderBy fields against allowlist. Use enum for sort options."
   cwe: "CWE-20"
@@ -2248,8 +2067,7 @@
 - id: gql-deps-apollo-server-version
   languages: [json, javascript]
   patterns:
-    - regex: '"apollo-server(?:-express|-lambda|-azure)?":\\s*"[0-3]\.|"@apollo/server":\\s*"[0-3]\.'
-  severity: high
+    - regex: '"apollo-server(?:-express|-lambda|-azure)?":\\s*"[0-3]\.|"@apollo/server":\\s*"[0-3]\.''severity: high
   description: "Outdated Apollo Server version (<4) with known vulnerabilities"
   remediation: "Upgrade to Apollo Server 4+ or latest @apollo/server package."
   cwe: "CWE-1104"
@@ -2258,8 +2076,7 @@
 - id: gql-deps-express-graphql
   languages: [json, javascript]
   patterns:
-    - regex: '"express-graphql":\\s*"[0-1]\.'
-  severity: critical
+    - regex: '"express-graphql":\\s*"[0-1]\.''severity: critical
   description: "Deprecated express-graphql package - use @graphql-tools or Apollo"
   remediation: "Migrate to @apollo/server or graphql-helix. express-graphql is deprecated."
   cwe: "CWE-1104"
@@ -2268,8 +2085,7 @@
 - id: gql-deps-graphql-version
   languages: [json, javascript]
   patterns:
-    - regex: '"graphql":\\s*"(?:0|1[0-5])\\.'
-  severity: high
+    - regex: '"graphql":\\s*"(?:0|1[0-5])\\.''severity: high
   description: "Outdated graphql-js version (<16) - missing security fixes"
   remediation: "Upgrade to graphql-js 16+ for latest security patches."
   cwe: "CWE-1104"
@@ -2278,8 +2094,7 @@
 - id: gql-deps-graphql-upload-version
   languages: [json, javascript]
   patterns:
-    - regex: '"graphql-upload":\\s*"(?:0|1[0-2])\\.'
-  severity: high
+    - regex: '"graphql-upload":\\s*"(?:0|1[0-2])\\.''severity: high
   description: "Outdated graphql-upload with known DoS vulnerabilities"
   remediation: "Upgrade to latest graphql-upload or use built-in Apollo upload."
   cwe: "CWE-1104"
@@ -2288,8 +2103,7 @@
 - id: gql-deps-data-loader-version
   languages: [json, javascript]
   patterns:
-    - regex: '"dataloader":\\s*"1\.'
-  severity: low
+    - regex: '"dataloader":\\s*"1\.''severity: low
   description: "Older DataLoader version - missing performance improvements"
   remediation: "Upgrade to DataLoader 2+ for better batching and caching."
   cwe: "CWE-1104"
@@ -2298,8 +2112,7 @@
 - id: gql-deps-graphql-depth-limit-missing
   languages: [json, javascript]
   patterns:
-    - regex: '"dependencies":\\s*\\{[^}]*(?!graphql-depth-limit)'
-  severity: medium
+    - regex: '"dependencies":\\s*\\{[^}]*''severity: medium
   description: "graphql-depth-limit not installed - vulnerable to deep query DoS"
   remediation: "Install and configure graphql-depth-limit for depth limiting."
   cwe: "CWE-770"
@@ -2308,8 +2121,7 @@
 - id: gql-deps-graphql-query-complexity-missing
   languages: [json, javascript]
   patterns:
-    - regex: '"dependencies":\\s*\\{[^}]*(?!graphql-query-complexity)'
-  severity: medium
+    - regex: '"dependencies":\\s*\\{[^}]*''severity: medium
   description: "graphql-query-complexity not installed - vulnerable to expensive queries"
   remediation: "Install graphql-query-complexity and configure cost analysis."
   cwe: "CWE-770"
@@ -2318,8 +2130,7 @@
 - id: gql-deps-graphql-constraint-directive
   languages: [json, javascript]
   patterns:
-    - regex: '"dependencies":\\s*\\{[^}]*(?!graphql-constraint-directive)'
-  severity: low
+    - regex: '"dependencies":\\s*\\{[^}]*''severity: low
   description: "No input validation library - manual validation risks"
   remediation: "Use graphql-constraint-directive for declarative input validation."
   cwe: "CWE-20"
@@ -2328,8 +2139,7 @@
 - id: gql-deps-graphql-shield
   languages: [json, javascript]
   patterns:
-    - regex: '"dependencies":\\s*\\{[^}]*(?!graphql-shield)'
-  severity: medium
+    - regex: '"dependencies":\\s*\\{[^}]*''severity: medium
   description: "No authorization middleware - manual permission checks error-prone"
   remediation: "Use graphql-shield for declarative permission layers."
   cwe: "CWE-862"
@@ -2338,8 +2148,7 @@
 - id: gql-deps-graphql-rate-limit
   languages: [json, javascript]
   patterns:
-    - regex: '"dependencies":\\s*\\{[^}]*(?!graphql-rate-limit)'
-  severity: medium
+    - regex: '"dependencies":\\s*\\{[^}]*''severity: medium
   description: "No GraphQL-specific rate limiting - generic rate limits insufficient"
   remediation: "Use graphql-rate-limit for operation-specific rate limiting."
   cwe: "CWE-770"
@@ -2348,8 +2157,7 @@
 - id: gql-deps-graphql-parse-resolve-info
   languages: [json, javascript]
   patterns:
-    - regex: '"dependencies":\\s*\\{[^}]*(?!graphql-parse-resolve-info)'
-  severity: low
+    - regex: '"dependencies":\\s*\\{[^}]*''severity: low
   description: "No field parsing library - manual info parsing error-prone"
   remediation: "Use graphql-parse-resolve-info for safe field selection parsing."
   cwe: "CWE-20"
@@ -2358,8 +2166,7 @@
 - id: gql-deps-graphql-middleware
   languages: [json, javascript]
   patterns:
-    - regex: '"dependencies":\\s*\\{[^}]*(?!graphql-middleware)'
-  severity: low
+    - regex: '"dependencies":\\s*\\{[^}]*''severity: low
   description: "No middleware support - cross-cutting concerns handled manually"
   remediation: "Use graphql-middleware for auth, logging, validation separation."
   cwe: "CWE-693"
@@ -2368,8 +2175,7 @@
 - id: gql-deps-graphql-tools-version
   languages: [json, javascript]
   patterns:
-    - regex: '"@graphql-tools/\\w+":\\s*"(?:6|7)\\.'
-  severity: low
+    - regex: '"@graphql-tools/\\w+":\\s*"(?:6|7)\\.''severity: low
   description: "Outdated GraphQL Tools - missing features and fixes"
   remediation: "Upgrade to @graphql-tools v8+ for latest schema building tools."
   cwe: "CWE-1104"
@@ -2378,8 +2184,7 @@
 - id: gql-deps-mercurius-version
   languages: [json, javascript]
   patterns:
-    - regex: '"mercurius":\\s*"(?:0|1[0-2])\\.'
-  severity: medium
+    - regex: '"mercurius":\\s*"(?:0|1[0-2])\\.''severity: medium
   description: "Outdated Fastify GraphQL adapter - known vulnerabilities"
   remediation: "Upgrade Mercurius to latest version for Fastify integration."
   cwe: "CWE-1104"
@@ -2388,8 +2193,7 @@
 - id: gql-deps-nestjs-graphql-version
   languages: [json, javascript]
   patterns:
-    - regex: '"@nestjs/graphql":\\s*"(?:0|1[0-7])\\.'
-  severity: medium
+    - regex: '"@nestjs/graphql":\\s*"(?:0|1[0-7])\\.''severity: medium
   description: "Outdated NestJS GraphQL - missing security features"
   remediation: "Upgrade to @nestjs/graphql v10+ for latest security patches."
   cwe: "CWE-1104"
@@ -2400,8 +2204,7 @@
 - id: gql-ws-origin-validation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions:\\s*\\{[^}]*(?!origin|validateOrigin)'
-  severity: high
+    - regex: 'subscriptions:\\s*\\{[^}]*''severity: high
   description: "WebSocket connections without origin validation - CSWSH attacks"
   remediation: "Validate Origin header in onConnect. Reject connections from unknown origins."
   cwe: "CWE-346"
@@ -2410,8 +2213,7 @@
 - id: gql-ws-protocol-validation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!protocol)'
-  severity: medium
+    - regex: 'subscriptions.*''severity: medium
   description: "No WebSocket subprotocol validation - connection confusion"
   remediation: "Validate Sec-WebSocket-Protocol. Only accept 'graphql-ws' or 'graphql-transport-ws'."
   cwe: "CWE-20"
@@ -2420,8 +2222,7 @@
 - id: gql-ws-connection-throttle
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!connectionThrottle)'
-  severity: high
+    - regex: 'subscriptions.*''severity: high
   description: "No connection throttling - rapid connection cycling DoS"
   remediation: "Implement connection throttling per IP (e.g., 10 connections/minute)."
   cwe: "CWE-770"
@@ -2430,8 +2231,7 @@
 - id: gql-ws-message-rate-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!messageRateLimit)'
-  severity: high
+    - regex: 'subscriptions.*''severity: high
   description: "No message rate limiting - message flood DoS"
   remediation: "Limit messages per second per connection (e.g., 100 messages/second)."
   cwe: "CWE-770"
@@ -2440,8 +2240,7 @@
 - id: gql-ws-payload-size-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!maxPayloadSize)'
-  severity: high
+    - regex: 'subscriptions.*''severity: high
   description: "No payload size limits - memory exhaustion via large messages"
   remediation: "Set maxPayloadSize (e.g., 1MB) for WebSocket messages."
   cwe: "CWE-770"
@@ -2450,8 +2249,7 @@
 - id: gql-ws-keepalive-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!keepAlive)'
-  severity: low
+    - regex: 'subscriptions.*''severity: low
   description: "No keepalive mechanism - zombie connections"
   remediation: "Implement keepalive pings. Close unresponsive connections."
   cwe: "CWE-775"
@@ -2460,8 +2258,7 @@
 - id: gql-ws-close-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!closeTimeout)'
-  severity: medium
+    - regex: 'subscriptions.*''severity: medium
   description: "No close timeout - connections may hang"
   remediation: "Set close timeout (e.g., 10 seconds) for graceful shutdown."
   cwe: "CWE-775"
@@ -2470,8 +2267,7 @@
 - id: gql-ws-connection-token-reuse
   languages: [javascript, typescript]
   patterns:
-    - regex: 'connectionParams.*token.*(?!invalidate)'
-  severity: high
+    - regex: 'connectionParams.*token.*''severity: high
   description: "Connection token not invalidated - token reuse after logout"
   remediation: "Invalidate WebSocket tokens on logout. Check token status periodically."
   cwe: "CWE-613"
@@ -2480,18 +2276,16 @@
 - id: gql-ws-multiplexing
   languages: [javascript, typescript]
   patterns:
-    - json: "graphql-transport-ws|graphql-ws.*multiplexing"
-  severity: medium
-  description: "WebSocket multiplexing without isolation - cross-connection interference"
-  remediation: "Isolate subscriptions per connection. Don't share subscription contexts."
-  cwe: "CWE-200"
-  owasp: "A05:2021"
+    - regex: "graphql-transport-ws|graphql-ws.*multiplexing""  severity: medium
+  description: "GraphQL WebSocket multiplexing enabled - potential for cross-subscription data leaks"
+  remediation: "Disable multiplexing if not strictly required. Ensure strict session isolation per subscription."
+  cwe: "CWE-441"
+  owasp: "A01:2021"
 
 - id: gql-ws-connection-limit-per-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscriptions.*(?!maxConnectionsPerUser)'
-  severity: high
+    - regex: 'subscriptions.*''severity: high
   description: "No per-user connection limits - connection exhaustion"
   remediation: "Limit connections per authenticated user (e.g., 5 connections)."
   cwe: "CWE-770"
@@ -2500,8 +2294,7 @@
 - id: gql-ws-subscription-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscribe.*(?!timeout)'
-  severity: medium
+    - regex: 'subscribe.*''severity: medium
   description: "No subscription timeout - indefinite subscriptions"
   remediation: "Set max subscription duration (e.g., 1 hour). Require re-subscription."
   cwe: "CWE-770"
@@ -2510,8 +2303,7 @@
 - id: gql-ws-filter-complexity
   languages: [javascript, typescript]
   patterns:
-    - regex: 'withFilter.*(?!cost|complexity)'
-  severity: medium
+    - regex: 'withFilter.*''severity: medium
   description: "Subscription filters without complexity limits - DoS via filter evaluation"
   remediation: "Limit filter complexity. Cache filter results when possible."
   cwe: "CWE-770"
@@ -2520,8 +2312,7 @@
 - id: gql-ws-subscription-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'subscribe.*args\\[.*\\]|subscribe.*args\\.'
-  severity: high
+    - regex: 'subscribe.*args\\[.*\\]|subscribe.*args\\.''severity: high
   description: "Subscription arguments from user input without validation"
   remediation: "Validate subscription arguments. Use allowlist for channel names."
   cwe: "CWE-20"
@@ -2530,8 +2321,7 @@
 - id: gql-ws-unauthorized-event-emit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'pubsub\\.publish.*(?!auth|user|role)'
-  severity: critical
+    - regex: 'pubsub\\.publish.*''severity: critical
   description: "Event publishing without authorization - broadcasts to all"
   remediation: "Check permissions before publishing. Implement channel-level auth."
   cwe: "CWE-862"
@@ -2540,8 +2330,7 @@
 - id: gql-ws-event-payload-size
   languages: [javascript, typescript]
   patterns:
-    - regex: 'publish.*\\{[^\\}]{5000,}'
-  severity: medium
+    - regex: 'publish.*\\{[^\\}]{5000,}''severity: medium
   description: "Large event payloads - network and memory DoS"
   remediation: "Limit event payload size. Paginate large data in events."
   cwe: "CWE-770"
@@ -2552,8 +2341,7 @@
 - id: gql-fed-inaccessible-directive
   languages: [graphql]
   patterns:
-    - regex: '@inaccessible(?!.*@link.*federation)'
-  severity: high
+    - regex: '@inaccessible''severity: high
   description: "@inaccessible directive without federation - type confusion"
   remediation: "Use @inaccessible only in federation v2 schemas. Remove if not using federation."
   cwe: "CWE-20"
@@ -2562,7 +2350,7 @@
 - id: gql-fed-link-version
   languages: [graphql]
   patterns:
-    - regex: '@link\\(url:.*federation.*version=[''\"]1\\.|@link.*url.*v1\\.0'
+    - regex: '@link\\(url:.*federation.*version=['''\"]1\\.|@link.*url.*v1\\.0'
   severity: medium
   description: "Federation v1 spec - missing v2 security improvements"
   remediation: "Upgrade to Federation v2 with @link directive and better composition."
@@ -2572,8 +2360,7 @@
 - id: gql-fed-shareable-missing-auth
   languages: [graphql]
   patterns:
-    - regex: '@shareable(?!.*@auth|.*@requires|.*@provides)'
-  severity: high
+    - regex: '@shareable''severity: high
   description: "@shareable fields without access control - cross-subgraph data exposure"
   remediation: "Add authorization to shareable fields. Validate cross-subgraph requests."
   cwe: "CWE-862"
@@ -2582,8 +2369,7 @@
 - id: gql-fed-override-auth
   languages: [graphql]
   patterns:
-    - regex: '@override\\(from:'
-  severity: critical
+    - regex: '@override\\(from:''severity: critical
   description: "@override directive can bypass original field's authorization"
   remediation: "Ensure overridden fields maintain same auth requirements. Review all overrides."
   cwe: "CWE-284"
@@ -2592,8 +2378,7 @@
 - id: gql-fed-entity-resolver-unauth
   languages: [javascript, typescript]
   patterns:
-    - regex: '__resolveReference.*(?!auth|user|token)'
-  severity: critical
+    - regex: '__resolveReference.*''severity: critical
   description: "Entity resolver without auth - can load any referenced entity"
   remediation: "Add authorization to __resolveReference. Validate user has access to entity."
   cwe: "CWE-862"
@@ -2602,8 +2387,7 @@
 - id: gql-fed-context-forwarding
   languages: [javascript, typescript]
   patterns:
-    - regex: 'buildGateway.*(?!context)'
-  severity: high
+    - regex: 'buildGateway.*''severity: high
   description: "Gateway doesn't forward auth context to subgraphs"
   remediation: "Forward auth headers/tokens from gateway to all subgraph requests."
   cwe: "CWE-306"
@@ -2612,8 +2396,7 @@
 - id: gql-fed-subgraph-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'RemoteGraphQLDataSource.*(?!timeout)'
-  severity: high
+    - regex: 'RemoteGraphQLDataSource.*''severity: high
   description: "Subgraph requests without timeout - cascading failures"
   remediation: "Set timeouts for all subgraph requests (e.g., 5 seconds)."
   cwe: "CWE-770"
@@ -2622,8 +2405,7 @@
 - id: gql-fed-subgraph-retry
   languages: [javascript, typescript]
   patterns:
-    - regex: 'RemoteGraphQLDataSource.*(?!retry)'
-  severity: medium
+    - regex: 'RemoteGraphQLDataSource.*''severity: medium
   description: "No retry logic for subgraph failures - availability issues"
   remediation: "Implement retry with exponential backoff for transient failures."
   cwe: "CWE-770"
@@ -2632,8 +2414,7 @@
 - id: gql-fed-subgraph-circuit-breaker
   languages: [javascript, typescript]
   patterns:
-    - regex: 'gateway.*(?!circuitBreaker)'
-  severity: high
+    - regex: 'gateway.*''severity: high
   description: "No circuit breaker for failing subgraphs - service degradation"
   remediation: "Implement circuit breakers for subgraph health checks."
   cwe: "CWE-770"
@@ -2642,8 +2423,7 @@
 - id: gql-fed-supergraph-sdl-leak
   languages: [javascript, typescript]
   patterns:
-    - regex: 'gateway.*loadSupergraphSdl.*console|gateway.*supergraphSdl.*log'
-  severity: high
+    - regex: 'gateway.*loadSupergraphSdl.*console|gateway.*supergraphSdl.*log''severity: high
   description: "Supergraph SDL logged - full schema exposure"
   remediation: "Never log supergraph schema. Use monitoring without schema details."
   cwe: "CWE-200"
@@ -2654,7 +2434,7 @@
 - id: gql-persisted-store-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'store\\s*\\[\\s*[''\"]\\s*\\+\\s*input|store\\.get\\s*\\(\\s*[''\"]\\s*\\+'
+    - regex: 'store\\s*\\[\\s*['''\"]\\s*\\+\\s*input|store\\.get\\s*\\(\\s*[''\"]\\s*\\+'
   severity: critical
   description: "Persisted operation store key from user input - cache poisoning"
   remediation: "Use static operation IDs. Never construct cache keys from input."
@@ -2664,8 +2444,7 @@
 - id: gql-persisted-id-collision
   languages: [javascript, typescript]
   patterns:
-    - regex: 'hash.*(?:md5|sha1).*query|createHash.*update.*query.*digest'
-  severity: high
+    - regex: 'hash.*(?:md5|sha1).*query|createHash.*update.*query.*digest''severity: high
   description: "Weak hash for operation IDs - collision attacks"
   remediation: "Use SHA-256 or better for operation hashing. Add salt to hashes."
   cwe: "CWE-328"
@@ -2674,8 +2453,7 @@
 - id: gql-persisted-allowlist-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if.*operationName.*(?:!|not).*allowlist|operationName.*(?!check)'
-  severity: high
+    - regex: 'if.*operationName.*(?:!|not).*allowlist|operationName.*''severity: high
   description: "Operation name not checked against allowlist - arbitrary operations"
   remediation: "Always validate operationName against allowlist before execution."
   cwe: "CWE-20"
@@ -2684,8 +2462,7 @@
 - id: gql-persisted-allowlist-cache
   languages: [javascript, typescript]
   patterns:
-    - regex: 'allowlist.*(?!cache)'
-  severity: medium
+    - regex: 'allowlist.*''severity: medium
   description: "Allowlist not cached - performance overhead"
   remediation: "Cache allowlist in memory. Use Redis for distributed allowlist."
   cwe: "CWE-400"
@@ -2694,8 +2471,7 @@
 - id: gql-persisted-operation-rotate
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persistedQueries.*(?!rotate|ttl)'
-  severity: low
+    - regex: 'persistedQueries.*''severity: low
   description: "No rotation of persisted operation IDs - stale operations"
   remediation: "Implement TTL and rotation for persisted operations. Version operations."
   cwe: "CWE-613"
@@ -2704,8 +2480,7 @@
 - id: gql-persisted-registration-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'registerOperation.*(?!auth|admin|role)'
-  severity: critical
+    - regex: 'registerOperation.*''severity: critical
   description: "Operation registration without auth - anyone can register"
   remediation: "Authenticate and authorize operation registration endpoints."
   cwe: "CWE-306"
@@ -2714,8 +2489,7 @@
 - id: gql-persisted-size-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'registerOperation.*query(?!.*maxLength)'
-  severity: medium
+    - regex: 'registerOperation.*query''severity: medium
   description: "No size limit on registered operations - storage exhaustion"
   remediation: "Limit query size for registration (e.g., 10KB). Reject large queries."
   cwe: "CWE-770"
@@ -2724,8 +2498,7 @@
 - id: gql-persisted-count-limit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persistedQueries.*(?!maxCount|maxOperations)'
-  severity: medium
+    - regex: 'persistedQueries.*''severity: medium
   description: "No limit on persisted operations per client - storage DoS"
   remediation: "Limit persisted operations per client (e.g., 100 operations)."
   cwe: "CWE-770"
@@ -2734,8 +2507,7 @@
 - id: gql-persisted-validation-skip
   languages: [javascript, typescript]
   patterns:
-    - regex: 'persisted.*(?!validation)'
-  severity: high
+    - regex: 'persisted.*''severity: high
   description: "Persisted operations not validated - malicious operations persisted"
   remediation: "Validate all operations during registration, not just execution."
   cwe: "CWE-20"
@@ -2744,8 +2516,7 @@
 - id: gql-persisted-duplicate-detection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'registerOperation.*(?!duplicate)'
-  severity: low
+    - regex: 'registerOperation.*''severity: low
   description: "No duplicate detection - same operation stored multiple times"
   remediation: "Check for existing operations. Reuse IDs for identical queries."
   cwe: "CWE-770"
@@ -2756,8 +2527,7 @@
 - id: gql-audit-sensitive-operations
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mutation.*(?:delete|update|change|reset|admin).*(?!audit|log)'
-  severity: high
+    - regex: 'mutation.*(?:delete|update|change|reset|admin).*''severity: high
   description: "Sensitive mutations without audit logging"
   remediation: "Log all sensitive operations with user, timestamp, and details."
   cwe: "CWE-778"
@@ -2766,8 +2536,7 @@
 - id: gql-audit-auth-failures
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch.*auth.*error.*(?!log)'
-  severity: medium
+    - regex: 'catch.*auth.*error.*''severity: medium
   description: "Authentication failures not logged - brute force detection missing"
   remediation: "Log all authentication failures with IP and timestamp."
   cwe: "CWE-778"
@@ -2776,8 +2545,7 @@
 - id: gql-audit-rate-limit-events
   languages: [javascript, typescript]
   patterns:
-    - regex: 'rateLimit.*(?!log|record|audit)'
-  severity: medium
+    - regex: 'rateLimit.*''severity: medium
   description: "Rate limit hits not logged - attack detection missing"
   remediation: "Log rate limit violations for security monitoring."
   cwe: "CWE-778"
@@ -2786,8 +2554,7 @@
 - id: gql-audit-ip-tracking
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.ip|socket\\.remoteAddress.*(?!log)'
-  severity: low
+    - regex: 'req\\.ip|socket\\.remoteAddress.*''severity: low
   description: "IP addresses not logged - attack source tracking missing"
   remediation: "Log IP addresses for security events, respecting privacy laws."
   cwe: "CWE-778"
@@ -2796,8 +2563,7 @@
 - id: gql-audit-user-tracking
   languages: [javascript, typescript]
   patterns:
-    - regex: 'context\\.user.*(?!log|audit)'
-  severity: low
+    - regex: 'context\\.user.*''severity: low
   description: "User identity not tracked in logs - accountability missing"
   remediation: "Include user ID in audit logs for all operations."
   cwe: "CWE-778"
@@ -2806,8 +2572,7 @@
 - id: gql-audit-data-exfiltration
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?:email|ssn|credit|password|token).*resolve.*return'
-  severity: high
+    - regex: '(?:email|ssn|credit|password|token).*resolve.*return''severity: high
   description: "Sensitive data access not monitored - exfiltration undetected"
   remediation: "Log access to sensitive fields. Alert on unusual access patterns."
   cwe: "CWE-778"
@@ -2816,8 +2581,7 @@
 - id: gql-audit-schema-changes
   languages: [javascript, typescript]
   patterns:
-    - regex: 'buildSchema|makeExecutableSchema.*(?!audit)'
-  severity: medium
+    - regex: 'buildSchema|makeExecutableSchema.*''severity: medium
   description: "Schema changes not audited - unauthorized modifications"
   remediation: "Log all schema deployments and changes with approver info."
   cwe: "CWE-778"
@@ -2826,8 +2590,7 @@
 - id: gql-audit-pii-detection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'type\\s+\\w+\\s*\\{[^}]*(?:email|phone|ssn|address)'
-  severity: medium
+    - regex: 'type\\s+\\w+\\s*\\{[^}]*(?:email|phone|ssn|address)''severity: medium
   description: "PII fields not tagged for monitoring"
   remediation: "Tag PII fields. Implement monitoring for bulk PII access."
   cwe: "CWE-778"
@@ -2836,8 +2599,7 @@
 - id: gql-audit-anomaly-detection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'costAnalysis.*(?!anomaly)'
-  severity: low
+    - regex: 'costAnalysis.*''severity: low
   description: "No anomaly detection for query costs - unusual patterns missed"
   remediation: "Monitor query cost patterns. Alert on sudden cost increases."
   cwe: "CWE-778"
@@ -2846,8 +2608,7 @@
 - id: gql-audit-log-injection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'log\\(.*\\+.*(?:args|input|params|query)'
-  severity: high
+    - regex: 'log\\(.*\\+.*(?:args|input|params|query)''severity: high
   description: "Log injection vulnerability - attackers can forge logs"
   remediation: "Sanitize user input before logging. Use structured logging."
   cwe: "CWE-117"
@@ -2858,8 +2619,7 @@
 - id: gql-perf-n-plus-one
   languages: [javascript, typescript]
   patterns:
-    - regex: 'resolve.*\\{[^}]*await.*(?:find|get|fetch).*\\}\\s*await.*(?:find|get|fetch)'
-  severity: high
+    - regex: 'resolve.*\\{[^}]*await.*(?:find|get|fetch).*\\}\\s*await.*(?:find|get|fetch)''severity: high
   description: "N+1 query pattern - multiple database calls"
   remediation: "Use DataLoader for batching. Implement query optimization."
   cwe: "CWE-400"
@@ -2868,8 +2628,7 @@
 - id: gql-perf-unbatched-resolvers
   languages: [javascript, typescript]
   patterns:
-    - regex: 'resolve.*(?!DataLoader)'
-  severity: medium
+    - regex: 'resolve.*''severity: medium
   description: "Resolvers without DataLoader - inefficient queries"
   remediation: "Implement DataLoader for all database access patterns."
   cwe: "CWE-400"
@@ -2878,8 +2637,7 @@
 - id: gql-perf-unindexed-fields
   languages: [graphql]
   patterns:
-    - regex: 'filter.*\\w+|where.*\\w+|search.*\\w+'
-  severity: medium
+    - regex: 'filter.*\\w+|where.*\\w+|search.*\\w+''severity: medium
   description: "Filter fields that may lack database indexes"
   remediation: "Ensure all filterable fields have appropriate database indexes."
   cwe: "CWE-400"
@@ -2888,8 +2646,7 @@
 - id: gql-perf-large-response
   languages: [graphql]
   patterns:
-    - regex: '\\{[^\\}]{10000,}'
-  severity: low
+    - regex: '\\{[^\\}]{10000,}''severity: low
   description: "Potential large response size - bandwidth issues"
   remediation: "Implement pagination for list fields. Limit response size."
   cwe: "CWE-770"
@@ -2898,8 +2655,7 @@
 - id: gql-perf-serial-resolvers
   languages: [javascript, typescript]
   patterns:
-    - regex: 'await.*;.*await.*;.*await|Promise\\.all.*\\[.*await'
-  severity: medium
+    - regex: 'await.*;.*await.*;.*await|Promise\\.all.*\\[.*await''severity: medium
   description: "Serial resolver execution - slow response times"
   remediation: "Use Promise.all for independent resolvers. Parallelize when possible."
   cwe: "CWE-400"
@@ -2908,8 +2664,7 @@
 - id: gql-perf-unnecessary-fields
   languages: [graphql]
   patterns:
-    - regex: '\\{\\s*\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+'
-  severity: low
+    - regex: '\\{\\s*\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+''severity: low
   description: "Queries requesting many fields - over-fetching"
   remediation: "Implement field usage analytics. Educate clients on minimal fields."
   cwe: "CWE-770"
@@ -2918,8 +2673,7 @@
 - id: gql-perf-slow-resolvers
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout|sleep|delay.*resolve'
-  severity: high
+    - regex: 'setTimeout|sleep|delay.*resolve''severity: high
   description: "Resolvers with artificial delays - performance issues"
   remediation: "Remove artificial delays. Optimize slow operations."
   cwe: "CWE-400"
@@ -2928,8 +2682,7 @@
 - id: gql-perf-cacheable-queries
   languages: [graphql]
   patterns:
-    - regex: 'query.*\\{.*\\}(?!@cacheControl)'
-  severity: low
+    - regex: 'query.*\\{.*\\}''severity: low
   description: "Cacheable queries without cache directives"
   remediation: "Add @cacheControl directives to cacheable queries and fields."
   cwe: "CWE-524"
@@ -2938,8 +2691,7 @@
 - id: gql-perf-persisted-operations-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ApolloServer.*(?!persistedQueries)'
-  severity: medium
+    - regex: 'ApolloServer.*''severity: medium
   description: "Persisted queries not used - larger payloads, slower"
   remediation: "Enable persisted queries to reduce request size and parsing time."
   cwe: "CWE-770"
@@ -2948,8 +2700,7 @@
 - id: gql-perf-response-compression
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.use\\(.*(?!compression)'
-  severity: low
+    - regex: 'app\\.use\\(.*''severity: low
   description: "Response compression not enabled - bandwidth waste"
   remediation: "Enable gzip/brotli compression for GraphQL responses."
   cwe: "CWE-770"
@@ -2960,8 +2711,7 @@
 - id: gql-headers-csp-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Content-Security-Policy|helmet\\.contentSecurityPolicy'
-  severity: high
+    - regex: 'Content-Security-Policy|helmet\\.contentSecurityPolicy''severity: high
   description: "CSP header missing - XSS and data injection risks"
   remediation: "Implement CSP with strict directives: default-src 'none'; script-src 'self'"
   cwe: "CWE-79"
@@ -2970,7 +2720,7 @@
 - id: gql-headers-csp-unsafe
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script-src.*''unsafe-inline''|script-src.*''unsafe-eval'''
+    - regex: 'script-src.*'''unsafe-inline''|script-src.*''unsafe-eval'''
   severity: high
   description: "CSP allows unsafe-inline or unsafe-eval - XSS mitigation bypass"
   remediation: "Remove unsafe-inline/unsafe-eval. Use nonces or hashes for scripts."
@@ -2980,8 +2730,7 @@
 - id: gql-headers-csp-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'default-src\\s+\\*|script-src\\s+\\*|connect-src\\s+\\*'
-  severity: high
+    - regex: 'default-src\\s+\\*|script-src\\s+\\*|connect-src\\s+\\*''severity: high
   description: "CSP with wildcards - ineffective against many attacks"
   remediation: "Restrict all directives to specific domains. Avoid wildcards."
   cwe: "CWE-79"
@@ -2990,8 +2739,7 @@
 - id: gql-headers-xfo-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-Frame-Options|helmet\\.frameguard'
-  severity: medium
+    - regex: 'X-Frame-Options|helmet\\.frameguard''severity: medium
   description: "X-Frame-Options missing - clickjacking risk"
   remediation: "Set X-Frame-Options: DENY or SAMEORIGIN."
   cwe: "CWE-1021"
@@ -3000,8 +2748,7 @@
 - id: gql-headers-xcto-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-Content-Type-Options|helmet\\.noSniff'
-  severity: low
+    - regex: 'X-Content-Type-Options|helmet\\.noSniff''severity: low
   description: "X-Content-Type-Options missing - MIME sniffing risk"
   remediation: "Set X-Content-Type-Options: nosniff."
   cwe: "CWE-79"
@@ -3010,8 +2757,7 @@
 - id: gql-headers-xss-protection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-XSS-Protection|helmet\\.xssFilter'
-  severity: low
+    - regex: 'X-XSS-Protection|helmet\\.xssFilter''severity: low
   description: "X-XSS-Protection header missing - older browsers vulnerable"
   remediation: "Set X-XSS-Protection: 1; mode=block (deprecated but helpful for legacy)."
   cwe: "CWE-79"
@@ -3020,8 +2766,7 @@
 - id: gql-headers-referrer-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Referrer-Policy|helmet\\.referrerPolicy'
-  severity: low
+    - regex: 'Referrer-Policy|helmet\\.referrerPolicy''severity: low
   description: "Referrer-Policy missing - URL leakage"
   remediation: "Set Referrer-Policy: strict-origin-when-cross-origin."
   cwe: "CWE-200"
@@ -3030,8 +2775,7 @@
 - id: gql-headers-permissions-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Permissions-Policy|Feature-Policy|helmet\\.permissionsPolicy'
-  severity: low
+    - regex: 'Permissions-Policy|Feature-Policy|helmet\\.permissionsPolicy''severity: low
   description: "Permissions-Policy missing - browser features exposed"
   remediation: "Disable unnecessary features: geolocation=(), camera=(), microphone=()"
   cwe: "CWE-200"
@@ -3040,8 +2784,7 @@
 - id: gql-headers-cors-expose
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Access-Control-Expose-Headers:\\s*\\*'
-  severity: high
+    - regex: 'Access-Control-Expose-Headers:\\s*\\*''severity: high
   description: "CORS exposes all headers - information leak"
   remediation: "Only expose necessary headers. Never use * with credentials."
   cwe: "CWE-200"
@@ -3050,8 +2793,7 @@
 - id: gql-headers-hsts-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Strict-Transport-Security|helmet\\.hsts'
-  severity: high
+    - regex: 'Strict-Transport-Security|helmet\\.hsts''severity: high
   description: "HSTS header missing - SSL stripping attacks"
   remediation: "Enable HSTS with max-age=31536000; includeSubDomains; preload"
   cwe: "CWE-319"
@@ -3062,7 +2804,7 @@
 - id: gql-test-debug-endpoints
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.get\\([''\"]/graphql/test|/graphql/playground|/graphiql|/voyager'
+    - regex: 'app\\.get\\(['''\"]/graphql/test|/graphql/playground|/graphiql|/voyager'
   severity: high
   description: "Debug/playground endpoints exposed in production"
   remediation: "Disable GraphiQL, Playground, Voyager in production. Use conditionals."
@@ -3072,8 +2814,7 @@
 - id: gql-test-mock-resolvers
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mocks:\\s*true|addMockFunctionsToSchema'
-  severity: critical
+    - regex: 'mocks:\\s*true|addMockFunctionsToSchema''severity: critical
   description: "Mock resolvers enabled in production - business logic bypass"
   remediation: "Never enable mocks in production. Use separate test environment."
   cwe: "CWE-284"
@@ -3082,8 +2823,7 @@
 - id: gql-test-mock-data
   languages: [javascript, typescript]
   patterns:
-    - regex: 'MockList|mockServer|createMockServer'
-  severity: critical
+    - regex: 'MockList|mockServer|createMockServer''severity: critical
   description: "Mock server running in production - data integrity risk"
   remediation: "Ensure test/mock servers are not deployed to production."
   cwe: "CWE-284"
@@ -3092,8 +2832,7 @@
 - id: gql-test-fixture-data
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fixtures|testData|seed\\.js|test-db'
-  severity: medium
+    - regex: 'fixtures|testData|seed\\.js|test-db''severity: medium
   description: "Test fixtures accessible - test data exposure"
   remediation: "Remove test fixtures from production builds. Use separate test DB."
   cwe: "CWE-200"
@@ -3102,8 +2841,7 @@
 - id: gql-test-debug-mode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'DEBUG=graphql|NODE_ENV.*test|process\\.env\\.DEBUG'
-  severity: high
+    - regex: 'DEBUG=graphql|NODE_ENV.*test|process\\.env\\.DEBUG''severity: high
   description: "Debug mode enabled - verbose logging and errors"
   remediation: "Disable debug mode in production. Use proper logging levels."
   cwe: "CWE-200"

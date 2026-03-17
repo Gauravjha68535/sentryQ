@@ -1,0 +1,23 @@
+- id: go-gin-insecure-middleware
+  languages: [go]
+  patterns:
+    - regex: 'gin\.Default\(\)|gin\.New\(\)''severity: low
+  description: "Gin default/new without security middleware"
+  remediation: "Ensure you add helmet, cors, and other security middlewares."
+  cwe: "CWE-693"
+
+- id: go-fiber-cors-wildcard
+  languages: [go]
+  patterns:
+    - regex: 'cors\.New\(cors\.Config\{.*AllowOrigins:\s*"[*]".*\}\)''severity: high
+  description: "Fiber CORS with wildcard origin"
+  remediation: "Specify exact origins instead of '*'."
+  cwe: "CWE-346"
+
+- id: go-echo-binder-injection
+  languages: [go]
+  patterns:
+    - regex: 'c\.Bind\(.*\)''severity: medium
+  description: "Echo binding without validation"
+  remediation: "Always validate bound structures using a validator library."
+  cwe: "CWE-20"

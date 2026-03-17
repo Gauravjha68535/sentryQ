@@ -199,12 +199,25 @@ func (tis *ThreatIntelScanner) updateCVECache() {
 		return
 	}
 
+	// Add NVD API Key for better rate limits if provided
+	nvdKey := os.Getenv("NVD_API_KEY")
+	if nvdKey != "" {
+		req.Header.Set("apiKey", nvdKey)
+		utils.LogInfo("Using NVD API key for threat intelligence updates.")
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		utils.LogWarn(fmt.Sprintf("Failed to update CVE cache: %v", err))
 		return
 	}
 	defer resp.Body.Close()
+
+	// Validate API key if provided (check for auth errors)
+	if nvdKey != "" && (resp.StatusCode == 403 || resp.StatusCode == 401) {
+		utils.LogWarn("NVD API key appears to be invalid. Threat intel updates may be rate-limited.")
+		utils.LogWarn("To validate your NVD API key, visit: https://nvd.nist.gov/developers/request-an-api-key")
+	}
 
 	var nvdResp struct {
 		Vulnerabilities []struct {

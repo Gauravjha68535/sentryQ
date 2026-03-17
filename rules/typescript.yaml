@@ -2281,7 +2281,7 @@
 - id: ts-hardcoded-password
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*[''\"][^''\"]{8,}[''\"]'
+    - regex: '(?i)(password|passwd|pwd)\\s*[=:]\\s*['''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password detected"
   remediation: "Use environment variables or secrets manager"
@@ -2291,7 +2291,7 @@
 - id: ts-hardcoded-api-key
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*[''\"][a-zA-Z0-9]{16,}[''\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\\s*[=:]\\s*['''\"][a-zA-Z0-9]{16,}[''\"]'
   severity: high
   description: "Hardcoded API key detected"
   remediation: "Store API keys in environment variables"
@@ -2301,8 +2301,7 @@
 - id: ts-hardcoded-aws-credentials
   languages: [typescript, javascript]
   patterns:
-    - regex: 'AKIA[0-9A-Z]{16}'
-  severity: critical
+    - regex: 'AKIA[0-9A-Z]{16}''severity: critical
   description: "AWS Access Key ID detected"
   remediation: "Remove credentials, use IAM roles"
   cwe: "CWE-798"
@@ -2311,7 +2310,7 @@
 - id: ts-hardcoded-jwt-secret
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(jwt|jsonwebtoken)\\s*[''\"][a-zA-Z0-9]{8,}[''\"]'
+    - regex: '(?i)(jwt|jsonwebtoken)\\s*['''\"][a-zA-Z0-9]{8,}[''\"]'
   severity: critical
   description: "Hardcoded JWT secret detected"
   remediation: "Use environment variable for JWT secret"
@@ -2322,8 +2321,7 @@
 - id: ts-command-injection
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(exec|spawn|execSync)\\s*\\([^)]*\\+.*(?:req|params|body|input)'
-  severity: critical
+    - regex: '(?i)(exec|spawn|execSync)\\s*\\([^)]*\\+.*(?:req|params|body|input)''severity: critical
   description: "Potential command injection"
   remediation: "Never pass user input to shell commands"
   cwe: "CWE-78"
@@ -2332,8 +2330,7 @@
 - id: ts-eval-usage
   languages: [typescript, javascript]
   patterns:
-    - regex: '\\beval\\s*\\('
-  severity: critical
+    - regex: '\\beval\\s*\\(''severity: critical
   description: "eval() usage - arbitrary code execution risk"
   remediation: "Never use eval. Use JSON.parse for data"
   cwe: "CWE-94"
@@ -2342,8 +2339,7 @@
 - id: ts-function-constructor
   languages: [typescript, javascript]
   patterns:
-    - regex: 'new\\s+Function\\s*\\('
-  severity: critical
+    - regex: 'new\\s+Function\\s*\\(''severity: critical
   description: "Function constructor - code injection risk"
   remediation: "Avoid dynamic function creation"
   cwe: "CWE-94"
@@ -2352,8 +2348,7 @@
 - id: ts-child-process-user-input
   languages: [typescript, javascript]
   patterns:
-    - regex: 'child_process\\.(exec|spawn|execSync)\\s*\\([^)]*(?:req|params|body)'
-  severity: critical
+    - regex: 'child_process\\.(exec|spawn|execSync)\\s*\\([^)]*(?:req|params|body)''severity: critical
   description: "Command injection via child_process"
   remediation: "Use argument arrays, not shell strings"
   cwe: "CWE-78"
@@ -2363,8 +2358,7 @@
 - id: ts-ssrf
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(fetch|axios|request|http\\.get|http\\.post)\\s*\\([^)]*\\+.*(?:req|params|url|body)'
-  severity: high
+    - regex: '(?i)(fetch|axios|request|http\\.get|http\\.post)\\s*\\([^)]*\\+.*(?:req|params|url|body)''severity: high
   description: "Server-Side Request Forgery via user-controlled URL"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -2374,8 +2368,7 @@
 - id: ts-xss-innerhtml
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)innerHTML\\s*=\\s*.*(?:req|params|body|input)'
-  severity: high
+    - regex: '(?i)innerHTML\\s*=\\s*.*(?:req|params|body|input)''severity: high
   description: "XSS via innerHTML with user input"
   remediation: "Use textContent or sanitize with DOMPurify"
   cwe: "CWE-79"
@@ -2384,8 +2377,7 @@
 - id: ts-xss-document-write
   languages: [typescript, javascript]
   patterns:
-    - regex: 'document\\.write\\s*\\('
-  severity: high
+    - regex: 'document\\.write\\s*\\(''severity: high
   description: "document.write usage - XSS risk"
   remediation: "Use DOM manipulation instead"
   cwe: "CWE-79"
@@ -2394,8 +2386,7 @@
 - id: ts-xss-insert-adjacent-html
   languages: [typescript, javascript]
   patterns:
-    - regex: 'insertAdjacentHTML\\s*\\('
-  severity: high
+    - regex: 'insertAdjacentHTML\\s*\\(''severity: high
   description: "insertAdjacentHTML with user input - XSS risk"
   remediation: "Sanitize input before using insertAdjacentHTML"
   cwe: "CWE-79"
@@ -2405,8 +2396,7 @@
 - id: ts-path-traversal
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(readFile|readFileSync|createReadStream|writeFile)\\s*\\([^)]*\\+.*(?:req|params|filename)'
-  severity: high
+    - regex: '(?i)(readFile|readFileSync|createReadStream|writeFile)\\s*\\([^)]*\\+.*(?:req|params|filename)''severity: high
   description: "Path traversal via user input"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -2416,8 +2406,7 @@
 - id: ts-jwt-none-algorithm
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(jwt|jsonwebtoken).*algorithms.*none'
-  severity: critical
+    - regex: '(?i)(jwt|jsonwebtoken).*algorithms.*none''severity: critical
   description: "JWT accepts 'none' algorithm"
   remediation: "Always specify secure algorithms like HS256 or RS256"
   cwe: "CWE-347"
@@ -2426,7 +2415,7 @@
 - id: ts-jwt-weak-secret
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(jwt|jsonwebtoken)\\s*sign\\s*\\([^,)]*,\\s*[''\"][a-zA-Z0-9]{8,16}[''\"]'
+    - regex: '(?i)(jwt|jsonwebtoken)\\s*sign\\s*\\([^,)]*,\\s*['''\"][a-zA-Z0-9]{8,16}[''\"]'
   severity: high
   description: "JWT with weak secret"
   remediation: "Use strong, long secrets (32+ chars)"
@@ -2437,8 +2426,7 @@
 - id: ts-localstorage-sensitive
   languages: [typescript, javascript]
   patterns:
-    - regex: 'localStorage\\.setItem\\s*\\([^)]*(?:password|token|secret|key)'
-  severity: high
+    - regex: 'localStorage\\.setItem\\s*\\([^)]*(?:password|token|secret|key)''severity: high
   description: "Sensitive data in localStorage - XSS can steal"
   remediation: "Use httpOnly cookies for tokens"
   cwe: "CWE-312"
@@ -2448,8 +2436,7 @@
 - id: ts-prototype-pollution
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(Object\\.assign|merge|extend)\\s*\\([^)]*__proto__'
-  severity: high
+    - regex: '(?i)(Object\\.assign|merge|extend)\\s*\\([^)]*__proto__''severity: high
   description: "Prototype pollution vulnerability"
   remediation: "Validate and filter user input keys"
   cwe: "CWE-1321"
@@ -2459,8 +2446,7 @@
 - id: ts-open-redirect
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(redirect|window\\.location)\\s*=\\s*.*(?:req|params|url|body)'
-  severity: high
+    - regex: '(?i)(redirect|window\\.location)\\s*=\\s*.*(?:req|params|url|body)''severity: high
   description: "Open redirect vulnerability"
   remediation: "Validate redirect URLs against allowlist"
   cwe: "CWE-601"
@@ -2470,7 +2456,7 @@
 - id: ts-cors-wildcard
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*[''\"]\\*[''\"]'
+    - regex: '(?i)cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['''\"]\\*[''\"]'
   severity: high
   description: "CORS wildcard origin allows any site"
   remediation: "Specify exact allowed origins"
@@ -2480,8 +2466,7 @@
 - id: ts-cors-credentials
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)cors.*origin.*\\*.*credentials.*true'
-  severity: high
+    - regex: '(?i)cors.*origin.*\\*.*credentials.*true''severity: high
   description: "CORS with wildcard origin and credentials"
   remediation: "Never combine * origin with credentials"
   cwe: "CWE-942"
@@ -2491,8 +2476,7 @@
 - id: ts-cookie-missing-secure
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(cookie|set-cookie)[^;]*;(?!.*Secure)'
-  severity: medium
+    - regex: '(?i)(cookie|set-cookie)[^;]*;''severity: medium
   description: "Cookie without Secure flag"
   remediation: "Add Secure flag to cookies"
   cwe: "CWE-614"
@@ -2501,8 +2485,7 @@
 - id: ts-cookie-missing-httponly
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(cookie|set-cookie)[^;]*;(?!.*HttpOnly)'
-  severity: medium
+    - regex: '(?i)(cookie|set-cookie)[^;]*;''severity: medium
   description: "Cookie without HttpOnly flag"
   remediation: "Add HttpOnly flag to cookies"
   cwe: "CWE-614"
@@ -2512,8 +2495,7 @@
 - id: ts-template-injection
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(handlebars|ejs|pug|nunjucks)\\.(render|compile)\\s*\\([^)]*\\+.*(?:req|input|data)'
-  severity: critical
+    - regex: '(?i)(handlebars|ejs|pug|nunjucks)\\.(render|compile)\\s*\\([^)]*\\+.*(?:req|input|data)''severity: critical
   description: "Template injection vulnerability"
   remediation: "Never pass user input to template engines"
   cwe: "CWE-1336"
@@ -2523,7 +2505,7 @@
 - id: ts-weak-crypto-md5
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(MD5|md5|createHash\\s*\\([''\"]md5[''\"])'
+    - regex: '(?i)(MD5|md5|createHash\\s*\\(['''\"]md5[''\"])'
   severity: medium
   description: "MD5 hash usage - insecure"
   remediation: "Use SHA-256 or stronger"
@@ -2533,7 +2515,7 @@
 - id: ts-weak-crypto-sha1
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(SHA1|sha1|createHash\\s*\\([''\"]sha1[''\"])'
+    - regex: '(?i)(SHA1|sha1|createHash\\s*\\(['''\"]sha1[''\"])'
   severity: medium
   description: "SHA-1 hash usage - insecure"
   remediation: "Use SHA-256 or stronger"
@@ -2543,8 +2525,7 @@
 - id: ts-insecure-random
   languages: [typescript, javascript]
   patterns:
-    - regex: '\\bMath\\.random\\s*\\('
-  severity: medium
+    - regex: '\\bMath\\.random\\s*\\(''severity: medium
   description: "Math.random() not cryptographically secure"
   remediation: "Use crypto.getRandomValues()"
   cwe: "CWE-330"
@@ -2554,8 +2535,7 @@
 - id: ts-redos
   languages: [typescript, javascript]
   patterns:
-    - regex: 'new\\s+RegExp\\s*\\([^)]*(\\*\\*|\\+\\+|\\{.*,\\}\\+)'
-  severity: medium
+    - regex: 'new\\s+RegExp\\s*\\([^)]*(\\*\\*|\\+\\+|\\{.*,\\}\\+)''severity: medium
   description: "Regular expression vulnerable to ReDoS"
   remediation: "Use re2 library or simplify patterns"
   cwe: "CWE-1333"
@@ -2565,8 +2545,7 @@
 - id: ts-zip-slip
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(extract|unzip|decompress)\\s*\\([^)]*\\.\\.\\/'
-  severity: high
+    - regex: '(?i)(extract|unzip|decompress)\\s*\\([^)]*\\.\\.\\/''severity: high
   description: "Zip Slip directory traversal"
   remediation: "Validate extracted paths"
   cwe: "CWE-22"
@@ -2576,8 +2555,7 @@
 - id: ts-request-body-no-limit
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)express\\.json\\s*\\(\\s*\\)(?!.*limit)'
-  severity: medium
+    - regex: '(?i)express\\.json\\s*\\(\\s*\\)''severity: medium
   description: "JSON body parser without size limit"
   remediation: "Add limit option: express.json({ limit: '10kb' })"
   cwe: "CWE-770"
@@ -2587,7 +2565,7 @@
 - id: ts-vulnerable-package
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(lodash|moment|minimist|node-fetch)[^:]*:.*[''\"]?\\d+\\.\\d+\\.\\d+'
+    - regex: '(?i)(lodash|moment|minimist|node-fetch)[^:]*:.*['''\"]?\\d+\\.\\d+\\.\\d+'
   severity: high
   description: "Potentially vulnerable package version"
   remediation: "Update to latest secure version"
@@ -2598,7 +2576,7 @@
 - id: ts-hardcoded-crypto-key
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(AES|DES|RSA|secret|encryptionKey)\\s*[=:]\\s*[''\"][a-zA-Z0-9+/=]{16,}[''\"]'
+    - regex: '(?i)(AES|DES|RSA|secret|encryptionKey)\\s*[=:]\\s*['''\"][a-zA-Z0-9+/=]{16,}[''\"]'
   severity: critical
   description: "Hardcoded cryptographic key"
   remediation: "Use key management services"
@@ -2609,7 +2587,7 @@
 - id: ts-xxe
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)DOMParser\\s*\\(\\s*\\)\\s*\\.parseFromString\\s*\\([^)]*,.*[''\"]text/xml'
+    - regex: '(?i)DOMParser\\s*\\(\\s*\\)\\s*\\.parseFromString\\s*\\([^)]*,.*['''\"]text/xml'
   severity: critical
   description: "XML External Entity (XXE) vulnerability"
   remediation: "Disable external entities in parsers"
@@ -2620,8 +2598,7 @@
 - id: ts-insecure-cert
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(rejectUnauthorized|secure)\\s*:\\s*false'
-  severity: high
+    - regex: '(?i)(rejectUnauthorized|secure)\\s*:\\s*false''severity: high
   description: "SSL/TLS certificate validation disabled"
   remediation: "Set rejectUnauthorized: true"
   cwe: "CWE-295"
@@ -2631,8 +2608,7 @@
 - id: ts-clickjacking
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(X-Frame-Options[^-]|frame-ancestors)'
-  severity: medium
+    - regex: '(?i)(X-Frame-Options[^-]|frame-ancestors)''severity: medium
   description: "Missing clickjacking protection"
   remediation: "Set X-Frame-Options: DENY or SAMEORIGIN"
   cwe: "CWE-1021"
@@ -2642,8 +2618,7 @@
 - id: ts-mime-sniffing
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)X-Content-Type-Options[^-]'
-  severity: medium
+    - regex: '(?i)X-Content-Type-Options[^-]''severity: medium
   description: "Missing MIME sniffing protection"
   remediation: "Set X-Content-Type-Options: nosniff"
   cwe: "CWE-16"
@@ -2653,8 +2628,7 @@
 - id: ts-info-disclosure
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(stack\\.trace|error\\.stack|console\\.trace)\\s*\\('
-  severity: medium
+    - regex: '(?i)(stack\\.trace|error\\.stack|console\\.trace)\\s*\\(''severity: medium
   description: "Stack trace exposed"
   remediation: "Hide stack traces in production"
   cwe: "CWE-209"
@@ -2664,7 +2638,7 @@
 - id: ts-websocket-insecure
   languages: [typescript, javascript]
   patterns:
-    - regex: 'new\\s+WebSocket\\s*\\(\\s*[''\"]ws:'
+    - regex: 'new\\s+WebSocket\\s*\\(\\s*['''\"]ws:'
   severity: high
   description: "Insecure WebSocket connection (ws://)"
   remediation: "Use wss:// for secure WebSocket"
@@ -2675,8 +2649,7 @@
 - id: ts-file-upload-no-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(multer|busboy|formidable|upload)\\s*\\([^)]*(?!.*fileFilter|.*limits)'
-  severity: high
+    - regex: '(?i)(multer|busboy|formidable|upload)\\s*\\([^)]*''severity: high
   description: "File upload without validation"
   remediation: "Add file type and size validation"
   cwe: "CWE-434"
@@ -2686,8 +2659,7 @@
 - id: ts-yaml-deserialization
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(yaml|js-yaml)\\.load\\s*\\([^)]*req'
-  severity: critical
+    - regex: '(?i)(yaml|js-yaml)\\.load\\s*\\([^)]*req''severity: critical
   description: "YAML deserialization vulnerability"
   remediation: "Use safeLoad instead of load"
   cwe: "CWE-502"
@@ -2697,8 +2669,7 @@
 - id: ts-csv-injection
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(csv|parseCSV|fast-csv)\\s*\\.[^,]*(?:req|input)'
-  severity: medium
+    - regex: '(?i)(csv|parseCSV|fast-csv)\\s*\\.[^,]*(?:req|input)''severity: medium
   description: "CSV injection vulnerability"
   remediation: "Sanitize CSV input"
   cwe: "CWE-1236"
@@ -2708,8 +2679,7 @@
 - id: ts-dns-rebinding
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(dns\\.lookup|gethostbyname)\\s*\\([^)]*req'
-  severity: high
+    - regex: '(?i)(dns\\.lookup|gethostbyname)\\s*\\([^)]*req''severity: high
   description: "DNS rebinding attack risk"
   remediation: "Validate and cache DNS results"
   cwe: "CWE-918"
@@ -2719,8 +2689,7 @@
 - id: ts-timing-attack
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(password|token|secret)\\s*===\\s*(?:req|params|body)'
-  severity: medium
+    - regex: '(?i)(password|token|secret)\\s*===\\s*(?:req|params|body)''severity: medium
   description: "Timing attack vulnerability in comparison"
   remediation: "Use crypto.timingSafeEqual for comparisons"
   cwe: "CWE-208"
@@ -2730,8 +2699,7 @@
 - id: ts-mass-assignment
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(\\.assign|Object\\.assign)\\s*\\([^)]*\\.\\.\\.request'
-  severity: high
+    - regex: '(?i)(\\.assign|Object\\.assign)\\s*\\([^)]*\\.\\.\\.request''severity: high
   description: "Mass assignment vulnerability"
   remediation: "Explicitly whitelist allowed fields"
   cwe: "CWE-915"
@@ -2741,8 +2709,7 @@
 - id: ts-race-condition
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)if.*exists.*then.*create|check.*then.*use'
-  severity: medium
+    - regex: '(?i)if.*exists.*then.*create|check.*then.*use''severity: medium
   description: "Potential race condition (TOCTOU)"
   remediation: "Use atomic operations"
   cwe: "CWE-362"
@@ -2752,8 +2719,7 @@
 - id: ts-log-injection
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)console\\.(log|info|warn|error)\\s*\\(.*req\\.(query|body|params)'
-  severity: medium
+    - regex: '(?i)console\\.(log|info|warn|error)\\s*\\(.*req\\.(query|body|params)''severity: medium
   description: "Log injection via user input"
   remediation: "Sanitize log input"
   cwe: "CWE-117"
@@ -2763,7 +2729,7 @@
 - id: ts-debug-mode
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(DEBUG\\s*=\\s*true|app\\.get\\s*\\(''env''\\)\\s*===.*development'
+    - regex: '(?i)(DEBUG\\s*=\\s*true|app\\.get\\s*\\('''env''\\)\\s*===.*development'
   severity: high
   description: "Debug mode enabled in production"
   remediation: "Disable debug mode in production"
@@ -2774,7 +2740,7 @@
 - id: ts-unsafe-file-server
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)express\\.static\\s*\\(\\s*[''\"]\\.'
+    - regex: '(?i)express\\.static\\s*\\(\\s*['''\"]\\.'
   severity: high
   description: "Serving static files from root directory"
   remediation: "Restrict static file serving"
@@ -2785,8 +2751,7 @@
 - id: ts-improper-error-handling
   languages: [typescript, javascript]
   patterns:
-    - regex: 'catch\\s*\\(\\s*\\)\\s*\\{|catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}'
-  severity: low
+    - regex: 'catch\\s*\\(\\s*\\)\\s*\\{|catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}''severity: low
   description: "Empty or improper error handling"
   remediation: "Log and handle errors properly"
   cwe: "CWE-755"
@@ -2796,8 +2761,7 @@
 - id: ts-improper-shutdown
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(process\\.exit|process\\.abort)\\s*\\('
-  severity: medium
+    - regex: '(?i)(process\\.exit|process\\.abort)\\s*\\(''severity: medium
   description: "Process exit in production code"
   remediation: "Handle shutdown gracefully"
   cwe: "CWE-383"
@@ -2807,8 +2771,7 @@
 - id: ts-improper-privilege
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(setuid|setgid)\\s*\\([^)]*\\)'
-  severity: high
+    - regex: '(?i)(setuid|setgid)\\s*\\([^)]*\\)''severity: high
   description: "Improper privilege management"
   remediation: "Drop privileges after use"
   cwe: "CWE-250"
@@ -2818,8 +2781,7 @@
 - id: ts-session-fixation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(session|maxAge)\\s*[=:]\\s*[^;]*86400000'
-  severity: medium
+    - regex: '(?i)(session|maxAge)\\s*[=:]\\s*[^;]*86400000''severity: medium
   description: "Session fixation risk"
   remediation: "Regenerate session on login"
   cwe: "CWE-613"
@@ -2829,7 +2791,7 @@
 - id: ts-missing-auth
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(app|router)\\.(get|post|put|delete)\\s*\\(\\s*[''\"]\\/api'
+    - regex: '(?i)(app|router)\\.(get|post|put|delete)\\s*\\(\\s*['''\"]\\/api'
   severity: medium
   description: "API route without authentication check"
   remediation: "Add auth middleware to routes"
@@ -2840,8 +2802,7 @@
 - id: ts-missing-authorization
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(isAdmin|isAuthenticated|checkPermission)\\s*===\\s*false'
-  severity: high
+    - regex: '(?i)(isAdmin|isAuthenticated|checkPermission)\\s*===\\s*false''severity: high
   description: "Authorization check bypassed"
   remediation: "Always check authorization"
   cwe: "CWE-862"
@@ -2851,8 +2812,7 @@
 - id: ts-saml-injection
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)saml\\.(validate|verify)\\s*\\([^)]*\\+'
-  severity: high
+    - regex: '(?i)saml\\.(validate|verify)\\s*\\([^)]*\\+''severity: high
   description: "SAML signature not validated"
   remediation: "Always validate SAML signatures"
   cwe: "CWE-347"
@@ -2862,8 +2822,7 @@
 - id: ts-no-rate-limit
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(express|koa|fastify)(?!.*rate-limit|!.*express-rate-limit)'
-  severity: medium
+    - regex: '(?i)(express|koa|fastify)''severity: medium
   description: "No rate limiting detected"
   remediation: "Add rate limiting middleware"
   cwe: "CWE-770"
@@ -2873,8 +2832,7 @@
 - id: ts-cert-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(tls|https)\\s*\\.\\s*(?:rejectUnauthorized|ca)\\s*[=:](?:false|null)'
-  severity: critical
+    - regex: '(?i)(tls|https)\\s*\\.\\s*(?:rejectUnauthorized|ca)\\s*[=:](?:false|null)''severity: critical
   description: "Certificate validation disabled"
   remediation: "Enable certificate validation"
   cwe: "CWE-295"
@@ -2884,8 +2842,7 @@
 - id: ts-hash-comparison
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(hash|checksum)\\s*[=:]=\\s*[^;]*(?:==|!=)(?!.*timing|crypto)'
-  severity: medium
+    - regex: '(?i)(hash|checksum)\\s*[=:]=\\s*[^;]*(?:==|!=)''severity: medium
   description: "Hash compared unsafely"
   remediation: "Use timing-safe comparison"
   cwe: "CWE-208"
@@ -2895,8 +2852,7 @@
 - id: ts-password-storage
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(password|secret)\\s*[=:]\\[?!.*hash|!.*bcrypt|!.*scrypt'
-  severity: critical
+    - regex: '(?i)(password|secret)\\s*[=:]\\[?!.*hash|!.*bcrypt|!.*scrypt''severity: critical
   description: "Password not hashed"
   remediation: "Hash passwords with bcrypt"
   cwe: "CWE-916"
@@ -2906,8 +2862,7 @@
 - id: ts-token-generation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(token|uid|session)\\s*[=:]\\s*(?!.*crypto|!.*randomUUID)'
-  severity: high
+    - regex: '(?i)(token|uid|session)\\s*[=:]\\s*''severity: high
   description: "Weak token generation"
   remediation: "Use crypto.randomUUID or crypto.randomBytes"
   cwe: "CWE-331"
@@ -2917,8 +2872,7 @@
 - id: ts-no-input-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(req\\.body|req\\.query|req\\.params)\\.\\w+'
-  severity: low
+    - regex: '(?i)(req\\.body|req\\.query|req\\.params)\\.\\w+''severity: low
   description: "User input used without validation"
   remediation: "Validate all user input"
   cwe: "CWE-20"
@@ -2928,8 +2882,7 @@
 - id: ts-output-encoding
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(innerHTML|outerHTML)\\s*=\\s*.*(?:req|query|body)'
-  severity: high
+    - regex: '(?i)(innerHTML|outerHTML)\\s*=\\s*.*(?:req|query|body)''severity: high
   description: "Output without proper encoding"
   remediation: "Use textContent or encode output"
   cwe: "CWE-79"
@@ -2939,8 +2892,7 @@
 - id: ts-dom-xss
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(innerHTML|insertAdjacentHTML|document\\.write)\\s*\\(.*(?:location|hash|search)'
-  severity: critical
+    - regex: '(?i)(innerHTML|insertAdjacentHTML|document\\.write)\\s*\\(.*(?:location|hash|search)''severity: critical
   description: "DOM XSS via location object"
   remediation: "Sanitize URL parameters"
   cwe: "CWE-79"
@@ -2950,8 +2902,7 @@
 - id: ts-stored-xss
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(save|insert|create|update)\\s*\\(.*(?:req|body)\\.'
-  severity: high
+    - regex: '(?i)(save|insert|create|update)\\s*\\(.*(?:req|body)\\.''severity: high
   description: "Potential stored XSS"
   remediation: "Sanitize before storing"
   cwe: "CWE-79"
@@ -2961,8 +2912,7 @@
 - id: ts-reflected-xss
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(res\\.send|res\\.json|res\\.render)\\s*\\(.*req\\.'
-  severity: high
+    - regex: '(?i)(res\\.send|res\\.json|res\\.render)\\s*\\(.*req\\.''severity: high
   description: "Potential reflected XSS in response"
   remediation: "Escape user input in responses"
   cwe: "CWE-79"
@@ -2972,8 +2922,7 @@
 - id: ts-cache-poisoning
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)cache-control.*no-cache.*X-Forwarded'
-  severity: medium
+    - regex: '(?i)cache-control.*no-cache.*X-Forwarded''severity: medium
   description: "Cache poisoning vulnerability"
   remediation: "Validate cache keys"
   cwe: "CWE-444"
@@ -2983,8 +2932,7 @@
 - id: ts-http-parameter-pollution
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(query|params)\\s*\\[.*\\]'
-  severity: low
+    - regex: '(?i)(query|params)\\s*\\[.*\\]''severity: low
   description: "Potential HTTP parameter pollution"
   remediation: "Validate parameter count"
   cwe: "CWE-235"
@@ -2994,8 +2942,7 @@
 - id: ts-memory-exhaustion
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(JSON\\.parse|Buffer\\.from)\\s*\\(.*req\\.'
-  severity: high
+    - regex: '(?i)(JSON\\.parse|Buffer\\.from)\\s*\\(.*req\\.''severity: high
   description: "Potential memory exhaustion"
   remediation: "Add input size limits"
   cwe: "CWE-400"
@@ -3005,8 +2952,7 @@
 - id: ts-state-manipulation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(global|window)\\.[a-zA-Z_]+\\s*='
-  severity: medium
+    - regex: '(?i)(global|window)\\.[a-zA-Z_]+\\s*=''severity: medium
   description: "Improper global state management"
   remediation: "Use proper state management"
   cwe: "CWE-488"
@@ -3016,7 +2962,7 @@
 - id: ts-weak-auth
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(password|pass)\\s*===\\s*[''\"][^''\"]{0,8}[''\"]'
+    - regex: '(?i)(password|pass)\\s*===\\s*['''\"][^''\"]{0,8}[''\"]'
   severity: high
   description: "Weak password check"
   remediation: "Use secure auth libraries"
@@ -3027,7 +2973,7 @@
 - id: ts-config-secret
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(config|settings)\\.\\w*secret\\w*\\s*[=:]\\s*[''\"][^''\"]+[''\"]'
+    - regex: '(?i)(config|settings)\\.\\w*secret\\w*\\s*[=:]\\s*['''\"][^''\"]+[''\"]'
   severity: critical
   description: "Hardcoded secret in config"
   remediation: "Use env variables for secrets"
@@ -3038,8 +2984,7 @@
 - id: ts-error-message
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)catch\\s*\\([^)]*\\)\\s*\\{[^}]*error\\.message[^}]*\\}'
-  severity: medium
+    - regex: '(?i)catch\\s*\\([^)]*\\)\\s*\\{[^}]*error\\.message[^}]*\\}''severity: medium
   description: "Detailed error messages exposed"
   remediation: "Hide internal error details"
   cwe: "CWE-209"
@@ -3049,8 +2994,7 @@
 - id: ts-resource-leak
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(createReadStream|createWriteStream|connect)\\s*\\(.*\\)(?!.*close|.*end)'
-  severity: medium
+    - regex: '(?i)(createReadStream|createWriteStream|connect)\\s*\\(.*\\)''severity: medium
   description: "Resource not properly closed"
   remediation: "Use try-finally or .end()"
   cwe: "CWE-775"
@@ -3060,8 +3004,7 @@
 - id: ts-validation-bypass
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(validate|sanitize)\\s*\\([^)]*false\\s*\\)'
-  severity: high
+    - regex: '(?i)(validate|sanitize)\\s*\\([^)]*false\\s*\\)''severity: high
   description: "Validation disabled"
   remediation: "Enable validation"
   cwe: "CWE-20"
@@ -3071,8 +3014,7 @@
 - id: ts-secrets-management
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(secret|key|cert)\\s*[=:]\\s*[^;]*(?!.*vault|!.*kms|!.*env)'
-  severity: critical
+    - regex: '(?i)(secret|key|cert)\\s*[=:]\\s*[^;]*''severity: critical
   description: "Secrets not managed properly"
   remediation: "Use secrets manager"
   cwe: "CWE-798"
@@ -3082,8 +3024,7 @@
 - id: ts-csrf-protection
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(csrf|csurf)(?!.*token)'
-  severity: high
+    - regex: '(?i)(csrf|csurf)''severity: high
   description: "CSRF protection missing"
   remediation: "Add CSRF tokens"
   cwe: "CWE-352"
@@ -3093,8 +3034,7 @@
 - id: ts-s3-bucket-public
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(aws|s3)\\.[a-z]+\\s*\\([^)]*ACL\\s*[=:][^,)]*public'
-  severity: critical
+    - regex: '(?i)(aws|s3)\\.[a-z]+\\s*\\([^)]*ACL\\s*[=:][^,)]*public''severity: critical
   description: "S3 bucket publicly accessible"
   remediation: "Restrict bucket access"
   cwe: "CWE-732"
@@ -3104,8 +3044,7 @@
 - id: ts-key-derivation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(pbkdf2|scrypt|bcrypt)\\s*\\([^,)]*\\d{1,4}\\s*\\)'
-  severity: high
+    - regex: '(?i)(pbkdf2|scrypt|bcrypt)\\s*\\([^,)]*\\d{1,4}\\s*\\)''severity: high
   description: "Weak key derivation parameters"
   remediation: "Use high iteration count (10000+)"
   cwe: "CWE-328"
@@ -3115,8 +3054,7 @@
 - id: ts-iv-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(iv|nonce|seed)\\s*[=:]\\s*[^;]*(?!.*random|!.*unique)'
-  severity: high
+    - regex: '(?i)(iv|nonce|seed)\\s*[=:]\\s*[^;]*''severity: high
   description: "IV not random"
   remediation: "Use random IV"
   cwe: "CWE-329"
@@ -3126,8 +3064,7 @@
 - id: ts-key-size
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(key|secret)\\s*\\.length\\s*[<<=]\\s*16'
-  severity: high
+    - regex: '(?i)(key|secret)\\s*\\.length\\s*[<<=]\\s*16''severity: high
   description: "Key size too small"
   remediation: "Use 256-bit keys (32 chars)"
   cwe: "CWE-326"
@@ -3137,8 +3074,7 @@
 - id: ts-forward-secrecy
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(tls|cipher).*(!.*ephemeral|!.*forward)'
-  severity: high
+    - regex: '(?i)(tls|cipher).*(!.*ephemeral|!.*forward)''severity: high
   description: "Forward secrecy not enabled"
   remediation: "Enable forward secrecy"
   cwe: "CWE-327"
@@ -3148,8 +3084,7 @@
 - id: ts-hmac-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(hmac|sign)\\s*\\([^,)]*[^,)]*\\)(?!.*verify)'
-  severity: high
+    - regex: '(?i)(hmac|sign)\\s*\\([^,)]*[^,)]*\\)''severity: high
   description: "HMAC not verified"
   remediation: "Verify HMAC"
   cwe: "CWE-347"
@@ -3159,8 +3094,7 @@
 - id: ts-oaep
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(RSA|OAEP)\\s*\\.[^,)]*NONE'
-  severity: high
+    - regex: '(?i)(RSA|OAEP)\\s*\\.[^,)]*NONE''severity: high
   description: "Insecure RSA padding"
   remediation: "Use OAEP padding"
   cwe: "CWE-327"
@@ -3170,8 +3104,7 @@
 - id: ts-ecb-mode
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(AES|DES)\\s*\\.[^,)]*ECB'
-  severity: high
+    - regex: '(?i)(AES|DES)\\s*\\.[^,)]*ECB''severity: high
   description: "ECB mode insecure"
   remediation: "Use GCM or CBC"
   cwe: "CWE-327"
@@ -3181,8 +3114,7 @@
 - id: ts-lockout
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(login|auth)\\s*\\([^)]*(?!.*lock|!.*attempt)'
-  severity: medium
+    - regex: '(?i)(login|auth)\\s*\\([^)]*''severity: medium
   description: "No account lockout"
   remediation: "Implement lockout"
   cwe: "CWE-307"
@@ -3192,8 +3124,7 @@
 - id: ts-mfa
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(login|authenticate)\\s*\\([^)]*(?!.*2fa|!.*mfa)'
-  severity: medium
+    - regex: '(?i)(login|authenticate)\\s*\\([^)]*''severity: medium
   description: "MFA not enforced"
   remediation: "Enforce MFA"
   cwe: "CWE-308"
@@ -3203,8 +3134,7 @@
 - id: ts-session-regeneration
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(login|auth)\\s*\\([^)]*(?!.*regenerate|!.*new)'
-  severity: high
+    - regex: '(?i)(login|auth)\\s*\\([^)]*''severity: high
   description: "Session fixation possible"
   remediation: "Regenerate session on login"
   cwe: "CWE-384"
@@ -3214,8 +3144,7 @@
 - id: ts-timeout
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(session|token)\\s*[=:]\\s*[^;]*(?!.*maxAge|!.*expires)'
-  severity: medium
+    - regex: '(?i)(session|token)\\s*[=:]\\s*[^;]*''severity: medium
   description: "No session timeout"
   remediation: "Set session timeout"
   cwe: "CWE-613"
@@ -3225,8 +3154,7 @@
 - id: ts-captcha
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(register|login|submit)\\s*\\([^)]*(?!.*captcha|!.*verify)'
-  severity: medium
+    - regex: '(?i)(register|login|submit)\\s*\\([^)]*''severity: medium
   description: "No captcha on form"
   remediation: "Add captcha"
   cwe: "CWE-803"
@@ -3236,8 +3164,7 @@
 - id: ts-insufficient-entropy
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(token|id|session)\\s*[=:].*Math\\.random'
-  severity: high
+    - regex: '(?i)(token|id|session)\\s*[=:].*Math\\.random''severity: high
   description: "Insufficient entropy for tokens"
   remediation: "Use crypto.randomUUID"
   cwe: "CWE-331"
@@ -3247,8 +3174,7 @@
 - id: ts-file-type-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(upload|save)\\s*\\(.*mimetype\\s*[=:][^,)]*\\+'
-  severity: high
+    - regex: '(?i)(upload|save)\\s*\\(.*mimetype\\s*[=:][^,)]*\\+''severity: high
   description: "File type not validated"
   remediation: "Validate MIME types"
   cwe: "CWE-434"
@@ -3258,7 +3184,7 @@
 - id: ts-host-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(req\\.hostname|req\\.headers\\[[''\\\"]host[''\\\"]\\])'
+    - regex: '(?i)(req\\.hostname|req\\.headers\\[['''\\\"]host[''\\\"]\\])'
   severity: medium
   description: "Host header not validated"
   remediation: "Validate host header"
@@ -3269,8 +3195,7 @@
 - id: ts-origin-validation
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(socket\\.io|io\\.connect)\\s*\\([^)]*\\)'
-  severity: high
+    - regex: '(?i)(socket\\.io|io\\.connect)\\s*\\([^)]*\\)''severity: high
   description: "WebSocket origin not validated"
   remediation: "Validate WebSocket origin"
   cwe: "CWE-346"
@@ -3280,8 +3205,7 @@
 - id: ts-graphql-security
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(graphql|apollo)\\s*[=:][^;]*(?!.*introspection|!.*depth)'
-  severity: high
+    - regex: '(?i)(graphql|apollo)\\s*[=:][^;]*''severity: high
   description: "GraphQL not secured"
   remediation: "Disable introspection in production, add depth limiting"
   cwe: "CWE-1009"
@@ -3291,8 +3215,7 @@
 - id: ts-webhook-security
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(webhook|callback|event)\\s*[=:][^;]*(?!.*verify|!.*signature)'
-  severity: high
+    - regex: '(?i)(webhook|callback|event)\\s*[=:][^;]*''severity: high
   description: "Webhook not verified"
   remediation: "Verify webhooks with signature"
   cwe: "CWE-1009"
@@ -3302,8 +3225,7 @@
 - id: ts-oauth-security
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(oauth|authorize)\\s*[=:][^;]*(?!.*state|!.*verify)'
-  severity: high
+    - regex: '(?i)(oauth|authorize)\\s*[=:][^;]*''severity: high
   description: "OAuth not secured"
   remediation: "Use state parameter and verify"
   cwe: "CWE-1009"
@@ -3313,8 +3235,7 @@
 - id: ts-oidc-security
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(openid|oidc|identity)\\s*[=:][^;]*(?!.*verify|!.*validate)'
-  severity: high
+    - regex: '(?i)(openid|oidc|identity)\\s*[=:][^;]*''severity: high
   description: "OIDC not secured"
   remediation: "Verify tokens"
   cwe: "CWE-1009"
@@ -3324,8 +3245,7 @@
 - id: ts-api-key-security
   languages: [typescript, javascript]
   patterns:
-    - regex: '(?i)(api[_-]?key|token|secret)\\s*[=:]\\s*[^;]*(?!.*env|!.*vault)'
-  severity: high
+    - regex: '(?i)(api[_-]?key|token|secret)\\s*[=:]\\s*[^;]*''severity: high
   description: "API key not secured"
   remediation: "Use environment variables"
   cwe: "CWE-798"

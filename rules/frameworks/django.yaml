@@ -10,8 +10,7 @@
 - id: django-orm-filter-injection
   languages: [python]
   patterns:
-    - regex: '(?i)\\.filter\\s*\\(\\s*\\*\\*request\\.'
-  severity: critical
+    - regex: '(?i)\\.filter\\s*\\(\\s*\\*\\*request\\.''severity: critical
   description: "Django ORM filter with request data - potential injection"
   remediation: "Validate and sanitize filter parameters"
   cwe: "CWE-89"
@@ -20,8 +19,7 @@
 - id: django-orm-exclude-injection
   languages: [python]
   patterns:
-    - regex: '(?i)\\.exclude\\s*\\(\\s*\\*\\*request\\.'
-  severity: critical
+    - regex: '(?i)\\.exclude\\s*\\(\\s*\\*\\*request\\.''severity: critical
   description: "Django ORM exclude with request data"
   remediation: "Validate exclude parameters"
   cwe: "CWE-89"
@@ -30,8 +28,7 @@
 - id: django-orm-get-injection
   languages: [python]
   patterns:
-    - regex: '(?i)\\.get\\s*\\(\\s*\\*\\*request\\.'
-  severity: critical
+    - regex: '(?i)\\.get\\s*\\(\\s*\\*\\*request\\.''severity: critical
   description: "Django ORM get with request data"
   remediation: "Validate get parameters"
   cwe: "CWE-89"
@@ -40,8 +37,7 @@
 - id: django-orm-extra-injection
   languages: [python]
   patterns:
-    - regex: '(?i)\\.extra\\s*\\(\\s*where'
-  severity: high
+    - regex: '(?i)\\.extra\\s*\\(\\s*where''severity: high
   description: "Django ORM extra() with raw SQL"
   remediation: "Use annotate() or aggregate() instead"
   cwe: "CWE-89"
@@ -50,7 +46,7 @@
 - id: django-orm-raw-injection
   languages: [python]
   patterns:
-    - regex: '(?i)\\.raw\\s*\\(\\s*f[''\"]'
+    - regex: '(?i)\\.raw\\s*\\(\\s*f['''\"]'
   severity: high
   description: "Django ORM raw() with f-string"
   remediation: "Use parameterized raw queries"
@@ -60,8 +56,7 @@
 - id: django-orm-bulk-create
   languages: [python]
   patterns:
-    - regex: '(?i)bulk_create\\s*\\('
-  severity: low
+    - regex: '(?i)bulk_create\\s*\\(''severity: low
   description: "Django bulk_create operation"
   remediation: "Validate bulk data before creation"
   cwe: "CWE-20"
@@ -70,8 +65,7 @@
 - id: django-orm-bulk-update
   languages: [python]
   patterns:
-    - regex: '(?i)bulk_update\\s*\\('
-  severity: low
+    - regex: '(?i)bulk_update\\s*\\(''severity: low
   description: "Django bulk_update operation"
   remediation: "Validate bulk update data"
   cwe: "CWE-20"
@@ -80,8 +74,7 @@
 - id: django-orm-select-related
   languages: [python]
   patterns:
-    - regex: '(?i)select_related\\s*\\('
-  severity: low
+    - regex: '(?i)select_related\\s*\\(''severity: low
   description: "Django select_related for optimization"
   remediation: "Ensure related objects don't expose sensitive data"
   cwe: "CWE-200"
@@ -90,8 +83,7 @@
 - id: django-orm-prefetch-related
   languages: [python]
   patterns:
-    - regex: '(?i)prefetch_related\\s*\\('
-  severity: low
+    - regex: '(?i)prefetch_related\\s*\\(''severity: low
   description: "Django prefetch_related for optimization"
   remediation: "Ensure prefetched data is safe"
   cwe: "CWE-200"
@@ -100,8 +92,7 @@
 - id: django-orm-only
   languages: [python]
   patterns:
-    - regex: '(?i)\\.only\\s*\\('
-  severity: low
+    - regex: '(?i)\\.only\\s*\\(''severity: low
   description: "Django only() for field selection"
   remediation: "Ensure only necessary fields are selected"
   cwe: "CWE-200"
@@ -110,8 +101,7 @@
 - id: django-orm-defer
   languages: [python]
   patterns:
-    - regex: '(?i)\\.defer\\s*\\('
-  severity: low
+    - regex: '(?i)\\.defer\\s*\\(''severity: low
   description: "Django defer() for field deferral"
   remediation: "Ensure deferred fields don't contain sensitive data"
   cwe: "CWE-200"
@@ -120,8 +110,7 @@
 - id: django-orm-annotate
   languages: [python]
   patterns:
-    - regex: '(?i)\\.annotate\\s*\\('
-  severity: low
+    - regex: '(?i)\\.annotate\\s*\\(''severity: low
   description: "Django annotate() for aggregation"
   remediation: "Validate annotation expressions"
   cwe: "CWE-89"
@@ -130,8 +119,7 @@
 - id: django-orm-aggregate
   languages: [python]
   patterns:
-    - regex: '(?i)\\.aggregate\\s*\\('
-  severity: low
+    - regex: '(?i)\\.aggregate\\s*\\(''severity: low
   description: "Django aggregate() operation"
   remediation: "Validate aggregate expressions"
   cwe: "CWE-89"
@@ -140,8 +128,7 @@
 - id: django-orm-update-or-create
   languages: [python]
   patterns:
-    - regex: '(?i)update_or_create\\s*\\('
-  severity: medium
+    - regex: '(?i)update_or_create\\s*\\(''severity: medium
   description: "Django update_or_create operation"
   remediation: "Validate update parameters"
   cwe: "CWE-20"
@@ -150,8 +137,7 @@
 - id: django-orm-get-or-create
   languages: [python]
   patterns:
-    - regex: '(?i)get_or_create\\s*\\('
-  severity: medium
+    - regex: '(?i)get_or_create\\s*\\(''severity: medium
   description: "Django get_or_create operation"
   remediation: "Validate creation parameters"
   cwe: "CWE-20"
@@ -160,8 +146,7 @@
 - id: django-orm-transactions
   languages: [python]
   patterns:
-    - regex: '(?i)transaction\\.atomic|@transaction\\.atomic'
-  severity: low
+    - regex: '(?i)transaction\\.atomic|@transaction\\.atomic''severity: low
   description: "Django transaction.atomic usage"
   remediation: "Ensure proper transaction handling"
   cwe: "CWE-362"
@@ -170,8 +155,7 @@
 - id: django-orm-select-for-update
   languages: [python]
   patterns:
-    - regex: '(?i)select_for_update\\s*\\('
-  severity: low
+    - regex: '(?i)select_for_update\\s*\\(''severity: low
   description: "Django select_for_update for locking"
   remediation: "Use appropriate lock settings"
   cwe: "CWE-362"
@@ -180,8 +164,7 @@
 - id: django-orm-connection-close
   languages: [python]
   patterns:
-    - regex: '(?i)connection\\.close\\s*\\('
-  severity: low
+    - regex: '(?i)connection\\.close\\s*\\(''severity: low
   description: "Django database connection close"
   remediation: "Ensure connections are properly managed"
   cwe: "CWE-775"
@@ -190,8 +173,7 @@
 - id: django-orm-cursor-execution
   languages: [python]
   patterns:
-    - regex: '(?i)cursor\\.execute\\s*\\('
-  severity: medium
+    - regex: '(?i)cursor\\.execute\\s*\\(''severity: medium
   description: "Django cursor execution"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -200,8 +182,7 @@
 - id: django-orm-cursor-executemany
   languages: [python]
   patterns:
-    - regex: '(?i)cursor\\.executemany\\s*\\('
-  severity: medium
+    - regex: '(?i)cursor\\.executemany\\s*\\(''severity: medium
   description: "Django cursor executemany"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -211,8 +192,7 @@
 - id: django-template-autoescape-off
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*autoescape\\s+off\\s*%}'
-  severity: high
+    - regex: '(?i){%\\s*autoescape\\s+off\\s*%}''severity: high
   description: "Django template autoescape disabled"
   remediation: "Enable autoescape or manually escape content"
   cwe: "CWE-79"
@@ -221,8 +201,7 @@
 - id: django-template-safe-filter
   languages: [python]
   patterns:
-    - regex: '(?i)\\|\\s*safe\\s*%}'
-  severity: high
+    - regex: '(?i)\\|\\s*safe\\s*%}''severity: high
   description: "Django template safe filter used"
   remediation: "Ensure content is properly sanitized"
   cwe: "CWE-79"
@@ -231,8 +210,7 @@
 - id: django-template-escape-filter
   languages: [python]
   patterns:
-    - regex: '(?i)\\|\\s*escape\\s*%}'
-  severity: low
+    - regex: '(?i)\\|\\s*escape\\s*%}''severity: low
   description: "Django template escape filter"
   remediation: "Good practice for escaping"
   cwe: "CWE-79"
@@ -241,8 +219,7 @@
 - id: django-template-include-tag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*include\\s+'
-  severity: low
+    - regex: '(?i){%\\s*include\\s+''severity: low
   description: "Django template include tag"
   remediation: "Ensure included templates are safe"
   cwe: "CWE-98"
@@ -251,8 +228,7 @@
 - id: django-template-extends-tag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*extends\\s+'
-  severity: low
+    - regex: '(?i){%\\s*extends\\s+''severity: low
   description: "Django template extends tag"
   remediation: "Ensure parent templates are safe"
   cwe: "CWE-98"
@@ -261,8 +237,7 @@
 - id: django-template-block-tag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*block\\s+'
-  severity: low
+    - regex: '(?i){%\\s*block\\s+''severity: low
   description: "Django template block tag"
   remediation: "Ensure block content is safe"
   cwe: "CWE-79"
@@ -271,8 +246,7 @@
 - id: django-template-for-tag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*for\\s+'
-  severity: low
+    - regex: '(?i){%\\s*for\\s+''severity: low
   description: "Django template for loop"
   remediation: "Ensure loop data is safe"
   cwe: "CWE-20"
@@ -281,8 +255,7 @@
 - id: django-template-if-tag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*if\\s+'
-  severity: low
+    - regex: '(?i){%\\s*if\\s+''severity: low
   description: "Django template if statement"
   remediation: "Ensure condition is safe"
   cwe: "CWE-20"
@@ -291,8 +264,7 @@
 - id: django-template-templatetag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*templatetag\\s+'
-  severity: low
+    - regex: '(?i){%\\s*templatetag\\s+''severity: low
   description: "Django templatetag usage"
   remediation: "Ensure tag output is safe"
   cwe: "CWE-79"
@@ -301,8 +273,7 @@
 - id: django-template-load-tag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*load\\s+'
-  severity: low
+    - regex: '(?i){%\\s*load\\s+''severity: low
   description: "Django template load tag"
   remediation: "Ensure loaded tags are safe"
   cwe: "CWE-693"
@@ -311,8 +282,7 @@
 - id: django-template-custom-tag
   languages: [python]
   patterns:
-    - regex: '(?i)register\\.simple_tag|@register\\.inclusion_tag'
-  severity: medium
+    - regex: '(?i)register\\.simple_tag|@register\\.inclusion_tag''severity: medium
   description: "Django custom template tag"
   remediation: "Ensure custom tags escape output"
   cwe: "CWE-79"
@@ -321,8 +291,7 @@
 - id: django-template-custom-filter
   languages: [python]
   patterns:
-    - regex: '(?i)register\\.filter|@register\\.filter'
-  severity: medium
+    - regex: '(?i)register\\.filter|@register\\.filter''severity: medium
   description: "Django custom template filter"
   remediation: "Ensure custom filters escape output"
   cwe: "CWE-79"
@@ -331,8 +300,7 @@
 - id: django-template-render-to-string
   languages: [python]
   patterns:
-    - regex: '(?i)render_to_string\\s*\\('
-  severity: medium
+    - regex: '(?i)render_to_string\\s*\\(''severity: medium
   description: "Django render_to_string usage"
   remediation: "Ensure context is safe"
   cwe: "CWE-79"
@@ -341,8 +309,7 @@
 - id: django-template-loader
   languages: [python]
   patterns:
-    - regex: '(?i)template\\.loader|get_template'
-  severity: low
+    - regex: '(?i)template\\.loader|get_template''severity: low
   description: "Django template loader"
   remediation: "Ensure template sources are trusted"
   cwe: "CWE-98"
@@ -351,8 +318,7 @@
 - id: django-template-engine
   languages: [python]
   patterns:
-    - regex: '(?i)Engine\\s*\\(|django\\.template\\.Engine'
-  severity: low
+    - regex: '(?i)Engine\\s*\\(|django\\.template\\.Engine''severity: low
   description: "Django template engine"
   remediation: "Configure engine securely"
   cwe: "CWE-693"
@@ -361,8 +327,7 @@
 - id: django-template-context
   languages: [python]
   patterns:
-    - regex: '(?i)Context\\s*\\(|RequestContext'
-  severity: low
+    - regex: '(?i)Context\\s*\\(|RequestContext''severity: low
   description: "Django template context"
   remediation: "Ensure context doesn't contain sensitive data"
   cwe: "CWE-200"
@@ -371,8 +336,7 @@
 - id: django-template-context-processor
   languages: [python]
   patterns:
-    - regex: '(?i)context_processor|context_processors'
-  severity: low
+    - regex: '(?i)context_processor|context_processors''severity: low
   description: "Django context processor"
   remediation: "Review context processors"
   cwe: "CWE-200"
@@ -381,8 +345,7 @@
 - id: django-template-form-render
   languages: [python]
   patterns:
-    - regex: '(?i){{\\s*form\\s*\\.\\s*%}'
-  severity: low
+    - regex: '(?i){{\\s*form\\s*\\.\\s*%}''severity: low
   description: "Django form rendering"
   remediation: "Ensure form is properly validated"
   cwe: "CWE-20"
@@ -391,8 +354,7 @@
 - id: django-template-field-render
   languages: [python]
   patterns:
-    - regex: '(?i){{\\s*\\w+\\.\\w+\\s*%}'
-  severity: low
+    - regex: '(?i){{\\s*\\w+\\.\\w+\\s*%}''severity: low
   description: "Django field rendering"
   remediation: "Ensure field data is safe"
   cwe: "CWE-79"
@@ -401,8 +363,7 @@
 - id: django-template-static-tag
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*static\\s+'
-  severity: low
+    - regex: '(?i){%\\s*static\\s+''severity: low
   description: "Django static tag"
   remediation: "Ensure static files are served securely"
   cwe: "CWE-693"
@@ -412,8 +373,7 @@
 - id: django-auth-login-view
   languages: [python]
   patterns:
-    - regex: '(?i)LoginView|login\\s*\\('
-  severity: low
+    - regex: '(?i)LoginView|login\\s*\\(''severity: low
   description: "Django login view"
   remediation: "Implement rate limiting and MFA"
   cwe: "CWE-307"
@@ -422,8 +382,7 @@
 - id: django-auth-logout-view
   languages: [python]
   patterns:
-    - regex: '(?i)LogoutView|logout\\s*\\('
-  severity: low
+    - regex: '(?i)LogoutView|logout\\s*\\(''severity: low
   description: "Django logout view"
   remediation: "Ensure session is properly cleared"
   cwe: "CWE-613"
@@ -432,8 +391,7 @@
 - id: django-auth-password-reset
   languages: [python]
   patterns:
-    - regex: '(?i)PasswordResetView|password_reset'
-  severity: medium
+    - regex: '(?i)PasswordResetView|password_reset''severity: medium
   description: "Django password reset"
   remediation: "Implement rate limiting and secure tokens"
   cwe: "CWE-640"
@@ -442,8 +400,7 @@
 - id: django-auth-password-change
   languages: [python]
   patterns:
-    - regex: '(?i)PasswordChangeView|password_change'
-  severity: low
+    - regex: '(?i)PasswordChangeView|password_change''severity: low
   description: "Django password change"
   remediation: "Require current password verification"
   cwe: "CWE-521"
@@ -452,8 +409,7 @@
 - id: django-auth-user-creation
   languages: [python]
   patterns:
-    - regex: '(?i)UserCreationForm|create_user'
-  severity: low
+    - regex: '(?i)UserCreationForm|create_user''severity: low
   description: "Django user creation"
   remediation: "Validate user input properly"
   cwe: "CWE-20"
@@ -462,8 +418,7 @@
 - id: django-auth-user-model
   languages: [python]
   patterns:
-    - regex: '(?i)AbstractUser|AbstractBaseUser'
-  severity: low
+    - regex: '(?i)AbstractUser|AbstractBaseUser''severity: low
   description: "Custom user model"
   remediation: "Ensure custom model is secure"
   cwe: "CWE-284"
@@ -472,8 +427,7 @@
 - id: django-auth-permission-required
   languages: [python]
   patterns:
-    - regex: '(?i)@permission_required|PermissionRequiredMixin'
-  severity: low
+    - regex: '(?i)@permission_required|PermissionRequiredMixin''severity: low
   description: "Django permission requirement"
   remediation: "Ensure permissions are properly defined"
   cwe: "CWE-284"
@@ -482,8 +436,7 @@
 - id: django-auth-login-required
   languages: [python]
   patterns:
-    - regex: '(?i)@login_required|LoginRequiredMixin'
-  severity: low
+    - regex: '(?i)@login_required|LoginRequiredMixin''severity: low
   description: "Django login requirement"
   remediation: "Ensure login is properly enforced"
   cwe: "CWE-306"
@@ -492,8 +445,7 @@
 - id: django-auth-user-passes-test
   languages: [python]
   patterns:
-    - regex: '(?i)@user_passes_test|UserPassesTestMixin'
-  severity: low
+    - regex: '(?i)@user_passes_test|UserPassesTestMixin''severity: low
   description: "Django custom test decorator"
   remediation: "Ensure test function is secure"
   cwe: "CWE-284"
@@ -502,8 +454,7 @@
 - id: django-auth-group-management
   languages: [python]
   patterns:
-    - regex: '(?i)Group\\s*\\(|add_to_group'
-  severity: low
+    - regex: '(?i)Group\\s*\\(|add_to_group''severity: low
   description: "Django group management"
   remediation: "Review group assignments"
   cwe: "CWE-284"
@@ -512,8 +463,7 @@
 - id: django-auth-token-auth
   languages: [python]
   patterns:
-    - regex: '(?i)TokenAuthentication|AuthToken'
-  severity: medium
+    - regex: '(?i)TokenAuthentication|AuthToken''severity: medium
   description: "Django token authentication"
   remediation: "Implement token rotation"
   cwe: "CWE-613"
@@ -522,8 +472,7 @@
 - id: django-auth-session-auth
   languages: [python]
   patterns:
-    - regex: '(?i)SessionAuthentication|SessionBackend'
-  severity: low
+    - regex: '(?i)SessionAuthentication|SessionBackend''severity: low
   description: "Django session authentication"
   remediation: "Configure session security"
   cwe: "CWE-613"
@@ -532,8 +481,7 @@
 - id: django-auth-remote-user
   languages: [python]
   patterns:
-    - regex: '(?i)RemoteUserBackend|REMOTE_USER'
-  severity: medium
+    - regex: '(?i)RemoteUserBackend|REMOTE_USER''severity: medium
   description: "Django remote user authentication"
   remediation: "Ensure proxy authentication is secure"
   cwe: "CWE-287"
@@ -542,8 +490,7 @@
 - id: django-auth-model-backend
   languages: [python]
   patterns:
-    - regex: '(?i)ModelBackend|auth\\.backends'
-  severity: low
+    - regex: '(?i)ModelBackend|auth\\.backends''severity: low
   description: "Django model backend"
   remediation: "Review authentication backends"
   cwe: "CWE-287"
@@ -552,8 +499,7 @@
 - id: django-auth-allow-all-users
   languages: [python]
   patterns:
-    - regex: '(?i)AllowAllUsersModelBackend'
-  severity: high
+    - regex: '(?i)AllowAllUsersModelBackend''severity: high
   description: "Django allow all users backend"
   remediation: "Use with caution in production"
   cwe: "CWE-287"
@@ -562,8 +508,7 @@
 - id: django-auth-ldap-backend
   languages: [python]
   patterns:
-    - regex: '(?i)LDAPBackend|ldap\\.auth'
-  severity: medium
+    - regex: '(?i)LDAPBackend|ldap\\.auth''severity: medium
   description: "Django LDAP authentication"
   remediation: "Secure LDAP connection"
   cwe: "CWE-319"
@@ -572,8 +517,7 @@
 - id: django-auth-social-auth
   languages: [python]
   patterns:
-    - regex: '(?i)social_django|python-social-auth'
-  severity: low
+    - regex: '(?i)social_django|python-social-auth''severity: low
   description: "Django social authentication"
   remediation: "Configure OAuth properly"
   cwe: "CWE-287"
@@ -582,8 +526,7 @@
 - id: django-auth-two-factor
   languages: [python]
   patterns:
-    - regex: '(?i)django-otp|two_factor'
-  severity: low
+    - regex: '(?i)django-otp|two_factor''severity: low
   description: "Django two-factor authentication"
   remediation: "Enforce 2FA for sensitive operations"
   cwe: "CWE-308"
@@ -592,8 +535,7 @@
 - id: django-auth-cas-auth
   languages: [python]
   patterns:
-    - regex: '(?i)django-cas-ng|CASBackend'
-  severity: low
+    - regex: '(?i)django-cas-ng|CASBackend''severity: low
   description: "Django CAS authentication"
   remediation: "Secure CAS configuration"
   cwe: "CWE-287"
@@ -602,8 +544,7 @@
 - id: django-auth-saml-auth
   languages: [python]
   patterns:
-    - regex: '(?i)djangosaml2|SAML2Backend'
-  severity: low
+    - regex: '(?i)djangosaml2|SAML2Backend''severity: low
   description: "Django SAML authentication"
   remediation: "Secure SAML configuration"
   cwe: "CWE-287"
@@ -613,8 +554,7 @@
 - id: django-middleware-security
   languages: [python]
   patterns:
-    - regex: '(?i)SecurityMiddleware|security\\.middleware'
-  severity: low
+    - regex: '(?i)SecurityMiddleware|security\\.middleware''severity: low
   description: "Django security middleware"
   remediation: "Ensure security middleware is enabled"
   cwe: "CWE-693"
@@ -623,8 +563,7 @@
 - id: django-middleware-csrf
   languages: [python]
   patterns:
-    - regex: '(?i)CsrfViewMiddleware|csrf\\.middleware'
-  severity: low
+    - regex: '(?i)CsrfViewMiddleware|csrf\\.middleware''severity: low
   description: "Django CSRF middleware"
   remediation: "Ensure CSRF middleware is enabled"
   cwe: "CWE-352"
@@ -633,8 +572,7 @@
 - id: django-middleware-clickjacking
   languages: [python]
   patterns:
-    - regex: '(?i)XFrameOptionsMiddleware'
-  severity: low
+    - regex: '(?i)XFrameOptionsMiddleware''severity: low
   description: "Django clickjacking middleware"
   remediation: "Ensure clickjacking protection is enabled"
   cwe: "CWE-1021"
@@ -643,8 +581,7 @@
 - id: django-middleware-ssl-redirect
   languages: [python]
   patterns:
-    - regex: '(?i)SSLRedirectMiddleware|SECURE_SSL_REDIRECT'
-  severity: low
+    - regex: '(?i)SSLRedirectMiddleware|SECURE_SSL_REDIRECT''severity: low
   description: "Django SSL redirect"
   remediation: "Enable SSL redirect in production"
   cwe: "CWE-319"
@@ -653,8 +590,7 @@
 - id: django-middleware-hsts
   languages: [python]
   patterns:
-    - regex: '(?i)SECURE_HSTS_SECONDS|HSTS'
-  severity: low
+    - regex: '(?i)SECURE_HSTS_SECONDS|HSTS''severity: low
   description: "Django HSTS configuration"
   remediation: "Enable HSTS with appropriate max-age"
   cwe: "CWE-319"
@@ -663,8 +599,7 @@
 - id: django-middleware-content-type
   languages: [python]
   patterns:
-    - regex: '(?i)SECURE_CONTENT_TYPE_NOSNIFF'
-  severity: low
+    - regex: '(?i)SECURE_CONTENT_TYPE_NOSNIFF''severity: low
   description: "Django content type nosniff"
   remediation: "Enable content type nosniff"
   cwe: "CWE-693"
@@ -673,8 +608,7 @@
 - id: django-middleware-referrer-policy
   languages: [python]
   patterns:
-    - regex: '(?i)SECURE_REFERRER_POLICY'
-  severity: low
+    - regex: '(?i)SECURE_REFERRER_POLICY''severity: low
   description: "Django referrer policy"
   remediation: "Configure appropriate referrer policy"
   cwe: "CWE-200"
@@ -683,8 +617,7 @@
 - id: django-middleware-session
   languages: [python]
   patterns:
-    - regex: '(?i)SessionMiddleware|session\\.middleware'
-  severity: low
+    - regex: '(?i)SessionMiddleware|session\\.middleware''severity: low
   description: "Django session middleware"
   remediation: "Configure session security"
   cwe: "CWE-613"
@@ -693,8 +626,7 @@
 - id: django-middleware-auth
   languages: [python]
   patterns:
-    - regex: '(?i)AuthenticationMiddleware|auth\\.middleware'
-  severity: low
+    - regex: '(?i)AuthenticationMiddleware|auth\\.middleware''severity: low
   description: "Django authentication middleware"
   remediation: "Ensure auth middleware is enabled"
   cwe: "CWE-306"
@@ -703,8 +635,7 @@
 - id: django-middleware-messages
   languages: [python]
   patterns:
-    - regex: '(?i)MessageMiddleware|messages\\.middleware'
-  severity: low
+    - regex: '(?i)MessageMiddleware|messages\\.middleware''severity: low
   description: "Django messages middleware"
   remediation: "Ensure messages don't contain sensitive data"
   cwe: "CWE-200"
@@ -713,8 +644,7 @@
 - id: django-middleware-common
   languages: [python]
   patterns:
-    - regex: '(?i)CommonMiddleware|common\\.middleware'
-  severity: low
+    - regex: '(?i)CommonMiddleware|common\\.middleware''severity: low
   description: "Django common middleware"
   remediation: "Review common middleware settings"
   cwe: "CWE-693"
@@ -723,8 +653,7 @@
 - id: django-middleware-locale
   languages: [python]
   patterns:
-    - regex: '(?i)LocaleMiddleware|locale\\.middleware'
-  severity: low
+    - regex: '(?i)LocaleMiddleware|locale\\.middleware''severity: low
   description: "Django locale middleware"
   remediation: "Ensure locale doesn't affect security"
   cwe: "CWE-693"
@@ -733,8 +662,7 @@
 - id: django-middleware-custom
   languages: [python]
   patterns:
-    - regex: '(?i)class\\s+\\w+Middleware'
-  severity: medium
+    - regex: '(?i)class\\s+\\w+Middleware''severity: medium
   description: "Custom Django middleware"
   remediation: "Review custom middleware security"
   cwe: "CWE-693"
@@ -743,8 +671,7 @@
 - id: django-middleware-process-request
   languages: [python]
   patterns:
-    - regex: '(?i)process_request\\s*\\('
-  severity: low
+    - regex: '(?i)process_request\\s*\\(''severity: low
   description: "Middleware process_request"
   remediation: "Ensure request processing is safe"
   cwe: "CWE-693"
@@ -753,8 +680,7 @@
 - id: django-middleware-process-response
   languages: [python]
   patterns:
-    - regex: '(?i)process_response\\s*\\('
-  severity: low
+    - regex: '(?i)process_response\\s*\\(''severity: low
   description: "Middleware process_response"
   remediation: "Ensure response processing is safe"
   cwe: "CWE-693"
@@ -763,8 +689,7 @@
 - id: django-middleware-process-exception
   languages: [python]
   patterns:
-    - regex: '(?i)process_exception\\s*\\('
-  severity: low
+    - regex: '(?i)process_exception\\s*\\(''severity: low
   description: "Middleware process_exception"
   remediation: "Ensure exception handling is safe"
   cwe: "CWE-754"
@@ -773,8 +698,7 @@
 - id: django-middleware-process-template
   languages: [python]
   patterns:
-    - regex: '(?i)process_template_response\\s*\\('
-  severity: low
+    - regex: '(?i)process_template_response\\s*\\(''severity: low
   description: "Middleware process_template_response"
   remediation: "Ensure template processing is safe"
   cwe: "CWE-693"
@@ -783,8 +707,7 @@
 - id: django-middleware-process-view
   languages: [python]
   patterns:
-    - regex: '(?i)process_view\\s*\\('
-  severity: low
+    - regex: '(?i)process_view\\s*\\(''severity: low
   description: "Middleware process_view"
   remediation: "Ensure view processing is safe"
   cwe: "CWE-693"
@@ -793,8 +716,7 @@
 - id: django-middleware-decorator
   languages: [python]
   patterns:
-    - regex: '(?i)@middleware\\s*\\(|middleware_decorator'
-  severity: low
+    - regex: '(?i)@middleware\\s*\\(|middleware_decorator''severity: low
   description: "Middleware decorator"
   remediation: "Ensure decorator is secure"
   cwe: "CWE-693"
@@ -803,8 +725,7 @@
 - id: django-middleware-order
   languages: [python]
   patterns:
-    - regex: '(?i)MIDDLEWARE\\s*=\\s*\\['
-  severity: low
+    - regex: '(?i)MIDDLEWARE\\s*=\\s*\\[''severity: low
   description: "Middleware order configuration"
   remediation: "Ensure correct middleware order"
   cwe: "CWE-693"
@@ -814,8 +735,7 @@
 - id: django-settings-debug
   languages: [python]
   patterns:
-    - regex: '(?i)DEBUG\\s*=\\s*True'
-  severity: high
+    - regex: '(?i)DEBUG\\s*=\\s*True''severity: high
   description: "Django DEBUG mode enabled"
   remediation: "Set DEBUG = False in production"
   cwe: "CWE-489"
@@ -824,7 +744,7 @@
 - id: django-settings-secret-key
   languages: [python]
   patterns:
-    - regex: '(?i)SECRET_KEY\\s*=\\s*[''\"]'
+    - regex: '(?i)SECRET_KEY\\s*=\\s*['''\"]'
   severity: critical
   description: "Django SECRET_KEY in code"
   remediation: "Use environment variable for SECRET_KEY"
@@ -834,7 +754,7 @@
 - id: django-settings-allowed-hosts
   languages: [python]
   patterns:
-    - regex: '(?i)ALLOWED_HOSTS\\s*=\\s*\\[\\s*[''\"]\\*[''\"]'
+    - regex: '(?i)ALLOWED_HOSTS\\s*=\\s*\\[\\s*['''\"]\\*[''\"]'
   severity: high
   description: "Django ALLOWED_HOSTS wildcard"
   remediation: "Specify explicit allowed hosts"
@@ -844,8 +764,7 @@
 - id: django-settings-database
   languages: [python]
   patterns:
-    - regex: '(?i)DATABASES\\s*=\\s*\\{'
-  severity: medium
+    - regex: '(?i)DATABASES\\s*=\\s*\\{''severity: medium
   description: "Django database configuration"
   remediation: "Use environment variables for credentials"
   cwe: "CWE-798"
@@ -854,8 +773,7 @@
 - id: django-settings-email
   languages: [python]
   patterns:
-    - regex: '(?i)EMAIL_HOST_PASSWORD|EMAIL.*PASSWORD'
-  severity: high
+    - regex: '(?i)EMAIL_HOST_PASSWORD|EMAIL.*PASSWORD''severity: high
   description: "Email password in settings"
   remediation: "Use environment variable for email password"
   cwe: "CWE-798"
@@ -864,8 +782,7 @@
 - id: django-settings-cache
   languages: [python]
   patterns:
-    - regex: '(?i)CACHES\\s*=\\s*\\{'
-  severity: low
+    - regex: '(?i)CACHES\\s*=\\s*\\{''severity: low
   description: "Django cache configuration"
   remediation: "Secure cache backend"
   cwe: "CWE-693"
@@ -874,8 +791,7 @@
 - id: django-settings-session-engine
   languages: [python]
   patterns:
-    - regex: '(?i)SESSION_ENGINE\\s*='
-  severity: low
+    - regex: '(?i)SESSION_ENGINE\\s*=''severity: low
   description: "Django session engine"
   remediation: "Use database or cache sessions"
   cwe: "CWE-613"
@@ -884,8 +800,7 @@
 - id: django-settings-session-cookie
   languages: [python]
   patterns:
-    - regex: '(?i)SESSION_COOKIE_SECURE|SESSION_COOKIE_HTTPONLY'
-  severity: low
+    - regex: '(?i)SESSION_COOKIE_SECURE|SESSION_COOKIE_HTTPONLY''severity: low
   description: "Django session cookie settings"
   remediation: "Enable secure and httponly flags"
   cwe: "CWE-614"
@@ -894,8 +809,7 @@
 - id: django-settings-csrf-cookie
   languages: [python]
   patterns:
-    - regex: '(?i)CSRF_COOKIE_SECURE|CSRF_COOKIE_HTTPONLY'
-  severity: low
+    - regex: '(?i)CSRF_COOKIE_SECURE|CSRF_COOKIE_HTTPONLY''severity: low
   description: "Django CSRF cookie settings"
   remediation: "Enable secure CSRF cookies"
   cwe: "CWE-352"
@@ -904,8 +818,7 @@
 - id: django-settings-language-code
   languages: [python]
   patterns:
-    - regex: '(?i)LANGUAGE_CODE\\s*='
-  severity: low
+    - regex: '(?i)LANGUAGE_CODE\\s*=''severity: low
   description: "Django language code"
   remediation: "Review language settings"
   cwe: "CWE-693"
@@ -914,8 +827,7 @@
 - id: django-settings-time-zone
   languages: [python]
   patterns:
-    - regex: '(?i)TIME_ZONE\\s*='
-  severity: low
+    - regex: '(?i)TIME_ZONE\\s*=''severity: low
   description: "Django time zone"
   remediation: "Review timezone settings"
   cwe: "CWE-693"
@@ -924,8 +836,7 @@
 - id: django-settings-use-i18n
   languages: [python]
   patterns:
-    - regex: '(?i)USE_I18N\\s*=\\s*True'
-  severity: low
+    - regex: '(?i)USE_I18N\\s*=\\s*True''severity: low
   description: "Django i18n enabled"
   remediation: "Review i18n settings"
   cwe: "CWE-693"
@@ -934,8 +845,7 @@
 - id: django-settings-use-l10n
   languages: [python]
   patterns:
-    - regex: '(?i)USE_L10N\\s*=\\s*True'
-  severity: low
+    - regex: '(?i)USE_L10N\\s*=\\s*True''severity: low
   description: "Django l10n enabled"
   remediation: "Review l10n settings"
   cwe: "CWE-693"
@@ -944,8 +854,7 @@
 - id: django-settings-use-tz
   languages: [python]
   patterns:
-    - regex: '(?i)USE_TZ\\s*=\\s*True'
-  severity: low
+    - regex: '(?i)USE_TZ\\s*=\\s*True''severity: low
   description: "Django timezone support"
   remediation: "Review timezone settings"
   cwe: "CWE-693"
@@ -954,8 +863,7 @@
 - id: django-settings-static-root
   languages: [python]
   patterns:
-    - regex: '(?i)STATIC_ROOT\\s*=|STATIC_URL\\s*='
-  severity: low
+    - regex: '(?i)STATIC_ROOT\\s*=|STATIC_URL\\s*=''severity: low
   description: "Django static files"
   remediation: "Ensure static files are served securely"
   cwe: "CWE-693"
@@ -964,8 +872,7 @@
 - id: django-settings-media-root
   languages: [python]
   patterns:
-    - regex: '(?i)MEDIA_ROOT\\s*=|MEDIA_URL\\s*='
-  severity: medium
+    - regex: '(?i)MEDIA_ROOT\\s*=|MEDIA_URL\\s*=''severity: medium
   description: "Django media files"
   remediation: "Secure media file uploads"
   cwe: "CWE-434"
@@ -974,8 +881,7 @@
 - id: django-settings-templates
   languages: [python]
   patterns:
-    - regex: '(?i)TEMPLATES\\s*=\\s*\\['
-  severity: low
+    - regex: '(?i)TEMPLATES\\s*=\\s*\\[''severity: low
   description: "Django templates configuration"
   remediation: "Review template settings"
   cwe: "CWE-693"
@@ -984,8 +890,7 @@
 - id: django-settings-installed-apps
   languages: [python]
   patterns:
-    - regex: '(?i)INSTALLED_APPS\\s*=\\s*\\['
-  severity: low
+    - regex: '(?i)INSTALLED_APPS\\s*=\\s*\\[''severity: low
   description: "Django installed apps"
   remediation: "Review installed apps for security"
   cwe: "CWE-1391"
@@ -994,8 +899,7 @@
 - id: django-settings-root-urlconf
   languages: [python]
   patterns:
-    - regex: '(?i)ROOT_URLCONF\\s*='
-  severity: low
+    - regex: '(?i)ROOT_URLCONF\\s*=''severity: low
   description: "Django root URLconf"
   remediation: "Review URL configuration"
   cwe: "CWE-693"
@@ -1004,8 +908,7 @@
 - id: django-settings-wsgi
   languages: [python]
   patterns:
-    - regex: '(?i)WSGI_APPLICATION\\s*='
-  severity: low
+    - regex: '(?i)WSGI_APPLICATION\\s*=''severity: low
   description: "Django WSGI application"
   remediation: "Secure WSGI configuration"
   cwe: "CWE-693"
@@ -1015,8 +918,7 @@
 - id: django-cache-backend
   languages: [python]
   patterns:
-    - regex: '(?i)locmem\\.LocMemCache|filebased\\.FileBasedCache'
-  severity: low
+    - regex: '(?i)locmem\\.LocMemCache|filebased\\.FileBasedCache''severity: low
   description: "Django local/file cache backend"
   remediation: "Use Redis or Memcached for production"
   cwe: "CWE-693"
@@ -1025,8 +927,7 @@
 - id: django-cache-redis
   languages: [python]
   patterns:
-    - regex: '(?i)redis\\.RedisCache|redis://'
-  severity: low
+    - regex: '(?i)redis\\.RedisCache|redis://''severity: low
   description: "Django Redis cache"
   remediation: "Secure Redis connection"
   cwe: "CWE-319"
@@ -1035,8 +936,7 @@
 - id: django-cache-memcached
   languages: [python]
   patterns:
-    - regex: '(?i)memcached\\.PyMemcacheCache|memcached://'
-  severity: low
+    - regex: '(?i)memcached\\.PyMemcacheCache|memcached://''severity: low
   description: "Django Memcached cache"
   remediation: "Secure Memcached connection"
   cwe: "CWE-319"
@@ -1045,8 +945,7 @@
 - id: django-cache-database
   languages: [python]
   patterns:
-    - regex: '(?i)database\\.DatabaseCache|dbcache://'
-  severity: low
+    - regex: '(?i)database\\.DatabaseCache|dbcache://''severity: low
   description: "Django database cache"
   remediation: "Ensure cache table is secure"
   cwe: "CWE-693"
@@ -1055,8 +954,7 @@
 - id: django-cache-timeout
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.set.*timeout|CACHE_TIMEOUT'
-  severity: low
+    - regex: '(?i)cache\\.set.*timeout|CACHE_TIMEOUT''severity: low
   description: "Django cache timeout"
   remediation: "Set appropriate cache timeout"
   cwe: "CWE-613"
@@ -1065,8 +963,7 @@
 - id: django-cache-version
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.get.*version|CACHE_VERSION'
-  severity: low
+    - regex: '(?i)cache\\.get.*version|CACHE_VERSION''severity: low
   description: "Django cache version"
   remediation: "Use cache versioning"
   cwe: "CWE-693"
@@ -1075,8 +972,7 @@
 - id: django-cache-prefix
   languages: [python]
   patterns:
-    - regex: '(?i)KEY_PREFIX|cache_key_prefix'
-  severity: low
+    - regex: '(?i)KEY_PREFIX|cache_key_prefix''severity: low
   description: "Django cache key prefix"
   remediation: "Use cache key prefixing"
   cwe: "CWE-693"
@@ -1085,8 +981,7 @@
 - id: django-cache-get
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.get\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.get\\s*\\(''severity: low
   description: "Django cache get"
   remediation: "Validate cached data"
   cwe: "CWE-20"
@@ -1095,8 +990,7 @@
 - id: django-cache-set
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.set\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.set\\s*\\(''severity: low
   description: "Django cache set"
   remediation: "Don't cache sensitive data"
   cwe: "CWE-312"
@@ -1105,8 +999,7 @@
 - id: django-cache-delete
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.delete\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.delete\\s*\\(''severity: low
   description: "Django cache delete"
   remediation: "Ensure proper cache invalidation"
   cwe: "CWE-693"
@@ -1115,8 +1008,7 @@
 - id: django-cache-clear
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.clear\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.clear\\s*\\(''severity: low
   description: "Django cache clear"
   remediation: "Monitor cache clearing"
   cwe: "CWE-693"
@@ -1125,8 +1017,7 @@
 - id: django-cache-add
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.add\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.add\\s*\\(''severity: low
   description: "Django cache add"
   remediation: "Validate cache addition"
   cwe: "CWE-20"
@@ -1135,8 +1026,7 @@
 - id: django-cache-get-or-set
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.get_or_set\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.get_or_set\\s*\\(''severity: low
   description: "Django cache get_or_set"
   remediation: "Validate cached data"
   cwe: "CWE-20"
@@ -1145,8 +1035,7 @@
 - id: django-cache-increment
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.increment\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.increment\\s*\\(''severity: low
   description: "Django cache increment"
   remediation: "Monitor cache increments"
   cwe: "CWE-693"
@@ -1155,8 +1044,7 @@
 - id: django-cache-decrement
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.decrement\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.decrement\\s*\\(''severity: low
   description: "Django cache decrement"
   remediation: "Monitor cache decrements"
   cwe: "CWE-693"
@@ -1165,8 +1053,7 @@
 - id: django-cache-touch
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.touch\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.touch\\s*\\(''severity: low
   description: "Django cache touch"
   remediation: "Monitor cache touches"
   cwe: "CWE-693"
@@ -1175,8 +1062,7 @@
 - id: django-cache-close
   languages: [python]
   patterns:
-    - regex: '(?i)cache\\.close\\s*\\('
-  severity: low
+    - regex: '(?i)cache\\.close\\s*\\(''severity: low
   description: "Django cache close"
   remediation: "Ensure proper cache closing"
   cwe: "CWE-775"
@@ -1185,8 +1071,7 @@
 - id: django-cache-per-view
   languages: [python]
   patterns:
-    - regex: '(?i)@cache_page|cache_page\\s*\\('
-  severity: low
+    - regex: '(?i)@cache_page|cache_page\\s*\\(''severity: low
   description: "Django per-view cache"
   remediation: "Ensure cached views don't expose sensitive data"
   cwe: "CWE-200"
@@ -1195,8 +1080,7 @@
 - id: django-cache-template-fragment
   languages: [python]
   patterns:
-    - regex: '(?i){%\\s*cache\\s+'
-  severity: low
+    - regex: '(?i){%\\s*cache\\s+''severity: low
   description: "Django template fragment cache"
   remediation: "Ensure cached fragments are safe"
   cwe: "CWE-200"
@@ -1205,8 +1089,7 @@
 - id: django-cache-low-level
   languages: [python]
   patterns:
-    - regex: '(?i)from django\\.core\\.cache import cache'
-  severity: low
+    - regex: '(?i)from django\\.core\\.cache import cache''severity: low
   description: "Django low-level cache API"
   remediation: "Use cache API securely"
   cwe: "CWE-693"
@@ -1216,8 +1099,7 @@
 - id: django-file-upload-handler
   languages: [python]
   patterns:
-    - regex: '(?i)FileUploadHandler|upload_handlers'
-  severity: medium
+    - regex: '(?i)FileUploadHandler|upload_handlers''severity: medium
   description: "Django file upload handler"
   remediation: "Validate file uploads properly"
   cwe: "CWE-434"
@@ -1226,8 +1108,7 @@
 - id: django-file-storage
   languages: [python]
   patterns:
-    - regex: '(?i)FileSystemStorage|DefaultStorage'
-  severity: low
+    - regex: '(?i)FileSystemStorage|DefaultStorage''severity: low
   description: "Django file storage"
   remediation: "Secure file storage configuration"
   cwe: "CWE-693"
@@ -1236,8 +1117,7 @@
 - id: django-file-s3-storage
   languages: [python]
   patterns:
-    - regex: '(?i)S3Boto3Storage|s3boto'
-  severity: low
+    - regex: '(?i)S3Boto3Storage|s3boto''severity: low
   description: "Django S3 storage"
   remediation: "Configure S3 bucket securely"
   cwe: "CWE-284"
@@ -1246,8 +1126,7 @@
 - id: django-file-azure-storage
   languages: [python]
   patterns:
-    - regex: '(?i)AzureStorage|azure\\.storage'
-  severity: low
+    - regex: '(?i)AzureStorage|azure\\.storage''severity: low
   description: "Django Azure storage"
   remediation: "Configure Azure storage securely"
   cwe: "CWE-284"
@@ -1256,8 +1135,7 @@
 - id: django-file-gcs-storage
   languages: [python]
   patterns:
-    - regex: '(?i)GoogleCloudStorage|gcs\\.storage'
-  severity: low
+    - regex: '(?i)GoogleCloudStorage|gcs\\.storage''severity: low
   description: "Django GCS storage"
   remediation: "Configure GCS bucket securely"
   cwe: "CWE-284"
@@ -1266,8 +1144,7 @@
 - id: django-file-field
   languages: [python]
   patterns:
-    - regex: '(?i)FileField|ImageField'
-  severity: low
+    - regex: '(?i)FileField|ImageField''severity: low
   description: "Django file field"
   remediation: "Validate file uploads"
   cwe: "CWE-434"
@@ -1276,8 +1153,7 @@
 - id: django-file-upload-to
   languages: [python]
   patterns:
-    - regex: '(?i)upload_to\\s*=\\s*\\w+'
-  severity: low
+    - regex: '(?i)upload_to\\s*=\\s*\\w+''severity: low
   description: "Django upload_to parameter"
   remediation: "Validate upload path"
   cwe: "CWE-22"
@@ -1286,8 +1162,7 @@
 - id: django-file-storage-path
   languages: [python]
   patterns:
-    - regex: '(?i)storage\\.path\\s*\\(|file\\.path'
-  severity: low
+    - regex: '(?i)storage\\.path\\s*\\(|file\\.path''severity: low
   description: "Django file path access"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -1296,8 +1171,7 @@
 - id: django-file-open
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.open\\s*\\(|\\.file\\.open'
-  severity: low
+    - regex: '(?i)file\\.open\\s*\\(|\\.file\\.open''severity: low
   description: "Django file open"
   remediation: "Validate file before opening"
   cwe: "CWE-22"
@@ -1306,8 +1180,7 @@
 - id: django-file-read
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.read\\s*\\(|\\.file\\.read'
-  severity: low
+    - regex: '(?i)file\\.read\\s*\\(|\\.file\\.read''severity: low
   description: "Django file read"
   remediation: "Validate file before reading"
   cwe: "CWE-22"
@@ -1316,8 +1189,7 @@
 - id: django-file-write
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.write\\s*\\(|\\.file\\.write'
-  severity: low
+    - regex: '(?i)file\\.write\\s*\\(|\\.file\\.write''severity: low
   description: "Django file write"
   remediation: "Validate file before writing"
   cwe: "CWE-73"
@@ -1326,8 +1198,7 @@
 - id: django-file-delete
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.delete\\s*\\(|\\.file\\.delete'
-  severity: low
+    - regex: '(?i)file\\.delete\\s*\\(|\\.file\\.delete''severity: low
   description: "Django file delete"
   remediation: "Validate file before deleting"
   cwe: "CWE-73"
@@ -1336,8 +1207,7 @@
 - id: django-file-save
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.save\\s*\\(|\\.file\\.save'
-  severity: low
+    - regex: '(?i)file\\.save\\s*\\(|\\.file\\.save''severity: low
   description: "Django file save"
   remediation: "Validate file before saving"
   cwe: "CWE-73"
@@ -1346,8 +1216,7 @@
 - id: django-file-url
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.url|\\.file\\.url'
-  severity: low
+    - regex: '(?i)file\\.url|\\.file\\.url''severity: low
   description: "Django file URL"
   remediation: "Ensure file URLs are secure"
   cwe: "CWE-601"
@@ -1356,8 +1225,7 @@
 - id: django-file-name
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.name|\\.file\\.name'
-  severity: low
+    - regex: '(?i)file\\.name|\\.file\\.name''severity: low
   description: "Django file name"
   remediation: "Validate file names"
   cwe: "CWE-20"
@@ -1367,8 +1235,7 @@
 - id: django-email-send
   languages: [python]
   patterns:
-    - regex: '(?i)send_mail\\s*\\(|send_mass_mail'
-  severity: low
+    - regex: '(?i)send_mail\\s*\\(|send_mass_mail''severity: low
   description: "Django email sending"
   remediation: "Validate email content"
   cwe: "CWE-20"
@@ -1377,8 +1244,7 @@
 - id: django-email-backend
   languages: [python]
   patterns:
-    - regex: '(?i)EMAIL_BACKEND\\s*='
-  severity: low
+    - regex: '(?i)EMAIL_BACKEND\\s*=''severity: low
   description: "Django email backend"
   remediation: "Configure email backend securely"
   cwe: "CWE-693"
@@ -1387,8 +1253,7 @@
 - id: django-email-console
   languages: [python]
   patterns:
-    - regex: '(?i)console\\.EmailBackend'
-  severity: low
+    - regex: '(?i)console\\.EmailBackend''severity: low
   description: "Django console email backend"
   remediation: "Don't use console backend in production"
   cwe: "CWE-489"
@@ -1397,8 +1262,7 @@
 - id: django-email-smtp
   languages: [python]
   patterns:
-    - regex: '(?i)smtp\\.EmailBackend|EMAIL_HOST'
-  severity: low
+    - regex: '(?i)smtp\\.EmailBackend|EMAIL_HOST''severity: low
   description: "Django SMTP email"
   remediation: "Use TLS for SMTP"
   cwe: "CWE-319"
@@ -1407,8 +1271,7 @@
 - id: django-email-file
   languages: [python]
   patterns:
-    - regex: '(?i)file\\.EmailBackend'
-  severity: low
+    - regex: '(?i)file\\.EmailBackend''severity: low
   description: "Django file email backend"
   remediation: "Secure email file storage"
   cwe: "CWE-693"
@@ -1417,8 +1280,7 @@
 - id: django-email-locmem
   languages: [python]
   patterns:
-    - regex: '(?i)locmem\\.EmailBackend'
-  severity: low
+    - regex: '(?i)locmem\\.EmailBackend''severity: low
   description: "Django locmem email backend"
   remediation: "Don't use locmem in production"
   cwe: "CWE-489"
@@ -1427,8 +1289,7 @@
 - id: django-email-custom-backend
   languages: [python]
   patterns:
-    - regex: '(?i)class\\s+\\w+EmailBackend'
-  severity: medium
+    - regex: '(?i)class\\s+\\w+EmailBackend''severity: medium
   description: "Custom Django email backend"
   remediation: "Review custom backend security"
   cwe: "CWE-693"
@@ -1437,8 +1298,7 @@
 - id: django-email-message
   languages: [python]
   patterns:
-    - regex: '(?i)EmailMessage\\s*\\(|EmailMultiAlternatives'
-  severity: low
+    - regex: '(?i)EmailMessage\\s*\\(|EmailMultiAlternatives''severity: low
   description: "Django email message"
   remediation: "Validate email content"
   cwe: "CWE-20"
@@ -1447,8 +1307,7 @@
 - id: django-email-attachment
   languages: [python]
   patterns:
-    - regex: '(?i)\\.attach\\s*\\(|\\.attach_file'
-  severity: low
+    - regex: '(?i)\\.attach\\s*\\(|\\.attach_file''severity: low
   description: "Django email attachment"
   remediation: "Validate email attachments"
   cwe: "CWE-434"
@@ -1457,8 +1316,7 @@
 - id: django-email-headers
   languages: [python]
   patterns:
-    - regex: '(?i)extra_headers|email.*header'
-  severity: low
+    - regex: '(?i)extra_headers|email.*header''severity: low
   description: "Django email headers"
   remediation: "Validate email headers"
   cwe: "CWE-20"
@@ -1467,8 +1325,7 @@
 - id: django-email-cc
   languages: [python]
   patterns:
-    - regex: '(?i)cc_myself|cc.*email'
-  severity: low
+    - regex: '(?i)cc_myself|cc.*email''severity: low
   description: "Django email CC"
   remediation: "Review CC recipients"
   cwe: "CWE-200"
@@ -1477,8 +1334,7 @@
 - id: django-email-bcc
   languages: [python]
   patterns:
-    - regex: '(?i)bcc.*email|bcc_myself'
-  severity: low
+    - regex: '(?i)bcc.*email|bcc_myself''severity: low
   description: "Django email BCC"
   remediation: "Review BCC recipients"
   cwe: "CWE-200"
@@ -1487,8 +1343,7 @@
 - id: django-email-reply-to
   languages: [python]
   patterns:
-    - regex: '(?i)reply_to|reply-to'
-  severity: low
+    - regex: '(?i)reply_to|reply-to''severity: low
   description: "Django email reply-to"
   remediation: "Validate reply-to addresses"
   cwe: "CWE-20"
@@ -1497,8 +1352,7 @@
 - id: django-email-fail-silently
   languages: [python]
   patterns:
-    - regex: '(?i)fail_silently\\s*=\\s*True'
-  severity: low
+    - regex: '(?i)fail_silently\\s*=\\s*True''severity: low
   description: "Django email fail silently"
   remediation: "Handle email failures properly"
   cwe: "CWE-754"
@@ -1507,8 +1361,7 @@
 - id: django-email-connection
   languages: [python]
   patterns:
-    - regex: '(?i)get_connection\\s*\\(|email.*connection'
-  severity: low
+    - regex: '(?i)get_connection\\s*\\(|email.*connection''severity: low
   description: "Django email connection"
   remediation: "Manage email connections properly"
   cwe: "CWE-775"
@@ -1520,8 +1373,7 @@
   description: "Disabling CSRF protection on a view can allow attackers to perform Cross-Site Request Forgery attacks."
   severity: "high"
   patterns:
-    - regex: '@csrf_exempt'
-  cwe: "CWE-352"
+    - regex: '@csrf_exempt''cwe: "CWE-352"
   owasp: "A01:2021-Broken Access Control"
 
 - id: django-debug-true
@@ -1529,8 +1381,7 @@
   description: "Running Django with DEBUG=True can leak sensitive internal configuration and source code to attackers."
   severity: "critical"
   patterns:
-    - regex: 'DEBUG\\s*=\\s*True'
-  cwe: "CWE-489"
+    - regex: 'DEBUG\\s*=\\s*True''cwe: "CWE-489"
   owasp: "A05:2021-Security Misconfiguration"
 
 - id: django-raw-sql
@@ -1538,8 +1389,7 @@
   description: "Using raw() or execute() opens the application to SQL injection if user input is not properly parameterized."
   severity: "high"
   patterns:
-    - regex: '\\.(raw|execute)\\s*\\(.*%'
-  cwe: "CWE-89"
+    - regex: '\\.(raw|execute)\\s*\\(.*%''cwe: "CWE-89"
   owasp: "A03:2021-Injection"
 
 - id: django-unsafe-template-render
@@ -1547,6 +1397,5 @@
   description: "Rendering templates from raw strings with user input can lead to Server-Side Template Injection (SSTI)."
   severity: "high"
   patterns:
-    - regex: 'render_template_string\\s*\\('
-  cwe: "CWE-1336"
+    - regex: 'render_template_string\\s*\\(''cwe: "CWE-1336"
   owasp: "A03:2021-Injection"

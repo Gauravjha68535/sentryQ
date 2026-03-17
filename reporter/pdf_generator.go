@@ -238,10 +238,11 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 }
 
 func truncateString(s string, maxLen int) string {
-	if len(s) <= maxLen {
+	runes := []rune(s)
+	if len(runes) <= maxLen {
 		return s
 	}
-	return s[:maxLen] + "..."
+	return string(runes[:maxLen]) + "..."
 }
 
 func truncateSource(s string) string {
@@ -308,4 +309,43 @@ func getSeverityColor(sev string) [3]int {
 	}
 }
 
-// generateComplianceMatrix maps technical findings to ISO-27001 / SOC-2 Controls for auditors
+// sanitizePDFText prepares text for the PDF library, which mostly supports ISO-8859-1.
+// It replaces common Unicode characters with ASCII equivalents and others with '?'.
+func sanitizePDFText(text string) string {
+	// 1. Remove control characters except tab, newline, carriage return
+	var sb strings.Builder
+	for _, r := range text {
+		if r < 32 && r != '\t' && r != '\n' && r != '\r' {
+			continue
+		}
+		sb.WriteRune(r)
+	}
+	text = sb.String()
+
+	// 2. Map common Unicode punctuation to ASCII
+	replacer := strings.NewReplacer(
+		"\u2014", "-", // em dash
+		"\u2013", "-", // en dash
+		"\u2026", "...", // ellipsis
+		"\u2022", "*", // bullet
+		"\u00A0", " ", // non-breaking space
+		"\u2018", "'", // smart single quote
+		"\u2019", "'", // smart single quote
+		"\u201C", "\"", // smart double quote
+		"\u201D", "\"", // smart double quote
+	)
+	text = replacer.Replace(text)
+
+	// 3. For any remaining non-ASCII characters, replace with '?'
+	// because gofpdf default fonts (Helvetica) don't support multi-byte Unicode.
+	var finalSb strings.Builder
+	for _, r := range text {
+		if r > 126 {
+			finalSb.WriteRune('?')
+		} else {
+			finalSb.WriteRune(r)
+		}
+	}
+
+	return finalSb.String()
+}

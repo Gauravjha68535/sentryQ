@@ -548,8 +548,7 @@
 - id: py-webhook-sig-bypass
   languages: [python]
   patterns:
-    - regex: '(?s)(?:signature|X-Signature|X-Hub-Signature)\s*=\s*request\.(?:headers|args|form)[\s\S]{0,500}pickle\.(?:load|loads)'
-  severity: critical
+    - regex: '(?s)(?:signature|X-Signature|X-Hub-Signature)\s*=\s*request\.(?:headers|args|form)[\s\S]{0,500}pickle\.(?:load|loads)''severity: critical
   description: "Potential signature bypass: Webhook signature is read but dangerous deserialization (pickle) follows. Ensure signature is verified and execution is aborted on mismatch."
   remediation: "Verify HMAC signature before calling pickle.loads(). Use hmac.compare_digest() and abort(403) on failure."
   cwe: "CWE-347"
@@ -884,8 +883,7 @@
   languages: [python]
 
   patterns:
-    - regex: 'request\\.headers\\[.(X-Forwarded|X-Original-URL|X-Rewrite-URL).'
-  severity: medium
+    - regex: 'request\\.headers\\[.(X-Forwarded|X-Original-URL|X-Rewrite-URL).''severity: medium
   description: "Cache poisoning via unkeyed header"
   remediation: "Validate forwarded headers; configure cache vary headers"
   cwe: "CWE-444"
@@ -895,8 +893,7 @@
 - id: python-open-redirect
   languages: [python]
   patterns:
-    - regex: 'redirect\\(.*request\\.(args|form|values|GET|POST)'
-  severity: high
+    - regex: 'redirect\\(.*request\\.(args|form|values|GET|POST)''severity: high
   description: "Open redirect via user-controlled redirect URL"
   remediation: "Validate redirect URLs against allowed domains whitelist"
   cwe: "CWE-601"
@@ -905,8 +902,7 @@
 - id: python-open-redirect-django
   languages: [python]
   patterns:
-    - regex: 'HttpResponseRedirect\\(.*request\\.(GET|POST)'
-  severity: high
+    - regex: 'HttpResponseRedirect\\(.*request\\.(GET|POST)''severity: high
   description: "Django open redirect via user-controlled URL"
   remediation: "Use django.utils.http.url_has_allowed_host_and_scheme()"
   cwe: "CWE-601"
@@ -916,8 +912,7 @@
 - id: python-cors-wildcard
   languages: [python]
   patterns:
-    - regex: 'Access-Control-Allow-Origin.*\\*|CORS_ALLOW_ALL_ORIGINS.*True'
-  severity: high
+    - regex: 'Access-Control-Allow-Origin.*\\*|CORS_ALLOW_ALL_ORIGINS.*True''severity: high
   description: "CORS wildcard allows any origin to access resources"
   remediation: "Specify explicit allowed origins"
   cwe: "CWE-942"
@@ -927,8 +922,7 @@
 - id: python-regex-dos
   languages: [python]
   patterns:
-    - regex: 're\\.(match|search|findall).*\\(.*\\+\\+|\\*\\*'
-  severity: medium
+    - regex: 're\\.(match|search|findall).*\\(.*\\+\\+|\\*\\*''severity: medium
   description: "ReDoS via catastrophic backtracking in regex"
   remediation: "Use re2 library or simplify regex patterns"
   cwe: "CWE-1333"
@@ -937,8 +931,7 @@
 - id: python-yaml-unsafe
   languages: [python]
   patterns:
-    - regex: 'yaml\\.load\\((?!.*Loader)'
-  severity: critical
+    - regex: 'yaml\\.load\\(''severity: critical
   description: "Unsafe YAML loading allows arbitrary code execution"
   remediation: "Use yaml.safe_load() instead of yaml.load()"
   cwe: "CWE-502"
@@ -948,8 +941,7 @@
 - id: python-unrestricted-upload
   languages: [python]
   patterns:
-    - regex: 'request\\.files.*save\\('
-  severity: high
+    - regex: 'request\\.files.*save\\(''severity: high
   description: "File upload without extension/content validation"
   remediation: "Validate file extension, MIME type; use secure_filename()"
   cwe: "CWE-434"
@@ -959,7 +951,7 @@
 - id: python-format-string
   languages: [python]
   patterns:
-    - regex: '\\.format\\(.*request\\.|f[''\"].*\\{.*request\\.'
+    - regex: '\\.format\\(.*request\\.|f['''\"].*\\{.*request\\.'
   severity: high
   description: "Format string injection with user input"
   remediation: "Sanitize user input before using in format strings"
@@ -970,8 +962,7 @@
 - id: python-race-condition
   languages: [python]
   patterns:
-    - regex: 'if.*os\\.path\\.exists.*open\\(|if.*os\\.path\\.isfile.*os\\.remove'
-  severity: medium
+    - regex: 'if.*os\\.path\\.exists.*open\\(|if.*os\\.path\\.isfile.*os\\.remove''severity: medium
   description: "TOCTOU race condition in file operations"
   remediation: "Use atomic operations or file locking"
   cwe: "CWE-367"
@@ -980,8 +971,7 @@
 - id: python-mass-assignment
   languages: [python]
   patterns:
-    - regex: '\\*\\*request\\.(json|form|data)|setattr.*request'
-  severity: high
+    - regex: '\\*\\*request\\.(json|form|data)|setattr.*request''severity: high
   description: "Mass assignment via unpacking user input into object"
   remediation: "Explicitly list allowed fields; use serializer validation"
   cwe: "CWE-915"
@@ -991,8 +981,7 @@
 - id: python-image-rce
   languages: [python]
   patterns:
-    - regex: 'Image\\.open\\(.*request|PIL.*open.*upload'
-  severity: medium
+    - regex: 'Image\\.open\\(.*request|PIL.*open.*upload''severity: medium
   description: "Image processing with user input may trigger Pillow/ImageMagick CVEs"
   remediation: "Validate image headers; use sandboxed processing"
   cwe: "CWE-20"
@@ -4048,8 +4037,7 @@
 - id: py-unsafe-pickle-loads
   languages: [python]
   patterns:
-  - regex: '(?i)pickle\.loads\s*\(\s*(?:request|req\.)'
-  severity: critical
+  - regex: '(?i)pickle\.loads\s*\(\s*(?:request|req\.)''severity: critical
   description: "Unsafe pickle deserialization of untrusted request data leads to arbitrary Remote Code Execution (RCE)."
   remediation: "Never unpickle data from an untrusted source. Use JSON or safer formats instead."
   cwe: "CWE-502"
@@ -4058,8 +4046,7 @@
 - id: py-unsafe-yaml-loader
   languages: [python]
   patterns:
-  - regex: '(?i)yaml\.load\s*\(.*Loader\s*=\s*yaml\.Loader'
-  severity: critical
+  - regex: '(?i)yaml\.load\s*\(.*Loader\s*=\s*yaml\.Loader''severity: critical
   description: "yaml.load with yaml.Loader allows arbitrary Python object instantiation and Code Execution."
   remediation: "Use yaml.safe_load() or yaml.CSafeLoader."
   cwe: "CWE-502"
@@ -4068,8 +4055,7 @@
 - id: py-base64-token-forgery
   languages: [python]
   patterns:
-  - regex: '(?i)base64\.b64decode\s*\(\s*(?:request|token)'
-  severity: critical
+  - regex: '(?i)base64\.b64decode\s*\(\s*(?:request|token)''severity: critical
   description: "Decoding base64 directly from a request to establish identity bypasses cryptographic signing."
   remediation: "Use cryptographically signed tokens (like JWTs or timed serializers) instead of raw base64 encoding."
   cwe: "CWE-345"
@@ -4078,8 +4064,7 @@
 - id: py-exception-traceback-leak
   languages: [python]
   patterns:
-  - regex: '(?i)except\s+Exception\s+as\s+[a-z]+.*(?:return|Response).*(?:str\(|repr\()?[a-z]+\)?'
-  severity: medium
+  - regex: '(?i)except\s+Exception\s+as\s+[a-z]+.*(?:return|Response).*(?:str\(|repr\()?[a-z]+\)?''severity: medium
   description: "Returning raw exception strings to the client leaks infrastructure and schema details."
   remediation: "Log the exception internally and return a generic 500 error message to the client."
   cwe: "CWE-209"
@@ -4088,7 +4073,7 @@
 - id: py-unvalidated-update-sqli
   languages: [python]
   patterns:
-  - regex: '(?i)(?:cursor|db)\.execute\(\s*f["'']UPDATE.*SET.*WHERE.*id=\{.*\}["'']\s*\)'
+  - regex: '(?i)(?:cursor|db)\.execute\(\s*f["''']UPDATE.*SET.*WHERE.*id=\{.*\}["'']\s*\)'
   severity: critical
   description: "SQL string interpolation directly into an UPDATE statement. Unvalidated payload keys can conduct chained SQLi."
   remediation: "Use parameterized execute statements (cost=? where id=?) instead of f-strings."
@@ -4098,7 +4083,7 @@
 - id: py-log-command-injection
   languages: [python]
   patterns:
-  - regex: '(?i)f["'']tail\s+-n\s+\{.*\}\s+/var/log/.*\|\s*grep\s*[''"]\{.*\}[''"]["'']'
+  - regex: '(?i)f["''']tail\s+-n\s+\{.*\}\s+/var/log/.*\|\s*grep\s*[''"]\{.*\}[''"]["'']'
   severity: critical
   description: "Command injection vulnerability via unescaped interpolation in a chained shell command (tail | grep)."
   remediation: "Avoid shell=True. Use Python's native subprocess with argument lists, or native file reading constructs."
@@ -4108,8 +4093,7 @@
 - id: py-arbitrary-file-upload-traversal
   languages: [python]
   patterns:
-  - regex: '(?i)\.save\(os\.path\.join\([^,]+,\s*(?:request\.form\.get|request\.files)'
-  severity: high
+  - regex: '(?i)\.save\(os\.path\.join\([^,]+,\s*(?:request\.form\.get|request\.files)''severity: high
   description: "Saving an uploaded file using a client-controlled destination directory without path traversal limitations or role checks."
   remediation: "Validate the destination directory and strictly enforce Werkzeug's secure_filename() on all client uploads."
   cwe: "CWE-22"
@@ -4118,8 +4102,7 @@
 - id: py-ssrf-unfiltered-headers
   languages: [python]
   patterns:
-  - regex: '(?i)requests\.(?:get|post)\(.*verify\s*=\s*False\)(?:.|\n)*return.*response\.headers'
-  severity: high
+  - regex: '(?i)requests\.(?:get|post)\(.*verify\s*=\s*False\)(?:.|\n)*return.*response\.headers''severity: high
   description: "Fetching an internal or untrusted URL with TLS verification disabled and returning raw backend headers to the caller (SSRF/Leak)."
   remediation: "Enforce verify=True. Filter internal infrastructure headers before proxying responses back to clients."
   cwe: "CWE-918"

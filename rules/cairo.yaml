@@ -1,8 +1,7 @@
 - id: cairo-hint-injection
   languages: [cairo]
   patterns:
-    - regex: '(?i)%\\{.*?%\\}'
-  severity: high
+    - regex: '(?i)%\\{.*?%\\}''severity: high
   description: "Hint injection"
   remediation: "Hints can write to arbitrary memory locations"
   cwe: "CWE-94"
@@ -12,8 +11,7 @@
 - id: cairo-assert-eq
   languages: [cairo]
   patterns:
-    - regex: '(?i)assert\\s+\\w+\\s*=\\s*'
-  severity: medium
+    - regex: '(?i)assert\\s+\\w+\\s*=\\s*''severity: medium
   description: "Constrained assert"
   remediation: "Review constraint logic carefully"
   cwe: "CWE-617"
@@ -23,8 +21,7 @@
 - id: cairo-alloc-locals
   languages: [cairo]
   patterns:
-    - regex: '(?i)alloc_locals'
-  severity: low
+    - regex: '(?i)alloc_locals''severity: low
   description: "Local allocation"
   remediation: "Ensure proper revoked reference handling"
   cwe: "CWE-119"
@@ -34,8 +31,7 @@
 - id: cairo-call-contract
   languages: [cairo]
   patterns:
-    - regex: '(?i)call_contract'
-  severity: medium
+    - regex: '(?i)call_contract''severity: medium
   description: "External contract call"
   remediation: "Verify external target and handle state changes safely"
   cwe: "CWE-242"
@@ -45,8 +41,7 @@
 - id: cairo-missing-range-check
   languages: [cairo]
   patterns:
-    - regex: '(?i)func\s+\w+\s*\{[\s\S]*?\}\s*\([\s\S]*?\)(?!.*assert_nn|assert_le)'
-  severity: high
+    - regex: '(?i)func\s+\w+\s*\{[\s\S]*?\}\s*\([\s\S]*?\)''severity: high
   description: "Missing range check on arithmetic/felt"
   remediation: "Use assert_nn or assert_le for bounds checking"
   cwe: "CWE-190"
@@ -55,8 +50,7 @@
 - id: cairo-implicit-gas-bypass
   languages: [cairo]
   patterns:
-    - regex: '(?i)func\s+\w+\s*\{[\s\S]*?\}\s*\([\s\S]*?\)(?!.*get_gas_remaining|withdraw_gas)'
-  severity: medium
+    - regex: '(?i)func\s+\w+\s*\{[\s\S]*?\}\s*\([\s\S]*?\)''severity: medium
   description: "Recursive or looping function missing gas checks (Cairo 1.0)"
   remediation: "Check array bounds or withdraw gas"
   cwe: "CWE-400"
@@ -65,8 +59,7 @@
 - id: cairo-arbitrary-state-change
   languages: [cairo]
   patterns:
-    - regex: '(?i)storage_write\\s*\\([\\s\\S]*?\\)(?!.*assert[\\s\\S]*?caller_address)'
-  severity: critical
+    - regex: '(?i)storage_write\\s*\\([\\s\\S]*?\\)''severity: critical
   description: "Storage written without access control"
   remediation: "Assert caller_address before storage_write"
   cwe: "CWE-284"
@@ -76,8 +69,7 @@
 - id: cairo-reentrancy-guard
   languages: [cairo]
   patterns:
-    - regex: '(?i)func\\s+\\w+\\s*\\([^)]*\\)[^)]*emit\\s+event(?!.*nonreentrant)'
-  severity: high
+    - regex: '(?i)func\\s+\\w+\\s*\\([^)]*\\)[^)]*emit\\s+event''severity: high
   description: "Missing reentrancy guard"
   remediation: "Use @external decorator with reentrancy guard"
   cwe: "CWE-362"
@@ -87,8 +79,7 @@
 - id: cairo-oracle-manipulation
   languages: [cairo]
   patterns:
-    - regex: '(?i)call_contract.*oracle(?!.*stale|.*timeout)'
-  severity: critical
+    - regex: '(?i)call_contract.*oracle''severity: critical
   description: "Oracle call without staleness check"
   remediation: "Add oracle staleness/timeout validation"
   cwe: "CWE-754"
@@ -98,8 +89,7 @@
 - id: cairo-front-running
   languages: [cairo]
   patterns:
-    - regex: '(?i)func\\s+\\w+\\s*\\([^)]*\\)[^)]*(?!.*priority|.*nonce)'
-  severity: medium
+    - regex: '(?i)func\\s+\\w+\\s*\\([^)]*\\)[^)]*''severity: medium
   description: "Missing transaction ordering protection"
   remediation: "Implement commit-reveal or nonce-based ordering"
   cwe: "CWE-362"
@@ -109,8 +99,7 @@
 - id: cairo-untrusted-library
   languages: [cairo]
   patterns:
-    - regex: '(?i)@storage_var.*uint256.*address'
-  severity: medium
+    - regex: '(?i)@storage_var.*uint256.*address''severity: medium
   description: "Storage variable with address type"
   remediation: "Validate addresses before storage operations"
   cwe: "CWE-20"
@@ -120,8 +109,7 @@
 - id: cairo-unchecked-return
   languages: [cairo]
   patterns:
-    - regex: '(?i)call_contract.*\\)(?!.*assert)'
-  severity: high
+    - regex: '(?i)call_contract.*\\)''severity: high
   description: "Unchecked return value from external call"
   remediation: "Check return values from external calls"
   cwe: "CWE-252"
@@ -131,8 +119,7 @@
 - id: cairo-auth-bypass
   languages: [cairo]
   patterns:
-    - regex: '(?i)@external.*(?!.*caller|.*owner|.*auth)'
-  severity: high
+    - regex: '(?i)@external.*''severity: high
   description: "External function missing authorization"
   remediation: "Add access control checks"
   cwe: "CWE-862"
@@ -142,8 +129,7 @@
 - id: cairo-curve-bypass
   languages: [cairo]
   patterns:
-    - regex: '(?i)ec_mul|ec_add(?!.*assert)'
-  severity: medium
+    - regex: '(?i)ec_mul|ec_add''severity: medium
   description: "Elliptic curve operation without validation"
   remediation: "Validate curve points"
   cwe: "CWE-20"
@@ -153,8 +139,7 @@
 - id: cairo-math-overflow
   languages: [cairo]
   patterns:
-    - regex: '(?i)\\+\\s*\\+|-\\s*-|\\*\\s*\\*'
-  severity: high
+    - regex: '(?i)\\+\\s*\\+|-\\s*-|\\*\\s*\\*''severity: high
   description: "Arithmetic without overflow check"
   remediation: "Use checked arithmetic"
   cwe: "CWE-190"
@@ -164,8 +149,7 @@
 - id: cairo-randomness
   languages: [cairo]
   patterns:
-    - regex: '(?i)block\\.timestamp.*%.*seed'
-  severity: medium
+    - regex: '(?i)block\\.timestamp.*%.*seed''severity: medium
   description: "Block timestamp for randomness"
   remediation: "Use Chainlink VRF"
   cwe: "CWE-338"
@@ -175,8 +159,7 @@
 - id: cairo-loop-gas
   languages: [cairo]
   patterns:
-    - regex: '(?i)loop\\s*\\{.*(?!.*get_gas)'
-  severity: medium
+    - regex: '(?i)loop\\s*\\{.*''severity: medium
   description: "Loop without gas checking"
   remediation: "Add gas checks in loops"
   cwe: "CWE-400"
@@ -186,8 +169,7 @@
 - id: cairo-eth-transfer
   languages: [cairo]
   patterns:
-    - regex: '(?i)send\\.emit\\s*\\(.*(?!.*caller)'
-  severity: high
+    - regex: '(?i)send\\.emit\\s*\\(.*''severity: high
   description: "Ether send without caller check"
   remediation: "Verify caller before sending"
   cwe: "CWE-284"

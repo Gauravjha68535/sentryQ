@@ -1,0 +1,205 @@
+# gRPC Security Rules
+# Detects gRPC security vulnerabilities and misconfigurations across multiple programming languages
+# Reference: CWE-295 (Improper Certificate Validation), CWE-306 (Missing Authentication), OWASP A02:2021 - Cryptographic Failures
+
+# ======================== TLS/Encryption Issues ========================
+
+- id: grpc-no-tls
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php, cpp]
+  patterns:
+    - regex: '(?i)grpc\.Dial\([^,)]*\s*(?:|with|DialOptions)''- regex: '(?i)InsecureChannelCredentials''- regex: '(?i)credentials\.insecure''- regex: '(?i)newChannelBuilder.*NO_SECURITY''- regex: '(?i)\.WithInsecure\(\)''- regex: '(?i)grpc\.DialContext\([^,]*''- regex: '(?i)ChannelCredentials\.FromInsecure''- regex: '(?i)useSecure: false''severity: critical
+  description: "gRPC channel without TLS encryption - all data transmitted in plaintext"
+  remediation: "Use grpc.WithTransportCredentials(credentials.NewTLS) with proper TLS configuration"
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+
+- id: grpc-insecure-credentials
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)(InsecureCredentials|InsecureChannelCredentials|credentials\.NewComposite|credentials\.NewTLS.*insecure)''- regex: '(?i)tls\.Config\{.*InsecureSkipVerify:\s*true''- regex: '(?i)InsecureSkipVerify:\s*true''- regex: '(?i)GRPC_ARG_HTTP2_MIN_TIME_BETWEEN_KEY_RANGES_MS.*0''severity: critical
+  description: "gRPC using insecure credentials or TLS configuration with certificate verification disabled"
+  remediation: "Configure proper TLS with certificate validation, use secure cipher suites"
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+
+- id: grpc-plaintext-override
+  languages: [go, java, python, javascript, typescript, csharp]
+  patterns:
+    - regex: '(?i).*WithTransportCredentials.*NewTLS.*\.WithInsecure\(\)''- regex: '(?i)grpc\.WithInsecure\(\).*grpc\.WithTransportCredentials''- regex: '(?i)credentials.*=.*Insecure.*credentials.*=.*Secure''severity: critical
+  description: "gRPC insecure mode takes precedence over TLS configuration"
+  remediation: "Remove WithInsecure() calls, use only secure transport credentials"
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+
+# ======================== Authentication/Authorization Issues ========================
+
+- id: grpc-missing-auth
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)(grpc\.WithUnaryInterceptor|grpc\.WithStreamInterceptor)\s*\(\s*nil\s*\)''- regex: '(?i)WithPerRPCCredentials\(nil\)''- regex: '(?i)metadata\.AppendToOutgoingContext.*nil''- regex: '(?i)\.Authenticate\s*\(\s*\)\s*\{\s*return\s*true''- regex: '(?i)func.*\(ctx context\.Context\).*\{\s*return\s*nil.*\}''- regex: '(?i)auth\s*=\s*\{\s*\}''- regex: '(?i)NoAuthInterceptor|EmptyAuthInterceptor''severity: high
+  description: "gRPC service missing authentication interceptor or credentials check"
+  remediation: "Implement proper authentication interceptor with token validation"
+  cwe: "CWE-306"
+  owasp: "A07:2021"
+
+- id: grpc-missing-authorization
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)(UnaryServerInterceptor|StreamServerInterceptor).*\{.*return\s+nil''- regex: '(?i)func.*Authorize.*\{\s*return\s*true''- regex: '(?i)AllowAllAuthorizer| PermitAll''- regex: '(?i)AuthorizationPolicy:\s*"ALLOW"''- regex: '(?i)authz\s*:\s*nil|authz\s*:\s*\{\}''- regex: '(?i)rbac\s*:\s*false''severity: high
+  description: "gRPC service missing authorization checks - all requests allowed"
+  remediation: "Implement RBAC or ABAC authorization with proper role-based access control"
+  cwe: "CWE-862"
+  owasp: "A07:2021"
+
+- id: grpc-method-auth-bypass
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)(method|route)\s*:\s*["'''].*["''].*auth\s*:\s*false'
+    - regex: '(?i)skip_auth\s*:\s*true|skipAuth.*=.*true''- regex: '(?i)public\s*:\s*\[.*rpc|public.*endpoint''- regex: '(?i)//.*noauth|no.auth''- regex: '(?i)auth\s*:\s*\{.*required\s*:\s*false''- regex: '(?i)permit\s*\(\s*\*\s*\)''severity: high
+  description: "gRPC method-level authorization bypass - specific methods skip auth checks"
+  remediation: "Review and enforce authorization for all sensitive methods"
+  cwe: "CWE-862"
+  owasp: "A07:2021"
+
+# ======================== Streaming Security Issues ========================
+
+- id: grpc-streaming-no-auth
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)func.*\(srv \*.*\)\s+\w+Stream\s*\(\s*[^]*\\s*\{[^}]*return\s+nil''- regex: '(?i)stream\.SendMsg.*without.*auth''- regex: '(?i)grpc\.WithStreamInterceptor.*nil''- regex: '(?i)serverStream\s*\.\s*Context\(\)\s*.*auth''- regex: '(?i)stream.*Recv\(\).*if.*err.*nil''severity: high
+  description: "gRPC streaming endpoint without proper authentication"
+  remediation: "Implement stream interceptors for authentication on all streaming methods"
+  cwe: "CWE-306"
+  owasp: "A07:2021"
+
+- id: grpc-bidirectional-stream-no-validation
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)BidirectionalStream.*\{.*for.*\{.*\}''- regex: '(?i)stream\.Recv\(\)\s*\{[^}]*\}[^}]*process''- regex: '(?i)for\s*\{[^}]*stream\.Recv\(\)[^}]*\}[^}]*handle''- regex: '(?i)func.*\*Service.*Stream\(\s*\)\s*\{[^}]*for''severity: medium
+  description: "gRPC bidirectional streaming without proper message validation"
+  remediation: "Validate each message in streaming handlers before processing"
+  cwe: "CWE-20"
+  owasp: "A04:2021"
+
+# ======================== Proxy Configuration Issues ========================
+
+- id: grpc-proxy-insecure
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)(grpc|https?)_proxy\s*=\s*["''']?http://'
+    - regex: '(?i)Proxy\s*:\s*"http:''- regex: '(?i)\.WithProxy\("http://''- regex: '(?i)http_proxy\s*=\s*["''']?http://[^"'']*:3128'
+    - regex: '(?i)dial.*proxy.*http.*without.*tls''- regex: '(?i)GRPC_PROXY_EXP|enable_health_check.*false''severity: high
+  description: "gRPC connection through insecure HTTP proxy"
+  remediation: "Use HTTPS proxy or gRPC's proxy-free direct connections for sensitive data"
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+
+- id: grpc-keepalive-insecure
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)KeepaliveParams.*\{[^}]*EnforcementPolicy[^}]*PermitWithoutStream[^}]*\}''- regex: '(?i)EnforcementPolicy.*PermitWithoutStream:\s*true''- regex: '(?i)GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_STREAM\s*=\s*1''- regex: '(?i)ServerOption.*WithKeepalive.*EnforcementPolicy.*Permit''severity: medium
+  description: "gRPC keepalive policy allows connections without active streams"
+  remediation: "Configure keepalive to close connections without active streams after timeout"
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+
+# ======================== Input Validation Issues ========================
+
+- id: grpc-missing-input-validation
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)func.*\(ctx context\.Context,\s*req\s+\w+\)\s*\([^]*\\s*\{[^}]*return\s+.*req\.''- regex: '(?i)func.*rpc.*\(.*\)\s*\{[^}]*\.Get[^()]+\(\).*process''- regex: '(?i)message\s*\{[^}]*\}[^}]*no\s+validation|no\s+check''- regex: '(?i)pb\.Validate\(.*nil\)''- regex: '(?i)Validate\(\)\s*error\s*\{\s*return\s*nil''- regex: '(?i)request\s*\.\s*Data\s*\(\)\s*.*without''severity: high
+  description: "gRPC service method missing input validation on request fields"
+  remediation: "Add validation using protobuf validation annotations or custom validators"
+  cwe: "CWE-20"
+  owasp: "A04:2021"
+
+- id: grpc-buffer-overflow
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)MaxReceiveMessageSize.*-1|MaxMessageSize.*-1''- regex: '(?i)grpc\.MaxMsgSize\s*\(\s*math\.MaxInt32\s*\)''- regex: '(?i)maxMessageSize\s*:\s*-1|unlimited.*size''- regex: '(?i)\.WithMaxMsgSizeBytes\s*\(\s*0\s*\)''severity: high
+  description: "gRPC MaxMessageSize set to unlimited - potential denial of service"
+  remediation: "Set reasonable MaxMessageSize limits based on expected payload"
+  cwe: "CWE-400"
+  owasp: "A04:2021"
+
+# ======================== Reflection Issues ========================
+
+- id: grpc-reflection-enabled
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)grpc\.reflection\.EnableServerReflection''- regex: '(?i)reflection\.Register\(server\)''- regex: '(?i)ServerReflection.*\(true\)|reflection_enabled\s*=\s*true''- regex: '(?i)grpc/reflection|v1/reflection''- regex: '(?i)\.EnableReflection\(\)|EnableServerReflection\(''- regex: '(?i)io\.grpc\.reflection\.v1alpha\.ServerReflection''severity: high
+  description: "gRPC reflection enabled in production - exposes service metadata"
+  remediation: "Disable reflection in production environments"
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+
+- id: grpc-grpcweb-no-cors
+  languages: [go, java, python, javascript, typescript, csharp]
+  patterns:
+    - regex: '(?i)grpcWeb\.EnableCors\(\)|EnableCors.*false''- regex: '(?i)CorsPolicy\s*:\s*\{\s*AllowOrigin\s*:\s*"\*"''- regex: '(?i)allowedOrigins\s*:\s*\[\s*"\*"\s*\]''- regex: '(?i)\.WithCors.*\*''severity: medium
+  description: "gRPC-Web CORS allows all origins - exposes API to unauthorized domains"
+  remediation: "Configure specific allowed origins for CORS policy"
+  cwe: "CWE-346"
+  owasp: "A07:2021"
+
+# ======================== Rate Limiting Issues ========================
+
+- id: grpc-no-rate-limit
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)(RateLimit|RateLimiter|MaxConcurrentCalls).*\{\s*\}''- regex: '(?i)MaxConcurrentStreams\s*:\s*0|MaxConcurrentCalls\s*:\s*0''- regex: '(?i)server\.MaxConcurrentCalls\(\s*0\s*\)''- regex: '(?i)NoRateLimiter|UnlimitedRateLimiter''- regex: '(?i)Throttle\s*:\s*false|throttle\s*:\s*false''- regex: '(?i)rate_limit.*disabled|disableRateLimiter.*true''severity: high
+  description: "gRPC server missing rate limiting - vulnerable to DoS attacks"
+  remediation: "Implement rate limiting using gRPC interceptors or service mesh"
+  cwe: "CWE-770"
+  owasp: "A04:2021"
+
+- id: grpc-no-connection-limit
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)MaxConcurrentStreams\s*:\s*math\.MaxUint32''- regex: '(?i)MaxConnection.*-1|unlimited.*connections''- regex: '(?i)grpc\.MaxConcurrentStreams\s*\(\s*0\s*\)''- regex: '(?i)ConnectionLimit\s*:\s*0|ConnectionLimit\s*:\s*MaxInt''severity: high
+  description: "gRPC server has no connection concurrency limits"
+  remediation: "Set MaxConcurrentStreams and connection pool limits"
+  cwe: "CWE-770"
+  owasp: "A04:2021"
+
+# ======================== gRPC Gateway Issues ========================
+
+- id: grpc-gateway-no-auth
+  languages: [go, java, python, javascript, typescript, csharp]
+  patterns:
+    - regex: '(?i)grpcGateway.*Use\(nil\)|gateway.*WithMiddleware.*nil''- regex: '(?i)WithMetadata\(nil\).*WithHandler''- regex: '(?i)Mux.*HandleFunc.*no.*auth''- regex: '(?i)authorization.*middleware.*disabled''- regex: '(?i)ServeMux.*\{\s*\}''severity: high
+  description: "gRPC-Gateway endpoints without authentication"
+  remediation: "Add authentication middleware to gRPC-Gateway mux"
+  cwe: "CWE-306"
+  owasp: "A07:2021"
+
+- id: grpc-gateway-swagger-exposed
+  languages: [go, java, python, javascript, typescript, csharp]
+  patterns:
+    - regex: '(?i)(swagger|openapi|proto).*Serve\(|ServeSwagger''- regex: '(?i)files\.Serve\(.*swagger''- regex: '(?i)\.WithSwagger\(.*nil\)|\.EnableSwagger\(\)''- regex: '(?i)static\s*:\s*\{[^}]*swagger''- regex: '(?i)/swagger-ui|/swagger/''severity: medium
+  description: "gRPC-Gateway serves Swagger/OpenAPI documentation in production"
+  remediation: "Disable swagger endpoint in production or protect with authentication"
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+
+# ======================== Additional Security Issues ========================
+
+- id: grpc-metadata-leak
+  languages: [go, java, python, javascript, typescript, csharp, ruby, php]
+  patterns:
+    - regex: '(?i)metadata\.IncomingContext.*metadata\.OutgoingContext''- regex: '(?i)\.FromIncomingContext.*\.AppendToOutgoingContext''- regex: '(?i)metadata\s*\(\s*\)\s*\{.*return.*incoming.*\}''- regex: '(?i)forward.*metadata.*all''severity: medium
+  description: "gRPC forwards all metadata without filtering sensitive information"
+  remediation: "Filter sensitive headers (auth tokens, cookies) before forwarding"
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+
+- id: grpc-alts-disabled
+  languages: [go, java, python, csharp]
+  patterns:
+    - regex: '(?i)GRPC_AUTHENTICATION_TYPE.*ALTS.*false''- regex: '(?i)UseALTS\s*:\s*false''- regex: '(?i)alts\s*:\s*false''- regex: '(?i)security\s*:\s*["''']none["'']'
+  severity: high
+  description: "gRPC ALTS (Application Layer Transport Security) is disabled"
+  remediation: "Enable ALTS in GCP environments for additional security layer"
+  cwe: "CWE-295"
+  owasp: "A02:2021"

@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -57,22 +58,22 @@ type Dependency struct {
 
 // ScanDependencies scans for vulnerable dependencies using osv-scanner CLI if available,
 // falling back to manual parsing and the OSV API if not.
-func ScanDependencies(targetDir string) ([]reporter.Finding, error) {
+func ScanDependencies(ctx context.Context, targetDir string) ([]reporter.Finding, error) {
 	utils.LogInfo("Starting dependency vulnerability scan...")
 
 	// 1. Try to use the official Google osv-scanner CLI first (Most Accurate)
 	if CheckOSVCliInstalled() {
-		return RunOSVCli(targetDir)
+		return RunOSVCli(ctx, targetDir)
 	}
 
 	// 2. Fallback to our custom manual parser and the OSV HTTP API
 	utils.LogWarn("osv-scanner CLI not found in PATH! Falling back to manual dependency scanning.")
 	utils.LogWarn("For best results and lockfile support, install it: go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2")
-	return scanDependenciesFallback(targetDir)
+	return scanDependenciesFallback(ctx, targetDir)
 }
 
 // scanDependenciesFallback is the original manual dependency scanner
-func scanDependenciesFallback(targetDir string) ([]reporter.Finding, error) {
+func scanDependenciesFallback(ctx context.Context, targetDir string) ([]reporter.Finding, error) {
 	var findings []reporter.Finding
 	srNo := 1
 
@@ -84,7 +85,10 @@ func scanDependenciesFallback(targetDir string) ([]reporter.Finding, error) {
 	analyzer := NewASTAnalyzer()
 
 	for _, dep := range dependencies {
-		vulns, err := queryOSV(dep)
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		vulns, err := queryOSV(ctx, dep)
 		if err != nil {
 			utils.LogWarn(fmt.Sprintf("Failed to query OSV for %s: %v", dep.Name, err))
 			continue
@@ -168,7 +172,7 @@ func collectDependencies(targetDir string) []Dependency {
 }
 
 // queryOSV queries the OSV API for vulnerabilities
-func queryOSV(dep Dependency) ([]OSVVulnerability, error) {
+func queryOSV(ctx context.Context, dep Dependency) ([]OSVVulnerability, error) {
 	client := &http.Client{Timeout: 30 * time.Second}
 
 	request := map[string]interface{}{
@@ -184,7 +188,13 @@ func queryOSV(dep Dependency) ([]OSVVulnerability, error) {
 		return nil, err
 	}
 
-	resp, err := client.Post("https://api.osv.dev/v1/query", "application/json", strings.NewReader(string(requestBody)))
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://api.osv.dev/v1/query", strings.NewReader(string(requestBody)))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

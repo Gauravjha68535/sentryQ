@@ -6,7 +6,7 @@
 - id: ps-hardcoded-password
   languages: [powershell]
   patterns:
-    - regex: '(?i)(password|passwd|pwd|secret)\\s*=\\s*[''\"][^''\"]{8,}[''\"]'
+    - regex: '(?i)(password|passwd|pwd|secret)\\s*=\\s*['''\"][^''\"]{8,}[''\"]'
   severity: high
   description: "Hardcoded password in PowerShell script"
   remediation: "Use Get-Credential, SecureString, or Azure Key Vault"
@@ -16,7 +16,7 @@
 - id: ps-hardcoded-credential
   languages: [powershell]
   patterns:
-    - regex: '(?i)ConvertTo-SecureString\\s+[''\"][^''\"]+[''\"]\\s+-AsPlainText'
+    - regex: '(?i)ConvertTo-SecureString\\s+['''\"][^''\"]+[''\"]\\s+-AsPlainText'
   severity: high
   description: "Hardcoded password converted to SecureString"
   remediation: "Use Get-Credential or read from encrypted credential store"
@@ -27,8 +27,7 @@
 - id: ps-invoke-expression
   languages: [powershell]
   patterns:
-    - regex: '(?i)Invoke-Expression|iex\\s+\\$'
-  severity: critical
+    - regex: '(?i)Invoke-Expression|iex\\s+\\$''severity: critical
   description: "Invoke-Expression can execute arbitrary code"
   remediation: "Avoid Invoke-Expression. Use & (call operator) with validated commands"
   cwe: "CWE-94"
@@ -37,8 +36,7 @@
 - id: ps-add-type-unsafe
   languages: [powershell]
   patterns:
-    - regex: '(?i)Add-Type\\s+.*-TypeDefinition.*\\$'
-  severity: high
+    - regex: '(?i)Add-Type\\s+.*-TypeDefinition.*\\$''severity: high
   description: "Add-Type with user input can compile and run arbitrary code"
   remediation: "Never use user input in Add-Type TypeDefinition"
   cwe: "CWE-94"
@@ -48,8 +46,7 @@
 - id: ps-command-injection
   languages: [powershell]
   patterns:
-    - regex: '(?i)(Start-Process|cmd\\s+/c|cmd\\.exe).*\\$'
-  severity: critical
+    - regex: '(?i)(Start-Process|cmd\\s+/c|cmd\\.exe).*\\$''severity: critical
   description: "Command injection via Start-Process with variable input"
   remediation: "Validate input. Use -ArgumentList array instead of string concatenation"
   cwe: "CWE-78"
@@ -59,8 +56,7 @@
 - id: ps-download-and-execute
   languages: [powershell]
   patterns:
-    - regex: '(?i)(Invoke-WebRequest|Invoke-RestMethod|DownloadString|DownloadFile).*\\|.*Invoke-Expression|iex'
-  severity: critical
+    - regex: '(?i)(Invoke-WebRequest|Invoke-RestMethod|DownloadString|DownloadFile).*\\|.*Invoke-Expression|iex''severity: critical
   description: "Download and execute pattern — extremely dangerous"
   remediation: "Download, inspect, then execute. Verify file hashes"
   cwe: "CWE-94"
@@ -69,8 +65,7 @@
 - id: ps-insecure-webclient
   languages: [powershell]
   patterns:
-    - regex: '(?i)\\[Net\\.WebClient\\].*DownloadString.*http://'
-  severity: high
+    - regex: '(?i)\\[Net\\.WebClient\\].*DownloadString.*http://''severity: high
   description: "Downloading content over HTTP (unencrypted)"
   remediation: "Use HTTPS for all downloads"
   cwe: "CWE-319"
@@ -80,8 +75,7 @@
 - id: ps-bypass-execution-policy
   languages: [powershell]
   patterns:
-    - regex: '(?i)-ExecutionPolicy\\s+(Bypass|Unrestricted)'
-  severity: medium
+    - regex: '(?i)-ExecutionPolicy\\s+(Bypass|Unrestricted)''severity: medium
   description: "Execution policy bypass may allow malicious scripts"
   remediation: "Use RemoteSigned or AllSigned execution policy"
   cwe: "CWE-284"
@@ -91,8 +85,7 @@
 - id: ps-sensitive-data-log
   languages: [powershell]
   patterns:
-    - regex: '(?i)Write-(Host|Output|Verbose).*(?:password|secret|token|key)'
-  severity: medium
+    - regex: '(?i)Write-(Host|Output|Verbose).*(?:password|secret|token|key)''severity: medium
   description: "Sensitive data in console output"
   remediation: "Remove sensitive data from output. Use SecureString for sensitive values"
   cwe: "CWE-532"
@@ -102,8 +95,7 @@
 - id: ps-sql-injection
   languages: [powershell]
   patterns:
-    - regex: '(?i)Invoke-Sql.*\\$|\\$.*\\.ExecuteNonQuery.*\\$'
-  severity: critical
+    - regex: '(?i)Invoke-Sql.*\\$|\\$.*\\.ExecuteNonQuery.*\\$''severity: critical
   description: "SQL injection via variable interpolation in PowerShell"
   remediation: "Use parameterized queries with SqlParameter"
   cwe: "CWE-89"
@@ -113,8 +105,7 @@
 - id: ps-insecure-tls
   languages: [powershell]
   patterns:
-    - regex: '(?i)ServerCertificateValidationCallback.*\\{.*\\$true|Ssl3|Tls\\b[^1]'
-  severity: high
+    - regex: '(?i)ServerCertificateValidationCallback.*\\{.*\\$true|Ssl3|Tls\\b[^1]''severity: high
   description: "TLS validation disabled or weak protocol version"
   remediation: "Use [Net.SecurityProtocolType]::Tls12 and proper certificate validation"
   cwe: "CWE-295"
@@ -124,8 +115,7 @@
 - id: ps-privilege-escalation
   languages: [powershell]
   patterns:
-    - regex: '(?i)-Verb\\s+RunAs|Enable-PSRemoting\\s+-Force'
-  severity: medium
+    - regex: '(?i)-Verb\\s+RunAs|Enable-PSRemoting\\s+-Force''severity: medium
   description: "Privilege escalation via RunAs or PSRemoting"
   remediation: "Minimize privilege escalation. Log all elevated operations"
   cwe: "CWE-250"
@@ -143,8 +133,7 @@
 - id: ps-remoting-session-configuration
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-PSSessionConfigurationFile\\s*\\('
-  severity: medium
+    - regex: '(?i)New-PSSessionConfigurationFile\\s*\\(''severity: medium
   description: "Custom PSSession configuration created"
   remediation: "Review session configuration for security settings"
   cwe: "CWE-284"
@@ -153,8 +142,7 @@
 - id: ps-remoting-enable-psremoting
   languages: [powershell]
   patterns:
-    - regex: '(?i)Enable-PSRemoting\\s*-Force'
-  severity: medium
+    - regex: '(?i)Enable-PSRemoting\\s*-Force''severity: medium
   description: "PSRemoting enabled with -Force"
   remediation: "Review firewall rules and authentication settings"
   cwe: "CWE-284"
@@ -163,8 +151,7 @@
 - id: ps-remoting-invoke-command
   languages: [powershell]
   patterns:
-    - regex: '(?i)Invoke-Command\\s*-ScriptBlock'
-  severity: medium
+    - regex: '(?i)Invoke-Command\\s*-ScriptBlock''severity: medium
   description: "Remote command execution via Invoke-Command"
   remediation: "Validate script block content and remote targets"
   cwe: "CWE-94"
@@ -173,8 +160,7 @@
 - id: ps-remoting-enter-pssession
   languages: [powershell]
   patterns:
-    - regex: '(?i)Enter-PSSession\\s*-ComputerName'
-  severity: low
+    - regex: '(?i)Enter-PSSession\\s*-ComputerName''severity: low
   description: "Interactive remote session"
   remediation: "Ensure proper authentication and logging"
   cwe: "CWE-284"
@@ -183,8 +169,7 @@
 - id: ps-remoting-credential-explicit
   languages: [powershell]
   patterns:
-    - regex: '(?i)-Credential\\s*\\$\\w+'
-  severity: medium
+    - regex: '(?i)-Credential\\s*\\$\\w+''severity: medium
   description: "Explicit credentials in remoting command"
   remediation: "Use managed identities or credential vault"
   cwe: "CWE-798"
@@ -193,8 +178,7 @@
 - id: ps-remoting-ssl-configuration
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-PSSessionOption\\s*-SkipCACheck'
-  severity: high
+    - regex: '(?i)New-PSSessionOption\\s*-SkipCACheck''severity: high
   description: "SSL certificate validation skipped in remoting"
   remediation: "Enable proper certificate validation"
   cwe: "CWE-295"
@@ -203,8 +187,7 @@
 - id: ps-remoting-trusted-hosts
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-Item\\s*WSMan:\\\\localhost\\\\Client\\\\TrustedHosts'
-  severity: medium
+    - regex: '(?i)Set-Item\\s*WSMan:\\localhost\\Client\\TrustedHosts''severity: medium
   description: "WSMan TrustedHosts configuration"
   remediation: "Restrict trusted hosts to specific systems"
   cwe: "CWE-284"
@@ -213,8 +196,7 @@
 - id: ps-remoting-transport-http
   languages: [powershell]
   patterns:
-    - regex: '(?i)-UseSSL:\\s*\\$false|http://[^\\s]+'
-  severity: high
+    - regex: '(?i)-UseSSL:\\s*\\$false|http://[^\\s]+''severity: high
   description: "PowerShell remoting over HTTP (unencrypted)"
   remediation: "Use HTTPS for all remoting connections"
   cwe: "CWE-319"
@@ -223,8 +205,7 @@
 - id: ps-remoting-authentication-kerberos
   languages: [powershell]
   patterns:
-    - regex: '(?i)-Authentication\\s+Kerberos|Negotiate'
-  severity: low
+    - regex: '(?i)-Authentication\\s+Kerberos|Negotiate''severity: low
   description: "Kerberos/Negotiate authentication"
   remediation: "Ensure proper domain trust configuration"
   cwe: "CWE-287"
@@ -233,8 +214,7 @@
 - id: ps-remoting-authentication-basic
   languages: [powershell]
   patterns:
-    - regex: '(?i)-Authentication\\s+Basic'
-  severity: high
+    - regex: '(?i)-Authentication\\s+Basic''severity: high
   description: "Basic authentication for remoting"
   remediation: "Use Kerberos or certificate-based auth"
   cwe: "CWE-523"
@@ -243,8 +223,7 @@
 - id: ps-remoting-allow-unencrypted
   languages: [powershell]
   patterns:
-    - regex: '(?i)AllowUnencrypted\\s*=\\s*\\$true'
-  severity: critical
+    - regex: '(?i)AllowUnencrypted\\s*=\\s*\\$true''severity: critical
   description: "Unencrypted PowerShell remoting allowed"
   remediation: "Set AllowUnencrypted = $false"
   cwe: "CWE-319"
@@ -253,8 +232,7 @@
 - id: ps-remoting-max-connections
   languages: [powershell]
   patterns:
-    - regex: '(?i)MaxConnectionsPerShell'
-  severity: low
+    - regex: '(?i)MaxConnectionsPerShell''severity: low
   description: "Max connections configuration"
   remediation: "Set appropriate connection limits"
   cwe: "CWE-770"
@@ -263,8 +241,7 @@
 - id: ps-remoting-idle-timeout
   languages: [powershell]
   patterns:
-    - regex: '(?i)IdleTimeout\\s*=\\s*\\d+'
-  severity: low
+    - regex: '(?i)IdleTimeout\\s*=\\s*\\d+''severity: low
   description: "Session idle timeout configuration"
   remediation: "Set appropriate timeout (e.g., 4 hours)"
   cwe: "CWE-613"
@@ -273,8 +250,7 @@
 - id: ps-remoting-max-memory
   languages: [powershell]
   patterns:
-    - regex: '(?i)MaxMemoryPerShellMB'
-  severity: low
+    - regex: '(?i)MaxMemoryPerShellMB''severity: low
   description: "Max memory per shell configuration"
   remediation: "Set appropriate memory limits"
   cwe: "CWE-770"
@@ -283,8 +259,7 @@
 - id: ps-remoting-plugin-configuration
   languages: [powershell]
   patterns:
-    - regex: '(?i)Register-PSSessionConfiguration'
-  severity: medium
+    - regex: '(?i)Register-PSSessionConfiguration''severity: medium
   description: "Custom PSSession configuration registered"
   remediation: "Review plugin security and permissions"
   cwe: "CWE-284"
@@ -294,8 +269,7 @@
 - id: ps-module-untrusted-repository
   languages: [powershell]
   patterns:
-    - regex: '(?i)Register-PSRepository\\s*-Name'
-  severity: medium
+    - regex: '(?i)Register-PSRepository\\s*-Name''severity: medium
   description: "Custom PowerShell repository registered"
   remediation: "Verify repository trustworthiness"
   cwe: "CWE-829"
@@ -304,8 +278,7 @@
 - id: ps-module-install-untrusted
   languages: [powershell]
   patterns:
-    - regex: '(?i)Install-Module\\s*-Force'
-  severity: medium
+    - regex: '(?i)Install-Module\\s*-Force''severity: medium
   description: "Module installed with -Force"
   remediation: "Verify module signature before installation"
   cwe: "CWE-829"
@@ -314,8 +287,7 @@
 - id: ps-module-skip-validation
   languages: [powershell]
   patterns:
-    - regex: '(?i)-SkipPublisherCheck|SkipModuleManifestValidate'
-  severity: high
+    - regex: '(?i)-SkipPublisherCheck|SkipModuleManifestValidate''severity: high
   description: "Module validation skipped"
   remediation: "Enable module validation and signature checking"
   cwe: "CWE-829"
@@ -324,8 +296,7 @@
 - id: ps-module-execution-policy
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-ExecutionPolicy\\s+RemoteSigned|Unrestricted'
-  severity: medium
+    - regex: '(?i)Set-ExecutionPolicy\\s+RemoteSigned|Unrestricted''severity: medium
   description: "Execution policy set to RemoteSigned/Unrestricted"
   remediation: "Use AllSigned or Restricted in production"
   cwe: "CWE-284"
@@ -334,8 +305,7 @@
 - id: ps-module-unblock-file
   languages: [powershell]
   patterns:
-    - regex: '(?i)Unblock-File\\s*-Path'
-  severity: medium
+    - regex: '(?i)Unblock-File\\s*-Path''severity: medium
   description: "File zone identifier removed"
   remediation: "Verify file source before unblocking"
   cwe: "CWE-829"
@@ -344,8 +314,7 @@
 - id: ps-module-import-remote
   languages: [powershell]
   patterns:
-    - regex: '(?i)Import-Module\\s*-Uri'
-  severity: high
+    - regex: '(?i)Import-Module\\s*-Uri''severity: high
   description: "Module imported from remote URI"
   remediation: "Download and verify module before import"
   cwe: "CWE-829"
@@ -354,8 +323,7 @@
 - id: ps-module-dot-sourcing
   languages: [powershell]
   patterns:
-    - regex: '\\s*\\.\\s*[^\\s]+\\.ps'
-  severity: medium
+    - regex: '\\s*\\.\\s*[^\\s]+\\.ps''severity: medium
   description: "Script dot-sourced into current session"
   remediation: "Validate script content before sourcing"
   cwe: "CWE-94"
@@ -364,8 +332,7 @@
 - id: ps-module-script-block-logging
   languages: [powershell]
   patterns:
-    - regex: '(?i)ModuleLogging\\s*=\\s*\\$false|ScriptBlockLogging\\s*=\\s*\\$false'
-  severity: high
+    - regex: '(?i)ModuleLogging\\s*=\\s*\\$false|ScriptBlockLogging\\s*=\\s*\\$false''severity: high
   description: "PowerShell script block logging disabled"
   remediation: "Enable script block logging for audit"
   cwe: "CWE-778"
@@ -374,8 +341,7 @@
 - id: ps-module-transcription
   languages: [powershell]
   patterns:
-    - regex: '(?i)Enable-ModuleTranscription|Start-Transcript'
-  severity: low
+    - regex: '(?i)Enable-ModuleTranscription|Start-Transcript''severity: low
   description: "PowerShell transcription enabled"
   remediation: "Ensure transcripts are stored securely"
   cwe: "CWE-532"
@@ -384,7 +350,7 @@
 - id: ps-module-constrained-language
   languages: [powershell]
   patterns:
-    - regex: '(?i)LanguageMode\\s*=\\s*[''\"]FullLanguage[''\"]'
+    - regex: '(?i)LanguageMode\\s*=\\s*['''\"]FullLanguage[''\"]'
   severity: medium
   description: "Constrained Language Mode disabled"
   remediation: "Use ConstrainedLanguage mode for untrusted scripts"
@@ -394,8 +360,7 @@
 - id: ps-module-applocker
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AppLockerPolicy|Set-AppLockerPolicy'
-  severity: low
+    - regex: '(?i)New-AppLockerPolicy|Set-AppLockerPolicy''severity: low
   description: "AppLocker policy configuration"
   remediation: "Review AppLocker rules for PowerShell"
   cwe: "CWE-284"
@@ -404,8 +369,7 @@
 - id: ps-module-device-guard
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-RuleOption\\s*-FilePath'
-  severity: low
+    - regex: '(?i)Set-RuleOption\\s*-FilePath''severity: low
   description: "Device Guard code integrity policy"
   remediation: "Review code integrity policies"
   cwe: "CWE-284"
@@ -414,8 +378,7 @@
 - id: ps-module-amsi-bypass
   languages: [powershell]
   patterns:
-    - regex: '(?i)\\[Ref\\].*Assembly|AmsiInitFailed'
-  severity: critical
+    - regex: '(?i)\\[Ref\\].*Assembly|AmsiInitFailed''severity: critical
   description: "Potential AMSI bypass attempt"
   remediation: "Monitor for AMSI bypass techniques"
   cwe: "CWE-693"
@@ -424,8 +387,7 @@
 - id: ps-module-script-encoding
   languages: [powershell]
   patterns:
-    - regex: '(?i)-Encoding\\s+Byte|Base64'
-  severity: medium
+    - regex: '(?i)-Encoding\\s+Byte|Base64''severity: medium
   description: "Script with encoded content"
   remediation: "Decode and review script content"
   cwe: "CWE-693"
@@ -434,8 +396,7 @@
 - id: ps-module-obfuscated-command
   languages: [powershell]
   patterns:
-    - regex: '(?i)\\^[^-]|`[^`]|\\x[0-9A-F]{2}'
-  severity: high
+    - regex: '(?i)\\^[^-]|`[^`]|\\x[0-9A-F]{2}''severity: high
   description: "Obfuscated PowerShell command"
   remediation: "Deobfuscate and review command"
   cwe: "CWE-693"
@@ -445,8 +406,7 @@
 - id: ps-credential-object-plaintext
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-Object\\s+System\\.Net\\.NetworkCredential'
-  severity: high
+    - regex: '(?i)New-Object\\s+System\\.Net\\.NetworkCredential''severity: high
   description: "NetworkCredential with potential plaintext password"
   remediation: "Use PSCredential with SecureString"
   cwe: "CWE-312"
@@ -455,8 +415,7 @@
 - id: ps-credential-export
   languages: [powershell]
   patterns:
-    - regex: '(?i)Export-Clixml\\s*-Path.*credential'
-  severity: high
+    - regex: '(?i)Export-Clixml\\s*-Path.*credential''severity: high
   description: "Credential exported to file"
   remediation: "Use credential vault instead of file export"
   cwe: "CWE-312"
@@ -465,8 +424,7 @@
 - id: ps-credential-import
   languages: [powershell]
   patterns:
-    - regex: '(?i)Import-Clixml\\s*-Path.*credential'
-  severity: high
+    - regex: '(?i)Import-Clixml\\s*-Path.*credential''severity: high
   description: "Credential imported from file"
   remediation: "Use credential vault instead of file import"
   cwe: "CWE-312"
@@ -475,8 +433,7 @@
 - id: ps-credential-get-credential
   languages: [powershell]
   patterns:
-    - regex: '(?i)Get-Credential\\s*-Credential'
-  severity: low
+    - regex: '(?i)Get-Credential\\s*-Credential''severity: low
   description: "Get-Credential with stored credential"
   remediation: "Ensure credential is securely stored"
   cwe: "CWE-312"
@@ -485,8 +442,7 @@
 - id: ps-credential-securestring
   languages: [powershell]
   patterns:
-    - regex: '(?i)ConvertTo-SecureString\\s*-AsPlainText'
-  severity: high
+    - regex: '(?i)ConvertTo-SecureString\\s*-AsPlainText''severity: high
   description: "SecureString created from plaintext"
   remediation: "Use encrypted credential storage"
   cwe: "CWE-312"
@@ -495,8 +451,7 @@
 - id: ps-credential-key-length
   languages: [powershell]
   patterns:
-    - regex: '(?i)ConvertTo-SecureString.*-Key\\s+\\d{1,2}[^0-9]'
-  severity: medium
+    - regex: '(?i)ConvertTo-SecureString.*-Key\\s+\\d{1,2}[^0-9]''severity: medium
   description: "SecureString with short key"
   remediation: "Use 16, 24, or 32 byte keys"
   cwe: "CWE-326"
@@ -505,8 +460,7 @@
 - id: ps-credential-protect-data
   languages: [powershell]
   patterns:
-    - regex: '(?i)Protect-CmsMessage|Unprotect-CmsMessage'
-  severity: low
+    - regex: '(?i)Protect-CmsMessage|Unprotect-CmsMessage''severity: low
   description: "CMS message protection"
   remediation: "Ensure proper certificate management"
   cwe: "CWE-326"
@@ -515,8 +469,7 @@
 - id: ps-credential-dpapi
   languages: [powershell]
   patterns:
-    - regex: '(?i)ConvertFrom-SecureString|ConvertTo-SecureString'
-  severity: medium
+    - regex: '(?i)ConvertFrom-SecureString|ConvertTo-SecureString''severity: medium
   description: "DPAPI encryption for credentials"
   remediation: "DPAPI is user/machine specific"
   cwe: "CWE-312"
@@ -525,8 +478,7 @@
 - id: ps-credential-vault
   languages: [powershell]
   patterns:
-    - regex: '(?i)CredentialManager|VaultCredential'
-  severity: low
+    - regex: '(?i)CredentialManager|VaultCredential''severity: low
   description: "Windows Credential Manager usage"
   remediation: "Good practice for credential storage"
   cwe: "CWE-312"
@@ -535,8 +487,7 @@
 - id: ps-credential-azure-keyvault
   languages: [powershell]
   patterns:
-    - regex: '(?i)Get-AzKeyVaultSecret|Get-KeyVaultSecret'
-  severity: low
+    - regex: '(?i)Get-AzKeyVaultSecret|Get-KeyVaultSecret''severity: low
   description: "Azure Key Vault secret retrieval"
   remediation: "Ensure proper Key Vault access policies"
   cwe: "CWE-312"
@@ -545,8 +496,7 @@
 - id: ps-credential-aws-secrets
   languages: [powershell]
   patterns:
-    - regex: '(?i)Get-SECSecretValue|Read-SECSecret'
-  severity: low
+    - regex: '(?i)Get-SECSecretValue|Read-SECSecret''severity: low
   description: "AWS Secrets Manager access"
   remediation: "Ensure proper IAM permissions"
   cwe: "CWE-312"
@@ -555,8 +505,7 @@
 - id: ps-credential-hashicorp-vault
   languages: [powershell]
   patterns:
-    - regex: '(?i)Read-VaultSecret|Get-VaultSecret'
-  severity: low
+    - regex: '(?i)Read-VaultSecret|Get-VaultSecret''severity: low
   description: "HashiCorp Vault secret access"
   remediation: "Ensure proper Vault authentication"
   cwe: "CWE-312"
@@ -565,8 +514,7 @@
 - id: ps-credential-environment-variable
   languages: [powershell]
   patterns:
-    - regex: '(?i)\\$env:[A-Z_]*PASSWORD|\\$env:[A-Z_]*SECRET'
-  severity: medium
+    - regex: '(?i)\\$env:[A-Z_]*PASSWORD|\\$env:[A-Z_]*SECRET''severity: medium
   description: "Password/secret in environment variable"
   remediation: "Use secure credential storage"
   cwe: "CWE-312"
@@ -575,8 +523,7 @@
 - id: ps-credential-registry
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-ItemProperty.*HK'
-  severity: medium
+    - regex: '(?i)Set-ItemProperty.*HK''severity: medium
   description: "Credential stored in registry"
   remediation: "Use credential vault instead"
   cwe: "CWE-312"
@@ -585,8 +532,7 @@
 - id: ps-credential-file-plaintext
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-Content.*password|Out-File.*secret'
-  severity: critical
+    - regex: '(?i)Set-Content.*password|Out-File.*secret''severity: critical
   description: "Credential written to file in plaintext"
   remediation: "Use encrypted credential storage"
   cwe: "CWE-312"
@@ -596,8 +542,7 @@
 - id: ps-azure-connect-account
   languages: [powershell]
   patterns:
-    - regex: '(?i)Connect-AzAccount\\s*-Credential'
-  severity: high
+    - regex: '(?i)Connect-AzAccount\\s*-Credential''severity: high
   description: "Azure login with credential object"
   remediation: "Use managed identity or service principal"
   cwe: "CWE-798"
@@ -606,8 +551,7 @@
 - id: ps-azure-service-principal
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzADServicePrincipal.*-Password'
-  severity: high
+    - regex: '(?i)New-AzADServicePrincipal.*-Password''severity: high
   description: "Service principal with password credential"
   remediation: "Use certificate-based authentication"
   cwe: "CWE-798"
@@ -616,8 +560,7 @@
 - id: ps-azure-role-assignment
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzRoleAssignment.*Owner|Contributor'
-  severity: medium
+    - regex: '(?i)New-AzRoleAssignment.*Owner|Contributor''severity: medium
   description: "Broad role assignment in Azure"
   remediation: "Use least privilege roles"
   cwe: "CWE-250"
@@ -626,8 +569,7 @@
 - id: ps-azure-keyvault-access
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-AzKeyVaultAccessPolicy.*-PermissionsTo'
-  severity: medium
+    - regex: '(?i)Set-AzKeyVaultAccessPolicy.*-PermissionsTo''severity: medium
   description: "Key Vault access policy configuration"
   remediation: "Review Key Vault permissions"
   cwe: "CWE-284"
@@ -636,8 +578,7 @@
 - id: ps-azure-storage-account
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzStorageAccount.*-SkuName'
-  severity: low
+    - regex: '(?i)New-AzStorageAccount.*-SkuName''severity: low
   description: "Azure Storage account creation"
   remediation: "Enable encryption and secure transfer"
   cwe: "CWE-311"
@@ -646,8 +587,7 @@
 - id: ps-azure-vm-creation
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzVM.*-AdminUsername'
-  severity: medium
+    - regex: '(?i)New-AzVM.*-AdminUsername''severity: medium
   description: "Azure VM with admin username"
   remediation: "Use managed identity instead of local admin"
   cwe: "CWE-798"
@@ -656,8 +596,7 @@
 - id: ps-azure-network-security
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzNetworkSecurityGroup.*Allow'
-  severity: medium
+    - regex: '(?i)New-AzNetworkSecurityGroup.*Allow''severity: medium
   description: "NSG rule allowing traffic"
   remediation: "Review NSG rules for security"
   cwe: "CWE-284"
@@ -666,8 +605,7 @@
 - id: ps-azure-sql-database
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzSqlDatabase.*-RequestedServiceObjective'
-  severity: low
+    - regex: '(?i)New-AzSqlDatabase.*-RequestedServiceObjective''severity: low
   description: "Azure SQL Database creation"
   remediation: "Enable TDE and firewall rules"
   cwe: "CWE-311"
@@ -676,8 +614,7 @@
 - id: ps-azure-key-vault-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)Add-AzKeyVaultKey.*-Destination'
-  severity: low
+    - regex: '(?i)Add-AzKeyVaultKey.*-Destination''severity: low
   description: "Key Vault key creation"
   remediation: "Use HSM-protected keys"
   cwe: "CWE-326"
@@ -686,8 +623,7 @@
 - id: ps-azure-key-vault-certificate
   languages: [powershell]
   patterns:
-    - regex: '(?i)Import-AzKeyVaultCertificate'
-  severity: low
+    - regex: '(?i)Import-AzKeyVaultCertificate''severity: low
   description: "Key Vault certificate import"
   remediation: "Verify certificate chain"
   cwe: "CWE-295"
@@ -696,8 +632,7 @@
 - id: ps-azure-policy-assignment
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzPolicyAssignment'
-  severity: low
+    - regex: '(?i)New-AzPolicyAssignment''severity: low
   description: "Azure Policy assignment"
   remediation: "Review policy compliance"
   cwe: "CWE-693"
@@ -706,8 +641,7 @@
 - id: ps-azure-resource-lock
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzResourceLock.*-LockLevel'
-  severity: low
+    - regex: '(?i)New-AzResourceLock.*-LockLevel''severity: low
   description: "Azure resource lock"
   remediation: "Use CanNotDelete for critical resources"
   cwe: "CWE-693"
@@ -716,8 +650,7 @@
 - id: ps-azure-backup-vault
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzRecoveryServicesVault'
-  severity: low
+    - regex: '(?i)New-AzRecoveryServicesVault''severity: low
   description: "Recovery Services Vault creation"
   remediation: "Enable soft delete and MFA"
   cwe: "CWE-693"
@@ -726,8 +659,7 @@
 - id: ps-azure-monitor-alert
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzMetricAlertRule'
-  severity: low
+    - regex: '(?i)New-AzMetricAlertRule''severity: low
   description: "Azure Monitor alert rule"
   remediation: "Configure security alert rules"
   cwe: "CWE-778"
@@ -736,8 +668,7 @@
 - id: ps-azure-log-analytics
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AzOperationalInsightsWorkspace'
-  severity: low
+    - regex: '(?i)New-AzOperationalInsightsWorkspace''severity: low
   description: "Log Analytics workspace"
   remediation: "Enable security solutions"
   cwe: "CWE-778"
@@ -747,8 +678,7 @@
 - id: ps-aws-set-default
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-AWSCredential\\s*-StoreAs'
-  severity: high
+    - regex: '(?i)Set-AWSCredential\\s*-StoreAs''severity: high
   description: "AWS credentials stored in profile"
   remediation: "Use IAM roles instead of stored credentials"
   cwe: "CWE-798"
@@ -757,8 +687,7 @@
 - id: ps-aws-iam-user
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-IAMUser.*-Password'
-  severity: high
+    - regex: '(?i)New-IAMUser.*-Password''severity: high
   description: "IAM user with password"
   remediation: "Use IAM roles for workloads"
   cwe: "CWE-798"
@@ -767,8 +696,7 @@
 - id: ps-aws-iam-policy
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-IAMPolicy.*-PolicyDocument'
-  severity: medium
+    - regex: '(?i)New-IAMPolicy.*-PolicyDocument''severity: medium
   description: "IAM policy creation"
   remediation: "Follow least privilege principle"
   cwe: "CWE-250"
@@ -777,8 +705,7 @@
 - id: ps-aws-s3-bucket
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-S3Bucket.*-BucketName'
-  severity: medium
+    - regex: '(?i)New-S3Bucket.*-BucketName''severity: medium
   description: "S3 bucket creation"
   remediation: "Enable encryption and block public access"
   cwe: "CWE-311"
@@ -787,8 +714,7 @@
 - id: ps-aws-ec2-instance
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-EC2Instance.*-KeyName'
-  severity: low
+    - regex: '(?i)New-EC2Instance.*-KeyName''severity: low
   description: "EC2 instance with SSH key"
   remediation: "Use Systems Manager Session Manager"
   cwe: "CWE-798"
@@ -797,8 +723,7 @@
 - id: ps-aws-security-group
   languages: [powershell]
   patterns:
-    - regex: '(?i)Grant-EC2SecurityGroupIngress.*-CidrIp'
-  severity: medium
+    - regex: '(?i)Grant-EC2SecurityGroupIngress.*-CidrIp''severity: medium
   description: "Security group ingress rule"
   remediation: "Restrict CIDR to specific IPs"
   cwe: "CWE-284"
@@ -807,8 +732,7 @@
 - id: ps-aws-rds-instance
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-RDSDBInstance.*-MasterUserPassword'
-  severity: high
+    - regex: '(?i)New-RDSDBInstance.*-MasterUserPassword''severity: high
   description: "RDS instance with master password"
   remediation: "Use Secrets Manager for credentials"
   cwe: "CWE-798"
@@ -817,8 +741,7 @@
 - id: ps-aws-kms-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-KMSKey.*-KeyUsage'
-  severity: low
+    - regex: '(?i)New-KMSKey.*-KeyUsage''severity: low
   description: "KMS key creation"
   remediation: "Enable key rotation"
   cwe: "CWE-324"
@@ -827,8 +750,7 @@
 - id: ps-aws-secrets-manager
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-SECSecret.*-SecretString'
-  severity: medium
+    - regex: '(?i)New-SECSecret.*-SecretString''severity: medium
   description: "Secrets Manager secret creation"
   remediation: "Enable automatic rotation"
   cwe: "CWE-324"
@@ -837,8 +759,7 @@
 - id: ps-aws-lambda-function
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-LMFunction.*-Runtime'
-  severity: low
+    - regex: '(?i)New-LMFunction.*-Runtime''severity: low
   description: "Lambda function creation"
   remediation: "Use latest runtime version"
   cwe: "CWE-1104"
@@ -847,8 +768,7 @@
 - id: ps-aws-api-gateway
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-AGRestApi.*-EndpointConfiguration'
-  severity: low
+    - regex: '(?i)New-AGRestApi.*-EndpointConfiguration''severity: low
   description: "API Gateway creation"
   remediation: "Enable WAF and throttling"
   cwe: "CWE-770"
@@ -857,8 +777,7 @@
 - id: ps-aws-cloudtrail
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-CTTrail.*-S3BucketName'
-  severity: low
+    - regex: '(?i)New-CTTrail.*-S3BucketName''severity: low
   description: "CloudTrail trail creation"
   remediation: "Enable log file validation"
   cwe: "CWE-778"
@@ -867,8 +786,7 @@
 - id: ps-aws-config-rule
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-CFGConfigRule'
-  severity: low
+    - regex: '(?i)New-CFGConfigRule''severity: low
   description: "AWS Config rule"
   remediation: "Enable security Config rules"
   cwe: "CWE-778"
@@ -877,8 +795,7 @@
 - id: ps-aws-guardduty
   languages: [powershell]
   patterns:
-    - regex: '(?i)Enable-GDDetector'
-  severity: low
+    - regex: '(?i)Enable-GDDetector''severity: low
   description: "GuardDuty detector"
   remediation: "Enable GuardDuty in all regions"
   cwe: "CWE-778"
@@ -887,8 +804,7 @@
 - id: ps-aws-inspector
   languages: [powershell]
   patterns:
-    - regex: '(?i)Start-INSAssessmentRun'
-  severity: low
+    - regex: '(?i)Start-INSAssessmentRun''severity: low
   description: "Inspector assessment run"
   remediation: "Schedule regular assessments"
   cwe: "CWE-778"
@@ -898,8 +814,7 @@
 - id: ps-ad-user-creation
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-ADUser.*-AccountPassword'
-  severity: medium
+    - regex: '(?i)New-ADUser.*-AccountPassword''severity: medium
   description: "AD user creation with password"
   remediation: "Use secure password generation"
   cwe: "CWE-521"
@@ -908,8 +823,7 @@
 - id: ps-ad-group-modification
   languages: [powershell]
   patterns:
-    - regex: '(?i)Add-ADGroupMember.*-Members'
-  severity: medium
+    - regex: '(?i)Add-ADGroupMember.*-Members''severity: medium
   description: "AD group membership modification"
   remediation: "Review group membership changes"
   cwe: "CWE-284"
@@ -918,8 +832,7 @@
 - id: ps-ad-computer-creation
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-ADComputer.*-Name'
-  severity: low
+    - regex: '(?i)New-ADComputer.*-Name''severity: low
   description: "AD computer object creation"
   remediation: "Review computer object permissions"
   cwe: "CWE-284"
@@ -928,8 +841,7 @@
 - id: ps-ad-ou-creation
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-ADOrganizationalUnit'
-  severity: low
+    - regex: '(?i)New-ADOrganizationalUnit''severity: low
   description: "AD OU creation"
   remediation: "Review OU delegation"
   cwe: "CWE-284"
@@ -938,8 +850,7 @@
 - id: ps-ad-gpo-modification
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-GPRegistryValue|New-GPO'
-  severity: medium
+    - regex: '(?i)Set-GPRegistryValue|New-GPO''severity: medium
   description: "Group Policy modification"
   remediation: "Review GPO changes"
   cwe: "CWE-284"
@@ -948,8 +859,7 @@
 - id: ps-ad-dns-record
   languages: [powershell]
   patterns:
-    - regex: '(?i)Add-DnsServerResourceRecord'
-  severity: medium
+    - regex: '(?i)Add-DnsServerResourceRecord''severity: medium
   description: "DNS record creation"
   remediation: "Review DNS record changes"
   cwe: "CWE-284"
@@ -958,8 +868,7 @@
 - id: ps-ad-dhcp-scope
   languages: [powershell]
   patterns:
-    - regex: '(?i)Add-DhcpServerv4Scope'
-  severity: low
+    - regex: '(?i)Add-DhcpServerv4Scope''severity: low
   description: "DHCP scope creation"
   remediation: "Review DHCP configuration"
   cwe: "CWE-693"
@@ -968,8 +877,7 @@
 - id: ps-ad-certificate-services
   languages: [powershell]
   patterns:
-    - regex: '(?i)Install-AdcsCertificationAuthority'
-  severity: medium
+    - regex: '(?i)Install-AdcsCertificationAuthority''severity: medium
   description: "AD CS installation"
   remediation: "Harden AD CS configuration"
   cwe: "CWE-284"
@@ -978,8 +886,7 @@
 - id: ps-ad-fs-configuration
   languages: [powershell]
   patterns:
-    - regex: '(?i)Install-AdfsFarm'
-  severity: medium
+    - regex: '(?i)Install-AdfsFarm''severity: medium
   description: "AD FS installation"
   remediation: "Harden AD FS configuration"
   cwe: "CWE-284"
@@ -988,8 +895,7 @@
 - id: ps-ad-rms-configuration
   languages: [powershell]
   patterns:
-    - regex: '(?i)Install-Adrms'
-  severity: low
+    - regex: '(?i)Install-Adrms''severity: low
   description: "AD RMS installation"
   remediation: "Review RMS policies"
   cwe: "CWE-693"
@@ -998,8 +904,7 @@
 - id: ps-ad-ldaps-configuration
   languages: [powershell]
   patterns:
-    - regex: '(?i)LDAPS|LDAPS_CERTIFICATE'
-  severity: low
+    - regex: '(?i)LDAPS|LDAPS_CERTIFICATE''severity: low
   description: "LDAPS configuration"
   remediation: "Ensure LDAPS is enforced"
   cwe: "CWE-319"
@@ -1008,8 +913,7 @@
 - id: ps-ad-kerberos-policy
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-ADDefaultDomainPasswordPolicy'
-  severity: low
+    - regex: '(?i)Set-ADDefaultDomainPasswordPolicy''severity: low
   description: "Domain password policy"
   remediation: "Enforce strong password policy"
   cwe: "CWE-521"
@@ -1018,8 +922,7 @@
 - id: ps-ad-account-lockout
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-ADFineGrainedPasswordPolicy'
-  severity: low
+    - regex: '(?i)Set-ADFineGrainedPasswordPolicy''severity: low
   description: "Fine-grained password policy"
   remediation: "Configure account lockout"
   cwe: "CWE-307"
@@ -1028,8 +931,7 @@
 - id: ps-ad-audit-policy
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-ADObject.*-Audit'
-  severity: low
+    - regex: '(?i)Set-ADObject.*-Audit''severity: low
   description: "AD audit policy"
   remediation: "Enable comprehensive AD auditing"
   cwe: "CWE-778"
@@ -1038,8 +940,7 @@
 - id: ps-ad-replication
   languages: [powershell]
   patterns:
-    - regex: '(?i)Get-ADReplication.*|Sync-ADObject'
-  severity: low
+    - regex: '(?i)Get-ADReplication.*|Sync-ADObject''severity: low
   description: "AD replication operation"
   remediation: "Monitor replication health"
   cwe: "CWE-778"
@@ -1049,8 +950,7 @@
 - id: ps-registry-read
   languages: [powershell]
   patterns:
-    - regex: '(?i)Get-ItemProperty\\s*-Path\\s*HK'
-  severity: low
+    - regex: '(?i)Get-ItemProperty\\s*-Path\\s*HK''severity: low
   description: "Registry read operation"
   remediation: "Review registry access"
   cwe: "CWE-200"
@@ -1059,8 +959,7 @@
 - id: ps-registry-write
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-ItemProperty\\s*-Path\\s*HK'
-  severity: medium
+    - regex: '(?i)Set-ItemProperty\\s*-Path\\s*HK''severity: medium
   description: "Registry write operation"
   remediation: "Review registry modifications"
   cwe: "CWE-693"
@@ -1069,8 +968,7 @@
 - id: ps-registry-delete
   languages: [powershell]
   patterns:
-    - regex: '(?i)Remove-ItemProperty\\s*-Path\\s*HK'
-  severity: medium
+    - regex: '(?i)Remove-ItemProperty\\s*-Path\\s*HK''severity: medium
   description: "Registry delete operation"
   remediation: "Review registry deletions"
   cwe: "CWE-693"
@@ -1079,8 +977,7 @@
 - id: ps-registry-run-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)HK'
-  severity: medium
+    - regex: '(?i)HK''severity: medium
   description: "Run key modification"
   remediation: "Monitor Run key changes"
   cwe: "CWE-693"
@@ -1089,8 +986,7 @@
 - id: ps-registry-startup-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)CurrentVersion\\\\Run'
-  severity: medium
+    - regex: '(?i)CurrentVersion\\Run''severity: medium
   description: "Startup key modification"
   remediation: "Monitor startup key changes"
   cwe: "CWE-693"
@@ -1099,8 +995,7 @@
 - id: ps-registry-service-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)CurrentControlSet\\\\Services'
-  severity: medium
+    - regex: '(?i)CurrentControlSet\\Services''severity: medium
   description: "Service registry key"
   remediation: "Monitor service key changes"
   cwe: "CWE-693"
@@ -1109,8 +1004,7 @@
 - id: ps-registry-policies-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)Software\\\\Policies'
-  severity: low
+    - regex: '(?i)Software\\Policies''severity: low
   description: "Policies registry key"
   remediation: "Review policy settings"
   cwe: "CWE-693"
@@ -1119,8 +1013,7 @@
 - id: ps-registry-security-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)Security\\\\Policy'
-  severity: medium
+    - regex: '(?i)Security\\Policy''severity: medium
   description: "Security policy registry"
   remediation: "Review security policy"
   cwe: "CWE-284"
@@ -1129,8 +1022,7 @@
 - id: ps-registry-network-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)CurrentVersion\\\\Network'
-  severity: low
+    - regex: '(?i)CurrentVersion\\Network''severity: low
   description: "Network registry key"
   remediation: "Review network settings"
   cwe: "CWE-693"
@@ -1139,8 +1031,7 @@
 - id: ps-registry-internet-explorer
   languages: [powershell]
   patterns:
-    - regex: '(?i)Internet Explorer\\\\Security'
-  severity: low
+    - regex: '(?i)Internet Explorer\\Security''severity: low
   description: "IE security registry"
   remediation: "Review IE security settings"
   cwe: "CWE-693"
@@ -1149,8 +1040,7 @@
 - id: ps-registry-windows-defender
   languages: [powershell]
   patterns:
-    - regex: '(?i)Windows Defender'
-  severity: low
+    - regex: '(?i)Windows Defender''severity: low
   description: "Windows Defender registry"
   remediation: "Ensure Defender is enabled"
   cwe: "CWE-693"
@@ -1159,8 +1049,7 @@
 - id: ps-registry-firewall-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)FirewallRules|FirewallPolicy'
-  severity: medium
+    - regex: '(?i)FirewallRules|FirewallPolicy''severity: medium
   description: "Firewall registry key"
   remediation: "Review firewall rules"
   cwe: "CWE-284"
@@ -1169,8 +1058,7 @@
 - id: ps-registry-audit-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)Audit\\\\Policy'
-  severity: low
+    - regex: '(?i)Audit\\Policy''severity: low
   description: "Audit policy registry"
   remediation: "Review audit settings"
   cwe: "CWE-778"
@@ -1179,8 +1067,7 @@
 - id: ps-registry-lsass-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)LSA|Security\\\\LSA'
-  severity: high
+    - regex: '(?i)LSA|Security\\LSA''severity: high
   description: "LSA registry key"
   remediation: "Monitor LSA changes"
   cwe: "CWE-284"
@@ -1189,8 +1076,7 @@
 - id: ps-registry-sam-key
   languages: [powershell]
   patterns:
-    - regex: '(?i)SAM\\\\SAM'
-  severity: critical
+    - regex: '(?i)SAM\\SAM''severity: critical
   description: "SAM registry access"
   remediation: "Monitor SAM access"
   cwe: "CWE-284"
@@ -1200,8 +1086,7 @@
 - id: ps-certificate-export
   languages: [powershell]
   patterns:
-    - regex: '(?i)Export-Certificate|Export-PfxCertificate'
-  severity: high
+    - regex: '(?i)Export-Certificate|Export-PfxCertificate''severity: high
   description: "Certificate export operation"
   remediation: "Protect exported certificates"
   cwe: "CWE-312"
@@ -1210,8 +1095,7 @@
 - id: ps-certificate-import
   languages: [powershell]
   patterns:
-    - regex: '(?i)Import-Certificate|Import-PfxCertificate'
-  severity: medium
+    - regex: '(?i)Import-Certificate|Import-PfxCertificate''severity: medium
   description: "Certificate import operation"
   remediation: "Verify certificate authenticity"
   cwe: "CWE-295"
@@ -1220,8 +1104,7 @@
 - id: ps-certificate-request
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-CertificateRequest|CertReq'
-  severity: low
+    - regex: '(?i)New-CertificateRequest|CertReq''severity: low
   description: "Certificate request"
   remediation: "Use proper certificate templates"
   cwe: "CWE-295"
@@ -1230,8 +1113,7 @@
 - id: ps-certificate-store
   languages: [powershell]
   patterns:
-    - regex: '(?i)Cert:\\\\|CertificateStore'
-  severity: low
+    - regex: '(?i)Cert:\\|CertificateStore''severity: low
   description: "Certificate store access"
   remediation: "Review certificate store"
   cwe: "CWE-312"
@@ -1240,8 +1122,7 @@
 - id: ps-certificate-validation
   languages: [powershell]
   patterns:
-    - regex: '(?i)SkipCertificateCheck|IgnoreSslErrors'
-  severity: high
+    - regex: '(?i)SkipCertificateCheck|IgnoreSslErrors''severity: high
   description: "Certificate validation disabled"
   remediation: "Enable certificate validation"
   cwe: "CWE-295"
@@ -1250,8 +1131,7 @@
 - id: ps-certificate-self-signed
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-SelfSignedCertificate'
-  severity: medium
+    - regex: '(?i)New-SelfSignedCertificate''severity: medium
   description: "Self-signed certificate creation"
   remediation: "Use CA-signed certificates"
   cwe: "CWE-295"
@@ -1260,8 +1140,7 @@
 - id: ps-certificate-expiry
   languages: [powershell]
   patterns:
-    - regex: '(?i)NotAfter|NotBefore|CertificateExpiry'
-  severity: low
+    - regex: '(?i)NotAfter|NotBefore|CertificateExpiry''severity: low
   description: "Certificate expiry check"
   remediation: "Monitor certificate expiration"
   cwe: "CWE-324"
@@ -1270,8 +1149,7 @@
 - id: ps-certificate-revocation
   languages: [powershell]
   patterns:
-    - regex: '(?i)CRL|OCSP|RevocationList'
-  severity: low
+    - regex: '(?i)CRL|OCSP|RevocationList''severity: low
   description: "Certificate revocation check"
   remediation: "Enable CRL/OCSP checking"
   cwe: "CWE-295"
@@ -1280,8 +1158,7 @@
 - id: ps-certificate-chain
   languages: [powershell]
   patterns:
-    - regex: '(?i)CertificateChain|ChainPolicy'
-  severity: low
+    - regex: '(?i)CertificateChain|ChainPolicy''severity: low
   description: "Certificate chain validation"
   remediation: "Validate certificate chain"
   cwe: "CWE-295"
@@ -1290,8 +1167,7 @@
 - id: ps-certificate-thumbprint
   languages: [powershell]
   patterns:
-    - regex: '(?i)Thumbprint|CertificateThumbprint'
-  severity: low
+    - regex: '(?i)Thumbprint|CertificateThumbprint''severity: low
   description: "Certificate thumbprint"
   remediation: "Verify certificate thumbprint"
   cwe: "CWE-295"
@@ -1300,8 +1176,7 @@
 - id: ps-certificate-subject
   languages: [powershell]
   patterns:
-    - regex: '(?i)Subject|CertificateSubject'
-  severity: low
+    - regex: '(?i)Subject|CertificateSubject''severity: low
   description: "Certificate subject"
   remediation: "Verify certificate subject"
   cwe: "CWE-295"
@@ -1310,8 +1185,7 @@
 - id: ps-certificate-issuer
   languages: [powershell]
   patterns:
-    - regex: '(?i)Issuer|CertificateIssuer'
-  severity: low
+    - regex: '(?i)Issuer|CertificateIssuer''severity: low
   description: "Certificate issuer"
   remediation: "Verify certificate issuer"
   cwe: "CWE-295"
@@ -1320,8 +1194,7 @@
 - id: ps-certificate-key-length
   languages: [powershell]
   patterns:
-    - regex: '(?i)KeyLength|KeySize.*\\d{3}'
-  severity: medium
+    - regex: '(?i)KeyLength|KeySize.*\\d{3}''severity: medium
   description: "Certificate key length"
   remediation: "Use 2048+ bit keys"
   cwe: "CWE-326"
@@ -1330,8 +1203,7 @@
 - id: ps-certificate-algorithm
   languages: [powershell]
   patterns:
-    - regex: '(?i)RSA|ECDSA|SignatureAlgorithm'
-  severity: low
+    - regex: '(?i)RSA|ECDSA|SignatureAlgorithm''severity: low
   description: "Certificate algorithm"
   remediation: "Use strong algorithms"
   cwe: "CWE-327"
@@ -1340,8 +1212,7 @@
 - id: ps-certificate-template
   languages: [powershell]
   patterns:
-    - regex: '(?i)CertificateTemplate|CertTemplate'
-  severity: low
+    - regex: '(?i)CertificateTemplate|CertTemplate''severity: low
   description: "Certificate template"
   remediation: "Review certificate templates"
   cwe: "CWE-284"
@@ -1351,8 +1222,7 @@
 - id: ps-scheduled-task-create
   languages: [powershell]
   patterns:
-    - regex: '(?i)Register-ScheduledTask.*-Action'
-  severity: medium
+    - regex: '(?i)Register-ScheduledTask.*-Action''severity: medium
   description: "Scheduled task creation"
   remediation: "Review scheduled task actions"
   cwe: "CWE-693"
@@ -1361,8 +1231,7 @@
 - id: ps-scheduled-task-principal
   languages: [powershell]
   patterns:
-    - regex: '(?i)ScheduledTaskPrincipal.*-UserId'
-  severity: medium
+    - regex: '(?i)ScheduledTaskPrincipal.*-UserId''severity: medium
   description: "Scheduled task principal"
   remediation: "Review task run-as user"
   cwe: "CWE-250"
@@ -1371,8 +1240,7 @@
 - id: ps-scheduled-task-trigger
   languages: [powershell]
   patterns:
-    - regex: '(?i)ScheduledTaskTrigger.*-AtLogon'
-  severity: low
+    - regex: '(?i)ScheduledTaskTrigger.*-AtLogon''severity: low
   description: "Scheduled task trigger"
   remediation: "Review task triggers"
   cwe: "CWE-693"
@@ -1381,8 +1249,7 @@
 - id: ps-scheduled-task-action
   languages: [powershell]
   patterns:
-    - regex: '(?i)ScheduledTaskAction.*-Execute'
-  severity: medium
+    - regex: '(?i)ScheduledTaskAction.*-Execute''severity: medium
   description: "Scheduled task action"
   remediation: "Review task actions"
   cwe: "CWE-693"
@@ -1391,8 +1258,7 @@
 - id: ps-scheduled-task-run-as
   languages: [powershell]
   patterns:
-    - regex: '(?i)-RunLevel\\s+Highest'
-  severity: high
+    - regex: '(?i)-RunLevel\\s+Highest''severity: high
   description: "Scheduled task with highest privileges"
   remediation: "Use least privilege"
   cwe: "CWE-250"
@@ -1401,8 +1267,7 @@
 - id: ps-scheduled-task-hidden
   languages: [powershell]
   patterns:
-    - regex: '(?i)-Hidden\\s+\\$true'
-  severity: high
+    - regex: '(?i)-Hidden\\s+\\$true''severity: high
   description: "Hidden scheduled task"
   remediation: "Review hidden tasks"
   cwe: "CWE-693"
@@ -1411,8 +1276,7 @@
 - id: ps-scheduled-task-start
   languages: [powershell]
   patterns:
-    - regex: '(?i)Start-ScheduledTask'
-  severity: low
+    - regex: '(?i)Start-ScheduledTask''severity: low
   description: "Scheduled task start"
   remediation: "Monitor task execution"
   cwe: "CWE-693"
@@ -1421,8 +1285,7 @@
 - id: ps-scheduled-task-stop
   languages: [powershell]
   patterns:
-    - regex: '(?i)Stop-ScheduledTask'
-  severity: low
+    - regex: '(?i)Stop-ScheduledTask''severity: low
   description: "Scheduled task stop"
   remediation: "Monitor task stops"
   cwe: "CWE-693"
@@ -1431,8 +1294,7 @@
 - id: ps-scheduled-task-delete
   languages: [powershell]
   patterns:
-    - regex: '(?i)Unregister-ScheduledTask'
-  severity: low
+    - regex: '(?i)Unregister-ScheduledTask''severity: low
   description: "Scheduled task deletion"
   remediation: "Monitor task deletions"
   cwe: "CWE-693"
@@ -1441,8 +1303,7 @@
 - id: ps-scheduled-task-export
   languages: [powershell]
   patterns:
-    - regex: '(?i)Export-ScheduledTask'
-  severity: low
+    - regex: '(?i)Export-ScheduledTask''severity: low
   description: "Scheduled task export"
   remediation: "Review exported tasks"
   cwe: "CWE-693"
@@ -1451,8 +1312,7 @@
 - id: ps-scheduled-task-import
   languages: [powershell]
   patterns:
-    - regex: '(?i)Import-ScheduledTask'
-  severity: medium
+    - regex: '(?i)Import-ScheduledTask''severity: medium
   description: "Scheduled task import"
   remediation: "Review imported tasks"
   cwe: "CWE-693"
@@ -1461,8 +1321,7 @@
 - id: ps-scheduled-task-security
   languages: [powershell]
   patterns:
-    - regex: '(?i)Set-ScheduledTask.*-Security'
-  severity: medium
+    - regex: '(?i)Set-ScheduledTask.*-Security''severity: medium
   description: "Scheduled task security"
   remediation: "Review task security"
   cwe: "CWE-284"
@@ -1471,8 +1330,7 @@
 - id: ps-scheduled-task-logon-type
   languages: [powershell]
   patterns:
-    - regex: '(?i)LogonType\\s*=\\s*S4U|Interactive'
-  severity: medium
+    - regex: '(?i)LogonType\\s*=\\s*S4U|Interactive''severity: medium
   description: "Scheduled task logon type"
   remediation: "Review logon type"
   cwe: "CWE-250"
@@ -1481,8 +1339,7 @@
 - id: ps-scheduled-task-allow-hard-terminate
   languages: [powershell]
   patterns:
-    - regex: '(?i)AllowHardTerminate\\s*=\\s*\\$true'
-  severity: low
+    - regex: '(?i)AllowHardTerminate\\s*=\\s*\\$true''severity: low
   description: "Task hard terminate allowed"
   remediation: "Review termination settings"
   cwe: "CWE-693"
@@ -1491,8 +1348,7 @@
 - id: ps-scheduled-task-multiple-instances
   languages: [powershell]
   patterns:
-    - regex: '(?i)MultipleInstances\\s*=\\s*Parallel'
-  severity: low
+    - regex: '(?i)MultipleInstances\\s*=\\s*Parallel''severity: low
   description: "Multiple task instances"
   remediation: "Review instance policy"
   cwe: "CWE-693"
@@ -1502,8 +1358,7 @@
 - id: ps-event-log-clear
   languages: [powershell]
   patterns:
-    - regex: '(?i)Clear-EventLog\\s*-LogName'
-  severity: high
+    - regex: '(?i)Clear-EventLog\\s*-LogName''severity: high
   description: "Event log cleared"
   remediation: "Monitor log clearing"
   cwe: "CWE-778"
@@ -1512,8 +1367,7 @@
 - id: ps-event-log-write
   languages: [powershell]
   patterns:
-    - regex: '(?i)Write-EventLog\\s*-LogName'
-  severity: low
+    - regex: '(?i)Write-EventLog\\s*-LogName''severity: low
   description: "Event log write"
   remediation: "Review log entries"
   cwe: "CWE-778"
@@ -1522,8 +1376,7 @@
 - id: ps-event-log-limit
   languages: [powershell]
   patterns:
-    - regex: '(?i)Limit-EventLog\\s*-MaximumSize'
-  severity: low
+    - regex: '(?i)Limit-EventLog\\s*-MaximumSize''severity: low
   description: "Event log size limit"
   remediation: "Set appropriate log size"
   cwe: "CWE-778"
@@ -1532,8 +1385,7 @@
 - id: ps-event-log-source
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-EventLog\\s*-Source'
-  severity: low
+    - regex: '(?i)New-EventLog\\s*-Source''severity: low
   description: "Event log source creation"
   remediation: "Review log sources"
   cwe: "CWE-778"
@@ -1542,8 +1394,7 @@
 - id: ps-event-log-provider
   languages: [powershell]
   patterns:
-    - regex: '(?i)Microsoft-Windows.*Provider'
-  severity: low
+    - regex: '(?i)Microsoft-Windows.*Provider''severity: low
   description: "Event log provider"
   remediation: "Review provider settings"
   cwe: "CWE-778"
@@ -1552,8 +1403,7 @@
 - id: ps-event-log-subscription
   languages: [powershell]
   patterns:
-    - regex: '(?i)New-EventLogSubscription'
-  severity: low
+    - regex: '(?i)New-EventLogSubscription''severity: low
   description: "Event log subscription"
   remediation: "Review log subscriptions"
   cwe: "CWE-778"
@@ -1562,8 +1412,7 @@
 - id: ps-event-log-forwarding
   languages: [powershell]
   patterns:
-    - regex: '(?i)EventLogForwarding|WEF'
-  severity: low
+    - regex: '(?i)EventLogForwarding|WEF''severity: low
   description: "Event log forwarding"
   remediation: "Configure log forwarding"
   cwe: "CWE-778"
@@ -1572,8 +1421,7 @@
 - id: ps-event-log-security
   languages: [powershell]
   patterns:
-    - regex: '(?i)Security.*EventLog|SecurityLog'
-  severity: low
+    - regex: '(?i)Security.*EventLog|SecurityLog''severity: low
   description: "Security event log"
   remediation: "Monitor security logs"
   cwe: "CWE-778"
@@ -1582,8 +1430,7 @@
 - id: ps-event-log-system
   languages: [powershell]
   patterns:
-    - regex: '(?i)System.*EventLog|SystemLog'
-  severity: low
+    - regex: '(?i)System.*EventLog|SystemLog''severity: low
   description: "System event log"
   remediation: "Monitor system logs"
   cwe: "CWE-778"
@@ -1592,8 +1439,7 @@
 - id: ps-event-log-application
   languages: [powershell]
   patterns:
-    - regex: '(?i)Application.*EventLog|ApplicationLog'
-  severity: low
+    - regex: '(?i)Application.*EventLog|ApplicationLog''severity: low
   description: "Application event log"
   remediation: "Monitor application logs"
   cwe: "CWE-778"
@@ -1602,8 +1448,7 @@
 - id: ps-event-log-setup
   languages: [powershell]
   patterns:
-    - regex: '(?i)Setup.*EventLog|SetupLog'
-  severity: low
+    - regex: '(?i)Setup.*EventLog|SetupLog''severity: low
   description: "Setup event log"
   remediation: "Monitor setup logs"
   cwe: "CWE-778"
@@ -1612,8 +1457,7 @@
 - id: ps-event-log-forwarded
   languages: [powershell]
   patterns:
-    - regex: '(?i)ForwardedEvents'
-  severity: low
+    - regex: '(?i)ForwardedEvents''severity: low
   description: "Forwarded event log"
   remediation: "Review forwarded events"
   cwe: "CWE-778"
@@ -1622,8 +1466,7 @@
 - id: ps-event-log-key-management
   languages: [powershell]
   patterns:
-    - regex: '(?i)KeyManagementEvents'
-  severity: low
+    - regex: '(?i)KeyManagementEvents''severity: low
   description: "Key management events"
   remediation: "Monitor key events"
   cwe: "CWE-778"
@@ -1632,8 +1475,7 @@
 - id: ps-event-log-powershell
   languages: [powershell]
   patterns:
-    - regex: '(?i)Windows PowerShell|PowerShellCore'
-  severity: low
+    - regex: '(?i)Windows PowerShell|PowerShellCore''severity: low
   description: "PowerShell event log"
   remediation: "Enable PowerShell logging"
   cwe: "CWE-778"
@@ -1642,8 +1484,7 @@
 - id: ps-event-log-audit-policy
   languages: [powershell]
   patterns:
-    - regex: '(?i)AuditPol\\s+|AuditPolicy'
-  severity: low
+    - regex: '(?i)AuditPol\\s+|AuditPolicy''severity: low
   description: "Audit policy configuration"
   remediation: "Configure comprehensive audit policy"
   cwe: "CWE-778"

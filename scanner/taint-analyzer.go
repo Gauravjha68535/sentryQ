@@ -17,6 +17,11 @@ type TaintAnalyzer struct {
 	taintSinks        map[string][]string
 	sanitizers        []*regexp.Regexp
 	scopeStartPattern *regexp.Regexp
+	// Pre-compiled patterns for taint flow analysis (compiled once at initialization)
+	methodChainRe   *regexp.Regexp
+	concatRe        *regexp.Regexp
+	interpolationRe *regexp.Regexp
+	funcCallRe      *regexp.Regexp
 }
 
 // NewTaintAnalyzer creates a new taint analyzer
@@ -101,6 +106,11 @@ func NewTaintAnalyzer() *TaintAnalyzer {
 		},
 		// Scope Boundaries: Basic boundary detection to clear taint state and avoid false positives across functions
 		scopeStartPattern: regexp.MustCompile(`(?i)(^|\s)(func\s+\w+|def\s+\w+|class\s+\w+|public\s+\w+\s+\w+\(|private\s+\w+\s+\w+\(|protected\s+\w+\s+\w+\()`),
+		// Pre-compiled patterns for taint flow analysis (compiled once at initialization)
+		methodChainRe:   regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=)\s*(?:await\s+)?\$?([a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_]+)\s*\(`),
+		concatRe:        regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=|\+=)\s*.*(?:await\s+)?\$?([a-zA-Z_][a-zA-Z0-9_]*)`),
+		interpolationRe: regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=)\s*(?:f"|f'|` + "`" + `|\$\{).*\$?([a-zA-Z_][a-zA-Z0-9_]*)`),
+		funcCallRe:      regexp.MustCompile(`(?:await\s+)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)`),
 	}
 }
 
@@ -153,10 +163,11 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 	}
 
 	// Regexes for method-chain and concat/interpolation detection
-	methodChainRe := regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=)\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_]+)\s*\(`)
-	concatRe := regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=|\+=)\s*.*\$?([a-zA-Z_][a-zA-Z0-9_]*)`)
-	interpolationRe := regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=)\s*(?:f"|f'|` + "`" + `|\$\{).*\$?([a-zA-Z_][a-zA-Z0-9_]*)`)
-	funcCallRe := regexp.MustCompile(`([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)`)
+	// Use pre-compiled patterns from struct for better performance
+	methodChainRe := ta.methodChainRe
+	concatRe := ta.concatRe
+	interpolationRe := ta.interpolationRe
+	funcCallRe := ta.funcCallRe
 
 	scopeLevel := 0
 

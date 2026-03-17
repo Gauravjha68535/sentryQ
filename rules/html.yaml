@@ -877,7 +877,7 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        unsafeHTML\s*`|html`[^`]*\${[^}]*}[^`]*`(?=[^]*<script)
+        unsafeHTML\s*`|html`[^`]*\${[^}]*}[^`]*`
   severity: high
   description: "Lit unsafeHTML directive - XSS risk"
   remediation: "Use html`` template tag without unsafe directives. Sanitize content."
@@ -921,7 +921,7 @@
   languages: [php, html]
   patterns:
     - regex: |-
-        <?=\s*[^>]*\$(?!htmlspecialchars|htmlentities|strip_tags)
+        <?=\s*[^>]*\$
   severity: high
   description: "PHP echo without escaping - XSS vulnerability"
   remediation: "Use htmlspecialchars() or htmlentities() when outputting user data."
@@ -956,7 +956,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <iframe[^>]*src\s*=[^>]*(?!sandbox)
+        <iframe[^>]*src\s*=[^>]*
   severity: high
   description: "Iframe without sandbox attribute - untrusted content can execute scripts"
   remediation: "Add sandbox attribute with minimal required permissions."
@@ -1255,7 +1255,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <form[^>]*method\s*=\s*["']post["'][^>]*>[\s\S]*?(?!(csrf|token|_token|authenticity_token))
+        <form[^>]*method\s*=\s*["']post["'][^>]*>[\s\S]*?
   severity: high
   description: "POST form without CSRF token - CSRF vulnerability"
   remediation: "Include CSRF token in all POST forms."
@@ -1266,7 +1266,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <input[^>]*name\s*=\s*["'](csrf|_csrf|csrf_token)["'][^>]*value\s*=\s*["'](?!\{%|\{\{|{{|@).{10,}["']
+        <input[^>]*name\s*=\s*["'](csrf|_csrf|csrf_token)["'][^>]*value\s*=\s*["'].{10,}["']
   severity: high
   description: "Static CSRF token in HTML - predictable token"
   remediation: "Generate CSRF tokens dynamically per session."
@@ -1277,7 +1277,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <form[^>]*method\s*=\s*["']post["'][^>]*>[\s\S]*?<input[^>]*type\s*=\s*["']hidden["'][^>]*(?!name\s*=\s*["'](csrf|_csrf|token))
+        <form[^>]*method\s*=\s*["']post["'][^>]*>[\s\S]*?<input[^>]*type\s*=\s*["']hidden["'][^>]*
   severity: high
   description: "POST form with hidden input but likely not CSRF token"
   remediation: "Use standard CSRF token field name for consistent validation."
@@ -1299,7 +1299,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <form[^>]*action\s*=\s*["'](?!https?://)[^"']*["']
+        <form[^>]*action\s*=\s*["'][^"']*["']
   severity: low
   description: "Form with relative action - ensure same-origin"
   remediation: "Use absolute paths or ensure same-origin for security."
@@ -1321,7 +1321,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <input[^>]*type\s*=\s*["'](password|email|tel|credit-card)["'][^>]*(?!autocomplete\s*=\s*["']off["']|autocomplete\s*=\s*["']new-password["'])
+        <input[^>]*type\s*=\s*["'](password|email|tel|credit-card)["'][^>]*
   severity: medium
   description: "Sensitive field without autocomplete=off"
   remediation: "Add autocomplete='off' or autocomplete='new-password' for sensitive fields."
@@ -1343,7 +1343,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <input[^>]*type\s*=\s*["']password["'][^>]*(?!minlength)
+        <input[^>]*type\s*=\s*["']password["'][^>]*
   severity: low
   description: "Password field without minlength validation"
   remediation: "Add minlength attribute to enforce password length."
@@ -1466,7 +1466,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <a[^>]*target\s*=\s*["']_blank["'][^>]*(?!rel\s*=\s*["'][^"']*noopener[^"']*["'])
+        <a[^>]*target\s*=\s*["']_blank["'][^>]*
   severity: high
   description: "target=_blank without rel=noopener - reverse tabnabbing vulnerability"
   remediation: "Add rel='noopener noreferrer' to all target=_blank links."
@@ -1653,7 +1653,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <a[^>]*href\s*=\s*["']https?://[^"']*["'][^>]*(?!rel\s*=\s*["'][^"']*noopener[^"']*["'])
+        <a[^>]*href\s*=\s*["']https?://[^"']*["'][^>]*
   severity: high
   description: "External link without noopener - reverse tabnabbing"
   remediation: "Add rel='noopener noreferrer' to all external links."
@@ -1709,7 +1709,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <a[^>]*href\s*=\s*["']https?://[^"']*["'][^>]*(?!noreferrer)
+        <a[^>]*href\s*=\s*["']https?://[^"']*["'][^>]*
   severity: medium
   description: "External link without noreferrer - leaks referrer"
   remediation: "Add rel='noreferrer' to external links for privacy."
@@ -1744,7 +1744,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <script[^>]*src\s*=\s*["']https?://(ajax.googleapis|code.jquery|cdnjs|unpkg|cdn.jsdelivr)[^"']*["'][^>]*(?!integrity)
+        <script[^>]*src\s*=\s*["']https?://(ajax.googleapis|code.jquery|cdnjs|unpkg|cdn.jsdelivr)[^"']*["'][^>]*
   severity: high
   description: "CDN script without SRI (Subresource Integrity) - can be compromised"
   remediation: "Add integrity attribute with correct hash for CDN scripts."
@@ -1755,7 +1755,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <script[^>]*src\s*=\s*["']https?://[^"']*["'][^>]*(?!integrity)
+        <script[^>]*src\s*=\s*["']https?://[^"']*["'][^>]*
   severity: high
   description: "External script without SRI - integrity cannot be verified"
   remediation: "Add integrity attribute with SHA-256/384/512 hash."
@@ -1777,7 +1777,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <script[^>]*src\s*=\s*["']https?://[^"']*["'][^>]*(?!crossorigin)
+        <script[^>]*src\s*=\s*["']https?://[^"']*["'][^>]*
   severity: medium
   description: "Cross-origin script without crossorigin attribute"
   remediation: "Add crossorigin='anonymous' for CORS-enabled scripts."
@@ -1821,7 +1821,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <script[^>]*>(?!\s*<!--|<!--)[\s\S]*?(?=<\/script>)
+        <script[^>]*>[\s\S]*?
   severity: high
   description: "Inline script content - bypasses CSP if unsafe-inline allowed"
   remediation: "Move inline scripts to external files. Use CSP nonces if unavoidable."
@@ -1898,7 +1898,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <style[^>]*>(?![^<]*<!--|<!--)[\s\S]*?(?=<\/style>)
+        <style[^>]*>[\s\S]*?
   severity: low
   description: "Inline style tag"
   remediation: "Use external stylesheets for CSP compliance."
@@ -1986,7 +1986,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <link[^>]*rel\s*=\s*["']stylesheet["'][^>]*href\s*=\s*["']https?://[^"']*["'][^>]*(?!integrity)
+        <link[^>]*rel\s*=\s*["']stylesheet["'][^>]*href\s*=\s*["']https?://[^"']*["'][^>]*
   severity: high
   description: "External stylesheet without SRI"
   remediation: "Add integrity attribute with correct hash."
@@ -2089,7 +2089,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <use[^>]*href\s*=\s*["'](?!https?://)[^"']*\.svg[^"']*#?[^"']*["']
+        <use[^>]*href\s*=\s*["'][^"']*\.svg[^"']*#?[^"']*["']
   severity: high
   description: "SVG use with external SVG file - XSS risk"
   remediation: "Validate external SVG files. Sanitize before embedding."
@@ -2469,7 +2469,7 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        indexedDB\.open.*(?!encrypt)\.(put|add).*?(token|jwt|password|secret|key)
+        indexedDB\.open.*\.(put|add).*?(token|jwt|password|secret|key)
   severity: high
   description: "Storing sensitive data in IndexedDB - XSS can access"
   remediation: "Encrypt sensitive data before storing in IndexedDB."
@@ -2480,7 +2480,7 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        document\.cookie\s*=\s*[^;]*?(token|jwt|session|auth)[^;]*?(?!HttpOnly)
+        document\.cookie\s*=\s*[^;]*?(token|jwt|session|auth)[^;]*?
   severity: medium
   description: "Setting cookies without HttpOnly flag - accessible to JavaScript"
   remediation: "Use HttpOnly flag for cookies containing sensitive data."
@@ -2491,7 +2491,7 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        document\.cookie\s*=\s*[^;]*?(token|jwt|session|auth)[^;]*?(?!Secure)
+        document\.cookie\s*=\s*[^;]*?(token|jwt|session|auth)[^;]*?
   severity: high
   description: "Setting sensitive cookie without Secure flag - sent over HTTP"
   remediation: "Add Secure flag to ensure cookie only sent over HTTPS."
@@ -2502,7 +2502,7 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        document\.cookie\s*=\s*[^;]*?(token|jwt|session|auth)[^;]*?(?!SameSite)
+        document\.cookie\s*=\s*[^;]*?(token|jwt|session|auth)[^;]*?
   severity: high
   description: "Setting cookie without SameSite attribute - CSRF risk"
   remediation: "Use SameSite=Lax or Strict for CSRF protection."
@@ -2590,7 +2590,7 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        navigator\.serviceWorker\.register.*(?!integrity)
+        navigator\.serviceWorker\.register.*
   severity: high
   description: "Service Worker registered without integrity check"
   remediation: "Use subresource integrity for service worker scripts."
@@ -2623,7 +2623,7 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        addEventListener\s*\(\s*['"]message['"][\s\S]*?(?!event\.origin\s*===?\s*['"][^"']*['"]|origin\.startsWith)
+        addEventListener\s*\(\s*['"]message['"][\s\S]*?
   severity: critical
   description: "Message event listener without origin validation"
   remediation: "Always check event.origin against allowlist before processing."
@@ -2801,7 +2801,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <html(?!.*Cross-Origin-)
+        <html
   severity: medium
   description: "Missing COOP/COEP headers - vulnerable to Spectre"
   remediation: "Set COOP: same-origin and COEP: require-corp for isolation."
@@ -3146,7 +3146,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        ^(?!.*<!DOCTYPE)
+        ^
   severity: low
   description: "Missing doctype - may trigger quirks mode"
   remediation: "Add <!DOCTYPE html> at the beginning of document."
@@ -3157,7 +3157,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <html(?!.*lang\s*=)
+        <html
   severity: low
   description: "Missing lang attribute - accessibility issue"
   remediation: "Add lang attribute to html tag (e.g., lang='en')."
@@ -3168,7 +3168,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <head>(?!.*<title>)
+        <head>
   severity: low
   description: "Missing title tag - accessibility/SEO issue"
   remediation: "Add descriptive title tag in head."
@@ -3179,7 +3179,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<main[^>]*>)
+        <body>
   severity: low
   description: "Missing main tag - accessibility issue"
   remediation: "Wrap main content in <main> element."
@@ -3190,7 +3190,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<nav[^>]*>).*(navigation|menu|navbar)
+        <body>.*(navigation|menu|navbar)
   severity: low
   description: "Navigation likely present but missing nav tag"
   remediation: "Use <nav> for navigation sections."
@@ -3201,7 +3201,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<article[^>]*>).*(post|blog|news|article)
+        <body>.*(post|blog|news|article)
   severity: low
   description: "Article content likely present but missing article tag"
   remediation: "Use <article> for self-contained content."
@@ -3212,7 +3212,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<section[^>]*>).*(section|part|chapter)
+        <body>.*(section|part|chapter)
   severity: low
   description: "Section likely present but missing section tag"
   remediation: "Use <section> for thematic grouping."
@@ -3223,7 +3223,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<aside[^>]*>).*(sidebar|aside|related)
+        <body>.*(sidebar|aside|related)
   severity: low
   description: "Sidebar/aside content likely present but missing aside tag"
   remediation: "Use <aside> for complementary content."
@@ -3234,7 +3234,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<header[^>]*>).*(header|top|banner)
+        <body>.*(header|top|banner)
   severity: low
   description: "Header likely present but missing header tag"
   remediation: "Use <header> for introductory content."
@@ -3245,7 +3245,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<footer[^>]*>).*(footer|bottom|copyright)
+        <body>.*(footer|bottom|copyright)
   severity: low
   description: "Footer likely present but missing footer tag"
   remediation: "Use <footer> for footer content."
@@ -3256,7 +3256,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <body>(?!.*<h1[^>]*>)
+        <body>
   severity: low
   description: "Missing H1 heading - accessibility/SEO issue"
   remediation: "Add at least one H1 heading per page."
@@ -3278,7 +3278,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <h2[^>]*>[\s\S]*?<h4[^>]*>|<h3[^>]*>[\s\S]*?<h5[^>]*>|<h1[^>]*>[\s\S]*?<h3[^>]*>(?!.*<h2[^>]*>)
+        <h2[^>]*>[\s\S]*?<h4[^>]*>|<h3[^>]*>[\s\S]*?<h5[^>]*>|<h1[^>]*>[\s\S]*?<h3[^>]*>
   severity: low
   description: "Heading levels skipped - accessibility issue"
   remediation: "Don't skip heading levels (h1→h2→h3, not h1→h3)."
@@ -3289,7 +3289,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <img[^>]+src\s*=\s*["'][^"']+["'][^>]*(?!alt\s*=\s*["'][^"']*["'])
+        <img[^>]+src\s*=\s*["'][^"']+["'][^>]*
   severity: medium
   description: "Image without alt attribute - accessibility issue"
   remediation: "Add descriptive alt text to all images."
@@ -3322,7 +3322,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <input[^>]+type\s*=\s*["'](text|password|email|number|checkbox|radio)["'][^>]*(?:id\s*=\s*["']([^"']*)["'])[^>]*>(?!.*<label[^>]*for\s*=\s*["']\2["'])
+        <input[^>]+type\s*=\s*["'](text|password|email|number|checkbox|radio)["'][^>]*(?:id\s*=\s*["']([^"']*)["'])[^>]*>
   severity: medium
   description: "Input without associated label - accessibility issue"
   remediation: "Add <label for='id'> for each input."
@@ -3357,7 +3357,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <button[^>]*(?!type\s*=\s*["'](button|submit|reset)["'])
+        <button[^>]*["']
   severity: low
   description: "Button without type attribute - defaults to submit"
   remediation: "Always specify type='button' for non-submit buttons."
@@ -3368,7 +3368,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <button[^>]*id\s*=\s*["']([^"']+)["'][^>]*>[\s\S]*?<button[^>]*id\s*=\s*["']\1["']
+        <button[^>]*id\s*=\s*["']([^"']+)["'][^>]*>[\s\S]*?<button[^>]*id\s*=\s*["'].*?["']
   severity: low
   description: "Duplicate button IDs - accessibility issue"
   remediation: "Ensure all IDs are unique."
@@ -3401,7 +3401,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        onclick\s*=\s*["'][^"']*["'][^>]*(?!tabindex|role)
+        onclick\s*=\s*["'][^"']*["'][^>]*
   severity: high
   description: "Clickable element not keyboard accessible"
   remediation: "Add tabindex='0' and role='button' for custom clickables."
@@ -3412,7 +3412,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <table[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<td[^>]*>(?!.*<th)
+        <table[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<td[^>]*>
   severity: low
   description: "Table without header cells - accessibility issue"
   remediation: "Use <th> for header cells in tables."
@@ -3423,7 +3423,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <table[^>]*>[\s\S]*?(?!<caption>)
+        <table[^>]*>[\s\S]*?
   severity: low
   description: "Table without caption - accessibility issue"
   remediation: "Add <caption> to describe table purpose."
@@ -3434,7 +3434,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <input[^>]+type\s*=\s*["'](radio|checkbox)["'][^>]*>[\s\S]*?<input[^>]+type\s*=\s*["'](radio|checkbox)["'][^>]*>(?!.*<fieldset)
+        <input[^>]+type\s*=\s*["'](radio|checkbox)["'][^>]*>[\s\S]*?<input[^>]+type\s*=\s*["'](radio|checkbox)["'][^>]*>
   severity: medium
   description: "Radio/checkbox group without fieldset - accessibility issue"
   remediation: "Group related radio/checkboxes with <fieldset> and <legend>."
@@ -3445,7 +3445,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <fieldset[^>]*>[\s\S]*?(?!<legend>)
+        <fieldset[^>]*>[\s\S]*?
   severity: low
   description: "Fieldset without legend - accessibility issue"
   remediation: "Add <legend> to describe the fieldset group."
@@ -3456,7 +3456,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <input[^>]+type\s*=\s*["'](text|email|password|tel)["'][^>]*(?!required)
+        <input[^>]+type\s*=\s*["'](text|email|password|tel)["'][^>]*
   severity: low
   description: "Required field without required attribute"
   remediation: "Add required attribute to mandatory fields."
@@ -3467,7 +3467,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <input[^>]+placeholder\s*=\s*["'][^"']+["'][^>]*(?!<label)
+        <input[^>]+placeholder\s*=\s*["'][^"']+["'][^>]*
   severity: low
   description: "Input with placeholder but no label"
   remediation: "Placeholders are not substitutes for labels. Add proper label."
@@ -3500,7 +3500,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <iframe[^>]*(?!title\s*=\s*["'][^"']*["'])
+        <iframe[^>]*
   severity: low
   description: "Iframe without title - accessibility issue"
   remediation: "Add title attribute describing iframe content."
@@ -3535,7 +3535,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <html>(?!.*<link[^>]*rel\s*=\s*["']manifest["'])
+        <html>
   severity: low
   description: "Missing web app manifest for PWA"
   remediation: "Add manifest.json for Progressive Web App."
@@ -3702,7 +3702,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <head>(?!.*<link[^>]*rel\s*=\s*["']canonical["'])
+        <head>
   severity: low
   description: "Missing canonical link - duplicate content risk"
   remediation: "Add canonical link for pages with multiple URLs."
@@ -3757,7 +3757,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <meta[^>]*property\s*=\s*["']og:title["'][\s\S]*?(?!<meta[^>]*property\s*=\s*["']og:image["'])
+        <meta[^>]*property\s*=\s*["']og:title["'][\s\S]*?
   severity: low
   description: "Open Graph image missing - poor social previews"
   remediation: "Add og:image for social sharing."
@@ -4093,7 +4093,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        <img[^>]+src\s*=\s*["'][^"']+["'][^>]*(?!width|height)
+        <img[^>]+src\s*=\s*["'][^"']+["'][^>]*
   severity: low
   description: "Image without width/height attributes - layout shift"
   remediation: "Specify width and height to prevent CLS."
@@ -4304,7 +4304,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        [\u200B-\u200D\uFEFF\u202A-\u202E]
+        [\x{200B}-\x{200D}\x{FEFF}\x{202A}-\x{202E}]
   severity: medium
   description: "Unicode control characters - can be used for spoofing"
   remediation: "Remove or sanitize Unicode control characters."
@@ -4315,7 +4315,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        \u202E|&#x202e;|&#8238;
+        \x{202E}|&#x202e;|&#8238;
   severity: high
   description: "Bidirectional override character - can be used for spoofing"
   remediation: "Remove or sanitize bidi override characters."
@@ -4326,7 +4326,7 @@
   languages: [html]
   patterns:
     - regex: |-
-        \u200B|&#x200b;|&#8203;
+        \x{200B}|&#x200b;|&#8203;
   severity: low
   description: "Zero-width space - can hide text"
   remediation: "Ensure it's used appropriately."

@@ -107,15 +107,47 @@ export default function ScanProgress() {
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                     <h1>
-                        {status === 'completed' ? '✅ Scan Complete' : status === 'failed' ? '❌ Scan Failed' : '🔍 Scanning...'}
+                        {status === 'completed' ? '✅ Scan Complete' : status === 'failed' ? '❌ Scan Failed' : status === 'stopping' || status === 'stopped' ? '🛑 Stopped' : '🔍 Scanning...'}
                     </h1>
                     <p>Scan ID: <code style={{ fontSize: '0.82rem', background: 'var(--bg-elevated)', padding: '2px 8px', borderRadius: '4px' }}>{id}</code></p>
                 </div>
-                {status === 'completed' && (
-                    <button className="btn btn-primary" onClick={() => navigate(`/scan/${id}/report`)}>
-                        <FileText size={18} /> View Report
-                    </button>
-                )}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    {status === 'running' && (
+                        <button
+                            className="btn"
+                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                            onClick={async () => {
+                                if (window.confirm("Are you sure you want to stop this scan?")) {
+                                    try {
+                                        const res = await fetch(`/api/scan/${id}/stop`, {
+                                            method: 'POST',
+                                            headers: { 'X-API-Key': localStorage.getItem('qwen_api_key') || '' }
+                                        })
+                                        if (res.ok) setStatus('stopping')
+                                    } catch (e) {
+                                        console.error("Failed to stop scan", e)
+                                    }
+                                }
+                            }}
+                        >
+                            Stop Scan
+                        </button>
+                    )}
+                    {(status === 'stopping' || status === 'stopped') && (
+                        <button
+                            className="btn"
+                            style={{ background: 'rgba(107, 114, 128, 0.1)', color: '#6b7280', border: '1px solid rgba(107, 114, 128, 0.2)', cursor: 'not-allowed' }}
+                            disabled
+                        >
+                            Stopping...
+                        </button>
+                    )}
+                    {status === 'completed' && (
+                        <button className="btn btn-primary" onClick={() => navigate(`/scan/${id}/report`)}>
+                            <FileText size={18} /> View Report
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Progress Bar */}

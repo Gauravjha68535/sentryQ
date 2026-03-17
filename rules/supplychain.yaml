@@ -1,0 +1,510 @@
+# Supply Chain Security Rules
+# Comprehensive security rules for supply chain and dependency confusion vulnerabilities
+# Covers: JavaScript, TypeScript, Python, Ruby, PHP, Java, Go, .NET
+
+# ======================== Dependency Confusion Attacks ========================
+
+- id: supplychain-npm-internal-public
+  languages: [javascript, typescript]
+  patterns:
+    - regex: |-
+        (?i)"name":\s*"(@private|@internal|@company|@corp|@enterprise)
+    - regex: |-
+        (?i)"name":\s*"(@[a-zA-Z0-9]+)-(common|shared|internal|utils|lib|core)
+    - regex: |-
+        (?i)npm\s+install\s+@[a-zA-Z0-9]+-[a-zA-Z0-9]+\s+--save
+  severity: critical
+  description: "Potential dependency confusion - internal package name may be hijacked from public registry"
+  remediation: "Configure .npmrc with registry scoping: @company:registry=https://npm.pkg.github.com/ or use npm login with proper registry authentication"
+  cwe: "CWE-427"
+  owasp: "A06:2021"
+
+- id: supplychain-pip-internal-public
+  languages: [python]
+  patterns:
+    - regex: |-
+        (?i)^(name|package)\s*=\s*["'](company|corp|internal|private|shared)[-_]
+    - regex: |-
+        (?i)pip\s+install\s+[a-zA-Z0-9_]+[-_][a-zA-Z0-9_]+
+    - regex: |-
+        (?i)requirements\.txt.*\n[a-zA-Z0-9_-]+[-_][a-zA-Z0-9_-]+
+  severity: critical
+  description: "Potential dependency confusion - internal Python package name may be available on public PyPI"
+  remediation: "Use private PyPI server (Gemfury, Artifactory, or self-hosted) and configure pip.conf with index-url pointing to private repository"
+  cwe: "CWE-427"
+  owasp: "A06:2021"
+
+- id: supplychain-gem-internal-public
+  languages: [ruby]
+  patterns:
+    - regex: |-
+        (?i)gem\s+["'][a-z]*[-_]?(private|corp|internal|company|shared)[a-z]*["']
+    - regex: |-
+        (?i)gem\s+["'][a-zA-Z0-9]+[-_][a-zA-Z0-9_]+["']
+    - regex: |-
+        (?i)source\s+["']https?://rubygems\.org["']\s*\n\s*gem\s+["'][a-zA-Z0-9]+[-_][a-zA-Z0-9_]+["']
+  severity: critical
+  description: "Potential dependency confusion - internal gem name may be hijacked from public RubyGems"
+  remediation: "Configure Gemfile with private gem source and use Bundler with proper source configuration"
+  cwe: "CWE-427"
+  owasp: "A06:2021"
+
+- id: supplychain-nuget-internal-public
+  languages: [csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)<PackageReference\s+Include="[A-Z][a-z]+[A-Z][a-zA-Z]+"
+    - regex: |-
+        (?i)PackageReference\s+Include="(Company|Corp|Internal|Private|Shared)
+    - regex: |-
+        (?i)nuget\.org\s+api/v3.*
+  severity: critical
+  description: "Potential dependency confusion - internal NuGet package name may be available on public feed"
+  remediation: "Configure NuGet.config with private feed source and use --source flag to specify trusted package source"
+  cwe: "CWE-427"
+  owasp: "A06:2021"
+
+# ======================== Typosquatting Detection ========================
+
+- id: supplychain-typosquatting-npm
+  languages: [javascript, typescript]
+  patterns:
+    - regex: |-
+        (?i)"(react|express|lodash|axios|request|moment|chalk|async|npm|yargs|dotenv|body-parser|mongoose)"[^a-zA-Z]
+    - regex: |-
+        (?i)"(webpack|babel|eslint|prettier|jest|mocha|ts-node|nodemon)"[^a-zA-Z]
+    - regex: |-
+        (?i)"(vue|angular|svelte|next|nuxt)"[^a-zA-Z]
+  severity: high
+  description: "Potential typosquatting - verify package name is intentional (common targets for typosquatting)"
+  remediation: "Verify the package is the official one - check package download count, maintainer, and repository URL"
+  cwe: "CWE-506"
+  owasp: "A06:2021"
+
+- id: supplychain-typosquatting-pip
+  languages: [python]
+  patterns:
+    - regex: |-
+        (?i)^(requests|numpy|pandas|flask|django|boto3|urllib3|pillow|yaml|jinja2)
+    - regex: |-
+        (?i)^(scipy|numpy|pandas|matplotlib|sklearn|tensorflow|keras|torch)
+    - regex: |-
+        (?i)^(beautifulsoup4|selenium|scrapy|psycopg2|mysqlclient|redis)
+  severity: high
+  description: "Potential typosquatting - verify Python package name is intentional"
+  remediation: "Verify package authenticity on PyPI - check download count, maintainer, and verify package source"
+  cwe: "CWE-506"
+  owasp: "A06:2021"
+
+- id: supplychain-typosquatting-general
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)lodash|l0dash|1odash|lodasj|l0d4sh
+    - regex: |-
+        (?i)react|reacct|reaact|r3act|reac7
+    - regex: |-
+        (?i)express|expres|expr3ss|exprss
+    - regex: |-
+        (?i)requests|requets|requrests|request
+    - regex: |-
+        (?i)numpy|numby|numPy|numpi
+    - regex: |-
+        (?i)pandas|pandass|panda5|pnadad
+  severity: high
+  description: "Detected potential typosquatting pattern in dependency name"
+  remediation: "Manually verify the package name is correct - check for character substitution (0 for o, 1 for l, etc.)"
+  cwe: "CWE-506"
+  owasp: "A06:2021"
+
+# ======================== Unverified Package Sources ========================
+
+- id: supplychain-unverified-npm-source
+  languages: [javascript, typescript]
+  patterns:
+    - regex: |-
+        (?i)npm\s+install\s+.*--registry\s+https?://
+    - regex: |-
+        (?i)"registry"\s*:\s*"http://
+    - regex: |-
+        (?i)\.npmrc.*registry\s*=\s*http://
+  severity: high
+  description: "Unverified or insecure npm registry source detected"
+  remediation: "Use official npm registry (https://registry.npmjs.org/) or verified private registries with HTTPS"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+- id: supplychain-unverified-pip-source
+  languages: [python]
+  patterns:
+    - regex: |-
+        (?i)--index-url\s+https?://
+    - regex: |-
+        (?i)--extra-index-url\s+https?://
+    - regex: |-
+        (?i)pip\.conf.*index-url\s*=\s*http://
+  severity: high
+  description: "Unverified or custom Python package index detected"
+  remediation: "Use official PyPI (https://pypi.org/simple/) or trusted private indexes with HTTPS"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+- id: supplychain-unverified-source-generic
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)(npm|pip|gem|composer|gradle|maven|nuget|go)\s+install\s+.*--from\s+http://
+    - regex: |-
+        (?i)source\s+["']http://
+    - regex: |-
+        (?i)url\s*=\s*["']http://[a-zA-Z0-9.-]+/[a-zA-Z0-9./-]+["']
+  severity: high
+  description: "Package installation from unverified HTTP source - vulnerable to man-in-the-middle attacks"
+  remediation: "Always use HTTPS for package sources to prevent tampering during download"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+# ======================== Insecure Package Installation Commands ========================
+
+- id: supplychain-insecure-install-npm
+  languages: [javascript, typescript]
+  patterns:
+    - regex: |-
+        (?i)npm\s+install\s+.*--allow-root
+    - regex: |-
+        (?i)npm\s+install\s+.*--unsafe-perm
+    - regex: |-
+        (?i)npm\s+install\s+-g\s+.*--ignore-scripts
+    - regex: |-
+        (?i)npm\s+i\s+-[gl]\s+.*http://
+  severity: high
+  description: "Insecure npm installation flags may allow privilege escalation or execute malicious scripts"
+  remediation: "Avoid --allow-root, --unsafe-perm in production; use --ignore-scripts only after code review"
+  cwe: "CWE-94"
+  owasp: "A06:2021"
+
+- id: supplychain-insecure-install-pip
+  languages: [python]
+  patterns:
+    - regex: |-
+        (?i)pip\s+install\s+.*--trusted-host
+    - regex: |-
+        (?i)pip\s+install\s+.*--index-url\s+http://
+    - regex: |-
+        (?i)pip\s+install\s+--user\s+.*--ignore-installed
+    - regex: |-
+        (?i)pip\s+install\s+git\+http://
+  severity: high
+  description: "Insecure pip installation allowing untrusted hosts or executing arbitrary code"
+  remediation: "Use --trusted-host only for known internal repositories; prefer HTTPS everywhere"
+  cwe: "CWE-94"
+  owasp: "A06:2021"
+
+- id: supplychain-insecure-install-script
+  languages: [javascript, typescript, python, ruby, php]
+  patterns:
+    - regex: |-
+        (?i)(curl|wget).*\|sh\b
+    - regex: |-
+        (?i)bash\s+[-c]\s*["'].*(pip|npm|gem|composer)\s+install
+    - regex: |-
+        (?i)sh\s+-c\s*["'].*(pip|npm|gem|composer)\s+install
+    - regex: |-
+        \|\s*(sh|bash|shred)
+  severity: critical
+  description: "Pipe installation directly to shell - extremely dangerous, allows code injection"
+  remediation: "Never pipe curl/wget output directly to shell; download first, verify, then execute"
+  cwe: "CWE-94"
+  owasp: "A06:2021"
+
+# ======================== Hardcoded Package URLs ========================
+
+- id: supplychain-hardcoded-url
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)(https?|git)\+?(http|git|ssh)://[a-zA-Z0-9._/~-]+@[a-zA-Z0-9.-]+:[0-9]+/[a-zA-Z0-9._/-]+
+    - regex: |-
+        (?i)url\s*=\s*["']https?://[a-zA-Z0-9.-]+/[a-zA-Z0-9._/-]+\.(tar\.gz|zip|gem|npm|tgz|whl|jar)["']
+    - regex: |-
+        (?i)(npm|pip|gem|composer)\s+(install|add)\s+(git\+)?https?://github\.com/[a-zA-Z0-9-]+/[a-zA-Z0-9._-]+
+  severity: medium
+  description: "Hardcoded package URL detected - may contain credentials or point to unverified source"
+  remediation: "Use package manager lockfiles; if URL contains credentials, use environment variables instead"
+  cwe: "CWE-798"
+  owasp: "A02:2021"
+
+- id: supplychain-credentials-in-url
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)(http|git|ssh)://[a-zA-Z0-9]+:[a-zA-Z0-9]+@[a-zA-Z0-9.-]+
+    - regex: |-
+        (?i)(git|https?)://[^@]+@[^/]+
+    - regex: |-
+        (?i)(username|password|token|api[_-]?key)\s*[:=]\s*["'][^"']+["'].*\.(json|yaml|yml|txt)
+  severity: critical
+  description: "Credentials hardcoded in package URL - can be exposed in version control and logs"
+  remediation: "Never embed credentials in URLs; use environment variables, secrets managers, or token-based auth"
+  cwe: "CWE-798"
+  owasp: "A02:2021"
+
+# ======================== Missing Package Integrity Checks ========================
+
+- id: supplychain-missing-integrity-npm
+  languages: [javascript, typescript]
+  patterns:
+    - regex: |-
+        (?i)"integrity"\s*:\s*null
+    - regex: |-
+        (?i)package\.json.*\n[^}]*"integrity"\s*:\s*["']?
+    - regex: |-
+        (?i)\.npmrc.*(package-lock\s*=\s*false|audit\s*=\s*false)
+  severity: high
+  description: "Missing package integrity verification - vulnerable to supply chain attacks"
+  remediation: "Ensure package-lock.json is present and integrity hashes are verified; never disable audit"
+  cwe: "CWE-494"
+  owasp: "A06:2021"
+
+- id: supplychain-missing-integrity-pip
+  languages: [python]
+  patterns:
+    - regex: |-
+        (?i)pip\s+install\s+.*--no-deps
+    - regex: |-
+        (?i)pip\s+install\s+.*--no-verify
+    - regex: |-
+        (?i)Pipfile.*verify_ssl\s*=\s*false
+  severity: high
+  description: "Disabling dependency verification in pip - vulnerable to malicious package injection"
+  remediation: "Always verify package integrity; use pip's hash checking with hashin or pip-compile"
+  cwe: "CWE-494"
+  owasp: "A06:2021"
+
+- id: supplychain-missing-lockfile
+  languages: [javascript, typescript, python, ruby]
+  patterns:
+    - regex: |-
+        (?i)(package\.json|requirements\.txt|Gemfile)
+    - regex: |-
+        package\.json.*
+    - regex: |-
+        requirements\.txt
+  severity: medium
+  description: "No lockfile detected - dependencies may change unexpectedly between installs"
+  remediation: "Always use lockfiles (package-lock.json, requirements.txt with hash, Gemfile.lock, Pipfile.lock)"
+  cwe: "CWE-494"
+  owasp: "A06:2021"
+
+# ======================== HTTP Instead of HTTPS ========================
+
+- id: supplychain-http-url
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)http://
+    - regex: |-
+        (?i)(npm|pip|gem|composer)\s+install.*http://
+    - regex: |-
+        (?i)(source|registry)\s*[:=]\s*["']http://
+  severity: critical
+  description: "Package downloaded over HTTP - vulnerable to man-in-the-middle attacks and tampering"
+  remediation: "Replace all HTTP URLs with HTTPS equivalents; configure package managers to only use HTTPS"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+- id: supplychain-git-protocol
+  languages: [javascript, typescript, python, ruby, php, java, go]
+  patterns:
+    - regex: |-
+        (?i)git://[a-zA-Z0-9.-]+/[a-zA-Z0-9._/-]+
+    - regex: |-
+        (?i)(npm|pip|gem|go)\s+install\s+git://
+    - regex: |-
+        (?i)git\s+clone\s+git://
+  severity: high
+  description: "Using git:// protocol which is unencrypted - vulnerable to MITM attacks"
+  remediation: "Replace git:// with https:// or use SSH keys with git@github.com: format"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+# ======================== Insecure Config Files ========================
+
+- id: supplychain-npmrc-insecure
+  languages: [javascript, typescript]
+  patterns:
+    - regex: |-
+        (?i)\.npmrc.*registry\s*=\s*http://
+    - regex: |-
+        (?i)\.npmrc.*_auth\s*=
+    - regex: |-
+        (?i)\.npmrc.*(strict-ssl|verify-ssl)\s*=\s*false
+    - regex: |-
+        (?i)\.npmrc.*always-auth\s*=\s*true
+  severity: high
+  description: "Insecure .npmrc configuration detected"
+  remediation: "Use HTTPS registry, enable strict-ssl, store tokens in .npmrc using npm login or npm token"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+- id: supplychain-pip-conf-insecure
+  languages: [python]
+  patterns:
+    - regex: |-
+        (?i)pip\.conf.*index-url\s*=\s*http://
+    - regex: |-
+        (?i)pip\.conf.*trusted-host\s*=
+    - regex: |-
+        (?i)requirements\.txt.*--index-url\s+http://
+    - regex: |-
+        (?i)setup\.py.*install_requires.*url\s*=\s*http://
+  severity: high
+  description: "Insecure pip configuration detected"
+  remediation: "Use pip.conf with HTTPS index-url, never use --trusted-host for public repos"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+- id: supplychain-gemfile-insecure
+  languages: [ruby]
+  patterns:
+    - regex: |-
+        (?i)Gemfile.*source\s+["']http://
+    - regex: |-
+        (?i)\.gemrc.*(verify_ssl|ssl_verification)\s*:\s*false
+    - regex: |-
+        (?i)Bundler\.configure.*ssl_verify_mode\s*=\s*OpenSSL::SSL::VERIFY_NONE
+  severity: high
+  description: "Insecure Ruby Gemfile or .gemrc configuration"
+  remediation: "Use HTTPS sources in Gemfile, never disable SSL verification"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+- id: supplychain-composer-insecure
+  languages: [php]
+  patterns:
+    - regex: |-
+        (?i)composer\.json.*"repositories".*http://
+    - regex: |-
+        (?i)composer\.json.*"secure-http"\s*:\s*false
+    - regex: |-
+        (?i)composer\.json.*"allow-plugins".*:\s*true
+  severity: high
+  description: "Insecure Composer configuration in PHP"
+  remediation: "Use HTTPS for all Composer repositories, set secure-http to true, audit plugins"
+  cwe: "CWE-295"
+  owasp: "A06:2021"
+
+# ======================== CI/CD Pipeline Vulnerabilities ========================
+
+- id: supplychain-cicd-unsafe-install
+  languages: [javascript, typescript, python, ruby, php, yaml, json]
+  patterns:
+    - regex: |-
+        (?i)(github_actions|gitlab_ci|jenkins|circleci|azure_pipelines|bitbucket).*(npm|pip|gem|composer)\s+install\s+-g\s+
+    - regex: |-
+        (?i)(npm|pip)\s+install\s+.*--skip-if-installed
+    - regex: |-
+        (?i)RUN\s+pip\s+install\s+--no-verify
+    - regex: |-
+        (?i)RUN\s+npm\s+install\s+.*--global
+  severity: medium
+  description: "CI/CD pipeline using potentially unsafe package installation"
+  remediation: "Use specific versions in CI, avoid global installs, use caching with integrity verification"
+  cwe: "CWE-94"
+  owasp: "A06:2021"
+
+- id: supplychain-cicd-cache-poisoning
+  languages: [javascript, typescript, python, ruby, yaml]
+  patterns:
+    - regex: |-
+        (?i)(cache|npm| pip | bundler).*restore_cache.*keys:
+    - regex: |-
+        (?i)cache:\s*\n\s*.*paths:.*node_modules
+    - regex: |-
+        (?i)cache_directories:\s*\n\s*.*vendor/bundle
+  severity: medium
+  description: "CI/CD cache may be poisoned with malicious packages"
+  remediation: "Use content-addressable cache keys based on lockfile hashes, not just dependency names"
+  cwe: "CWE-494"
+  owasp: "A06:2021"
+
+- id: supplychain-cicd-secret-exposure
+  languages: [javascript, typescript, python, ruby, php, yaml, json]
+  patterns:
+    - regex: |-
+        (?i)(NPM_TOKEN|PYPI_TOKEN|RUBYGEMS_TOKEN|COMPOSER_AUTH).*["'][^"']+["']
+    - regex: |-
+        (?i)env:\s*\n\s*.*(API_TOKEN|PASSWORD|SECRET).*:\s*["'][^"']+["']
+    - regex: |-
+        (?i)(npm|pip)\s+publish.*--password
+  severity: critical
+  description: "CI/CD pipeline exposes package manager credentials"
+  remediation: "Use secret management (GitHub Secrets, HashiCorp Vault) instead of environment variables in code"
+  cwe: "CWE-798"
+  owasp: "A02:2021"
+
+# ======================== Dependency on Unmaintained Packages ========================
+
+- id: supplychain-unmaintained-package
+  languages: [javascript, typescript, python, ruby, php]
+  patterns:
+    - regex: |-
+        (?i)"(left-pad|event-stream|coinbase|crypto-js)"[^a-zA-Z]
+    - regex: |-
+        (?i)(request|node-uuid|rimraf|mkdirp)\s*:\s*"[^"]*"
+    - regex: |-
+        (?i)(bluebird|when|q|promise)\s*:\s*"[^"]*0\.[0-4]\.
+  severity: medium
+  description: "Dependency on potentially unmaintained or abandoned package"
+  remediation: "Check package last update date, number of maintainers, and consider migrating to actively maintained alternatives"
+  cwe: "CWE-1104"
+  owasp: "A06:2021"
+
+- id: supplychain-known-vulnerable-deps
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)(minimist|lodash|moment|node-fetch|axios|qs|handlebars|serialize-javascript|ssh2|tar)
+    - regex: |-
+        (?i)(Pillow|numpy|requests|flask|django|pyyaml|jinja2|urllib3|boto3)
+  severity: high
+  description: "Package with known vulnerabilities in public CVE databases"
+  remediation: "Run npm audit, pip-audit, or similar tools regularly; update to latest patched versions"
+  cwe: "CWE-1104"
+  owasp: "A06:2021"
+
+# ======================== Private Package Hijacking ========================
+
+- id: supplychain-private-pkg-hijack
+  languages: [javascript, typescript, python, ruby, php, csharp, dotnet]
+  patterns:
+    - regex: |-
+        (?i)npm\s+(publish|unpublish)\s+.*--public
+    - regex: |-
+        (?i)NuGet\.org.*(key|apikey)\s*=
+    - regex: |-
+        (?i)(private|npmjs\.com|nuget\.org)\s+publish\s+.*[0-9a-zA-Z]{8}
+  severity: critical
+  description: "Potential private package name hijacking - publishing internal packages to public registries"
+  remediation: "Use scoped packages (@company/pkg), private registries, or NuGet internal feeds"
+  cwe: "CWE-427"
+  owasp: "A06:2021"
+
+# ======================== Package Version Pinning Issues ========================
+
+- id: supplychain-version-wildcard
+  languages: [javascript, typescript, python, ruby, php, java, go]
+  patterns:
+    - regex: |-
+        (?i)"[a-zA-Z0-9-]+"\s*:\s*"\*"
+    - regex: |-
+        (?i)"[a-zA-Z0-9-]+"\s*:\s*">=\s*0\.0\.0"
+    - regex: |-
+        (?i)[a-zA-Z0-9_-]+\s*>=\s*0
+    - regex: |-
+        (?i)(latest|stable|master)\s*:\s*"\*"
+  severity: medium
+  description: "Wildcard version pinning allows potentially malicious updates"
+  remediation: "Pin to specific versions or use semver range with careful review of breaking changes"
+  cwe: "CWE-494"
+  owasp: "A06:2021"

@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -93,10 +94,10 @@ func mapOSVCLISeverity(severities []struct {
 }
 
 // RunOSVCli runs the osv-scanner CLI against a target directory and returns findings.
-func RunOSVCli(targetDir string) ([]reporter.Finding, error) {
+func RunOSVCli(ctx context.Context, targetDir string) ([]reporter.Finding, error) {
 	utils.LogInfo("🔍 Launching Google OSV-Scanner CLI...")
 
-	cmd := exec.Command(getOSVBin(), "scan", "--format", "json", "-r", targetDir)
+	cmd := exec.CommandContext(ctx, getOSVBin(), "scan", "--format", "json", "-r", targetDir)
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout

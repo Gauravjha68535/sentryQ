@@ -114,12 +114,67 @@ func containsStringFormatting(node *treeSitter.Node, content []byte) bool {
 	return strings.Contains(text, "%") || strings.Contains(text, ".format") || strings.Contains(text, "f\"") || strings.Contains(text, "f'") || strings.Contains(text, "+")
 }
 
+// Pre-compiled regexes for user input detection (compiled once at startup)
+var (
+	userInputPatterns = []*regexp.Regexp{
+		regexp.MustCompile(`\breq\.`),
+		regexp.MustCompile(`\brequest\.`),
+		regexp.MustCompile(`\bhttp\.Request\b`),
+		regexp.MustCompile(`\.form\[`),
+		regexp.MustCompile(`\.query\[`),
+		regexp.MustCompile(`\.params\[`),
+		regexp.MustCompile(`\.postForm\[`),
+		regexp.MustCompile(`\.Body\b`),
+		regexp.MustCompile(`\.Form\[`),
+		regexp.MustCompile(`\.PostForm\b`),
+		regexp.MustCompile(`request\.form`),
+		regexp.MustCompile(`request\.args`),
+		regexp.MustCompile(`request\.values`),
+		regexp.MustCompile(`flask\.request`),
+		regexp.MustCompile(`django\.request`),
+		regexp.MustCompile(`sys\.argv`),
+		regexp.MustCompile(`os\.environ`),
+		regexp.MustCompile(`os\.getenv`),
+		regexp.MustCompile(`\binput\(`),
+		regexp.MustCompile(`\breadline\(`),
+		regexp.MustCompile(`req\.body`),
+		regexp.MustCompile(`req\.query`),
+		regexp.MustCompile(`req\.params`),
+		regexp.MustCompile(`req\.cookies`),
+		regexp.MustCompile(`express\.request`),
+		regexp.MustCompile(`\.getQuery\(`),
+		regexp.MustCompile(`\.getParam\(`),
+		regexp.MustCompile(`\.getParameter\(`),
+		regexp.MustCompile(`\.getQueryString\(`),
+		regexp.MustCompile(`servletRequest\.`),
+		regexp.MustCompile(`HttpServletRequest\.`),
+		regexp.MustCompile(`\$_GET`),
+		regexp.MustCompile(`\$_POST`),
+		regexp.MustCompile(`\$_REQUEST`),
+		regexp.MustCompile(`\$_COOKIE`),
+		regexp.MustCompile(`\$_SERVER`),
+		regexp.MustCompile(`params\[`),
+		regexp.MustCompile(`request\[`),
+		regexp.MustCompile(`env\[`),
+		regexp.MustCompile(`r\.Form\[`),
+		regexp.MustCompile(`r\.Body`),
+		regexp.MustCompile(`r\.PostForm\[`),
+	}
+)
+
 func containsUserInput(node *treeSitter.Node, content []byte) bool {
 	if node == nil {
 		return false
 	}
 	text := strings.ToLower(node.Content(content))
-	return strings.Contains(text, "req") || strings.Contains(text, "sys.argv") || strings.Contains(text, "input") || strings.Contains(text, "param")
+
+	// Use pre-compiled regex patterns for better performance
+	for _, pattern := range userInputPatterns {
+		if pattern.MatchString(text) {
+			return true
+		}
+	}
+	return false
 }
 
 func isSecretVariableName(name string) bool {

@@ -210,7 +210,7 @@ export default function NewScan() {
                                 <div>
                                     <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>Deep Scan</div>
                                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>
-                                        Dependency vulnerabilities, Semgrep rules, supply chain, container (Docker/K8s), and Threat Intel
+                                        {config.enableEnsemble ? 'Automatically included in Ensemble Audit' : 'Dependency vulnerabilities, Semgrep rules, supply chain, container (Docker/K8s), and Threat Intel'}
                                     </div>
                                 </div>
                             </div>
@@ -245,7 +245,7 @@ export default function NewScan() {
                                 <div>
                                     <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>AI-Powered</div>
                                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>
-                                        {config.enableEnsemble ? 'Included in Ensemble Audit' : 'AI discovery, validation & auto-consolidation (requires Ollama)'}
+                                        {config.enableEnsemble ? 'Automatically included in Ensemble Audit' : 'AI discovery, validation & auto-consolidation (requires Ollama)'}
                                     </div>
                                 </div>
                             </div>

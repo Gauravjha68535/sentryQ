@@ -4,6 +4,7 @@ import (
 	"QWEN_SCR_24_FEB_2026/reporter"
 	"QWEN_SCR_24_FEB_2026/utils"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -51,7 +52,7 @@ func getSemgrepBin() string {
 	return "semgrep"
 }
 
-func RunSemgrep(targetDir string) ([]reporter.Finding, error) {
+func RunSemgrep(ctx context.Context, targetDir string) ([]reporter.Finding, error) {
 	var findings []reporter.Finding
 
 	_, err := exec.LookPath(getSemgrepBin())

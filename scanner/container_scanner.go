@@ -102,49 +102,55 @@ func (cs *ContainerScanner) scanDockerfile(filePath string) ([]reporter.Finding,
 	scanner := bufio.NewScanner(file)
 	lineNum := 1
 
-	hasUserDirective := false
-	hasHealthCheck := false
+	var currentBaseImage string
+	var hasAnyUser bool        // Track if ANY stage has USER directive
+	var hasAnyHealthCheck bool // Track if ANY stage has HEALTHCHECK
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		trimmedLine := strings.TrimSpace(line)
 
-		// Skip empty lines and comments
 		if trimmedLine == "" || strings.HasPrefix(trimmedLine, "#") {
 			lineNum++
 			continue
 		}
 
-		// Check for FROM
+		// Check for FROM (Start of a new stage)
 		if strings.HasPrefix(strings.ToUpper(trimmedLine), "FROM ") {
 			parts := strings.Fields(trimmedLine)
 			if len(parts) >= 2 {
-				baseImage = parts[1] // Extract image (e.g. ubuntu:20.04)
+				currentBaseImage = parts[1]
+				baseImage = currentBaseImage // Update global base image (last one wins)
 			}
 
 			if strings.Contains(strings.ToLower(trimmedLine), ":latest") || !strings.Contains(trimmedLine, ":") {
 				findings = append(findings, cs.createFinding(filePath, lineNum,
 					"CONTAINER-LATEST-TAG",
 					"Base Image using 'latest' tag",
-					"Using the 'latest' tag can lead to unpredictable builds and security vulnerabilities if the base image introduces a regression. Pin to a specific version instead.",
+					"Using the 'latest' tag can lead to unpredictable builds and security vulnerabilities.",
 					"medium",
 					"CWE-1104",
 					"A06:2021-Vulnerable and Outdated Components"))
 			}
 		}
 
-		// Check for root user explicitly set or lack of USER directive
+		// Check for USER
 		if strings.HasPrefix(strings.ToUpper(trimmedLine), "USER ") {
-			hasUserDirective = true
+			hasAnyUser = true // Global: at least one stage has it
 			if strings.Contains(strings.ToLower(trimmedLine), "root") || strings.TrimSpace(trimmedLine[5:]) == "0" {
 				findings = append(findings, cs.createFinding(filePath, lineNum,
 					"CONTAINER-ROOT-USER",
 					"Container explicitly running as root",
-					"Running containers as root violates the principle of least privilege. An attacker who compromises the container might gain root access to the Docker host.",
+					"Running containers as root violates the principle of least privilege.",
 					"high",
 					"CWE-250",
 					"A01:2021-Broken Access Control"))
 			}
+		}
+
+		// Check for HEALTHCHECK
+		if strings.HasPrefix(strings.ToUpper(trimmedLine), "HEALTHCHECK") {
+			hasAnyHealthCheck = true // Global: at least one stage has it
 		}
 
 		// Check for secrets in ENV
@@ -154,26 +160,21 @@ func (cs *ContainerScanner) scanDockerfile(filePath string) ([]reporter.Finding,
 				findings = append(findings, cs.createFinding(filePath, lineNum,
 					"CONTAINER-ENV-SECRET",
 					"Potential secret baked into container image",
-					"Defining secrets using ENV or ARG bakes them into the image layers, exposing them to anyone who pulls the image. Use Docker secrets, mounted volumes, or robust secret management systems instead.",
+					"Defining secrets using ENV or ARG bakes them into the image layers.",
 					"critical",
 					"CWE-312",
 					"A07:2021-Identification and Authentication Failures"))
 			}
 		}
 
-		// Check for missing HEALTHCHECK
-		if strings.HasPrefix(strings.ToUpper(trimmedLine), "HEALTHCHECK") {
-			hasHealthCheck = true
-		}
-
-		// Check for exposed sensitive ports natively
+		// Check for EXPOSE
 		if strings.HasPrefix(strings.ToUpper(trimmedLine), "EXPOSE ") {
 			portRegex := regexp.MustCompile(`\b(22|3389|23)\b`)
 			if portRegex.MatchString(trimmedLine) {
 				findings = append(findings, cs.createFinding(filePath, lineNum,
 					"CONTAINER-EXPOSE-SENSITIVE-PORT",
 					"Suspicious or sensitive port exposed",
-					"Exposing SSH, RDP, or Telnet directly in a container is generally a bad practice and could allow attackers to bypass network security controls.",
+					"Exposing SSH, RDP, or Telnet directly in a container is generally a bad practice.",
 					"high",
 					"CWE-200",
 					"A05:2021-Security Misconfiguration"))
@@ -183,21 +184,22 @@ func (cs *ContainerScanner) scanDockerfile(filePath string) ([]reporter.Finding,
 		lineNum++
 	}
 
-	if !hasUserDirective {
+	// Warn if ANY stage is missing USER directive (security best practice)
+	if !hasAnyUser {
 		findings = append(findings, cs.createFinding(filePath, 0,
 			"CONTAINER-MISSING-USER",
-			"No generic USER specified in Dockerfile",
-			"The container will run as root by default. Add a 'USER <non-root-user>' directive.",
+			"No USER directive found in any stage",
+			"The container will run as root by default. Add a 'USER <non-root-user>' directive to any stage.",
 			"high",
 			"CWE-250",
 			"A01:2021-Broken Access Control"))
 	}
 
-	if !hasHealthCheck {
+	if !hasAnyHealthCheck {
 		findings = append(findings, cs.createFinding(filePath, 0,
 			"CONTAINER-MISSING-HEALTHCHECK",
-			"No HEALTHCHECK instruction",
-			"Adding a HEALTHCHECK instruction ensures that the container orchestrator knows if the application is healthy and can restart it if necessary.",
+			"No HEALTHCHECK instruction in any stage",
+			"Adding a HEALTHCHECK instruction ensures that the container orchestrator knows if the application is healthy.",
 			"low",
 			"CWE-754",
 			"A05:2021-Security Misconfiguration"))
