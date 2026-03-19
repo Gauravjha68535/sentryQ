@@ -1,7 +1,8 @@
 - id: openapi-no-security
   languages: [yaml]
   patterns:
-    - regex: '(?i)security:\s*''severity: medium
+    - regex: '(?i)security:\s*'
+  severity: medium
   description: "Missing or empty security definitions"
   remediation: "Define security schemes (e.g., OAuth2, Bearer)"
   cwe: "CWE-285"
@@ -10,7 +11,8 @@
 - id: openapi-http-scheme
   languages: [yaml]
   patterns:
-    - regex: '(?i)scheme:\s*http\b''severity: medium
+    - regex: '(?i)scheme:\s*http\b'
+  severity: medium
   description: "Insecure HTTP scheme defined"
   remediation: "Use https scheme"
   cwe: "CWE-319"
@@ -19,7 +21,8 @@
 - id: openapi-x-powered-by
   languages: [yaml]
   patterns:
-    - regex: '(?i)x-powered-by''severity: low
+    - regex: '(?i)x-powered-by'
+  severity: low
   description: "Information disclosure header"
   remediation: "Remove framework identification headers"
   cwe: "CWE-200"
@@ -29,7 +32,8 @@
 - id: openapi-missing-default-response
   languages: [yaml]
   patterns:
-    - regex: '(?i)responses:[\s\S]*?''severity: low
+    - regex: '(?i)responses:[\s\S]*?'
+  severity: low
   description: "Missing default response handler"
   remediation: "Add a 'default' response to handle unexpected errors"
   cwe: "CWE-703"
@@ -38,7 +42,8 @@
 - id: openapi-no-api-key-location
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*apiKey)''severity: high
+    - regex: '(?i)type:\s*apiKey'
+  severity: high
   description: "API Key scheme missing location (in:) directive"
   remediation: "Specify in: header for the apiKey"
   cwe: "CWE-287"
@@ -47,7 +52,8 @@
 - id: openapi-basic-auth
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*http[\s\S]*?scheme:\s*basic''severity: medium
+    - regex: '(?i)type:\s*http[\s\S]*?scheme:\s*basic'
+  severity: medium
   description: "Basic authentication used in spec"
   remediation: "Use OAuth2 or Bearer Tokens"
   cwe: "CWE-522"
@@ -56,7 +62,8 @@
 - id: openapi-global-security-empty
   languages: [yaml]
   patterns:
-    - regex: '(?i)^security:\s*\n\s*-\s*\{\s*\}''severity: high
+    - regex: '(?i)^security:\s*\n\s*-\s*\{\s*\}'
+  severity: high
   description: "Global security allows unauthenticated access"
   remediation: "Remove empty {} from global security"
   cwe: "CWE-284"
@@ -65,7 +72,8 @@
 - id: openapi-integer-no-maximum
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*integer''severity: low
+    - regex: '(?i)type:\s*integer'
+  severity: low
   description: "Integer parameter without maximum boundary"
   remediation: "Add maximum to prevent resource exhaustion"
   cwe: "CWE-400"
@@ -76,7 +84,8 @@
 - id: openapi-no-oauth2
   languages: [yaml]
   patterns:
-    - regex: '(?i)security:\s*\n''severity: high
+    - regex: '(?i)security:\s*\n'
+  severity: high
   description: "No OAuth2 security scheme defined"
   remediation: "Add OAuth2 security scheme"
   cwe: "CWE-287"
@@ -86,7 +95,8 @@
 - id: openapi-bearer-only
   languages: [yaml]
   patterns:
-    - regex: '(?i)scheme:\s*bearer''severity: medium
+    - regex: '(?i)scheme:\s*bearer'
+  severity: medium
   description: "Bearer token without format specification"
   remediation: "Specify bearerFormat (e.g., JWT)"
   cwe: "CWE-287"
@@ -96,7 +106,8 @@
 - id: openapi-api-key-in-path
   languages: [yaml]
   patterns:
-    - regex: '(?i)in:\s*path''severity: high
+    - regex: '(?i)in:\s*path'
+  severity: high
   description: "API key in path parameter"
   remediation: "Use header or query for API keys"
   cwe: "CWE-200"
@@ -106,7 +117,8 @@
 - id: openapi-bearer-in-url
   languages: [yaml]
   patterns:
-    - regex: '(?i)url:.*\{.*token.*\}|url:.*://.*token''severity: high
+    - regex: '(?i)url:.*\{.*token.*\}|url:.*://.*token'
+  severity: high
   description: "Bearer token in URL"
   remediation: "Pass tokens in Authorization header"
   cwe: "CWE-319"
@@ -117,7 +129,8 @@
 - id: openapi-insecure-server-url
   languages: [yaml]
   patterns:
-    - regex: '(?i)servers:\s*\n\s*-\s*url:\s*http://''severity: high
+    - regex: '(?i)servers:\s*\n\s*-\s*url:\s*http://'
+  severity: high
   description: "Insecure HTTP server URL"
   remediation: "Use HTTPS URLs"
   cwe: "CWE-319"
@@ -127,7 +140,8 @@
 - id: openapi-no-tls-requirement
   languages: [yaml]
   patterns:
-    - regex: '(?i)scheme:\s*https''severity: medium
+    - regex: '(?i)scheme:\s*https'
+  severity: medium
   description: "HTTPS without TLS configuration"
   remediation: "Define TLS security requirements"
   cwe: "CWE-295"
@@ -138,7 +152,8 @@
 - id: openapi-no-rate-limit
   languages: [yaml]
   patterns:
-    - regex: '(?i)throttling|rate.limit|rateLimit''severity: medium
+    - regex: '(?i)throttling|rate.limit|rateLimit'
+  severity: medium
   description: "No rate limiting defined"
   remediation: "Add rate limiting headers and throttling"
   cwe: "CWE-770"
@@ -149,7 +164,8 @@
 - id: openapi-no-schema
   languages: [yaml]
   patterns:
-    - regex: '(?i)parameters:[\s\S]*?''severity: medium
+    - regex: '(?i)parameters:[\s\S]*?'
+  severity: medium
   description: "Parameters without schema validation"
   remediation: "Define schemas for all parameters"
   cwe: "CWE-20"
@@ -159,7 +175,8 @@
 - id: openapi-no-examples
   languages: [yaml]
   patterns:
-    - regex: '(?i)schema:[\s\S]*?''severity: low
+    - regex: '(?i)schema:[\s\S]*?'
+  severity: low
   description: "Schema without examples"
   remediation: "Add examples for documentation"
   cwe: "CWE-1059"
@@ -169,7 +186,8 @@
 - id: openapi-no-description
   languages: [yaml]
   patterns:
-    - regex: '(?i)(operation|parameter|schema|property):\s*\n''severity: low
+    - regex: '(?i)(operation|parameter|schema|property):\s*\n'
+  severity: low
   description: "Missing description for operations"
   remediation: "Add descriptions for all elements"
   cwe: "CWE-1059"
@@ -180,7 +198,7 @@
 - id: openapi-password-plaintext
   languages: [yaml]
   patterns:
-    - regex: '(?i)(password|passwd|secret)\s*:\s*['''"]?\w+[''"]?(?!.*value)'
+    - regex: '(?i)(password|passwd|secret)\s*:\s*[''"]?\w+[''"]?(?:.*value)'
   severity: critical
   description: "Password or secret in plain text"
   remediation: "Use $ref to external secure storage"
@@ -191,7 +209,8 @@
 - id: openapi-sensitive-info-exposure
   languages: [yaml]
   patterns:
-    - regex: '(?i)(ssn|social.security|credit.card|card.number|api.key|private.key)''severity: critical
+    - regex: '(?i)(ssn|social.security|credit.card|card.number|api.key|private.key)'
+  severity: critical
   description: "Sensitive information in spec"
   remediation: "Remove sensitive data from spec"
   cwe: "CWE-200"
@@ -202,7 +221,8 @@
 - id: openapi-no-cors
   languages: [yaml]
   patterns:
-    - regex: '(?i)x-.*cors|Cors|cross.origin''severity: medium
+    - regex: '(?i)x-.*cors|Cors|cross.origin'
+  severity: medium
   description: "No CORS headers defined"
   remediation: "Add CORS configuration"
   cwe: "CWE-346"
@@ -213,7 +233,7 @@
 - id: openapi-no-version
   languages: [yaml]
   patterns:
-    - regex: '(?i)openapi:\s*['''"]?\d+\.\d+(?!.*version)'
+    - regex: '(?i)openapi:\s*[''"]?\d+\.\d+(?:.*version)'
   severity: medium
   description: "No API version specified"
   remediation: "Add version in info section"
@@ -224,7 +244,8 @@
 - id: openapi-deprecated-api
   languages: [yaml]
   patterns:
-    - regex: '(?i)deprecated:\s*true''severity: medium
+    - regex: '(?i)deprecated:\s*true'
+  severity: medium
   description: "Deprecated API still documented"
   remediation: "Remove or mark deprecated endpoints"
   cwe: "CWE-1104"
@@ -235,7 +256,8 @@
 - id: openapi-endpoint-no-auth
   languages: [yaml]
   patterns:
-    - regex: '(?i)security:\s*\n\s*-\s*\{\}''severity: high
+    - regex: '(?i)security:\s*\n\s*-\s*\{\}'
+  severity: high
   description: "Endpoint allows unauthenticated access"
   remediation: "Add security requirements to endpoints"
   cwe: "CWE-306"
@@ -245,7 +267,8 @@
 - id: openapi-overly-permissive
   languages: [yaml]
   patterns:
-    - regex: '(?i)\*/\*|application/\*''severity: medium
+    - regex: '(?i)\*/\*|application/\*'
+  severity: medium
   description: "Overly permissive content type"
   remediation: "Specify exact content types"
   cwe: "CWE-1009"
@@ -256,7 +279,8 @@
 - id: openapi-no-error-schema
   languages: [yaml]
   patterns:
-    - regex: '(?i)responses:\s*[\s\S]*?''severity: medium
+    - regex: '(?i)responses:\s*[\s\S]*?'
+  severity: medium
   description: "No error response schema"
   remediation: "Define error response schemas"
   cwe: "CWE-755"
@@ -266,7 +290,8 @@
 - id: openapi-stack-trace
   languages: [yaml]
   patterns:
-    - regex: '(?i)(stack.trace|exception|error.detail)''severity: high
+    - regex: '(?i)(stack.trace|exception|error.detail)'
+  severity: high
   description: "Stack trace in API response"
   remediation: "Remove stack trace from responses"
   cwe: "CWE-209"
@@ -277,7 +302,8 @@
 - id: openapi-insecure-oauth-flow
   languages: [yaml]
   patterns:
-    - regex: '(?i)authorizationUrl:\s*http://''severity: critical
+    - regex: '(?i)authorizationUrl:\s*http://'
+  severity: critical
   description: "OAuth authorization URL not secure"
   remediation: "Use HTTPS for authorization URLs"
   cwe: "CWE-319"
@@ -287,7 +313,8 @@
 - id: openapi-no-scopes
   languages: [yaml]
   patterns:
-    - regex: '(?i)oauth2:[\s\S]*?''severity: medium
+    - regex: '(?i)oauth2:[\s\S]*?'
+  severity: medium
   description: "OAuth2 without defined scopes"
   remediation: "Define OAuth2 scopes"
   cwe: "CWE-284"
@@ -297,7 +324,8 @@
 - id: openapi-implicit-grant
   languages: [yaml]
   patterns:
-    - regex: '(?i)flow:\s*implicit''severity: high
+    - regex: '(?i)flow:\s*implicit'
+  severity: high
   description: "OAuth2 implicit flow is insecure"
   remediation: "Use authorization code flow"
   cwe: "CWE-287"
@@ -308,7 +336,8 @@
 - id: openapi-no-operation-id
   languages: [yaml]
   patterns:
-    - regex: '(?i)(get|post|put|patch|delete|options|head):\s*\n''severity: low
+    - regex: '(?i)(get|post|put|patch|delete|options|head):\s*\n'
+  severity: low
   description: "Missing operationId for operations"
   remediation: "Add unique operationIds"
   cwe: "CWE-1059"
@@ -318,7 +347,7 @@
 - id: openapi-verbose-errors
   languages: [yaml]
   patterns:
-    - regex: '(?i)(detail|message):\s*['''"]\$\{.*\}[''"]'
+    - regex: '(?i)(detail|message):\s*[''"]\$\{.*\}[''"]'
   severity: medium
   description: "Verbose error messages exposing internal info"
   remediation: "Use generic error messages"
@@ -330,7 +359,8 @@
 - id: openapi-no-components
   languages: [yaml]
   patterns:
-    - regex: '(?i)components:\s*\{\}''severity: low
+    - regex: '(?i)components:\s*\{\}'
+  severity: low
   description: "Empty components section"
   remediation: "Use components for reusable schemas"
   cwe: "CWE-1059"
@@ -340,7 +370,8 @@
 - id: openapi-inline-schema
   languages: [yaml]
   patterns:
-    - regex: '(?i)schema:\s*\{[\s\S]{200,\}''severity: low
+    - regex: '(?i)schema:\s*\{[\s\S]{200,\}'
+  severity: low
   description: "Large inline schema - consider refactoring"
   remediation: "Use $ref for reusable schemas"
   cwe: "CWE-1059"
@@ -351,7 +382,8 @@
 - id: openapi-http-server
   languages: [yaml]
   patterns:
-    - regex: '(?i)servers:[\s\S]*url:\s*http:''severity: high
+    - regex: '(?i)servers:[\s\S]*url:\s*http:'
+  severity: high
   description: "Server using HTTP instead of HTTPS"
   remediation: "Use HTTPS server URLs"
   cwe: "CWE-319"
@@ -361,7 +393,8 @@
 - id: openapi-no-server-variables
   languages: [yaml]
   patterns:
-    - regex: '(?i)servers:[\s\S]*?''severity: low
+    - regex: '(?i)servers:[\s\S]*?'
+  severity: low
   description: "No server variables for environments"
   remediation: "Use variables for environment separation"
   cwe: "CWE-1059"
@@ -372,7 +405,8 @@
 - id: openapi-missing-security-headers
   languages: [yaml]
   patterns:
-    - regex: '(?i)headers:[\s\S]*?''severity: medium
+    - regex: '(?i)headers:[\s\S]*?'
+  severity: medium
   description: "Missing security headers in responses"
   remediation: "Define security headers"
   cwe: "CWE-693"
@@ -383,7 +417,7 @@
 - id: openapi-no-examples-real-data
   languages: [yaml]
   patterns:
-    - regex: '(?i)example:\s*['''"]?(?:test|example|foo|bar|admin|user)'
+    - regex: '(?i)example:\s*[''"]?(?:test|example|foo|bar|admin|user)'
   severity: low
   description: "Using placeholder data in examples"
   remediation: "Use realistic but fake data"
@@ -394,7 +428,8 @@
 - id: openapi-real-email-example
   languages: [yaml]
   patterns:
-    - regex: '(?i)example:.*@example\.com|example:.*@test\.com''severity: low
+    - regex: '(?i)example:.*@example\.com|example:.*@test\.com'
+  severity: low
   description: "Email example may be misinterpreted"
   remediation: "Use example.com domain"
   cwe: "CWE-200"
@@ -405,7 +440,7 @@
 - id: openapi-version-in-url
   languages: [yaml]
   patterns:
-    - regex: '(?i)url:\s*['''"]?.*v\d+'
+    - regex: '(?i)url:\s*[''"]?.*v\d+'
   severity: medium
   description: "API version in URL path"
   remediation: "Use header or query for versioning"
@@ -416,7 +451,8 @@
 - id: openapi-environment-in-spec
   languages: [yaml]
   patterns:
-    - regex: '(?i)(dev|staging|prod|production)\s*:[^/]*url''severity: medium
+    - regex: '(?i)(dev|staging|prod|production)\s*:[^/]*url'
+  severity: medium
   description: "Environment-specific URLs in spec"
   remediation: "Use variables for environments"
   cwe: "CWE-1059"
@@ -427,7 +463,8 @@
 - id: openapi-allow-additional
   languages: [yaml]
   patterns:
-    - regex: '(?i)additionalProperties:\s*true''severity: low
+    - regex: '(?i)additionalProperties:\s*true'
+  severity: low
   description: "Additional properties allowed"
   remediation: "Set additionalProperties: false"
   cwe: "CWE-20"
@@ -437,7 +474,8 @@
 - id: openapi-no-required-fields
   languages: [yaml]
   patterns:
-    - regex: '(?i)schema:[\s\S]*?''severity: medium
+    - regex: '(?i)schema:[\s\S]*?'
+  severity: medium
   description: "No required fields in schema"
   remediation: "Mark required fields"
   cwe: "CWE-20"
@@ -448,7 +486,8 @@
 - id: openapi-no-enum
   languages: [yaml]
   patterns:
-    - regex: '(?i)(status|type|kind|category):\s*\n''severity: low
+    - regex: '(?i)(status|type|kind|category):\s*\n'
+  severity: low
   description: "Field without enum constraint"
   remediation: "Use enum for known values"
   cwe: "CWE-20"
@@ -459,7 +498,8 @@
 - id: openapi-no-array-max-items
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*array''severity: medium
+    - regex: '(?i)type:\s*array'
+  severity: medium
   description: "Array without maxItems limit"
   remediation: "Set maxItems to prevent DoS"
   cwe: "CWE-400"
@@ -469,7 +509,8 @@
 - id: openapi-no-array-min-items
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*array''severity: low
+    - regex: '(?i)type:\s*array'
+  severity: low
   description: "Array without minItems validation"
   remediation: "Set minItems when needed"
   cwe: "CWE-20"
@@ -480,7 +521,8 @@
 - id: openapi-no-string-length
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*string)''severity: medium
+    - regex: '(?i)type:\s*string'
+  severity: medium
   description: "String without length constraints"
   remediation: "Add maxLength and minLength"
   cwe: "CWE-20"
@@ -490,7 +532,8 @@
 - id: openapi-no-pattern
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*string''severity: low
+    - regex: '(?i)type:\s*string'
+  severity: low
   description: "String without pattern validation"
   remediation: "Add pattern for format validation"
   cwe: "CWE-20"
@@ -501,7 +544,8 @@
 - id: openapi-no-format
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*(?:string|integer|date-time|date)''severity: low
+    - regex: '(?i)type:\s*(?:string|integer|date-time|date)'
+  severity: low
   description: "No format specification"
   remediation: "Add format for validation"
   cwe: "CWE-20"
@@ -512,7 +556,8 @@
 - id: openapi-allof-no-properties
   languages: [yaml]
   patterns:
-    - regex: '(?i)allOf:\s*\n''severity: medium
+    - regex: '(?i)allOf:\s*\n'
+  severity: medium
   description: "allOf without $ref"
   remediation: "Use $ref for schema composition"
   cwe: "CWE-1059"
@@ -523,7 +568,8 @@
 - id: openapi-no-callback-auth
   languages: [yaml]
   patterns:
-    - regex: '(?i)callbacks:[\s\S]*?''severity: medium
+    - regex: '(?i)callbacks:[\s\S]*?'
+  severity: medium
   description: "Callback without security"
   remediation: "Secure callback endpoints"
   cwe: "CWE-284"
@@ -534,7 +580,8 @@
 - id: openapi-no-operation-ref
   languages: [yaml]
   patterns:
-    - regex: '(?i)links:[\s\S]*?''severity: low
+    - regex: '(?i)links:[\s\S]*?'
+  severity: low
   description: "Link without operation reference"
   remediation: "Use operationRef or operationId"
   cwe: "CWE-1059"
@@ -545,7 +592,8 @@
 - id: openapi-wildcard-media-type
   languages: [yaml]
   patterns:
-    - regex: '(?i)content:[\s\S]*?\*/\*''severity: medium
+    - regex: '(?i)content:[\s\S]*?\*/\*'
+  severity: medium
   description: "Wildcard media type in content"
   remediation: "Specify exact media types"
   cwe: "CWE-1009"
@@ -556,7 +604,8 @@
 - id: openapi-explode-true
   languages: [yaml]
   patterns:
-    - regex: '(?i)explode:\s*true''severity: low
+    - regex: '(?i)explode:\s*true'
+  severity: low
   description: "Explode true for form data"
   remediation: "Consider explode: false for serialization"
   cwe: "CWE-1009"
@@ -567,7 +616,8 @@
 - id: openapi-no-external-docs
   languages: [yaml]
   patterns:
-    - regex: '(?i)externalDocs:\s*\{\}''severity: low
+    - regex: '(?i)externalDocs:\s*\{\}'
+  severity: low
   description: "Empty external documentation"
   remediation: "Add external documentation or remove"
   cwe: "CWE-1059"
@@ -578,7 +628,8 @@
 - id: openapi-no-tags
   languages: [yaml]
   patterns:
-    - regex: '(?i)paths:[\s\S]*?''severity: low
+    - regex: '(?i)paths:[\s\S]*?'
+  severity: low
   description: "No tags for organizing operations"
   remediation: "Add tags to operations"
   cwe: "CWE-1059"
@@ -589,7 +640,8 @@
 - id: openapi-no-contact
   languages: [yaml]
   patterns:
-    - regex: '(?i)info:[\s\S]*?''severity: low
+    - regex: '(?i)info:[\s\S]*?'
+  severity: low
   description: "No contact information"
   remediation: "Add contact information"
   cwe: "CWE-1059"
@@ -599,7 +651,8 @@
 - id: openapi-no-license
   languages: [yaml]
   patterns:
-    - regex: '(?i)info:[\s\S]*?''severity: low
+    - regex: '(?i)info:[\s\S]*?'
+  severity: low
   description: "No license information"
   remediation: "Add license information"
   cwe: "CWE-1059"
@@ -608,7 +661,8 @@
 - id: openapi-jwt-none-alg
   languages: [yaml]
   patterns:
-    - regex: '(?i)bearerFormat:\s*JWT''severity: high
+    - regex: '(?i)bearerFormat:\s*JWT'
+  severity: high
   description: "JWT allows none algorithm implicitly"
   remediation: "Specify accepted JWT algorithms explicitly"
   cwe: "CWE-347"
@@ -617,7 +671,8 @@
 - id: openapi-missing-csp-header
   languages: [yaml]
   patterns:
-    - regex: '(?i)headers:''severity: medium
+    - regex: '(?i)headers:'
+  severity: medium
   description: "Missing CSP Header in response"
   remediation: "Add Content-Security-Policy to response headers"
   cwe: "CWE-693"
@@ -626,7 +681,8 @@
 - id: openapi-missing-hsts-header
   languages: [yaml]
   patterns:
-    - regex: '(?i)headers:''severity: medium
+    - regex: '(?i)headers:'
+  severity: medium
   description: "Missing HSTS Header in response"
   remediation: "Add Strict-Transport-Security to response headers"
   cwe: "CWE-319"
@@ -635,7 +691,8 @@
 - id: openapi-missing-xframe-header
   languages: [yaml]
   patterns:
-    - regex: '(?i)headers:''severity: medium
+    - regex: '(?i)headers:'
+  severity: medium
   description: "Missing X-Frame-Options Header"
   remediation: "Add X-Frame-Options header to mitigate Clickjacking"
   cwe: "CWE-693"
@@ -644,7 +701,8 @@
 - id: openapi-missing-content-options
   languages: [yaml]
   patterns:
-    - regex: '(?i)headers:''severity: low
+    - regex: '(?i)headers:'
+  severity: low
   description: "Missing X-Content-Type-Options Header"
   remediation: "Add X-Content-Type-Options: nosniff"
   cwe: "CWE-693"
@@ -653,7 +711,8 @@
 - id: openapi-trace-method-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)trace:\s*\n''severity: high
+    - regex: '(?i)trace:\s*\n'
+  severity: high
   description: "HTTP TRACE method is documented/enabled"
   remediation: "Remove TRACE method (Cross-Site Tracing risk)"
   cwe: "CWE-693"
@@ -662,7 +721,8 @@
 - id: openapi-track-method-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)track:\s*\n''severity: high
+    - regex: '(?i)track:\s*\n'
+  severity: high
   description: "HTTP TRACK method is documented/enabled"
   remediation: "Remove TRACK method"
   cwe: "CWE-693"
@@ -671,7 +731,8 @@
 - id: openapi-oauth1-usage
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*oauth1''severity: high
+    - regex: '(?i)type:\s*oauth1'
+  severity: high
   description: "Deprecated OAuth 1.0 in use"
   remediation: "Migrate to OAuth 2.0 or OIDC"
   cwe: "CWE-327"
@@ -680,7 +741,8 @@
 - id: openapi-cleartext-credentials-query
   languages: [yaml]
   patterns:
-    - regex: '(?i)name:\s*(?:password|secret|token|key)[\s\S]*?in:\s*query''severity: critical
+    - regex: '(?i)name:\s*(?:password|secret|token|key)[\s\S]*?in:\s*query'
+  severity: critical
   description: "Credentials passed in query string"
   remediation: "Pass credentials in headers or request body"
   cwe: "CWE-598"
@@ -689,7 +751,8 @@
 - id: openapi-id-idor-risk
   languages: [yaml]
   patterns:
-    - regex: '(?i)name:\s*(?:user_id|account_id|profile_id)[\s\S]*?in:\s*path''severity: high
+    - regex: '(?i)name:\s*(?:user_id|account_id|profile_id)[\s\S]*?in:\s*path'
+  severity: high
   description: "IDOR risk: ID in path without security"
   remediation: "Ensure endpoint enforces authorization on this ID"
   cwe: "CWE-639"
@@ -698,7 +761,8 @@
 - id: openapi-arbitrary-file-upload
   languages: [yaml]
   patterns:
-    - regex: '(?i)schema:\s*\n\s*type:\s*string\s*\n\s*format:\s*binary''severity: medium
+    - regex: '(?i)schema:\s*\n\s*type:\s*string\s*\n\s*format:\s*binary'
+  severity: medium
   description: "Binary file upload without constraints"
   remediation: "Implement max file size and strict mime-type validation"
   cwe: "CWE-434"
@@ -707,7 +771,8 @@
 - id: openapi-unbounded-pagination-limit
   languages: [yaml]
   patterns:
-    - regex: '(?i)name:\s*(?:limit|size|per_page)[\s\S]*?in:\s*query''severity: medium
+    - regex: '(?i)name:\s*(?:limit|size|per_page)[\s\S]*?in:\s*query'
+  severity: medium
   description: "Pagination limit without maximum boundary"
   remediation: "Add a maximum value (e.g., maximum: 100) to prevent DoS"
   cwe: "CWE-400"
@@ -716,7 +781,8 @@
 - id: openapi-json-injection
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*string\s*\n\s*format:\s*json''severity: medium
+    - regex: '(?i)type:\s*string\s*\n\s*format:\s*json'
+  severity: medium
   description: "Arbitrary JSON payload accepted"
   remediation: "Define a strict schema instead of accepting raw JSON strings"
   cwe: "CWE-20"
@@ -725,7 +791,8 @@
 - id: openapi-xml-external-entity
   languages: [yaml]
   patterns:
-    - regex: '(?i)application/xml:''severity: high
+    - regex: '(?i)application/xml:'
+  severity: high
   description: "XML parsing without explicitly noting XXE protections"
   remediation: "Ensure backend disables DTDs to prevent XXE"
   cwe: "CWE-611"
@@ -734,7 +801,8 @@
 - id: openapi-ssrf-webhook
   languages: [yaml]
   patterns:
-    - regex: '(?i)callbacks:\s*\n\s*\w+:[\s\S]*?(?:\{\$request\.body.*url.*?\})''severity: high
+    - regex: '(?i)callbacks:\s*\n\s*\w+:[\s\S]*?(?:\{\$request\.body.*url.*?\})'
+  severity: high
   description: "Callback URL reflects user input (SSRF Risk)"
   remediation: "Validate webhook URLs against an allowlist"
   cwe: "CWE-918"
@@ -743,7 +811,8 @@
 - id: openapi-no-cache-header
   languages: [yaml]
   patterns:
-    - regex: '(?i)headers:''severity: low
+    - regex: '(?i)headers:'
+  severity: low
   description: "Missing Cache-Control Header"
   remediation: "Add Cache-Control: no-store for sensitive endpoints"
   cwe: "CWE-524"
@@ -752,7 +821,8 @@
 - id: openapi-insecure-cookie
   languages: [yaml]
   patterns:
-    - regex: '(?i)in:\s*cookie''severity: medium
+    - regex: '(?i)in:\s*cookie'
+  severity: medium
   description: "Cookie parameter not marked Secure"
   remediation: "Set cookie as Secure and HttpOnly"
   cwe: "CWE-614"
@@ -761,7 +831,8 @@
 - id: openapi-weak-password-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)name:\s*password[\s\S]*?type:\s*string''severity: medium
+    - regex: '(?i)name:\s*password[\s\S]*?type:\s*string'
+  severity: medium
   description: "Password field without complexity pattern"
   remediation: "Define a strong complexity regex pattern"
   cwe: "CWE-521"
@@ -770,7 +841,8 @@
 - id: openapi-pii-exposure
   languages: [yaml]
   patterns:
-    - regex: '(?i)name:\s*(?:ssn|credit_card|dob)[\s\S]*?in:\s*query''severity: critical
+    - regex: '(?i)name:\s*(?:ssn|credit_card|dob)[\s\S]*?in:\s*query'
+  severity: critical
   description: "PII passed in query parameters"
   remediation: "Transfer PII in request body over TLS"
   cwe: "CWE-598"
@@ -779,7 +851,7 @@
 - id: openapi-missing-error-response-401
   languages: [yaml]
   patterns:
-    - regex: '(?i)responses:[\s\S]*?'''401'')'
+    - regex: '(?i)responses:[\s\S]*?''401'''
   severity: low
   description: "Missing 401 Unauthorized response definition"
   remediation: "Define a standard 401 error response"
@@ -789,7 +861,7 @@
 - id: openapi-missing-error-response-403
   languages: [yaml]
   patterns:
-    - regex: '(?i)responses:[\s\S]*?'''403'')'
+    - regex: '(?i)responses:[\s\S]*?''403'''
   severity: low
   description: "Missing 403 Forbidden response definition"
   remediation: "Define a standard 403 error response"
@@ -799,7 +871,7 @@
 - id: openapi-missing-error-response-429
   languages: [yaml]
   patterns:
-    - regex: '(?i)responses:[\s\S]*?'''429'')'
+    - regex: '(?i)responses:[\s\S]*?''429'''
   severity: low
   description: "Missing 429 Too Many Requests (Rate Limit) definition"
   remediation: "Document rate limiting responses"
@@ -809,7 +881,8 @@
 - id: openapi-x-powered-by
   languages: [yaml]
   patterns:
-    - regex: '(?i)X-Powered-By''severity: medium
+    - regex: '(?i)X-Powered-By'
+  severity: medium
   description: "X-Powered-By header documented"
   remediation: "Remove X-Powered-By to prevent technology fingerprinting"
   cwe: "CWE-200"
@@ -818,7 +891,8 @@
 - id: openapi-missing-scopes
   languages: [yaml]
   patterns:
-    - regex: '(?i)security:\s*\n\s*-\s*(?:oauth2|bearer):\s*\[\s*\]''severity: medium
+    - regex: '(?i)security:\s*\n\s*-\s*(?:oauth2|bearer):\s*\[\s*\]'
+  severity: medium
   description: "OAuth/Bearer security requirement missing specific scopes"
   remediation: "Define exact required scopes"
   cwe: "CWE-284"
@@ -827,7 +901,7 @@
 - id: openapi-unvalidated-redirect
   languages: [yaml]
   patterns:
-    - regex: '(?i)responses:\s*\n\s*'''3\d\d'':[\s\S]*?headers:\s*\n\s*Location:'
+    - regex: '(?i)responses:\s*\n\s*''3\d\d'':[\s\S]*?headers:\s*\n\s*Location:'
   severity: medium
   description: "Endpoint issues redirects (Open Redirect risk)"
   remediation: "Ensure redirect URLs are strictly validated"
@@ -837,7 +911,8 @@
 - id: openapi-oauth-password-grant
   languages: [yaml]
   patterns:
-    - regex: '(?i)grant_types:\s*\n\s*password:''severity: high
+    - regex: '(?i)grant_types:\s*\n\s*password:'
+  severity: high
   description: "OAuth2 password grant enabled"
   remediation: "Avoid password grant for public clients"
   cwe: "CWE-287"
@@ -846,7 +921,8 @@
 - id: openapi-implicit-grant
   languages: [yaml]
   patterns:
-    - regex: '(?i)grant_types:\s*\n\s*implicit:''severity: high
+    - regex: '(?i)grant_types:\s*\n\s*implicit:'
+  severity: high
   description: "OAuth2 implicit grant enabled"
   remediation: "Use authorization code grant instead"
   cwe: "CWE-287"
@@ -855,7 +931,8 @@
 - id: openapi-bearer-format
   languages: [yaml]
   patterns:
-    - regex: '(?i)bearerFormat:\\s*JWT''severity: low
+    - regex: '(?i)bearerFormat:\s*JWT'
+  severity: low
   description: "JWT bearer format specified"
   remediation: "Ensure JWT validation is strict"
   cwe: "CWE-287"
@@ -864,7 +941,8 @@
 - id: openapi-cors-allow-credentials
   languages: [yaml]
   patterns:
-    - regex: '(?i)allowCredentials:\\s*true.*allowOrigins:\\s*\\*''severity: high
+    - regex: '(?i)allowCredentials:\s*true.*allowOrigins:\s*\*'
+  severity: high
   description: "CORS allows wildcard origin with credentials"
   remediation: "Specify exact origins when credentials allowed"
   cwe: "CWE-346"

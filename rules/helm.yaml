@@ -1,7 +1,8 @@
 - id: helm-tpl-injection
   languages: [yaml]
   patterns:
-    - regex: '(?i)\\{\\{\\s*tpl\\s+''severity: high
+    - regex: '(?i)\{\{\s*tpl\s+'
+  severity: high
   description: "Template injection via tpl function"
   remediation: "Validate inputs passed to tpl"
   cwe: "CWE-94"
@@ -11,7 +12,8 @@
 - id: helm-privileged-container
   languages: [yaml]
   patterns:
-    - regex: '(?i)privileged:\s*true''severity: high
+    - regex: '(?i)privileged:\s*true'
+  severity: high
   description: "Privileged container"
   remediation: "Avoid privileged containers"
   cwe: "CWE-269"
@@ -21,7 +23,8 @@
 - id: helm-run-as-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)runAsUser:\s*0''severity: medium
+    - regex: '(?i)runAsUser:\s*0'
+  severity: medium
   description: "Container runs as root"
   remediation: "Use non-root user"
   cwe: "CWE-269"
@@ -31,7 +34,8 @@
 - id: helm-allow-privilege-escalation
   languages: [yaml]
   patterns:
-    - regex: '(?i)allowPrivilegeEscalation:\s*true''severity: medium
+    - regex: '(?i)allowPrivilegeEscalation:\s*true'
+  severity: medium
   description: "Privilege escalation enabled"
   remediation: "Set allowPrivilegeEscalation: false"
   cwe: "CWE-269"
@@ -41,7 +45,8 @@
 - id: helm-host-network
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostNetwork:\s*true''severity: high
+    - regex: '(?i)hostNetwork:\s*true'
+  severity: high
   description: "Pod shares host network namespace"
   remediation: "Remove hostNetwork: true"
   cwe: "CWE-284"
@@ -50,7 +55,8 @@
 - id: helm-host-pid
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostPID:\s*true''severity: high
+    - regex: '(?i)hostPID:\s*true'
+  severity: high
   description: "Pod shares host PID namespace"
   remediation: "Remove hostPID: true"
   cwe: "CWE-284"
@@ -59,7 +65,8 @@
 - id: helm-host-ipc
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostIPC:\s*true''severity: high
+    - regex: '(?i)hostIPC:\s*true'
+  severity: high
   description: "Pod shares host IPC namespace"
   remediation: "Remove hostIPC: true"
   cwe: "CWE-284"
@@ -68,7 +75,8 @@
 - id: helm-cap-sys-admin
   languages: [yaml]
   patterns:
-    - regex: '(?i)capabilities:[\s\S]*?add:[\s\S]*?-?\s*SYS_ADMIN''severity: critical
+    - regex: '(?i)capabilities:[\s\S]*?add:[\s\S]*?-?\s*SYS_ADMIN'
+  severity: critical
   description: "SYS_ADMIN capability granted"
   remediation: "Remove SYS_ADMIN capability"
   cwe: "CWE-269"
@@ -77,7 +85,8 @@
 - id: helm-readonly-root-fs
   languages: [yaml]
   patterns:
-    - regex: '(?i)readOnlyRootFilesystem:\s*false''severity: medium
+    - regex: '(?i)readOnlyRootFilesystem:\s*false'
+  severity: medium
   description: "Container root filesystem is writable"
   remediation: "Set readOnlyRootFilesystem to true"
   cwe: "CWE-269"
@@ -86,7 +95,8 @@
 - id: helm-default-serviceaccount
   languages: [yaml]
   patterns:
-    - regex: '(?i)serviceAccountName:\s*default''severity: medium
+    - regex: '(?i)serviceAccountName:\s*default'
+  severity: medium
   description: "Using default service account"
   remediation: "Use dedicated service accounts with least privilege"
   cwe: "CWE-284"
@@ -95,7 +105,8 @@
 - id: helm-nodeport
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*NodePort''severity: low
+    - regex: '(?i)type:\s*NodePort'
+  severity: low
   description: "Service exposed via NodePort"
   remediation: "Use LoadBalancer or Ingress"
   cwe: "CWE-284"
@@ -106,7 +117,8 @@
 - id: helm-cap-not-dropped
   languages: [yaml]
   patterns:
-    - regex: '(?i)capabilities:[\s\S]*?drop:''severity: high
+    - regex: '(?i)capabilities:[\s\S]*?drop:'
+  severity: high
   description: "Capabilities not dropped"
   remediation: "Drop all capabilities: capabilities: { drop: ['ALL'] }"
   cwe: "CWE-269"
@@ -116,7 +128,8 @@
 - id: helm-no-seccomp
   languages: [yaml]
   patterns:
-    - regex: '(?i)seccompProfile:''severity: low
+    - regex: '(?i)seccompProfile:'
+  severity: low
   description: "No seccomp profile defined"
   remediation: "Use RuntimeDefault or Localhost seccomp profile"
   cwe: "CWE-269"
@@ -126,7 +139,8 @@
 - id: helm-no-apparmor
   languages: [yaml]
   patterns:
-    - regex: '(?i)apparmorProfile:''severity: low
+    - regex: '(?i)apparmorProfile:'
+  severity: low
   description: "No AppArmor profile defined"
   remediation: "Define AppArmor profile"
   cwe: "CWE-269"
@@ -136,7 +150,8 @@
 - id: helm-security-context-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)containers:[\s\S]*?''severity: medium
+    - regex: '(?i)containers:[\s\S]*?'
+  severity: medium
   description: "No security context defined"
   remediation: "Define security context"
   cwe: "CWE-269"
@@ -146,7 +161,8 @@
 - id: helm-run-as-group
   languages: [yaml]
   patterns:
-    - regex: '(?i)runAsGroup:\s*0''severity: medium
+    - regex: '(?i)runAsGroup:\s*0'
+  severity: medium
   description: "Container runs as root group"
   remediation: "Use non-zero group ID"
   cwe: "CWE-269"
@@ -157,7 +173,8 @@
 - id: helm-no-network-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*NetworkPolicy''severity: medium
+    - regex: '(?i)kind:\s*NetworkPolicy'
+  severity: medium
   description: "No network policy defined"
   remediation: "Define network policies"
   cwe: "CWE-284"
@@ -167,7 +184,8 @@
 - id: helm-ingress-allow-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)NetworkPolicy[\s\S]*?ingress:[\s\S]*?- \{\}''severity: high
+    - regex: '(?i)NetworkPolicy[\s\S]*?ingress:[\s\S]*?- \{\}'
+  severity: high
   description: "Network policy allows all ingress"
   remediation: "Restrict ingress traffic"
   cwe: "CWE-284"
@@ -177,7 +195,8 @@
 - id: helm-egress-allow-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)NetworkPolicy[\s\S]*?egress:[\s\S]*?- \{\}''severity: high
+    - regex: '(?i)NetworkPolicy[\s\S]*?egress:[\s\S]*?- \{\}'
+  severity: high
   description: "Network policy allows all egress"
   remediation: "Restrict egress traffic"
   cwe: "CWE-284"
@@ -188,7 +207,8 @@
 - id: helm-no-memory-limit
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:[\s\S]*?''severity: medium
+    - regex: '(?i)resources:[\s\S]*?'
+  severity: medium
   description: "No memory limit defined"
   remediation: "Set memory limits"
   cwe: "CWE-400"
@@ -198,7 +218,8 @@
 - id: helm-no-cpu-limit
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:[\s\S]*?''severity: medium
+    - regex: '(?i)resources:[\s\S]*?'
+  severity: medium
   description: "No CPU limit defined"
   remediation: "Set CPU limits"
   cwe: "CWE-400"
@@ -208,7 +229,8 @@
 - id: helm-no-resources
   languages: [yaml]
   patterns:
-    - regex: '(?i)containers:[\s\S]*?''severity: medium
+    - regex: '(?i)containers:[\s\S]*?'
+  severity: medium
   description: "No resource limits defined"
   remediation: "Define resource limits"
   cwe: "CWE-400"
@@ -218,7 +240,8 @@
 - id: helm-resources-not-set
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:\s*\{\}''severity: medium
+    - regex: '(?i)resources:\s*\{\}'
+  severity: medium
   description: "Resources defined but empty"
   remediation: "Set resource requests and limits"
   cwe: "CWE-400"
@@ -229,7 +252,8 @@
 - id: helm-secret-env
   languages: [yaml]
   patterns:
-    - regex: '(?i)env:[\s\S]*?- name:[\s\S]*?(?:password|secret|key|token)''severity: high
+    - regex: '(?i)env:[\s\S]*?- name:[\s\S]*?(?:password|secret|key|token)'
+  severity: high
   description: "Secrets in environment variables"
   remediation: "Use secrets as volumes"
   cwe: "CWE-200"
@@ -239,7 +263,8 @@
 - id: helm-secret-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)secretName:''severity: medium
+    - regex: '(?i)secretName:'
+  severity: medium
   description: "Secrets mounted as volumes"
   remediation: "Ensure proper permissions"
   cwe: "CWE-200"
@@ -249,7 +274,8 @@
 - id: helm-default-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)imagePullSecrets:[\s\S]*?- name:\s*default''severity: low
+    - regex: '(?i)imagePullSecrets:[\s\S]*?- name:\s*default'
+  severity: low
   description: "Default image pull secrets"
   remediation: "Use dedicated secrets"
   cwe: "CWE-284"
@@ -259,7 +285,8 @@
 - id: helm-secrets-not-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)encryption:\s*\{\}''severity: high
+    - regex: '(?i)encryption:\s*\{\}'
+  severity: high
   description: "Secrets not encrypted at rest"
   remediation: "Enable encryption at rest"
   cwe: "CWE-311"
@@ -270,7 +297,8 @@
 - id: helm-configmap-sensitive
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*ConfigMap[\s\S]*?(?:password|secret|key|token)''severity: high
+    - regex: '(?i)kind:\s*ConfigMap[\s\S]*?(?:password|secret|key|token)'
+  severity: high
   description: "ConfigMap contains sensitive data"
   remediation: "Use secrets for sensitive data"
   cwe: "CWE-200"
@@ -281,7 +309,8 @@
 - id: helm-clusterrolebinding
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*ClusterRoleBinding''severity: high
+    - regex: '(?i)kind:\s*ClusterRoleBinding'
+  severity: high
   description: "ClusterRoleBinding grants cluster-wide access"
   remediation: "Use RoleBinding instead"
   cwe: "CWE-284"
@@ -291,7 +320,8 @@
 - id: helm-wildcard-verbs
   languages: [yaml]
   patterns:
-    - regex: '(?i)verbs:[\s\S]*?- \*''severity: critical
+    - regex: '(?i)verbs:[\s\S]*?- \*'
+  severity: critical
   description: "Wildcard verbs in RBAC"
   remediation: "Specify exact verbs"
   cwe: "CWE-269"
@@ -301,7 +331,8 @@
 - id: helm-wildcard-resources
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:[\s\S]*?- \*''severity: critical
+    - regex: '(?i)resources:[\s\S]*?- \*'
+  severity: critical
   description: "Wildcard resources in RBAC"
   remediation: "Specify exact resources"
   cwe: "CWE-269"
@@ -311,7 +342,8 @@
 - id: helm-wildcard-api-groups
   languages: [yaml]
   patterns:
-    - regex: '(?i)apiGroups:[\s\S]*?- \*''severity: high
+    - regex: '(?i)apiGroups:[\s\S]*?- \*'
+  severity: high
   description: "Wildcard API groups in RBAC"
   remediation: "Specify exact API groups"
   cwe: "CWE-269"
@@ -321,7 +353,8 @@
 - id: helm-subject-service-account
   languages: [yaml]
   patterns:
-    - regex: '(?i)subjects:[\s\S]*?- kind:\s*ServiceAccount[\s\S]*?name:\s*default''severity: medium
+    - regex: '(?i)subjects:[\s\S]*?- kind:\s*ServiceAccount[\s\S]*?name:\s*default'
+  severity: medium
   description: "Default service account in ClusterRoleBinding"
   remediation: "Use dedicated service account"
   cwe: "CWE-284"
@@ -332,7 +365,8 @@
 - id: helm-ingress-tls-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*Ingress[\s\S]*?''severity: high
+    - regex: '(?i)kind:\s*Ingress[\s\S]*?'
+  severity: high
   description: "Ingress without TLS"
   remediation: "Configure TLS"
   cwe: "CWE-319"
@@ -342,7 +376,8 @@
 - id: helm-ingress-no-tls
   languages: [yaml]
   patterns:
-    - regex: '(?i)tls:[\s\S]*?- \{\}''severity: high
+    - regex: '(?i)tls:[\s\S]*?- \{\}'
+  severity: high
   description: "Ingress TLS config is empty"
   remediation: "Configure TLS properly"
   cwe: "CWE-319"
@@ -352,7 +387,8 @@
 - id: helm-ingress-auth-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)ingress.kubernetes.io/auth-secret:''severity: medium
+    - regex: '(?i)ingress.kubernetes.io/auth-secret:'
+  severity: medium
   description: "Ingress without authentication"
   remediation: "Add basic auth or OAuth"
   cwe: "CWE-287"
@@ -362,7 +398,8 @@
 - id: helm-ingress-tls-secret
   languages: [yaml]
   patterns:
-    - regex: '(?i)secretName:''severity: low
+    - regex: '(?i)secretName:'
+  severity: low
   description: "TLS secret referenced in ingress"
   remediation: "Ensure secret exists"
   cwe: "CWE-319"
@@ -373,7 +410,8 @@
 - id: helm-pss-privileged
   languages: [yaml]
   patterns:
-    - regex: '(?i)podSecurityPolicy''severity: high
+    - regex: '(?i)podSecurityPolicy'
+  severity: high
   description: "Using deprecated PodSecurityPolicy"
   remediation: "Use Pod Security Standards"
   cwe: "CWE-20"
@@ -383,7 +421,8 @@
 - id: helm-pss-baseline
   languages: [yaml]
   patterns:
-    - regex: '(?i)pod-security.kubernetes.io/enforce:\s*baseline''severity: medium
+    - regex: '(?i)pod-security.kubernetes.io/enforce:\s*baseline'
+  severity: medium
   description: "Using baseline pod security"
   remediation: "Use restricted pod security"
   cwe: "CWE-20"
@@ -393,7 +432,8 @@
 - id: helm-selinux-options
   languages: [yaml]
   patterns:
-    - regex: '(?i)seLinuxOptions:''severity: low
+    - regex: '(?i)seLinuxOptions:'
+  severity: low
   description: "SELinux options defined"
   remediation: "Ensure proper SELinux context"
   cwe: "CWE-269"
@@ -404,7 +444,8 @@
 - id: helm-image-latest
   languages: [yaml]
   patterns:
-    - regex: 'image:.*:latest''severity: medium
+    - regex: 'image:.*:latest'
+  severity: medium
   description: "Using latest image tag"
   remediation: "Use specific version tags"
   cwe: "CWE-1104"
@@ -414,7 +455,8 @@
 - id: helm-image-no-tag
   languages: [yaml]
   patterns:
-    - regex: 'image:\s*[^:]+$''severity: medium
+    - regex: 'image:\s*[^:]+$'
+  severity: medium
   description: "Image without tag"
   remediation: "Specify image version"
   cwe: "CWE-1104"
@@ -424,7 +466,8 @@
 - id: helm-pull-policy-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)imagePullPolicy:\s*Always''severity: low
+    - regex: '(?i)imagePullPolicy:\s*Always'
+  severity: low
   description: "Always pulling image"
   remediation: "Use IfNotPresent for production"
   cwe: "CWE-1104"
@@ -434,7 +477,8 @@
 - id: helm-private-registry
   languages: [yaml]
   patterns:
-    - regex: '(?i)image:\s*gcr.io|docker.io|ghcr.io''severity: low
+    - regex: '(?i)image:\s*gcr.io|docker.io|ghcr.io'
+  severity: low
   description: "Image from registry"
   remediation: "Ensure registry is trusted"
   cwe: "CWE-1104"
@@ -445,7 +489,8 @@
 - id: helm-loadbalancer-no-tls
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*LoadBalancer[\s\S]*?''severity: high
+    - regex: '(?i)type:\s*LoadBalancer[\s\S]*?'
+  severity: high
   description: "LoadBalancer without TLS"
   remediation: "Use TLS for LoadBalancer"
   cwe: "CWE-319"
@@ -455,7 +500,8 @@
 - id: helm-loadbalancer-source-ranges
   languages: [yaml]
   patterns:
-    - regex: '(?i)loadBalancerSourceRanges:''severity: medium
+    - regex: '(?i)loadBalancerSourceRanges:'
+  severity: medium
   description: "LoadBalancer source ranges not set"
   remediation: "Restrict source ranges"
   cwe: "CWE-284"
@@ -465,7 +511,8 @@
 - id: helm-external-name
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*ExternalName''severity: medium
+    - regex: '(?i)type:\s*ExternalName'
+  severity: medium
   description: "Service type ExternalName"
   remediation: "Use ClusterIP or proper service"
   cwe: "CWE-284"
@@ -476,7 +523,8 @@
 - id: helm-no-liveness-probe
   languages: [yaml]
   patterns:
-    - regex: '(?i)livenessProbe:''severity: medium
+    - regex: '(?i)livenessProbe:'
+  severity: medium
   description: "No liveness probe defined"
   remediation: "Add liveness probe"
   cwe: "CWE-20"
@@ -486,7 +534,8 @@
 - id: helm-no-readiness-probe
   languages: [yaml]
   patterns:
-    - regex: '(?i)readinessProbe:''severity: medium
+    - regex: '(?i)readinessProbe:'
+  severity: medium
   description: "No readiness probe defined"
   remediation: "Add readiness probe"
   cwe: "CWE-20"
@@ -496,7 +545,8 @@
 - id: helm-probe-timeout
   languages: [yaml]
   patterns:
-    - regex: '(?i)initialDelaySeconds:\s*[0-5]$''severity: low
+    - regex: '(?i)initialDelaySeconds:\s*[0-5]$'
+  severity: low
   description: "Probe initial delay too short"
   remediation: "Increase initial delay"
   cwe: "CWE-20"
@@ -506,7 +556,8 @@
 - id: helm-probe-period
   languages: [yaml]
   patterns:
-    - regex: '(?i)periodSeconds:\s*[0-9]$''severity: low
+    - regex: '(?i)periodSeconds:\s*[0-9]$'
+  severity: low
   description: "Probe period very short"
   remediation: "Adjust period for load"
   cwe: "CWE-20"
@@ -517,7 +568,8 @@
 - id: helm-no-pod-affinity
   languages: [yaml]
   patterns:
-    - regex: '(?i)affinity:''severity: low
+    - regex: '(?i)affinity:'
+  severity: low
   description: "No pod affinity defined"
   remediation: "Consider pod affinity for distribution"
   cwe: "CWE-20"
@@ -527,7 +579,8 @@
 - id: helm-node-affinity
   languages: [yaml]
   patterns:
-    - regex: '(?i)nodeAffinity:''severity: low
+    - regex: '(?i)nodeAffinity:'
+  severity: low
   description: "Node affinity defined"
   remediation: "Ensure proper node selection"
   cwe: "CWE-20"
@@ -537,7 +590,8 @@
 - id: helm-pod-affinity
   languages: [yaml]
   patterns:
-    - regex: '(?i)podAffinity:''severity: low
+    - regex: '(?i)podAffinity:'
+  severity: low
   description: "Pod affinity defined"
   remediation: "Ensure proper pod placement"
   cwe: "CWE-20"
@@ -548,7 +602,8 @@
 - id: helm-tolerates-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)tolerations:[\s\S]*?- operator:\s*Exists''severity: medium
+    - regex: '(?i)tolerations:[\s\S]*?- operator:\s*Exists'
+  severity: medium
   description: "Tolerates all taints"
   remediation: "Remove wildcard tolerations"
   cwe: "CWE-269"
@@ -558,7 +613,8 @@
 - id: helm-no-tolerations
   languages: [yaml]
   patterns:
-    - regex: '(?i)tolerations:''severity: low
+    - regex: '(?i)tolerations:'
+  severity: low
   description: "No tolerations defined"
   remediation: "Define tolerations if needed"
   cwe: "CWE-20"
@@ -569,7 +625,8 @@
 - id: helm-no-priority-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)priorityClassName:''severity: low
+    - regex: '(?i)priorityClassName:'
+  severity: low
   description: "No priority class defined"
   remediation: "Define priority class"
   cwe: "CWE-20"
@@ -579,7 +636,8 @@
 - id: helm-default-priority
   languages: [yaml]
   patterns:
-    - regex: '(?i)priorityClassName:\s*system-cluster-critical''severity: high
+    - regex: '(?i)priorityClassName:\s*system-cluster-critical'
+  severity: high
   description: "Using system priority class"
   remediation: "Use custom priority class"
   cwe: "CWE-20"
@@ -590,7 +648,8 @@
 - id: helm-empty-dir-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)emptyDir:\s*\{\}''severity: low
+    - regex: '(?i)emptyDir:\s*\{\}'
+  severity: low
   description: "Empty dir volume used"
   remediation: "Use appropriate storage"
   cwe: "CWE-20"
@@ -600,7 +659,8 @@
 - id: helm-host-path-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostPath:''severity: high
+    - regex: '(?i)hostPath:'
+  severity: high
   description: "HostPath volume used"
   remediation: "Use persistent volumes"
   cwe: "CWE-284"
@@ -610,7 +670,8 @@
 - id: helm-tmpfs-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\s*Temporary''severity: low
+    - regex: '(?i)type:\s*Temporary'
+  severity: low
   description: "Tmpfs volume used"
   remediation: "Ensure proper cleanup"
   cwe: "CWE-20"
@@ -620,7 +681,8 @@
 - id: helm-pvc-not-bound
   languages: [yaml]
   patterns:
-    - regex: '(?i)persistentVolumeClaim:''severity: medium
+    - regex: '(?i)persistentVolumeClaim:'
+  severity: medium
   description: "PVC defined"
   remediation: "Ensure PVC is bound"
   cwe: "CWE-20"
@@ -631,7 +693,8 @@
 - id: helm-no-hpa
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*HorizontalPodAutoscaler''severity: low
+    - regex: '(?i)kind:\s*HorizontalPodAutoscaler'
+  severity: low
   description: "No HPA defined"
   remediation: "Consider HPA for scaling"
   cwe: "CWE-20"
@@ -641,7 +704,8 @@
 - id: helm-hpa-min-replicas
   languages: [yaml]
   patterns:
-    - regex: '(?i)minReplicas:\s*1''severity: low
+    - regex: '(?i)minReplicas:\s*1'
+  severity: low
   description: "HPA minimum replicas is 1"
   remediation: "Consider higher minimum"
   cwe: "CWE-20"
@@ -652,7 +716,8 @@
 - id: helm-dns-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)dnsPolicy:\s*Default''severity: medium
+    - regex: '(?i)dnsPolicy:\s*Default'
+  severity: medium
   description: "Using default DNS policy"
   remediation: "Use ClusterFirst policy"
   cwe: "CWE-284"
@@ -662,7 +727,8 @@
 - id: helm-dns-config
   languages: [yaml]
   patterns:
-    - regex: '(?i)dnsConfig:''severity: low
+    - regex: '(?i)dnsConfig:'
+  severity: low
   description: "Custom DNS config defined"
   remediation: "Ensure proper DNS settings"
   cwe: "CWE-20"
@@ -673,7 +739,8 @@
 - id: helm-init-container-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)initContainers:[\s\S]*?runAsUser:\s*0''severity: high
+    - regex: '(?i)initContainers:[\s\S]*?runAsUser:\s*0'
+  severity: high
   description: "Init container runs as root"
   remediation: "Use non-root in init containers"
   cwe: "CWE-269"
@@ -683,7 +750,8 @@
 - id: helm-init-container-privileged
   languages: [yaml]
   patterns:
-    - regex: '(?i)initContainers:[\s\S]*?privileged:\s*true''severity: critical
+    - regex: '(?i)initContainers:[\s\S]*?privileged:\s*true'
+  severity: critical
   description: "Init container is privileged"
   remediation: "Remove privileged mode"
   cwe: "CWE-269"
@@ -693,7 +761,8 @@
 - id: helm-no-init-container
   languages: [yaml]
   patterns:
-    - regex: '(?i)initContainers:''severity: low
+    - regex: '(?i)initContainers:'
+  severity: low
   description: "Init container defined"
   remediation: "Ensure init container is secure"
   cwe: "CWE-20"
@@ -704,7 +773,8 @@
 - id: helm-no-topology-spread
   languages: [yaml]
   patterns:
-    - regex: '(?i)topologySpreadConstraints:''severity: low
+    - regex: '(?i)topologySpreadConstraints:'
+  severity: low
   description: "No topology spread constraints"
   remediation: "Consider for pod distribution"
   cwe: "CWE-20"
@@ -715,7 +785,8 @@
 - id: helm-automount-sa-token
   languages: [yaml]
   patterns:
-    - regex: '(?i)automountServiceAccountToken:\s*true''severity: medium
+    - regex: '(?i)automountServiceAccountToken:\s*true'
+  severity: medium
   description: "Service account token auto-mounted"
   remediation: "Set to false if not needed"
   cwe: "CWE-284"
@@ -725,7 +796,8 @@
 - id: helm-image-certificate
   languages: [yaml]
   patterns:
-    - regex: '(?i)image:\s*\.cert''severity: low
+    - regex: '(?i)image:\s*\.cert'
+  severity: low
   description: "Image from certificate registry"
   remediation: "Ensure certificate is valid"
   cwe: "CWE-295"
@@ -736,7 +808,8 @@
 - id: helm-missing-labels
   languages: [yaml]
   patterns:
-    - regex: '(?i)labels:[\s\S]*?-''severity: low
+    - regex: '(?i)labels:[\s\S]*?-'
+  severity: low
   description: "Labels defined"
   remediation: "Add required labels"
   cwe: "CWE-20"
@@ -746,7 +819,8 @@
 - id: helm-annotations-sensitive
   languages: [yaml]
   patterns:
-    - regex: '(?i)annotations:[\s\S]*?(?:password|secret|key|token)''severity: high
+    - regex: '(?i)annotations:[\s\S]*?(?:password|secret|key|token)'
+  severity: high
   description: "Annotations contain sensitive data"
   remediation: "Use secrets for sensitive data"
   cwe: "CWE-200"
@@ -757,7 +831,8 @@
 - id: helm-replica-count
   languages: [yaml]
   patterns:
-    - regex: '(?i)replicas:\s*1''severity: low
+    - regex: '(?i)replicas:\s*1'
+  severity: low
   description: "Single replica deployment"
   remediation: "Consider multiple replicas"
   cwe: "CWE-20"
@@ -767,7 +842,8 @@
 - id: helm-no-replicas
   languages: [yaml]
   patterns:
-    - regex: '(?i)replicas:''severity: low
+    - regex: '(?i)replicas:'
+  severity: low
   description: "Replicas defined"
   remediation: "Set appropriate replica count"
   cwe: "CWE-20"
@@ -778,7 +854,8 @@
 - id: helm-restart-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)restartPolicy:\s*Always''severity: low
+    - regex: '(?i)restartPolicy:\s*Always'
+  severity: low
   description: "Restart policy Always"
   remediation: "Use appropriate policy"
   cwe: "CWE-20"
@@ -789,7 +866,8 @@
 - id: helm-ephemeral-containers
   languages: [yaml]
   patterns:
-    - regex: '(?i)ephemeralContainers:''severity: medium
+    - regex: '(?i)ephemeralContainers:'
+  severity: medium
   description: "Ephemeral containers enabled"
   remediation: "Disable if not needed"
   cwe: "CWE-20"
@@ -800,7 +878,8 @@
 - id: helm-no-pdb
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*PodDisruptionBudget''severity: low
+    - regex: '(?i)kind:\s*PodDisruptionBudget'
+  severity: low
   description: "No PDB defined"
   remediation: "Define PDB for availability"
   cwe: "CWE-20"
@@ -811,7 +890,8 @@
 - id: helm-cert-expired
   languages: [yaml]
   patterns:
-    - regex: '(?i)expirationDate:''severity: high
+    - regex: '(?i)expirationDate:'
+  severity: high
   description: "Certificate expiration date"
   remediation: "Renew before expiration"
   cwe: "CWE-295"
@@ -822,7 +902,8 @@
 - id: helm-no-service-monitor
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*ServiceMonitor''severity: low
+    - regex: '(?i)kind:\s*ServiceMonitor'
+  severity: low
   description: "No ServiceMonitor defined"
   remediation: "Consider monitoring"
   cwe: "CWE-20"
@@ -833,7 +914,8 @@
 - id: helm-cronjob-suspend
   languages: [yaml]
   patterns:
-    - regex: '(?i)suspend:\s*false''severity: low
+    - regex: '(?i)suspend:\s*false'
+  severity: low
   description: "CronJob not suspended"
   remediation: "Ensure proper scheduling"
   cwe: "CWE-20"
@@ -843,7 +925,8 @@
 - id: helm-cronjob-failed-jobs
   languages: [yaml]
   patterns:
-    - regex: '(?i)successfulJobsHistoryLimit:\s*0''severity: low
+    - regex: '(?i)successfulJobsHistoryLimit:\s*0'
+  severity: low
   description: "No successful job history"
   remediation: "Set appropriate limit"
   cwe: "CWE-20"
@@ -854,7 +937,8 @@
 - id: helm-storage-request
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:[\s\S]*?requests:[\s\S]*?storage:''severity: low
+    - regex: '(?i)resources:[\s\S]*?requests:[\s\S]*?storage:'
+  severity: low
   description: "Storage request defined"
   remediation: "Set appropriate storage"
   cwe: "CWE-20"
@@ -864,7 +948,8 @@
 - id: helm-storage-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)storageClassName:\s*default''severity: low
+    - regex: '(?i)storageClassName:\s*default'
+  severity: low
   description: "Using default storage class"
   remediation: "Specify appropriate storage class"
   cwe: "CWE-20"
@@ -873,7 +958,8 @@
 - id: helm-runasuser-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)runAsUser:\s*0''severity: critical
+    - regex: '(?i)runAsUser:\s*0'
+  severity: critical
   description: "Container running explicitly as root"
   remediation: "Run as a non-root user (>0)"
   cwe: "CWE-250"
@@ -882,7 +968,8 @@
 - id: helm-runasgroup-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)runAsGroup:\s*0''severity: high
+    - regex: '(?i)runAsGroup:\s*0'
+  severity: high
   description: "Container group is explicitly root"
   remediation: "Change runAsGroup to a non-zero ID"
   cwe: "CWE-250"
@@ -891,7 +978,8 @@
 - id: helm-seccomp-unconfined
   languages: [yaml]
   patterns:
-    - regex: '(?i)seccompProfile:.*type:\s*Unconfined''severity: high
+    - regex: '(?i)seccompProfile:.*type:\s*Unconfined'
+  severity: high
   description: "Container seccomp profile unconfined"
   remediation: "Use RuntimeDefault or Localhost profile"
   cwe: "CWE-250"
@@ -900,7 +988,8 @@
 - id: helm-missing-limits
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:)''severity: medium
+    - regex: '(?i)resources:'
+  severity: medium
   description: "Container missing resource limits"
   remediation: "Define CPU/Memory limits to prevent DoS"
   cwe: "CWE-400"
@@ -909,7 +998,8 @@
 - id: helm-missing-requests
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:)''severity: low
+    - regex: '(?i)resources:'
+  severity: low
   description: "Container missing resource requests"
   remediation: "Define CPU/Memory requests"
   cwe: "CWE-400"
@@ -918,7 +1008,8 @@
 - id: helm-ingress-no-tls
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*Ingress''severity: medium
+    - regex: '(?i)kind:\s*Ingress'
+  severity: medium
   description: "Ingress missing TLS configuration"
   remediation: "Configure TLS section for Ingress"
   cwe: "CWE-319"
@@ -927,7 +1018,8 @@
 - id: helm-wildcard-role
   languages: [yaml]
   patterns:
-    - regex: '(?i)rules:\s*\n\s*-\s*apiGroups:\s*\["\*"\]''severity: critical
+    - regex: '(?i)rules:\s*\n\s*-\s*apiGroups:\s*\["\*"\]'
+  severity: critical
   description: "Wildcard API groups in Role/ClusterRole"
   remediation: "Restrict API groups according to least privilege"
   cwe: "CWE-284"
@@ -936,7 +1028,8 @@
 - id: helm-wildcard-resources
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:\s*\["\*"\]''severity: critical
+    - regex: '(?i)resources:\s*\["\*"\]'
+  severity: critical
   description: "Wildcard resources in Role/ClusterRole"
   remediation: "Specify exact resources required"
   cwe: "CWE-284"
@@ -945,7 +1038,8 @@
 - id: helm-wildcard-verbs
   languages: [yaml]
   patterns:
-    - regex: '(?i)verbs:\s*\["\*"\]''severity: critical
+    - regex: '(?i)verbs:\s*\["\*"\]'
+  severity: critical
   description: "Wildcard verbs in Role/ClusterRole"
   remediation: "Limit verbs to required actions (get, list, watch)"
   cwe: "CWE-284"
@@ -954,7 +1048,8 @@
 - id: helm-secret-plaintext
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\s*Secret[\s\S]*?stringData:''severity: medium
+    - regex: '(?i)kind:\s*Secret[\s\S]*?stringData:'
+  severity: medium
   description: "Secret includes stringData (plaintext in version control)"
   remediation: "Use sealed secrets or external secret operator"
   cwe: "CWE-312"
@@ -963,7 +1058,8 @@
 - id: helm-automount-service-token
   languages: [yaml]
   patterns:
-    - regex: '(?i)automountServiceAccountToken:\s*true''severity: low
+    - regex: '(?i)automountServiceAccountToken:\s*true'
+  severity: low
   description: "Service Account token automounted"
   remediation: "Set automountServiceAccountToken to false if not needed"
   cwe: "CWE-284"
@@ -972,7 +1068,8 @@
 - id: helm-capabilities-drop-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)capabilities:''severity: medium
+    - regex: '(?i)capabilities:'
+  severity: medium
   description: "Capabilities not fully dropped"
   remediation: "Drop ALL capabilities and selectively add needed ones"
   cwe: "CWE-250"
@@ -981,7 +1078,8 @@
 - id: helm-allow-privilege-escalation
   languages: [yaml]
   patterns:
-    - regex: '(?i)allowPrivilegeEscalation:\s*true''severity: high
+    - regex: '(?i)allowPrivilegeEscalation:\s*true'
+  severity: high
   description: "Container allows privilege escalation"
   remediation: "Set allowPrivilegeEscalation: false"
   cwe: "CWE-269"
@@ -990,7 +1088,8 @@
 - id: helm-host-path
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostPath:\s*\n\s*path:''severity: high
+    - regex: '(?i)hostPath:\s*\n\s*path:'
+  severity: high
   description: "Pod mounting host path"
   remediation: "Avoid host paths to prevent node compromise"
   cwe: "CWE-284"
@@ -999,7 +1098,8 @@
 - id: helm-init-privileged
   languages: [yaml]
   patterns:
-    - regex: '(?i)initContainers:[\s\S]*?privileged:\s*true''severity: high
+    - regex: '(?i)initContainers:[\s\S]*?privileged:\s*true'
+  severity: high
   description: "Init container is privileged"
   remediation: "Remove privileged flag from init container"
   cwe: "CWE-269"
@@ -1008,7 +1108,8 @@
 - id: helm-liveness-exec
   languages: [yaml]
   patterns:
-    - regex: '(?i)livenessProbe:[\s\S]*?exec:\s*\n\s*command:\s*\n\s*-\s*sh''severity: low
+    - regex: '(?i)livenessProbe:[\s\S]*?exec:\s*\n\s*command:\s*\n\s*-\s*sh'
+  severity: low
   description: "Liveness probe executing shell command"
   remediation: "Avoid shell execution in probes or ensure commands are safe"
   cwe: "CWE-78"
@@ -1017,7 +1118,8 @@
 - id: helm-security-context-runasnonroot
   languages: [yaml]
   patterns:
-    - regex: '(?i)securityContext:[\s\S]*?runAsNonRoot:\s*false''severity: high
+    - regex: '(?i)securityContext:[\s\S]*?runAsNonRoot:\s*false'
+  severity: high
   description: "Container not running as non-root"
   remediation: "Set runAsNonRoot: true"
   cwe: "CWE-250"
@@ -1027,7 +1129,8 @@
 - id: helm-capabilities-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)capabilities:[\s\S]*?ADD:[\s\S]*?- ALL''severity: critical
+    - regex: '(?i)capabilities:[\s\S]*?ADD:[\s\S]*?- ALL'
+  severity: critical
   description: "Adding all capabilities"
   remediation: "Remove ALL capability"
   cwe: "CWE-250"
@@ -1037,7 +1140,8 @@
 - id: helm-seccomp-unconfined
   languages: [yaml]
   patterns:
-    - regex: '(?i)seccompProfile:[\s\S]*?type:\s*Unconfined''severity: high
+    - regex: '(?i)seccompProfile:[\s\S]*?type:\s*Unconfined'
+  severity: high
   description: "Seccomp unconfined"
   remediation: "Use RuntimeDefault or Localhost"
   cwe: "CWE-250"
@@ -1047,7 +1151,8 @@
 - id: helm-automount-token
   languages: [yaml]
   patterns:
-    - regex: '(?i)serviceAccountName:[\s\S]*?automountServiceAccountToken:\s*true''severity: high
+    - regex: '(?i)serviceAccountName:[\s\S]*?automountServiceAccountToken:\s*true'
+  severity: high
   description: "Service account token auto-mounted"
   remediation: "Set automountServiceAccountToken: false"
   cwe: "CWE-284"
@@ -1057,7 +1162,8 @@
 - id: helm-readonly-rootfs
   languages: [yaml]
   patterns:
-    - regex: '(?i)securityContext:[\s\S]*?readOnlyRootFilesystem:\s*false''severity: medium
+    - regex: '(?i)securityContext:[\s\S]*?readOnlyRootFilesystem:\s*false'
+  severity: medium
   description: "Root filesystem not read-only"
   remediation: "Set readOnlyRootFilesystem: true"
   cwe: "CWE-250"

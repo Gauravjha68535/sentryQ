@@ -1,7 +1,8 @@
 - id: js-prototype-pollution-merge
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?i)(lodash|_)\\.(merge|mergeWith|defaults|defaultsDeep|assignIn|extend|assignInWith|extendWith)\\s*\\(''severity: high
+    - regex: '(?i)(lodash|_)\.(merge|mergeWith|defaults|defaultsDeep|assignIn|extend|assignInWith|extendWith)\s*\('
+  severity: high
   description: "Prototype pollution via unsafe object merge operations"
   remediation: "Use lodash v4.17.21+ or use Object.create(null) for merge targets"
   cwe: "CWE-1321"
@@ -10,7 +11,8 @@
 - id: js-prototype-pollution-assign
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Object\\.assign\\s*\\(\\s*[^,]+,\\s*.*__(proto|defineGetter|lookupGetter|lookupSetter)__''severity: high
+    - regex: 'Object\.assign\s*\(\s*[^,]+,\s*.*__(proto|defineGetter|lookupGetter|lookupSetter)__'
+  severity: high
   description: "Object.assign with __proto__ property - prototype pollution"
   remediation: "Use Object.create(null) for dictionaries or filter keys with hasOwnProperty"
   cwe: "CWE-1321"
@@ -19,7 +21,8 @@
 - id: js-prototype-pollution-recursive-merge
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s+merge\\s*\\([^)]*\\)\\s*\\{[^}]*for\\s*\\([^)]*in[^)]*\\{[^}]*clone\\[prop\\]\\s*=\\s*merge\\(''severity: high
+    - regex: 'function\s+merge\s*\([^)]*\)\s*\{[^}]*for\s*\([^)]*in[^)]*\{[^}]*clone\[prop\]\s*=\s*merge\('
+  severity: high
   description: "Custom recursive merge function vulnerable to prototype pollution"
   remediation: "Check for hasOwnProperty and skip __proto__ and constructor keys"
   cwe: "CWE-1321"
@@ -28,7 +31,8 @@
 - id: js-prototype-pollution-set
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?:lodash|_)\\.set\\s*\\([^,]+,\\s*[^,]+,\\s*.*__(proto|defineGetter|lookupGetter)__''severity: high
+    - regex: '(?:lodash|_)\.set\s*\([^,]+,\s*[^,]+,\s*.*__(proto|defineGetter|lookupGetter)__'
+  severity: high
   description: "lodash set with __proto__ in path - prototype pollution"
   remediation: "Use lodash v4.17.21+ which fixes prototype pollution"
   cwe: "CWE-1321"
@@ -37,7 +41,8 @@
 - id: js-prototype-pollution-deep-assign
   languages: [javascript, typescript]
   patterns:
-    - regex: 'jQuery\\.extend\\s*\\(\\s*true\\s*,\\s*[^,]+,\\s*.*__(proto|defineGetter|lookupGetter)__''severity: high
+    - regex: 'jQuery\.extend\s*\(\s*true\s*,\s*[^,]+,\s*.*__(proto|defineGetter|lookupGetter)__'
+  severity: high
   description: "jQuery deep extend with __proto__ - prototype pollution"
   remediation: "Update jQuery to latest version or use Object.create(null) for merges"
   cwe: "CWE-1321"
@@ -46,7 +51,8 @@
 - id: js-prototype-pollution-clone
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?:lodash|_)\\.cloneDeep\\s*\\([^)]*__(proto|defineGetter|lookupGetter)__''severity: high
+    - regex: '(?:lodash|_)\.cloneDeep\s*\([^)]*__(proto|defineGetter|lookupGetter)__'
+  severity: high
   description: "Deep cloning with __proto__ property - prototype pollution"
   remediation: "Update lodash or sanitize input before cloning"
   cwe: "CWE-1321"
@@ -55,7 +61,8 @@
 - id: js-prototype-pollution-parse-query
   languages: [javascript, typescript]
   patterns:
-    - regex: 'qs\\.(parse|stringify)|query-string\\.parse|urlencoded\\s*\\([^)]*\\)''severity: medium
+    - regex: 'qs\.(parse|stringify)|query-string\.parse|urlencoded\s*\([^)]*\]'
+  severity: medium
   description: "Query string parsing libraries - may allow prototype pollution via __proto__"
   remediation: "Use { plainObjects: true, allowPrototypes: false } options"
   cwe: "CWE-1321"
@@ -64,7 +71,8 @@
 - id: js-prototype-pollution-express-body
   languages: [javascript, typescript]
   patterns:
-    - regex: 'express\\.urlencoded\\([^)]*\\{.*extended:\\s*true.*\\}''severity: high
+    - regex: 'express\.urlencoded\([^)]*\{.*extended:\s*true.*\}'
+  severity: high
   description: "Express extended urlencoded parser vulnerable to prototype pollution"
   remediation: "Set extended: false or use body-parser with { extended: false }"
   cwe: "CWE-1321"
@@ -73,7 +81,8 @@
 - id: js-prototype-pollution-json-parse-reviver
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*function\\s*reviver''severity: medium
+    - regex: 'JSON\.parse\s*\([^,]+,\s*function\s*reviver'
+  severity: medium
   description: "JSON.parse with reviver that doesn't handle __proto__ safely"
   remediation: "Check for __proto__ key and return undefined"
   cwe: "CWE-1321"
@@ -82,7 +91,8 @@
 - id: js-prototype-pollution-object-create
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Object\\.create\\s*\\([^)]*\\)\\s*''severity: low
+    - regex: 'Object\.create\s*\([^)]*\)\s*'
+  severity: low
   description: "Object.create without null prototype - may inherit from Object.prototype"
   remediation: "Use Object.create(null) for dictionary objects"
   cwe: "CWE-1321"
@@ -91,7 +101,8 @@
 - id: js-prototype-pollution-for-in
   languages: [javascript, typescript]
   patterns:
-    - regex: 'for\\s*\\(\\s*\\w+\\s+in\\s+\\w+\\s*\\)\\s*\\{[^}]*''severity: medium
+    - regex: 'for\s*\(\s*\w+\s+in\s+\w+\s*\)\s*\{[^}]*'
+  severity: medium
   description: "for-in loop without hasOwnProperty check - includes prototype properties"
   remediation: "Use Object.hasOwnProperty.call(obj, key) to filter prototype keys"
   cwe: "CWE-1321"
@@ -100,7 +111,7 @@
 - id: js-prototype-pollution-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\[\\s*['''\"]?constructor[''\"]?\\s*\\]|\\[\\s*[''\"]?__proto__[''\"]?\\s*\\]'
+    - regex: '\[\s*[''\\"]?constructor[''\\"]?\s*\]|\[\s*[''\\"]?__proto__[''\\"]?\s*\]'
   severity: high
   description: "Dynamic property access with constructor/__proto__ - prototype pollution risk"
   remediation: "Block or sanitize property names containing constructor/__proto__"
@@ -110,7 +121,7 @@
 - id: js-prototype-pollution-nested-property
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\w+\\[\\s*['''\"]\\w+[''\"]\\s*\\]\\s*\\[\\s*[''\"]\\w+[''\"]\\s*\\]\\s*=\\s*[^;]+'
+    - regex: '\w+\[\s*[''\\\"]\w+[''\\\"]\s*\]\s*\[\s*[''\\\"]\w+[''\\\"]\s*\]\s*=\s*[^;]+'
   severity: medium
   description: "Nested property assignment on dynamic objects - prototype pollution risk"
   remediation: "Check object existence and type before nested assignment"
@@ -120,7 +131,8 @@
 - id: js-prototype-pollution-immutable
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Immutable\\.(Map|List|Record)\\.''severity: low
+    - regex: 'Immutable\.(Map|List|Record)\.'
+  severity: low
   description: "Immutable.js usage - immune to prototype pollution"
   remediation: "Good practice for preventing prototype pollution"
   cwe: "CWE-1321"
@@ -129,7 +141,8 @@
 - id: js-prototype-pollution-deep-freeze
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Object\\.freeze|Object\\.seal|Object\\.preventExtensions''severity: low
+    - regex: 'Object\.freeze|Object\.seal|Object\.preventExtensions'
+  severity: low
   description: "Object freezing functions - helps prevent prototype pollution"
   remediation: "Good practice for protecting configuration objects"
   cwe: "CWE-1321"
@@ -138,7 +151,8 @@
 - id: js-prototype-pollution-map-set
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Map\\s*\\(|new\\s+WeakMap\\s*\\(''severity: low
+    - regex: 'new\s+Map\s*\(|new\s+WeakMap\s*\('
+  severity: low
   description: "Map/WeakMap usage - immune to prototype pollution"
   remediation: "Use Map for dictionary objects instead of plain objects"
   cwe: "CWE-1321"
@@ -147,7 +161,8 @@
 - id: js-prototype-pollution-set-prototype-of
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Object\\.setPrototypeOf\\s*\\(|__proto__\\s*=''severity: high
+    - regex: 'Object\.setPrototypeOf\s*\(|__proto__\s*='
+  severity: high
   description: "Direct prototype manipulation - dangerous"
   remediation: "Avoid modifying prototypes directly"
   cwe: "CWE-1321"
@@ -156,7 +171,7 @@
 - id: js-prototype-pollution-object-define-property
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Object\\.defineProperty\\s*\\([^,]+,\\s*['''\"]?(?:__proto__|constructor)[''\"]?'
+    - regex: 'Object\.defineProperty\s*\([^,]+,\s*[''\\"]?(?:__proto__|constructor)[''\\"]?'
   severity: critical
   description: "Defining __proto__ or constructor property on object"
   remediation: "Never define properties named __proto__ or constructor"
@@ -166,7 +181,7 @@
 - id: js-prototype-pollution-reflect-set
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Reflect\\.set\\s*\\([^,]+,\\s*['''\"]?(?:__proto__|constructor)[''\"]?'
+    - regex: 'Reflect\.set\s*\([^,]+,\s*[''\\"]?(?:__proto__|constructor)[''\\"]?'
   severity: critical
   description: "Reflect.set with __proto__ or constructor property"
   remediation: "Filter property names before using Reflect.set"
@@ -176,7 +191,8 @@
 - id: js-prototype-pollution-proxy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Proxy\\s*\\([^,]+,\\s*\\{[^}]*set''severity: high
+    - regex: 'new\s+Proxy\s*\([^,]+,\s*\{[^}]*set'
+  severity: high
   description: "Proxy with set trap - may allow prototype pollution if not handled"
   remediation: "Add checks for __proto__ and constructor in set trap"
   cwe: "CWE-1321"
@@ -185,7 +201,8 @@
 - id: js-prototype-pollution-copy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s+copy\\s*\\([^)]*\\)\\s*\\{[^}]*\\{[^}]*\\}[^}]*\\}''severity: high
+    - regex: 'function\s+copy\s*\([^)]*\)\s*\{[^}]*\{[^}]*\}[^}]*\}'
+  severity: high
   description: "Custom copy function - may be vulnerable to prototype pollution"
   remediation: "Use structuredClone or implement proper prototype checks"
   cwe: "CWE-1321"
@@ -194,7 +211,8 @@
 - id: js-prototype-pollution-extend
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s+extend\\s*\\([^)]*\\)\\s*\\{[^}]*for\\s*\\([^)]*in[^)]*\\{[^}]*''severity: high
+    - regex: 'function\s+extend\s*\([^)]*\)\s*\{[^}]*for\s*\([^)]*in[^)]*\{[^}]*'
+  severity: high
   description: "Custom extend function - prototype pollution risk"
   remediation: "Add hasOwnProperty checks and skip __proto__/constructor"
   cwe: "CWE-1321"
@@ -203,7 +221,8 @@
 - id: js-prototype-pollution-clone
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s+clone\\s*\\([^)]*\\)\\s*\\{[^}]*JSON\\.parse\\(JSON\\.stringify''severity: low
+    - regex: 'function\s+clone\s*\([^)]*\)\s*\{[^}]*JSON\.parse\(JSON\.stringify'
+  severity: low
   description: "JSON parse/stringify clone - safe from prototype pollution"
   remediation: "Good practice but may not handle functions/dates"
   cwe: "CWE-1321"
@@ -212,7 +231,8 @@
 - id: js-prototype-pollution-structured-clone
   languages: [javascript, typescript]
   patterns:
-    - regex: 'structuredClone\\s*\\(''severity: low
+    - regex: 'structuredClone\s*\('
+  severity: low
   description: "structuredClone API - safe from prototype pollution"
   remediation: "Use structuredClone for deep cloning"
   cwe: "CWE-1321"
@@ -221,7 +241,8 @@
 - id: js-prototype-pollution-vue-set
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Vue\\.set|this\\.\\$set''severity: medium
+    - regex: 'Vue\.set|this\.\$set'
+  severity: medium
   description: "Vue.set with user input - prototype pollution risk"
   remediation: "Validate object keys before using Vue.set"
   cwe: "CWE-1321"
@@ -230,7 +251,8 @@
 - id: js-prototype-pollution-angular-copy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'angular\\.copy|angular\\.extend''severity: high
+    - regex: 'angular\.copy|angular\.extend'
+  severity: high
   description: "Angular copy/extend with user input - prototype pollution risk"
   remediation: "Update Angular or sanitize input before copying"
   cwe: "CWE-1321"
@@ -239,7 +261,8 @@
 - id: js-prototype-pollution-jquery-extend
   languages: [javascript, typescript]
   patterns:
-    - regex: 'jQuery\\.extend\\s*\\(''severity: high
+    - regex: 'jQuery\.extend\s*\('
+  severity: high
   description: "jQuery.extend with user input - prototype pollution risk"
   remediation: "Update jQuery to latest version"
   cwe: "CWE-1321"
@@ -248,7 +271,8 @@
 - id: js-prototype-pollution-merge-options
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mergeOptions|mergeConfig|defaults''severity: medium
+    - regex: 'mergeOptions|mergeConfig|defaults'
+  severity: medium
   description: "Config merging functions - prototype pollution risk"
   remediation: "Use Object.create(null) for default objects and validate input"
   cwe: "CWE-1321"
@@ -259,7 +283,7 @@
 - id: js-postmessage-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'postMessage\\s*\\([^,]+,\\s*['''\"]\\*[''\"]'
+    - regex: 'postMessage\s*\([^,]+,\s*[''\\\"]\*[''\\\"]'
   severity: high
   description: "postMessage with wildcard origin sends data to any window - XSS risk"
   remediation: "Always specify exact target origin: postMessage(data, 'https://trusted.com')"
@@ -269,7 +293,7 @@
 - id: js-postmessage-no-origin-check
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*(?!event\\.origin)'
+    - regex: 'addEventListener\s*\(\s*[''\\\"]message[''\\\"]\s*,\s*function\s*\(\s*event\s*\)\s*\{[^}]*(?:event\.origin)'
   severity: critical
   description: "Message event listener without origin validation"
   remediation: "Always check event.origin against allowlist before processing"
@@ -279,7 +303,7 @@
 - id: js-postmessage-origin-starts-with
   languages: [javascript, typescript]
   patterns:
-    - regex: 'event\\.origin\\.startsWith\\s*\\(|event\\.origin\\.indexOf\\s*\\(\\s*['''\"]https?:'
+    - regex: 'event\.origin\.startsWith\s*\(|event\.origin\.indexOf\s*\(\s*[''\\"]https?:'
   severity: high
   description: "Origin validation using startsWith or indexOf - easily bypassed"
   remediation: "Use exact string comparison against trusted origins"
@@ -289,7 +313,8 @@
 - id: js-postmessage-origin-regex
   languages: [javascript, typescript]
   patterns:
-    - regex: 'event\\.origin\\.match\\s*\\(|new\\s+RegExp\\s*\\([^)]*\\)\\.test\\s*\\(\\s*event\\.origin''severity: high
+    - regex: 'event\.origin\.match\s*\(|new\s+RegExp\s*\([^)]*\)\.test\s*\(\s*event\.origin'
+  severity: high
   description: "Origin validation using regex - prone to bypass"
   remediation: "Use exact string comparison against trusted origins"
   cwe: "CWE-346"
@@ -298,7 +323,7 @@
 - id: js-postmessage-innerhtml
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*innerHTML\\s*='
+    - regex: 'addEventListener\s*\(\s*[''\\\"]message[''\\\"]\s*,\s*function\s*\(\s*event\s*\)\s*\{[^}]*innerHTML\s*='
   severity: high
   description: "Message event data inserted via innerHTML - DOM XSS"
   remediation: "Use textContent or sanitize with DOMPurify before innerHTML"
@@ -308,7 +333,7 @@
 - id: js-postmessage-eval
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*(?:eval|new\\s+Function)\\s*\\('
+    - regex: 'addEventListener\s*\(\s*[''\\"]message[''\\"]\s*,\s*function\s*\(\s*event\s*\)\s*\{[^}]*(?:eval|new\s+Function)\s*\('
   severity: critical
   description: "Message event data passed to eval - remote code execution"
   remediation: "Never eval postMessage data. Use JSON.parse and validate"
@@ -318,7 +343,7 @@
 - id: js-postmessage-json-parse
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\(\\s*['''\"]message[''\"]\\s*,\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{[^}]*JSON\\.parse\\s*\\(\\s*event\\.data'
+    - regex: 'addEventListener\s*\(\s*[''\\\"]message[''\\\"]\s*,\s*function\s*\(\s*event\s*\)\s*\{[^}]*JSON\.parse\s*\(\s*event\.data'
   severity: high
   description: "JSON.parse on postMessage data without validation - code execution risk"
   remediation: "Validate parsed data structure before using"
@@ -328,7 +353,8 @@
 - id: js-postmessage-iframe
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.getElementById\\s*\\([^)]+\\)\\.contentWindow\\.postMessage''severity: medium
+    - regex: 'document\.getElementById\s*\([^)]+\)\.contentWindow\.postMessage'
+  severity: medium
   description: "postMessage to iframe - ensure iframe is trusted"
   remediation: "Verify iframe origin before sending messages"
   cwe: "CWE-346"
@@ -337,7 +363,8 @@
 - id: js-postmessage-window-opener
   languages: [javascript, typescript]
   patterns:
-    - regex: 'window\\.opener\\.postMessage''severity: high
+    - regex: 'window\.opener\.postMessage'
+  severity: high
   description: "postMessage to window.opener - reverse tabnabbing risk"
   remediation: "Check window.opener origin before posting"
   cwe: "CWE-346"
@@ -346,7 +373,8 @@
 - id: js-postmessage-parent
   languages: [javascript, typescript]
   patterns:
-    - regex: 'window\\.parent\\.postMessage''severity: medium
+    - regex: 'window\.parent\.postMessage'
+  severity: medium
   description: "postMessage to parent window - verify parent origin"
   remediation: "Specify target origin explicitly, not '*'"
   cwe: "CWE-346"
@@ -355,7 +383,8 @@
 - id: js-postmessage-top
   languages: [javascript, typescript]
   patterns:
-    - regex: 'window\\.top\\.postMessage''severity: medium
+    - regex: 'window\.top\.postMessage'
+  severity: medium
   description: "postMessage to top window - verify top origin"
   remediation: "Specify target origin explicitly"
   cwe: "CWE-346"
@@ -364,7 +393,8 @@
 - id: js-postmessage-frames
   languages: [javascript, typescript]
   patterns:
-    - regex: 'window\\.frames\\[\\d+\\]\\.postMessage''severity: medium
+    - regex: 'window\.frames\[\d+\]\.postMessage'
+  severity: medium
   description: "postMessage to specific frame - verify frame origin"
   remediation: "Ensure frame is from trusted origin"
   cwe: "CWE-346"
@@ -373,7 +403,8 @@
 - id: js-postmessage-channel
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+MessageChannel''severity: low
+    - regex: 'new\s+MessageChannel'
+  severity: low
   description: "MessageChannel for two-way communication"
   remediation: "Validate messages received on channel"
   cwe: "CWE-20"
@@ -382,7 +413,8 @@
 - id: js-postmessage-port
   languages: [javascript, typescript]
   patterns:
-    - regex: 'port\\.postMessage|port\\.onmessage''severity: low
+    - regex: 'port\.postMessage|port\.onmessage'
+  severity: low
   description: "MessagePort usage - ensure message validation"
   remediation: "Validate all messages received via ports"
   cwe: "CWE-20"
@@ -391,7 +423,8 @@
 - id: js-postmessage-broadcast-channel
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+BroadcastChannel''severity: low
+    - regex: 'new\s+BroadcastChannel'
+  severity: low
   description: "BroadcastChannel for cross-tab communication"
   remediation: "Validate broadcast messages, avoid sensitive data"
   cwe: "CWE-20"
@@ -400,7 +433,8 @@
 - id: js-postmessage-shared-worker
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+SharedWorker''severity: low
+    - regex: 'new\s+SharedWorker'
+  severity: low
   description: "SharedWorker usage - validate cross-origin communication"
   remediation: "Verify worker origin and validate messages"
   cwe: "CWE-20"
@@ -409,7 +443,8 @@
 - id: js-postmessage-web-worker
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Worker''severity: low
+    - regex: 'new\s+Worker'
+  severity: low
   description: "Web Worker usage - validate worker script origin"
   remediation: "Load workers from trusted origins only"
   cwe: "CWE-829"
@@ -418,7 +453,8 @@
 - id: js-postmessage-service-worker
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.serviceWorker\\.postMessage''severity: medium
+    - regex: 'navigator\.serviceWorker\.postMessage'
+  severity: medium
   description: "Service Worker postMessage - validate message structure"
   remediation: "Validate messages in service worker message handler"
   cwe: "CWE-20"
@@ -427,7 +463,8 @@
 - id: js-postmessage-iframe-sandbox
   languages: [html, javascript]
   patterns:
-    - regex: '<iframe[^>]*sandbox[^>]*>.*postMessage''severity: medium
+    - regex: '<iframe[^>]*sandbox[^>]*>.*postMessage'
+  severity: medium
   description: "Iframe with sandbox and postMessage - ensure sandbox allows messaging"
   remediation: "Add 'allow-same-origin' and 'allow-scripts' for postMessage"
   cwe: "CWE-346"
@@ -436,7 +473,8 @@
 - id: js-postmessage-jsonp
   languages: [javascript, typescript]
   patterns:
-    - regex: 'jsonp\\s*\\(|JSONP''severity: high
+    - regex: 'jsonp\s*\(|JSONP'
+  severity: high
   description: "JSONP with postMessage pattern - XSS risk"
   remediation: "Use CORS instead of JSONP"
   cwe: "CWE-79"
@@ -447,7 +485,7 @@
 - id: js-service-worker-register
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.serviceWorker\\.register\\s*\\(\\s*['''\"`][^''\"`]+[''\"`]'
+    - regex: 'navigator\.serviceWorker\.register\s*\(\s*[''\\\"`][^''\\\"`]+[''\\\"`]'
   severity: high
   description: "Service worker registration - can intercept all requests"
   remediation: "Validate service worker script integrity with subresource integrity"
@@ -457,7 +495,7 @@
 - id: js-service-worker-scope
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.serviceWorker\\.register\\s*\\([^,]+,\\s*\\{[^}]*scope:\\s*['''\"]/[''\"]'
+    - regex: 'navigator\.serviceWorker\.register\s*\([^,]+,\s*\{[^}]*scope:\s*[''\\\"]/[''\\\"]'
   severity: critical
   description: "Service worker with root scope - intercepts all requests"
   remediation: "Restrict service worker scope to specific path"
@@ -467,7 +505,7 @@
 - id: js-service-worker-fetch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['''\"]fetch[''\"]\\s*,\\s*function'
+    - regex: 'self\.addEventListener\s*\(\s*[''\\\"]fetch[''\\\"]\s*,\s*function'
   severity: high
   description: "Service worker fetch handler - can modify responses"
   remediation: "Validate and sanitize responses, use immutable responses"
@@ -477,7 +515,8 @@
 - id: js-service-worker-cache
   languages: [javascript, typescript]
   patterns:
-    - regex: 'caches\\.open|cache\\.addAll''severity: medium
+    - regex: 'caches\.open|cache\.addAll'
+  severity: medium
   description: "Service worker caching sensitive data - exposed to offline access"
   remediation: "Don't cache sensitive responses, clear cache on logout"
   cwe: "CWE-312"
@@ -486,7 +525,7 @@
 - id: js-service-worker-message
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['''\"]message[''\"]'
+    - regex: 'self\.addEventListener\s*\(\s*[''\\\"]message[''\\\"]'
   severity: medium
   description: "Service worker message handler - validate message origin"
   remediation: "Always check event.origin before processing messages"
@@ -496,7 +535,7 @@
 - id: js-service-worker-install
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['''\"]install[''\"]'
+    - regex: 'self\.addEventListener\s*\(\s*[''\\\"]install[''\\\"]'
   severity: low
   description: "Service worker install event - precaching strategy"
   remediation: "Ensure cached assets are versioned and immutable"
@@ -506,7 +545,7 @@
 - id: js-service-worker-activate
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['''\"]activate[''\"]'
+    - regex: 'self\.addEventListener\s*\(\s*[''\\\"]activate[''\\\"]'
   severity: low
   description: "Service worker activate event - cache cleanup"
   remediation: "Remove old caches to prevent serving stale data"
@@ -516,7 +555,8 @@
 - id: js-service-worker-skip-waiting
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.skipWaiting\\s*\\(''severity: low
+    - regex: 'self\.skipWaiting\s*\('
+  severity: low
   description: "Service worker skipWaiting - immediate activation"
   remediation: "Consider user experience before immediate activation"
   cwe: "CWE-829"
@@ -525,7 +565,8 @@
 - id: js-service-worker-clients-claim
   languages: [javascript, typescript]
   patterns:
-    - regex: 'clients\\.claim\\s*\\(''severity: medium
+    - regex: 'clients\.claim\s*\('
+  severity: medium
   description: "Service worker clients.claim - takes control immediately"
   remediation: "May cause unexpected behavior, use with caution"
   cwe: "CWE-829"
@@ -534,7 +575,8 @@
 - id: js-service-worker-indexeddb
   languages: [javascript, typescript]
   patterns:
-    - regex: 'indexedDB\\.open|IDBRequest''severity: high
+    - regex: 'indexedDB\.open|IDBRequest'
+  severity: high
   description: "Service worker accessing IndexedDB - sensitive data storage"
   remediation: "Encrypt sensitive data before storing in IndexedDB"
   cwe: "CWE-312"
@@ -543,7 +585,7 @@
 - id: js-service-worker-push
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['''\"]push[''\"]'
+    - regex: 'self\.addEventListener\s*\(\s*[''\\\"]push[''\\\"]'
   severity: high
   description: "Service worker push notifications - validate push data"
   remediation: "Sanitize notification content before showing"
@@ -553,7 +595,8 @@
 - id: js-service-worker-notification
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.registration\\.showNotification''severity: medium
+    - regex: 'self\.registration\.showNotification'
+  severity: medium
   description: "Service worker showing notifications - validate content"
   remediation: "Sanitize notification title and body"
   cwe: "CWE-79"
@@ -562,7 +605,7 @@
 - id: js-service-worker-notification-click
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['''\"]notificationclick[''\"]'
+    - regex: 'self\.addEventListener\s*\(\s*[''\\\"]notificationclick[''\\\"]'
   severity: medium
   description: "Service worker notification click - open URL from notification"
   remediation: "Validate URL before opening to prevent open redirect"
@@ -572,7 +615,7 @@
 - id: js-service-worker-sync
   languages: [javascript, typescript]
   patterns:
-    - regex: 'self\\.addEventListener\\s*\\(\\s*['''\"]sync[''\"]'
+    - regex: 'self\.addEventListener\s*\(\s*[''\\\"]sync[''\\\"]'
   severity: low
   description: "Service worker background sync - offline data sync"
   remediation: "Validate data before syncing to server"
@@ -582,7 +625,8 @@
 - id: js-service-worker-periodic-sync
   languages: [javascript, typescript]
   patterns:
-    - regex: 'periodicSync\\.register''severity: low
+    - regex: 'periodicSync\.register'
+  severity: low
   description: "Service worker periodic background sync"
   remediation: "Get user permission before periodic sync"
   cwe: "CWE-693"
@@ -591,7 +635,8 @@
 - id: js-service-worker-geolocation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.geolocation|Position\\s*\\{''severity: high
+    - regex: 'navigator\.geolocation|Position\s*\{'
+  severity: high
   description: "Service worker accessing geolocation - privacy risk"
   remediation: "Only access location with user consent"
   cwe: "CWE-359"
@@ -600,7 +645,8 @@
 - id: js-service-worker-payment
   languages: [javascript, typescript]
   patterns:
-    - regex: 'PaymentRequest|payment\\.show''severity: critical
+    - regex: 'PaymentRequest|payment\.show'
+  severity: critical
   description: "Service worker handling payments - sensitive financial data"
   remediation: "Use secure payment processing libraries"
   cwe: "CWE-312"
@@ -609,7 +655,8 @@
 - id: js-service-worker-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.credentials|PasswordCredential|FederatedCredential''severity: critical
+    - regex: 'navigator\.credentials|PasswordCredential|FederatedCredential'
+  severity: critical
   description: "Service worker accessing credential management API"
   remediation: "Secure credential storage and transmission"
   cwe: "CWE-312"
@@ -618,7 +665,8 @@
 - id: js-service-worker-crypto
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.subtle|window\\.crypto''severity: medium
+    - regex: 'crypto\.subtle|window\.crypto'
+  severity: medium
   description: "Service worker using Web Crypto API"
   remediation: "Ensure proper key management and secure algorithms"
   cwe: "CWE-327"
@@ -627,7 +675,8 @@
 - id: js-service-worker-eval
   languages: [javascript, typescript]
   patterns:
-    - regex: 'eval\\s*\\(|new\\s+Function\\s*\\(''severity: critical
+    - regex: 'eval\s*\(|new\s+Function\s*\('
+  severity: critical
   description: "Service worker using eval - code injection risk"
   remediation: "Never use eval in service workers"
   cwe: "CWE-94"
@@ -638,7 +687,7 @@
 - id: js-web-worker-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Worker\\s*\\(\\s*['''\"`][^''\"`]+[''\"`]'
+    - regex: 'new\s+Worker\s*\(\s*[''\\\"`][^''\\\"`]+[''\\\"`]'
   severity: medium
   description: "Web Worker instantiation - ensure worker script is trusted"
   remediation: "Load workers from same origin or trusted CDNs with SRI"
@@ -648,7 +697,8 @@
 - id: js-web-worker-blob
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Worker\\s*\\(\\s*URL\\.createObjectURL\\s*\\(\\s*new\\s+Blob''severity: critical
+    - regex: 'new\s+Worker\s*\(\s*URL\.createObjectURL\s*\(\s*new\s+Blob'
+  severity: critical
   description: "Web Worker created from Blob - inline code execution"
   remediation: "Avoid creating workers from Blobs with dynamic code"
   cwe: "CWE-94"
@@ -657,7 +707,7 @@
 - id: js-web-worker-data-uri
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Worker\\s*\\(\\s*['''\"`]data:application/javascript'
+    - regex: 'new\s+Worker\s*\(\s*[''\\\"`]data:application/javascript'
   severity: critical
   description: "Web Worker from data URI - code injection risk"
   remediation: "Use external script files instead of data URIs"
@@ -667,7 +717,7 @@
 - id: js-web-worker-postmessage
   languages: [javascript, typescript]
   patterns:
-    - regex: 'worker\\.postMessage\\s*\\(|addEventListener\\s*\\(\\s*['''\"]message[''\"]'
+    - regex: 'worker\.postMessage\s*\(|addEventListener\s*\(\s*[''\\"]message[''\\"]'
   severity: medium
   description: "Web Worker message passing - validate message data"
   remediation: "Validate all messages sent to/from workers"
@@ -677,7 +727,8 @@
 - id: js-web-worker-transferable
   languages: [javascript, typescript]
   patterns:
-    - regex: 'postMessage\\s*\\([^,]+,\\s*\\[.*\\]''severity: medium
+    - regex: 'postMessage\s*\([^,]+,\s*\[.*\]'
+  severity: medium
   description: "Transferable objects in postMessage - ownership transfer"
   remediation: "Don't transfer sensitive objects to untrusted workers"
   cwe: "CWE-20"
@@ -686,7 +737,8 @@
 - id: js-web-worker-shared
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+SharedWorker''severity: high
+    - regex: 'new\s+SharedWorker'
+  severity: high
   description: "SharedWorker - multiple contexts share same worker"
   remediation: "Validate messages from all connections"
   cwe: "CWE-20"
@@ -695,7 +747,8 @@
 - id: js-web-worker-terminate
   languages: [javascript, typescript]
   patterns:
-    - regex: 'worker\\.terminate\\s*\\(''severity: low
+    - regex: 'worker\.terminate\s*\('
+  severity: low
   description: "Web Worker termination - cleanup resources"
   remediation: "Terminate workers when no longer needed"
   cwe: "CWE-775"
@@ -704,7 +757,7 @@
 - id: js-web-worker-error
   languages: [javascript, typescript]
   patterns:
-    - regex: 'worker\\.onerror|addEventListener\\s*\\(\\s*['''\"]error[''\"]'
+    - regex: 'worker\.onerror|addEventListener\s*\(\s*[''\\"]error[''\\"]'
   severity: low
   description: "Web Worker error handling - may expose sensitive data"
   remediation: "Don't expose internal errors to main thread"
@@ -714,7 +767,7 @@
 - id: js-web-worker-import-scripts
   languages: [javascript, typescript]
   patterns:
-    - regex: 'importScripts\\s*\\(\\s*['''\"`][^''\"`]+[''\"`]'
+    - regex: 'importScripts\s*\(\s*[''\\\"`][^''\\\"`]+[''\\\"`]'
   severity: high
   description: "Web Worker importing scripts - ensure scripts are trusted"
   remediation: "Use SRI or load from same origin only"
@@ -724,7 +777,8 @@
 - id: js-web-worker-import-dynamic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'importScripts\\s*\\(\\s*.*\\+''severity: critical
+    - regex: 'importScripts\s*\(\s*.*\+'
+  severity: critical
   description: "Dynamic importScripts with concatenation - script injection"
   remediation: "Never use dynamic imports in workers"
   cwe: "CWE-94"
@@ -733,7 +787,8 @@
 - id: js-web-worker-indexeddb
   languages: [javascript, typescript]
   patterns:
-    - regex: 'indexedDB\\.open''severity: high
+    - regex: 'indexedDB\.open'
+  severity: high
   description: "Web Worker accessing IndexedDB - shared data risk"
   remediation: "Encrypt sensitive data in IndexedDB"
   cwe: "CWE-312"
@@ -742,7 +797,8 @@
 - id: js-web-worker-xhr
   languages: [javascript, typescript]
   patterns:
-    - regex: 'XMLHttpRequest|fetch\\s*\\(''severity: medium
+    - regex: 'XMLHttpRequest|fetch\s*\('
+  severity: medium
   description: "Web Worker making HTTP requests - SSRF risk"
   remediation: "Validate URLs before making requests"
   cwe: "CWE-918"
@@ -751,7 +807,8 @@
 - id: js-web-worker-websocket
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+WebSocket''severity: medium
+    - regex: 'new\s+WebSocket'
+  severity: medium
   description: "Web Worker using WebSockets - validate WebSocket URLs"
   remediation: "Use wss:// and validate WebSocket endpoints"
   cwe: "CWE-319"
@@ -760,7 +817,8 @@
 - id: js-web-worker-crypto
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.subtle|window\\.crypto''severity: low
+    - regex: 'crypto\.subtle|window\.crypto'
+  severity: low
   description: "Web Worker using crypto - key management"
   remediation: "Securely manage cryptographic keys"
   cwe: "CWE-327"
@@ -769,7 +827,8 @@
 - id: js-web-worker-eval
   languages: [javascript, typescript]
   patterns:
-    - regex: 'eval\\s*\\(|new\\s+Function\\s*\\(''severity: critical
+    - regex: 'eval\s*\(|new\s+Function\s*\('
+  severity: critical
   description: "Web Worker using eval - code injection"
   remediation: "Never use eval in web workers"
   cwe: "CWE-94"
@@ -778,7 +837,8 @@
 - id: js-web-worker-timeout
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout|setInterval''severity: low
+    - regex: 'setTimeout|setInterval'
+  severity: low
   description: "Web Worker using timers - potential DoS"
   remediation: "Clear timers when done"
   cwe: "CWE-770"
@@ -787,7 +847,8 @@
 - id: js-web-worker-atomics
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Atomics\\.|SharedArrayBuffer''severity: medium
+    - regex: 'Atomics\.|SharedArrayBuffer'
+  severity: medium
   description: "Web Worker using shared memory - race conditions"
   remediation: "Use proper synchronization with Atomics"
   cwe: "CWE-362"
@@ -796,7 +857,8 @@
 - id: js-web-worker-wasm
   languages: [javascript, typescript]
   patterns:
-    - regex: 'WebAssembly\\.instantiate|WebAssembly\\.compile''severity: high
+    - regex: 'WebAssembly\.instantiate|WebAssembly\.compile'
+  severity: high
   description: "Web Worker loading WebAssembly - validate WASM modules"
   remediation: "Load WASM from trusted sources only"
   cwe: "CWE-829"
@@ -805,7 +867,8 @@
 - id: js-web-worker-offscreen-canvas
   languages: [javascript, typescript]
   patterns:
-    - regex: 'OffscreenCanvas|transferControlToOffscreen''severity: low
+    - regex: 'OffscreenCanvas|transferControlToOffscreen'
+  severity: low
   description: "Web Worker using OffscreenCanvas - image data handling"
   remediation: "Don't process sensitive images in workers"
   cwe: "CWE-200"
@@ -814,7 +877,8 @@
 - id: js-web-worker-streams
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ReadableStream|WritableStream|TransformStream''severity: low
+    - regex: 'ReadableStream|WritableStream|TransformStream'
+  severity: low
   description: "Web Worker using Streams API"
   remediation: "Validate stream data"
   cwe: "CWE-20"
@@ -825,7 +889,7 @@
 - id: js-eval-direct
   languages: [javascript, typescript]
   patterns:
-    - regex: 'eval\s*\(\s*([^'''\"\s]|[''\"].*[\+\$])'
+    - regex: 'eval\s*\(\s*([^''\\"\s]|[''\\"].*[\+\$])'
   severity: critical
   description: "Direct eval usage with dynamic input - remote code execution risk"
   remediation: "Never use eval with dynamic data. Use JSON.parse for data, Function constructor if absolutely needed for static code"
@@ -835,7 +899,7 @@
 - id: js-function-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\s+Function\s*\(\s*.*([^'''\"\s]|[''\"].*[\+\$])'
+    - regex: 'new\s+Function\s*\(\s*.*([^''\\"\s]|[''\\"].*[\+\$])'
   severity: critical
   description: "Function constructor with dynamic code - eval-like behavior"
   remediation: "Avoid dynamic code generation. Use predefined functions"
@@ -845,7 +909,7 @@
 - id: js-set-timeout-string
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout\\s*\\(\\s*['''\"`][^''\"`]*[''\"`]'
+    - regex: 'setTimeout\s*\(\s*[''\\\"`][^''\\\"`]*[''\\\"`]'
   severity: high
   description: "setTimeout with string argument - eval-like behavior"
   remediation: "Pass function reference instead of string"
@@ -855,7 +919,7 @@
 - id: js-set-interval-string
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setInterval\\s*\\(\\s*['''\"`][^''\"`]*[''\"`]'
+    - regex: 'setInterval\s*\(\s*[''\\\"`][^''\\\"`]*[''\\\"`]'
   severity: high
   description: "setInterval with string argument - eval-like behavior"
   remediation: "Pass function reference instead of string"
@@ -865,7 +929,7 @@
 - id: js-set-immediate-string
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setImmediate\\s*\\(\\s*['''\"`][^''\"`]*[''\"`]'
+    - regex: 'setImmediate\s*\(\s*[''\\\"`][^''\\\"`]*[''\\\"`]'
   severity: high
   description: "setImmediate with string argument - eval-like behavior"
   remediation: "Pass function reference instead of string"
@@ -875,7 +939,7 @@
 - id: js-exec-script
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.write\\s*\\(\\s*['''\"`][^''\"`]*<script'
+    - regex: 'document\.write\s*\(\s*[''\\\"`][^''\\\"`]*<script'
   severity: high
   description: "document.write with script tag - XSS"
   remediation: "Use DOM manipulation methods instead of document.write"
@@ -885,7 +949,7 @@
 - id: js-insert-script
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.createElement\\s*\\(\\s*['''\"]script[''\"]'
+    - regex: 'document\.createElement\s*\(\s*[''\\\"]script[''\\\"]'
   severity: high
   description: "Dynamic script element creation - XSS risk"
   remediation: "Validate script source and integrity"
@@ -895,7 +959,8 @@
 - id: js-script-src-dynamic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script\\.src\\s*=\\s*.*\\+''severity: high
+    - regex: 'script\.src\s*=\s*.*\+'
+  severity: high
   description: "Dynamic script src assignment - XSS"
   remediation: "Validate and restrict script sources"
   cwe: "CWE-79"
@@ -904,7 +969,8 @@
 - id: js-import-dynamic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'import\\s*\\(\\s*.*\\+''severity: high
+    - regex: 'import\s*\(\s*.*\+'
+  severity: high
   description: "Dynamic import with concatenation - code injection"
   remediation: "Use static import paths, validate dynamic parts"
   cwe: "CWE-94"
@@ -913,7 +979,8 @@
 - id: js-require-dynamic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'require\\s*\\(\\s*.*\\+''severity: high
+    - regex: 'require\s*\(\s*.*\+'
+  severity: high
   description: "Dynamic require with concatenation - code injection"
   remediation: "Use static require paths"
   cwe: "CWE-94"
@@ -922,7 +989,8 @@
 - id: js-vm-run-in-context
   languages: [javascript, typescript]
   patterns:
-    - regex: 'vm\\.runInContext|vm\\.runInNewContext|vm\\.runInThisContext''severity: critical
+    - regex: 'vm\.runInContext|vm\.runInNewContext|vm\.runInThisContext'
+  severity: critical
   description: "Node.js VM module running code - code injection"
   remediation: "Never run untrusted code in VM"
   cwe: "CWE-94"
@@ -931,7 +999,8 @@
 - id: js-vm-compile-function
   languages: [javascript, typescript]
   patterns:
-    - regex: 'vm\\.compileFunction|vm\\.createScript''severity: critical
+    - regex: 'vm\.compileFunction|vm\.createScript'
+  severity: critical
   description: "Node.js VM compiling function - code injection"
   remediation: "Avoid compiling untrusted code"
   cwe: "CWE-94"
@@ -940,7 +1009,8 @@
 - id: js-weakmap-gc
   languages: [javascript, typescript]
   patterns:
-    - regex: 'WeakMap|WeakSet|WeakRef''severity: low
+    - regex: 'WeakMap|WeakSet|WeakRef'
+  severity: low
   description: "WeakMap/WeakSet/WeakRef usage - may have garbage collection timing leaks"
   remediation: "Don't rely on GC timing for security"
   cwe: "CWE-200"
@@ -949,7 +1019,8 @@
 - id: js-finalization-registry
   languages: [javascript, typescript]
   patterns:
-    - regex: 'FinalizationRegistry''severity: low
+    - regex: 'FinalizationRegistry'
+  severity: low
   description: "FinalizationRegistry - cleanup callbacks"
   remediation: "Don't rely on finalizers for security-critical cleanup"
   cwe: "CWE-200"
@@ -958,7 +1029,8 @@
 - id: js-proxy-traps
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Proxy\\s*\\([^,]+,\\s*\\{[^}]*\\}''severity: medium
+    - regex: 'new\s+Proxy\s*\([^,]+,\s*\{[^}]*\}'
+  severity: medium
   description: "Proxy usage - can intercept property access"
   remediation: "Ensure proxy handlers don't leak sensitive data"
   cwe: "CWE-200"
@@ -967,7 +1039,8 @@
 - id: js-proxy-apply
   languages: [javascript, typescript]
   patterns:
-    - regex: 'apply\\s*:\\s*function''severity: medium
+    - regex: 'apply\s*:\s*function'
+  severity: medium
   description: "Proxy apply trap - can intercept function calls"
   remediation: "Validate function arguments in apply trap"
   cwe: "CWE-20"
@@ -976,7 +1049,8 @@
 - id: js-proxy-construct
   languages: [javascript, typescript]
   patterns:
-    - regex: 'construct\\s*:\\s*function''severity: medium
+    - regex: 'construct\s*:\s*function'
+  severity: medium
   description: "Proxy construct trap - can intercept new operator"
   remediation: "Validate constructor arguments"
   cwe: "CWE-20"
@@ -985,7 +1059,8 @@
 - id: js-proxy-get
   languages: [javascript, typescript]
   patterns:
-    - regex: 'get\\s*:\\s*function''severity: medium
+    - regex: 'get\s*:\s*function'
+  severity: medium
   description: "Proxy get trap - can intercept property access"
   remediation: "Ensure get trap doesn't expose sensitive data"
   cwe: "CWE-200"
@@ -994,7 +1069,8 @@
 - id: js-proxy-set
   languages: [javascript, typescript]
   patterns:
-    - regex: 'set\\s*:\\s*function''severity: medium
+    - regex: 'set\s*:\s*function'
+  severity: medium
   description: "Proxy set trap - can intercept property assignment"
   remediation: "Validate property values in set trap"
   cwe: "CWE-20"
@@ -1003,7 +1079,8 @@
 - id: js-proxy-define-property
   languages: [javascript, typescript]
   patterns:
-    - regex: 'defineProperty\\s*:\\s*function''severity: medium
+    - regex: 'defineProperty\s*:\s*function'
+  severity: medium
   description: "Proxy defineProperty trap - can intercept property definitions"
   remediation: "Validate property descriptors"
   cwe: "CWE-20"
@@ -1014,7 +1091,8 @@
 - id: js-fetch-user-input
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\(\\s*.*\\+.*req|fetch\\s*\\(\\s*.*\\$\\{.*req''severity: high
+    - regex: 'fetch\s*\(\s*.*\+.*req|fetch\s*\(\s*.*\$\{.*req'
+  severity: high
   description: "fetch with user input in URL - SSRF risk"
   remediation: "Validate URLs against allowlist, encode user input"
   cwe: "CWE-918"
@@ -1023,7 +1101,7 @@
 - id: js-fetch-credentials-include
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*credentials:\\s*['''\"]include[''\"]'
+    - regex: 'fetch\s*\([^,]+,\s*\{[^}]*credentials:\s*[''\\\"]include[''\\\"]'
   severity: high
   description: "fetch with credentials: include - sends cookies cross-origin"
   remediation: "Use credentials: 'same-origin' for same-origin requests"
@@ -1033,7 +1111,7 @@
 - id: js-fetch-cors-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*mode:\\s*['''\"]cors[''\"][^}]*'
+    - regex: 'fetch\s*\([^,]+,\s*\{[^}]*mode:\s*[''\\\"]cors[''\\\"][^}]*'
   severity: medium
   description: "fetch with CORS mode - ensure server CORS is secure"
   remediation: "Check server CORS configuration"
@@ -1043,7 +1121,7 @@
 - id: js-fetch-no-referrer
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*referrerPolicy:\\s*['''\"]no-referrer[''\"]'
+    - regex: 'fetch\s*\([^,]+,\s*\{[^}]*referrerPolicy:\s*[''\\\"]no-referrer[''\\\"]'
   severity: low
   description: "fetch with no-referrer policy - good for privacy"
   remediation: "Good practice for sensitive requests"
@@ -1053,7 +1131,7 @@
 - id: js-fetch-integrity
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch\\s*\\([^,]+,\\s*\\{[^}]*integrity:\\s*['''\"][^''\"]+[''\"]'
+    - regex: 'fetch\s*\([^,]+,\s*\{[^}]*integrity:\s*[''\\\"][^''\\\"]+[''\\\"]'
   severity: low
   description: "fetch with subresource integrity - good for security"
   remediation: "Continue using SRI for external resources"
@@ -1063,7 +1141,8 @@
 - id: js-xhr-user-input
   languages: [javascript, typescript]
   patterns:
-    - regex: 'XMLHttpRequest\\.open\\s*\\([^,]+,\\s*.*\\+''severity: high
+    - regex: 'XMLHttpRequest\.open\s*\([^,]+,\s*.*\+'
+  severity: high
   description: "XHR with user input in URL - SSRF risk"
   remediation: "Validate URLs before sending XHR requests"
   cwe: "CWE-918"
@@ -1072,7 +1151,8 @@
 - id: js-xhr-with-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: 'withCredentials\\s*=\\s*true''severity: high
+    - regex: 'withCredentials\s*=\s*true'
+  severity: high
   description: "XHR with credentials sent cross-origin"
   remediation: "Ensure CORS is properly configured"
   cwe: "CWE-200"
@@ -1081,7 +1161,7 @@
 - id: js-xhr-response-type
   languages: [javascript, typescript]
   patterns:
-    - regex: 'responseType\\s*=\\s*['''\"]document[''\"]|responseType\\s*=\\s*[''\"]json[''\"]'
+    - regex: 'responseType\s*=\s*[''\\"]document[''\\"]|responseType\s*=\s*[''\\"]json[''\\"]'
   severity: low
   description: "XHR response type setting"
   remediation: "Validate response data based on type"
@@ -1091,7 +1171,8 @@
 - id: js-axios-user-input
   languages: [javascript, typescript]
   patterns:
-    - regex: 'axios\\.(get|post|put|delete)\\s*\\(\\s*.*\\+''severity: high
+    - regex: 'axios\.(get|post|put|delete)\s*\(\s*.*\+'
+  severity: high
   description: "Axios request with user input in URL - SSRF risk"
   remediation: "Validate URLs, use axios params for query strings"
   cwe: "CWE-918"
@@ -1100,7 +1181,8 @@
 - id: js-axios-base-url
   languages: [javascript, typescript]
   patterns:
-    - regex: 'axios\\.create\\s*\\(\\s*\\{[^}]*baseURL:\\s*.*\\+''severity: high
+    - regex: 'axios\.create\s*\(\s*\{[^}]*baseURL:\s*.*\+'
+  severity: high
   description: "Axios baseURL with user input - SSRF risk"
   remediation: "Use static baseURL, validate if dynamic"
   cwe: "CWE-918"
@@ -1109,7 +1191,8 @@
 - id: js-axios-validate-status
   languages: [javascript, typescript]
   patterns:
-    - regex: 'validateStatus:\\s*function\\s*\\(\\s*status\\s*\\)\\s*\\{[^}]*true''severity: medium
+    - regex: 'validateStatus:\s*function\s*\(\s*status\s*\)\s*\{[^}]*true'
+  severity: medium
   description: "Axios validateStatus always returning true - accepts error responses"
   remediation: "Only accept successful status codes"
   cwe: "CWE-754"
@@ -1118,7 +1201,8 @@
 - id: js-axios-max-redirects
   languages: [javascript, typescript]
   patterns:
-    - regex: 'maxRedirects:\\s*0|maxRedirects:\\s*false''severity: medium
+    - regex: 'maxRedirects:\s*0|maxRedirects:\s*false'
+  severity: medium
   description: "Axios redirects disabled - may break functionality"
   remediation: "Set appropriate redirect limit"
   cwe: "CWE-601"
@@ -1127,7 +1211,8 @@
 - id: js-axios-proxy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'proxy:\\s*\\{[^}]*host''severity: high
+    - regex: 'proxy:\s*\{[^}]*host'
+  severity: high
   description: "Axios proxy configuration - may route traffic through untrusted proxy"
   remediation: "Ensure proxy is trusted"
   cwe: "CWE-319"
@@ -1136,7 +1221,7 @@
 - id: js-socket-io
   languages: [javascript, typescript]
   patterns:
-    - regex: 'io\\s*\\(\\s*['''\"`][^''\"`]+[''\"`]'
+    - regex: 'io\s*\(\s*[''\\\"`][^''\\\"`]+[''\\\"`]'
   severity: medium
   description: "Socket.IO connection - ensure secure WebSocket"
   remediation: "Use wss:// and validate connection"
@@ -1146,7 +1231,8 @@
 - id: js-socket-io-auth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'io\\s*\\([^,]+,\\s*\\{[^}]*auth''severity: low
+    - regex: 'io\s*\([^,]+,\s*\{[^}]*auth'
+  severity: low
   description: "Socket.IO with authentication"
   remediation: "Ensure auth tokens are secure"
   cwe: "CWE-287"
@@ -1155,7 +1241,7 @@
 - id: js-ws-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+WebSocket\\s*\\(\\s*['''\"`]ws:'
+    - regex: 'new\s+WebSocket\s*\(\s*[''\\\"`]ws:'
   severity: medium
   description: "Insecure WebSocket connection (ws://) - unencrypted"
   remediation: "Use wss:// for encrypted WebSocket connections"
@@ -1165,7 +1251,7 @@
 - id: js-ws-constructor-secure
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+WebSocket\\s*\\(\\s*['''\"`]wss:'
+    - regex: 'new\s+WebSocket\s*\(\s*[''\\\"`]wss:'
   severity: low
   description: "Secure WebSocket connection (wss://) - good practice"
   remediation: "Good practice for WebSocket connections"
@@ -1175,7 +1261,8 @@
 - id: js-ws-send
   languages: [javascript, typescript]
   patterns:
-    - regex: 'websocket\\.send\\s*\\(''severity: low
+    - regex: 'websocket\.send\s*\('
+  severity: low
   description: "WebSocket send - ensure data is safe"
   remediation: "Validate data before sending over WebSocket"
   cwe: "CWE-20"
@@ -1184,7 +1271,8 @@
 - id: js-sse
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+EventSource\\s*\\(''severity: medium
+    - regex: 'new\s+EventSource\s*\('
+  severity: medium
   description: "Server-Sent Events - ensure secure connection"
   remediation: "Use HTTPS for SSE endpoints"
   cwe: "CWE-319"
@@ -1193,7 +1281,8 @@
 - id: js-sse-with-credentials
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+EventSource\\s*\\([^,]+,\\s*\\{[^}]*withCredentials:\\s*true''severity: medium
+    - regex: 'new\s+EventSource\s*\([^,]+,\s*\{[^}]*withCredentials:\s*true'
+  severity: medium
   description: "SSE with credentials - ensure CORS is secure"
   remediation: "Check CORS configuration for SSE endpoint"
   cwe: "CWE-200"
@@ -1204,7 +1293,8 @@
 - id: js-indexeddb-open
   languages: [javascript, typescript]
   patterns:
-    - regex: 'indexedDB\\.open\\s*\\(''severity: medium
+    - regex: 'indexedDB\.open\s*\('
+  severity: medium
   description: "IndexedDB opened - can store sensitive data"
   remediation: "Don't store sensitive data in IndexedDB without encryption"
   cwe: "CWE-312"
@@ -1213,7 +1303,8 @@
 - id: js-indexeddb-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'put\\s*\\([^)]*(?:password|token|secret|key|credit)''severity: high
+    - regex: 'put\s*\([^)]*(?:password|token|secret|key|credit)'
+  severity: high
   description: "Storing sensitive data in IndexedDB - XSS risk"
   remediation: "Encrypt sensitive data before storing"
   cwe: "CWE-312"
@@ -1222,7 +1313,8 @@
 - id: js-indexeddb-unencrypted
   languages: [javascript, typescript]
   patterns:
-    - regex: 'indexedDB.*''severity: high
+    - regex: 'indexedDB.*'
+  severity: high
   description: "IndexedDB used without encryption"
   remediation: "Encrypt sensitive data before storing in IndexedDB"
   cwe: "CWE-312"
@@ -1231,7 +1323,7 @@
 - id: js-localstorage-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'localStorage\\.setItem\\s*\\(\\s*['''\"][^''\"]*[''\"]\\s*,\\s*[^)]*(?:password|token|secret|key|jwt)'
+    - regex: 'localStorage\.setItem\s*\(\s*[''\\"][^''\\"]*[''\\"]\s*,\s*[^)]*(?:password|token|secret|key|jwt)'
   severity: high
   description: "Storing sensitive data in localStorage - XSS can steal it"
   remediation: "Use httpOnly cookies for tokens, never store secrets in localStorage"
@@ -1241,7 +1333,7 @@
 - id: js-localstorage-jwt
   languages: [javascript, typescript]
   patterns:
-    - regex: 'localStorage\\.(setItem|getItem)\\s*\\(\\s*['''\"](jwt|token|access_token|refresh_token)[''\"]'
+    - regex: 'localStorage\.(setItem|getItem)\s*\(\s*[''\\"](jwt|token|access_token|refresh_token)[''\\"]'
   severity: high
   description: "JWT stored in localStorage - XSS can steal token"
   remediation: "Use httpOnly cookies for JWT storage"
@@ -1251,7 +1343,7 @@
 - id: js-sessionstorage-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'sessionStorage\\.setItem\\s*\\(\\s*['''\"][^''\"]*[''\"]\\s*,\\s*[^)]*(?:password|token|secret|key)'
+    - regex: 'sessionStorage\.setItem\s*\(\s*[''\\"][^''\\"]*[''\\"]\s*,\s*[^)]*(?:password|token|secret|key)'
   severity: high
   description: "Storing sensitive data in sessionStorage - XSS risk"
   remediation: "Avoid storing secrets in sessionStorage"
@@ -1261,7 +1353,8 @@
 - id: js-cookie-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*(?:token|jwt|session|auth)[^;]*''severity: medium
+    - regex: 'document\.cookie\s*=\s*[^;]*(?:token|jwt|session|auth)[^;]*'
+  severity: medium
   description: "Setting sensitive cookie without HttpOnly flag"
   remediation: "Always set HttpOnly flag for cookies containing tokens"
   cwe: "CWE-614"
@@ -1270,7 +1363,8 @@
 - id: js-cookie-secure-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*(?:token|jwt|session|auth)[^;]*''severity: high
+    - regex: 'document\.cookie\s*=\s*[^;]*(?:token|jwt|session|auth)[^;]*'
+  severity: high
   description: "Sensitive cookie without Secure flag - sent over HTTP"
   remediation: "Add Secure flag to ensure cookie only sent over HTTPS"
   cwe: "CWE-614"
@@ -1279,7 +1373,8 @@
 - id: js-cookie-samesite-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*(?:token|jwt|session|auth)[^;]*''severity: high
+    - regex: 'document\.cookie\s*=\s*[^;]*(?:token|jwt|session|auth)[^;]*'
+  severity: high
   description: "Cookie without SameSite attribute - CSRF risk"
   remediation: "Set SameSite=Lax or Strict"
   cwe: "CWE-352"
@@ -1288,7 +1383,8 @@
 - id: js-cookie-samesite-none
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*SameSite=None''severity: medium
+    - regex: 'document\.cookie\s*=\s*[^;]*SameSite=None'
+  severity: medium
   description: "Cookie with SameSite=None - requires Secure flag"
   remediation: "Use SameSite=Lax/Strict when possible"
   cwe: "CWE-352"
@@ -1297,7 +1393,8 @@
 - id: js-cookie-path-root
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*path=/''severity: low
+    - regex: 'document\.cookie\s*=\s*[^;]*path=/'
+  severity: low
   description: "Cookie with root path - sent to all paths"
   remediation: "Restrict cookie path to specific application path"
   cwe: "CWE-284"
@@ -1306,7 +1403,8 @@
 - id: js-cookie-domain-broad
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*domain=\\.[^;]*''severity: medium
+    - regex: 'document\.cookie\s*=\s*[^;]*domain=\.[^;]*'
+  severity: medium
   description: "Cookie with broad domain - sent to subdomains"
   remediation: "Restrict cookie domain to specific domain"
   cwe: "CWE-284"
@@ -1315,7 +1413,8 @@
 - id: js-cookie-expires-far
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*expires=\\s*[^;]*(203[0-9]|204[0-9])''severity: high
+    - regex: 'document\.cookie\s*=\s*[^;]*expires=\s*[^;]*(203[0-9]|204[0-9])'
+  severity: high
   description: "Cookie with far future expiration - persists too long"
   remediation: "Use session cookies or short expiration times"
   cwe: "CWE-613"
@@ -1324,7 +1423,8 @@
 - id: js-cookie-max-age-long
   languages: [javascript, typescript]
   patterns:
-    - regex: 'document\\.cookie\\s*=\\s*[^;]*max-age=\\s*[3-9][0-9]{6,}''severity: high
+    - regex: 'document\.cookie\s*=\s*[^;]*max-age=\s*[3-9][0-9]{6,}'
+  severity: high
   description: "Cookie with excessive max-age (years) - persists too long"
   remediation: "Set reasonable max-age (hours/days not years)"
   cwe: "CWE-613"
@@ -1333,7 +1433,8 @@
 - id: js-cache-api-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'caches\\.open|cache\\.add|cache\\.put''severity: high
+    - regex: 'caches\.open|cache\.add|cache\.put'
+  severity: high
   description: "Cache API storing responses - may cache sensitive data"
   remediation: "Don't cache authenticated responses"
   cwe: "CWE-524"
@@ -1342,7 +1443,8 @@
 - id: js-cache-storage-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'CacheStorage|window\\.caches''severity: medium
+    - regex: 'CacheStorage|window\.caches'
+  severity: medium
   description: "CacheStorage API usage"
   remediation: "Clear cache on logout, don't cache sensitive data"
   cwe: "CWE-524"
@@ -1351,7 +1453,8 @@
 - id: js-file-system-api
   languages: [javascript, typescript]
   patterns:
-    - regex: 'showOpenFilePicker|showSaveFilePicker|showDirectoryPicker''severity: medium
+    - regex: 'showOpenFilePicker|showSaveFilePicker|showDirectoryPicker'
+  severity: medium
   description: "File System API - user file access"
   remediation: "Validate file handles before reading/writing"
   cwe: "CWE-22"
@@ -1360,7 +1463,8 @@
 - id: js-file-system-writable
   languages: [javascript, typescript]
   patterns:
-    - regex: 'createWritable|write\\s*\\(''severity: high
+    - regex: 'createWritable|write\s*\('
+  severity: high
   description: "File System API writing files"
   remediation: "Validate content before writing"
   cwe: "CWE-73"
@@ -1369,7 +1473,8 @@
 - id: js-file-system-readable
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getFile\\s*\\(|File\\.prototype\\.read''severity: medium
+    - regex: 'getFile\s*\(|File\.prototype\.read'
+  severity: medium
   description: "File System API reading files"
   remediation: "Validate file content after reading"
   cwe: "CWE-20"
@@ -1378,7 +1483,8 @@
 - id: js-navigator-storage-persist
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.storage\\.persist|storage\\.persisted''severity: low
+    - regex: 'navigator\.storage\.persist|storage\.persisted'
+  severity: low
   description: "Storage persistence request"
   remediation: "Request persistence for important data"
   cwe: "CWE-693"
@@ -1389,7 +1495,8 @@
 - id: js-crypto-get-random-values
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.getRandomValues''severity: low
+    - regex: 'crypto\.getRandomValues'
+  severity: low
   description: "Secure random number generation - good practice"
   remediation: "Use crypto.getRandomValues for security-sensitive randomness"
   cwe: "CWE-330"
@@ -1398,7 +1505,8 @@
 - id: js-math-random
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Math\\.random\\s*\\(''severity: high
+    - regex: 'Math\.random\s*\('
+  severity: high
   description: "Math.random() not cryptographically secure"
   remediation: "Use crypto.getRandomValues() for security-sensitive operations"
   cwe: "CWE-330"
@@ -1407,7 +1515,8 @@
 - id: js-crypto-subtle
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.subtle''severity: low
+    - regex: 'crypto\.subtle'
+  severity: low
   description: "Web Crypto API usage - good practice"
   remediation: "Ensure proper key management and algorithm selection"
   cwe: "CWE-327"
@@ -1416,7 +1525,8 @@
 - id: js-crypto-aes-gcm
   languages: [javascript, typescript]
   patterns:
-    - regex: 'AES-GCM|AES-CBC|RSA-OAEP''severity: low
+    - regex: 'AES-GCM|AES-CBC|RSA-OAEP'
+  severity: low
   description: "AES-GCM/RSA-OAEP usage - good algorithms"
   remediation: "Continue using authenticated encryption modes"
   cwe: "CWE-327"
@@ -1425,7 +1535,8 @@
 - id: js-crypto-ecb
   languages: [javascript, typescript]
   patterns:
-    - regex: 'AES-ECB|DES-ECB|CBC.*noPadding''severity: critical
+    - regex: 'AES-ECB|DES-ECB|CBC.*noPadding'
+  severity: critical
   description: "ECB mode encryption - insecure, patterns visible"
   remediation: "Use authenticated modes like GCM or CCM"
   cwe: "CWE-327"
@@ -1434,7 +1545,8 @@
 - id: js-crypto-weak-algorithm
   languages: [javascript, typescript]
   patterns:
-    - regex: 'MD5|SHA1|DES|RC4|3DES''severity: medium
+    - regex: 'MD5|SHA1|DES|RC4|3DES'
+  severity: medium
   description: "Weak cryptographic algorithm - insecure"
   remediation: "Use SHA-256, SHA-3, AES-256-GCM, or ChaCha20-Poly1305"
   cwe: "CWE-327"
@@ -1443,7 +1555,8 @@
 - id: js-crypto-fixed-iv
   languages: [javascript, typescript]
   patterns:
-    - regex: 'iv:\\s*new\\s+Uint8Array\\s*\\(\\s*\\[.*\\]\\s*\\)''severity: high
+    - regex: 'iv:\s*new\s+Uint8Array\s*\(\s*\[.*\]\s*\)'
+  severity: high
   description: "Fixed initialization vector (IV) - not secure"
   remediation: "Generate random IV for each encryption"
   cwe: "CWE-326"
@@ -1452,7 +1565,8 @@
 - id: js-crypto-constant-time
   languages: [javascript, typescript]
   patterns:
-    - regex: '===|==|!==|!=''severity: medium
+    - regex: '===|==|!==|!='
+  severity: medium
   description: "String comparison may not be constant-time"
   remediation: "Use timingSafeEqual for comparing sensitive values"
   cwe: "CWE-208"
@@ -1461,7 +1575,8 @@
 - id: js-crypto-timing-safe-equal
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.timingSafeEqual''severity: low
+    - regex: 'crypto\.timingSafeEqual'
+  severity: low
   description: "Timing-safe comparison - good practice"
   remediation: "Continue using timingSafeEqual for sensitive comparisons"
   cwe: "CWE-208"
@@ -1470,7 +1585,8 @@
 - id: js-crypto-pbkdf2
   languages: [javascript, typescript]
   patterns:
-    - regex: 'PBKDF2|deriveKey.*PBKDF2''severity: low
+    - regex: 'PBKDF2|deriveKey.*PBKDF2'
+  severity: low
   description: "PBKDF2 key derivation - good for password hashing"
   remediation: "Use sufficient iterations (100,000+) and salt"
   cwe: "CWE-916"
@@ -1479,7 +1595,8 @@
 - id: js-crypto-scrypt
   languages: [javascript, typescript]
   patterns:
-    - regex: 'scrypt''severity: low
+    - regex: 'scrypt'
+  severity: low
   description: "scrypt key derivation - good for password hashing"
   remediation: "Use appropriate parameters (N, r, p)"
   cwe: "CWE-916"
@@ -1488,7 +1605,8 @@
 - id: js-crypto-hkdf
   languages: [javascript, typescript]
   patterns:
-    - regex: 'HKDF|hkdf''severity: low
+    - regex: 'HKDF|hkdf'
+  severity: low
   description: "HKDF key derivation - good for key expansion"
   remediation: "Use for deriving keys from shared secrets"
   cwe: "CWE-327"
@@ -1497,7 +1615,8 @@
 - id: js-crypto-export-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.subtle\\.exportKey''severity: high
+    - regex: 'crypto\.subtle\.exportKey'
+  severity: high
   description: "Exporting cryptographic keys - key exposure risk"
   remediation: "Never export private keys, store securely"
   cwe: "CWE-312"
@@ -1506,7 +1625,8 @@
 - id: js-crypto-import-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.subtle\\.importKey''severity: high
+    - regex: 'crypto\.subtle\.importKey'
+  severity: high
   description: "Importing cryptographic keys - ensure keys are trusted"
   remediation: "Validate key format and origin"
   cwe: "CWE-20"
@@ -1515,7 +1635,8 @@
 - id: js-crypto-wrapping
   languages: [javascript, typescript]
   patterns:
-    - regex: 'wrapKey|unwrapKey''severity: medium
+    - regex: 'wrapKey|unwrapKey'
+  severity: medium
   description: "Key wrapping/unwrapping - secure key transport"
   remediation: "Use authenticated encryption for key wrapping"
   cwe: "CWE-327"
@@ -1524,7 +1645,8 @@
 - id: js-crypto-digest
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.subtle\\.digest''severity: low
+    - regex: 'crypto\.subtle\.digest'
+  severity: low
   description: "Cryptographic hash function"
   remediation: "Use SHA-256 or stronger for hashing"
   cwe: "CWE-327"
@@ -1533,7 +1655,8 @@
 - id: js-crypto-sign
   languages: [javascript, typescript]
   patterns:
-    - regex: 'sign\\s*\\(|verify\\s*\\(''severity: low
+    - regex: 'sign\s*\(|verify\s*\('
+  severity: low
   description: "Digital signature operations"
   remediation: "Use secure signature algorithms (RSA-PSS, ECDSA)"
   cwe: "CWE-347"
@@ -1542,7 +1665,8 @@
 - id: js-crypto-generate-key
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.subtle\\.generateKey''severity: low
+    - regex: 'crypto\.subtle\.generateKey'
+  severity: low
   description: "Cryptographic key generation"
   remediation: "Use appropriate key sizes (256-bit for AES, 2048-bit for RSA)"
   cwe: "CWE-326"
@@ -1551,7 +1675,8 @@
 - id: js-crypto-zeroize
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fill\\s*\\(\\s*0\\s*\\)|\\[\\s*0\\s*\\]''severity: medium
+    - regex: 'fill\s*\(\s*0\s*\)|\[\s*0\s*\]'
+  severity: medium
   description: "Zeroizing memory - may be optimized away"
   remediation: "Use secure zeroize functions from crypto library"
   cwe: "CWE-244"
@@ -1560,7 +1685,8 @@
 - id: js-crypto-subtle-extractable
   languages: [javascript, typescript]
   patterns:
-    - regex: 'extractable:\\s*true''severity: high
+    - regex: 'extractable:\s*true'
+  severity: high
   description: "Extractable crypto keys - can be exported"
   remediation: "Set extractable: false unless export needed"
   cwe: "CWE-312"
@@ -1571,7 +1697,8 @@
 - id: js-redos-nested-quantifier
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\(\\?.[^)]*\\+\\+|\\(\\?.[^)]*\\*\\*|\\(\\?.[^)]*\\{[^}]+,[^}]+,''severity: critical
+    - regex: '\(\?.[^)]*\+\+|\(\?.[^)]*\*\*|\(\?.[^)]*\{[^}]+,[^}]+,'
+  severity: critical
   description: "Regex with nested quantifiers - vulnerable to ReDoS"
   remediation: "Avoid nested quantifiers, use possessive quantifiers where supported"
   cwe: "CWE-1333"
@@ -1580,7 +1707,8 @@
 - id: js-redos-repetition-in-repetition
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\([^)]+\\*\\s*\\)\\*|\\([^)]+\\+\\s*\\)\\+|\\([^)]+\\{[^}]+\\}\\s*\\)\\{''severity: critical
+    - regex: '\([^)]+\*\s*\)\*|\([^)]+\+\s*\)\+|\([^)]+\{[^}]+\}\s*\)\{'
+  severity: critical
   description: "Regex with repetition inside repetition - catastrophic backtracking"
   remediation: "Simplify regex, avoid nested quantifiers"
   cwe: "CWE-1333"
@@ -1589,7 +1717,8 @@
 - id: js-redos-alternation-overlap
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\([^|]+\\)\\|\\|\\([^|]+\\)|\\([^|]+\\|\\|[^|]+\\)''severity: high
+    - regex: '\([^|]+\)\|\|\([^|]+\)|\([^|]+\|\|[^|]+\)'
+  severity: high
   description: "Regex with overlapping alternations - exponential backtracking"
   remediation: "Reorder alternations, make mutually exclusive"
   cwe: "CWE-1333"
@@ -1598,7 +1727,8 @@
 - id: js-redos-regex-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+RegExp\\s*\\(\\s*[^)]*\\+\\s*req|new\\s+RegExp\\s*\\(\\s*\\$\\{.*\\}''severity: critical
+    - regex: 'new\s+RegExp\s*\(\s*[^)]*\+\s*req|new\s+RegExp\s*\(\s*\$\{.*\}'
+  severity: critical
   description: "Dynamically constructed regex with user input - ReDoS risk"
   remediation: "Never construct regex from user input, use static patterns"
   cwe: "CWE-1333"
@@ -1607,7 +1737,8 @@
 - id: js-redos-replace
   languages: [javascript, typescript]
   patterns:
-    - regex: 'replace\\s*\\(\\s*/.*\\+.*/|replace\\s*\\(\\s*new\\s+RegExp''severity: high
+    - regex: 'replace\s*\(\s*/.*\+.*/|replace\s*\(\s*new\s+RegExp'
+  severity: high
   description: "String.replace with dynamic regex - ReDoS risk"
   remediation: "Use static regex patterns for replace operations"
   cwe: "CWE-1333"
@@ -1616,7 +1747,8 @@
 - id: js-redos-split
   languages: [javascript, typescript]
   patterns:
-    - regex: 'split\\s*\\(\\s*/.*\\+.*/|split\\s*\\(\\s*new\\s+RegExp''severity: high
+    - regex: 'split\s*\(\s*/.*\+.*/|split\s*\(\s*new\s+RegExp'
+  severity: high
   description: "String.split with dynamic regex - ReDoS risk"
   remediation: "Use static regex or string delimiters"
   cwe: "CWE-1333"
@@ -1625,7 +1757,8 @@
 - id: js-redos-match
   languages: [javascript, typescript]
   patterns:
-    - regex: 'match\\s*\\(\\s*/.*\\+.*/|match\\s*\\(\\s*new\\s+RegExp''severity: high
+    - regex: 'match\s*\(\s*/.*\+.*/|match\s*\(\s*new\s+RegExp'
+  severity: high
   description: "String.match with dynamic regex - ReDoS risk"
   remediation: "Use static regex patterns for matching"
   cwe: "CWE-1333"
@@ -1634,7 +1767,8 @@
 - id: js-redos-search
   languages: [javascript, typescript]
   patterns:
-    - regex: 'search\\s*\\(\\s*/.*\\+.*/|search\\s*\\(\\s*new\\s+RegExp''severity: high
+    - regex: 'search\s*\(\s*/.*\+.*/|search\s*\(\s*new\s+RegExp'
+  severity: high
   description: "String.search with dynamic regex - ReDoS risk"
   remediation: "Use static regex patterns"
   cwe: "CWE-1333"
@@ -1643,7 +1777,8 @@
 - id: js-redos-test
   languages: [javascript, typescript]
   patterns:
-    - regex: 'test\\s*\\(\\s*/.*\\+.*/|test\\s*\\(\\s*new\\s+RegExp''severity: high
+    - regex: 'test\s*\(\s*/.*\+.*/|test\s*\(\s*new\s+RegExp'
+  severity: high
   description: "RegExp.test with dynamic regex - ReDoS risk"
   remediation: "Use static RegExp objects"
   cwe: "CWE-1333"
@@ -1652,7 +1787,8 @@
 - id: js-redos-exec
   languages: [javascript, typescript]
   patterns:
-    - regex: 'exec\\s*\\(\\s*/.*\\+.*/|exec\\s*\\(\\s*new\\s+RegExp''severity: high
+    - regex: 'exec\s*\(\s*/.*\+.*/|exec\s*\(\s*new\s+RegExp'
+  severity: high
   description: "RegExp.exec with dynamic regex - ReDoS risk"
   remediation: "Use static RegExp objects"
   cwe: "CWE-1333"
@@ -1661,7 +1797,8 @@
 - id: js-redos-email-regex
   languages: [javascript, typescript]
   patterns:
-    - regex: '^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$''severity: medium
+    - regex: '^[\w\.-]+@[\w\.-]+\.\w+$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+  severity: medium
   description: "Common email regex patterns - may be vulnerable"
   remediation: "Use simple validation or well-tested libraries"
   cwe: "CWE-1333"
@@ -1670,7 +1807,8 @@
 - id: js-redos-url-regex
   languages: [javascript, typescript]
   patterns:
-    - regex: '^(https?://)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([/\\w \\.-]*)*/?$''severity: high
+    - regex: '^(https?://)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w \.-]*)*/?$'
+  severity: high
   description: "URL regex with nested quantifiers - ReDoS vulnerable"
   remediation: "Use URL constructor for validation instead of regex"
   cwe: "CWE-1333"
@@ -1679,7 +1817,8 @@
 - id: js-redos-html-tag-regex
   languages: [javascript, typescript]
   patterns:
-    - regex: '<([\\w]+)[^>]*>|<[^>]+>|</?[^>]+(>|$)''severity: high
+    - regex: '<([\w]+)[^>]*>|<[^>]+>|</?[^>]+(>|$)'
+  severity: high
   description: "HTML tag regex - extremely vulnerable to ReDoS"
   remediation: "Use DOM parser instead of regex for HTML"
   cwe: "CWE-1333"
@@ -1688,7 +1827,8 @@
 - id: js-redos-long-regex
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\{[^\\}]{100,}''severity: low
+    - regex: '\{[^\}]{100,}'
+  severity: low
   description: "Very long regex pattern - may be inefficient"
   remediation: "Break down complex regex into simpler patterns"
   cwe: "CWE-1333"
@@ -1697,7 +1837,8 @@
 - id: js-redos-loop
   languages: [javascript, typescript]
   patterns:
-    - regex: 'while\\s*\\([^)]*\\.match\\([^)]*\\)\\)|while\\s*\\([^)]*\\.test\\([^)]*\\)\\)''severity: high
+    - regex: 'while\s*\([^)]*\.match\([^)]*\)\)|while\s*\([^)]*\.test\([^)]*\)\]'
+  severity: high
   description: "Looping regex execution - potential DoS"
   remediation: "Limit iterations or use indexOf for simple checks"
   cwe: "CWE-400"
@@ -1706,7 +1847,7 @@
 - id: js-re2-usage
   languages: [javascript, typescript]
   patterns:
-    - regex: 'require\\s*\\(\\s*['''\"]re2[''\"]\\)|import\\s+.*\\s+from\\s+[''\"]re2[''\"]'
+    - regex: 'require\s*\(\s*[''\\"]re2[''\\"]\)|import\s+.*\s+from\s+[''\\"]re2[''\\"]'
   severity: low
   description: "RE2 regex library - safe from ReDoS"
   remediation: "Good practice for user-provided regex"
@@ -1716,7 +1857,8 @@
 - id: js-regex-flags
   languages: [javascript, typescript]
   patterns:
-    - regex: '/[^/]+/[gimuy]+''severity: low
+    - regex: '/[^/]+/[gimuy]+'
+  severity: low
   description: "Regex flags - ensure 'g' flag used correctly"
   remediation: "Be careful with lastIndex in global regex"
   cwe: "CWE-20"
@@ -1725,7 +1867,8 @@
 - id: js-regex-sticky
   languages: [javascript, typescript]
   patterns:
-    - regex: '/[^/]+/y''severity: low
+    - regex: '/[^/]+/y'
+  severity: low
   description: "Sticky regex flag - may cause unexpected matches"
   remediation: "Reset lastIndex when needed"
   cwe: "CWE-20"
@@ -1734,16 +1877,18 @@
 - id: js-regex-dotall
   languages: [javascript, typescript]
   patterns:
-    - regex: '/[^/]+/s''severity: low
+    - regex: '/[^/]+/s'
+  severity: low
   description: "Dotall flag - dot matches newlines"
-  remediation: "Use [\\s\\S] if cross-platform support needed"
+  remediation: "Use [\\\\s\\\\S] if cross-platform support needed"
   cwe: "CWE-20"
   owasp: "A03:2021"
 
 - id: js-regex-unicode
   languages: [javascript, typescript]
   patterns:
-    - regex: '/[^/]+/u''severity: low
+    - regex: '/[^/]+/u'
+  severity: low
   description: "Unicode flag - proper Unicode handling"
   remediation: "Good for Unicode text processing"
   cwe: "CWE-20"
@@ -1754,7 +1899,7 @@
 - id: js-type-coercion-equals
   languages: [javascript, typescript]
   patterns:
-    - regex: '==\\s*[0-9]|==\\s*['''\"]|==\\s*null|==\\s*undefined'
+    - regex: '==\s*[0-9]|==\s*[''\\"]|==\s*null|==\s*undefined'
   severity: high
   description: "Loose equality (==) can cause type coercion bugs"
   remediation: "Use strict equality (===) to prevent type juggling"
@@ -1764,7 +1909,8 @@
 - id: js-type-coercion-if
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*[^=!<>]+\\s*\\)''severity: medium
+    - regex: 'if\s*\(\s*[^=!<>]+\s*\)'
+  severity: medium
   description: "If statement with truthy check - may cause unexpected behavior"
   remediation: "Use explicit comparisons: if (value !== null && value !== undefined)"
   cwe: "CWE-697"
@@ -1773,7 +1919,7 @@
 - id: js-type-coercion-plus
   languages: [javascript, typescript]
   patterns:
-    - regex: '[^+]+\\+\\s*['''\"]|[''\"]\\s*\\+\\s*[^+]+'
+    - regex: '[^+]+\+\s*[''\\"]|[''\\"]\s*\+\s*[^+]+'
   severity: medium
   description: "String concatenation with + may cause coercion"
   remediation: "Use template literals for strings, Number() for numbers"
@@ -1783,7 +1929,7 @@
 - id: js-type-coercion-minus
   languages: [javascript, typescript]
   patterns:
-    - regex: '['''\"]\\s*-\\s*[0-9]|[0-9]\\s*-\\s*[''\"]'
+    - regex: '[''\\"]\s*-\s*[0-9]|[0-9]\s*-\s*[''\\"]'
   severity: medium
   description: "Subtracting string from number - implicit coercion"
   remediation: "Convert strings to numbers explicitly with Number()"
@@ -1793,7 +1939,8 @@
 - id: js-type-coercion-boolean
   languages: [javascript, typescript]
   patterns:
-    - regex: '!!|!\\s*[^!]''severity: low
+    - regex: '!!|!\s*[^!]'
+  severity: low
   description: "Double negation for boolean coercion"
   remediation: "Use Boolean() constructor for clarity"
   cwe: "CWE-697"
@@ -1802,7 +1949,8 @@
 - id: js-type-coercion-parseint
   languages: [javascript, typescript]
   patterns:
-    - regex: 'parseInt\\s*\\(\\s*[^,]+\\)''severity: high
+    - regex: 'parseInt\s*\(\s*[^,]+\)'
+  severity: high
   description: "parseInt without radix 10 - may parse as octal"
   remediation: "Always provide radix: parseInt(string, 10)"
   cwe: "CWE-697"
@@ -1811,7 +1959,8 @@
 - id: js-type-coercion-parsefloat
   languages: [javascript, typescript]
   patterns:
-    - regex: 'parseFloat\\s*\\(\\s*[^)]+\\)''severity: low
+    - regex: 'parseFloat\s*\(\s*[^)]+\]'
+  severity: low
   description: "parseFloat usage - ensure input is sanitized"
   remediation: "Validate string before parsing"
   cwe: "CWE-20"
@@ -1820,7 +1969,8 @@
 - id: js-type-coercion-number
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Number\\s*\\(\\s*[^)]+\\)''severity: low
+    - regex: 'Number\s*\(\s*[^)]+\]'
+  severity: low
   description: "Number() constructor - explicit conversion"
   remediation: "Good practice, but validate input first"
   cwe: "CWE-20"
@@ -1829,7 +1979,8 @@
 - id: js-type-coercion-string
   languages: [javascript, typescript]
   patterns:
-    - regex: 'String\\s*\\(\\s*[^)]+\\)''severity: low
+    - regex: 'String\s*\(\s*[^)]+\]'
+  severity: low
   description: "String() constructor - explicit conversion"
   remediation: "Good practice for converting to string"
   cwe: "CWE-20"
@@ -1838,7 +1989,8 @@
 - id: js-type-coercion-boolean-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Boolean\\s*\\(\\s*[^)]+\\)''severity: low
+    - regex: 'Boolean\s*\(\s*[^)]+\]'
+  severity: low
   description: "Boolean() constructor - explicit conversion"
   remediation: "Good practice for boolean conversion"
   cwe: "CWE-20"
@@ -1847,7 +1999,8 @@
 - id: js-type-coercion-null-undefined
   languages: [javascript, typescript]
   patterns:
-    - regex: '==\\s*null|==\\s*undefined''severity: medium
+    - regex: '==\s*null|==\s*undefined'
+  severity: medium
   description: "Loose equality with null/undefined - use strict equality"
   remediation: "Use value === null || value === undefined"
   cwe: "CWE-697"
@@ -1856,7 +2009,8 @@
 - id: js-type-coercion-falsey
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*!\\w+\\s*\\)''severity: medium
+    - regex: 'if\s*\(\s*!\w+\s*\)'
+  severity: medium
   description: "Falsey check - includes 0, '', false, null, undefined, NaN"
   remediation: "Be explicit about which falsey values are acceptable"
   cwe: "CWE-697"
@@ -1865,7 +2019,7 @@
 - id: js-type-coercion-or
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\w+\\s*=\\s*\\w+\\s*\\|\\|\\s*['''\"]'
+    - regex: '\w+\s*=\s*\w+\s*\|\|\s*[''\\"]'
   severity: low
   description: "OR operator for default values - may have falsey issues"
   remediation: "Use ?? operator for null/undefined defaults"
@@ -1875,7 +2029,8 @@
 - id: js-type-coercion-nullish
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\w+\\s*=\\s*\\w+\\s*\\?\\?\\s*''severity: low
+    - regex: '\w+\s*=\s*\w+\s*\?\?\s*'
+  severity: low
   description: "Nullish coalescing operator - good for defaults"
   remediation: "Good practice for null/undefined defaults"
   cwe: "CWE-697"
@@ -1884,7 +2039,8 @@
 - id: js-type-coercion-optional-chaining
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\?\\.''severity: low
+    - regex: '\?\.'
+  severity: low
   description: "Optional chaining - safe property access"
   remediation: "Good practice for nested property access"
   cwe: "CWE-476"
@@ -1893,7 +2049,8 @@
 - id: js-type-coercion-array-from
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Array\\.from\\s*\\(|\\[\\s*\\.\\.\\.''severity: low
+    - regex: 'Array\.from\s*\(|\[\s*\.\.\.'
+  severity: low
   description: "Array conversion methods"
   remediation: "Validate array-like objects before conversion"
   cwe: "CWE-20"
@@ -1902,7 +2059,8 @@
 - id: js-type-coercion-json-stringify
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.stringify\\s*\\(''severity: low
+    - regex: 'JSON\.stringify\s*\('
+  severity: low
   description: "JSON.stringify - may throw on circular references"
   remediation: "Handle circular references or use replacer function"
   cwe: "CWE-20"
@@ -1911,7 +2069,8 @@
 - id: js-type-coercion-json-parse
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*[^)]+\\)''severity: high
+    - regex: 'JSON\.parse\s*\(\s*[^)]+\]'
+  severity: high
   description: "JSON.parse of user input - may throw or contain malicious data"
   remediation: "Wrap in try-catch, validate structure after parsing"
   cwe: "CWE-20"
@@ -1920,7 +2079,8 @@
 - id: js-type-coercion-reviver
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*[^)]+\\)''severity: medium
+    - regex: 'JSON\.parse\s*\([^,]+,\s*[^)]+\]'
+  severity: medium
   description: "JSON.parse with reviver - ensure reviver is safe"
   remediation: "Validate and sanitize values in reviver"
   cwe: "CWE-20"
@@ -1929,7 +2089,8 @@
 - id: js-type-coercion-btoa
   languages: [javascript, typescript]
   patterns:
-    - regex: 'btoa\\s*\\(|atob\\s*\\(''severity: medium
+    - regex: 'btoa\s*\(|atob\s*\('
+  severity: medium
   description: "Base64 encoding/decoding - may handle binary incorrectly"
   remediation: "Use Buffer for Node.js, handle Unicode properly"
   cwe: "CWE-20"
@@ -1940,7 +2101,8 @@
 - id: js-node-path-join-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'path\\.join\\s*\\([^)]*req|path\\.resolve\\s*\\([^)]*req''severity: high
+    - regex: 'path\.join\s*\([^)]*req|path\.resolve\s*\([^)]*req'
+  severity: high
   description: "Path operations with user input - path traversal risk"
   remediation: "Validate resolved path is within base directory"
   cwe: "CWE-22"
@@ -1949,7 +2111,8 @@
 - id: js-node-path-normalize
   languages: [javascript, typescript]
   patterns:
-    - regex: 'path\\.normalize\\s*\\([^)]*req''severity: high
+    - regex: 'path\.normalize\s*\([^)]*req'
+  severity: high
   description: "Path normalize with user input - may not prevent traversal"
   remediation: "Check result starts with allowed base path"
   cwe: "CWE-22"
@@ -1958,7 +2121,8 @@
 - id: js-node-path-basename
   languages: [javascript, typescript]
   patterns:
-    - regex: 'path\\.basename\\s*\\([^)]*req''severity: medium
+    - regex: 'path\.basename\s*\([^)]*req'
+  severity: medium
   description: "Using basename on user input - ensures only filename"
   remediation: "Good practice, but still validate basename result"
   cwe: "CWE-22"
@@ -1967,7 +2131,8 @@
 - id: js-node-path-traversal-check
   languages: [javascript, typescript]
   patterns:
-    - regex: 'path\\.resolve\\s*\\([^)]*\\)\\.startsWith\\s*\\(\\s*__dirname''severity: low
+    - regex: 'path\.resolve\s*\([^)]*\)\.startsWith\s*\(\s*__dirname'
+  severity: low
   description: "Path traversal protection - checking against __dirname"
   remediation: "Good practice for preventing path traversal"
   cwe: "CWE-22"
@@ -1976,7 +2141,8 @@
 - id: js-node-fs-readfile-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(readFile|readFileSync)\\s*\\(\\s*[^)]*req''severity: high
+    - regex: 'fs\.(readFile|readFileSync)\s*\(\s*[^)]*req'
+  severity: high
   description: "Reading file with user-controlled path - path traversal"
   remediation: "Validate path before reading files"
   cwe: "CWE-22"
@@ -1985,7 +2151,8 @@
 - id: js-node-fs-writefile-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(writeFile|writeFileSync)\\s*\\(\\s*[^)]*req''severity: critical
+    - regex: 'fs\.(writeFile|writeFileSync)\s*\(\s*[^)]*req'
+  severity: critical
   description: "Writing file with user-controlled path - arbitrary file write"
   remediation: "Never use user input for file write paths"
   cwe: "CWE-22"
@@ -1994,7 +2161,8 @@
 - id: js-node-fs-unlink-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(unlink|unlinkSync)\\s*\\(\\s*[^)]*req''severity: critical
+    - regex: 'fs\.(unlink|unlinkSync)\s*\(\s*[^)]*req'
+  severity: critical
   description: "Deleting file with user-controlled path - arbitrary file deletion"
   remediation: "Never use user input for file deletion paths"
   cwe: "CWE-22"
@@ -2003,7 +2171,8 @@
 - id: js-node-fs-rename-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(rename|renameSync)\\s*\\(\\s*[^)]*req''severity: high
+    - regex: 'fs\.(rename|renameSync)\s*\(\s*[^)]*req'
+  severity: high
   description: "Renaming file with user-controlled paths - path traversal"
   remediation: "Validate both old and new paths"
   cwe: "CWE-22"
@@ -2012,7 +2181,8 @@
 - id: js-node-fs-create-read-stream
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.createReadStream\\s*\\(\\s*[^)]*req''severity: high
+    - regex: 'fs\.createReadStream\s*\(\s*[^)]*req'
+  severity: high
   description: "Creating read stream with user-controlled path"
   remediation: "Validate path before creating stream"
   cwe: "CWE-22"
@@ -2021,7 +2191,8 @@
 - id: js-node-fs-create-write-stream
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.createWriteStream\\s*\\(\\s*[^)]*req''severity: high
+    - regex: 'fs\.createWriteStream\s*\(\s*[^)]*req'
+  severity: high
   description: "Creating write stream with user-controlled path"
   remediation: "Never allow user-controlled paths for write streams"
   cwe: "CWE-22"
@@ -2030,7 +2201,8 @@
 - id: js-node-fs-stat-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(stat|lstat|exists|access)\\s*\\(\\s*[^)]*req''severity: medium
+    - regex: 'fs\.(stat|lstat|exists|access)\s*\(\s*[^)]*req'
+  severity: medium
   description: "File stat operations with user-controlled path"
   remediation: "Validate path before file operations"
   cwe: "CWE-22"
@@ -2039,7 +2211,8 @@
 - id: js-node-fs-readdir-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(readdir|readdirSync)\\s*\\(\\s*[^)]*req''severity: high
+    - regex: 'fs\.(readdir|readdirSync)\s*\(\s*[^)]*req'
+  severity: high
   description: "Reading directory with user-controlled path"
   remediation: "Validate directory path is within allowed directories"
   cwe: "CWE-22"
@@ -2048,7 +2221,8 @@
 - id: js-node-fs-mkdir-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(mkdir|mkdirSync)\\s*\\(\\s*[^)]*req''severity: high
+    - regex: 'fs\.(mkdir|mkdirSync)\s*\(\s*[^)]*req'
+  severity: high
   description: "Creating directory with user-controlled path"
   remediation: "Validate directory path is within allowed directories"
   cwe: "CWE-22"
@@ -2057,7 +2231,8 @@
 - id: js-node-fs-rmdir-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(rmdir|rmdirSync)\\s*\\(\\s*[^)]*req''severity: critical
+    - regex: 'fs\.(rmdir|rmdirSync)\s*\(\s*[^)]*req'
+  severity: critical
   description: "Removing directory with user-controlled path"
   remediation: "Never allow user-controlled paths for directory removal"
   cwe: "CWE-22"
@@ -2066,7 +2241,8 @@
 - id: js-node-fs-watch-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.watch\\s*\\(\\s*[^)]*req''severity: medium
+    - regex: 'fs\.watch\s*\(\s*[^)]*req'
+  severity: medium
   description: "Watching file with user-controlled path"
   remediation: "Validate path before watching"
   cwe: "CWE-22"
@@ -2075,7 +2251,8 @@
 - id: js-node-fs-realpath-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.(realpath|realpathSync)\\s*\\(\\s*[^)]*req''severity: low
+    - regex: 'fs\.(realpath|realpathSync)\s*\(\s*[^)]*req'
+  severity: low
   description: "Getting realpath with user-controlled path"
   remediation: "Use to canonicalize path, then validate"
   cwe: "CWE-22"
@@ -2084,7 +2261,8 @@
 - id: js-node-require-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'require\\s*\\(\\s*[^)]*req|require\\s*\\(\\s*.*\\+''severity: critical
+    - regex: 'require\s*\(\s*[^)]*req|require\s*\(\s*.*\+'
+  severity: critical
   description: "Dynamic require with user input - code injection"
   remediation: "Never require user-controlled modules"
   cwe: "CWE-94"
@@ -2093,7 +2271,8 @@
 - id: js-node-import-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'import\\s*\\(\\s*[^)]*req|import\\s*\\(\\s*.*\\+''severity: critical
+    - regex: 'import\s*\(\s*[^)]*req|import\s*\(\s*.*\+'
+  severity: critical
   description: "Dynamic import with user input - code injection"
   remediation: "Never import user-controlled modules"
   cwe: "CWE-94"
@@ -2102,7 +2281,8 @@
 - id: js-node-module-parent
   languages: [javascript, typescript]
   patterns:
-    - regex: 'module\\.parent|require\\.main''severity: low
+    - regex: 'module\.parent|require\.main'
+  severity: low
   description: "Module parent/main detection"
   remediation: "Use for module detection only"
   cwe: "CWE-20"
@@ -2111,7 +2291,8 @@
 - id: js-node-module-cache
   languages: [javascript, typescript]
   patterns:
-    - regex: 'require\\.cache''severity: medium
+    - regex: 'require\.cache'
+  severity: medium
   description: "Manipulating require cache - may affect module loading"
   remediation: "Avoid clearing require cache in production"
   cwe: "CWE-20"
@@ -2122,7 +2303,7 @@
 - id: js-node-exec-user
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?:child_process|exec)\\s*\\(\\s*['''\"`][^''\"`]*\\+.*req|exec\\s*\\(\\s*.*\\$\\{.*req'
+    - regex: '(?:child_process|exec)\s*\(\s*[''\\"`][^''\\"`]*\+.*req|exec\s*\(\s*.*\$\{.*req'
   severity: critical
   description: "exec with user input - command injection"
   remediation: "Use execFile with argument array, never shell interpolation"
@@ -2132,7 +2313,8 @@
 - id: js-node-exec-file-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'execFile\\s*\\([^,]+,\\s*\\[\\s*[^\\]]*\\+''severity: critical
+    - regex: 'execFile\s*\([^,]+,\s*\[\s*[^\]]*\+'
+  severity: critical
   description: "execFile with array concatenation - command injection"
   remediation: "Use static argument arrays, validate each argument"
   cwe: "CWE-78"
@@ -2141,7 +2323,8 @@
 - id: js-node-spawn-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'spawn\\s*\\([^,]+,\\s*\\[\\s*[^\\]]*\\+.*req''severity: critical
+    - regex: 'spawn\s*\([^,]+,\s*\[\s*[^\]]*\+.*req'
+  severity: critical
   description: "spawn with user input in arguments - command injection"
   remediation: "Validate all arguments, use static argument arrays"
   cwe: "CWE-78"
@@ -2150,7 +2333,8 @@
 - id: js-node-spawn-shell
   languages: [javascript, typescript]
   patterns:
-    - regex: 'spawn\\s*\\([^,]+,\\s*[^,]+,\\s*\\{[^}]*shell:\\s*true''severity: critical
+    - regex: 'spawn\s*\([^,]+,\s*[^,]+,\s*\{[^}]*shell:\s*true'
+  severity: critical
   description: "spawn with shell:true - enables shell interpretation"
   remediation: "Avoid shell:true with user input"
   cwe: "CWE-78"
@@ -2159,7 +2343,8 @@
 - id: js-node-fork-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fork\\s*\\([^)]*req''severity: high
+    - regex: 'fork\s*\([^)]*req'
+  severity: high
   description: "fork with user input - child process injection"
   remediation: "Never fork with user-controlled paths"
   cwe: "CWE-78"
@@ -2168,7 +2353,7 @@
 - id: js-node-exec-sync-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'execSync\\s*\\(\\s*['''\"`][^''\"`]*\\+.*req'
+    - regex: 'execSync\s*\(\s*[''\\\"`][^''\\\"`]*\+.*req'
   severity: critical
   description: "execSync with user input - command injection"
   remediation: "Use execFileSync with argument array"
@@ -2178,7 +2363,8 @@
 - id: js-node-spawn-sync-user
   languages: [javascript, typescript]
   patterns:
-    - regex: 'spawnSync\\s*\\([^,]+,\\s*\\[\\s*[^\\]]*\\+.*req''severity: critical
+    - regex: 'spawnSync\s*\([^,]+,\s*\[\s*[^\]]*\+.*req'
+  severity: critical
   description: "spawnSync with user input in arguments"
   remediation: "Validate arguments, use static arrays"
   cwe: "CWE-78"
@@ -2187,7 +2373,8 @@
 - id: js-node-popen
   languages: [javascript, typescript]
   patterns:
-    - regex: 'popen|child_process\\.popen''severity: critical
+    - regex: 'popen|child_process\.popen'
+  severity: critical
   description: "popen usage - command injection"
   remediation: "Avoid popen with user input"
   cwe: "CWE-78"
@@ -2196,7 +2383,8 @@
 - id: js-node-cross-spawn
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cross-spawn|crossSpawn''severity: medium
+    - regex: 'cross-spawn|crossSpawn'
+  severity: medium
   description: "cross-spawn usage - still vulnerable to injection"
   remediation: "Treat like regular spawn, avoid user input"
   cwe: "CWE-78"
@@ -2205,7 +2393,8 @@
 - id: js-node-execa
   languages: [javascript, typescript]
   patterns:
-    - regex: 'execa|execaSync''severity: medium
+    - regex: 'execa|execaSync'
+  severity: medium
   description: "execa usage - safer but still avoid user input"
   remediation: "Use execa with argument arrays"
   cwe: "CWE-78"
@@ -2214,7 +2403,8 @@
 - id: js-node-command-exists
   languages: [javascript, typescript]
   patterns:
-    - regex: 'command-exists|which''severity: low
+    - regex: 'command-exists|which'
+  severity: low
   description: "Checking if command exists - may expose system info"
   remediation: "Avoid exposing existence of system commands"
   cwe: "CWE-200"
@@ -2223,7 +2413,8 @@
 - id: js-node-env-paths
   languages: [javascript, typescript]
   patterns:
-    - regex: 'env\\.PATH|process\\.env\\.PATH''severity: low
+    - regex: 'env\.PATH|process\.env\.PATH'
+  severity: low
   description: "Accessing PATH environment variable"
   remediation: "Be careful with PATH manipulation"
   cwe: "CWE-426"
@@ -2232,7 +2423,8 @@
 - id: js-node-shell-env
   languages: [javascript, typescript]
   patterns:
-    - regex: 'SHELL|process\\.env\\.SHELL''severity: low
+    - regex: 'SHELL|process\.env\.SHELL'
+  severity: low
   description: "Accessing SHELL environment variable"
   remediation: "Don't rely on SHELL for security decisions"
   cwe: "CWE-20"
@@ -2241,7 +2433,8 @@
 - id: js-node-temp-dir
   languages: [javascript, typescript]
   patterns:
-    - regex: 'os\\.tmpdir|os\\.tmpDir|temp|tmp''severity: low
+    - regex: 'os\.tmpdir|os\.tmpDir|temp|tmp'
+  severity: low
   description: "Using temp directory - ensure permissions"
   remediation: "Use secure temp file creation with proper permissions"
   cwe: "CWE-377"
@@ -2250,7 +2443,8 @@
 - id: js-node-mktemp
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mkdtemp|mkdtempSync''severity: low
+    - regex: 'mkdtemp|mkdtempSync'
+  severity: low
   description: "Creating temp directory"
   remediation: "Set proper permissions on temp directory"
   cwe: "CWE-377"
@@ -2259,7 +2453,8 @@
 - id: js-node-env-pwd
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.PWD|process\\.cwd''severity: low
+    - regex: 'process\.env\.PWD|process\.cwd'
+  severity: low
   description: "Getting current working directory"
   remediation: "Don't assume cwd is safe for file operations"
   cwe: "CWE-22"
@@ -2268,7 +2463,8 @@
 - id: js-node-chdir
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.chdir\\s*\\(''severity: medium
+    - regex: 'process\.chdir\s*\('
+  severity: medium
   description: "Changing current working directory"
   remediation: "Use absolute paths after chdir"
   cwe: "CWE-22"
@@ -2277,7 +2473,8 @@
 - id: js-node-umask
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.umask\\s*\\(''severity: medium
+    - regex: 'process\.umask\s*\('
+  severity: medium
   description: "Setting umask - affects file permissions"
   remediation: "Use restrictive umask (0o077) for sensitive files"
   cwe: "CWE-732"
@@ -2286,7 +2483,8 @@
 - id: js-node-chmod
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.chmod|fs\\.chmodSync''severity: high
+    - regex: 'fs\.chmod|fs\.chmodSync'
+  severity: high
   description: "Changing file permissions"
   remediation: "Use least privilege permissions"
   cwe: "CWE-732"
@@ -2295,7 +2493,8 @@
 - id: js-node-chown
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fs\\.chown|fs\\.chownSync''severity: high
+    - regex: 'fs\.chown|fs\.chownSync'
+  severity: high
   description: "Changing file ownership"
   remediation: "Use with caution, ensure correct user/group"
   cwe: "CWE-732"
@@ -2306,7 +2505,8 @@
 - id: js-browser-geolocation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.geolocation\\.''severity: medium
+    - regex: 'navigator\.geolocation\.'
+  severity: medium
   description: "Geolocation API usage - privacy risk"
   remediation: "Request permission, inform users, handle errors"
   cwe: "CWE-359"
@@ -2315,7 +2515,8 @@
 - id: js-browser-camera
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getUserMedia|enumerateDevices''severity: high
+    - regex: 'getUserMedia|enumerateDevices'
+  severity: high
   description: "Camera/Microphone access - privacy risk"
   remediation: "Request permission only when needed, show indicator"
   cwe: "CWE-359"
@@ -2324,7 +2525,8 @@
 - id: js-browser-clipboard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.clipboard\\.''severity: high
+    - regex: 'navigator\.clipboard\.'
+  severity: high
   description: "Clipboard API access - sensitive data risk"
   remediation: "Request permission, validate clipboard data"
   cwe: "CWE-312"
@@ -2333,7 +2535,8 @@
 - id: js-browser-clipboard-read
   languages: [javascript, typescript]
   patterns:
-    - regex: 'readText|read''severity: critical
+    - regex: 'readText|read'
+  severity: critical
   description: "Reading from clipboard - steals clipboard data"
   remediation: "Never read clipboard without user action"
   cwe: "CWE-312"
@@ -2342,7 +2545,8 @@
 - id: js-browser-clipboard-write
   languages: [javascript, typescript]
   patterns:
-    - regex: 'writeText|write''severity: medium
+    - regex: 'writeText|write'
+  severity: medium
   description: "Writing to clipboard - may overwrite user data"
   remediation: "Write only in response to user action"
   cwe: "CWE-20"
@@ -2351,7 +2555,8 @@
 - id: js-browser-bluetooth
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.bluetooth\\.''severity: high
+    - regex: 'navigator\.bluetooth\.'
+  severity: high
   description: "Web Bluetooth API - security risk"
   remediation: "Request permission, validate devices"
   cwe: "CWE-20"
@@ -2360,7 +2565,8 @@
 - id: js-browser-usb
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.usb\\.''severity: high
+    - regex: 'navigator\.usb\.'
+  severity: high
   description: "Web USB API - security risk"
   remediation: "Request permission, validate devices"
   cwe: "CWE-20"
@@ -2369,7 +2575,8 @@
 - id: js-browser-hid
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.hid\\.''severity: high
+    - regex: 'navigator\.hid\.'
+  severity: high
   description: "Web HID API - security risk"
   remediation: "Request permission, validate devices"
   cwe: "CWE-20"
@@ -2378,7 +2585,8 @@
 - id: js-browser-serial
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.serial\\.''severity: high
+    - regex: 'navigator\.serial\.'
+  severity: high
   description: "Web Serial API - security risk"
   remediation: "Request permission, validate ports"
   cwe: "CWE-20"
@@ -2387,7 +2595,8 @@
 - id: js-browser-pointer-lock
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requestPointerLock|exitPointerLock''severity: low
+    - regex: 'requestPointerLock|exitPointerLock'
+  severity: low
   description: "Pointer lock API - may be annoying"
   remediation: "Only use for games/applications"
   cwe: "CWE-20"
@@ -2396,7 +2605,8 @@
 - id: js-browser-fullscreen
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requestFullscreen|exitFullscreen''severity: low
+    - regex: 'requestFullscreen|exitFullscreen'
+  severity: low
   description: "Fullscreen API - phishing risk"
   remediation: "Show indicators when in fullscreen"
   cwe: "CWE-1021"
@@ -2405,7 +2615,8 @@
 - id: js-browser-vibration
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.vibrate''severity: low
+    - regex: 'navigator\.vibrate'
+  severity: low
   description: "Vibration API - may be annoying"
   remediation: "Use sparingly, respect user preferences"
   cwe: "CWE-20"
@@ -2414,7 +2625,8 @@
 - id: js-browser-network-info
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.connection''severity: low
+    - regex: 'navigator\.connection'
+  severity: low
   description: "Network Information API - fingerprinting"
   remediation: "Avoid for fingerprinting"
   cwe: "CWE-200"
@@ -2423,7 +2635,8 @@
 - id: js-browser-battery
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.getBattery''severity: low
+    - regex: 'navigator\.getBattery'
+  severity: low
   description: "Battery API - fingerprinting"
   remediation: "Avoid for fingerprinting"
   cwe: "CWE-200"
@@ -2432,7 +2645,8 @@
 - id: js-browser-device-memory
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.deviceMemory''severity: low
+    - regex: 'navigator\.deviceMemory'
+  severity: low
   description: "Device Memory API - fingerprinting"
   remediation: "Avoid for fingerprinting"
   cwe: "CWE-200"
@@ -2441,7 +2655,8 @@
 - id: js-browser-hardware-concurrency
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.hardwareConcurrency''severity: low
+    - regex: 'navigator\.hardwareConcurrency'
+  severity: low
   description: "Hardware Concurrency API - fingerprinting"
   remediation: "Avoid for fingerprinting"
   cwe: "CWE-200"
@@ -2450,7 +2665,8 @@
 - id: js-browser-platform
   languages: [javascript, typescript]
   patterns:
-    - regex: 'navigator\\.platform|navigator\\.userAgent''severity: low
+    - regex: 'navigator\.platform|navigator\.userAgent'
+  severity: low
   description: "Platform/userAgent - fingerprinting"
   remediation: "Avoid for fingerprinting"
   cwe: "CWE-200"
@@ -2459,7 +2675,8 @@
 - id: js-browser-canvas-fingerprint
   languages: [javascript, typescript]
   patterns:
-    - regex: 'canvas\\.toDataURL|canvas\\.toBlob''severity: medium
+    - regex: 'canvas\.toDataURL|canvas\.toBlob'
+  severity: medium
   description: "Canvas fingerprinting - privacy risk"
   remediation: "Avoid canvas fingerprinting"
   cwe: "CWE-200"
@@ -2468,7 +2685,7 @@
 - id: js-browser-webgl-fingerprint
   languages: [javascript, typescript]
   patterns:
-    - regex: 'getContext\\s*\\(\\s*['''\"]webgl'
+    - regex: 'getContext\s*\(\s*[''\\\"]webgl'
   severity: medium
   description: "WebGL fingerprinting - privacy risk"
   remediation: "Avoid WebGL fingerprinting"
@@ -2478,7 +2695,8 @@
 - id: js-browser-audio-fingerprint
   languages: [javascript, typescript]
   patterns:
-    - regex: 'AudioContext|OscillatorNode''severity: medium
+    - regex: 'AudioContext|OscillatorNode'
+  severity: medium
   description: "Audio fingerprinting - privacy risk"
   remediation: "Avoid audio fingerprinting"
   cwe: "CWE-200"
@@ -2489,7 +2707,8 @@
 - id: js-timing-attack-password
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*user\\.password\\s*===\\s*inputPassword\\s*\\)''severity: high
+    - regex: 'if\s*\(\s*user\.password\s*===\s*inputPassword\s*\)'
+  severity: high
   description: "String comparison may leak timing information"
   remediation: "Use timingSafeEqual for password/token comparison"
   cwe: "CWE-208"
@@ -2498,7 +2717,8 @@
 - id: js-timing-attack-token
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*token\\s*===\\s*providedToken\\s*\\)''severity: high
+    - regex: 'if\s*\(\s*token\s*===\s*providedToken\s*\)'
+  severity: high
   description: "Token comparison may leak timing information"
   remediation: "Use timingSafeEqual for token comparison"
   cwe: "CWE-208"
@@ -2507,7 +2727,8 @@
 - id: js-timing-attack-loop
   languages: [javascript, typescript]
   patterns:
-    - regex: 'for\\s*\\([^;]+;[^;]+;[^)]+\\)\\s*\\{[^}]*if\\s*\\(\\s*\\w+\\[i\\]\\s*!==\\s*\\w+\\[i\\]\\s*\\)''severity: medium
+    - regex: 'for\s*\([^;]+;[^;]+;[^)]+\)\s*\{[^}]*if\s*\(\s*\w+\[i\]\s*!==\s*\w+\[i\]\s*\]'
+  severity: medium
   description: "Manual string comparison loop - timing vulnerable"
   remediation: "Use built-in comparison with timingSafeEqual"
   cwe: "CWE-208"
@@ -2516,7 +2737,8 @@
 - id: js-timing-attack-crypto
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.timingSafeEqual''severity: low
+    - regex: 'crypto\.timingSafeEqual'
+  severity: low
   description: "Using crypto.timingSafeEqual - good practice"
   remediation: "Continue using for sensitive comparisons"
   cwe: "CWE-208"
@@ -2525,7 +2747,8 @@
 - id: js-timing-attack-buffer
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Buffer\\.compare|buffer\\.compare''severity: low
+    - regex: 'Buffer\.compare|buffer\.compare'
+  severity: low
   description: "Buffer.compare - may be constant-time"
   remediation: "Use crypto.timingSafeEqual for guaranteed constant-time"
   cwe: "CWE-208"
@@ -2534,7 +2757,8 @@
 - id: js-timing-attack-array
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.stringify\\s*\\(\\s*a\\s*\\)\\s*===\\s*JSON\\.stringify\\s*\\(\\s*b\\s*\\)''severity: medium
+    - regex: 'JSON\.stringify\s*\(\s*a\s*\)\s*===\s*JSON\.stringify\s*\(\s*b\s*\)'
+  severity: medium
   description: "JSON.stringify comparison - not constant-time"
   remediation: "Use deep equality with timingSafeEqual for sensitive data"
   cwe: "CWE-208"
@@ -2543,7 +2767,8 @@
 - id: js-timing-attack-status
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*user\\s*\\)\\s*\\{[^}]*\\}\\s*else\\s*\\{[^}]*\\}''severity: low
+    - regex: 'if\s*\(\s*user\s*\)\s*\{[^}]*\}\s*else\s*\{[^}]*\}'
+  severity: low
   description: "User existence check may leak via response timing"
   remediation: "Make all code paths take similar time"
   cwe: "CWE-208"
@@ -2552,7 +2777,8 @@
 - id: js-timing-attack-login
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*!user\\s*\\)\\s*\\{[^}]*\\}\\s*if\\s*\\(\\s*!bcrypt\\.compareSync\\s*\\)''severity: high
+    - regex: 'if\s*\(\s*!user\s*\)\s*\{[^}]*\}\s*if\s*\(\s*!bcrypt\.compareSync\s*\)'
+  severity: high
   description: "Early return on user not found - timing leak"
   remediation: "Always hash password even if user not found"
   cwe: "CWE-208"
@@ -2561,7 +2787,8 @@
 - id: js-timing-attack-hmac
   languages: [javascript, typescript]
   patterns:
-    - regex: 'crypto\\.createHmac.*update.*digest.*===''severity: high
+    - regex: 'crypto\.createHmac.*update.*digest.*==='
+  severity: high
   description: "HMAC comparison with === - timing vulnerable"
   remediation: "Use timingSafeEqual for HMAC verification"
   cwe: "CWE-208"
@@ -2570,7 +2797,8 @@
 - id: js-timing-attack-jwt
   languages: [javascript, typescript]
   patterns:
-    - regex: 'jwt\\.verify.*callback|jwt\\.verify.*return''severity: low
+    - regex: 'jwt\.verify.*callback|jwt\.verify.*return'
+  severity: low
   description: "JWT verification - library handles timing"
   remediation: "Use well-tested JWT libraries"
   cwe: "CWE-208"
@@ -2579,7 +2807,8 @@
 - id: js-timing-attack-sleep
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout|sleep''severity: low
+    - regex: 'setTimeout|sleep'
+  severity: low
   description: "Artificial delays - may indicate timing fix attempt"
   remediation: "Use constant-time algorithms instead of delays"
   cwe: "CWE-208"
@@ -2588,7 +2817,8 @@
 - id: js-timing-attack-early-return
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*[^)]+\\s*\\)\\s*return\\s+false''severity: medium
+    - regex: 'if\s*\(\s*[^)]+\s*\)\s*return\s+false'
+  severity: medium
   description: "Early returns in validation - timing leak"
   remediation: "Continue processing all conditions"
   cwe: "CWE-208"
@@ -2597,7 +2827,8 @@
 - id: js-timing-attack-match
   languages: [javascript, typescript]
   patterns:
-    - regex: 'String\\.prototype\\.match|RegExp\\.prototype\\.test''severity: medium
+    - regex: 'String\.prototype\.match|RegExp\.prototype\.test'
+  severity: medium
   description: "Regex matching times may vary by input"
   remediation: "Use constant-time validation or avoid regex for sensitive checks"
   cwe: "CWE-208"
@@ -2606,7 +2837,8 @@
 - id: js-timing-attack-index-of
   languages: [javascript, typescript]
   patterns:
-    - regex: 'indexOf|includes|startsWith|endsWith''severity: medium
+    - regex: 'indexOf|includes|startsWith|endsWith'
+  severity: medium
   description: "String search operations - timing may leak"
   remediation: "Use constant-time comparison for sensitive strings"
   cwe: "CWE-208"
@@ -2615,7 +2847,8 @@
 - id: js-timing-attack-error
   languages: [javascript, typescript]
   patterns:
-    - regex: 'throw\\s+new\\s+Error''severity: low
+    - regex: 'throw\s+new\s+Error'
+  severity: low
   description: "Error throwing times may leak information"
   remediation: "Use consistent error messages and paths"
   cwe: "CWE-208"
@@ -2624,7 +2857,8 @@
 - id: js-timing-attack-database
   languages: [javascript, typescript]
   patterns:
-    - regex: 'await\\s+db\\.findOne|await\\s+prisma\\.user''severity: medium
+    - regex: 'await\s+db\.findOne|await\s+prisma\.user'
+  severity: medium
   description: "Database query times may leak existence info"
   remediation: "Use consistent query patterns regardless of result"
   cwe: "CWE-208"
@@ -2633,7 +2867,8 @@
 - id: js-timing-attack-cache
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cache\\.get|cache\\.set''severity: medium
+    - regex: 'cache\.get|cache\.set'
+  severity: medium
   description: "Cache hits vs misses - timing difference"
   remediation: "Don't cache sensitive existence checks"
   cwe: "CWE-208"
@@ -2642,7 +2877,8 @@
 - id: js-timing-attack-network
   languages: [javascript, typescript]
   patterns:
-    - regex: 'fetch|axios|request''severity: low
+    - regex: 'fetch|axios|request'
+  severity: low
   description: "Network request times - external timing oracle"
   remediation: "Add jitter to sensitive request timing"
   cwe: "CWE-208"
@@ -2651,7 +2887,8 @@
 - id: js-timing-attack-constant-time-polyfill
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s+constantTimeCompare|function\\s+timingSafeEqual''severity: low
+    - regex: 'function\s+constantTimeCompare|function\s+timingSafeEqual'
+  severity: low
   description: "Custom constant-time comparison - may not be constant"
   remediation: "Use crypto.timingSafeEqual instead of custom implementation"
   cwe: "CWE-208"
@@ -2660,7 +2897,8 @@
 - id: js-timing-attack-array-every
   languages: [javascript, typescript]
   patterns:
-    - regex: 'every\\s*\\(\\s*\\(\\s*[^,]+,\\s*i\\s*\\)\\s*=>\\s*[^)]+\\[i\\]\\s*===\\s*[^)]+\\[i\\]''severity: high
+    - regex: 'every\s*\(\s*\(\s*[^,]+,\s*i\s*\)\s*=>\s*[^)]+\[i\]\s*===\s*[^)]+\[i\]'
+  severity: high
   description: "Array.every for comparison - short-circuits, not constant-time"
   remediation: "Use crypto.timingSafeEqual for array comparison"
   cwe: "CWE-208"
@@ -2671,7 +2909,8 @@
 - id: js-deserialize-eval
   languages: [javascript, typescript]
   patterns:
-    - regex: 'eval\\s*\\(\\s*[^)]*\\+''severity: critical
+    - regex: 'eval\s*\(\s*[^)]*\+'
+  severity: critical
   description: "Deserialization via eval - remote code execution"
   remediation: "Use JSON.parse for data, never eval"
   cwe: "CWE-502"
@@ -2680,7 +2919,8 @@
 - id: js-deserialize-node-serialize
   languages: [javascript, typescript]
   patterns:
-    - regex: '\.(?:unserialize|deserialize)\s*\(''severity: critical
+    - regex: '\.(?:unserialize|deserialize)\s*\('
+  severity: critical
   description: "node-serialize/unserialize usage - known RCE vulnerability"
   remediation: "Use JSON.stringify/parse instead"
   cwe: "CWE-502"
@@ -2689,7 +2929,8 @@
 - id: js-webhook-sig-bypass
   languages: [javascript, typescript]
   patterns:
-    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)[\s\S]{0,500}if\s*\([^)]*!==[\s\S]{0,100}console\.(?:log|error)[\s\S]{0,200}\.(?:unserialize|deserialize)''severity: critical
+    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)[\s\S]{0,500}if\s*\([^)]*!==[\s\S]{0,100}console\.(?:log|error)[\s\S]{0,200}\.(?:unserialize|deserialize)'
+  severity: critical
   description: "Potential signature bypass: Webhook signature mismatch is logged but execution continues into dangerous deserialization."
   remediation: "Ensure the process exits or returns immediately upon signature mismatch. Use 'return' or 'res.status(401).send()' after logging."
   cwe: "CWE-347"
@@ -2698,7 +2939,8 @@
 - id: js-deserialize-func
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*[^)]*\\}\\s*\\)''severity: high
+    - regex: 'JSON\.parse\s*\([^,]+,\s*[^)]*\}\s*\]'
+  severity: high
   description: "JSON.parse with reviver - may execute code"
   remediation: "Validate reviver doesn't execute code"
   cwe: "CWE-502"
@@ -2707,7 +2949,8 @@
 - id: js-deserialize-msgpack
   languages: [javascript, typescript]
   patterns:
-    - regex: 'msgpack\\.(decode|unpack)''severity: high
+    - regex: 'msgpack\.(decode|unpack)'
+  severity: high
   description: "MessagePack deserialization - code execution risk"
   remediation: "Use safe MessagePack implementation"
   cwe: "CWE-502"
@@ -2716,7 +2959,8 @@
 - id: js-deserialize-yaml
   languages: [javascript, typescript]
   patterns:
-    - regex: 'js-yaml\\.load\\s*\\(''severity: high
+    - regex: 'js-yaml\.load\s*\('
+  severity: high
   description: "YAML deserialization - code execution risk"
   remediation: "Use yaml.load with schema: yaml.CORE_SCHEMA"
   cwe: "CWE-502"
@@ -2725,7 +2969,8 @@
 - id: js-deserialize-xml
   languages: [javascript, typescript]
   patterns:
-    - regex: 'xml2js|fast-xml-parser|xml-js''severity: high
+    - regex: 'xml2js|fast-xml-parser|xml-js'
+  severity: high
   description: "XML deserialization - XXE, billion laughs"
   remediation: "Disable external entities, limit expansion"
   cwe: "CWE-502"
@@ -2734,7 +2979,8 @@
 - id: js-deserialize-bson
   languages: [javascript, typescript]
   patterns:
-    - regex: 'bson\\.deserialize''severity: high
+    - regex: 'bson\.deserialize'
+  severity: high
   description: "BSON deserialization - may be unsafe"
   remediation: "Validate BSON size before deserialization"
   cwe: "CWE-502"
@@ -2743,7 +2989,8 @@
 - id: js-deserialize-cbor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cbor\\.decode|cbor\\.parse''severity: high
+    - regex: 'cbor\.decode|cbor\.parse'
+  severity: high
   description: "CBOR deserialization - may be unsafe"
   remediation: "Use safe CBOR implementation"
   cwe: "CWE-502"
@@ -2752,7 +2999,8 @@
 - id: js-deserialize-proto
   languages: [javascript, typescript]
   patterns:
-    - regex: 'protobufjs\\.decode|ProtocolBuffer\\.decode''severity: medium
+    - regex: 'protobufjs\.decode|ProtocolBuffer\.decode'
+  severity: medium
   description: "Protocol Buffer deserialization"
   remediation: "Validate message schema"
   cwe: "CWE-502"
@@ -2761,7 +3009,8 @@
 - id: js-deserialize-avro
   languages: [javascript, typescript]
   patterns:
-    - regex: 'avsc\\.decode|avro\\.parse''severity: medium
+    - regex: 'avsc\.decode|avro\.parse'
+  severity: medium
   description: "Avro deserialization"
   remediation: "Validate schema compatibility"
   cwe: "CWE-502"
@@ -2770,7 +3019,8 @@
 - id: js-deserialize-thrift
   languages: [javascript, typescript]
   patterns:
-    - regex: 'thrift\\.read|Thrift\\.readStruct''severity: medium
+    - regex: 'thrift\.read|Thrift\.readStruct'
+  severity: medium
   description: "Thrift deserialization"
   remediation: "Validate message size"
   cwe: "CWE-502"
@@ -2779,7 +3029,8 @@
 - id: js-deserialize-json-bigint
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^)]+,\\s*.*BigInt''severity: medium
+    - regex: 'JSON\.parse\s*\([^)]+,\s*.*BigInt'
+  severity: medium
   description: "JSON.parse with BigInt - may lose precision"
   remediation: "Handle BigInts carefully in reviver"
   cwe: "CWE-20"
@@ -2788,7 +3039,8 @@
 - id: js-deserialize-json-stream
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSONStream\\.parse''severity: medium
+    - regex: 'JSONStream\.parse'
+  severity: medium
   description: "Streaming JSON parsing - may allow injection"
   remediation: "Validate stream chunks"
   cwe: "CWE-20"
@@ -2797,7 +3049,8 @@
 - id: js-deserialize-json5
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON5\\.parse''severity: medium
+    - regex: 'JSON5\.parse'
+  severity: medium
   description: "JSON5 parsing - more permissive than JSON"
   remediation: "Use standard JSON.parse when possible"
   cwe: "CWE-20"
@@ -2806,7 +3059,8 @@
 - id: js-deserialize-jsonc
   languages: [javascript, typescript]
   patterns:
-    - regex: 'jsonc-parser|json5\\.parse''severity: medium
+    - regex: 'jsonc-parser|json5\.parse'
+  severity: medium
   description: "JSON with comments parsing"
   remediation: "Strip comments before parsing"
   cwe: "CWE-20"
@@ -2815,7 +3069,8 @@
 - id: js-deserialize-replace
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^)]+\\s*\\)\\s*;\\s*//.*exec''severity: critical
+    - regex: 'JSON\.parse\s*\([^)]+\s*\)\s*;\s*//.*exec'
+  severity: critical
   description: "JSON.parse followed by code execution"
   remediation: "Never execute parsed code"
   cwe: "CWE-502"
@@ -2824,7 +3079,8 @@
 - id: js-deserialize-toml
   languages: [javascript, typescript]
   patterns:
-    - regex: 'toml\\.parse|@iarna/toml''severity: low
+    - regex: 'toml\.parse|@iarna/toml'
+  severity: low
   description: "TOML deserialization"
   remediation: "Validate TOML structure"
   cwe: "CWE-20"
@@ -2833,7 +3089,8 @@
 - id: js-deserialize-ini
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ini\\.parse''severity: medium
+    - regex: 'ini\.parse'
+  severity: medium
   description: "INI parsing - may allow injection"
   remediation: "Validate parsed keys"
   cwe: "CWE-20"
@@ -2842,7 +3099,8 @@
 - id: js-deserialize-csv
   languages: [javascript, typescript]
   patterns:
-    - regex: 'csv-parse|papaparse''severity: medium
+    - regex: 'csv-parse|papaparse'
+  severity: medium
   description: "CSV parsing - may allow injection"
   remediation: "Validate CSV structure, escape formulas"
   cwe: "CWE-20"
@@ -2851,7 +3109,8 @@
 - id: js-deserialize-formdata
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+FormData|form-data''severity: low
+    - regex: 'new\s+FormData|form-data'
+  severity: low
   description: "FormData parsing - file uploads"
   remediation: "Validate file sizes and types"
   cwe: "CWE-20"
@@ -2862,7 +3121,8 @@
 - id: js-mass-assignment-body
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Object\\.assign\\s*\\(\\s*[^,]+,\\s*req\\.body''severity: critical
+    - regex: 'Object\.assign\s*\(\s*[^,]+,\s*req\.body'
+  severity: critical
   description: "Mass assignment via Object.assign with request body"
   remediation: "Use pick/create with allowed fields only"
   cwe: "CWE-915"
@@ -2871,7 +3131,8 @@
 - id: js-mass-assignment-spread
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\{\\s*\\.\\.\\.req\\.body''severity: critical
+    - regex: '\{\s*\.\.\.req\.body'
+  severity: critical
   description: "Spread operator with request body - mass assignment"
   remediation: "Spread only allowed fields, not entire body"
   cwe: "CWE-915"
@@ -2880,7 +3141,8 @@
 - id: js-mass-assignment-model
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Model\\.(create|update|findOneAndUpdate)\\s*\\(\\s*req\\.body''severity: critical
+    - regex: 'Model\.(create|update|findOneAndUpdate)\s*\(\s*req\.body'
+  severity: critical
   description: "Database operation with entire request body"
   remediation: "Use DTOs to pick allowed fields"
   cwe: "CWE-915"
@@ -2889,7 +3151,8 @@
 - id: js-mass-assignment-query
   languages: [javascript, typescript]
   patterns:
-    - regex: 'db\\.collection\\.update\\s*\\(\\s*[^,]+,\\s*\\{\\s*\\$set\\s*:\\s*req\\.body''severity: critical
+    - regex: 'db\.collection\.update\s*\(\s*[^,]+,\s*\{\s*\$set\s*:\s*req\.body'
+  severity: critical
   description: "MongoDB update with entire request body - mass assignment"
   remediation: "Use $set with allowed fields only"
   cwe: "CWE-915"
@@ -2898,7 +3161,8 @@
 - id: js-mass-assignment-extend
   languages: [javascript, typescript]
   patterns:
-    - regex: 'extend|merge|assign|clone''severity: high
+    - regex: 'extend|merge|assign|clone'
+  severity: high
   description: "Object extension functions - mass assignment risk"
   remediation: "Use allowlist of properties"
   cwe: "CWE-915"
@@ -2907,7 +3171,8 @@
 - id: js-mass-assignment-role
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.body\\.(role|roles|admin|isAdmin|permissions)''severity: critical
+    - regex: 'req\.body\.(role|roles|admin|isAdmin|permissions)'
+  severity: critical
   description: "Request body contains role/permissions field - privilege escalation"
   remediation: "Never accept roles/permissions from client"
   cwe: "CWE-915"
@@ -2916,7 +3181,8 @@
 - id: js-mass-assignment-password
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.body\\.(password|passwd|pwd)''severity: high
+    - regex: 'req\.body\.(password|passwd|pwd)'
+  severity: high
   description: "Password field in request body - ensure proper handling"
   remediation: "Hash password, never store plaintext"
   cwe: "CWE-915"
@@ -2925,7 +3191,8 @@
 - id: js-mass-assignment-id
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.body\\.(id|_id|userId)''severity: high
+    - regex: 'req\.body\.(id|_id|userId)'
+  severity: high
   description: "ID field in request body - IDOR risk"
   remediation: "Never trust client-side IDs"
   cwe: "CWE-639"
@@ -2934,7 +3201,8 @@
 - id: js-mass-assignment-price
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.body\\.(price|amount|total|balance)''severity: critical
+    - regex: 'req\.body\.(price|amount|total|balance)'
+  severity: critical
   description: "Price/amount field in request body - financial fraud"
   remediation: "Never accept price from client"
   cwe: "CWE-915"
@@ -2943,7 +3211,8 @@
 - id: js-mass-assignment-status
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.body\\.(status|state|isActive)''severity: high
+    - regex: 'req\.body\.(status|state|isActive)'
+  severity: high
   description: "Status field in request body - state manipulation"
   remediation: "Validate state transitions server-side"
   cwe: "CWE-915"
@@ -2952,7 +3221,8 @@
 - id: js-mass-assignment-array
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.body\\.\\[.*\\]|req\\.body\\[.*\\]''severity: high
+    - regex: 'req\.body\.\[.*\]|req\.body\[.*\]'
+  severity: high
   description: "Array/object properties in request body - nested assignment"
   remediation: "Validate nested object structures"
   cwe: "CWE-915"
@@ -2961,7 +3231,8 @@
 - id: js-mass-assignment-pick
   languages: [javascript, typescript]
   patterns:
-    - regex: 'pick\\s*\\([^,]+,\\s*\\[.*\\]\\)''severity: low
+    - regex: 'pick\s*\([^,]+,\s*\[.*\]\)'
+  severity: low
   description: "Pick function - good for allowlisting"
   remediation: "Continue using pick for allowed fields"
   cwe: "CWE-915"
@@ -2970,7 +3241,8 @@
 - id: js-mass-assignment-omit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'omit\\s*\\([^,]+,\\s*\\[.*\\]\\)''severity: medium
+    - regex: 'omit\s*\([^,]+,\s*\[.*\]\)'
+  severity: medium
   description: "Omit function - blocklist approach (less safe)"
   remediation: "Use pick (allowlist) instead of omit (blocklist)"
   cwe: "CWE-915"
@@ -2979,7 +3251,8 @@
 - id: js-mass-assignment-validate
   languages: [javascript, typescript]
   patterns:
-    - regex: 'validate\\s*\\(\\s*req\\.body''severity: low
+    - regex: 'validate\s*\(\s*req\.body'
+  severity: low
   description: "Validating request body - good practice"
   remediation: "Continue using validation libraries"
   cwe: "CWE-915"
@@ -2988,7 +3261,8 @@
 - id: js-mass-assignment-dto
   languages: [javascript, typescript]
   patterns:
-    - regex: 'class\\s+\\w+Dto|@IsString''severity: low
+    - regex: 'class\s+\w+Dto|@IsString'
+  severity: low
   description: "DTO class usage - good for mass assignment prevention"
   remediation: "Use DTOs for all request bodies"
   cwe: "CWE-915"
@@ -2997,7 +3271,8 @@
 - id: js-mass-assignment-graphql
   languages: [javascript, typescript]
   patterns:
-    - regex: 'args:\\s*\\{[^}]*\\}\\s*,\\s*ctx|args\\s*,\\s*context''severity: medium
+    - regex: 'args:\s*\{[^}]*\}\s*,\s*ctx|args\s*,\s*context'
+  severity: medium
   description: "GraphQL resolver with args - check for mass assignment"
   remediation: "Use input types with validation"
   cwe: "CWE-915"
@@ -3006,7 +3281,8 @@
 - id: js-mass-assignment-array-map
   languages: [javascript, typescript]
   patterns:
-    - regex: 'map\\s*\\(\\s*\\w+\\s*=>\\s*\\{\\s*return\\s*\\w+''severity: medium
+    - regex: 'map\s*\(\s*\w+\s*=>\s*\{\s*return\s*\w+'
+  severity: medium
   description: "Array mapping without field filtering - may expose all fields"
   remediation: "Map only allowed fields"
   cwe: "CWE-200"
@@ -3015,7 +3291,8 @@
 - id: js-mass-assignment-json-stringify
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.stringify\\s*\\(\\s*req\\.body''severity: medium
+    - regex: 'JSON\.stringify\s*\(\s*req\.body'
+  severity: medium
   description: "Stringifying request body - may log sensitive data"
   remediation: "Redact sensitive fields before stringifying"
   cwe: "CWE-532"
@@ -3024,7 +3301,8 @@
 - id: js-mass-assignment-console
   languages: [javascript, typescript]
   patterns:
-    - regex: 'console\\.log\\s*\\(\\s*req\\.body''severity: high
+    - regex: 'console\.log\s*\(\s*req\.body'
+  severity: high
   description: "Logging request body - sensitive data exposure"
   remediation: "Never log entire request body"
   cwe: "CWE-532"
@@ -3033,7 +3311,8 @@
 - id: js-mass-assignment-form
   languages: [javascript, typescript]
   patterns:
-    - regex: 'req\\.body\\s*\\|\\|\\s*req\\.query\\s*\\|\\|\\s*req\\.params''severity: medium
+    - regex: 'req\.body\s*\|\|\s*req\.query\s*\|\|\s*req\.params'
+  severity: medium
   description: "Combining multiple request sources - increased attack surface"
   remediation: "Validate each source separately"
   cwe: "CWE-20"
@@ -3044,7 +3323,7 @@
 - id: js-cors-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['''\"]\\*[''\"]'
+    - regex: 'cors\s*\(\s*\{[^}]*origin\s*:\s*[''\\\"]\*[''\\\"]'
   severity: medium
   description: "CORS with wildcard origin - allows any site to access"
   remediation: "Specify exact allowed origins"
@@ -3054,7 +3333,7 @@
 - id: js-cors-credentials-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['''\"]\\*[''\"][^}]*credentials\\s*:\\s*true'
+    - regex: 'cors\s*\(\s*\{[^}]*origin\s*:\s*[''\\\"]\*[''\\\"][^}]*credentials\s*:\s*true'
   severity: medium
   description: "CORS wildcard with credentials - completely insecure"
   remediation: "Never combine credentials:true with wildcard origin"
@@ -3064,7 +3343,8 @@
 - id: js-cors-reflect-origin
   languages: [javascript, typescript]
   patterns:
-    - regex: 'origin\\s*:\\s*req\\.headers\\.origin''severity: medium
+    - regex: 'origin\s*:\s*req\.headers\.origin'
+  severity: medium
   description: "CORS reflecting origin header - allows any origin"
   remediation: "Validate origin against allowlist before reflecting"
   cwe: "CWE-942"
@@ -3073,7 +3353,7 @@
 - id: js-cors-methods-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'methods:\\s*\\[\\s*['''\"]\\*[''\"]\\s*\\]'
+    - regex: 'methods:\s*\[\s*[''\\\"]\*[''\\\"]\s*\]'
   severity: high
   description: "CORS allows all HTTP methods"
   remediation: "Specify required methods only (GET, POST, etc.)"
@@ -3083,7 +3363,7 @@
 - id: js-cors-headers-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'allowedHeaders:\\s*\\[\\s*['''\"]\\*[''\"]\\s*\\]'
+    - regex: 'allowedHeaders:\s*\[\s*[''\\\"]\*[''\\\"]\s*\]'
   severity: high
   description: "CORS allows all headers"
   remediation: "Specify required headers only"
@@ -3093,7 +3373,7 @@
 - id: js-cors-expose-all
   languages: [javascript, typescript]
   patterns:
-    - regex: 'exposedHeaders:\\s*\\[\\s*['''\"]\\*[''\"]\\s*\\]'
+    - regex: 'exposedHeaders:\s*\[\s*[''\\\"]\*[''\\\"]\s*\]'
   severity: high
   description: "CORS exposes all headers to client"
   remediation: "Expose only necessary headers"
@@ -3103,7 +3383,8 @@
 - id: js-cors-max-age-long
   languages: [javascript, typescript]
   patterns:
-    - regex: 'maxAge:\\s*[6-9]\\d{5,}''severity: low
+    - regex: 'maxAge:\s*[6-9]\d{5,}'
+  severity: low
   description: "CORS preflight cache too long (hours/days)"
   remediation: "Set reasonable maxAge (e.g., 600 seconds)"
   cwe: "CWE-942"
@@ -3112,7 +3393,8 @@
 - id: js-helmet-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'app\\.use\\s*\\(\\s*helmet''severity: low
+    - regex: 'app\.use\s*\(\s*helmet'
+  severity: low
   description: "Helmet.js used - good for security headers"
   remediation: "Good practice, ensure all middleware applied early"
   cwe: "CWE-693"
@@ -3121,7 +3403,8 @@
 - id: js-hsts-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Strict-Transport-Security''severity: high
+    - regex: 'Strict-Transport-Security'
+  severity: high
   description: "HSTS header missing - SSL stripping risk"
   remediation: "Add Strict-Transport-Security header with long max-age"
   cwe: "CWE-319"
@@ -3130,7 +3413,8 @@
 - id: js-xfo-deny
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-Frame-Options:\\s*DENY''severity: low
+    - regex: 'X-Frame-Options:\s*DENY'
+  severity: low
   description: "X-Frame-Options: DENY - prevents clickjacking"
   remediation: "Good practice"
   cwe: "CWE-1021"
@@ -3139,7 +3423,8 @@
 - id: js-xfo-allowall
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-Frame-Options:\\s*ALLOWALL''severity: critical
+    - regex: 'X-Frame-Options:\s*ALLOWALL'
+  severity: critical
   description: "X-Frame-Options: ALLOWALL - clickjacking vulnerability"
   remediation: "Set to DENY or SAMEORIGIN"
   cwe: "CWE-1021"
@@ -3148,7 +3433,8 @@
 - id: js-csp-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Content-Security-Policy''severity: high
+    - regex: 'Content-Security-Policy'
+  severity: high
   description: "CSP header missing - XSS protection absent"
   remediation: "Add CSP header with strict policy"
   cwe: "CWE-79"
@@ -3157,7 +3443,7 @@
 - id: js-csp-unsafe-inline
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script-src[^;]*'''unsafe-inline'''
+    - regex: 'script-src[^;]*''unsafe-inline'''
   severity: high
   description: "CSP allows unsafe-inline - defeats XSS protection"
   remediation: "Use nonces or hashes for inline scripts"
@@ -3167,7 +3453,7 @@
 - id: js-csp-unsafe-eval
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script-src[^;]*'''unsafe-eval'''
+    - regex: 'script-src[^;]*''unsafe-eval'''
   severity: high
   description: "CSP allows unsafe-eval - eval() allowed"
   remediation: "Remove 'unsafe-eval' from script-src"
@@ -3177,7 +3463,8 @@
 - id: js-csp-wildcard
   languages: [javascript, typescript]
   patterns:
-    - regex: 'default-src\\s+\\*|script-src\\s+\\*''severity: high
+    - regex: 'default-src\s+\*|script-src\s+\*'
+  severity: high
   description: "CSP with wildcard - ineffective"
   remediation: "Restrict sources to specific domains"
   cwe: "CWE-79"
@@ -3186,7 +3473,8 @@
 - id: js-csp-data-uri
   languages: [javascript, typescript]
   patterns:
-    - regex: 'script-src[^;]*data:''severity: high
+    - regex: 'script-src[^;]*data:'
+  severity: high
   description: "CSP allows data: URIs for scripts - XSS risk"
   remediation: "Remove data: from script-src"
   cwe: "CWE-79"
@@ -3195,7 +3483,8 @@
 - id: js-csp-report-uri
   languages: [javascript, typescript]
   patterns:
-    - regex: 'report-uri|report-to''severity: low
+    - regex: 'report-uri|report-to'
+  severity: low
   description: "CSP reporting configured - good for monitoring"
   remediation: "Continue using CSP reporting"
   cwe: "CWE-79"
@@ -3204,7 +3493,8 @@
 - id: js-referrer-policy-unsafe
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Referrer-Policy:\\s*(unsafe-url|origin-when-cross-origin)''severity: high
+    - regex: 'Referrer-Policy:\s*(unsafe-url|origin-when-cross-origin)'
+  severity: high
   description: "Permissive referrer policy - leaks URL information"
   remediation: "Use strict-origin-when-cross-origin or no-referrer"
   cwe: "CWE-200"
@@ -3213,7 +3503,8 @@
 - id: js-permissions-policy
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Permissions-Policy|Feature-Policy''severity: low
+    - regex: 'Permissions-Policy|Feature-Policy'
+  severity: low
   description: "Permissions/Feature Policy configured"
   remediation: "Disable unused features"
   cwe: "CWE-693"
@@ -3222,7 +3513,8 @@
 - id: js-xcto-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'X-Content-Type-Options''severity: medium
+    - regex: 'X-Content-Type-Options'
+  severity: medium
   description: "X-Content-Type-Options header missing"
   remediation: "Set X-Content-Type-Options: nosniff"
   cwe: "CWE-79"
@@ -3233,7 +3525,8 @@
 - id: js-json-parse-large
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*req\\.body''severity: medium
+    - regex: 'JSON\.parse\s*\(\s*req\.body'
+  severity: medium
   description: "Parsing request body without size limit - memory DoS"
   remediation: "Limit incoming JSON size with body-parser options"
   cwe: "CWE-770"
@@ -3242,7 +3535,8 @@
 - id: js-json-parse-sync
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*.*\\s*\\)\\s*;\\s*JSON\\.parse''severity: low
+    - regex: 'JSON\.parse\s*\(\s*.*\s*\)\s*;\s*JSON\.parse'
+  severity: low
   description: "Multiple JSON.parse calls - performance issue"
   remediation: "Parse once and reuse"
   cwe: "CWE-400"
@@ -3251,7 +3545,8 @@
 - id: js-json-parse-try-catch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^)]*\\)''severity: high
+    - regex: 'JSON\.parse\s*\([^)]*\]'
+  severity: high
   description: "JSON.parse without try/catch - may crash on malformed JSON"
   remediation: "Wrap JSON.parse in try/catch"
   cwe: "CWE-754"
@@ -3260,7 +3555,8 @@
 - id: js-json-stringify-large
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.stringify\\s*\\(\\s*[^,]+,\\s*null,\\s*\\d{3,}''severity: low
+    - regex: 'JSON\.stringify\s*\(\s*[^,]+,\s*null,\s*\d{3,}'
+  severity: low
   description: "Large JSON.stringify indentation - memory waste"
   remediation: "Use 0 or 2 spaces for indentation"
   cwe: "CWE-770"
@@ -3269,7 +3565,8 @@
 - id: js-json-stringify-replacer
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.stringify\\s*\\([^,]+,\\s*[^)]*password''severity: high
+    - regex: 'JSON\.stringify\s*\([^,]+,\s*[^)]*password'
+  severity: high
   description: "JSON.stringify without replacer may expose sensitive fields"
   remediation: "Use replacer function to redact sensitive data"
   cwe: "CWE-200"
@@ -3278,7 +3575,8 @@
 - id: js-json-parse-reviver-code
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*function\\s*\\([^)]*\\)\\s*\\{[^}]*eval''severity: critical
+    - regex: 'JSON\.parse\s*\([^,]+,\s*function\s*\([^)]*\)\s*\{[^}]*eval'
+  severity: critical
   description: "JSON.parse reviver using eval - code injection"
   remediation: "Never use eval in reviver function"
   cwe: "CWE-94"
@@ -3287,7 +3585,8 @@
 - id: js-json-parse-bigint
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*function\\s*\\([^)]*\\)\\s*\\{[^}]*BigInt''severity: low
+    - regex: 'JSON\.parse\s*\([^,]+,\s*function\s*\([^)]*\)\s*\{[^}]*BigInt'
+  severity: low
   description: "JSON.parse with BigInt handling"
   remediation: "Ensure BigInt handling doesn't lose precision"
   cwe: "CWE-20"
@@ -3296,7 +3595,8 @@
 - id: js-json-parse-date
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*function\\s*\\([^)]*\\)\\s*\\{[^}]*new\\s+Date''severity: low
+    - regex: 'JSON\.parse\s*\([^,]+,\s*function\s*\([^)]*\)\s*\{[^}]*new\s+Date'
+  severity: low
   description: "JSON.parse converting strings to dates"
   remediation: "Validate date strings before conversion"
   cwe: "CWE-20"
@@ -3305,7 +3605,8 @@
 - id: js-json-parse-regex
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*function\\s*\\([^)]*\\)\\s*\\{[^}]*new\\s+RegExp''severity: high
+    - regex: 'JSON\.parse\s*\([^,]+,\s*function\s*\([^)]*\)\s*\{[^}]*new\s+RegExp'
+  severity: high
   description: "JSON.parse creating RegExp from strings - ReDoS risk"
   remediation: "Avoid creating regex from parsed strings"
   cwe: "CWE-1333"
@@ -3314,7 +3615,8 @@
 - id: js-json-parse-function
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^,]+,\\s*function\\s*\\([^)]*\\)\\s*\\{[^}]*new\\s+Function''severity: critical
+    - regex: 'JSON\.parse\s*\([^,]+,\s*function\s*\([^)]*\)\s*\{[^}]*new\s+Function'
+  severity: critical
   description: "JSON.parse creating functions - code injection"
   remediation: "Never create functions from parsed data"
   cwe: "CWE-94"
@@ -3323,7 +3625,8 @@
 - id: js-json-parse-proto
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^)]*\\)\\s*;\\s*.*__proto__''severity: high
+    - regex: 'JSON\.parse\s*\([^)]*\)\s*;\s*.*__proto__'
+  severity: high
   description: "JSON.parse with __proto__ - prototype pollution"
   remediation: "Use Object.create(null) or filter __proto__"
   cwe: "CWE-1321"
@@ -3332,7 +3635,8 @@
 - id: js-json-parse-constructor
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\([^)]*\\)\\s*;\\s*.*constructor''severity: high
+    - regex: 'JSON\.parse\s*\([^)]*\)\s*;\s*.*constructor'
+  severity: high
   description: "JSON.parse with constructor property - prototype pollution"
   remediation: "Filter constructor property after parsing"
   cwe: "CWE-1321"
@@ -3341,7 +3645,8 @@
 - id: js-json-parse-length
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*JSON\\.stringify''severity: low
+    - regex: 'JSON\.parse\s*\(\s*JSON\.stringify'
+  severity: low
   description: "JSON.parse(JSON.stringify()) for deep clone"
   remediation: "Use structuredClone for modern environments"
   cwe: "CWE-20"
@@ -3350,7 +3655,8 @@
 - id: js-json-schema-validation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'ajv\\.validate|zod\\.parse|yup\\.validate''severity: low
+    - regex: 'ajv\.validate|zod\.parse|yup\.validate'
+  severity: low
   description: "JSON schema validation - good practice"
   remediation: "Continue using schema validation"
   cwe: "CWE-20"
@@ -3359,7 +3665,8 @@
 - id: js-json-schema-missing
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*req\\.body''severity: high
+    - regex: 'JSON\.parse\s*\(\s*req\.body'
+  severity: high
   description: "JSON.parse without schema validation"
   remediation: "Validate parsed JSON against schema"
   cwe: "CWE-20"
@@ -3368,7 +3675,8 @@
 - id: js-json-parse-recursive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s+parseJSON\\s*\\([^)]*\\)\\s*\\{[^}]*JSON\\.parse\\s*\\([^)]*\\)''severity: low
+    - regex: 'function\s+parseJSON\s*\([^)]*\)\s*\{[^}]*JSON\.parse\s*\([^)]*\]'
+  severity: low
   description: "Custom recursive JSON parser - may be insecure"
   remediation: "Use native JSON.parse"
   cwe: "CWE-20"
@@ -3377,7 +3685,8 @@
 - id: js-json-escape
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\x20|\\x09|\\x0A|\\x0D''severity: low
+    - regex: '\x20|\x09|\x0A|\x0D'
+  severity: low
   description: "Manual JSON escaping - error-prone"
   remediation: "Use JSON.stringify for proper escaping"
   cwe: "CWE-20"
@@ -3386,7 +3695,8 @@
 - id: js-json-stringify-circular
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.stringify\\s*\\([^,]+,\\s*null\\s*,\\s*\\d+\\)''severity: low
+    - regex: 'JSON\.stringify\s*\([^,]+,\s*null\s*,\s*\d+\)'
+  severity: low
   description: "JSON.stringify on circular object - will throw"
   remediation: "Use replacer function to handle circular references"
   cwe: "CWE-754"
@@ -3395,7 +3705,7 @@
 - id: js-json-parse-unicode
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*['''\"]\\\\u[0-9a-f]{4}'
+    - regex: 'JSON\.parse\s*\(\s*[''\\\"]\\u[0-9a-f]{4}'
   severity: low
   description: "Parsing JSON with unicode escapes"
   remediation: "JSON handles unicode natively"
@@ -3405,7 +3715,8 @@
 - id: js-json-parse-bom
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*req\\.body\\.replace\\(/^\\uFEFF/''severity: low
+    - regex: 'JSON\.parse\s*\(\s*req\.body\.replace\(/^\xEF\xBB\xBF/'
+  severity: low
   description: "Removing BOM before JSON.parse - good practice"
   remediation: "Good practice for handling UTF-8 BOM"
   cwe: "CWE-20"
@@ -3416,7 +3727,8 @@
 - id: js-error-sensitive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Error\\s*\\(\\s*[^)]*(?:password|token|key|secret)''severity: medium
+    - regex: 'new\s+Error\s*\(\s*[^)]*(?:password|token|key|secret)'
+  severity: medium
   description: "Error message contains sensitive data"
   remediation: "Never include secrets in error messages"
   cwe: "CWE-209"
@@ -3425,7 +3737,8 @@
 - id: js-error-stack-trace
   languages: [javascript, typescript]
   patterns:
-    - regex: 'console\\.error\\(.*err\\.stack|console\\.log\\(.*err\\.stack''severity: high
+    - regex: 'console\.error\(.*err\.stack|console\.log\(.*err\.stack'
+  severity: high
   description: "Logging stack trace may expose internal details"
   remediation: "Log error messages, not stack traces in production"
   cwe: "CWE-209"
@@ -3434,7 +3747,8 @@
 - id: js-error-try-catch-empty
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch\\s*\\([^)]*\\)\\s*\\{[^}]*\\}''severity: high
+    - regex: 'catch\s*\([^)]*\)\s*\{[^}]*\}'
+  severity: high
   description: "Empty catch block - ignores errors"
   remediation: "Handle errors appropriately, at least log them"
   cwe: "CWE-754"
@@ -3443,7 +3757,8 @@
 - id: js-error-try-catch-next
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch\\s*\\([^)]*\\)\\s*\\{[^}]*next\\s*\\(\\s*err\\s*\\)''severity: low
+    - regex: 'catch\s*\([^)]*\)\s*\{[^}]*next\s*\(\s*err\s*\]'
+  severity: low
   description: "Express error handling via next(err) - good practice"
   remediation: "Continue using error handling middleware"
   cwe: "CWE-754"
@@ -3452,7 +3767,8 @@
 - id: js-error-try-catch-throw
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch\\s*\\([^)]*\\)\\s*\\{[^}]*throw''severity: medium
+    - regex: 'catch\s*\([^)]*\)\s*\{[^}]*throw'
+  severity: medium
   description: "Rethrowing errors - may expose internal details"
   remediation: "Convert to generic error before throwing"
   cwe: "CWE-209"
@@ -3461,7 +3777,8 @@
 - id: js-error-console-prod
   languages: [javascript, typescript]
   patterns:
-    - regex: 'console\\.(log|debug|info|warn|error)''severity: medium
+    - regex: 'console\.(log|debug|info|warn|error)'
+  severity: medium
   description: "Console logging in production - may expose sensitive data"
   remediation: "Remove console logs in production or use proper logging"
   cwe: "CWE-532"
@@ -3470,7 +3787,8 @@
 - id: js-error-client-info
   languages: [javascript, typescript]
   patterns:
-    - regex: 'res\\.status\\(\\d+\\)\\.json\\(.*err.*message''severity: high
+    - regex: 'res\.status\(\d+\)\.json\(.*err.*message'
+  severity: high
   description: "Sending error details to client - information leak"
   remediation: "Send generic error messages, log details server-side"
   cwe: "CWE-209"
@@ -3479,7 +3797,7 @@
 - id: js-error-500-generic
   languages: [javascript, typescript]
   patterns:
-    - regex: 'res\\.status\\(500\\)\\.send\\s*\\(\\s*['''\"]Internal Server Error'
+    - regex: 'res\.status\(500\)\.send\s*\(\s*[''\\\"]Internal Server Error'
   severity: low
   description: "Generic 500 error - good practice"
   remediation: "Continue using generic error messages"
@@ -3489,7 +3807,8 @@
 - id: js-error-db-query
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch\\s*\\([^)]*\\)\\s*\\{[^}]*SELECT|INSERT|UPDATE|DELETE''severity: medium
+    - regex: 'catch\s*\([^)]*\)\s*\{[^}]*SELECT|INSERT|UPDATE|DELETE'
+  severity: medium
   description: "Error handler contains SQL - may leak query structure"
   remediation: "Don't include SQL in error handlers"
   cwe: "CWE-209"
@@ -3498,7 +3817,8 @@
 - id: js-error-file-path
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch\\s*\\([^)]*\\)\\s*\\{[^}]*fs\\.|path\\.''severity: medium
+    - regex: 'catch\s*\([^)]*\)\s*\{[^}]*fs\.|path\.'
+  severity: medium
   description: "Error handler contains file system operations"
   remediation: "Keep error handlers simple, don't add complex logic"
   cwe: "CWE-754"
@@ -3507,7 +3827,8 @@
 - id: js-error-network
   languages: [javascript, typescript]
   patterns:
-    - regex: 'catch\\s*\\([^)]*\\)\\s*\\{[^}]*axios|fetch|request''severity: medium
+    - regex: 'catch\s*\([^)]*\)\s*\{[^}]*axios|fetch|request'
+  severity: medium
   description: "Error handler making network requests - may leak errors"
   remediation: "Avoid network calls in error handlers"
   cwe: "CWE-754"
@@ -3516,7 +3837,8 @@
 - id: js-error-async-no-catch
   languages: [javascript, typescript]
   patterns:
-    - regex: 'async\\s+function\\s+\\w+\\s*\\([^)]*\\)\\s*\\{[^}]*(?:await\\s+\\w+)''severity: high
+    - regex: 'async\s+function\s+\w+\s*\([^)]*\)\s*\{[^}]*(?:await\s+\w+)'
+  severity: high
   description: "Async function with await but no try/catch"
   remediation: "Wrap async operations in try/catch"
   cwe: "CWE-754"
@@ -3525,7 +3847,8 @@
 - id: js-error-promise-no-catch
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\.then\\s*\\([^)]*\\)''severity: high
+    - regex: '\.then\s*\([^)]*\]'
+  severity: high
   description: "Promise chain without catch - unhandled rejections"
   remediation: "Always add .catch() to promises"
   cwe: "CWE-754"
@@ -3534,7 +3857,7 @@
 - id: js-error-domain
   languages: [javascript, typescript]
   patterns:
-    - regex: 'domain\\.on\\s*\\(\\s*['''\"]error[''\"]'
+    - regex: 'domain\.on\s*\(\s*[''\\\"]error[''\\\"]'
   severity: low
   description: "Domain error handling (deprecated)"
   remediation: "Use process.on('uncaughtException')"
@@ -3544,7 +3867,8 @@
 - id: js-error-process-exit
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.exit\\s*\\(\\s*\\d+\\s*\\)''severity: high
+    - regex: 'process\.exit\s*\(\s*\d+\s*\)'
+  severity: high
   description: "Process.exit in error handler - may prevent cleanup"
   remediation: "Let process exit naturally after cleanup"
   cwe: "CWE-754"
@@ -3553,7 +3877,7 @@
 - id: js-error-event-emitter
   languages: [javascript, typescript]
   patterns:
-    - regex: 'EventEmitter.*on\\s*\\(\\s*['''\"]error[''\"]'
+    - regex: 'EventEmitter.*on\s*\(\s*[''\\\"]error[''\\\"]'
   severity: low
   description: "EventEmitter error handler"
   remediation: "Always handle error events"
@@ -3563,7 +3887,7 @@
 - id: js-error-global
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['''\"]uncaughtException[''\"]'
+    - regex: 'process\.on\s*\(\s*[''\\\"]uncaughtException[''\\\"]'
   severity: medium
   description: "Global uncaught exception handler"
   remediation: "Log error and exit gracefully"
@@ -3573,7 +3897,7 @@
 - id: js-error-unhandled-rejection
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['''\"]unhandledRejection[''\"]'
+    - regex: 'process\.on\s*\(\s*[''\\\"]unhandledRejection[''\\\"]'
   severity: medium
   description: "Unhandled promise rejection handler"
   remediation: "Handle rejections properly at source"
@@ -3583,7 +3907,7 @@
 - id: js-error-warning
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['''\"]warning[''\"]'
+    - regex: 'process\.on\s*\(\s*[''\\\"]warning[''\\\"]'
   severity: low
   description: "Warning event handler"
   remediation: "Monitor warnings for potential issues"
@@ -3593,7 +3917,7 @@
 - id: js-error-sigterm
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.on\\s*\\(\\s*['''\"]SIGTERM[''\"]'
+    - regex: 'process\.on\s*\(\s*[''\\\"]SIGTERM[''\\\"]'
   severity: low
   description: "SIGTERM handler - graceful shutdown"
   remediation: "Implement graceful shutdown"
@@ -3605,7 +3929,7 @@
 - id: js-env-hardcoded
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.[^\\s]+\\s*=\\s*['''\"][^''\"]+[''\"]'
+    - regex: 'process\.env\.[^\s]+\s*=\s*[''\\\"][^''\\\"]+[''\\\"]'
   severity: critical
   description: "Hardcoding environment variable - should use .env"
   remediation: "Use .env file and never commit secrets"
@@ -3615,7 +3939,7 @@
 - id: js-env-default-fallback
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.[^\\s]+\\s*\\|\\|\\s*['''\"][^''\"]+[''\"]'
+    - regex: 'process\.env\.[^\s]+\s*\|\|\s*[''\\"][^''\\"]+[''\\"]'
   severity: high
   description: "Fallback value for environment variable - may hide missing config"
   remediation: "Throw error if required env var missing"
@@ -3625,7 +3949,8 @@
 - id: js-env-missing-validation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.\\w+''severity: medium
+    - regex: 'process\.env\.\w+'
+  severity: medium
   description: "Environment variable used without validation"
   remediation: "Validate required env vars at startup"
   cwe: "CWE-20"
@@ -3634,7 +3959,8 @@
 - id: js-env-type-coercion
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Number\\s*\\(\\s*process\\.env\\.[^)]+\\)|parseInt\\s*\\(\\s*process\\.env\\.''severity: low
+    - regex: 'Number\s*\(\s*process\.env\.[^)]+\)|parseInt\s*\(\s*process\.env\.'
+  severity: low
   description: "Environment variable type coercion - may produce NaN"
   remediation: "Validate number env vars with isNaN check"
   cwe: "CWE-20"
@@ -3643,7 +3969,7 @@
 - id: js-env-boolean
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.[^\\s]+\\s*===\\s*['''\"]true[''\"]'
+    - regex: 'process\.env\.[^\s]+\s*===\s*[''\\\"]true[''\\\"]'
   severity: low
   description: "Boolean environment variable check"
   remediation: "Use ['true', '1'].includes(process.env.VAR)"
@@ -3653,7 +3979,8 @@
 - id: js-env-logging
   languages: [javascript, typescript]
   patterns:
-    - regex: 'console\\.(log|debug|info)\\s*\\([^)]*process\\.env''severity: critical
+    - regex: 'console\.(log|debug|info)\s*\([^)]*process\.env'
+  severity: critical
   description: "Logging environment variables - exposes secrets"
   remediation: "Never log environment variables"
   cwe: "CWE-532"
@@ -3662,7 +3989,7 @@
 - id: js-env-dotenv
   languages: [javascript, typescript]
   patterns:
-    - regex: 'require\\s*\\(\\s*['''\"]dotenv[''\"]\\)\\.config'
+    - regex: 'require\s*\(\s*[''\\\"]dotenv[''\\\"]\)\.config'
   severity: low
   description: "dotenv configuration - ensure .env not committed"
   remediation: "Add .env to .gitignore"
@@ -3672,7 +3999,8 @@
 - id: js-env-path
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.(PATH|HOME|USER|USERNAME|HOSTNAME)''severity: low
+    - regex: 'process\.env\.(PATH|HOME|USER|USERNAME|HOSTNAME)'
+  severity: low
   description: "Accessing system environment variables"
   remediation: "Be careful with system env exposure"
   cwe: "CWE-200"
@@ -3681,7 +4009,8 @@
 - id: js-env-json
   languages: [javascript, typescript]
   patterns:
-    - regex: 'JSON\\.parse\\s*\\(\\s*process\\.env\\.[^)]+\\)''severity: medium
+    - regex: 'JSON\.parse\s*\(\s*process\.env\.[^)]+\]'
+  severity: medium
   description: "Parsing JSON from environment variable"
   remediation: "Validate JSON structure after parsing"
   cwe: "CWE-20"
@@ -3690,7 +4019,7 @@
 - id: js-env-base64
   languages: [javascript, typescript]
   patterns:
-    - regex: 'Buffer\\.from\\s*\\(\\s*process\\.env\\.[^,]+,\\s*['''\"]base64[''\"]\\)'
+    - regex: 'Buffer\.from\s*\(\s*process\.env\.[^,]+,\s*[''\\\"]base64[''\\\"]\)'
   severity: medium
   description: "Base64 decoding environment variable"
   remediation: "Ensure base64 env var is properly formatted"
@@ -3700,7 +4029,8 @@
 - id: js-env-required-check
   languages: [javascript, typescript]
   patterns:
-    - regex: 'if\\s*\\(\\s*!process\\.env\\.\\w+\\s*\\)\\s*throw''severity: low
+    - regex: 'if\s*\(\s*!process\.env\.\w+\s*\)\s*throw'
+  severity: low
   description: "Checking required environment variables - good practice"
   remediation: "Continue validating required env vars"
   cwe: "CWE-20"
@@ -3709,7 +4039,7 @@
 - id: js-env-development
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*['''\"]development[''\"]'
+    - regex: 'process\.env\.NODE_ENV\s*===\s*[''\\\"]development[''\\\"]'
   severity: low
   description: "Development environment check"
   remediation: "Use for conditional development code"
@@ -3719,7 +4049,7 @@
 - id: js-env-production
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*['''\"]production[''\"]'
+    - regex: 'process\.env\.NODE_ENV\s*===\s*[''\\\"]production[''\\\"]'
   severity: low
   description: "Production environment check"
   remediation: "Use for conditional production code"
@@ -3729,7 +4059,7 @@
 - id: js-env-test
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.NODE_ENV\\s*===\\s*['''\"]test[''\"]'
+    - regex: 'process\.env\.NODE_ENV\s*===\s*[''\\\"]test[''\\\"]'
   severity: low
   description: "Test environment check"
   remediation: "Use for conditional test code"
@@ -3739,7 +4069,8 @@
 - id: js-env-schema
   languages: [javascript, typescript]
   patterns:
-    - regex: 'z\\.object\\s*\\(\\s*\\{[^}]*process\\.env''severity: low
+    - regex: 'z\.object\s*\(\s*\{[^}]*process\.env'
+  severity: low
   description: "Schema validation of environment variables - good practice"
   remediation: "Continue using env validation libraries"
   cwe: "CWE-20"
@@ -3748,7 +4079,8 @@
 - id: js-env-express-session
   languages: [javascript, typescript]
   patterns:
-    - regex: 'express-session.*secret.*process\\.env''severity: low
+    - regex: 'express-session.*secret.*process\.env'
+  severity: low
   description: "Express session secret from env - good practice"
   remediation: "Good practice for session secret"
   cwe: "CWE-798"
@@ -3757,7 +4089,8 @@
 - id: js-env-jwt-secret
   languages: [javascript, typescript]
   patterns:
-    - regex: 'jwt\\.(sign|verify).*process\\.env''severity: low
+    - regex: 'jwt\.(sign|verify).*process\.env'
+  severity: low
   description: "JWT secret from env - good practice"
   remediation: "Good practice for JWT secret"
   cwe: "CWE-798"
@@ -3766,7 +4099,8 @@
 - id: js-env-database
   languages: [javascript, typescript]
   patterns:
-    - regex: 'mongoose\\.connect\\s*\\(\\s*process\\.env|knex.*process\\.env''severity: low
+    - regex: 'mongoose\.connect\s*\(\s*process\.env|knex.*process\.env'
+  severity: low
   description: "Database connection string from env - good practice"
   remediation: "Good practice for database credentials"
   cwe: "CWE-798"
@@ -3775,7 +4109,8 @@
 - id: js-env-aws
   languages: [javascript, typescript]
   patterns:
-    - regex: 'AWS_(ACCESS_KEY|SECRET_KEY|SESSION_TOKEN)''severity: high
+    - regex: 'AWS_(ACCESS_KEY|SECRET_KEY|SESSION_TOKEN)'
+  severity: high
   description: "AWS credentials from env - ensure secure"
   remediation: "Use IAM roles for AWS services when possible"
   cwe: "CWE-798"
@@ -3784,7 +4119,8 @@
 - id: js-env-port
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.env\\.PORT\\s*\\|\\|\\s*\\d{4,5}''severity: low
+    - regex: 'process\.env\.PORT\s*\|\|\s*\d{4,5}'
+  severity: low
   description: "Port from env with fallback"
   remediation: "Good practice for configurable ports"
   cwe: "CWE-20"
@@ -3795,7 +4131,8 @@
 - id: js-timers-uncleared
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout\\s*\\([^)]*\\)''severity: medium
+    - regex: 'setTimeout\s*\([^)]*\]'
+  severity: medium
   description: "setTimeout without clearTimeout - memory leak"
   remediation: "Clear timers in cleanup/componentWillUnmount"
   cwe: "CWE-770"
@@ -3804,7 +4141,8 @@
 - id: js-interval-uncleared
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setInterval\\s*\\([^)]*\\)''severity: high
+    - regex: 'setInterval\s*\([^)]*\]'
+  severity: high
   description: "setInterval without clearInterval - memory leak"
   remediation: "Always clear intervals when no longer needed"
   cwe: "CWE-770"
@@ -3813,7 +4151,8 @@
 - id: js-immediate-uncleared
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setImmediate\\s*\\([^)]*\\)''severity: medium
+    - regex: 'setImmediate\s*\([^)]*\]'
+  severity: medium
   description: "setImmediate without clearImmediate - memory leak"
   remediation: "Clear immediates when no longer needed"
   cwe: "CWE-770"
@@ -3822,7 +4161,8 @@
 - id: js-timer-long-delay
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout\\s*\\([^,]+,\\s*[3-9]\\d{5,}''severity: low
+    - regex: 'setTimeout\s*\([^,]+,\s*[3-9]\d{5,}'
+  severity: low
   description: "Very long timeout (hours/days) - may indicate issue"
   remediation: "Use reasonable timeout values"
   cwe: "CWE-770"
@@ -3831,7 +4171,8 @@
 - id: js-interval-short
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setInterval\\s*\\([^,]+,\\s*[1-9]\\d{0,2}''severity: high
+    - regex: 'setInterval\s*\([^,]+,\s*[1-9]\d{0,2}'
+  severity: high
   description: "Very short interval (<100ms) - performance DoS"
   remediation: "Increase interval or use requestAnimationFrame for UI"
   cwe: "CWE-770"
@@ -3840,7 +4181,8 @@
 - id: js-timer-recursive
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setTimeout\\s*\\([^,]+,\\s*\\d+,\\s*.*setTimeout''severity: low
+    - regex: 'setTimeout\s*\([^,]+,\s*\d+,\s*.*setTimeout'
+  severity: low
   description: "Recursive setTimeout - ensure termination"
   remediation: "Add termination condition"
   cwe: "CWE-835"
@@ -3849,7 +4191,8 @@
 - id: js-timer-animation
   languages: [javascript, typescript]
   patterns:
-    - regex: 'setInterval.*style.*transform|setInterval.*style.*position''severity: medium
+    - regex: 'setInterval.*style.*transform|setInterval.*style.*position'
+  severity: medium
   description: "setInterval for animations - use requestAnimationFrame"
   remediation: "Use requestAnimationFrame for smooth animations"
   cwe: "CWE-770"
@@ -3858,7 +4201,8 @@
 - id: js-raf-uncleared
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requestAnimationFrame\\s*\\([^)]*\\)''severity: medium
+    - regex: 'requestAnimationFrame\s*\([^)]*\]'
+  severity: medium
   description: "requestAnimationFrame without cancel - memory leak"
   remediation: "Cancel RAF in cleanup"
   cwe: "CWE-770"
@@ -3867,7 +4211,8 @@
 - id: js-raf-loop
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s+animate\\s*\\([^)]*\\)\\s*\\{[^}]*requestAnimationFrame\\s*\\(\\s*animate''severity: low
+    - regex: 'function\s+animate\s*\([^)]*\)\s*\{[^}]*requestAnimationFrame\s*\(\s*animate'
+  severity: low
   description: "Recursive requestAnimationFrame animation"
   remediation: "Add stop condition for animation"
   cwe: "CWE-835"
@@ -3876,7 +4221,8 @@
 - id: js-idle-until-urgent
   languages: [javascript, typescript]
   patterns:
-    - regex: 'requestIdleCallback|cancelIdleCallback''severity: low
+    - regex: 'requestIdleCallback|cancelIdleCallback'
+  severity: low
   description: "Idle callback usage - good for non-critical tasks"
   remediation: "Use for low-priority background work"
   cwe: "CWE-770"
@@ -3885,7 +4231,8 @@
 - id: js-queue-microtask
   languages: [javascript, typescript]
   patterns:
-    - regex: 'queueMicrotask\\s*\\(''severity: low
+    - regex: 'queueMicrotask\s*\('
+  severity: low
   description: "Microtask queuing - may block event loop"
   remediation: "Use for small synchronous tasks"
   cwe: "CWE-770"
@@ -3894,7 +4241,8 @@
 - id: js-process-nexttick
   languages: [javascript, typescript]
   patterns:
-    - regex: 'process\\.nextTick\\s*\\(''severity: medium
+    - regex: 'process\.nextTick\s*\('
+  severity: medium
   description: "process.nextTick - can starve I/O"
   remediation: "Use setImmediate for deferring I/O"
   cwe: "CWE-770"
@@ -3903,7 +4251,8 @@
 - id: js-timer-event-loop
   languages: [javascript, typescript]
   patterns:
-    - regex: 'while\\s*\\([^)]*\\)\\s*\\{[^}]*setTimeout''severity: medium
+    - regex: 'while\s*\([^)]*\)\s*\{[^}]*setTimeout'
+  severity: medium
   description: "Busy loop with setTimeout - may block event loop"
   remediation: "Use proper async patterns"
   cwe: "CWE-770"
@@ -3912,7 +4261,8 @@
 - id: js-memory-leak-closure
   languages: [javascript, typescript]
   patterns:
-    - regex: 'function\\s*\\([^)]*\\)\\s*\\{[^}]*\\}\\s*;?\\s*[^\\s]+\\s*=\\s*null''severity: medium
+    - regex: 'function\s*\([^)]*\)\s*\{[^}]*\}\s*;?\s*[^\s]+\s*=\s*null'
+  severity: medium
   description: "Closures may cause memory leaks"
   remediation: "Nullify large objects when done"
   cwe: "CWE-770"
@@ -3921,7 +4271,8 @@
 - id: js-memory-leak-array
   languages: [javascript, typescript]
   patterns:
-    - regex: '\\[\\s*\\]\\s*;?\\s*[^\\s]+\\s*=\\s*null''severity: low
+    - regex: '\[\s*\]\s*;?\s*[^\s]+\s*=\s*null'
+  severity: low
   description: "Large array without nulling - memory leak"
   remediation: "Set large arrays to null when done"
   cwe: "CWE-770"
@@ -3930,7 +4281,8 @@
 - id: js-memory-leak-event-listener
   languages: [javascript, typescript]
   patterns:
-    - regex: 'addEventListener\\s*\\([^)]*\\)''severity: high
+    - regex: 'addEventListener\s*\([^)]*\]'
+  severity: high
   description: "Event listener without removal - memory leak"
   remediation: "Remove event listeners in cleanup"
   cwe: "CWE-770"
@@ -3939,7 +4291,8 @@
 - id: js-memory-leak-observer
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+MutationObserver|new\\s+ResizeObserver|IntersectionObserver''severity: high
+    - regex: 'new\s+MutationObserver|new\s+ResizeObserver|IntersectionObserver'
+  severity: high
   description: "Observer without disconnect - memory leak"
   remediation: "Call observer.disconnect() in cleanup"
   cwe: "CWE-770"
@@ -3948,7 +4301,8 @@
 - id: js-memory-leak-websocket
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+WebSocket|websocket\\.on''severity: medium
+    - regex: 'new\s+WebSocket|websocket\.on'
+  severity: medium
   description: "WebSocket without close - connection leak"
   remediation: "Close WebSocket when no longer needed"
   cwe: "CWE-770"
@@ -3957,7 +4311,8 @@
 - id: js-memory-leak-worker
   languages: [javascript, typescript]
   patterns:
-    - regex: 'new\\s+Worker|new\\s+SharedWorker''severity: medium
+    - regex: 'new\s+Worker|new\s+SharedWorker'
+  severity: medium
   description: "Worker without terminate - memory leak"
   remediation: "Terminate workers when done"
   cwe: "CWE-770"
@@ -3966,7 +4321,8 @@
 - id: js-memory-leak-stream
   languages: [javascript, typescript]
   patterns:
-    - regex: 'createReadStream|createWriteStream|pipe''severity: medium
+    - regex: 'createReadStream|createWriteStream|pipe'
+  severity: medium
   description: "Stream without cleanup - memory leak"
   remediation: "Handle stream errors and cleanup"
   cwe: "CWE-770"
@@ -4008,7 +4364,7 @@
 - id: js-postmessage-origin-bypass
   languages: [javascript, typescript, tsx, jsx]
   patterns:
-  - regex: '(?i)window\.addEventListener\(['''"]message['"].*\{\s*(?!.*event\.origin)(.*(?:window\.location\.href|localStorage\.setItem))'
+  - regex: '(?i)window\.addEventListener\(["]message["].*\{\s*(?:.*event\.origin)(.*(?:window\.location\.href|localStorage\.setItem))\)'
   severity: critical
   description: "postMessage handler redirects or sets storage without validating event.origin"
   remediation: "Always validate event.origin against a strict allowlist before processing postMessage data."
@@ -4018,7 +4374,7 @@
 - id: js-hardcoded-admin-bypass-header
   languages: [javascript, typescript, tsx, jsx]
   patterns:
-  - regex: '(?i)['''"]X-Admin-(Key|Bypass)[''"]\s*:\s*(?!undefined|null)'
+  - regex: '(?i)[''"]X-Admin-(Key|Bypass)[''"]\s*:\s*(?:undefined|null)'
   severity: critical
   description: "Hardcoded administrative bypass token or header sent automatically in client-side code."
   remediation: "Remove administrative bypass keys from client-side bundles entirely."
@@ -4028,7 +4384,7 @@
 - id: js-react-dynamic-script-src
   languages: [javascript, typescript, tsx, jsx]
   patterns:
-  - regex: '(?i)(?:createElement|document\.createElement)\(['''"]script['"]\).*?\.src\s*=\s*(?:query|params|new URLSearchParams).get'
+  - regex: '(?i)(?:createElement|document\.createElement)\([''"]script[''"]\).*?\.src\s*=\s*(?:query|params|new URLSearchParams).get'
   severity: high
   description: "Dynamically sourcing a script tag from a URL or query parameter leads to unauthenticated XSS/RCE."
   remediation: "Never load executable script sources derived from unvalidated query parameters."
@@ -4038,7 +4394,8 @@
 - id: js-mysql-multiple-statements
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)multipleStatements\s*:\s*true''severity: critical
+  - regex: '(?i)multipleStatements\s*:\s*true'
+  severity: critical
   description: "MySQL connection configured with multipleStatements: true enables stacked query SQL injection (RCE)."
   remediation: "Set multipleStatements to false. Use separate pooled queries if multiple statements are required."
   cwe: "CWE-89"
@@ -4047,7 +4404,7 @@
 - id: js-jwt-none-algorithm
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)algorithms?\s*:\s*\[.*['''"]none['''"].*\]'
+  - regex: '(?i)algorithms?\s*:\s*\[.*[''"]none[''"].*\]'
   severity: critical
   description: "JWT verification explicitly permits the 'none' algorithm."
   remediation: "Remove 'none' from the algorithms array to enforce cryptographic signature verification."
@@ -4057,7 +4414,8 @@
 - id: js-prototype-pollution-loop
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)for\s*\(.*in\s+.*(?:req\.body|req\.query).*''severity: high
+  - regex: '(?i)for\s*\(.*in\s+.*(?:req\.body|req\.query).*'
+  severity: high
   description: "Deep object copy or iteration over untrusted input without blocking __proto__ or constructor keys."
   remediation: "Explicitly reject payload keys matching '__proto__', 'constructor', or 'prototype'."
   cwe: "CWE-1321"
@@ -4066,7 +4424,8 @@
 - id: js-prototype-pollution-merge
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)(\.merge|\.extend|\.recursive|deepMerge)\s*\(\s*[^,]+,\s*(?:req\.body|req\.query)''severity: critical
+  - regex: '(?i)(\.merge|\.extend|\.recursive|deepMerge)\s*\(\s*[^,]+,\s*(?:req\.body|req\.query)'
+  severity: critical
   description: "Unsafe deep merge of user input into object prototype."
   remediation: "Sanitize keys or use a safe merge library like 'lodash.merge' (if updated) or 'ajv' for schema validation."
   cwe: "CWE-1321"
@@ -4075,7 +4434,8 @@
 - id: js-dom-xss-innerhtml-reflection
   languages: [javascript, typescript, tsx, jsx, html]
   patterns:
-  - regex: '(?i)(?:\.innerHTML|container\.innerHTML|bar\.innerHTML)\s*=\s*(?:.*(?:params|search|data\.html|decodeURIComponent)).*''severity: critical
+  - regex: '(?i)(?:\.innerHTML|container\.innerHTML|bar\.innerHTML)\s*=\s*(?:.*(?:params|search|data\.html|decodeURIComponent)).*'
+  severity: critical
   description: "Reflected DOM XSS via unsanitized data injected directly into innerHTML."
   remediation: "Use textContent instead of innerHTML, or thoroughly sanitize HTML before insertion."
   cwe: "CWE-79"
@@ -4084,7 +4444,8 @@
 - id: js-unquoted-attribute-xss
   languages: [javascript, typescript, tsx, jsx, html]
   patterns:
-  - regex: '(?i)value=\$\{.*\}|onclick=\$\{.*\}''severity: high
+  - regex: '(?i)value=\$\{.*\}|onclick=\$\{.*\}'
+  severity: high
   description: "Unquoted attribute injection allows attackers to break out of HTML attributes and execute XSS."
   remediation: "Always quote HTML attributes and HTML-encode dynamic values."
   cwe: "CWE-79"
@@ -4093,7 +4454,7 @@
 - id: js-health-endpoint-secret-leak
   languages: [javascript, typescript, tsx, jsx, html]
   patterns:
-  - regex: '(?i)apiRequest\(['''"]/health[''"]\).*debugLog'
+  - regex: '(?i)apiRequest\([''"]/health[''"]\).*debugLog'
   severity: critical
   description: "Health check endpoint leaks sensitive environment secrets directly to the client browser DOM."
   remediation: "Remove the API health response from the client DOM, and ensure /health does not emit secrets."
@@ -4103,7 +4464,7 @@
 - id: js-visible-jwt-token
   languages: [javascript, typescript, tsx, jsx, html]
   patterns:
-  - regex: '(?i)textContent\s*=\s*['''"]Token:\s*[''"]\s*\+\s*token'
+  - regex: '(?i)textContent\s*=\s*[''"]Token:\s*[''"]\s*\+\s*token'
   severity: high
   description: "JWT token rendered visually in the DOM, allowing theft via shoulder surfing or screenshots."
   remediation: "Never render raw authentication tokens visually on screen."
@@ -4113,7 +4474,7 @@
 - id: js-postmessage-wildcard-origin
   languages: [javascript, typescript, tsx, jsx, html]
   patterns:
-  - regex: '(?i)\.postMessage\([^,]+,\s*['''"]\*[''"]\)'
+  - regex: '(?i)\.postMessage\([^,]+,\s*[''"]\*[''"]\)'
   severity: medium
   description: "postMessage called with a wildcard '*' origin, broadcasting data to any embedding window."
   remediation: "Specify the exact target origin instead of '*' when sending postMessage payloads."
@@ -4123,7 +4484,7 @@
 - id: js-missing-sri-cdn
   languages: [html, javascript, typescript, tsx, jsx]
   patterns:
-  - regex: '(?i)<script\s+src=['''"]https://(?!.*integrity=).*[''"]\s*>'
+  - regex: '(?i)<script\s+src=[''"]https://(?:.*integrity=).*[''"]\s*>'
   severity: medium
   description: "External script loaded from a CDN without Subresource Integrity (SRI) attributes."
   remediation: "Add integrity and crossorigin attributes to all external <script> tags."
@@ -4133,7 +4494,8 @@
 - id: js-lodash-merge-pollution
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)lodash\.merge\([^,]+,\s*(?:req\.body|req\.query)''severity: critical
+  - regex: '(?i)lodash\.merge\([^,]+,\s*(?:req\.body|req\.query)'
+  severity: critical
   description: "Direct deep-merge of user-controlled data via lodash.merge() enables severe Prototype Pollution attacks."
   remediation: "Sanitize request bodies to strip '__proto__', 'constructor', and 'prototype' before deep merging."
   cwe: "CWE-1321"
@@ -4142,7 +4504,8 @@
 - id: js-xml2js-xxe
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)parseString\([^,]+,\s*''severity: critical
+  - regex: '(?i)parseString\([^,]+,\s*'
+  severity: critical
   description: "xml2js parsing untrusted XML without disabling external entities allows Server-Side Request Forgery and XXE Local File Read."
   remediation: "Configure xml2js parser to reject external DTDs or explicitly use safer XML parsers."
   cwe: "CWE-611"
@@ -4151,7 +4514,8 @@
 - id: js-multer-early-body-access
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)diskStorage.*destination.*req\.body\.''severity: critical
+  - regex: '(?i)diskStorage.*destination.*req\.body\.'
+  severity: critical
   description: "Accessing req.body in a multer diskStorage callback before streams finish parsing allows an attacker to dictate the file destination."
   remediation: "Never rely on req.body for upload destinaton routing directly. Save files to isolation first, then move them post-parse."
   cwe: "CWE-434"
@@ -4160,7 +4524,8 @@
 - id: js-express-qs-prototype-pollution
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)express\.urlencoded\(\{.*extended:\s*true.*\}\)''severity: high
+  - regex: '(?i)express\.urlencoded\(\{.*extended:\s*true.*\}\)'
+  severity: high
   description: "Enabling extended urlencoded parsing utilizes the 'qs' library, which enables complex object parsing making prototype poisoning attacks trivial."
   remediation: "Use express.urlencoded({ extended: false }) unless nested object queries are absolutely necessary, and implement strict '__proto__' blocking filters."
   cwe: "CWE-1321"
@@ -4169,7 +4534,8 @@
 - id: js-axios-header-forwarding-leak
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)axios\.(?:get|post|put)\([^,]+,\s*\{.*headers:\s*req\.headers''severity: critical
+  - regex: '(?i)axios\.(?:get|post|put)\([^,]+,\s*\{.*headers:\s*req\.headers'
+  severity: critical
   description: "Unrestricted header forwarding to backend services proxies Authorization tokens, Hosts, and Cookies natively via request spoofing."
   remediation: "Explicitly map and forward only required headers. Do not proxy req.headers directly."
   cwe: "CWE-200"
@@ -4178,7 +4544,7 @@
 - id: js-idor-user-id-mismatch
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)router\.[A-Za-z]+\(['''"]/[^:]+/:id/.*authMiddleware(?:.|\n)*req\.params\.id'
+  - regex: '(?i)router\.[A-Za-z]+\([''"]/[^:]+/:id/.*authMiddleware(?:.|\n)*req\.params\.id'
   severity: high
   description: "Authentication middleware protects the route, but logic uses req.params.id instead of req.user.id without ownership verification (IDOR)."
   remediation: "Ensure that sensitive account retrievals strictly validate req.params.id === req.user.id."
@@ -4188,7 +4554,8 @@
 - id: js-response-code-injection
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)res\.redirect\(\s*parseInt\([\sA-Za-z0-9.]*(?:query|body)\.[a-zA-Z]+''severity: critical
+  - regex: '(?i)res\.redirect\(\s*parseInt\([\sA-Za-z0-9.]*(?:query|body)\.[a-zA-Z]+'
+  severity: critical
   description: "HTTP status code directly controlled by user input enables Response Splitting, HTTP smuggling, and caching manipulation."
   remediation: "Never allow users to dynamically define HTTP status codes natively. Force standard redirection codes (301/302)."
   cwe: "CWE-113"

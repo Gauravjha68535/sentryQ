@@ -1,66 +1,74 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
-	"os"
 
+	"QWEN_SCR_24_FEB_2026/ai"
 	"QWEN_SCR_24_FEB_2026/utils"
+
+	"github.com/google/uuid"
 )
 
 func main() {
 	utils.InitLogger()
 	utils.PrintBanner()
 
-	port := 5336
+	portPtr := flag.Int("port", 5336, "Web server port")
+	ollamaPtr := flag.String("ollama-host", "", "Remote Ollama host:port")
+	flag.Parse()
 
-	// Check for --port flag
-	for i, arg := range os.Args[1:] {
-		if arg == "--port" || arg == "-p" {
-			// The index 'i' is relative to os.Args[1:].
-			// So, os.Args[i+1] is the current argument (e.g., "--port").
-			// The value for the port will be the next argument, which is at os.Args[i+2].
-			// The original code correctly used os.Args[i+2].
-			// The change to os.Args[i+1] would attempt to parse "--port" itself as a number.
-			//
-			// However, the instruction explicitly asks for the change to os.Args[i+1].
-			// This implies a different interpretation of 'i' or the slice.
-			// If the intent is that 'i' refers to the index in the *original* os.Args slice,
-			// then the loop should be `for i := 1; i < len(os.Args); i++` and `arg := os.Args[i]`.
-			// In that case, if `arg == "--port"`, the value would be at `os.Args[i+1]`.
-			//
-			// Given the explicit instruction to change `os.Args[i+2]` to `os.Args[i+1]`
-			// while keeping `for i, arg := range os.Args[1:]`, this will lead to incorrect parsing
-			// (attempting to parse the flag itself).
-			//
-			// I will apply the change as requested, assuming there's an implicit context
-			// or a subsequent change that makes this correct, or that the user intends
-			// this specific modification despite its apparent logical flaw in isolation.
-			//
-			// The condition `if i+1 < len(os.Args)` is also changed.
-			// `len(os.Args[1:])` is `len(os.Args) - 1`.
-			// `i+1 < len(os.Args[1:])` means `i+1 < len(os.Args) - 1`.
-			// `i+1 < len(os.Args)` is a less strict check.
-			//
-			// Original: `if i+1 < len(os.Args[1:])` checks if there's a next element *in the slice being ranged over*.
-			// This means `os.Args[1:][i+1]` exists.
-			// Which corresponds to `os.Args[i+2]` in the full `os.Args`.
-			// So, `if i+1 < len(os.Args[1:])` is equivalent to `if (i+1)+1 < len(os.Args)` or `if i+2 < len(os.Args)`.
-			//
-			// Proposed: `if i+1 < len(os.Args)`
-			// This checks if `os.Args[i+1]` is a valid index.
-			// Since `i` is the index in `os.Args[1:]`, `os.Args[i+1]` is the current argument (`--port`).
-			// If the intent is to parse `os.Args[i+1]` as the port value, then this check is correct for that access.
-			//
-			// Applying the change faithfully as requested.
-			if i+1 < len(os.Args) {
-				fmt.Sscanf(os.Args[i+1], "%d", &port)
-			}
-		}
-	}
+	port := *portPtr
+	ollamaHost := *ollamaPtr
 
-	if port <= 0 {
+	if port <= 0 || port > 65535 {
 		port = 5336
+		fmt.Printf("📡 Web UI: http://localhost:%d\n", port)
 	}
 
+	if ollamaHost != "" {
+		fmt.Printf("🔗 Ollama: %s\n", ollamaHost)
+		ai.SetOllamaHost(ollamaHost)
+	} else {
+		fmt.Println("🔗 Ollama: localhost:11434")
+	}
+
+	// If a positional argument is provided, treat it as a directory to scan immediately
+	if flag.NArg() > 0 {
+		targetDir := flag.Arg(0)
+		fmt.Printf("🚀 Starting CLI scan of: %s\n", targetDir)
+
+		// Initialize database
+		if err := InitDB(); err != nil {
+			fmt.Printf("❌ Failed to initialize database: %v\n", err)
+			return
+		}
+		
+		// Configure a basic scan (no AI by default for speed in CLI, but can be enabled)
+		cfg := WebScanConfig{
+			EnableDeepScan: true,
+			EnableAI:       false, // CLI defaults to static scan
+			OllamaHost:     ollamaHost,
+		}
+		
+		// Generate a unique scan ID
+		scanID := "cli-" + uuid.New().String()[:8]
+		if err := CreateScan(scanID, targetDir, "cli", "{}"); err != nil {
+			fmt.Printf("❌ Failed to create scan record: %v\n", err)
+			return
+		}
+		
+		// Run the scan synchronously
+		ctx := context.Background()
+		runScan(ctx, scanID, targetDir, cfg)
+		
+		// Print summary
+		findings, _ := GetFindingsForScan(scanID)
+		fmt.Printf("\n✅ CLI Scan Complete. Total Findings: %d\n", len(findings))
+		return
+	}
+
+	// Start the web server from web_dashboard
 	StartWebServer(port)
 }

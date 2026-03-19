@@ -1,7 +1,8 @@
 - id: ocaml-obj-magic
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Obj\\.magic''severity: high
+    - regex: '(?i)Obj\.magic'
+  severity: high
   description: "Unsafe type cast"
   remediation: "Avoid Obj.magic"
   cwe: "CWE-843"
@@ -11,7 +12,8 @@
 - id: ocaml-sys-command
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Sys\\.command\\s*\\(''severity: critical
+    - regex: '(?i)Sys\.command\s*\('
+  severity: critical
   description: "OS command execution"
   remediation: "Validate command arguments"
   cwe: "CWE-78"
@@ -21,7 +23,8 @@
 - id: ocaml-unix-system
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Unix\\.system\\s*\\(''severity: critical
+    - regex: '(?i)Unix\.system\s*\('
+  severity: critical
   description: "OS command execution via Unix.system"
   remediation: "Validate command arguments"
   cwe: "CWE-78"
@@ -31,7 +34,8 @@
 - id: ocaml-marshal-from-channel
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Marshal\\.from_channel''severity: critical
+    - regex: '(?i)Marshal\.from_channel'
+  severity: critical
   description: "Unsafe deserialization"
   remediation: "Validate data before unmarshaling"
   cwe: "CWE-502"
@@ -41,7 +45,8 @@
 - id: ocaml-marshal-from-string
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Marshal\\.from_string''severity: critical
+    - regex: '(?i)Marshal\.from_string'
+  severity: critical
   description: "Unsafe deserialization"
   remediation: "Validate data before unmarshaling"
   cwe: "CWE-502"
@@ -51,7 +56,8 @@
 - id: ocaml-hardcoded-secret
   languages: [ocaml]
   patterns:
-    - regex: '(?i)let\\s+(?:secret|password|key)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
+    - regex: '(?i)let\s+(?:secret|password|key)\s*=\s*\\"[a-zA-Z0-9_-]{12,}\\"'
+  severity: high
   description: "Hardcoded secret"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -61,7 +67,8 @@
 - id: ocaml-sql-concat
   languages: [ocaml]
   patterns:
-    - regex: '(?i)PGSQL\\(.*?\\^|PGOCaml\\.prepare.*\\^''severity: critical
+    - regex: '(?i)PGSQL\(.*?\^|PGOCaml\.prepare.*\^'
+  severity: critical
   description: "SQL injection via concat"
   remediation: "Use parameters via $"
   cwe: "CWE-89"
@@ -71,7 +78,8 @@
 - id: ocaml-digest-md5
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Digest\\.file|Digest\\.string''severity: medium
+    - regex: '(?i)Digest\.file|Digest\.string'
+  severity: medium
   description: "Weak MD5 hash (OCaml Digest is MD5)"
   remediation: "Use Cryptokit or similar for SHA256"
   cwe: "CWE-328"
@@ -81,7 +89,8 @@
 - id: ocaml-ssl-verify-none
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Ssl\\.set_verify_none''severity: high
+    - regex: '(?i)Ssl\.set_verify_none'
+  severity: high
   description: "SSL validation disabled"
   remediation: "Enable SSL verification"
   cwe: "CWE-295"
@@ -91,7 +100,8 @@
 - id: ocaml-random-unsafe
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Random\\.int|Random\\.bool''severity: low
+    - regex: '(?i)Random\.int|Random\.bool'
+  severity: low
   description: "Weak PRNG"
   remediation: "Use Cryptokit PRNG for security"
   cwe: "CWE-330"
@@ -101,7 +111,8 @@
 - id: ocaml-ssrf
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Cohttp\\.get\\s*\\(.*\\$|Uri\\.of_string.*\\$''severity: high
+    - regex: '(?i)Cohttp\.get\s*\(.*\$|Uri\.of_string.*\$'
+  severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -111,7 +122,8 @@
 - id: ocaml-yaml-unsafe
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Yojson\\.Safe\\.from_string|Yojson\\.from_string''severity: high
+    - regex: '(?i)Yojson\.Safe\.from_string|Yojson\.from_string'
+  severity: high
   description: "Unsafe JSON/YAML parsing"
   remediation: "Use Yojson.Safe.from_string with error handling"
   cwe: "CWE-502"
@@ -121,7 +133,8 @@
 - id: ocaml-path-traversal
   languages: [ocaml]
   patterns:
-    - regex: '(?i)open_in\\s*\\(.*\\$|Sys\\.file_exists\\s*\\(.*\\$''severity: high
+    - regex: '(?i)open_in\s*\(.*\$|Sys\.file_exists\s*\(.*\$'
+  severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -131,7 +144,8 @@
 - id: ocaml-weak-crypto
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Digest\\.md5|Nocrypto\\.hash\\.md5''severity: medium
+    - regex: '(?i)Digest\.md5|Nocrypto\.hash\.md5'
+  severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
   cwe: "CWE-327"
@@ -141,7 +155,8 @@
 - id: ocaml-xxe
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Xmlm\\.make\\s*.*dtd''severity: high
+    - regex: '(?i)Xmlm\.make\s*.*dtd'
+  severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing"
   cwe: "CWE-611"
@@ -151,7 +166,8 @@
 - id: ocaml-eval
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Eval\\.apply|Toploop\\.use''severity: critical
+    - regex: '(?i)Eval\.apply|Toploop\.use'
+  severity: critical
   description: "Dynamic code execution"
   remediation: "Avoid eval with untrusted input"
   cwe: "CWE-94"
@@ -161,7 +177,8 @@
 - id: ocaml-ssrf
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Cohttp\\.get\\s*\\(.*\\$|Uri\\.of_string.*\\$''severity: high
+    - regex: '(?i)Cohttp\.get\s*\(.*\$|Uri\.of_string.*\$'
+  severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -171,7 +188,8 @@
 - id: ocaml-serialization
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Marshal\\.from_string|Obj\\.magic''severity: high
+    - regex: '(?i)Marshal\.from_string|Obj\.magic'
+  severity: high
   description: "Unsafe deserialization"
   remediation: "Use JSON instead"
   cwe: "CWE-502"
@@ -181,7 +199,8 @@
 - id: ocaml-template-injection
   languages: [ocaml]
   patterns:
-    - regex: '(?i)TyXML\\.Html\\.unsafe|COAElm\\.unsafe''severity: high
+    - regex: '(?i)TyXML\.Html\.unsafe|COAElm\.unsafe'
+  severity: high
   description: "Template injection via unsafe HTML"
   remediation: "Sanitize HTML output"
   cwe: "CWE-79"
@@ -191,7 +210,8 @@
 - id: ocaml-hardcoded-creds
   languages: [ocaml]
   patterns:
-    - regex: '(?i)let\\s+(?:db|password|secret|key)\\s*=\\s*\\"[^"]{4,}\\"''severity: high
+    - regex: '(?i)let\s+(?:db|password|secret|key)\s*=\s*\\"[^"]{4,}\\"'
+  severity: high
   description: "Hardcoded credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -201,7 +221,8 @@
 - id: ocaml-ldap-injection
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Ldap\\.search\\s*\\(.*\\$|ocaml-ldap.*filter''severity: high
+    - regex: '(?i)Ldap\.search\s*\(.*\$|ocaml-ldap.*filter'
+  severity: high
   description: "LDAP injection vulnerability"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -211,7 +232,8 @@
 - id: ocaml-regex-dos
   languages: [ocaml]
   patterns:
-    - regex: '(?i)Str\\.regexp.*\\*|Re\\.compile.*\\*''severity: medium
+    - regex: '(?i)Str\.regexp.*\*|Re\.compile.*\*'
+  severity: medium
   description: "Potential ReDoS vulnerability"
   remediation: "Avoid nested quantifiers"
   cwe: "CWE-1333"

@@ -56,8 +56,7 @@
 - id: docker-cap-add
   languages: [yaml]
   patterns:
-    - regex: |-
-        (?i)cap_add:\.s*\.[?\.s*(ALL|SYS_ADMIN|NET_ADMIN)
+    - regex: '(?i)cap_add:\s*(?:ALL|SYS_ADMIN|NET_ADMIN)'
   severity: high
   description: "Dangerous Linux capabilities added to container"
   remediation: "Remove unnecessary capabilities. Use minimal required set"
@@ -90,7 +89,7 @@
   languages: [yaml]
   patterns:
     - regex: |-
-        (?i)read_only:\.s*false|(?!read_only)security_opt
+        (?i)read_only:\.s*false|(?:read_only)security_opt
   severity: medium
   description: "Container root filesystem is writable"
   remediation: "Set read_only: true and use volumes for writable paths"
@@ -100,8 +99,7 @@
 - id: docker-no-security-opt
   languages: [yaml]
   patterns:
-    - regex: |-
-        (?i)security_opt:\.s*\.[?\.s*apparmor=unconfined|seccomp=unconfined
+    - regex: '(?i)security_opt:\s*(?:apparmor=unconfined|seccomp=unconfined)'
   severity: high
   description: "Container security profiles disabled"
   remediation: "Use default or custom AppArmor/Seccomp profiles"
@@ -134,7 +132,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)RUN.*\.b(apt-get|yum|apk)\.s+(install|add)\.b(?!.*&&.*rm.*-rf.*var.*cache)
+        (?i)RUN.*\.b(apt-get|yum|apk)\.s+(install|add)\.b(?:.*&&.*rm.*-rf.*var.*cache)
   severity: low
   description: "Package manager cache not cleaned after installation"
   remediation: "Add && rm -rf /var/cache/apt/* or use --no-cache with apk"
@@ -156,7 +154,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^FROM.*^(?!.*HEALTHCHECK)
+        (?i)^FROM.*^(?:.*HEALTHCHECK)
   severity: low
   description: "No HEALTHCHECK instruction defined"
   remediation: "Add HEALTHCHECK instruction for container health monitoring"
@@ -174,7 +172,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^FROM.*^(?!.*USER)
+        (?i)^FROM.*^(?:.*USER)
   severity: medium
   description: "Dockerfile without USER instruction"
   remediation: "Add USER instruction to run as non-root"
@@ -240,7 +238,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^FROM.*^(?!.*LABEL)
+        (?i)^FROM.*^(?:.*LABEL)
   severity: low
   description: "Dockerfile without LABEL instructions"
   remediation: "Add metadata labels for image management"
@@ -284,7 +282,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN.*pip\.s+install(?!.*--no-cache-dir)
+        (?i)^RUN.*pip\.s+install(?:.*--no-cache-dir)
   severity: low
   description: "pip install without --no-cache-dir"
   remediation: "Add --no-cache-dir to reduce image size"
@@ -295,7 +293,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN.*npm\.s+install(?!.*--no-audit)
+        (?i)^RUN.*npm\.s+install(?:.*--no-audit)
   severity: low
   description: "npm install without --no-audit"
   remediation: "Add --no-audit --no-fund for CI builds"
@@ -1845,7 +1843,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^(?i)FROM.*(?!USER)
+        ^(?i)FROM.*(?:USER)
   severity: high
   description: "Dockerfile missing USER instruction (runs as root)"
   remediation: "Add USER instruction with non-root user before CMD/ENTRYPOINT"
@@ -1878,7 +1876,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^USER\s+\w+(?!.*useradd).*?^(?!.*RUN.*useradd)
+        ^USER\s+\w+(?:.*useradd).*?^(?:.*RUN.*useradd)
   severity: high
   description: "USER specified but user may not exist"
   remediation: "Create user before switching: RUN useradd -m appuser && USER appuser"
@@ -1999,7 +1997,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+apt-get\s+install.*?(?!rm\s+-rf\s+/var/lib/apt/lists/\*)
+        ^RUN\s+apt-get\s+install.*?(?:rm\s+-rf\s+/var/lib/apt/lists/\*)
   severity: medium
   description: "apt-get install without cleaning cache"
   remediation: "Add && rm -rf /var/lib/apt/lists/* in same RUN"
@@ -2010,7 +2008,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+apt-get\s+install\s+\w+(?!=\d)
+        ^RUN\s+apt-get\s+install\s+\w+(?:=\d)
   severity: medium
   description: "apt-get install without version pinning"
   remediation: "Pin package versions: apt-get install package=1.2.3"
@@ -2021,7 +2019,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+yum\s+install.*?(?!&&\s+yum\s+clean\s+all)
+        ^RUN\s+yum\s+install.*?(?:&&\s+yum\s+clean\s+all)
   severity: medium
   description: "yum install without cleaning cache"
   remediation: "Add && yum clean all in same RUN"
@@ -2032,7 +2030,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+yum\s+install\s+\w+(?!-\d)
+        ^RUN\s+yum\s+install\s+\w+(?:-\d)
   severity: medium
   description: "yum install without version pinning"
   remediation: "Pin package versions: yum install package-1.2.3"
@@ -2043,7 +2041,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+apk\s+add.*?(?!--no-cache)
+        ^RUN\s+apk\s+add.*?(?:--no-cache)
   severity: medium
   description: "apk add without --no-cache flag"
   remediation: "Use apk add --no-cache package"
@@ -2054,7 +2052,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+apk\s+add\s+\w+(?!=\d)
+        ^RUN\s+apk\s+add\s+\w+(?:=\d)
   severity: medium
   description: "apk add without version pinning"
   remediation: "Pin package versions: apk add package=1.2.3-r0"
@@ -2065,7 +2063,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+pip\s+install.*?(?!--no-cache-dir)
+        ^RUN\s+pip\s+install.*?(?:--no-cache-dir)
   severity: low
   description: "pip install without --no-cache-dir"
   remediation: "Add --no-cache-dir to reduce image size"
@@ -2076,7 +2074,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+pip\s+install\s+\w+(?!==\d)
+        ^RUN\s+pip\s+install\s+\w+(?:==\d)
   severity: high
   description: "pip install without version pinning"
   remediation: "Pin versions: pip install package==1.2.3"
@@ -2087,7 +2085,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+npm\s+install(?!.*--no-audit)
+        ^RUN\s+npm\s+install(?:.*--no-audit)
   severity: low
   description: "npm install without --no-audit (slower)"
   remediation: "Add --no-audit --no-fund for CI builds"
@@ -2164,7 +2162,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+curl\s+.*?\|\s*(?!sha256sum)
+        ^RUN\s+curl\s+.*?\|\s*(?:sha256sum)
   severity: high
   description: "curl download without checksum verification"
   remediation: "Verify checksum after download: echo 'hash file' | sha256sum -c"
@@ -2175,7 +2173,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^RUN\s+wget\s+.*?(?!.*\&\&\s+sha256sum)
+        ^RUN\s+wget\s+.*?(?:.*\&\&\s+sha256sum)
   severity: high
   description: "wget download without checksum verification"
   remediation: "Verify checksum after download"
@@ -2329,7 +2327,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^(?i)FROM.*(?!(?:HEALTHCHECK|CMD|ENTRYPOINT))
+        ^(?i)FROM.*(?:(?:HEALTHCHECK|CMD|ENTRYPOINT))
   severity: low
   description: "No HEALTHCHECK instruction"
   remediation: "Add HEALTHCHECK for container health monitoring"
@@ -2673,8 +2671,9 @@
 - id: docker-compose-cap-drop-missing
   languages: [yaml]
   patterns:
-    - regex: '(?s)services:\s+.*?\s{2}\w+:\s+''      # For pure RE2, we target the service definition block:
-    - regex: 'services:\s+.*?\s{2}\w+:''severity: medium
+    - regex: '(?s)services:\s+.*?\s{2}\w+:\s+'
+    - regex: 'services:\s+.*?\s{2}\w+:'
+  severity: medium
   description: "Docker Compose service missing cap_drop configuration"
   remediation: "Add 'cap_drop: [ALL]' to drop all capabilities by default."
   cwe: "CWE-693"
@@ -2694,7 +2693,8 @@
 - id: docker-compose-read-only-root-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: 'services:\s+.*?\s{2}\w+:''severity: medium
+    - regex: 'services:\s+.*?\s{2}\w+:'
+  severity: medium
   description: "Docker Compose service missing read_only root filesystem"
   remediation: "Add 'read_only: true' to the service configuration."
   cwe: "CWE-693"
@@ -2714,7 +2714,8 @@
 - id: docker-compose-security-opt-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: 'services:\s+.*?\s{2}\w+:''severity: medium
+    - regex: 'services:\s+.*?\s{2}\w+:'
+  severity: medium
   description: "Docker Compose service missing security_opt configuration"
   remediation: "Add security_opt to enable AppArmor or Seccomp profiles."
   cwe: "CWE-693"
@@ -2767,7 +2768,8 @@
 - id: docker-compose-user-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: 'services:\s+.*?\s{2}\w+:''severity: high
+    - regex: 'services:\s+.*?\s{2}\w+:'
+  severity: high
   description: "Docker Compose service missing USER instruction"
   remediation: "Specify a non-root 'user: 1000:1000' in the compose file."
   cwe: "CWE-250"
@@ -3040,7 +3042,8 @@
 - id: docker-compose-deploy-resources-missing
   languages: [yaml, docker-compose]
   patterns:
-    - regex: 'services:\s+.*?\s{2}\w+:''severity: low
+    - regex: 'services:\s+.*?\s{2}\w+:'
+  severity: low
   description: "Docker Compose service missing resource limits (CPU/Memory)"
   remediation: "Add 'deploy: resources: limits' to prevent DoS via resource exhaustion."
   cwe: "CWE-770"
@@ -3494,7 +3497,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?m)^RUN.*?^(?!^RUN).*?^RUN
+        (?m)^RUN.*?^(?:^RUN).*?^RUN
   severity: low
   description: "Many RUN instructions (many layers)"
   remediation: "Combine related RUN commands"
@@ -3516,7 +3519,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^(?!.*\.dockerignore)
+        ^(?:.*\.dockerignore)
   severity: medium
   description: "No .dockerignore file (may include secrets)"
   remediation: "Add .dockerignore to exclude sensitive files"

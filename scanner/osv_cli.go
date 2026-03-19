@@ -97,7 +97,7 @@ func mapOSVCLISeverity(severities []struct {
 func RunOSVCli(ctx context.Context, targetDir string) ([]reporter.Finding, error) {
 	utils.LogInfo("🔍 Launching Google OSV-Scanner CLI...")
 
-	cmd := exec.CommandContext(ctx, getOSVBin(), "scan", "--format", "json", "-r", targetDir)
+	cmd := exec.CommandContext(ctx, getOSVBin(), "scan", "--format", "json", "-r", ".")
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -112,9 +112,14 @@ func RunOSVCli(ctx context.Context, targetDir string) ([]reporter.Finding, error
 	// Extract just the JSON part, as osv-scanner might print warnings before it
 	output := stdout.String()
 	startIndex := strings.Index(output, "{")
-	if startIndex != -1 {
-		output = output[startIndex:]
+	if startIndex == -1 {
+		utils.LogWarn("OSV-Scanner did not return a valid JSON object. No vulnerabilities found or no package sources detected.")
+		if stderr.Len() > 0 {
+			utils.LogWarn(fmt.Sprintf("osv-scanner stderr: %s", stderr.String()))
+		}
+		return nil, nil // Return empty findings instead of erroring
 	}
+	output = output[startIndex:]
 
 	var result OSVScannerResult
 	if parseErr := json.Unmarshal([]byte(output), &result); parseErr != nil {

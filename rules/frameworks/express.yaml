@@ -4,7 +4,8 @@
   description: "Helmet helps secure Express apps by setting various HTTP headers. Not using it leaves the app vulnerable to XSS and clickjacking."
   severity: "medium"
   patterns:
-    - regex: 'app\\.use\\(''cwe: "CWE-693"
+    - regex: 'app\.use\('
+  cwe: "CWE-693"
   owasp: "A05:2021-Security Misconfiguration"
 
 - id: express-no-rate-limiting
@@ -12,7 +13,8 @@
   description: "Lack of rate limiting exposes the API to brute force and DoS attacks."
   severity: "high"
   patterns:
-    - regex: 'app\\.post\\(''cwe: "CWE-799"
+    - regex: 'app\.post\('
+  cwe: "CWE-799"
   owasp: "A04:2021-Insecure Design"
 
 - id: express-unsafe-regex
@@ -20,6 +22,7 @@
   description: "Using user input directly in RegExp can lead to Regular Expression Denial of Service."
   severity: "high"
   patterns:
-    - regex: 'new\\s*RegExp\\s*\\(.*req\\..*\\)''cwe: "CWE-1333"
+    - regex: 'new\s*RegExp\s*\(.*req\..*\)'
+  cwe: "CWE-1333"
   owasp: "A04:2021-Insecure Design"
 

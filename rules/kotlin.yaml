@@ -1,7 +1,7 @@
 - id: kotlin-hardcoded-password
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*['''\\.][^''\\.]{8,}[''\\.]'
+    - regex: '(?i)(password|passwd|pwd)\.s*=\.s*[''\.][^''\.]{8,}[''\.]'
   severity: high
   description: "Hardcoded password detected in Kotlin source code"
   remediation: "Use environment variables or Android Keystore for sensitive credentials"
@@ -9,7 +9,7 @@
 - id: kotlin-hardcoded-api-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*['''\\.][a-zA-Z0-9]{16,}[''\\.]'
+    - regex: '(?i)(api[_-]?key|apikey)\.s*=\.s*[''\.][a-zA-Z0-9]{16,}[''\.]'
   severity: high
   description: "Hardcoded API key detected in Kotlin source code"
   remediation: "Store API keys in encrypted SharedPreferences or use a secrets manager"
@@ -18,7 +18,7 @@
 - id: kotlin-sql-injection
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(execSQL|rawQuery)\\.s*\\.(\\.s*['''\\.].*\\.+.*[''\\.]'
+    - regex: '(?i)(execSQL|rawQuery)\.s*\.(\.s*[''\.].*\.+.*[''\.])'
   severity: critical
   description: "Potential SQL injection via string concatenation"
   remediation: "Use parameterized queries with ? placeholders in SQLite"
@@ -27,7 +27,7 @@
 - id: kotlin-command-injection
   languages: [kotlin]
   patterns:
-    - regex: 'Runtime\\..getRuntime\\.(\\.)\\..exec\\.s*\\.(\\.s*['''\\.].*\\.+.*[''\\.]'
+    - regex: 'Runtime\..getRuntime\.(\.)\..exec\.s*\.(\.s*[''\.].*\.+.*[''\.])'
   severity: critical
   description: "Potential command injection via Runtime.exec"
   remediation: "Avoid executing shell commands. If necessary, validate all inputs"
@@ -36,7 +36,8 @@
 - id: kotlin-insecure-webview
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\..settings\\..javaScriptEnabled\\.s*=\\.s*true|addJavascriptInterface''severity: high
+    - regex: 'webView\..settings\..javaScriptEnabled\.s*=\.s*true|addJavascriptInterface'
+  severity: high
   description: "JavaScript enabled in WebView without proper security controls"
   remediation: "Disable JavaScript if not needed, or implement a secure JsInterface"
 
@@ -44,7 +45,7 @@
 - id: kotlin-weak-crypto-md5
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(MessageDigest\\..getInstance\\.s*\\.(\\.s*['''\\.]MD5[''\\.])|(Cipher\\..getInstance\\.s*\\.(\\.s*[''\\.]DES[''\\.])'
+    - regex: '(?i)(MessageDigest\..getInstance\.s*\.(\.s*[''\.]MD5[''\.])|(Cipher\..getInstance\.s*\.(\.s*[''\.]DES[''\.])))'
   severity: medium
   description: "Use of weak cryptographic hash function (MD5) or cipher (DES)"
   remediation: "Use SHA-256 or SHA-512. For passwords, use bcrypt or Argon2"
@@ -53,7 +54,8 @@
 - id: kotlin-insecure-file-access
   languages: [kotlin]
   patterns:
-    - regex: 'File\\.s*\\.(\\.s*Environment\\..getExternalStorageDirectory|Context\\..MODE_WORLD_READABLE|Context\\..MODE_WORLD_WRITEABLE''severity: high
+    - regex: 'File\.s*\.(\.s*Environment\..getExternalStorageDirectory|Context\..MODE_WORLD_READABLE|Context\..MODE_WORLD_WRITEABLE)'
+  severity: high
   description: "Accessing external storage or using world-readable/writable files"
   remediation: "Use scoped storage (Android 10+) and internal storage with MODE_PRIVATE"
 
@@ -61,7 +63,8 @@
 - id: kotlin-debug-logging
   languages: [kotlin]
   patterns:
-    - regex: 'Log\\..(d|v|i)\\.s*\\.([^\\.)]*(password|token|secret|key)''severity: medium
+    - regex: 'Log\..(d|v|i)\.s*\.([^\.)]*(password|token|secret|key))'
+  severity: medium
   description: "Sensitive data logged in debug statements"
   remediation: "Remove or obfuscate sensitive data in log statements for production"
 
@@ -69,7 +72,8 @@
 - id: kotlin-insecure-sharedprefs
   languages: [kotlin]
   patterns:
-    - regex: 'getSharedPreferences\\.s*\\.([^\\.)]+,\\.s*Context\\..MODE_WORLD''severity: high
+    - regex: 'getSharedPreferences\.s*\.([^\.)]+,\.s*Context\..MODE_WORLD)'
+  severity: high
   description: "SharedPreferences with world-readable/writable mode"
   remediation: "Use Context.MODE_PRIVATE for SharedPreferences"
 
@@ -77,7 +81,7 @@
 - id: kotlin-hardcoded-encryption-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*['''\\.][a-zA-Z0-9+/=]{16,}[''\\.]'
+    - regex: '(?i)(key|secret|iv)\.s*=\.s*[''\.][a-zA-Z0-9+/=]{16,}[''\.]'
   severity: medium
   description: "Hardcoded encryption key or IV detected"
   remediation: "Use Android Keystore for key generation and storage"
@@ -86,7 +90,8 @@
 - id: kotlin-insecure-random
   languages: [kotlin]
   patterns:
-    - regex: 'Random\\.(\\.)|java\\..util\\..Random''severity: medium
+    - regex: 'Random\.(\.)|java\..util\..Random'
+  severity: medium
   description: "Using insecure random number generator for security operations"
   remediation: "Use SecureRandom for security-sensitive random number generation"
 
@@ -94,7 +99,7 @@
 - id: kotlin-exported-component
   languages: [kotlin]
   patterns:
-    - regex: '(?i)android:exported\\.s*=\\.s*['''\\.]true[''\\.]'
+    - regex: '(?i)android:exported\.s*=\.s*[''\.]true[''\.]'
   severity: medium
   description: "Android component exported without permission protection"
   remediation: "Set exported=false or add permission requirements for exported components"
@@ -103,7 +108,8 @@
 - id: kotlin-pending-intent-mutable
   languages: [kotlin]
   patterns:
-    - regex: 'PendingIntent\\..(getActivity|getService|getBroadcast)\\.s*\\.([^\\.)]+,\\.s*PendingIntent\\..FLAG_MUTABLE''severity: high
+    - regex: 'PendingIntent\..(getActivity|getService|getBroadcast)\.s*\.([^\.)]+,\.s*PendingIntent\..FLAG_MUTABLE)'
+  severity: high
   description: "Mutable PendingIntent can be exploited by other apps"
   remediation: "Use FLAG_IMMUTABLE unless mutability is specifically required"
 
@@ -111,7 +117,8 @@
 - id: kotlin-ssl-pinning-missing
   languages: [kotlin]
   patterns:
-    - regex: '(?i)HostnameVerifier|X509TrustManager|checkServerTrusted.*return''severity: high
+    - regex: '(?i)HostnameVerifier|X509TrustManager|checkServerTrusted.*return'
+  severity: high
   description: "Custom SSL/TLS validation that may bypass certificate checks"
   remediation: "Use default SSL validation or implement proper certificate pinning"
 
@@ -119,7 +126,8 @@
 - id: kotlin-deep-link-validation
   languages: [kotlin]
   patterns:
-    - regex: '(?i)Intent\\..ACTION_VIEW|data\\..scheme\\.s*==''severity: medium
+    - regex: '(?i)Intent\..ACTION_VIEW|data\..scheme\.s*=='
+  severity: medium
   description: "Deep link handling without proper validation"
   remediation: "Validate deep link URLs and use app links with verification"
 
@@ -127,7 +135,8 @@
 - id: kotlin-webview-file-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\..settings\\..allowFileAccess\\.s*=\\.s*true|allowUniversalAccessFromFileURLs\\.s*=\\.s*true''severity: high
+    - regex: 'webView\..settings\..allowFileAccess\.s*=\.s*true|allowUniversalAccessFromFileURLs\.s*=\.s*true'
+  severity: high
   description: "WebView allows file access which can lead to data theft"
   remediation: "Disable file access in WebView unless absolutely necessary"
 
@@ -135,7 +144,8 @@
 - id: kotlin-insecure-broadcast
   languages: [kotlin]
   patterns:
-    - regex: 'registerReceiver\\.s*\\.([^\\.)]+,\\.s*null\\.s*\\.)''severity: medium
+    - regex: 'registerReceiver\.s*\.([^\.)]+,\.s*null\.s*\.)'
+  severity: medium
   description: "BroadcastReceiver registered without permission protection"
   remediation: "Specify permission parameter when registering BroadcastReceiver"
 
@@ -143,7 +153,8 @@
 - id: kotlin-tapjacking
   languages: [kotlin]
   patterns:
-    - regex: '(?i)FLAG_SECURE\\.s*not\\.s*set|setFlags\\.s*\\.([^\\.)]*LayoutParams''severity: low
+    - regex: '(?i)FLAG_SECURE\.s*not\.s*set|setFlags\.s*\.([^\.)]*LayoutParams)'
+  severity: low
   description: "Activity may be vulnerable to tapjacking attacks"
   remediation: "Set FLAG_SECURE in sensitive activities to prevent screen recording"
 
@@ -151,7 +162,8 @@
 - id: kotlin-implicit-intent
   languages: [kotlin]
   patterns:
-    - regex: 'startActivity\\.s*\\.(\\.s*Intent\\.s*\\.([^\\.)]*ACTION''severity: medium
+    - regex: 'startActivity\.s*\.(\.s*Intent\.s*\.([^\.)]*ACTION))'
+  severity: medium
   description: "Implicit intent may be intercepted by malicious apps"
   remediation: "Use explicit intents or verify package name before startActivity"
 
@@ -159,14 +171,16 @@
 - id: kotlin-clipboard-sensitive
   languages: [kotlin]
   patterns:
-    - regex: '(?i)ClipboardManager.*putPrimaryClip.*password|ClipboardManager.*putPrimaryClip.*token''severity: medium
+    - regex: '(?i)ClipboardManager.*putPrimaryClip.*password|ClipboardManager.*putPrimaryClip.*token'
+  severity: medium
   description: "Sensitive data copied to clipboard"
   remediation: "Avoid copying sensitive data to clipboard or clear clipboard after use"
 # ======================== DEEP DETECTION RULES ========================
 - id: kotlin-webview-js-enabled
   languages: [kotlin]
   patterns:
-    - regex: '(?i)webView.*javaScriptEnabled\\.s*=\\.s*true''severity: high
+    - regex: '(?i)webView.*javaScriptEnabled\.s*=\.s*true'
+  severity: high
   description: "WebView with JavaScript enabled — XSS risk"
   remediation: "Only enable JS when necessary. Use addJavascriptInterface carefully"
   cwe: "CWE-79"
@@ -175,7 +189,8 @@
 - id: kotlin-shared-prefs-edit
   languages: [kotlin]
   patterns:
-    - regex: '(?i)getSharedPreferences.*edit\\.\\.''severity: medium
+    - regex: '(?i)getSharedPreferences.*edit\.\.'
+  severity: medium
   description: "SharedPreferences — check for sensitive data storage"
   remediation: "Use EncryptedSharedPreferences for sensitive data"
   cwe: "CWE-312"
@@ -184,7 +199,8 @@
 - id: kotlin-intent-extra
   languages: [kotlin]
   patterns:
-    - regex: '(?i)intent\\.(getStringExtra|getIntExtra|getBundleExtra)\\.s*\\.''severity: medium
+    - regex: '(?i)intent\.(getStringExtra|getIntExtra|getBundleExtra)\.s*\.'
+  severity: medium
   description: "Intent data access — validate for injection"
   remediation: "Validate all intent extras. Don't trust inter-component data"
   cwe: "CWE-20"
@@ -193,7 +209,8 @@
 - id: kotlin-content-provider
   languages: [kotlin]
   patterns:
-    - regex: '(?i)contentResolver\\.(query|insert|update|delete)\\.s*\\.''severity: medium
+    - regex: '(?i)contentResolver\.(query|insert|update|delete)\.s*\.'
+  severity: medium
   description: "ContentProvider operation — ensure URI is validated"
   remediation: "Validate content URIs. Use parameterized queries"
   cwe: "CWE-89"
@@ -202,7 +219,8 @@
 - id: kotlin-broadcast-receiver
   languages: [kotlin]
   patterns:
-    - regex: 'registerReceiver\\.s*\\.''severity: medium
+    - regex: 'registerReceiver\.s*\.'
+  severity: medium
   description: "BroadcastReceiver — ensure exported=false for sensitive receivers"
   remediation: "Use LocalBroadcastManager or set exported=false"
   cwe: "CWE-926"
@@ -211,7 +229,8 @@
 - id: kotlin-sql-rawquery
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(rawQuery|execSQL)\\.s*\\.\\.s*\\..*\\.''severity: critical
+    - regex: '(?i)(rawQuery|execSQL)\.s*\.\.s*\..*\.'
+  severity: critical
   description: "Raw SQL with string interpolation"
   remediation: "Use parameterized query with selectionArgs"
   cwe: "CWE-89"
@@ -220,7 +239,8 @@
 - id: kotlin-runtime-exec
   languages: [kotlin]
   patterns:
-    - regex: 'Runtime\\.getRuntime\\.\\.\\.exec\\.s*\\.''severity: critical
+    - regex: 'Runtime\.getRuntime\.\.\.exec\.s*\.'
+  severity: critical
   description: "Command execution on Android device"
   remediation: "Avoid runtime.exec. Use ProcessBuilder if necessary"
   cwe: "CWE-78"
@@ -229,7 +249,8 @@
 - id: kotlin-log-sensitive
   languages: [kotlin]
   patterns:
-    - regex: '(?i)Log\\.(d|i|w|e|v)\\.s*\\.\\.s*.*(?:password|token|secret|key|credential)''severity: high
+    - regex: '(?i)Log\.(d|i|w|e|v)\.s*\.\.s*.*(?:password|token|secret|key|credential)'
+  severity: high
   description: "Sensitive data in Android log output"
   remediation: "Remove sensitive data from logs. Use ProGuard to strip logs"
   cwe: "CWE-532"
@@ -238,7 +259,8 @@
 - id: kotlin-file-provider-external
   languages: [kotlin]
   patterns:
-    - regex: '(?i)Environment\\.getExternalStorageDirectory''severity: medium
+    - regex: '(?i)Environment\.getExternalStorageDirectory'
+  severity: medium
   description: "External storage access — data accessible by all apps"
   remediation: "Use getFilesDir() or getExternalFilesDir() for app-private storage"
   cwe: "CWE-276"
@@ -247,7 +269,8 @@
 - id: kotlin-certificate-trust-all
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(TrustAllCerts|X509TrustManager|checkServerTrusted\\.s*\\.\\.s*\\.\\.s*\\.?\\.s*\\.)''severity: critical
+    - regex: '(?i)(TrustAllCerts|X509TrustManager|checkServerTrusted\.s*\.\.s*\.\.s*\.?\.s*\.)'
+  severity: critical
   description: "Certificate trust-all — man-in-the-middle attack possible"
   remediation: "Implement proper certificate validation. Use OkHttp CertificatePinner"
   cwe: "CWE-295"
@@ -265,7 +288,8 @@
 - id: kotlin-coroutine-scope-global
   languages: [kotlin]
   patterns:
-    - regex: 'GlobalScope\\..launch|GlobalScope\\..async''severity: medium
+    - regex: 'GlobalScope\..launch|GlobalScope\..async'
+  severity: medium
   description: "GlobalScope usage can cause memory leaks"
   remediation: "Use lifecycle-aware scopes like lifecycleScope or viewModelScope"
   cwe: "CWE-401"
@@ -274,7 +298,8 @@
 - id: kotlin-coroutine-scope-custom
   languages: [kotlin]
   patterns:
-    - regex: 'CoroutineScope\\.s*\\.(''severity: low
+    - regex: 'CoroutineScope\.s*\.()'
+  severity: low
   description: "Custom CoroutineScope"
   remediation: "Ensure proper cancellation"
   cwe: "CWE-401"
@@ -283,7 +308,8 @@
 - id: kotlin-coroutine-dispatcher
   languages: [kotlin]
   patterns:
-    - regex: 'Dispatchers\\..Default|Dispatchers\\..IO''severity: low
+    - regex: 'Dispatchers\..Default|Dispatchers\..IO'
+  severity: low
   description: "Coroutine dispatcher"
   remediation: "Use appropriate dispatcher"
   cwe: "CWE-693"
@@ -292,7 +318,8 @@
 - id: kotlin-coroutine-cancel
   languages: [kotlin]
   patterns:
-    - regex: '\\..cancel\\.s*\\.(|cancel\\.s*\\.(''severity: low
+    - regex: '\..cancel\.s*\.(|cancel\.s*\.())'
+  severity: low
   description: "Coroutine cancellation"
   remediation: "Handle cancellation properly"
   cwe: "CWE-754"
@@ -301,7 +328,8 @@
 - id: kotlin-coroutine-supervisor
   languages: [kotlin]
   patterns:
-    - regex: 'SupervisorJob|supervisorScope''severity: low
+    - regex: 'SupervisorJob|supervisorScope'
+  severity: low
   description: "Supervisor scope"
   remediation: "Use for independent coroutines"
   cwe: "CWE-693"
@@ -310,7 +338,8 @@
 - id: kotlin-coroutine-with-context
   languages: [kotlin]
   patterns:
-    - regex: 'withContext\\.s*\\.(''severity: low
+    - regex: 'withContext\.s*\.()'
+  severity: low
   description: "withContext usage"
   remediation: "Ensure proper context switching"
   cwe: "CWE-693"
@@ -319,7 +348,8 @@
 - id: kotlin-coroutine-async
   languages: [kotlin]
   patterns:
-    - regex: 'async\\.s*\\.{|await\\.s*\\.(''severity: low
+    - regex: 'async\.s*\.{|await\.s*\.()'
+  severity: low
   description: "async/await usage"
   remediation: "Handle exceptions properly"
   cwe: "CWE-754"
@@ -328,7 +358,8 @@
 - id: kotlin-coroutine-flow
   languages: [kotlin]
   patterns:
-    - regex: 'flow\\.s*\\.{|Flow<''severity: low
+    - regex: 'flow\.s*\.{|Flow<'
+  severity: low
   description: "Flow usage"
   remediation: "Handle exceptions properly"
   cwe: "CWE-754"
@@ -337,7 +368,8 @@
 - id: kotlin-coroutine-channel
   languages: [kotlin]
   patterns:
-    - regex: 'Channel\\.s*\\.(|Channel<''severity: low
+    - regex: 'Channel\.s*\.(|Channel<)'
+  severity: low
   description: "Channel usage"
   remediation: "Close channels properly"
   cwe: "CWE-775"
@@ -346,7 +378,8 @@
 - id: kotlin-coroutine-broadcast
   languages: [kotlin]
   patterns:
-    - regex: 'BroadcastChannel|broadcast''severity: low
+    - regex: 'BroadcastChannel|broadcast'
+  severity: low
   description: "BroadcastChannel usage"
   remediation: "Close properly"
   cwe: "CWE-775"
@@ -355,7 +388,8 @@
 - id: kotlin-coroutine-conflated
   languages: [kotlin]
   patterns:
-    - regex: 'ConflatedChannel|conflated''severity: low
+    - regex: 'ConflatedChannel|conflated'
+  severity: low
   description: "Conflated channel"
   remediation: "Understand conflation behavior"
   cwe: "CWE-693"
@@ -364,7 +398,8 @@
 - id: kotlin-coroutine-buffer
   languages: [kotlin]
   patterns:
-    - regex: 'buffer\\.s*\\.(|Channel\\..BUFFERED''severity: low
+    - regex: 'buffer\.s*\.(|Channel\..BUFFERED)'
+  severity: low
   description: "Channel buffer"
   remediation: "Set appropriate buffer size"
   cwe: "CWE-770"
@@ -373,7 +408,8 @@
 - id: kotlin-coroutine-timeout
   languages: [kotlin]
   patterns:
-    - regex: 'withTimeout\\.s*\\.(|withTimeoutOrNull''severity: low
+    - regex: 'withTimeout\.s*\.(|withTimeoutOrNull)'
+  severity: low
   description: "Coroutine timeout"
   remediation: "Set appropriate timeout"
   cwe: "CWE-770"
@@ -382,7 +418,8 @@
 - id: kotlin-coroutine-delay
   languages: [kotlin]
   patterns:
-    - regex: 'delay\\.s*\\.(''severity: low
+    - regex: 'delay\.s*\.()'
+  severity: low
   description: "Coroutine delay"
   remediation: "Handle cancellation"
   cwe: "CWE-754"
@@ -391,7 +428,8 @@
 - id: kotlin-coroutine-yield
   languages: [kotlin]
   patterns:
-    - regex: 'yield\\.s*\\.(''severity: low
+    - regex: 'yield\.s*\.()'
+  severity: low
   description: "Coroutine yield"
   remediation: "Use for cooperative scheduling"
   cwe: "CWE-693"
@@ -400,7 +438,8 @@
 - id: kotlin-coroutine-mutex
   languages: [kotlin]
   patterns:
-    - regex: 'Mutex\\.s*\\.(|mutex\\..lock''severity: low
+    - regex: 'Mutex\.s*\.(|mutex\..lock)'
+  severity: low
   description: "Coroutine mutex"
   remediation: "Use withLock for safety"
   cwe: "CWE-667"
@@ -409,7 +448,8 @@
 - id: kotlin-coroutine-semaphore
   languages: [kotlin]
   patterns:
-    - regex: 'Semaphore\\.s*\\.(''severity: low
+    - regex: 'Semaphore\.s*\.()'
+  severity: low
   description: "Coroutine semaphore"
   remediation: "Use for concurrency limiting"
   cwe: "CWE-770"
@@ -418,7 +458,8 @@
 - id: kotlin-coroutine-atomic
   languages: [kotlin]
   patterns:
-    - regex: 'atomic\\.s*\\.{|AtomicInt''severity: low
+    - regex: 'atomic\.s*\.{|AtomicInt'
+  severity: low
   description: "Atomic operations"
   remediation: "Use for thread-safe operations"
   cwe: "CWE-362"
@@ -427,7 +468,8 @@
 - id: kotlin-coroutine-structured
   languages: [kotlin]
   patterns:
-    - regex: 'coroutineScope\\.s*\\.(''severity: low
+    - regex: 'coroutineScope\.s*\.()'
+  severity: low
   description: "Structured concurrency"
   remediation: "Good practice for error handling"
   cwe: "CWE-693"
@@ -437,7 +479,8 @@
 - id: kotlin-flow-stateflow
   languages: [kotlin]
   patterns:
-    - regex: 'MutableStateFlow|StateFlow<''severity: low
+    - regex: 'MutableStateFlow|StateFlow<'
+  severity: low
   description: "StateFlow usage"
   remediation: "Use for state management"
   cwe: "CWE-693"
@@ -446,7 +489,8 @@
 - id: kotlin-flow-sharedflow
   languages: [kotlin]
   patterns:
-    - regex: 'MutableSharedFlow|SharedFlow<''severity: low
+    - regex: 'MutableSharedFlow|SharedFlow<'
+  severity: low
   description: "SharedFlow usage"
   remediation: "Use for events"
   cwe: "CWE-693"
@@ -455,7 +499,8 @@
 - id: kotlin-flow-collect
   languages: [kotlin]
   patterns:
-    - regex: '\\..collect\\.s*\\.{|collect\\.s*\\.(''severity: low
+    - regex: '\..collect\.s*\.{|collect\.s*\.()'
+  severity: low
   description: "Flow collection"
   remediation: "Handle exceptions"
   cwe: "CWE-754"
@@ -464,7 +509,8 @@
 - id: kotlin-flow-launch-in
   languages: [kotlin]
   patterns:
-    - regex: '\\..launchIn\\.s*\\.(''severity: low
+    - regex: '\..launchIn\.s*\.()'
+  severity: low
   description: "Flow launchIn"
   remediation: "Use lifecycle-aware scope"
   cwe: "CWE-401"
@@ -473,7 +519,8 @@
 - id: kotlin-flow-state-in
   languages: [kotlin]
   patterns:
-    - regex: '\\..stateIn\\.s*\\.(''severity: low
+    - regex: '\..stateIn\.s*\.()'
+  severity: low
   description: "Flow stateIn"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -482,7 +529,8 @@
 - id: kotlin-flow-share-in
   languages: [kotlin]
   patterns:
-    - regex: '\\..shareIn\\.s*\\.(''severity: low
+    - regex: '\..shareIn\.s*\.()'
+  severity: low
   description: "Flow shareIn"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -491,7 +539,8 @@
 - id: kotlin-flow-catch
   languages: [kotlin]
   patterns:
-    - regex: '\\..catch\\.s*\\.(''severity: low
+    - regex: '\..catch\.s*\.()'
+  severity: low
   description: "Flow catch"
   remediation: "Handle exceptions properly"
   cwe: "CWE-754"
@@ -500,7 +549,8 @@
 - id: kotlin-flow-retry
   languages: [kotlin]
   patterns:
-    - regex: '\\..retry\\.s*\\.(''severity: low
+    - regex: '\..retry\.s*\.()'
+  severity: low
   description: "Flow retry"
   remediation: "Configure retry policy"
   cwe: "CWE-754"
@@ -509,7 +559,8 @@
 - id: kotlin-flow-debounce
   languages: [kotlin]
   patterns:
-    - regex: '\\..debounce\\.s*\\.(''severity: low
+    - regex: '\..debounce\.s*\.()'
+  severity: low
   description: "Flow debounce"
   remediation: "Set appropriate debounce"
   cwe: "CWE-770"
@@ -518,7 +569,8 @@
 - id: kotlin-flow-throttle
   languages: [kotlin]
   patterns:
-    - regex: '\\..throttle\\.s*\\.(''severity: low
+    - regex: '\..throttle\.s*\.()'
+  severity: low
   description: "Flow throttle"
   remediation: "Set appropriate throttle"
   cwe: "CWE-770"
@@ -527,7 +579,8 @@
 - id: kotlin-flow-distinct
   languages: [kotlin]
   patterns:
-    - regex: '\\..distinctUntilChanged\\.s*\\.(''severity: low
+    - regex: '\..distinctUntilChanged\.s*\.()'
+  severity: low
   description: "Flow distinct"
   remediation: "Use for deduplication"
   cwe: "CWE-693"
@@ -536,7 +589,8 @@
 - id: kotlin-flow-filter
   languages: [kotlin]
   patterns:
-    - regex: '\\..filter\\.s*\\.(''severity: low
+    - regex: '\..filter\.s*\.()'
+  severity: low
   description: "Flow filter"
   remediation: "Validate filter logic"
   cwe: "CWE-20"
@@ -545,7 +599,8 @@
 - id: kotlin-flow-map
   languages: [kotlin]
   patterns:
-    - regex: '\\..map\\.s*\\.(''severity: low
+    - regex: '\..map\.s*\.()'
+  severity: low
   description: "Flow map"
   remediation: "Validate transformation"
   cwe: "CWE-20"
@@ -554,7 +609,8 @@
 - id: kotlin-flow-flat-map
   languages: [kotlin]
   patterns:
-    - regex: '\\..flatMap\\.s*\\.(''severity: low
+    - regex: '\..flatMap\.s*\.()'
+  severity: low
   description: "Flow flatMap"
   remediation: "Validate transformation"
   cwe: "CWE-20"
@@ -563,7 +619,8 @@
 - id: kotlin-flow-combine
   languages: [kotlin]
   patterns:
-    - regex: '\\..combine\\.s*\\.(''severity: low
+    - regex: '\..combine\.s*\.()'
+  severity: low
   description: "Flow combine"
   remediation: "Handle multiple flows"
   cwe: "CWE-693"
@@ -572,7 +629,8 @@
 - id: kotlin-flow-zip
   languages: [kotlin]
   patterns:
-    - regex: '\\..zip\\.s*\\.(''severity: low
+    - regex: '\..zip\.s*\.()'
+  severity: low
   description: "Flow zip"
   remediation: "Handle multiple flows"
   cwe: "CWE-693"
@@ -581,7 +639,8 @@
 - id: kotlin-flow-merge
   languages: [kotlin]
   patterns:
-    - regex: '\\..merge\\.s*\\.(''severity: low
+    - regex: '\..merge\.s*\.()'
+  severity: low
   description: "Flow merge"
   remediation: "Handle multiple flows"
   cwe: "CWE-693"
@@ -590,7 +649,8 @@
 - id: kotlin-flow-conflate
   languages: [kotlin]
   patterns:
-    - regex: '\\..conflate\\.s*\\.(''severity: low
+    - regex: '\..conflate\.s*\.()'
+  severity: low
   description: "Flow conflate"
   remediation: "Understand conflation"
   cwe: "CWE-693"
@@ -599,7 +659,8 @@
 - id: kotlin-flow-flow-on
   languages: [kotlin]
   patterns:
-    - regex: '\\..flowOn\\.s*\\.(''severity: low
+    - regex: '\..flowOn\.s*\.()'
+  severity: low
   description: "Flow flowOn"
   remediation: "Set appropriate dispatcher"
   cwe: "CWE-693"
@@ -608,7 +669,8 @@
 - id: kotlin-flow-callback-flow
   languages: [kotlin]
   patterns:
-    - regex: 'callbackFlow\\.s*\\.(''severity: low
+    - regex: 'callbackFlow\.s*\.()'
+  severity: low
   description: "callbackFlow usage"
   remediation: "Close channel properly"
   cwe: "CWE-775"
@@ -618,7 +680,8 @@
 - id: kotlin-room-database
   languages: [kotlin]
   patterns:
-    - regex: '@Database|Room\\..databaseBuilder''severity: low
+    - regex: '@Database|Room\..databaseBuilder'
+  severity: low
   description: "Room database"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -627,7 +690,8 @@
 - id: kotlin-room-entity
   languages: [kotlin]
   patterns:
-    - regex: '@Entity''severity: low
+    - regex: '@Entity'
+  severity: low
   description: "Room entity"
   remediation: "Don't store sensitive data"
   cwe: "CWE-312"
@@ -636,7 +700,8 @@
 - id: kotlin-room-dao
   languages: [kotlin]
   patterns:
-    - regex: '@Dao''severity: low
+    - regex: '@Dao'
+  severity: low
   description: "Room DAO"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -645,7 +710,8 @@
 - id: kotlin-room-query
   languages: [kotlin]
   patterns:
-    - regex: '@Query''severity: low
+    - regex: '@Query'
+  severity: low
   description: "Room query"
   remediation: "Use parameters, not concatenation"
   cwe: "CWE-89"
@@ -654,7 +720,8 @@
 - id: kotlin-room-raw-query
   languages: [kotlin]
   patterns:
-    - regex: '@RawQuery''severity: medium
+    - regex: '@RawQuery'
+  severity: medium
   description: "Room raw query"
   remediation: "Use carefully"
   cwe: "CWE-89"
@@ -663,7 +730,8 @@
 - id: kotlin-room-insert
   languages: [kotlin]
   patterns:
-    - regex: '@Insert''severity: low
+    - regex: '@Insert'
+  severity: low
   description: "Room insert"
   remediation: "Validate data before insert"
   cwe: "CWE-20"
@@ -672,7 +740,8 @@
 - id: kotlin-room-update
   languages: [kotlin]
   patterns:
-    - regex: '@Update''severity: low
+    - regex: '@Update'
+  severity: low
   description: "Room update"
   remediation: "Validate data before update"
   cwe: "CWE-20"
@@ -681,7 +750,8 @@
 - id: kotlin-room-delete
   languages: [kotlin]
   patterns:
-    - regex: '@Delete''severity: low
+    - regex: '@Delete'
+  severity: low
   description: "Room delete"
   remediation: "Validate before delete"
   cwe: "CWE-20"
@@ -690,7 +760,8 @@
 - id: kotlin-room-type-converter
   languages: [kotlin]
   patterns:
-    - regex: '@TypeConverter''severity: low
+    - regex: '@TypeConverter'
+  severity: low
   description: "Room type converter"
   remediation: "Validate conversion"
   cwe: "CWE-20"
@@ -699,7 +770,8 @@
 - id: kotlin-room-foreign-key
   languages: [kotlin]
   patterns:
-    - regex: '@ForeignKey''severity: low
+    - regex: '@ForeignKey'
+  severity: low
   description: "Room foreign key"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -708,7 +780,8 @@
 - id: kotlin-room-index
   languages: [kotlin]
   patterns:
-    - regex: '@Index''severity: low
+    - regex: '@Index'
+  severity: low
   description: "Room index"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -717,7 +790,8 @@
 - id: kotlin-room-primary-key
   languages: [kotlin]
   patterns:
-    - regex: '@PrimaryKey''severity: low
+    - regex: '@PrimaryKey'
+  severity: low
   description: "Room primary key"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -726,7 +800,8 @@
 - id: kotlin-room-column-info
   languages: [kotlin]
   patterns:
-    - regex: '@ColumnInfo''severity: low
+    - regex: '@ColumnInfo'
+  severity: low
   description: "Room column info"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -735,7 +810,8 @@
 - id: kotlin-room-embedded
   languages: [kotlin]
   patterns:
-    - regex: '@Embedded''severity: low
+    - regex: '@Embedded'
+  severity: low
   description: "Room embedded"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -744,7 +820,8 @@
 - id: kotlin-room-relation
   languages: [kotlin]
   patterns:
-    - regex: '@Relation''severity: low
+    - regex: '@Relation'
+  severity: low
   description: "Room relation"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -753,7 +830,8 @@
 - id: kotlin-room-transaction
   languages: [kotlin]
   patterns:
-    - regex: '@Transaction''severity: low
+    - regex: '@Transaction'
+  severity: low
   description: "Room transaction"
   remediation: "Use for atomic operations"
   cwe: "CWE-362"
@@ -762,7 +840,8 @@
 - id: kotlin-room-migration
   languages: [kotlin]
   patterns:
-    - regex: 'Migration\\.s*\\.(''severity: low
+    - regex: 'Migration\.s*\.()'
+  severity: low
   description: "Room migration"
   remediation: "Test migrations properly"
   cwe: "CWE-693"
@@ -771,7 +850,8 @@
 - id: kotlin-retrofit-builder
   languages: [kotlin]
   patterns:
-    - regex: 'Retrofit\\..Builder|retrofit2\\..Retrofit''severity: low
+    - regex: 'Retrofit\..Builder|retrofit2\..Retrofit'
+  severity: low
   description: "Retrofit builder"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -780,7 +860,8 @@
 - id: kotlin-retrofit-base-url
   languages: [kotlin]
   patterns:
-    - regex: 'baseUrl\\.s*\\.(''severity: low
+    - regex: 'baseUrl\.s*\.()'
+  severity: low
   description: "Retrofit base URL"
   remediation: "Use HTTPS"
   cwe: "CWE-319"
@@ -789,7 +870,8 @@
 - id: kotlin-retrofit-interceptor
   languages: [kotlin]
   patterns:
-    - regex: 'addInterceptor|addNetworkInterceptor''severity: low
+    - regex: 'addInterceptor|addNetworkInterceptor'
+  severity: low
   description: "Retrofit interceptor"
   remediation: "Don't log sensitive data"
   cwe: "CWE-532"
@@ -798,7 +880,8 @@
 - id: kotlin-retrofit-auth
   languages: [kotlin]
   patterns:
-    - regex: 'Authenticator|authenticator''severity: low
+    - regex: 'Authenticator|authenticator'
+  severity: low
   description: "Retrofit authenticator"
   remediation: "Implement properly"
   cwe: "CWE-306"
@@ -807,7 +890,8 @@
 - id: kotlin-retrofit-timeout
   languages: [kotlin]
   patterns:
-    - regex: 'connectTimeout|readTimeout|writeTimeout''severity: low
+    - regex: 'connectTimeout|readTimeout|writeTimeout'
+  severity: low
   description: "Retrofit timeout"
   remediation: "Set appropriate timeouts"
   cwe: "CWE-770"
@@ -816,7 +900,8 @@
 - id: kotlin-retrofit-call
   languages: [kotlin]
   patterns:
-    - regex: 'Call\\.s*<|\\..enqueue\\.s*\\.(''severity: low
+    - regex: 'Call\.s*<|\..enqueue\.s*\.()'
+  severity: low
   description: "Retrofit call"
   remediation: "Handle responses properly"
   cwe: "CWE-754"
@@ -825,7 +910,8 @@
 - id: kotlin-retrofit-response
   languages: [kotlin]
   patterns:
-    - regex: 'Response\\.s*<|\\..body\\.s*\\.(''severity: low
+    - regex: 'Response\.s*<|\..body\.s*\.()'
+  severity: low
   description: "Retrofit response"
   remediation: "Validate response"
   cwe: "CWE-20"
@@ -834,7 +920,8 @@
 - id: kotlin-retrofit-multipart
   languages: [kotlin]
   patterns:
-    - regex: '@Multipart|MultipartBody''severity: low
+    - regex: '@Multipart|MultipartBody'
+  severity: low
   description: "Retrofit multipart"
   remediation: "Validate file uploads"
   cwe: "CWE-434"
@@ -843,7 +930,8 @@
 - id: kotlin-okhttp-client
   languages: [kotlin]
   patterns:
-    - regex: 'OkHttpClient\\.s*\\.(|OkHttpClient\\..Builder''severity: low
+    - regex: 'OkHttpClient\.s*\.(|OkHttpClient\..Builder)'
+  severity: low
   description: "OkHttp client"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -852,7 +940,8 @@
 - id: kotlin-okhttp-ssl-socket-factory
   languages: [kotlin]
   patterns:
-    - regex: 'sslSocketFactory\\.s*\\.(''severity: medium
+    - regex: 'sslSocketFactory\.s*\.()'
+  severity: medium
   description: "OkHttp SSL socket factory"
   remediation: "Use default SSL"
   cwe: "CWE-295"
@@ -861,7 +950,8 @@
 - id: kotlin-okhttp-hostname-verifier
   languages: [kotlin]
   patterns:
-    - regex: 'hostnameVerifier\\.s*\\.(''severity: high
+    - regex: 'hostnameVerifier\.s*\.()'
+  severity: high
   description: "OkHttp hostname verifier"
   remediation: "Use default verifier"
   cwe: "CWE-295"
@@ -870,7 +960,8 @@
 - id: kotlin-okhttp-certificate-pinner
   languages: [kotlin]
   patterns:
-    - regex: 'certificatePinner\\.s*\\.(''severity: low
+    - regex: 'certificatePinner\.s*\.()'
+  severity: low
   description: "OkHttp certificate pinning"
   remediation: "Good for security"
   cwe: "CWE-295"
@@ -879,7 +970,8 @@
 - id: kotlin-okhttp-dns
   languages: [kotlin]
   patterns:
-    - regex: 'dns\\.s*\\.(''severity: low
+    - regex: 'dns\.s*\.()'
+  severity: low
   description: "OkHttp DNS"
   remediation: "Use secure DNS"
   cwe: "CWE-693"
@@ -888,7 +980,8 @@
 - id: kotlin-okhttp-proxy
   languages: [kotlin]
   patterns:
-    - regex: 'proxy\\.s*\\.(''severity: low
+    - regex: 'proxy\.s*\.()'
+  severity: low
   description: "OkHttp proxy"
   remediation: "Configure proxy securely"
   cwe: "CWE-693"
@@ -897,7 +990,8 @@
 - id: kotlin-okhttp-cache
   languages: [kotlin]
   patterns:
-    - regex: 'cache\\.s*\\.(''severity: low
+    - regex: 'cache\.s*\.()'
+  severity: low
   description: "OkHttp cache"
   remediation: "Don't cache sensitive data"
   cwe: "CWE-524"
@@ -906,7 +1000,8 @@
 - id: kotlin-okhttp-event-listener
   languages: [kotlin]
   patterns:
-    - regex: 'eventListener\\.s*\\.(''severity: low
+    - regex: 'eventListener\.s*\.()'
+  severity: low
   description: "OkHttp event listener"
   remediation: "Don't log sensitive data"
   cwe: "CWE-532"
@@ -915,7 +1010,8 @@
 - id: kotlin-okhttp-connection-pool
   languages: [kotlin]
   patterns:
-    - regex: 'connectionPool\\.s*\\.(''severity: low
+    - regex: 'connectionPool\.s*\.()'
+  severity: low
   description: "OkHttp connection pool"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -924,7 +1020,8 @@
 - id: kotlin-okhttp-dispatcher
   languages: [kotlin]
   patterns:
-    - regex: 'dispatcher\\.s*\\.(''severity: low
+    - regex: 'dispatcher\.s*\.()'
+  severity: low
   description: "OkHttp dispatcher"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -934,7 +1031,8 @@
 - id: kotlin-hilt-module
   languages: [kotlin]
   patterns:
-    - regex: '@Module|@HiltModule''severity: low
+    - regex: '@Module|@HiltModule'
+  severity: low
   description: "Hilt module"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -943,7 +1041,8 @@
 - id: kotlin-hilt-install
   languages: [kotlin]
   patterns:
-    - regex: '@InstallIn''severity: low
+    - regex: '@InstallIn'
+  severity: low
   description: "Hilt install"
   remediation: "Use appropriate scope"
   cwe: "CWE-693"
@@ -952,7 +1051,8 @@
 - id: kotlin-hilt-provides
   languages: [kotlin]
   patterns:
-    - regex: '@Provides''severity: low
+    - regex: '@Provides'
+  severity: low
   description: "Hilt provides"
   remediation: "Don't provide secrets"
   cwe: "CWE-798"
@@ -961,7 +1061,8 @@
 - id: kotlin-hilt-inject
   languages: [kotlin]
   patterns:
-    - regex: '@Inject''severity: low
+    - regex: '@Inject'
+  severity: low
   description: "Hilt inject"
   remediation: "Use constructor injection"
   cwe: "CWE-693"
@@ -970,7 +1071,8 @@
 - id: kotlin-hilt-android-entry-point
   languages: [kotlin]
   patterns:
-    - regex: '@AndroidEntryPoint''severity: low
+    - regex: '@AndroidEntryPoint'
+  severity: low
   description: "Hilt Android entry point"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -979,7 +1081,8 @@
 - id: kotlin-hilt-binding
   languages: [kotlin]
   patterns:
-    - regex: '@Binds''severity: low
+    - regex: '@Binds'
+  severity: low
   description: "Hilt binds"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -988,7 +1091,8 @@
 - id: kotlin-hilt-qualifier
   languages: [kotlin]
   patterns:
-    - regex: '@Qualifier''severity: low
+    - regex: '@Qualifier'
+  severity: low
   description: "Hilt qualifier"
   remediation: "Use for disambiguation"
   cwe: "CWE-693"
@@ -997,7 +1101,8 @@
 - id: kotlin-hilt-scope
   languages: [kotlin]
   patterns:
-    - regex: '@Singleton|@ActivityScoped''severity: low
+    - regex: '@Singleton|@ActivityScoped'
+  severity: low
   description: "Hilt scope"
   remediation: "Use appropriate scope"
   cwe: "CWE-693"
@@ -1006,7 +1111,8 @@
 - id: kotlin-dagger-component
   languages: [kotlin]
   patterns:
-    - regex: '@Component''severity: low
+    - regex: '@Component'
+  severity: low
   description: "Dagger component"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1015,7 +1121,8 @@
 - id: kotlin-dagger-subcomponent
   languages: [kotlin]
   patterns:
-    - regex: '@Subcomponent''severity: low
+    - regex: '@Subcomponent'
+  severity: low
   description: "Dagger subcomponent"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1024,7 +1131,8 @@
 - id: kotlin-dagger-module
   languages: [kotlin]
   patterns:
-    - regex: 'dagger\\..Module''severity: low
+    - regex: 'dagger\..Module'
+  severity: low
   description: "Dagger module"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1033,7 +1141,8 @@
 - id: kotlin-dagger-provides
   languages: [kotlin]
   patterns:
-    - regex: '@Provides''severity: low
+    - regex: '@Provides'
+  severity: low
   description: "Dagger provides"
   remediation: "Don't provide secrets"
   cwe: "CWE-798"
@@ -1042,7 +1151,8 @@
 - id: kotlin-koin-module
   languages: [kotlin]
   patterns:
-    - regex: 'module\\.s*\\.{|KoinApplication''severity: low
+    - regex: 'module\.s*\.{|KoinApplication'
+  severity: low
   description: "Koin module"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1051,7 +1161,8 @@
 - id: kotlin-koin-inject
   languages: [kotlin]
   patterns:
-    - regex: 'inject\\.s*\\.(|get\\.s*\\.(''severity: low
+    - regex: 'inject\.s*\.(|get\.s*\.())'
+  severity: low
   description: "Koin injection"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1060,7 +1171,8 @@
 - id: kotlin-koin-scope
   languages: [kotlin]
   patterns:
-    - regex: 'scope\\.s*\\.(''severity: low
+    - regex: 'scope\.s*\.()'
+  severity: low
   description: "Koin scope"
   remediation: "Use appropriate scope"
   cwe: "CWE-693"
@@ -1069,7 +1181,8 @@
 - id: kotlin-koin-single
   languages: [kotlin]
   patterns:
-    - regex: 'single\\.s*\\.(''severity: low
+    - regex: 'single\.s*\.()'
+  severity: low
   description: "Koin single"
   remediation: "Use for singletons"
   cwe: "CWE-693"
@@ -1078,7 +1191,8 @@
 - id: kotlin-koin-factory
   languages: [kotlin]
   patterns:
-    - regex: 'factory\\.s*\\.(''severity: low
+    - regex: 'factory\.s*\.()'
+  severity: low
   description: "Koin factory"
   remediation: "Use for factories"
   cwe: "CWE-693"
@@ -1087,7 +1201,8 @@
 - id: kotlin-koin-view-model
   languages: [kotlin]
   patterns:
-    - regex: 'viewModel\\.s*\\.(''severity: low
+    - regex: 'viewModel\.s*\.()'
+  severity: low
   description: "Koin viewModel"
   remediation: "Use for ViewModels"
   cwe: "CWE-693"
@@ -1096,7 +1211,8 @@
 - id: kotlin-koin-android
   languages: [kotlin]
   patterns:
-    - regex: 'android\\.s*\\.(|startKoin''severity: low
+    - regex: 'android\.s*\.(|startKoin)'
+  severity: low
   description: "Koin Android"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1105,7 +1221,8 @@
 - id: kotlin-koin-test
   languages: [kotlin]
   patterns:
-    - regex: 'koin-test|KoinTest''severity: low
+    - regex: 'koin-test|KoinTest'
+  severity: low
   description: "Koin test"
   remediation: "Only use in tests"
   cwe: "CWE-489"
@@ -1115,7 +1232,8 @@
 - id: kotlin-viewmodel
   languages: [kotlin]
   patterns:
-    - regex: 'ViewModel\\.s*\\.(|by viewModels''severity: low
+    - regex: 'ViewModel\.s*\.(|by viewModels)'
+  severity: low
   description: "ViewModel"
   remediation: "Don't store secrets"
   cwe: "CWE-312"
@@ -1124,7 +1242,8 @@
 - id: kotlin-viewmodel-saved-state
   languages: [kotlin]
   patterns:
-    - regex: 'SavedStateHandle|by savedStateViewModels''severity: low
+    - regex: 'SavedStateHandle|by savedStateViewModels'
+  severity: low
   description: "SavedStateHandle"
   remediation: "Don't store secrets"
   cwe: "CWE-312"
@@ -1133,7 +1252,8 @@
 - id: kotlin-viewmodel-factory
   languages: [kotlin]
   patterns:
-    - regex: 'ViewModelProvider\\..Factory''severity: low
+    - regex: 'ViewModelProvider\..Factory'
+  severity: low
   description: "ViewModel factory"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1142,7 +1262,8 @@
 - id: kotlin-livedata
   languages: [kotlin]
   patterns:
-    - regex: 'LiveData<|MutableLiveData''severity: low
+    - regex: 'LiveData<|MutableLiveData'
+  severity: low
   description: "LiveData"
   remediation: "Don't expose sensitive data"
   cwe: "CWE-200"
@@ -1151,7 +1272,8 @@
 - id: kotlin-livedata-observe
   languages: [kotlin]
   patterns:
-    - regex: '\\..observe\\.s*\\.(''severity: low
+    - regex: '\..observe\.s*\.()'
+  severity: low
   description: "LiveData observe"
   remediation: "Use lifecycle-aware observer"
   cwe: "CWE-693"
@@ -1160,7 +1282,8 @@
 - id: kotlin-livedata-observe-forever
   languages: [kotlin]
   patterns:
-    - regex: '\\..observeForever\\.s*\\.(''severity: medium
+    - regex: '\..observeForever\.s*\.()'
+  severity: medium
   description: "LiveData observeForever"
   remediation: "Remove observer properly"
   cwe: "CWE-401"
@@ -1169,7 +1292,8 @@
 - id: kotlin-livedata-value
   languages: [kotlin]
   patterns:
-    - regex: '\\..value\\.s*=|\\..postValue''severity: low
+    - regex: '\..value\.s*=|\..postValue'
+  severity: low
   description: "LiveData value"
   remediation: "Update on appropriate thread"
   cwe: "CWE-693"
@@ -1178,7 +1302,8 @@
 - id: kotlin-livedata-transform
   languages: [kotlin]
   patterns:
-    - regex: '\\..transform\\.s*\\.(|MediatorLiveData''severity: low
+    - regex: '\..transform\.s*\.(|MediatorLiveData)'
+  severity: low
   description: "LiveData transform"
   remediation: "Validate transformation"
   cwe: "CWE-20"
@@ -1187,7 +1312,8 @@
 - id: kotlin-livedata-switch-map
   languages: [kotlin]
   patterns:
-    - regex: '\\..switchMap\\.s*\\.(''severity: low
+    - regex: '\..switchMap\.s*\.()'
+  severity: low
   description: "LiveData switchMap"
   remediation: "Validate transformation"
   cwe: "CWE-20"
@@ -1196,7 +1322,8 @@
 - id: kotlin-flow-livedata
   languages: [kotlin]
   patterns:
-    - regex: '\\..asLiveData\\.s*\\.(|\\..asFlow\\.s*\\.(''severity: low
+    - regex: '\..asLiveData\.s*\.(|\..asFlow\.s*\.())'
+  severity: low
   description: "Flow/LiveData conversion"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1205,7 +1332,8 @@
 - id: kotlin-state-holder
   languages: [kotlin]
   patterns:
-    - regex: 'StateHolder|StateFlow''severity: low
+    - regex: 'StateHolder|StateFlow'
+  severity: low
   description: "State holder"
   remediation: "Don't expose sensitive state"
   cwe: "CWE-200"
@@ -1214,7 +1342,8 @@
 - id: kotlin-ui-state
   languages: [kotlin]
   patterns:
-    - regex: 'UiState|ViewState''severity: low
+    - regex: 'UiState|ViewState'
+  severity: low
   description: "UI state"
   remediation: "Don't include sensitive data"
   cwe: "CWE-200"
@@ -1223,7 +1352,8 @@
 - id: kotlin-event-wrapper
   languages: [kotlin]
   patterns:
-    - regex: 'Event<|SingleEvent''severity: low
+    - regex: 'Event<|SingleEvent'
+  severity: low
   description: "Event wrapper"
   remediation: "Use for one-time events"
   cwe: "CWE-693"
@@ -1232,7 +1362,8 @@
 - id: kotlin-channel-event
   languages: [kotlin]
   patterns:
-    - regex: 'Channel<.*Event|eventChannel''severity: low
+    - regex: 'Channel<.*Event|eventChannel'
+  severity: low
   description: "Channel for events"
   remediation: "Close properly"
   cwe: "CWE-775"
@@ -1241,7 +1372,8 @@
 - id: kotlin-sealed-class
   languages: [kotlin]
   patterns:
-    - regex: 'sealed\\.s+class|sealed\\.s+interface''severity: low
+    - regex: 'sealed\.s+class|sealed\.s+interface'
+  severity: low
   description: "Sealed class"
   remediation: "Good for state management"
   cwe: "CWE-693"
@@ -1250,7 +1382,8 @@
 - id: kotlin-data-class
   languages: [kotlin]
   patterns:
-    - regex: 'data\\.s+class''severity: low
+    - regex: 'data\.s+class'
+  severity: low
   description: "Data class"
   remediation: "Don't include sensitive data"
   cwe: "CWE-312"
@@ -1259,7 +1392,8 @@
 - id: kotlin-value-class
   languages: [kotlin]
   patterns:
-    - regex: '@JvmInline\\.s+value\\.s+class''severity: low
+    - regex: '@JvmInline\.s+value\.s+class'
+  severity: low
   description: "Value class"
   remediation: "Use for type safety"
   cwe: "CWE-693"
@@ -1268,7 +1402,8 @@
 - id: kotlin-extension-function
   languages: [kotlin]
   patterns:
-    - regex: 'fun\\.s+\\.w+\\..\\.w+''severity: low
+    - regex: 'fun\.s+\.w+\..\.w+'
+  severity: low
   description: "Extension function"
   remediation: "Use appropriately"
   cwe: "CWE-693"
@@ -1278,7 +1413,8 @@
 - id: kotlin-navigation-graph
   languages: [kotlin]
   patterns:
-    - regex: 'NavGraph|navigation\\.s*\\.(''severity: low
+    - regex: 'NavGraph|navigation\.s*\.()'
+  severity: low
   description: "Navigation graph"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1287,7 +1423,8 @@
 - id: kotlin-navigation-host
   languages: [kotlin]
   patterns:
-    - regex: 'NavHost|navHost''severity: low
+    - regex: 'NavHost|navHost'
+  severity: low
   description: "Navigation host"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1296,7 +1433,8 @@
 - id: kotlin-navigation-controller
   languages: [kotlin]
   patterns:
-    - regex: 'NavController|navController''severity: low
+    - regex: 'NavController|navController'
+  severity: low
   description: "Navigation controller"
   remediation: "Validate navigation"
   cwe: "CWE-601"
@@ -1305,7 +1443,8 @@
 - id: kotlin-navigation-args
   languages: [kotlin]
   patterns:
-    - regex: 'navArgs\\.s*\\.(|SafeArgs''severity: low
+    - regex: 'navArgs\.s*\.(|SafeArgs)'
+  severity: low
   description: "Navigation args"
   remediation: "Validate arguments"
   cwe: "CWE-20"
@@ -1314,7 +1453,8 @@
 - id: kotlin-navigation-deep-link
   languages: [kotlin]
   patterns:
-    - regex: 'deepLink\\.s*\\.(|navDeepLink''severity: medium
+    - regex: 'deepLink\.s*\.(|navDeepLink)'
+  severity: medium
   description: "Navigation deep link"
   remediation: "Validate deep links"
   cwe: "CWE-601"
@@ -1323,7 +1463,8 @@
 - id: kotlin-navigation-action
   languages: [kotlin]
   patterns:
-    - regex: 'navigate\\.s*\\.(|popBackStack''severity: low
+    - regex: 'navigate\.s*\.(|popBackStack)'
+  severity: low
   description: "Navigation action"
   remediation: "Validate navigation"
   cwe: "CWE-601"
@@ -1332,7 +1473,8 @@
 - id: kotlin-navigation-bundle
   languages: [kotlin]
   patterns:
-    - regex: 'Bundle\\.s*\\.(|arguments''severity: low
+    - regex: 'Bundle\.s*\.(|arguments)'
+  severity: low
   description: "Navigation bundle"
   remediation: "Don't include sensitive data"
   cwe: "CWE-312"
@@ -1341,7 +1483,8 @@
 - id: kotlin-work-manager
   languages: [kotlin]
   patterns:
-    - regex: 'WorkManager|Worker''severity: low
+    - regex: 'WorkManager|Worker'
+  severity: low
   description: "WorkManager"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1350,7 +1493,8 @@
 - id: kotlin-work-request
   languages: [kotlin]
   patterns:
-    - regex: 'WorkRequest|OneTimeWorkRequest''severity: low
+    - regex: 'WorkRequest|OneTimeWorkRequest'
+  severity: low
   description: "Work request"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1359,7 +1503,8 @@
 - id: kotlin-work-constraints
   languages: [kotlin]
   patterns:
-    - regex: 'Constraints\\..Builder''severity: low
+    - regex: 'Constraints\..Builder'
+  severity: low
   description: "Work constraints"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1368,7 +1513,8 @@
 - id: kotlin-work-data
   languages: [kotlin]
   patterns:
-    - regex: 'Data\\..Builder|workDataOf''severity: low
+    - regex: 'Data\..Builder|workDataOf'
+  severity: low
   description: "Work data"
   remediation: "Don't include sensitive data"
   cwe: "CWE-312"
@@ -1377,7 +1523,8 @@
 - id: kotlin-work-input
   languages: [kotlin]
   patterns:
-    - regex: 'inputData|getInputData''severity: low
+    - regex: 'inputData|getInputData'
+  severity: low
   description: "Work input"
   remediation: "Validate input"
   cwe: "CWE-20"
@@ -1386,7 +1533,8 @@
 - id: kotlin-work-output
   languages: [kotlin]
   patterns:
-    - regex: 'setOutput|getOutputData''severity: low
+    - regex: 'setOutput|getOutputData'
+  severity: low
   description: "Work output"
   remediation: "Validate output"
   cwe: "CWE-20"
@@ -1395,7 +1543,8 @@
 - id: kotlin-work-chain
   languages: [kotlin]
   patterns:
-    - regex: 'WorkManager\\..beginWith|Then''severity: low
+    - regex: 'WorkManager\..beginWith|Then'
+  severity: low
   description: "Work chain"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1404,7 +1553,8 @@
 - id: kotlin-work-unique
   languages: [kotlin]
   patterns:
-    - regex: 'setUniqueWork|ExistingWorkPolicy''severity: low
+    - regex: 'setUniqueWork|ExistingWorkPolicy'
+  severity: low
   description: "Unique work"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1413,7 +1563,8 @@
 - id: kotlin-work-observe
   languages: [kotlin]
   patterns:
-    - regex: 'getWorkInfosLiveData|getWorkInfos''severity: low
+    - regex: 'getWorkInfosLiveData|getWorkInfos'
+  severity: low
   description: "Work observation"
   remediation: "Handle properly"
   cwe: "CWE-754"
@@ -1422,7 +1573,8 @@
 - id: kotlin-work-cancel
   languages: [kotlin]
   patterns:
-    - regex: 'cancelWorkById|cancelAllWork''severity: low
+    - regex: 'cancelWorkById|cancelAllWork'
+  severity: low
   description: "Work cancellation"
   remediation: "Handle properly"
   cwe: "CWE-754"
@@ -1431,7 +1583,8 @@
 - id: kotlin-work-test
   languages: [kotlin]
   patterns:
-    - regex: 'TestWorkerBuilder|work-testing''severity: low
+    - regex: 'TestWorkerBuilder|work-testing'
+  severity: low
   description: "Work test"
   remediation: "Only use in tests"
   cwe: "CWE-489"
@@ -1440,7 +1593,8 @@
 - id: kotlin-work-greeter
   languages: [kotlin]
   patterns:
-    - regex: 'ListenableWorker|CoroutineWorker''severity: low
+    - regex: 'ListenableWorker|CoroutineWorker'
+  severity: low
   description: "Worker implementation"
   remediation: "Handle errors properly"
   cwe: "CWE-754"
@@ -1450,7 +1604,8 @@
 - id: kotlin-keystore
   languages: [kotlin]
   patterns:
-    - regex: 'KeyStore\\..getInstance|AndroidKeyStore''severity: low
+    - regex: 'KeyStore\..getInstance|AndroidKeyStore'
+  severity: low
   description: "Keystore usage"
   remediation: "Use for key storage"
   cwe: "CWE-312"
@@ -1459,7 +1614,8 @@
 - id: kotlin-key-generator
   languages: [kotlin]
   patterns:
-    - regex: 'KeyGenerator\\..getInstance''severity: low
+    - regex: 'KeyGenerator\..getInstance'
+  severity: low
   description: "Key generation"
   remediation: "Use secure parameters"
   cwe: "CWE-330"
@@ -1468,7 +1624,8 @@
 - id: kotlin-cipher
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\..getInstance''severity: low
+    - regex: 'Cipher\..getInstance'
+  severity: low
   description: "Cipher usage"
   remediation: "Use AES/GCM/NoPadding"
   cwe: "CWE-327"
@@ -1477,7 +1634,8 @@
 - id: kotlin-signature
   languages: [kotlin]
   patterns:
-    - regex: 'Signature\\..getInstance''severity: low
+    - regex: 'Signature\..getInstance'
+  severity: low
   description: "Signature usage"
   remediation: "Use SHA256withRSA"
   cwe: "CWE-327"
@@ -1486,7 +1644,8 @@
 - id: kotlin-message-digest
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\\..getInstance''severity: low
+    - regex: 'MessageDigest\..getInstance'
+  severity: low
   description: "Message digest"
   remediation: "Use SHA-256 or higher"
   cwe: "CWE-327"
@@ -1495,7 +1654,8 @@
 - id: kotlin-secure-random
   languages: [kotlin]
   patterns:
-    - regex: 'SecureRandom\\..getInstance''severity: low
+    - regex: 'SecureRandom\..getInstance'
+  severity: low
   description: "Secure random"
   remediation: "Use for crypto operations"
   cwe: "CWE-330"
@@ -1504,7 +1664,8 @@
 - id: kotlin-biometric
   languages: [kotlin]
   patterns:
-    - regex: 'BiometricPrompt|BiometricManager''severity: low
+    - regex: 'BiometricPrompt|BiometricManager'
+  severity: low
   description: "Biometric auth"
   remediation: "Use as second factor"
   cwe: "CWE-306"
@@ -1513,7 +1674,8 @@
 - id: kotlin-security-provider
   languages: [kotlin]
   patterns:
-    - regex: 'Security\\..insertProviderAt''severity: low
+    - regex: 'Security\..insertProviderAt'
+  severity: low
   description: "Security provider"
   remediation: "Use default providers"
   cwe: "CWE-693"
@@ -1522,7 +1684,8 @@
 - id: kotlin-proguard
   languages: [kotlin]
   patterns:
-    - regex: 'proguard-rules\\..pro''severity: low
+    - regex: 'proguard-rules\..pro'
+  severity: low
   description: "ProGuard rules"
   remediation: "Don't obfuscate security classes"
   cwe: "CWE-693"
@@ -1531,7 +1694,8 @@
 - id: kotlin-r8
   languages: [kotlin]
   patterns:
-    - regex: 'isMinifyEnabled|isShrinkResources''severity: low
+    - regex: 'isMinifyEnabled|isShrinkResources'
+  severity: low
   description: "R8 configuration"
   remediation: "Enable for release"
   cwe: "CWE-693"
@@ -1540,7 +1704,8 @@
 - id: kotlin-network-security
   languages: [kotlin]
   patterns:
-    - regex: 'network_security_config\\..xml''severity: low
+    - regex: 'network_security_config\..xml'
+  severity: low
   description: "Network security config"
   remediation: "Configure properly"
   cwe: "CWE-319"
@@ -1549,7 +1714,8 @@
 - id: kotlin-cleartext-traffic
   languages: [kotlin]
   patterns:
-    - regex: 'android:usesCleartextTraffic''severity: high
+    - regex: 'android:usesCleartextTraffic'
+  severity: high
   description: "Cleartext traffic allowed"
   remediation: "Set to false"
   cwe: "CWE-319"
@@ -1558,7 +1724,8 @@
 - id: kotlin-backup-rules
   languages: [kotlin]
   patterns:
-    - regex: 'android:allowBackup|android:fullBackupContent''severity: medium
+    - regex: 'android:allowBackup|android:fullBackupContent'
+  severity: medium
   description: "Backup configuration"
   remediation: "Disable or exclude sensitive data"
   cwe: "CWE-312"
@@ -1567,7 +1734,8 @@
 - id: kotlin-debuggable
   languages: [kotlin]
   patterns:
-    - regex: 'android:debuggable''severity: high
+    - regex: 'android:debuggable'
+  severity: high
   description: "Debuggable flag"
   remediation: "Set to false in release"
   cwe: "CWE-489"
@@ -1576,7 +1744,8 @@
 - id: kotlin-test-only
   languages: [kotlin]
   patterns:
-    - regex: 'android:testOnly''severity: medium
+    - regex: 'android:testOnly'
+  severity: medium
   description: "Test only flag"
   remediation: "Set to false in release"
   cwe: "CWE-489"
@@ -1585,7 +1754,8 @@
 - id: kotlin-vm-safe
   languages: [kotlin]
   patterns:
-    - regex: 'android:vmSafeMode''severity: low
+    - regex: 'android:vmSafeMode'
+  severity: low
   description: "VM safe mode"
   remediation: "Enable for security"
   cwe: "CWE-693"
@@ -1594,7 +1764,8 @@
 - id: kotlin-hardware-backup
   languages: [kotlin]
   patterns:
-    - regex: 'android:hardwareBacked''severity: low
+    - regex: 'android:hardwareBacked'
+  severity: low
   description: "Hardware backed keys"
   remediation: "Enable for security"
   cwe: "CWE-312"
@@ -1603,7 +1774,8 @@
 - id: kotlin-user-data-backup
   languages: [kotlin]
   patterns:
-    - regex: 'android:allowBackup.*false''severity: low
+    - regex: 'android:allowBackup.*false'
+  severity: low
   description: "Backup disabled"
   remediation: "Good for sensitive apps"
   cwe: "CWE-312"
@@ -1618,7 +1790,8 @@
 - id: kotlin-activity-exported
   languages: [kotlin]
   patterns:
-    - regex: 'android:exported\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: high
+    - regex: 'android:exported\.s*=\.s*[\.\.]true[\.\.]'
+  severity: high
   description: "Android component exported without permission"
   remediation: "Set exported=false or add permission requirements"
   cwe: "CWE-926"
@@ -1627,7 +1800,8 @@
 - id: kotlin-activity-intent-filter
   languages: [kotlin]
   patterns:
-    - regex: '<intent-filter>.*?<action.*?>.*?</intent-filter>''severity: medium
+    - regex: '<intent-filter>.*?<action.*?>.*?</intent-filter>'
+  severity: medium
   description: "Activity with intent filter (may be exported by default)"
   remediation: "Explicitly set exported=false or add permission"
   cwe: "CWE-926"
@@ -1636,7 +1810,8 @@
 - id: kotlin-service-exported
   languages: [kotlin]
   patterns:
-    - regex: 'android:exported\\.s*=\\.s*[\\.\\.]true[\\.\\.].*?<service''severity: high
+    - regex: 'android:exported\.s*=\.s*[\.\.]true[\.\.].*?<service'
+  severity: high
   description: "Service exported without permission"
   remediation: "Set exported=false or add permission"
   cwe: "CWE-926"
@@ -1645,7 +1820,8 @@
 - id: kotlin-receiver-exported
   languages: [kotlin]
   patterns:
-    - regex: '<receiver.*?android:exported\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: high
+    - regex: '<receiver.*?android:exported\.s*=\.s*[\.\.]true[\.\.]'
+  severity: high
   description: "BroadcastReceiver exported without permission"
   remediation: "Set exported=false or add permission"
   cwe: "CWE-926"
@@ -1654,7 +1830,8 @@
 - id: kotlin-provider-exported
   languages: [kotlin]
   patterns:
-    - regex: '<provider.*?android:exported\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: critical
+    - regex: '<provider.*?android:exported\.s*=\.s*[\.\.]true[\.\.]'
+  severity: critical
   description: "ContentProvider exported (potential data leak)"
   remediation: "Set exported=false or use permission protection"
   cwe: "CWE-926"
@@ -1663,7 +1840,8 @@
 - id: kotlin-provider-read-permission
   languages: [kotlin]
   patterns:
-    - regex: '<provider.*?android:readPermission\\.s*=\\.s*[\\.\\.]''severity: low
+    - regex: '<provider.*?android:readPermission\.s*=\.s*[\.\.]'
+  severity: low
   description: "ContentProvider with read permission"
   remediation: "Good practice for exported providers"
   cwe: "CWE-732"
@@ -1672,7 +1850,8 @@
 - id: kotlin-provider-write-permission
   languages: [kotlin]
   patterns:
-    - regex: '<provider.*?android:writePermission\\.s*=\\.s*[\\.\\.]''severity: low
+    - regex: '<provider.*?android:writePermission\.s*=\.s*[\.\.]'
+  severity: low
   description: "ContentProvider with write permission"
   remediation: "Good practice for exported providers"
   cwe: "CWE-732"
@@ -1681,7 +1860,8 @@
 - id: kotlin-provider-grant-uri
   languages: [kotlin]
   patterns:
-    - regex: 'android:grantUriPermissions\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: medium
+    - regex: 'android:grantUriPermissions\.s*=\.s*[\.\.]true[\.\.]'
+  severity: medium
   description: "ContentProvider grants URI permissions"
   remediation: "Restrict to specific paths or use temporary grants"
   cwe: "CWE-732"
@@ -1690,7 +1870,8 @@
 - id: kotlin-activity-launch-mode
   languages: [kotlin]
   patterns:
-    - regex: 'android:launchMode\\.s*=\\.s*[\\.\\.]singleTask[\\.\\.]|android:launchMode\\.s*=\\.s*[\\.\\.]singleInstance[\\.\\.]''severity: medium
+    - regex: 'android:launchMode\.s*=\.s*[\.\.]singleTask[\.\.]|android:launchMode\.s*=\.s*[\.\.]singleInstance[\.\.]'
+  severity: medium
   description: "Activity with singleTask/singleInstance launch mode (task hijacking risk)"
   remediation: "Use standard or singleTop unless necessary"
   cwe: "CWE-287"
@@ -1699,7 +1880,8 @@
 - id: kotlin-activity-clear-task
   languages: [kotlin]
   patterns:
-    - regex: 'android:clearTaskOnLaunch\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: low
+    - regex: 'android:clearTaskOnLaunch\.s*=\.s*[\.\.]true[\.\.]'
+  severity: low
   description: "Activity clears task on launch"
   remediation: "Understand task management implications"
   cwe: "CWE-287"
@@ -1708,7 +1890,8 @@
 - id: kotlin-activity-finish-task
   languages: [kotlin]
   patterns:
-    - regex: 'android:finishOnTaskLaunch\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: low
+    - regex: 'android:finishOnTaskLaunch\.s*=\.s*[\.\.]true[\.\.]'
+  severity: low
   description: "Activity finishes on task launch"
   remediation: "Understand task management implications"
   cwe: "CWE-287"
@@ -1717,7 +1900,8 @@
 - id: kotlin-activity-always-retain
   languages: [kotlin]
   patterns:
-    - regex: 'android:alwaysRetainTaskState\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: low
+    - regex: 'android:alwaysRetainTaskState\.s*=\.s*[\.\.]true[\.\.]'
+  severity: low
   description: "Activity always retains task state"
   remediation: "Consider if state should be cleared"
   cwe: "CWE-287"
@@ -1726,7 +1910,8 @@
 - id: kotlin-activity-document-launch
   languages: [kotlin]
   patterns:
-    - regex: 'android:documentLaunchMode\\.s*=\\.s*[\\.\\.]''severity: low
+    - regex: 'android:documentLaunchMode\.s*=\.s*[\.\.]'
+  severity: low
   description: "Document launch mode configured"
   remediation: "Understand document launch implications"
   cwe: "CWE-287"
@@ -1735,7 +1920,8 @@
 - id: kotlin-activity-allow-task-reparenting
   languages: [kotlin]
   patterns:
-    - regex: 'android:allowTaskReparenting\\.s*=\\.s*[\\.\\.]true[\\.\\.]''severity: medium
+    - regex: 'android:allowTaskReparenting\.s*=\.s*[\.\.]true[\.\.]'
+  severity: medium
   description: "Activity can be reparented to another task"
   remediation: "Ensure this is intended behavior"
   cwe: "CWE-287"
@@ -1744,7 +1930,8 @@
 - id: kotlin-fragment-arguments
   languages: [kotlin]
   patterns:
-    - regex: 'arguments\\.\\.get(?:String|Int|Boolean|Serializable)''severity: medium
+    - regex: 'arguments\.\.get(?:String|Int|Boolean|Serializable)'
+  severity: medium
   description: "Fragment arguments from intent (validate input)"
   remediation: "Validate fragment arguments before use"
   cwe: "CWE-20"
@@ -1753,7 +1940,8 @@
 - id: kotlin-fragment-arguments-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'arguments\\.\\.get(?:String|Int|Boolean|Serializable).*?(?:password|token|key)''severity: high
+    - regex: 'arguments\.\.get(?:String|Int|Boolean|Serializable).*?(?:password|token|key)'
+  severity: high
   description: "Sensitive data passed via fragment arguments"
   remediation: "Use safe methods like ViewModel or shared preferences"
   cwe: "CWE-312"
@@ -1762,7 +1950,8 @@
 - id: kotlin-intent-action-view
   languages: [kotlin]
   patterns:
-    - regex: 'Intent\\.s*\\.\\.s*Intent\\.ACTION_VIEW\\.s*\\.''severity: medium
+    - regex: 'Intent\.s*\.\.s*Intent\.ACTION_VIEW\.s*\.'
+  severity: medium
   description: "Implicit VIEW intent (may be intercepted)"
   remediation: "Use explicit intents or verify package name"
   cwe: "CWE-927"
@@ -1771,7 +1960,8 @@
 - id: kotlin-intent-data-user-input
   languages: [kotlin]
   patterns:
-    - regex: 'Intent\\.s*\\.\\.s*Intent\\.ACTION_VIEW\\.s*,\\.s*Uri\\.parse\\.s*\\.\\.s*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'Intent\.s*\.\.s*Intent\.ACTION_VIEW\.s*,\.s*Uri\.parse\.s*\.\.s*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Intent with user-controlled URL (open redirect)"
   remediation: "Validate and restrict URLs"
   cwe: "CWE-601"
@@ -1780,7 +1970,8 @@
 - id: kotlin-intent-data-scheme
   languages: [kotlin]
   patterns:
-    - regex: 'intent\\..*?data\\..*?scheme\\.s*==\\.s*[\\.\\.]?[^\\.\\.]+[\\.\\.]?''severity: low
+    - regex: 'intent\..*?data\..*?scheme\.s*==\.s*[\.\.]?[^\.\.]+[\.\.]?'
+  severity: low
   description: "Intent data scheme check"
   remediation: "Validate scheme before processing"
   cwe: "CWE-20"
@@ -1789,7 +1980,8 @@
 - id: kotlin-intent-data-host
   languages: [kotlin]
   patterns:
-    - regex: 'intent\\..*?data\\..*?host\\.s*==\\.s*[\\.\\.]?[^\\.\\.]+[\\.\\.]?''severity: low
+    - regex: 'intent\..*?data\..*?host\.s*==\.s*[\.\.]?[^\.\.]+[\.\.]?'
+  severity: low
   description: "Intent data host check"
   remediation: "Validate host before processing"
   cwe: "CWE-20"
@@ -1798,7 +1990,8 @@
 - id: kotlin-intent-data-path
   languages: [kotlin]
   patterns:
-    - regex: 'intent\\..*?data\\..*?path\\.s*==\\.s*[\\.\\.]?[^\\.\\.]+[\\.\\.]?''severity: low
+    - regex: 'intent\..*?data\..*?path\.s*==\.s*[\.\.]?[^\.\.]+[\.\.]?'
+  severity: low
   description: "Intent data path check"
   remediation: "Validate path before processing"
   cwe: "CWE-20"
@@ -1807,7 +2000,8 @@
 - id: kotlin-intent-extra-get
   languages: [kotlin]
   patterns:
-    - regex: 'intent\\.get(?:String|Int|Boolean|Serializable|Parcelable)Extra''severity: medium
+    - regex: 'intent\.get(?:String|Int|Boolean|Serializable|Parcelable)Extra'
+  severity: medium
   description: "Intent extra retrieval (validate input)"
   remediation: "Validate all intent extras"
   cwe: "CWE-20"
@@ -1816,7 +2010,8 @@
 - id: kotlin-intent-extra-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'intent\\.get(?:String|Int|Boolean|Serializable|Parcelable)Extra.*?(?:password|token|key)''severity: high
+    - regex: 'intent\.get(?:String|Int|Boolean|Serializable|Parcelable)Extra.*?(?:password|token|key)'
+  severity: high
   description: "Sensitive data retrieved from intent extras"
   remediation: "Avoid passing sensitive data via intents"
   cwe: "CWE-312"
@@ -1825,7 +2020,8 @@
 - id: kotlin-intent-extra-put-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'intent\\.putExtra\\.[\\.\\.][^\\.\\.]*(?:password|token|key)[^\\.\\.]*[\\.\\.]''severity: critical
+    - regex: 'intent\.putExtra\.[\.\.][^\.\.]*(?:password|token|key)[^\.\.]*[\.\.]'
+  severity: critical
   description: "Sensitive data put into intent extras (visible to other apps)"
   remediation: "Use secure channels or encrypted extras"
   cwe: "CWE-312"
@@ -1834,7 +2030,8 @@
 - id: kotlin-intent-flag-clear-task
   languages: [kotlin]
   patterns:
-    - regex: 'FLAG_ACTIVITY_CLEAR_TASK|FLAG_ACTIVITY_CLEAR_TOP''severity: low
+    - regex: 'FLAG_ACTIVITY_CLEAR_TASK|FLAG_ACTIVITY_CLEAR_TOP'
+  severity: low
   description: "FLAG clearing task stack"
   remediation: "Understand task management implications"
   cwe: "CWE-287"
@@ -1843,7 +2040,8 @@
 - id: kotlin-pending-intent
   languages: [kotlin]
   patterns:
-    - regex: 'PendingIntent\\.(getActivity|getService|getBroadcast)''severity: high
+    - regex: 'PendingIntent\.(getActivity|getService|getBroadcast)'
+  severity: high
   description: "PendingIntent created (may be misused by other apps)"
   remediation: "Use FLAG_IMMUTABLE where possible"
   cwe: "CWE-927"
@@ -1852,7 +2050,8 @@
 - id: kotlin-pending-intent-mutable
   languages: [kotlin]
   patterns:
-    - regex: 'PendingIntent\\.FLAG_MUTABLE''severity: high
+    - regex: 'PendingIntent\.FLAG_MUTABLE'
+  severity: high
   description: "Mutable PendingIntent (can be modified by other apps)"
   remediation: "Use FLAG_IMMUTABLE unless mutability required"
   cwe: "CWE-927"
@@ -1861,7 +2060,8 @@
 - id: kotlin-pending-intent-immutable
   languages: [kotlin]
   patterns:
-    - regex: 'PendingIntent\\.FLAG_IMMUTABLE''severity: low
+    - regex: 'PendingIntent\.FLAG_IMMUTABLE'
+  severity: low
   description: "Immutable PendingIntent (good practice)"
   remediation: "Good for security"
   cwe: "CWE-927"
@@ -1870,7 +2070,8 @@
 - id: kotlin-deep-link
   languages: [kotlin]
   patterns:
-    - regex: '<data.*?android:scheme=\\.[^\\.]+\\.''severity: medium
+    - regex: '<data.*?android:scheme=\.[^\.]+\.'
+  severity: medium
   description: "Deep link defined (may be hijacked)"
   remediation: "Use app links with verification"
   cwe: "CWE-601"
@@ -1879,7 +2080,8 @@
 - id: kotlin-deep-link-auto-verify
   languages: [kotlin]
   patterns:
-    - regex: 'android:autoVerify=\\.true\\.''severity: low
+    - regex: 'android:autoVerify=\.true\.'
+  severity: low
   description: "App links with auto-verify (good practice)"
   remediation: "Ensure website hosts verification file"
   cwe: "CWE-287"
@@ -1888,7 +2090,8 @@
 - id: kotlin-deep-link-host
   languages: [kotlin]
   patterns:
-    - regex: 'android:host=\\.[^\\.]+\\.''severity: low
+    - regex: 'android:host=\.[^\.]+\.'
+  severity: low
   description: "Deep link host specified"
   remediation: "Verify host ownership"
   cwe: "CWE-601"
@@ -1897,7 +2100,8 @@
 - id: kotlin-deep-link-path
   languages: [kotlin]
   patterns:
-    - regex: 'android:path(?:Pattern|Prefix)?=\\.[^\\.]+\\.''severity: low
+    - regex: 'android:path(?:Pattern|Prefix)?=\.[^\.]+\.'
+  severity: low
   description: "Deep link path pattern"
   remediation: "Restrict paths appropriately"
   cwe: "CWE-601"
@@ -1906,7 +2110,8 @@
 - id: kotlin-deep-link-path-wildcard
   languages: [kotlin]
   patterns:
-    - regex: 'android:pathPattern=\\..*\\..*\\.''severity: medium
+    - regex: 'android:pathPattern=\..*\..*\.'
+  severity: medium
   description: "Deep link with wildcard path (may be too broad)"
   remediation: "Use specific paths"
   cwe: "CWE-601"
@@ -1915,7 +2120,8 @@
 - id: kotlin-deep-link-mime-type
   languages: [kotlin]
   patterns:
-    - regex: 'android:mimeType=\\.[^\\.]+\\.''severity: low
+    - regex: 'android:mimeType=\.[^\.]+\.'
+  severity: low
   description: "Deep link with MIME type"
   remediation: "Validate MIME type"
   cwe: "CWE-20"
@@ -1924,7 +2130,8 @@
 - id: kotlin-navigation-deep-link
   languages: [kotlin]
   patterns:
-    - regex: 'navDeepLink\\.s*\\.\\.s*uriPattern\\.s*=\\.s*[\\.\\.][^\\.\\.]+[\\.\\.]''severity: medium
+    - regex: 'navDeepLink\.s*\.\.s*uriPattern\.s*=\.s*[\.\.][^\.\.]+[\.\.]'
+  severity: medium
   description: "Navigation component deep link"
   remediation: "Validate deep link URIs"
   cwe: "CWE-601"
@@ -1933,7 +2140,8 @@
 - id: kotlin-navigation-args
   languages: [kotlin]
   patterns:
-    - regex: 'navArgs\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'navArgs\.s*\.\.s*\.'
+  severity: low
   description: "Navigation args (type-safe arguments)"
   remediation: "Good for type safety"
   cwe: "CWE-20"
@@ -1942,7 +2150,8 @@
 - id: kotlin-navigation-args-validation
   languages: [kotlin]
   patterns:
-    - regex: 'navArgs.*?\\.''severity: medium
+    - regex: 'navArgs.*?\.'
+  severity: medium
   description: "Navigation args without validation"
   remediation: "Validate nav args before use"
   cwe: "CWE-20"
@@ -1951,7 +2160,8 @@
 - id: kotlin-navigation-result
   languages: [kotlin]
   patterns:
-    - regex: 'setResult|ActivityResultLauncher''severity: low
+    - regex: 'setResult|ActivityResultLauncher'
+  severity: low
   description: "Activity result handling"
   remediation: "Validate result data"
   cwe: "CWE-20"
@@ -1962,7 +2172,8 @@
 - id: kotlin-permission-dangerous
   languages: [kotlin]
   patterns:
-    - regex: '<uses-permission.*?android:name=\\.android\\.permission\\.(CAMERA|RECORD_AUDIO|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|READ_CONTACTS|WRITE_CONTACTS|READ_CALENDAR|WRITE_CALENDAR|READ_SMS|SEND_SMS|RECEIVE_SMS|READ_PHONE_STATE|CALL_PHONE|READ_CALL_LOG|WRITE_CALL_LOG|BODY_SENSORS|ACTIVITY_RECOGNITION)\\.''severity: medium
+    - regex: '<uses-permission.*?android:name=\.android\.permission\.(CAMERA|RECORD_AUDIO|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|READ_CONTACTS|WRITE_CONTACTS|READ_CALENDAR|WRITE_CALENDAR|READ_SMS|SEND_SMS|RECEIVE_SMS|READ_PHONE_STATE|CALL_PHONE|READ_CALL_LOG|WRITE_CALL_LOG|BODY_SENSORS|ACTIVITY_RECOGNITION)\.'
+  severity: medium
   description: "Dangerous permission declared"
   remediation: "Request at runtime, explain why needed"
   cwe: "CWE-276"
@@ -1971,7 +2182,8 @@
 - id: kotlin-permission-signature
   languages: [kotlin]
   patterns:
-    - regex: 'android:protectionLevel=\\.signature\\.''severity: low
+    - regex: 'android:protectionLevel=\.signature\.'
+  severity: low
   description: "Signature permission (only same signing key)"
   remediation: "Good for app-specific permissions"
   cwe: "CWE-732"
@@ -1980,7 +2192,8 @@
 - id: kotlin-permission-signature-or-system
   languages: [kotlin]
   patterns:
-    - regex: 'android:protectionLevel=\\.signatureOrSystem\\.''severity: medium
+    - regex: 'android:protectionLevel=\.signatureOrSystem\.'
+  severity: medium
   description: "SignatureOrSystem permission (system apps can access)"
   remediation: "Use signature only unless system access needed"
   cwe: "CWE-732"
@@ -1989,7 +2202,8 @@
 - id: kotlin-permission-custom
   languages: [kotlin]
   patterns:
-    - regex: '<permission.*?android:name=\\.[^\\.]+\\.''severity: low
+    - regex: '<permission.*?android:name=\.[^\.]+\.'
+  severity: low
   description: "Custom permission defined"
   remediation: "Use appropriate protection level"
   cwe: "CWE-732"
@@ -1998,7 +2212,8 @@
 - id: kotlin-permission-custom-dangerous
   languages: [kotlin]
   patterns:
-    - regex: 'android:protectionLevel=\\.dangerous\\..*?<permission''severity: high
+    - regex: 'android:protectionLevel=\.dangerous\..*?<permission'
+  severity: high
   description: "Custom permission with dangerous level"
   remediation: "Consider signature protection for app-specific"
   cwe: "CWE-732"
@@ -2007,7 +2222,8 @@
 - id: kotlin-permission-request
   languages: [kotlin]
   patterns:
-    - regex: 'requestPermissions|requestPermission''severity: low
+    - regex: 'requestPermissions|requestPermission'
+  severity: low
   description: "Runtime permission request"
   remediation: "Handle permission denial gracefully"
   cwe: "CWE-276"
@@ -2016,7 +2232,8 @@
 - id: kotlin-permission-activity-result
   languages: [kotlin]
   patterns:
-    - regex: 'registerForActivityResult.*?RequestPermission''severity: low
+    - regex: 'registerForActivityResult.*?RequestPermission'
+  severity: low
   description: "Permission request with ActivityResult API"
   remediation: "Modern way to request permissions"
   cwe: "CWE-276"
@@ -2025,7 +2242,8 @@
 - id: kotlin-permission-grant-all
   languages: [kotlin]
   patterns:
-    - regex: 'grantResults\\.all\\.s*\\.\\.s*it\\.s*==\\.s*PackageManager\\.PERMISSION_GRANTED\\.s*\\.''severity: low
+    - regex: 'grantResults\.all\.s*\.\.s*it\.s*==\.s*PackageManager\.PERMISSION_GRANTED\.s*\.'
+  severity: low
   description: "Checking all permissions granted"
   remediation: "Good practice"
   cwe: "CWE-276"
@@ -2034,7 +2252,8 @@
 - id: kotlin-permission-grant-some
   languages: [kotlin]
   patterns:
-    - regex: 'grantResults\\.[0-9]+\\.\\.s*==\\.s*PackageManager\\.PERMISSION_GRANTED''severity: low
+    - regex: 'grantResults\.[0-9]+\.\.s*==\.s*PackageManager\.PERMISSION_GRANTED'
+  severity: low
   description: "Checking specific permission grant"
   remediation: "Good practice"
   cwe: "CWE-276"
@@ -2043,7 +2262,8 @@
 - id: kotlin-permission-deny-handle
   languages: [kotlin]
   patterns:
-    - regex: 'PERMISSION_DENIED.*?finish|PERMISSION_DENIED.*?return''severity: low
+    - regex: 'PERMISSION_DENIED.*?finish|PERMISSION_DENIED.*?return'
+  severity: low
   description: "Finishing activity on permission deny (bad UX)"
   remediation: "Handle denial gracefully, show alternative"
   cwe: "CWE-276"
@@ -2052,7 +2272,8 @@
 - id: kotlin-permission-request-ignore
   languages: [kotlin]
   patterns:
-    - regex: 'requestPermissions.*?''severity: high
+    - regex: 'requestPermissions.*?'
+  severity: high
   description: "Permission requested but result ignored"
   remediation: "Always handle permission result"
   cwe: "CWE-754"
@@ -2063,7 +2284,8 @@
 - id: kotlin-shared-preferences-mode-private
   languages: [kotlin]
   patterns:
-    - regex: 'getSharedPreferences.*?MODE_PRIVATE''severity: low
+    - regex: 'getSharedPreferences.*?MODE_PRIVATE'
+  severity: low
   description: "SharedPreferences with MODE_PRIVATE (good)"
   remediation: "Correct mode for private data"
   cwe: "CWE-312"
@@ -2072,7 +2294,8 @@
 - id: kotlin-shared-preferences-mode-world
   languages: [kotlin]
   patterns:
-    - regex: 'getSharedPreferences.*?MODE_WORLD_(READABLE|WRITEABLE)''severity: critical
+    - regex: 'getSharedPreferences.*?MODE_WORLD_(READABLE|WRITEABLE)'
+  severity: critical
   description: "World-readable/writable SharedPreferences (deprecated, insecure)"
   remediation: "Use MODE_PRIVATE only"
   cwe: "CWE-312"
@@ -2081,7 +2304,8 @@
 - id: kotlin-shared-preferences-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'put(?:String|Int|Boolean|Float|Long).*?(?:password|token|key|secret)''severity: high
+    - regex: 'put(?:String|Int|Boolean|Float|Long).*?(?:password|token|key|secret)'
+  severity: high
   description: "Sensitive data stored in plaintext SharedPreferences"
   remediation: "Use EncryptedSharedPreferences"
   cwe: "CWE-312"
@@ -2090,7 +2314,8 @@
 - id: kotlin-shared-preferences-edit
   languages: [kotlin]
   patterns:
-    - regex: 'edit\\.\\.''severity: low
+    - regex: 'edit\.\.'
+  severity: low
   description: "Editing SharedPreferences"
   remediation: "Use apply() for async, commit() for sync"
   cwe: "CWE-693"
@@ -2099,7 +2324,8 @@
 - id: kotlin-shared-preferences-apply
   languages: [kotlin]
   patterns:
-    - regex: 'apply\\.\\.''severity: low
+    - regex: 'apply\.\.'
+  severity: low
   description: "SharedPreferences apply() (async)"
   remediation: "Good for most cases"
   cwe: "CWE-693"
@@ -2108,7 +2334,8 @@
 - id: kotlin-shared-preferences-commit
   languages: [kotlin]
   patterns:
-    - regex: 'commit\\.\\.''severity: low
+    - regex: 'commit\.\.'
+  severity: low
   description: "SharedPreferences commit() (sync)"
   remediation: "Use for critical writes only"
   cwe: "CWE-693"
@@ -2117,7 +2344,8 @@
 - id: kotlin-room-database
   languages: [kotlin]
   patterns:
-    - regex: '@Database''severity: low
+    - regex: '@Database'
+  severity: low
   description: "Room database"
   remediation: "Use database encryption"
   cwe: "CWE-312"
@@ -2126,7 +2354,8 @@
 - id: kotlin-room-entity-sensitive
   languages: [kotlin]
   patterns:
-    - regex: '@Entity.*?@ColumnInfo.*?(?:password|token|key|secret)''severity: high
+    - regex: '@Entity.*?@ColumnInfo.*?(?:password|token|key|secret)'
+  severity: high
   description: "Sensitive data in Room entity without encryption"
   remediation: "Encrypt sensitive fields or use SQLCipher"
   cwe: "CWE-312"
@@ -2135,7 +2364,8 @@
 - id: kotlin-room-dao-query
   languages: [kotlin]
   patterns:
-    - regex: '@Query\\.s*\\.\\.s*[\\.\\.]SELECT.*?\\.\\..*?\\.''severity: critical
+    - regex: '@Query\.s*\.\.s*[\.\.]SELECT.*?\.\..*?\.'
+  severity: critical
   description: "SQL injection via string interpolation in Room query"
   remediation: "Use named parameters (:param) or indexed (?)"
   cwe: "CWE-89"
@@ -2144,7 +2374,8 @@
 - id: kotlin-room-dao-query-concat
   languages: [kotlin]
   patterns:
-    - regex: '@Query\\.s*\\.\\.s*[\\.\\.]SELECT.*?\\..*?[\\.\\.]''severity: critical
+    - regex: '@Query\.s*\.\.s*[\.\.]SELECT.*?\..*?[\.\.]'
+  severity: critical
   description: "SQL injection via string concatenation in Room"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -2153,7 +2384,8 @@
 - id: kotlin-room-raw-query
   languages: [kotlin]
   patterns:
-    - regex: '@RawQuery''severity: high
+    - regex: '@RawQuery'
+  severity: high
   description: "RawQuery in Room (bypasses type safety)"
   remediation: "Use @Query with parameters"
   cwe: "CWE-89"
@@ -2162,7 +2394,8 @@
 - id: kotlin-room-insert-sensitive
   languages: [kotlin]
   patterns:
-    - regex: '@Insert.*?entity.*?(?:password|token|key|secret)''severity: high
+    - regex: '@Insert.*?entity.*?(?:password|token|key|secret)'
+  severity: high
   description: "Inserting sensitive data into Room without encryption"
   remediation: "Encrypt before insertion"
   cwe: "CWE-312"
@@ -2171,7 +2404,8 @@
 - id: kotlin-sqlite-open-or-create
   languages: [kotlin]
   patterns:
-    - regex: 'SQLiteDatabase\\.openOrCreateDatabase''severity: medium
+    - regex: 'SQLiteDatabase\.openOrCreateDatabase'
+  severity: medium
   description: "Opening SQLite database (may create world-readable)"
   remediation: "Use MODE_PRIVATE"
   cwe: "CWE-312"
@@ -2180,7 +2414,8 @@
 - id: kotlin-sqlite-raw-query
   languages: [kotlin]
   patterns:
-    - regex: 'rawQuery\\.s*\\.\\.s*[\\.\\.].*?\\..*?[\\.\\.]|rawQuery\\.s*\\.\\.s*[\\.\\.].*?\\.\\..*?\\.''severity: critical
+    - regex: 'rawQuery\.s*\.\.s*[\.\.].*?\..*?[\.\.]|rawQuery\.s*\.\.s*[\.\.].*?\.\..*?\.'
+  severity: critical
   description: "SQL injection via rawQuery with concatenation"
   remediation: "Use selectionArgs parameter"
   cwe: "CWE-89"
@@ -2189,7 +2424,8 @@
 - id: kotlin-sqlite-exec-sql
   languages: [kotlin]
   patterns:
-    - regex: 'execSQL\\.s*\\.\\.s*[\\.\\.].*?\\..*?[\\.\\.]|execSQL\\.s*\\.\\.s*[\\.\\.].*?\\.\\..*?\\.''severity: critical
+    - regex: 'execSQL\.s*\.\.s*[\.\.].*?\..*?[\.\.]|execSQL\.s*\.\.s*[\.\.].*?\.\..*?\.'
+  severity: critical
   description: "SQL injection via execSQL with concatenation"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -2198,7 +2434,8 @@
 - id: kotlin-realm
   languages: [kotlin]
   patterns:
-    - regex: 'Realm\\.getInstance|RealmConfiguration''severity: low
+    - regex: 'Realm\.getInstance|RealmConfiguration'
+  severity: low
   description: "Realm database"
   remediation: "Enable encryption for Realm"
   cwe: "CWE-312"
@@ -2207,7 +2444,8 @@
 - id: kotlin-realm-encryption-key
   languages: [kotlin]
   patterns:
-    - regex: 'RealmConfiguration\\.Builder.*?encryptionKey''severity: low
+    - regex: 'RealmConfiguration\.Builder.*?encryptionKey'
+  severity: low
   description: "Realm with encryption key"
   remediation: "Good practice"
   cwe: "CWE-312"
@@ -2216,7 +2454,8 @@
 - id: kotlin-realm-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'RealmObject.*?var.*?(?:password|token|key|secret)''severity: high
+    - regex: 'RealmObject.*?var.*?(?:password|token|key|secret)'
+  severity: high
   description: "Sensitive data in Realm without encryption"
   remediation: "Encrypt Realm database"
   cwe: "CWE-312"
@@ -2225,7 +2464,8 @@
 - id: kotlin-file-write-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'FileOutputStream.*?\\.write.*?(?:password|token|key|secret)''severity: high
+    - regex: 'FileOutputStream.*?\.write.*?(?:password|token|key|secret)'
+  severity: high
   description: "Writing sensitive data to file (plaintext)"
   remediation: "Encrypt files with sensitive data"
   cwe: "CWE-312"
@@ -2234,7 +2474,8 @@
 - id: kotlin-file-read-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'FileInputStream.*?read.*?(?:password|token|key|secret)''severity: high
+    - regex: 'FileInputStream.*?read.*?(?:password|token|key|secret)'
+  severity: high
   description: "Reading sensitive data from file (plaintext)"
   remediation: "Decrypt files with sensitive data"
   cwe: "CWE-312"
@@ -2243,7 +2484,8 @@
 - id: kotlin-external-storage
   languages: [kotlin]
   patterns:
-    - regex: 'Environment\\.getExternalStorageDirectory''severity: high
+    - regex: 'Environment\.getExternalStorageDirectory'
+  severity: high
   description: "Using external storage (world-readable)"
   remediation: "Use getExternalFilesDir() for app-private"
   cwe: "CWE-312"
@@ -2252,7 +2494,8 @@
 - id: kotlin-external-storage-public
   languages: [kotlin]
   patterns:
-    - regex: 'Environment\\.getExternalStoragePublicDirectory''severity: critical
+    - regex: 'Environment\.getExternalStoragePublicDirectory'
+  severity: critical
   description: "Public external storage (world-readable/writable)"
   remediation: "Avoid; use getExternalFilesDir()"
   cwe: "CWE-312"
@@ -2261,7 +2504,8 @@
 - id: kotlin-network-http
   languages: [kotlin]
   patterns:
-    - regex: 'http://[^\\.\\.\\.s]+''severity: high
+    - regex: 'http://[^\.\.\.s]+'
+  severity: high
   description: "HTTP URL (unencrypted) in code"
   remediation: "Use HTTPS for all network communication"
   cwe: "CWE-319"
@@ -2270,7 +2514,8 @@
 - id: kotlin-network-okhttp-client
   languages: [kotlin]
   patterns:
-    - regex: 'OkHttpClient\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'OkHttpClient\.s*\.\.s*\.'
+  severity: low
   description: "OkHttp client without configuration"
   remediation: "Configure timeouts, certificate pinning"
   cwe: "CWE-693"
@@ -2279,7 +2524,8 @@
 - id: kotlin-network-okhttp-builder
   languages: [kotlin]
   patterns:
-    - regex: 'OkHttpClient\\.Builder\\.\\.''severity: low
+    - regex: 'OkHttpClient\.Builder\.\.'
+  severity: low
   description: "OkHttp builder (can configure security)"
   remediation: "Add timeouts and security features"
   cwe: "CWE-693"
@@ -2288,7 +2534,8 @@
 - id: kotlin-network-okhttp-timeout
   languages: [kotlin]
   patterns:
-    - regex: 'connectTimeout|readTimeout|writeTimeout''severity: low
+    - regex: 'connectTimeout|readTimeout|writeTimeout'
+  severity: low
   description: "OkHttp timeouts configured"
   remediation: "Set appropriate timeouts"
   cwe: "CWE-770"
@@ -2297,7 +2544,8 @@
 - id: kotlin-network-okhttp-cache
   languages: [kotlin]
   patterns:
-    - regex: 'cache\\.s*\\.\\.s*Cache\\.[^,]+,\\.s*[0-9]+\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'cache\.s*\.\.s*Cache\.[^,]+,\.s*[0-9]+\.s*\.\.s*\.'
+  severity: low
   description: "OkHttp cache configured"
   remediation: "Don't cache sensitive data"
   cwe: "CWE-524"
@@ -2306,7 +2554,8 @@
 - id: kotlin-network-okhttp-cache-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'cache\\.s*\\.\\.s*Cache.*?\\.\\.s*.*?url.*?(?:password|token|key)''severity: high
+    - regex: 'cache\.s*\.\.s*Cache.*?\.\.s*.*?url.*?(?:password|token|key)'
+  severity: high
   description: "OkHttp caching sensitive data (may leak to disk)"
   remediation: "Avoid caching responses with sensitive data"
   cwe: "CWE-312"
@@ -2315,7 +2564,8 @@
 - id: kotlin-network-okhttp-interceptor
   languages: [kotlin]
   patterns:
-    - regex: 'addInterceptor|addNetworkInterceptor''severity: low
+    - regex: 'addInterceptor|addNetworkInterceptor'
+  severity: low
   description: "OkHttp interceptor (can modify requests/responses)"
   remediation: "Don't log sensitive data in interceptors"
   cwe: "CWE-532"
@@ -2324,7 +2574,8 @@
 - id: kotlin-network-okhttp-interceptor-logging-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'HttpLoggingInterceptor.*?level.*?BODY''severity: high
+    - regex: 'HttpLoggingInterceptor.*?level.*?BODY'
+  severity: high
   description: "HTTP logging with BODY level (logs all data)"
   remediation: "Use only in debug builds"
   cwe: "CWE-532"
@@ -2333,7 +2584,8 @@
 - id: kotlin-network-okhttp-hostname-verifier
   languages: [kotlin]
   patterns:
-    - regex: 'hostnameVerifier\\.s*=\\.s*.*?\\..*?true.*?\\.''severity: critical
+    - regex: 'hostnameVerifier\.s*=\.s*.*?\..*?true.*?\.'
+  severity: critical
   description: "Custom hostname verifier that always returns true (bypasses security)"
   remediation: "Never disable hostname verification"
   cwe: "CWE-295"
@@ -2342,7 +2594,8 @@
 - id: kotlin-network-okhttp-ssl-socket-factory
   languages: [kotlin]
   patterns:
-    - regex: 'sslSocketFactory.*?TrustAllCerts''severity: critical
+    - regex: 'sslSocketFactory.*?TrustAllCerts'
+  severity: critical
   description: "SSL socket factory trusting all certificates (MITM risk)"
   remediation: "Never trust all certificates"
   cwe: "CWE-295"
@@ -2351,7 +2604,8 @@
 - id: kotlin-network-okhttp-connection-spec-clear-text
   languages: [kotlin]
   patterns:
-    - regex: 'ConnectionSpec\\.CLEARTEXT''severity: high
+    - regex: 'ConnectionSpec\.CLEARTEXT'
+  severity: high
   description: "Cleartext connection spec allowed (HTTP)"
   remediation: "Use MODERN_TLS or COMPATIBLE_TLS only"
   cwe: "CWE-319"
@@ -2360,7 +2614,8 @@
 - id: kotlin-network-retrofit
   languages: [kotlin]
   patterns:
-    - regex: 'Retrofit\\.Builder\\.\\.''severity: low
+    - regex: 'Retrofit\.Builder\.\.'
+  severity: low
   description: "Retrofit builder"
   remediation: "Configure base URL, converters, and client"
   cwe: "CWE-693"
@@ -2369,7 +2624,8 @@
 - id: kotlin-network-retrofit-base-url
   languages: [kotlin]
   patterns:
-    - regex: 'baseUrl\\.s*\\.\\.s*[\\.\\.]http://''severity: high
+    - regex: 'baseUrl\.s*\.\.s*[\.\.]http://'
+  severity: high
   description: "Retrofit base URL using HTTP (not HTTPS)"
   remediation: "Use HTTPS for all API endpoints"
   cwe: "CWE-319"
@@ -2378,7 +2634,8 @@
 - id: kotlin-network-retrofit-converter-gson
   languages: [kotlin]
   patterns:
-    - regex: 'addConverterFactory\\.GsonConverterFactory\\.create\\.\\.\\.''severity: low
+    - regex: 'addConverterFactory\.GsonConverterFactory\.create\.\.\.'
+  severity: low
   description: "Gson converter for Retrofit"
   remediation: "Ensure Gson doesn't deserialize malicious content"
   cwe: "CWE-502"
@@ -2387,7 +2644,8 @@
 - id: kotlin-network-retrofit-converter-moshi
   languages: [kotlin]
   patterns:
-    - regex: 'addConverterFactory\\.MoshiConverterFactory\\.create\\.\\.\\.''severity: low
+    - regex: 'addConverterFactory\.MoshiConverterFactory\.create\.\.\.'
+  severity: low
   description: "Moshi converter for Retrofit"
   remediation: "Use @JsonClass annotations"
   cwe: "CWE-502"
@@ -2396,7 +2654,8 @@
 - id: kotlin-network-retrofit-converter-jackson
   languages: [kotlin]
   patterns:
-    - regex: 'addConverterFactory\\.JacksonConverterFactory\\.create\\.\\.\\.''severity: medium
+    - regex: 'addConverterFactory\.JacksonConverterFactory\.create\.\.\.'
+  severity: medium
   description: "Jackson converter (may have deserialization issues)"
   remediation: "Configure Jackson safely"
   cwe: "CWE-502"
@@ -2405,7 +2664,8 @@
 - id: kotlin-network-retrofit-call
   languages: [kotlin]
   patterns:
-    - regex: '\\.execute\\.\\.''severity: medium
+    - regex: '\.execute\.\.'
+  severity: medium
   description: "Retrofit synchronous call (blocks thread)"
   remediation: "Use enqueue() for async, or coroutines"
   cwe: "CWE-770"
@@ -2414,7 +2674,8 @@
 - id: kotlin-network-retrofit-enqueue
   languages: [kotlin]
   patterns:
-    - regex: '\\.enqueue\\.''severity: low
+    - regex: '\.enqueue\.'
+  severity: low
   description: "Retrofit async call (good)"
   remediation: "Handle callback properly"
   cwe: "CWE-754"
@@ -2423,7 +2684,8 @@
 - id: kotlin-network-retrofit-callback-response
   languages: [kotlin]
   patterns:
-    - regex: 'onResponse.*?response\\.body\\.\\.\\.''severity: low
+    - regex: 'onResponse.*?response\.body\.\.\.'
+  severity: low
   description: "Retrofit response handling"
   remediation: "Check response.isSuccessful first"
   cwe: "CWE-754"
@@ -2432,7 +2694,8 @@
 - id: kotlin-network-retrofit-response-no-check
   languages: [kotlin]
   patterns:
-    - regex: 'response\\.body\\.\\.''severity: high
+    - regex: 'response\.body\.\.'
+  severity: high
   description: "Accessing response body without checking success"
   remediation: "Always check response.isSuccessful"
   cwe: "CWE-754"
@@ -2441,7 +2704,8 @@
 - id: kotlin-network-khttp
   languages: [kotlin]
   patterns:
-    - regex: 'khttp\\.(get|post|put|delete)''severity: medium
+    - regex: 'khttp\.(get|post|put|delete)'
+  severity: medium
   description: "khttp library (synchronous, may block)"
   remediation: "Use coroutines-friendly libraries"
   cwe: "CWE-770"
@@ -2450,7 +2714,8 @@
 - id: kotlin-network-fuel
   languages: [kotlin]
   patterns:
-    - regex: 'Fuel\\.(get|post|put|delete)''severity: low
+    - regex: 'Fuel\.(get|post|put|delete)'
+  severity: low
   description: "Fuel HTTP library"
   remediation: "Handle responses asynchronously"
   cwe: "CWE-754"
@@ -2459,7 +2724,8 @@
 - id: kotlin-network-volley
   languages: [kotlin]
   patterns:
-    - regex: 'RequestQueue|StringRequest|JsonObjectRequest''severity: low
+    - regex: 'RequestQueue|StringRequest|JsonObjectRequest'
+  severity: low
   description: "Volley HTTP library"
   remediation: "Configure retry policy"
   cwe: "CWE-693"
@@ -2468,7 +2734,8 @@
 - id: kotlin-network-websocket
   languages: [kotlin]
   patterns:
-    - regex: 'WebSocket|webSocket''severity: medium
+    - regex: 'WebSocket|webSocket'
+  severity: medium
   description: "WebSocket connection (may not use TLS)"
   remediation: "Use wss:// for secure WebSockets"
   cwe: "CWE-319"
@@ -2477,7 +2744,8 @@
 - id: kotlin-network-websocket-ws
   languages: [kotlin]
   patterns:
-    - regex: 'ws://''severity: high
+    - regex: 'ws://'
+  severity: high
   description: "WebSocket without TLS (ws://)"
   remediation: "Use wss:// for encrypted WebSockets"
   cwe: "CWE-319"
@@ -2488,7 +2756,8 @@
 - id: kotlin-webview-javascript-enabled
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.javaScriptEnabled\\.s*=\\.s*true''severity: high
+    - regex: 'webView\.settings\.javaScriptEnabled\.s*=\.s*true'
+  severity: high
   description: "WebView with JavaScript enabled (XSS risk)"
   remediation: "Disable unless necessary"
   cwe: "CWE-79"
@@ -2497,7 +2766,8 @@
 - id: kotlin-webview-file-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.allowFileAccess\\.s*=\\.s*true''severity: high
+    - regex: 'webView\.settings\.allowFileAccess\.s*=\.s*true'
+  severity: high
   description: "WebView allows file access (may read local files)"
   remediation: "Disable unless needed"
   cwe: "CWE-22"
@@ -2506,7 +2776,8 @@
 - id: kotlin-webview-content-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.allowContentAccess\\.s*=\\.s*true''severity: high
+    - regex: 'webView\.settings\.allowContentAccess\.s*=\.s*true'
+  severity: high
   description: "WebView allows content access (may access content providers)"
   remediation: "Disable unless needed"
   cwe: "CWE-22"
@@ -2515,7 +2786,8 @@
 - id: kotlin-webview-universal-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.allowUniversalAccessFromFileURLs\\.s*=\\.s*true''severity: critical
+    - regex: 'webView\.settings\.allowUniversalAccessFromFileURLs\.s*=\.s*true'
+  severity: critical
   description: "WebView allows universal access from file URLs"
   remediation: "Never enable for untrusted content"
   cwe: "CWE-284"
@@ -2524,7 +2796,8 @@
 - id: kotlin-webview-file-url-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.allowFileAccessFromFileURLs\\.s*=\\.s*true''severity: high
+    - regex: 'webView\.settings\.allowFileAccessFromFileURLs\.s*=\.s*true'
+  severity: high
   description: "WebView allows file access from file URLs"
   remediation: "Disable unless needed"
   cwe: "CWE-22"
@@ -2533,7 +2806,8 @@
 - id: kotlin-webview-dom-storage
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.domStorageEnabled\\.s*=\\.s*true''severity: medium
+    - regex: 'webView\.settings\.domStorageEnabled\.s*=\.s*true'
+  severity: medium
   description: "WebView DOM storage enabled (may store sensitive data)"
   remediation: "Clear storage when done"
   cwe: "CWE-312"
@@ -2542,7 +2816,8 @@
 - id: kotlin-webview-database
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.databaseEnabled\\.s*=\\.s*true''severity: medium
+    - regex: 'webView\.settings\.databaseEnabled\.s*=\.s*true'
+  severity: medium
   description: "WebView database enabled (may store sensitive data)"
   remediation: "Clear database when done"
   cwe: "CWE-312"
@@ -2551,7 +2826,8 @@
 - id: kotlin-webview-cache
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.cacheMode''severity: low
+    - regex: 'webView\.settings\.cacheMode'
+  severity: low
   description: "WebView cache mode configured"
   remediation: "Clear cache for sensitive data"
   cwe: "CWE-524"
@@ -2560,7 +2836,8 @@
 - id: kotlin-webview-mixed-content
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.mixedContentMode''severity: high
+    - regex: 'webView\.settings\.mixedContentMode'
+  severity: high
   description: "WebView mixed content mode (HTTP on HTTPS page)"
   remediation: "Set to MIXED_CONTENT_NEVER_ALLOW"
   cwe: "CWE-319"
@@ -2569,7 +2846,8 @@
 - id: kotlin-webview-mixed-content-never
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.mixedContentMode\\.s*=\\.s*WebSettings\\.MIXED_CONTENT_NEVER_ALLOW''severity: low
+    - regex: 'webView\.settings\.mixedContentMode\.s*=\.s*WebSettings\.MIXED_CONTENT_NEVER_ALLOW'
+  severity: low
   description: "WebView blocks mixed content (good)"
   remediation: "Good security practice"
   cwe: "CWE-319"
@@ -2578,7 +2856,8 @@
 - id: kotlin-webview-mixed-content-always
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.settings\\.mixedContentMode\\.s*=\\.s*WebSettings\\.MIXED_CONTENT_ALWAYS_ALLOW''severity: critical
+    - regex: 'webView\.settings\.mixedContentMode\.s*=\.s*WebSettings\.MIXED_CONTENT_ALWAYS_ALLOW'
+  severity: critical
   description: "WebView allows mixed content (security risk)"
   remediation: "Set to MIXED_CONTENT_NEVER_ALLOW"
   cwe: "CWE-319"
@@ -2587,7 +2866,8 @@
 - id: kotlin-webview-javascript-interface-api
   languages: [kotlin]
   patterns:
-    - regex: 'addJavascriptInterface.*?@JavascriptInterface''severity: medium
+    - regex: 'addJavascriptInterface.*?@JavascriptInterface'
+  severity: medium
   description: "JavaScript interface with proper annotation (safer)"
   remediation: "Ensure methods are safe"
   cwe: "CWE-94"
@@ -2596,7 +2876,8 @@
 - id: kotlin-webview-javascript-interface-no-annotation
   languages: [kotlin]
   patterns:
-    - regex: 'addJavascriptInterface.*?''severity: critical
+    - regex: 'addJavascriptInterface.*?'
+  severity: critical
   description: "JavaScript interface without @JavascriptInterface (RCE on older Android)"
   remediation: "Always use @JavascriptInterface annotation"
   cwe: "CWE-94"
@@ -2605,7 +2886,8 @@
 - id: kotlin-webview-safe-browsing
   languages: [kotlin]
   patterns:
-    - regex: 'webView\\.setSafeBrowsingEnabled\\.s*\\.\\.s*true\\.s*\\.''severity: low
+    - regex: 'webView\.setSafeBrowsingEnabled\.s*\.\.s*true\.s*\.'
+  severity: low
   description: "Safe Browsing enabled (good)"
   remediation: "Good for security"
   cwe: "CWE-693"
@@ -2614,7 +2896,8 @@
 - id: kotlin-webview-webviewclient-should-override
   languages: [kotlin]
   patterns:
-    - regex: 'shouldOverrideUrlLoading.*?return\\.s+false''severity: medium
+    - regex: 'shouldOverrideUrlLoading.*?return\.s+false'
+  severity: medium
   description: "WebViewClient allowing all URLs (may open malicious sites)"
   remediation: "Validate URLs before loading"
   cwe: "CWE-601"
@@ -2623,7 +2906,8 @@
 - id: kotlin-webview-webviewclient-page-finished
   languages: [kotlin]
   patterns:
-    - regex: 'onPageFinished.*?loadUrl''severity: high
+    - regex: 'onPageFinished.*?loadUrl'
+  severity: high
   description: "Loading URL in onPageFinished (potential injection)"
   remediation: "Avoid loading URLs in callbacks"
   cwe: "CWE-94"
@@ -2632,7 +2916,8 @@
 - id: kotlin-webview-clear-cache
   languages: [kotlin]
   patterns:
-    - regex: 'clearCache|clearHistory|clearFormData|clearSslPreferences''severity: low
+    - regex: 'clearCache|clearHistory|clearFormData|clearSslPreferences'
+  severity: low
   description: "Clearing WebView data (good for sensitive content)"
   remediation: "Good practice after handling sensitive data"
   cwe: "CWE-312"
@@ -2641,7 +2926,8 @@
 - id: kotlin-webview-load-url
   languages: [kotlin]
   patterns:
-    - regex: 'loadUrl\\.s*\\.\\.s*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'loadUrl\.s*\.\.s*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Loading URL from user input (open redirect, XSS)"
   remediation: "Validate and restrict URLs"
   cwe: "CWE-601"
@@ -2650,7 +2936,8 @@
 - id: kotlin-webview-load-data
   languages: [kotlin]
   patterns:
-    - regex: 'loadData(?:WithBaseURL)?\\.s*\\.\\.s*[^,]*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'loadData(?:WithBaseURL)?\.s*\.\.s*[^,]*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Loading user input as HTML in WebView (XSS risk)"
   remediation: "Sanitize HTML or use text/plain"
   cwe: "CWE-79"
@@ -2659,7 +2946,8 @@
 - id: kotlin-webview-evaluate-javascript
   languages: [kotlin]
   patterns:
-    - regex: 'evaluateJavascript\\.s*\\.\\.s*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'evaluateJavascript\.s*\.\.s*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Evaluating user input as JavaScript (RCE risk)"
   remediation: "Never evaluate untrusted JavaScript"
   cwe: "CWE-94"
@@ -2668,7 +2956,8 @@
 - id: kotlin-webview-post-url
   languages: [kotlin]
   patterns:
-    - regex: 'postUrl\\.s*\\.\\.s*[^,]*,\\.s*[^)]*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'postUrl\.s*\.\.s*[^,]*,\.s*[^)]*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "POSTing user data via WebView (CSRF risk)"
   remediation: "Use app APIs instead"
   cwe: "CWE-352"
@@ -2677,7 +2966,8 @@
 - id: kotlin-webview-user-agent
   languages: [kotlin]
   patterns:
-    - regex: 'settings\\.userAgentString\\.s*=\\.s*[\\.\\.]''severity: low
+    - regex: 'settings\.userAgentString\.s*=\.s*[\.\.]'
+  severity: low
   description: "Custom User-Agent set for WebView"
   remediation: "Use default unless needed"
   cwe: "CWE-200"
@@ -2688,7 +2978,8 @@
 - id: kotlin-crypto-md5
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\\.getInstance\\.s*\\.\\.s*[\\.\\.]MD5[\\.\\.]''severity: high
+    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]MD5[\.\.]'
+  severity: high
   description: "MD5 hash used (cryptographically broken)"
   remediation: "Use SHA-256 or SHA-512"
   cwe: "CWE-327"
@@ -2697,7 +2988,8 @@
 - id: kotlin-crypto-sha1
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\\.getInstance\\.s*\\.\\.s*[\\.\\.]SHA-?1[\\.\\.]''severity: high
+    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]SHA-?1[\.\.]'
+  severity: high
   description: "SHA-1 hash used (cryptographically weak)"
   remediation: "Use SHA-256 or SHA-512"
   cwe: "CWE-327"
@@ -2706,7 +2998,8 @@
 - id: kotlin-crypto-sha256
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\\.getInstance\\.s*\\.\\.s*[\\.\\.]SHA-?256[\\.\\.]''severity: low
+    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]SHA-?256[\.\.]'
+  severity: low
   description: "SHA-256 hash (good for general hashing)"
   remediation: "Good choice"
   cwe: "CWE-327"
@@ -2715,7 +3008,8 @@
 - id: kotlin-crypto-sha512
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\\.getInstance\\.s*\\.\\.s*[\\.\\.]SHA-?512[\\.\\.]''severity: low
+    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]SHA-?512[\.\.]'
+  severity: low
   description: "SHA-512 hash (strong hashing)"
   remediation: "Good for high-security hashing"
   cwe: "CWE-327"
@@ -2724,7 +3018,8 @@
 - id: kotlin-crypto-des
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]DES[\\.\\.]''severity: critical
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]DES[\.\.]'
+  severity: critical
   description: "DES cipher used (cryptographically broken)"
   remediation: "Use AES-GCM"
   cwe: "CWE-327"
@@ -2733,7 +3028,8 @@
 - id: kotlin-crypto-3des
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]DESede[\\.\\.]''severity: high
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]DESede[\.\.]'
+  severity: high
   description: "Triple DES cipher used (cryptographically weak)"
   remediation: "Use AES-GCM"
   cwe: "CWE-327"
@@ -2742,7 +3038,8 @@
 - id: kotlin-crypto-aes-ecb
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]AES/ECB''severity: critical
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]AES/ECB'
+  severity: critical
   description: "AES-ECB mode (insecure, not semantically secure)"
   remediation: "Use AES/GCM/NoPadding"
   cwe: "CWE-327"
@@ -2751,7 +3048,8 @@
 - id: kotlin-crypto-aes-cbc
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]AES/CBC''severity: high
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]AES/CBC'
+  severity: high
   description: "AES-CBC mode (vulnerable to padding oracle attacks)"
   remediation: "Use AES/GCM/NoPadding for authenticated encryption"
   cwe: "CWE-327"
@@ -2760,7 +3058,8 @@
 - id: kotlin-crypto-aes-gcm
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]AES/GCM''severity: low
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]AES/GCM'
+  severity: low
   description: "AES-GCM mode (authenticated encryption)"
   remediation: "Good choice, ensure IV is unique"
   cwe: "CWE-327"
@@ -2769,7 +3068,8 @@
 - id: kotlin-crypto-rsa-ecb
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]RSA/ECB''severity: high
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]RSA/ECB'
+  severity: high
   description: "RSA with ECB mode (not meaningful for RSA)"
   remediation: "Use RSA/ECB/OAEPWithSHA256AndMGF1Padding"
   cwe: "CWE-327"
@@ -2778,7 +3078,8 @@
 - id: kotlin-crypto-rsa-pkcs1
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]RSA/ECB/PKCS1Padding[\\.\\.]''severity: medium
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]RSA/ECB/PKCS1Padding[\.\.]'
+  severity: medium
   description: "RSA with PKCS#1 v1.5 padding (vulnerable to attacks)"
   remediation: "Use OAEP padding"
   cwe: "CWE-327"
@@ -2787,7 +3088,8 @@
 - id: kotlin-crypto-rsa-oaep
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\\.getInstance\\.s*\\.\\.s*[\\.\\.]RSA/ECB/OAEP''severity: low
+    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]RSA/ECB/OAEP'
+  severity: low
   description: "RSA with OAEP padding (secure)"
   remediation: "Good choice"
   cwe: "CWE-327"
@@ -2796,7 +3098,8 @@
 - id: kotlin-crypto-iv-static
   languages: [kotlin]
   patterns:
-    - regex: 'IvParameterSpec\\.s*\\.\\.s*byteArrayOf\\.s*\\.[^)]*\\.''severity: high
+    - regex: 'IvParameterSpec\.s*\.\.s*byteArrayOf\.s*\.[^)]*\.'
+  severity: high
   description: "Static IV used in encryption (may be insecure)"
   remediation: "Generate random IV for each encryption"
   cwe: "CWE-326"
@@ -2805,7 +3108,8 @@
 - id: kotlin-crypto-iv-zero
   languages: [kotlin]
   patterns:
-    - regex: 'IvParameterSpec\\.s*\\.\\.s*ByteArray\\.s*\\.\\.s*[0-9]+\\.s*\\.\\.s*\\.''severity: critical
+    - regex: 'IvParameterSpec\.s*\.\.s*ByteArray\.s*\.\.s*[0-9]+\.s*\.\.s*\.'
+  severity: critical
   description: "Zero IV used in encryption (extremely insecure)"
   remediation: "Always use random IVs"
   cwe: "CWE-326"
@@ -2814,7 +3118,8 @@
 - id: kotlin-crypto-secret-key-spec
   languages: [kotlin]
   patterns:
-    - regex: 'SecretKeySpec\\.s*\\.\\.s*byteArrayOf\\.s*\\.[^)]*\\.''severity: high
+    - regex: 'SecretKeySpec\.s*\.\.s*byteArrayOf\.s*\.[^)]*\.'
+  severity: high
   description: "Hardcoded encryption key in code"
   remediation: "Use Android Keystore for key storage"
   cwe: "CWE-321"
@@ -2823,7 +3128,8 @@
 - id: kotlin-crypto-keystore
   languages: [kotlin]
   patterns:
-    - regex: 'KeyStore\\.getInstance\\.s*\\.\\.s*[\\.\\.]AndroidKeyStore[\\.\\.]''severity: low
+    - regex: 'KeyStore\.getInstance\.s*\.\.s*[\.\.]AndroidKeyStore[\.\.]'
+  severity: low
   description: "Using Android Keystore (good for key storage)"
   remediation: "Good practice for key management"
   cwe: "CWE-321"
@@ -2832,7 +3138,8 @@
 - id: kotlin-crypto-keystore-generate-key
   languages: [kotlin]
   patterns:
-    - regex: 'KeyPairGenerator\\.getInstance\\.s*\\.\\.s*[\\.\\.]RSA[\\.\\.]\\.s*,\\.s*[\\.\\.]AndroidKeyStore[\\.\\.]''severity: low
+    - regex: 'KeyPairGenerator\.getInstance\.s*\.\.s*[\.\.]RSA[\.\.]\.s*,\.s*[\.\.]AndroidKeyStore[\.\.]'
+  severity: low
   description: "Generating keys in Android Keystore (secure)"
   remediation: "Good for key generation"
   cwe: "CWE-321"
@@ -2841,7 +3148,8 @@
 - id: kotlin-crypto-keystore-generate-aes
   languages: [kotlin]
   patterns:
-    - regex: 'KeyGenerator\\.getInstance\\.s*\\.\\.s*[\\.\\.]AES[\\.\\.]\\.s*,\\.s*[\\.\\.]AndroidKeyStore[\\.\\.]''severity: low
+    - regex: 'KeyGenerator\.getInstance\.s*\.\.s*[\.\.]AES[\.\.]\.s*,\.s*[\.\.]AndroidKeyStore[\.\.]'
+  severity: low
   description: "Generating AES keys in Android Keystore"
   remediation: "Good for symmetric keys"
   cwe: "CWE-321"
@@ -2850,7 +3158,8 @@
 - id: kotlin-crypto-keystore-alias-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'KeyStore.*?getEntry.*?[\\.\\.][^\\.\\.]*(?:password|token|key|secret)''severity: high
+    - regex: 'KeyStore.*?getEntry.*?[\.\.][^\.\.]*(?:password|token|key|secret)'
+  severity: high
   description: "Key alias contains sensitive info (may leak in logs)"
   remediation: "Use generic aliases"
   cwe: "CWE-200"
@@ -2859,7 +3168,8 @@
 - id: kotlin-crypto-secure-random
   languages: [kotlin]
   patterns:
-    - regex: 'SecureRandom\\.\\.''severity: low
+    - regex: 'SecureRandom\.\.'
+  severity: low
   description: "SecureRandom (cryptographically secure)"
   remediation: "Good for random generation"
   cwe: "CWE-330"
@@ -2868,7 +3178,8 @@
 - id: kotlin-crypto-random
   languages: [kotlin]
   patterns:
-    - regex: 'Random\\.\\.''severity: high
+    - regex: 'Random\.\.'
+  severity: high
   description: "java.util.Random (not cryptographically secure)"
   remediation: "Use SecureRandom for security"
   cwe: "CWE-330"
@@ -2877,7 +3188,8 @@
 - id: kotlin-crypto-mac
   languages: [kotlin]
   patterns:
-    - regex: 'Mac\\.getInstance\\.s*\\.\\.s*[\\.\\.]HmacSHA256[\\.\\.]''severity: low
+    - regex: 'Mac\.getInstance\.s*\.\.s*[\.\.]HmacSHA256[\.\.]'
+  severity: low
   description: "HMAC-SHA256 for message authentication"
   remediation: "Good for authentication"
   cwe: "CWE-327"
@@ -2886,7 +3198,8 @@
 - id: kotlin-crypto-mac-md5
   languages: [kotlin]
   patterns:
-    - regex: 'Mac\\.getInstance\\.s*\\.\\.s*[\\.\\.]HmacMD5[\\.\\.]''severity: high
+    - regex: 'Mac\.getInstance\.s*\.\.s*[\.\.]HmacMD5[\.\.]'
+  severity: high
   description: "HMAC-MD5 (cryptographically weak)"
   remediation: "Use HMAC-SHA256"
   cwe: "CWE-327"
@@ -2895,7 +3208,8 @@
 - id: kotlin-crypto-mac-sha1
   languages: [kotlin]
   patterns:
-    - regex: 'Mac\\.getInstance\\.s*\\.\\.s*[\\.\\.]HmacSHA1[\\.\\.]''severity: high
+    - regex: 'Mac\.getInstance\.s*\.\.s*[\.\.]HmacSHA1[\.\.]'
+  severity: high
   description: "HMAC-SHA1 (cryptographically weak)"
   remediation: "Use HMAC-SHA256"
   cwe: "CWE-327"
@@ -2904,7 +3218,8 @@
 - id: kotlin-crypto-signature
   languages: [kotlin]
   patterns:
-    - regex: 'Signature\\.getInstance\\.s*\\.\\.s*[\\.\\.]SHA256withRSA[\\.\\.]''severity: low
+    - regex: 'Signature\.getInstance\.s*\.\.s*[\.\.]SHA256withRSA[\.\.]'
+  severity: low
   description: "RSA signature with SHA256 (good)"
   remediation: "Good for signatures"
   cwe: "CWE-327"
@@ -2913,7 +3228,8 @@
 - id: kotlin-crypto-signature-md5
   languages: [kotlin]
   patterns:
-    - regex: 'Signature\\.getInstance\\.s*\\.\\.s*[\\.\\.]MD5withRSA[\\.\\.]''severity: critical
+    - regex: 'Signature\.getInstance\.s*\.\.s*[\.\.]MD5withRSA[\.\.]'
+  severity: critical
   description: "MD5 with RSA signature (cryptographically broken)"
   remediation: "Use SHA256withRSA"
   cwe: "CWE-327"
@@ -2922,7 +3238,8 @@
 - id: kotlin-crypto-signature-sha1
   languages: [kotlin]
   patterns:
-    - regex: 'Signature\\.getInstance\\.s*\\.\\.s*[\\.\\.]SHA1withRSA[\\.\\.]''severity: high
+    - regex: 'Signature\.getInstance\.s*\.\.s*[\.\.]SHA1withRSA[\.\.]'
+  severity: high
   description: "SHA1 with RSA signature (cryptographically weak)"
   remediation: "Use SHA256withRSA"
   cwe: "CWE-327"
@@ -2933,7 +3250,8 @@
 - id: kotlin-keystore-access
   languages: [kotlin]
   patterns:
-    - regex: 'KeyStore\\.getInstance''severity: low
+    - regex: 'KeyStore\.getInstance'
+  severity: low
   description: "Accessing KeyStore"
   remediation: "Load KeyStore properly"
   cwe: "CWE-321"
@@ -2942,7 +3260,8 @@
 - id: kotlin-keystore-load
   languages: [kotlin]
   patterns:
-    - regex: 'keystore\\.load\\.null\\.''severity: low
+    - regex: 'keystore\.load\.null\.'
+  severity: low
   description: "Loading KeyStore with null parameters"
   remediation: "Standard KeyStore initialization"
   cwe: "CWE-321"
@@ -2951,7 +3270,8 @@
 - id: kotlin-keystore-set-entry
   languages: [kotlin]
   patterns:
-    - regex: 'keystore\\.setEntry''severity: medium
+    - regex: 'keystore\.setEntry'
+  severity: medium
   description: "Setting KeyStore entry"
   remediation: "Use KeyStore for storing keys"
   cwe: "CWE-321"
@@ -2960,7 +3280,8 @@
 - id: kotlin-keystore-get-entry
   languages: [kotlin]
   patterns:
-    - regex: 'keystore\\.getEntry''severity: medium
+    - regex: 'keystore\.getEntry'
+  severity: medium
   description: "Getting KeyStore entry"
   remediation: "Handle missing entries"
   cwe: "CWE-754"
@@ -2969,7 +3290,8 @@
 - id: kotlin-biometric-crypto
   languages: [kotlin]
   patterns:
-    - regex: 'BiometricPrompt\\.CryptoObject''severity: low
+    - regex: 'BiometricPrompt\.CryptoObject'
+  severity: low
   description: "Biometric authentication with crypto (strong)"
   remediation: "Good for key release"
   cwe: "CWE-306"
@@ -2978,7 +3300,8 @@
 - id: kotlin-biometric-authenticate
   languages: [kotlin]
   patterns:
-    - regex: 'authenticate.*?cryptoObject''severity: low
+    - regex: 'authenticate.*?cryptoObject'
+  severity: low
   description: "Biometric authentication with crypto"
   remediation: "Strong authentication"
   cwe: "CWE-306"
@@ -2987,7 +3310,8 @@
 - id: kotlin-biometric-authenticate-no-crypto
   languages: [kotlin]
   patterns:
-    - regex: 'authenticate\\.s*\\.\\.s*[^)]*?''severity: medium
+    - regex: 'authenticate\.s*\.\.s*[^)]*?'
+  severity: medium
   description: "Biometric authentication without crypto (weaker)"
   remediation: "Use with CryptoObject for sensitive ops"
   cwe: "CWE-306"
@@ -2996,7 +3320,8 @@
 - id: kotlin-biometric-authentication-failed
   languages: [kotlin]
   patterns:
-    - regex: 'onAuthenticationFailed|onAuthenticationError''severity: low
+    - regex: 'onAuthenticationFailed|onAuthenticationError'
+  severity: low
   description: "Biometric authentication failure"
   remediation: "Handle gracefully"
   cwe: "CWE-306"
@@ -3005,7 +3330,8 @@
 - id: kotlin-fingerprint-manager
   languages: [kotlin]
   patterns:
-    - regex: 'FingerprintManager|FingerprintManagerCompat''severity: medium
+    - regex: 'FingerprintManager|FingerprintManagerCompat'
+  severity: medium
   description: "FingerprintManager (deprecated)"
   remediation: "Use BiometricPrompt"
   cwe: "CWE-306"
@@ -3014,7 +3340,8 @@
 - id: kotlin-fingerprint-authenticate
   languages: [kotlin]
   patterns:
-    - regex: 'fingerprintManager\\.authenticate''severity: medium
+    - regex: 'fingerprintManager\.authenticate'
+  severity: medium
   description: "Legacy fingerprint authentication"
   remediation: "Migrate to BiometricPrompt"
   cwe: "CWE-306"
@@ -3023,7 +3350,8 @@
 - id: kotlin-fingerprint-crypto
   languages: [kotlin]
   patterns:
-    - regex: 'FingerprintManager\\.CryptoObject''severity: medium
+    - regex: 'FingerprintManager\.CryptoObject'
+  severity: medium
   description: "Legacy fingerprint with crypto"
   remediation: "Migrate to BiometricPrompt"
   cwe: "CWE-306"
@@ -3032,7 +3360,8 @@
 - id: kotlin-biometric-cipher
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher.*?unlock.*?biometric''severity: low
+    - regex: 'Cipher.*?unlock.*?biometric'
+  severity: low
   description: "Cipher unlocked with biometric"
   remediation: "Good for protected keys"
   cwe: "CWE-312"
@@ -3041,7 +3370,8 @@
 - id: kotlin-biometric-signature
   languages: [kotlin]
   patterns:
-    - regex: 'Signature.*?unlock.*?biometric''severity: low
+    - regex: 'Signature.*?unlock.*?biometric'
+  severity: low
   description: "Signature unlocked with biometric"
   remediation: "Good for protected keys"
   cwe: "CWE-312"
@@ -3050,7 +3380,8 @@
 - id: kotlin-biometric-mac
   languages: [kotlin]
   patterns:
-    - regex: 'Mac.*?unlock.*?biometric''severity: low
+    - regex: 'Mac.*?unlock.*?biometric'
+  severity: low
   description: "MAC key unlocked with biometric"
   remediation: "Good for protected keys"
   cwe: "CWE-312"
@@ -3059,7 +3390,8 @@
 - id: kotlin-biometric-cancel
   languages: [kotlin]
   patterns:
-    - regex: 'biometricPrompt\\.cancelAuthentication''severity: low
+    - regex: 'biometricPrompt\.cancelAuthentication'
+  severity: low
   description: "Canceling biometric authentication"
   remediation: "Clean up resources"
   cwe: "CWE-404"
@@ -3068,7 +3400,8 @@
 - id: kotlin-biometric-device-credential
   languages: [kotlin]
   patterns:
-    - regex: 'setAllowedAuthenticators.*?DEVICE_CREDENTIAL''severity: low
+    - regex: 'setAllowedAuthenticators.*?DEVICE_CREDENTIAL'
+  severity: low
   description: "Allowing device credential fallback"
   remediation: "Consider security implications"
   cwe: "CWE-306"
@@ -3077,7 +3410,8 @@
 - id: kotlin-edit-text-input
   languages: [kotlin]
   patterns:
-    - regex: 'EditText.*?text\\.toString\\.\\.''severity: low
+    - regex: 'EditText.*?text\.toString\.\.'
+  severity: low
   description: "Getting EditText input"
   remediation: "Validate all user input"
   cwe: "CWE-20"
@@ -3086,7 +3420,8 @@
 - id: kotlin-edit-text-input-type
   languages: [kotlin]
   patterns:
-    - regex: 'android:inputType''severity: low
+    - regex: 'android:inputType'
+  severity: low
   description: "EditText input type specified"
   remediation: "Use appropriate input types"
   cwe: "CWE-20"
@@ -3095,7 +3430,8 @@
 - id: kotlin-edit-text-password
   languages: [kotlin]
   patterns:
-    - regex: 'android:inputType=\\..*?textPassword.*?\\.''severity: low
+    - regex: 'android:inputType=\..*?textPassword.*?\.'
+  severity: low
   description: "Password input field"
   remediation: "Good for passwords"
   cwe: "CWE-312"
@@ -3104,7 +3440,8 @@
 - id: kotlin-edit-text-number
   languages: [kotlin]
   patterns:
-    - regex: 'android:inputType=\\..*?number.*?\\.''severity: low
+    - regex: 'android:inputType=\..*?number.*?\.'
+  severity: low
   description: "Number input field"
   remediation: "Parse and validate as number"
   cwe: "CWE-20"
@@ -3113,7 +3450,8 @@
 - id: kotlin-edit-text-email
   languages: [kotlin]
   patterns:
-    - regex: 'android:inputType=\\..*?textEmailAddress.*?\\.''severity: low
+    - regex: 'android:inputType=\..*?textEmailAddress.*?\.'
+  severity: low
   description: "Email input field"
   remediation: "Validate email format"
   cwe: "CWE-20"
@@ -3122,7 +3460,8 @@
 - id: kotlin-edit-text-phone
   languages: [kotlin]
   patterns:
-    - regex: 'android:inputType=\\..*?phone.*?\\.''severity: low
+    - regex: 'android:inputType=\..*?phone.*?\.'
+  severity: low
   description: "Phone input field"
   remediation: "Validate phone format"
   cwe: "CWE-20"
@@ -3131,7 +3470,8 @@
 - id: kotlin-text-input-validation
   languages: [kotlin]
   patterns:
-    - regex: 'TextInputLayout|TextInputEditText''severity: low
+    - regex: 'TextInputLayout|TextInputEditText'
+  severity: low
   description: "Material text input"
   remediation: "Use for validation UI"
   cwe: "CWE-20"
@@ -3140,7 +3480,8 @@
 - id: kotlin-input-validation-regex
   languages: [kotlin]
   patterns:
-    - regex: 'Pattern\\.compile|matches\\.Regex''severity: low
+    - regex: 'Pattern\.compile|matches\.Regex'
+  severity: low
   description: "Regex validation"
   remediation: "Good for input validation"
   cwe: "CWE-20"
@@ -3149,7 +3490,8 @@
 - id: kotlin-input-validation-length
   languages: [kotlin]
   patterns:
-    - regex: 'length\\.s*>\\.s*[0-9]+|length\\.s*<\\.s*[0-9]+''severity: low
+    - regex: 'length\.s*>\.s*[0-9]+|length\.s*<\.s*[0-9]+'
+  severity: low
   description: "Length validation"
   remediation: "Set min/max length"
   cwe: "CWE-770"
@@ -3158,7 +3500,8 @@
 - id: kotlin-input-validation-range
   languages: [kotlin]
   patterns:
-    - regex: 'in\\.s*[0-9]+\\.\\.[0-9]+''severity: low
+    - regex: 'in\.s*[0-9]+\.\.[0-9]+'
+  severity: low
   description: "Range validation"
   remediation: "Validate numeric ranges"
   cwe: "CWE-20"
@@ -3167,7 +3510,8 @@
 - id: kotlin-input-validation-whitelist
   languages: [kotlin]
   patterns:
-    - regex: 'in\\.s*setOf|contains\\.s*in\\.s*listOf''severity: low
+    - regex: 'in\.s*setOf|contains\.s*in\.s*listOf'
+  severity: low
   description: "Whitelist validation"
   remediation: "Good for enum values"
   cwe: "CWE-20"
@@ -3176,7 +3520,8 @@
 - id: kotlin-input-validation-blacklist
   languages: [kotlin]
   patterns:
-    - regex: '!in\\.s*setOf|!contains''severity: medium
+    - regex: '!in\.s*setOf|!contains'
+  severity: medium
   description: "Blacklist validation (bypass risk)"
   remediation: "Use whitelist instead"
   cwe: "CWE-20"
@@ -3185,7 +3530,8 @@
 - id: kotlin-input-validation-null
   languages: [kotlin]
   patterns:
-    - regex: '==\\.s*null|\\.=\\.s*null''severity: low
+    - regex: '==\.s*null|\.=\.s*null'
+  severity: low
   description: "Null check"
   remediation: "Use safe calls and elvis"
   cwe: "CWE-20"
@@ -3194,7 +3540,8 @@
 - id: kotlin-input-validation-empty
   languages: [kotlin]
   patterns:
-    - regex: '\\.isEmpty\\.\\.|isNullOrEmpty''severity: low
+    - regex: '\.isEmpty\.\.|isNullOrEmpty'
+  severity: low
   description: "Empty string validation"
   remediation: "Check for empty input"
   cwe: "CWE-20"
@@ -3203,7 +3550,8 @@
 - id: kotlin-input-validation-no-validation
   languages: [kotlin]
   patterns:
-    - regex: 'text\\.toString\\.\\.''severity: high
+    - regex: 'text\.toString\.\.'
+  severity: high
   description: "User input used without validation"
   remediation: "Always validate user input"
   cwe: "CWE-20"
@@ -3212,7 +3560,8 @@
 - id: kotlin-input-validation-sql
   languages: [kotlin]
   patterns:
-    - regex: 'text\\.toString\\.\\..*?(?:SELECT|INSERT|UPDATE|DELETE)''severity: critical
+    - regex: 'text\.toString\.\..*?(?:SELECT|INSERT|UPDATE|DELETE)'
+  severity: critical
   description: "Unvalidated input used in SQL context"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -3221,7 +3570,8 @@
 - id: kotlin-input-validation-html
   languages: [kotlin]
   patterns:
-    - regex: 'text\\.toString\\.\\..*?WebView''severity: high
+    - regex: 'text\.toString\.\..*?WebView'
+  severity: high
   description: "Unvalidated input used in WebView (XSS risk)"
   remediation: "Sanitize HTML input"
   cwe: "CWE-79"
@@ -3230,7 +3580,8 @@
 - id: kotlin-input-validation-shell
   languages: [kotlin]
   patterns:
-    - regex: 'text\\.toString\\.\\..*?Runtime\\.exec''severity: critical
+    - regex: 'text\.toString\.\..*?Runtime\.exec'
+  severity: critical
   description: "Unvalidated input used in shell command"
   remediation: "Avoid shell commands with user input"
   cwe: "CWE-78"
@@ -3239,7 +3590,8 @@
 - id: kotlin-input-validation-file
   languages: [kotlin]
   patterns:
-    - regex: 'text\\.toString\\.\\..*?File''severity: high
+    - regex: 'text\.toString\.\..*?File'
+  severity: high
   description: "Unvalidated input used in file path"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -3250,7 +3602,8 @@
 - id: kotlin-hardcoded-password
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*[\\.\\.][^\\.\\.]{8,}[\\.\\.]''severity: high
+    - regex: '(?i)(password|passwd|pwd)\.s*=\.s*[\.\.][^\.\.]{8,}[\.\.]'
+  severity: high
   description: "Hardcoded password detected"
   remediation: "Use environment variables or Android Keystore"
   cwe: "CWE-798"
@@ -3259,7 +3612,8 @@
 - id: kotlin-hardcoded-api-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*[\\.\\.][a-zA-Z0-9]{16,}[\\.\\.]''severity: high
+    - regex: '(?i)(api[_-]?key|apikey)\.s*=\.s*[\.\.][a-zA-Z0-9]{16,}[\.\.]'
+  severity: high
   description: "Hardcoded API key detected"
   remediation: "Store API keys in BuildConfig or secure config"
   cwe: "CWE-798"
@@ -3268,7 +3622,8 @@
 - id: kotlin-hardcoded-jwt-secret
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key)\\.s*=\\.s*[\\.\\.][^\\.\\.]{8,}[\\.\\.]''severity: critical
+    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key)\.s*=\.s*[\.\.][^\.\.]{8,}[\.\.]'
+  severity: critical
   description: "Hardcoded JWT signing secret"
   remediation: "Use environment variables for JWT secrets"
   cwe: "CWE-798"
@@ -3277,7 +3632,8 @@
 - id: kotlin-hardcoded-aws-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(AKIA|ASIA)[A-Z0-9]{16}''severity: critical
+    - regex: '(?i)(AKIA|ASIA)[A-Z0-9]{16}'
+  severity: critical
   description: "AWS Access Key ID hardcoded"
   remediation: "Use AWS Cognito or environment variables"
   cwe: "CWE-798"
@@ -3286,7 +3642,8 @@
 - id: kotlin-hardcoded-google-api-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)AIza[a-zA-Z0-9_-]{35}''severity: high
+    - regex: '(?i)AIza[a-zA-Z0-9_-]{35}'
+  severity: high
   description: "Google API key hardcoded"
   remediation: "Restrict API key in Google Cloud Console"
   cwe: "CWE-798"
@@ -3295,7 +3652,8 @@
 - id: kotlin-hardcoded-firebase-api-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)apiKey:\\.s*[\\.\\.]AIza[a-zA-Z0-9_-]{35}[\\.\\.]''severity: high
+    - regex: '(?i)apiKey:\.s*[\.\.]AIza[a-zA-Z0-9_-]{35}[\.\.]'
+  severity: high
   description: "Firebase API key hardcoded"
   remediation: "Use Firebase Remote Config for non-sensitive keys"
   cwe: "CWE-798"
@@ -3304,7 +3662,8 @@
 - id: kotlin-hardcoded-firebase-config
   languages: [kotlin]
   patterns:
-    - regex: 'firebaseConfig.*?apiKey|messagingSenderId|appId|projectId''severity: medium
+    - regex: 'firebaseConfig.*?apiKey|messagingSenderId|appId|projectId'
+  severity: medium
   description: "Firebase config values exposed"
   remediation: "Restrict Firebase API keys in console"
   cwe: "CWE-798"
@@ -3313,7 +3672,8 @@
 - id: kotlin-hardcoded-stripe-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(pk|sk)_(live|test)_[a-zA-Z0-9]{24,}''severity: critical
+    - regex: '(?i)(pk|sk)_(live|test)_[a-zA-Z0-9]{24,}'
+  severity: critical
   description: "Stripe API key hardcoded"
   remediation: "Use backend for payment processing"
   cwe: "CWE-798"
@@ -3322,7 +3682,8 @@
 - id: kotlin-hardcoded-twilio-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)AC[a-f0-9]{32}|SK[a-f0-9]{32}''severity: high
+    - regex: '(?i)AC[a-f0-9]{32}|SK[a-f0-9]{32}'
+  severity: high
   description: "Twilio Account SID or API Key hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -3331,7 +3692,8 @@
 - id: kotlin-hardcoded-sendgrid-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)SG\\.[a-zA-Z0-9_-]{22}\\.[a-zA-Z0-9_-]{43}''severity: high
+    - regex: '(?i)SG\.[a-zA-Z0-9_-]{22}\.[a-zA-Z0-9_-]{43}'
+  severity: high
   description: "SendGrid API key hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -3340,7 +3702,8 @@
 - id: kotlin-hardcoded-github-token
   languages: [kotlin]
   patterns:
-    - regex: '(?i)ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}''severity: critical
+    - regex: '(?i)ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}'
+  severity: critical
   description: "GitHub token hardcoded"
   remediation: "Use GitHub Actions secrets"
   cwe: "CWE-798"
@@ -3349,7 +3712,8 @@
 - id: kotlin-hardcoded-slack-token
   languages: [kotlin]
   patterns:
-    - regex: '(?i)xox[baprs]-[0-9]{11,13}-[0-9]{11,13}-[a-zA-Z0-9]{24}''severity: high
+    - regex: '(?i)xox[baprs]-[0-9]{11,13}-[0-9]{11,13}-[a-zA-Z0-9]{24}'
+  severity: high
   description: "Slack token hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -3358,7 +3722,8 @@
 - id: kotlin-hardcoded-discord-token
   languages: [kotlin]
   patterns:
-    - regex: '(?i)[a-zA-Z0-9_-]{24}\\.[a-zA-Z0-9_-]{6}\\.[a-zA-Z0-9_-]{27}''severity: high
+    - regex: '(?i)[a-zA-Z0-9_-]{24}\.[a-zA-Z0-9_-]{6}\.[a-zA-Z0-9_-]{27}'
+  severity: high
   description: "Discord bot token hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -3367,7 +3732,8 @@
 - id: kotlin-hardcoded-telegram-token
   languages: [kotlin]
   patterns:
-    - regex: '(?i)[0-9]{8,10}:[a-zA-Z0-9_-]{35}''severity: high
+    - regex: '(?i)[0-9]{8,10}:[a-zA-Z0-9_-]{35}'
+  severity: high
   description: "Telegram bot token hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -3376,7 +3742,8 @@
 - id: kotlin-hardcoded-connection-string
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(postgres|mysql|mongodb|redis)://[^:]+:[^@]+@''severity: critical
+    - regex: '(?i)(postgres|mysql|mongodb|redis)://[^:]+:[^@]+@'
+  severity: critical
   description: "Database connection string with credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -3385,7 +3752,8 @@
 - id: kotlin-hardcoded-oauth-secret
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\\.s*=\\.s*[\\.\\.][^\\.\\.]+[\\.\\.]''severity: critical
+    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\.s*=\.s*[\.\.][^\.\.]+[\.\.]'
+  severity: critical
   description: "OAuth client secret hardcoded"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -3394,7 +3762,8 @@
 - id: kotlin-hardcoded-jwt-in-code
   languages: [kotlin]
   patterns:
-    - regex: 'eyJ[a-zA-Z0-9_-]*\\.[a-zA-Z0-9_-]*\\.[a-zA-Z0-9_-]*''severity: high
+    - regex: 'eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*'
+  severity: high
   description: "JWT token hardcoded in code"
   remediation: "Never hardcode tokens"
   cwe: "CWE-798"
@@ -3403,7 +3772,8 @@
 - id: kotlin-hardcoded-private-key
   languages: [kotlin]
   patterns:
-    - regex: '-----BEGIN (RSA|EC|DSA|PRIVATE) KEY-----''severity: critical
+    - regex: '-----BEGIN (RSA|EC|DSA|PRIVATE) KEY-----'
+  severity: critical
   description: "Private key embedded in code"
   remediation: "Use Android Keystore or secure server"
   cwe: "CWE-321"
@@ -3412,7 +3782,8 @@
 - id: kotlin-hardcoded-certificate
   languages: [kotlin]
   patterns:
-    - regex: '-----BEGIN CERTIFICATE-----''severity: high
+    - regex: '-----BEGIN CERTIFICATE-----'
+  severity: high
   description: "Certificate embedded in code"
   remediation: "Load from resources or network"
   cwe: "CWE-321"
@@ -3421,7 +3792,8 @@
 - id: kotlin-hardcoded-encryption-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(key|secret|iv)\\.s*=\\.s*[\\.\\.][a-zA-Z0-9+/=]{16,}[\\.\\.]''severity: critical
+    - regex: '(?i)(key|secret|iv)\.s*=\.s*[\.\.][a-zA-Z0-9+/=]{16,}[\.\.]'
+  severity: critical
   description: "Hardcoded encryption key or IV"
   remediation: "Use Android Keystore for keys"
   cwe: "CWE-321"
@@ -3432,7 +3804,8 @@
 - id: kotlin-log-sensitivity
   languages: [kotlin]
   patterns:
-    - regex: 'Log\\.(d|i|v|w|e).*?(?:password|token|key|secret|credit|ssn)''severity: high
+    - regex: 'Log\.(d|i|v|w|e).*?(?:password|token|key|secret|credit|ssn)'
+  severity: high
   description: "Sensitive data logged"
   remediation: "Remove sensitive data from logs"
   cwe: "CWE-532"
@@ -3441,7 +3814,8 @@
 - id: kotlin-log-system-out
   languages: [kotlin]
   patterns:
-    - regex: 'System\\.out\\.println.*?(?:password|token|key|secret)''severity: high
+    - regex: 'System\.out\.println.*?(?:password|token|key|secret)'
+  severity: high
   description: "Sensitive data printed to stdout"
   remediation: "Remove debug prints"
   cwe: "CWE-532"
@@ -3450,7 +3824,8 @@
 - id: kotlin-log-timber
   languages: [kotlin]
   patterns:
-    - regex: 'Timber\\.(d|i|v|w|e)''severity: low
+    - regex: 'Timber\.(d|i|v|w|e)'
+  severity: low
   description: "Timber logging"
   remediation: "Timber will strip logs in release"
   cwe: "CWE-532"
@@ -3459,7 +3834,8 @@
 - id: kotlin-log-timber-plant
   languages: [kotlin]
   patterns:
-    - regex: 'Timber\\.plant''severity: low
+    - regex: 'Timber\.plant'
+  severity: low
   description: "Planting Timber trees"
   remediation: "Plant DebugTree only in debug"
   cwe: "CWE-532"
@@ -3468,7 +3844,8 @@
 - id: kotlin-log-timber-debug-tree
   languages: [kotlin]
   patterns:
-    - regex: 'Timber\\.plant\\.Timber\\.DebugTree\\.\\.\\.''severity: medium
+    - regex: 'Timber\.plant\.Timber\.DebugTree\.\.\.'
+  severity: medium
   description: "DebugTree planted (may log in release)"
   remediation: "Conditionally plant in debug builds"
   cwe: "CWE-532"
@@ -3477,7 +3854,8 @@
 - id: kotlin-log-buildconfig-debug
   languages: [kotlin]
   patterns:
-    - regex: 'BuildConfig\\.DEBUG''severity: low
+    - regex: 'BuildConfig\.DEBUG'
+  severity: low
   description: "Checking debug build"
   remediation: "Good for conditionally logging"
   cwe: "CWE-532"
@@ -3486,7 +3864,8 @@
 - id: kotlin-log-crashlytics
   languages: [kotlin]
   patterns:
-    - regex: 'FirebaseCrashlytics\\.getInstance\\.\\.\\.log|recordException''severity: medium
+    - regex: 'FirebaseCrashlytics\.getInstance\.\.\.log|recordException'
+  severity: medium
   description: "Crashlytics logging"
   remediation: "Don't log PII to Crashlytics"
   cwe: "CWE-532"
@@ -3495,7 +3874,8 @@
 - id: kotlin-log-crashlytics-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'setCustomKey.*?(?:password|token|key|email)''severity: high
+    - regex: 'setCustomKey.*?(?:password|token|key|email)'
+  severity: high
   description: "Sensitive data sent to Crashlytics"
   remediation: "Avoid sending PII to analytics"
   cwe: "CWE-200"
@@ -3504,7 +3884,8 @@
 - id: kotlin-log-analytics
   languages: [kotlin]
   patterns:
-    - regex: 'FirebaseAnalytics\\.getInstance\\.\\.\\.logEvent''severity: medium
+    - regex: 'FirebaseAnalytics\.getInstance\.\.\.logEvent'
+  severity: medium
   description: "Firebase Analytics event logging"
   remediation: "Don't log PII to analytics"
   cwe: "CWE-200"
@@ -3513,7 +3894,8 @@
 - id: kotlin-log-analytics-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'logEvent.*?Bundle.*?putString.*?(?:password|token|email)''severity: high
+    - regex: 'logEvent.*?Bundle.*?putString.*?(?:password|token|email)'
+  severity: high
   description: "Sensitive data sent to analytics"
   remediation: "Avoid sending PII to analytics"
   cwe: "CWE-200"
@@ -3522,7 +3904,8 @@
 - id: kotlin-log-printstacktrace
   languages: [kotlin]
   patterns:
-    - regex: 'printStackTrace\\.\\.''severity: medium
+    - regex: 'printStackTrace\.\.'
+  severity: medium
   description: "printStackTrace (may expose internals)"
   remediation: "Use proper logging framework"
   cwe: "CWE-532"
@@ -3531,7 +3914,8 @@
 - id: kotlin-log-exception-message
   languages: [kotlin]
   patterns:
-    - regex: 'exception\\.message''severity: low
+    - regex: 'exception\.message'
+  severity: low
   description: "Exception message logging"
   remediation: "Ensure messages don't leak data"
   cwe: "CWE-209"
@@ -3540,7 +3924,8 @@
 - id: kotlin-log-http-body
   languages: [kotlin]
   patterns:
-    - regex: 'HttpLoggingInterceptor.*?level.*?BODY''severity: high
+    - regex: 'HttpLoggingInterceptor.*?level.*?BODY'
+  severity: high
   description: "HTTP logging with body (may leak data)"
   remediation: "Use only in debug builds"
   cwe: "CWE-532"
@@ -3549,7 +3934,8 @@
 - id: kotlin-log-file-path
   languages: [kotlin]
   patterns:
-    - regex: 'file\\.absolutePath.*?log''severity: low
+    - regex: 'file\.absolutePath.*?log'
+  severity: low
   description: "Logging file paths"
   remediation: "Avoid logging internal paths"
   cwe: "CWE-200"
@@ -3558,7 +3944,8 @@
 - id: kotlin-log-ip-address
   languages: [kotlin]
   patterns:
-    - regex: 'ip.*?(?:[0-9]{1,3}\\.){3}[0-9]{1,3}''severity: low
+    - regex: 'ip.*?(?:[0-9]{1,3}\.){3}[0-9]{1,3}'
+  severity: low
   description: "Logging IP addresses (PII)"
   remediation: "Anonymize or avoid logging IPs"
   cwe: "CWE-200"
@@ -3567,7 +3954,8 @@
 - id: kotlin-log-email-address
   languages: [kotlin]
   patterns:
-    - regex: 'email.*?[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}''severity: high
+    - regex: 'email.*?[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+  severity: high
   description: "Logging email addresses (PII)"
   remediation: "Avoid logging PII"
   cwe: "CWE-200"
@@ -3576,7 +3964,8 @@
 - id: kotlin-log-phone-number
   languages: [kotlin]
   patterns:
-    - regex: 'phone.*?[0-9]{3}[-.]?[0-9]{3}[-.]?[0-9]{4}''severity: high
+    - regex: 'phone.*?[0-9]{3}[-.]?[0-9]{3}[-.]?[0-9]{4}'
+  severity: high
   description: "Logging phone numbers (PII)"
   remediation: "Avoid logging PII"
   cwe: "CWE-200"
@@ -3585,7 +3974,8 @@
 - id: kotlin-log-credit-card
   languages: [kotlin]
   patterns:
-    - regex: 'card.*?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}''severity: critical
+    - regex: 'card.*?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}'
+  severity: critical
   description: "Logging credit card numbers (PCI violation)"
   remediation: "Never log credit card data"
   cwe: "CWE-200"
@@ -3594,7 +3984,8 @@
 - id: kotlin-log-mask-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'replaceRange.*?\\.{4}''severity: low
+    - regex: 'replaceRange.*?\.{4}'
+  severity: low
   description: "Masking sensitive data in logs"
   remediation: "Good practice for logging"
   cwe: "CWE-532"
@@ -3605,7 +3996,8 @@
 - id: kotlin-json-gson
   languages: [kotlin]
   patterns:
-    - regex: 'Gson\\.\\.''severity: low
+    - regex: 'Gson\.\.'
+  severity: low
   description: "Gson instance created"
   remediation: "Configure Gson safely"
   cwe: "CWE-502"
@@ -3614,7 +4006,8 @@
 - id: kotlin-json-gson-from-json
   languages: [kotlin]
   patterns:
-    - regex: 'fromJson\\.s*\\.\\.s*[^,]+,\\.s*[^)]+::class.java''severity: medium
+    - regex: 'fromJson\.s*\.\.s*[^,]+,\.s*[^)]+::class.java'
+  severity: medium
   description: "Gson deserialization (type safety)"
   remediation: "Use TypeToken for generic types"
   cwe: "CWE-502"
@@ -3623,7 +4016,8 @@
 - id: kotlin-json-gson-from-json-untyped
   languages: [kotlin]
   patterns:
-    - regex: 'fromJson\\.s*\\.\\.s*[^,]+,\\.s*JsonElement::class''severity: high
+    - regex: 'fromJson\.s*\.\.s*[^,]+,\.s*JsonElement::class'
+  severity: high
   description: "Gson deserialization to untyped JsonElement"
   remediation: "Use typed classes for parsing"
   cwe: "CWE-502"
@@ -3632,7 +4026,8 @@
 - id: kotlin-json-moshi
   languages: [kotlin]
   patterns:
-    - regex: 'Moshi\\.Builder\\.\\.\\.build\\.\\.''severity: low
+    - regex: 'Moshi\.Builder\.\.\.build\.\.'
+  severity: low
   description: "Moshi instance created"
   remediation: "Use @JsonClass annotations"
   cwe: "CWE-502"
@@ -3641,7 +4036,8 @@
 - id: kotlin-json-moshi-from-json
   languages: [kotlin]
   patterns:
-    - regex: 'fromJson\\.s*\\.\\.s*[^,]+,\\.s*[^)]+::class''severity: low
+    - regex: 'fromJson\.s*\.\.s*[^,]+,\.s*[^)]+::class'
+  severity: low
   description: "Moshi deserialization"
   remediation: "Moshi is safer than Gson"
   cwe: "CWE-502"
@@ -3650,7 +4046,8 @@
 - id: kotlin-json-moshi-lenient
   languages: [kotlin]
   patterns:
-    - regex: 'lenient\\.\\.''severity: medium
+    - regex: 'lenient\.\.'
+  severity: medium
   description: "Lenient JSON parsing (may hide errors)"
   remediation: "Use strict parsing"
   cwe: "CWE-20"
@@ -3659,7 +4056,8 @@
 - id: kotlin-json-jackson
   languages: [kotlin]
   patterns:
-    - regex: 'ObjectMapper\\.\\.''severity: medium
+    - regex: 'ObjectMapper\.\.'
+  severity: medium
   description: "Jackson ObjectMapper (may have deserialization issues)"
   remediation: "Configure with safe defaults"
   cwe: "CWE-502"
@@ -3668,7 +4066,8 @@
 - id: kotlin-json-jackson-enable-default-typing
   languages: [kotlin]
   patterns:
-    - regex: 'enableDefaultTyping\\.\\.''severity: critical
+    - regex: 'enableDefaultTyping\.\.'
+  severity: critical
   description: "Jackson default typing enabled (RCE risk)"
   remediation: "Disable or use safe typing"
   cwe: "CWE-502"
@@ -3677,7 +4076,8 @@
 - id: kotlin-json-jackson-polymorphic
   languages: [kotlin]
   patterns:
-    - regex: '@JsonTypeInfo.*?use\\.s*=\\.s*JsonTypeInfo\\.Id\\.CLASS''severity: high
+    - regex: '@JsonTypeInfo.*?use\.s*=\.s*JsonTypeInfo\.Id\.CLASS'
+  severity: high
   description: "Jackson polymorphic deserialization (security risk)"
   remediation: "Use whitelist of allowed classes"
   cwe: "CWE-502"
@@ -3686,7 +4086,8 @@
 - id: kotlin-json-kotlinx-serialization
   languages: [kotlin]
   patterns:
-    - regex: 'Json\\.s*\\.\\.s*\\.|Json\\.encodeToString|Json\\.decodeFromString''severity: low
+    - regex: 'Json\.s*\.\.s*\.|Json\.encodeToString|Json\.decodeFromString'
+  severity: low
   description: "kotlinx.serialization (type-safe)"
   remediation: "Good for Kotlin"
   cwe: "CWE-502"
@@ -3695,7 +4096,8 @@
 - id: kotlin-json-kotlinx-ignore-unknown
   languages: [kotlin]
   patterns:
-    - regex: 'ignoreUnknownKeys\\.s*=\\.s*true''severity: low
+    - regex: 'ignoreUnknownKeys\.s*=\.s*true'
+  severity: low
   description: "Ignoring unknown keys (good for forward compatibility)"
   remediation: "Good practice"
   cwe: "CWE-20"
@@ -3704,7 +4106,8 @@
 - id: kotlin-json-kotlinx-coerce-input-values
   languages: [kotlin]
   patterns:
-    - regex: 'coerceInputValues\\.s*=\\.s*true''severity: medium
+    - regex: 'coerceInputValues\.s*=\.s*true'
+  severity: medium
   description: "Coercing input values (may hide errors)"
   remediation: "Use strict parsing"
   cwe: "CWE-20"
@@ -3713,7 +4116,8 @@
 - id: kotlin-parcelable
   languages: [kotlin]
   patterns:
-    - regex: '@Parcelize''severity: low
+    - regex: '@Parcelize'
+  severity: low
   description: "Parcelable implementation (good)"
   remediation: "Use for Android IPC"
   cwe: "CWE-20"
@@ -3722,7 +4126,8 @@
 - id: kotlin-parcelable-sensitive
   languages: [kotlin]
   patterns:
-    - regex: '@Parcelize.*?data class.*?(?:password|token|key|secret)''severity: high
+    - regex: '@Parcelize.*?data class.*?(?:password|token|key|secret)'
+  severity: high
   description: "Sensitive data in Parcelable (visible to other apps)"
   remediation: "Avoid sending sensitive data via IPC"
   cwe: "CWE-312"
@@ -3731,7 +4136,8 @@
 - id: kotlin-serializable
   languages: [kotlin]
   patterns:
-    - regex: ': Serializable''severity: medium
+    - regex: ': Serializable'
+  severity: medium
   description: "Java Serializable (use Parcelable on Android)"
   remediation: "Use Parcelable for Android IPC"
   cwe: "CWE-502"
@@ -3740,7 +4146,8 @@
 - id: kotlin-serializable-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'class.*?implements Serializable.*?(?:password|token|key|secret)''severity: high
+    - regex: 'class.*?implements Serializable.*?(?:password|token|key|secret)'
+  severity: high
   description: "Sensitive data in Serializable class"
   remediation: "Mark fields as transient"
   cwe: "CWE-312"
@@ -3749,7 +4156,8 @@
 - id: kotlin-serializable-transient
   languages: [kotlin]
   patterns:
-    - regex: '@Transient''severity: low
+    - regex: '@Transient'
+  severity: low
   description: "Transient field (excluded from serialization)"
   remediation: "Good for sensitive data"
   cwe: "CWE-312"
@@ -3758,7 +4166,8 @@
 - id: kotlin-coroutine-global-scope
   languages: [kotlin]
   patterns:
-    - regex: 'GlobalScope\\.launch|GlobalScope\\.async''severity: high
+    - regex: 'GlobalScope\.launch|GlobalScope\.async'
+  severity: high
   description: "GlobalScope usage (may leak)"
   remediation: "Use lifecycle-aware scopes"
   cwe: "CWE-401"
@@ -3767,7 +4176,8 @@
 - id: kotlin-coroutine-viewmodel-scope
   languages: [kotlin]
   patterns:
-    - regex: 'viewModelScope\\.launch''severity: low
+    - regex: 'viewModelScope\.launch'
+  severity: low
   description: "viewModelScope (cancelled when ViewModel cleared)"
   remediation: "Good for ViewModel coroutines"
   cwe: "CWE-401"
@@ -3776,7 +4186,8 @@
 - id: kotlin-coroutine-lifecycle-scope
   languages: [kotlin]
   patterns:
-    - regex: 'lifecycleScope\\.launch''severity: low
+    - regex: 'lifecycleScope\.launch'
+  severity: low
   description: "lifecycleScope (cancelled when lifecycle ends)"
   remediation: "Good for lifecycle-bound coroutines"
   cwe: "CWE-401"
@@ -3785,7 +4196,8 @@
 - id: kotlin-coroutine-launch
   languages: [kotlin]
   patterns:
-    - regex: 'launch\\.s*\\.''severity: low
+    - regex: 'launch\.s*\.'
+  severity: low
   description: "Coroutine launch"
   remediation: "Ensure proper error handling"
   cwe: "CWE-754"
@@ -3794,7 +4206,8 @@
 - id: kotlin-coroutine-async
   languages: [kotlin]
   patterns:
-    - regex: 'async\\.s*\\.''severity: low
+    - regex: 'async\.s*\.'
+  severity: low
   description: "Coroutine async"
   remediation: "Remember to await() and handle errors"
   cwe: "CWE-754"
@@ -3803,7 +4216,8 @@
 - id: kotlin-coroutine-await
   languages: [kotlin]
   patterns:
-    - regex: '\\.await\\.\\.''severity: low
+    - regex: '\.await\.\.'
+  severity: low
   description: "Awaiting coroutine result"
   remediation: "Handle exceptions"
   cwe: "CWE-754"
@@ -3812,7 +4226,8 @@
 - id: kotlin-coroutine-job-join
   languages: [kotlin]
   patterns:
-    - regex: '\\.join\\.\\.''severity: low
+    - regex: '\.join\.\.'
+  severity: low
   description: "Joining coroutine"
   remediation: "Handle cancellation"
   cwe: "CWE-754"
@@ -3821,7 +4236,8 @@
 - id: kotlin-coroutine-cancel
   languages: [kotlin]
   patterns:
-    - regex: '\\.cancel\\.\\.''severity: low
+    - regex: '\.cancel\.\.'
+  severity: low
   description: "Cancelling coroutine"
   remediation: "Ensure cancellation is handled"
   cwe: "CWE-401"
@@ -3830,7 +4246,8 @@
 - id: kotlin-coroutine-with-context
   languages: [kotlin]
   patterns:
-    - regex: 'withContext\\.s*\\.[^)]+\\.''severity: low
+    - regex: 'withContext\.s*\.[^)]+\.'
+  severity: low
   description: "Switching coroutine context"
   remediation: "Use appropriate dispatchers"
   cwe: "CWE-693"
@@ -3839,7 +4256,8 @@
 - id: kotlin-coroutine-dispatcher-io
   languages: [kotlin]
   patterns:
-    - regex: 'Dispatchers\\.IO''severity: low
+    - regex: 'Dispatchers\.IO'
+  severity: low
   description: "IO dispatcher for blocking operations"
   remediation: "Good for IO operations"
   cwe: "CWE-770"
@@ -3848,7 +4266,8 @@
 - id: kotlin-coroutine-dispatcher-default
   languages: [kotlin]
   patterns:
-    - regex: 'Dispatchers\\.Default''severity: low
+    - regex: 'Dispatchers\.Default'
+  severity: low
   description: "Default dispatcher for CPU-bound work"
   remediation: "Good for computation"
   cwe: "CWE-770"
@@ -3857,7 +4276,8 @@
 - id: kotlin-coroutine-dispatcher-main
   languages: [kotlin]
   patterns:
-    - regex: 'Dispatchers\\.Main''severity: low
+    - regex: 'Dispatchers\.Main'
+  severity: low
   description: "Main dispatcher (UI thread)"
   remediation: "Use for UI updates"
   cwe: "CWE-770"
@@ -3866,7 +4286,8 @@
 - id: kotlin-coroutine-dispatcher-unconfined
   languages: [kotlin]
   patterns:
-    - regex: 'Dispatchers\\.Unconfined''severity: medium
+    - regex: 'Dispatchers\.Unconfined'
+  severity: medium
   description: "Unconfined dispatcher (may run on any thread)"
   remediation: "Use with caution"
   cwe: "CWE-770"
@@ -3875,7 +4296,8 @@
 - id: kotlin-coroutine-flow
   languages: [kotlin]
   patterns:
-    - regex: 'flow\\.s*\\.|MutableStateFlow|MutableSharedFlow''severity: low
+    - regex: 'flow\.s*\.|MutableStateFlow|MutableSharedFlow'
+  severity: low
   description: "Flow usage"
   remediation: "Handle flow exceptions"
   cwe: "CWE-754"
@@ -3884,7 +4306,8 @@
 - id: kotlin-coroutine-flow-catch
   languages: [kotlin]
   patterns:
-    - regex: '\\.catch\\.s*\\.''severity: low
+    - regex: '\.catch\.s*\.'
+  severity: low
   description: "Flow catch operator"
   remediation: "Handle flow exceptions"
   cwe: "CWE-754"
@@ -3893,7 +4316,8 @@
 - id: kotlin-coroutine-flow-retry
   languages: [kotlin]
   patterns:
-    - regex: '\\.retry\\.s*\\.[0-9]+\\.''severity: low
+    - regex: '\.retry\.s*\.[0-9]+\.'
+  severity: low
   description: "Flow retry operator"
   remediation: "Set appropriate retry limits"
   cwe: "CWE-754"
@@ -3902,7 +4326,8 @@
 - id: kotlin-coroutine-flow-collect
   languages: [kotlin]
   patterns:
-    - regex: '\\.collect\\.s*\\.''severity: low
+    - regex: '\.collect\.s*\.'
+  severity: low
   description: "Flow collection"
   remediation: "Collect in appropriate scope"
   cwe: "CWE-401"
@@ -3911,7 +4336,8 @@
 - id: kotlin-coroutine-flow-launch-in
   languages: [kotlin]
   patterns:
-    - regex: '\\.launchIn\\.s*\\.''severity: low
+    - regex: '\.launchIn\.s*\.'
+  severity: low
   description: "Launching flow collection"
   remediation: "Ensure proper scope"
   cwe: "CWE-401"
@@ -3922,7 +4348,8 @@
 - id: kotlin-work-manager
   languages: [kotlin]
   patterns:
-    - regex: 'WorkManager\\.getInstance''severity: low
+    - regex: 'WorkManager\.getInstance'
+  severity: low
   description: "WorkManager instance"
   remediation: "Initialize properly"
   cwe: "CWE-693"
@@ -3931,7 +4358,8 @@
 - id: kotlin-work-manager-enqueue
   languages: [kotlin]
   patterns:
-    - regex: 'enqueue\\.\\.''severity: low
+    - regex: 'enqueue\.\.'
+  severity: low
   description: "Enqueue work"
   remediation: "Handle WorkManager result"
   cwe: "CWE-754"
@@ -3940,7 +4368,8 @@
 - id: kotlin-work-manager-existing-work-policy
   languages: [kotlin]
   patterns:
-    - regex: 'ExistingWorkPolicy\\.(KEEP|REPLACE|APPEND|KEEP)''severity: low
+    - regex: 'ExistingWorkPolicy\.(KEEP|REPLACE|APPEND|KEEP)'
+  severity: low
   description: "Existing work policy"
   remediation: "Choose appropriate policy"
   cwe: "CWE-693"
@@ -3949,7 +4378,8 @@
 - id: kotlin-work-request-builder
   languages: [kotlin]
   patterns:
-    - regex: 'OneTimeWorkRequestBuilder|PeriodicWorkRequestBuilder''severity: low
+    - regex: 'OneTimeWorkRequestBuilder|PeriodicWorkRequestBuilder'
+  severity: low
   description: "Work request builder"
   remediation: "Configure constraints"
   cwe: "CWE-693"
@@ -3958,7 +4388,8 @@
 - id: kotlin-work-constraints
   languages: [kotlin]
   patterns:
-    - regex: 'Constraints\\.Builder\\.\\.''severity: low
+    - regex: 'Constraints\.Builder\.\.'
+  severity: low
   description: "Work constraints builder"
   remediation: "Set network, battery, storage constraints"
   cwe: "CWE-693"
@@ -3967,7 +4398,8 @@
 - id: kotlin-work-input-data
   languages: [kotlin]
   patterns:
-    - regex: 'setInputData|Data\\.Builder''severity: low
+    - regex: 'setInputData|Data\.Builder'
+  severity: low
   description: "Work input data"
   remediation: "Don't put sensitive data in work data"
   cwe: "CWE-312"
@@ -3976,7 +4408,8 @@
 - id: kotlin-work-input-data-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'put(?:String|Int|Long).*?(?:password|token|key)''severity: high
+    - regex: 'put(?:String|Int|Long).*?(?:password|token|key)'
+  severity: high
   description: "Sensitive data in work input (may be persisted)"
   remediation: "Encrypt or avoid storing sensitive data"
   cwe: "CWE-312"
@@ -3985,7 +4418,8 @@
 - id: kotlin-work-backoff-linear
   languages: [kotlin]
   patterns:
-    - regex: 'BackoffPolicy\\.LINEAR''severity: low
+    - regex: 'BackoffPolicy\.LINEAR'
+  severity: low
   description: "Linear backoff"
   remediation: "Exponential backoff is usually better"
   cwe: "CWE-770"
@@ -3994,7 +4428,8 @@
 - id: kotlin-work-backoff-exponential
   languages: [kotlin]
   patterns:
-    - regex: 'BackoffPolicy\\.EXPONENTIAL''severity: low
+    - regex: 'BackoffPolicy\.EXPONENTIAL'
+  severity: low
   description: "Exponential backoff (good)"
   remediation: "Good for retries"
   cwe: "CWE-770"
@@ -4003,7 +4438,8 @@
 - id: kotlin-work-observers
   languages: [kotlin]
   patterns:
-    - regex: 'getWorkInfosLiveData|getWorkInfoByIdLiveData''severity: low
+    - regex: 'getWorkInfosLiveData|getWorkInfoByIdLiveData'
+  severity: low
   description: "Work observers"
   remediation: "Observe work completion"
   cwe: "CWE-754"
@@ -4012,7 +4448,8 @@
 - id: kotlin-work-result
   languages: [kotlin]
   patterns:
-    - regex: 'Result\\.success|Result\\.failure|Result\\.retry''severity: low
+    - regex: 'Result\.success|Result\.failure|Result\.retry'
+  severity: low
   description: "Work result return"
   remediation: "Return appropriate result"
   cwe: "CWE-754"
@@ -4023,7 +4460,8 @@
 - id: kotlin-clipboard-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'ClipboardManager.*?setText.*?(?:password|token|key)''severity: high
+    - regex: 'ClipboardManager.*?setText.*?(?:password|token|key)'
+  severity: high
   description: "Copying sensitive data to clipboard"
   remediation: "Avoid copying sensitive data"
   cwe: "CWE-312"
@@ -4032,7 +4470,8 @@
 - id: kotlin-clipboard-read
   languages: [kotlin]
   patterns:
-    - regex: 'ClipboardManager.*?getText''severity: medium
+    - regex: 'ClipboardManager.*?getText'
+  severity: medium
   description: "Reading from clipboard"
   remediation: "Validate clipboard data"
   cwe: "CWE-20"
@@ -4041,7 +4480,8 @@
 - id: kotlin-toast-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'Toast\\.makeText.*?(?:password|token|key)''severity: high
+    - regex: 'Toast\.makeText.*?(?:password|token|key)'
+  severity: high
   description: "Displaying sensitive data in Toast"
   remediation: "Avoid showing sensitive data"
   cwe: "CWE-200"
@@ -4050,7 +4490,8 @@
 - id: kotlin-notification-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'NotificationCompat\\.Builder.*?setContent(?:Text|Title).*?(?:password|token|key)''severity: high
+    - regex: 'NotificationCompat\.Builder.*?setContent(?:Text|Title).*?(?:password|token|key)'
+  severity: high
   description: "Sensitive data in notifications"
   remediation: "Avoid sensitive data in notifications"
   cwe: "CWE-200"
@@ -4059,7 +4500,8 @@
 - id: kotlin-notification-visibility
   languages: [kotlin]
   patterns:
-    - regex: 'setVisibility\\.NotificationCompat\\.VISIBILITY_(PRIVATE|PUBLIC|SECRET)\\.''severity: low
+    - regex: 'setVisibility\.NotificationCompat\.VISIBILITY_(PRIVATE|PUBLIC|SECRET)\.'
+  severity: low
   description: "Notification visibility set"
   remediation: "Use VISIBILITY_PRIVATE for sensitive notifications"
   cwe: "CWE-200"
@@ -4068,7 +4510,8 @@
 - id: kotlin-notification-visibility-public-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'setVisibility\\.NotificationCompat\\.VISIBILITY_PUBLIC\\..*?(?:password|token|key)''severity: critical
+    - regex: 'setVisibility\.NotificationCompat\.VISIBILITY_PUBLIC\..*?(?:password|token|key)'
+  severity: critical
   description: "Sensitive data in public notification"
   remediation: "Use VISIBILITY_PRIVATE or remove sensitive data"
   cwe: "CWE-200"
@@ -4077,7 +4520,8 @@
 - id: kotlin-bundle-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'Bundle\\.\\.\\.put(?:String|Int|Long).*?(?:password|token|key)''severity: high
+    - regex: 'Bundle\.\.\.put(?:String|Int|Long).*?(?:password|token|key)'
+  severity: high
   description: "Sensitive data in Bundle (may be persisted)"
   remediation: "Avoid putting sensitive data in Bundles"
   cwe: "CWE-312"
@@ -4086,7 +4530,8 @@
 - id: kotlin-saved-instance-state-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'onSaveInstanceState.*?put(?:String|Int|Long).*?(?:password|token|key)''severity: high
+    - regex: 'onSaveInstanceState.*?put(?:String|Int|Long).*?(?:password|token|key)'
+  severity: high
   description: "Sensitive data in saved instance state"
   remediation: "Avoid saving sensitive data"
   cwe: "CWE-312"
@@ -4095,7 +4540,8 @@
 - id: kotlin-flags-secure
   languages: [kotlin]
   patterns:
-    - regex: 'WindowManager\\.LayoutParams\\.FLAG_SECURE''severity: low
+    - regex: 'WindowManager\.LayoutParams\.FLAG_SECURE'
+  severity: low
   description: "FLAG_SECURE set (prevents screenshots)"
   remediation: "Good for sensitive screens"
   cwe: "CWE-200"
@@ -4104,7 +4550,8 @@
 - id: kotlin-flags-secure-missing
   languages: [kotlin]
   patterns:
-    - regex: 'setContentView.*?activity.*?''severity: medium
+    - regex: 'setContentView.*?activity.*?'
+  severity: medium
   description: "Sensitive activity without FLAG_SECURE (can be screenshotted)"
   remediation: "Add FLAG_SECURE for sensitive screens"
   cwe: "CWE-200"
@@ -4113,7 +4560,8 @@
 - id: kotlin-text-selectable-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'textIsSelectable\\.s*=\\.s*true.*?(?:password|token|key)''severity: high
+    - regex: 'textIsSelectable\.s*=\.s*true.*?(?:password|token|key)'
+  severity: high
   description: "Sensitive text selectable (can be copied)"
   remediation: "Disable text selection for sensitive data"
   cwe: "CWE-200"
@@ -4122,7 +4570,8 @@
 - id: kotlin-autofill-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'setAutofillHints.*?(?:password|token)''severity: low
+    - regex: 'setAutofillHints.*?(?:password|token)'
+  severity: low
   description: "Autofill hints set"
   remediation: "Use appropriate autofill hints"
   cwe: "CWE-200"
@@ -4131,7 +4580,8 @@
 - id: kotlin-autofill-sensitive-disable
   languages: [kotlin]
   patterns:
-    - regex: 'setImportantForAutofill\\.View\\.IMPORTANT_FOR_AUTOFILL_NO\\.''severity: low
+    - regex: 'setImportantForAutofill\.View\.IMPORTANT_FOR_AUTOFILL_NO\.'
+  severity: low
   description: "Autofill disabled for sensitive field"
   remediation: "Good for sensitive fields"
   cwe: "CWE-200"
@@ -4140,7 +4590,8 @@
 - id: kotlin-developer-mode
   languages: [kotlin]
   patterns:
-    - regex: 'Settings\\.Global\\.getInt.*?DEVELOPMENT_SETTINGS_ENABLED''severity: medium
+    - regex: 'Settings\.Global\.getInt.*?DEVELOPMENT_SETTINGS_ENABLED'
+  severity: medium
   description: "Checking developer mode"
   remediation: "Disable sensitive features in developer mode"
   cwe: "CWE-693"
@@ -4149,7 +4600,8 @@
 - id: kotlin-usb-debugging
   languages: [kotlin]
   patterns:
-    - regex: 'Settings\\.Global\\.getInt.*?ADB_ENABLED''severity: medium
+    - regex: 'Settings\.Global\.getInt.*?ADB_ENABLED'
+  severity: medium
   description: "Checking USB debugging"
   remediation: "Add warnings when USB debugging enabled"
   cwe: "CWE-693"
@@ -4158,7 +4610,8 @@
 - id: kotlin-root-check
   languages: [kotlin]
   patterns:
-    - regex: 'Runtime\\.exec.*?su|which.*?su|test.*?/system/app/Superuser''severity: low
+    - regex: 'Runtime\.exec.*?su|which.*?su|test.*?/system/app/Superuser'
+  severity: low
   description: "Root detection"
   remediation: "Implement properly with fallbacks"
   cwe: "CWE-693"
@@ -4167,7 +4620,8 @@
 - id: kotlin-emulator-check
   languages: [kotlin]
   patterns:
-    - regex: 'Build\\.FINGERPRINT.*?generic|Build\\.MODEL.*?sdk|Build\\.MANUFACTURER.*?Genymotion''severity: low
+    - regex: 'Build\.FINGERPRINT.*?generic|Build\.MODEL.*?sdk|Build\.MANUFACTURER.*?Genymotion'
+  severity: low
   description: "Emulator detection"
   remediation: "Implement properly"
   cwe: "CWE-693"
@@ -4176,7 +4630,8 @@
 - id: kotlin-debugger-check
   languages: [kotlin]
   patterns:
-    - regex: 'Debug\\.isDebuggerConnected\\.\\.''severity: low
+    - regex: 'Debug\.isDebuggerConnected\.\.'
+  severity: low
   description: "Debugger detection"
   remediation: "Add anti-debugging for sensitive apps"
   cwe: "CWE-693"
@@ -4185,7 +4640,8 @@
 - id: kotlin-obfuscation-check
   languages: [kotlin]
   patterns:
-    - regex: 'proguard-rules\\.pro|R8|minifyEnabled''severity: low
+    - regex: 'proguard-rules\.pro|R8|minifyEnabled'
+  severity: low
   description: "Code obfuscation configured"
   remediation: "Enable obfuscation for release builds"
   cwe: "CWE-693"

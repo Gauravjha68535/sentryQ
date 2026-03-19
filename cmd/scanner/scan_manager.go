@@ -591,70 +591,161 @@ func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDi
 	utils.LogInfo(fmt.Sprintf("Reports saved for scan %s at %s", scanID, reportsDir))
 }
 
-// webDeduplicateFindings removes duplicate findings by physically grouping line locations
+// webDeduplicateFindings removes duplicate findings using proximity-based clustering.
+// Old approach: group by exact FilePath+startLine (misses same vuln at L12, L22, L31 from different engines).
+// New approach: group by FilePath + normalized vuln type (CWE/keyword), then cluster within ±15 lines.
 func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
-	// Group findings by FilePath + startLine
-	grouped := make(map[string][]reporter.Finding)
-
-	for _, f := range findings {
-		startLine := f.LineNumber
-		if parts := strings.Split(f.LineNumber, "-"); len(parts) > 0 {
-			startLine = parts[0]
-		}
-		key := fmt.Sprintf("%s|%s", f.FilePath, startLine)
-		grouped[key] = append(grouped[key], f)
-	}
-
 	severityWeight := map[string]int{
 		"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1,
 	}
 
+	// Step 1: Group findings by file + normalized vulnerability type
+	type groupKey struct {
+		filePath string
+		vulnType string
+	}
+	grouped := make(map[groupKey][]reporter.Finding)
+
+	for _, f := range findings {
+		vtype := normalizeVulnType(f)
+		key := groupKey{filePath: f.FilePath, vulnType: vtype}
+		grouped[key] = append(grouped[key], f)
+	}
+
+	// Step 2: Within each group, cluster by line proximity
 	var unique []reporter.Finding
-	for _, group := range grouped {
+	for key, group := range grouped {
 		if len(group) == 1 {
 			unique = append(unique, group[0])
 			continue
 		}
 
-		bestFinding := group[0]
-		bestWeight := severityWeight[strings.ToLower(bestFinding.Severity)]
-		sources := make(map[string]bool)
-		sources[bestFinding.Source] = true
+		// Sort by line number for clustering
+		sort.Slice(group, func(i, j int) bool {
+			li := parseStartLine(group[i].LineNumber)
+			lj := parseStartLine(group[j].LineNumber)
+			return li < lj
+		})
 
+		// Greedy clustering: merge findings within dynamic lineProximity lines
+		clusters := [][]reporter.Finding{{group[0]}}
 		for _, f := range group[1:] {
-			weight := severityWeight[strings.ToLower(f.Severity)]
-			if weight > bestWeight {
-				bestFinding.Severity = f.Severity
-				bestFinding.IssueName = f.IssueName
-				bestFinding.Description = f.Description
-				bestFinding.Remediation = f.Remediation
-				bestFinding.RuleID = f.RuleID
-				bestFinding.CWE = f.CWE
-				bestFinding.OWASP = f.OWASP
-				bestWeight = weight
+			lastCluster := &clusters[len(clusters)-1]
+			lastLine := parseStartLine((*lastCluster)[len(*lastCluster)-1].LineNumber)
+			thisLine := parseStartLine(f.LineNumber)
+
+			// Determine proximity threshold (0 for secrets, else 15)
+			prox := 15
+			upperVuln := strings.ToUpper(key.vulnType)
+			if strings.Contains(upperVuln, "SECRET") || strings.Contains(upperVuln, "CREDENTIAL") {
+				prox = 0
 			}
-			sources[f.Source] = true
+
+			if thisLine-lastLine <= prox {
+				*lastCluster = append(*lastCluster, f)
+			} else {
+				clusters = append(clusters, []reporter.Finding{f})
+			}
 		}
 
-		var sourceList []string
-		for s := range sources {
-			if s != "" {
+		// Step 3: For each cluster, keep the best finding and merge metadata
+		for _, cluster := range clusters {
+			best := cluster[0]
+			bestWeight := severityWeight[strings.ToLower(best.Severity)]
+			sources := make(map[string]bool)
+			if best.Source != "" {
+				sources[best.Source] = true
+			}
+
+			for _, f := range cluster[1:] {
+				w := severityWeight[strings.ToLower(f.Severity)]
+				if w > bestWeight {
+					// Keep higher severity's details
+					best.Severity = f.Severity
+					best.IssueName = f.IssueName
+					best.Description = f.Description
+					best.Remediation = f.Remediation
+					best.CWE = f.CWE
+					best.OWASP = f.OWASP
+					bestWeight = w
+				}
+				// Prefer longer (more detailed) description at same severity
+				if w == bestWeight && len(f.Description) > len(best.Description) {
+					best.Description = f.Description
+					best.IssueName = f.IssueName
+				}
+				if f.Source != "" {
+					sources[f.Source] = true
+				}
+				if f.AiValidated == "Yes" {
+					best.AiValidated = "Yes"
+				}
+				// Take highest confidence
+				if f.Confidence > best.Confidence {
+					best.Confidence = f.Confidence
+				}
+				// Prefer non-empty RuleID
+				if best.RuleID == "" && f.RuleID != "" {
+					best.RuleID = f.RuleID
+				}
+			}
+
+			var sourceList []string
+			for s := range sources {
 				sourceList = append(sourceList, s)
 			}
-		}
-		bestFinding.Source = strings.Join(sourceList, ", ")
+			sort.Strings(sourceList)
+			best.Source = strings.Join(sourceList, ", ")
 
-		for _, f := range group {
-			if f.AiValidated == "Yes" {
-				bestFinding.AiValidated = "Yes"
-				break
-			}
+			unique = append(unique, best)
 		}
-
-		unique = append(unique, bestFinding)
 	}
 
 	return unique
+}
+
+// normalizeVulnType extracts a canonical vulnerability type from a finding for dedup grouping.
+// Uses CWE if available, otherwise extracts keywords from RuleID/IssueName.
+func normalizeVulnType(f reporter.Finding) string {
+	// Use CWE as primary grouping key
+	cwe := strings.ToUpper(strings.TrimSpace(f.CWE))
+	if cwe != "" && strings.HasPrefix(cwe, "CWE-") {
+		return cwe
+	}
+
+	// Fallback: extract keywords from RuleID or IssueName
+	combined := strings.ReplaceAll(strings.ToLower(f.RuleID+" "+f.IssueName), "-", " ")
+	combined = strings.ReplaceAll(combined, "_", " ")
+
+	keywords := []string{
+		"sql injection", "sqli", "command injection", "cmdi",
+		"xss", "cross site", "path traversal", "directory traversal",
+		"ssrf", "deserialization", "hardcoded", "secret", "credential",
+		"weak hash", "weak random", "prototype pollution", "nosql",
+		"ssti", "template injection", "file inclusion", "lfi",
+		"typosquatting", "clipboard", "redos", "xxe", "csrf", "idor",
+		"pickle", "unserialize",
+	}
+
+	for _, kw := range keywords {
+		if strings.Contains(combined, kw) {
+			return "KW:" + kw
+		}
+	}
+
+	// Last resort: use ruleID itself
+	if f.RuleID != "" {
+		return "RULE:" + f.RuleID
+	}
+	return "GENERIC:" + f.IssueName
+}
+
+// parseStartLine extracts the first (start) line number from a line reference like "12" or "12-18"
+func parseStartLine(lineRef string) int {
+	parts := strings.Split(lineRef, "-")
+	var n int
+	fmt.Sscanf(parts[0], "%d", &n)
+	return n
 }
 
 // webPopulateCodeSnippets reads source files and extracts ~5 lines around each vulnerable line

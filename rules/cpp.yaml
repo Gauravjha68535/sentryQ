@@ -1,14 +1,16 @@
 - id: cpp-buffer-overflow-cin
   languages: [cpp]
   patterns:
-    - regex: 'std::cin\\s*>>\\s*[^;]+\\[\\s*\\]''severity: high
+    - regex: 'std::cin\s*>>\s*[^;]+\[\s*\]'
+  severity: high
   description: "Unbounded input with cin >> array can cause buffer overflow"
   remediation: "Use std::string or specify max width: cin.width(size)"
 
 - id: cpp-buffer-overflow-std-copy
   languages: [cpp]
   patterns:
-    - regex: 'std::copy\\s*\\([^,]+,\\s*[^,]+,\\s*[^\\)]+\\)''severity: medium
+    - regex: 'std::copy\s*\([^,]+,\s*[^,]+,\s*[^\)]+\]'
+  severity: medium
   description: "std::copy without bounds checking can overflow destination"
   remediation: "Use std::copy_n or verify destination size before copy"
 
@@ -16,14 +18,16 @@
 - id: cpp-use-after-free-delete
   languages: [cpp]
   patterns:
-    - regex: 'delete\\s+[^;]+;[^}]*\\1''severity: high
+    - regex: 'delete\s+[^;]+;[^}]*.*'
+  severity: high
   description: "Potential use-after-free after delete operator"
   remediation: "Set pointer to nullptr after delete and check before use"
 
 - id: cpp-dangling-reference
   languages: [cpp]
   patterns:
-    - regex: 'return\\s+[^;]*&[^;]*local''severity: high
+    - regex: 'return\s+[^;]*&[^;]*local'
+  severity: high
   description: "Returning reference to local variable causes dangling reference"
   remediation: "Return by value or use smart pointers for dynamic allocation"
 
@@ -31,7 +35,8 @@
 - id: cpp-unsafe-unique-ptr
   languages: [cpp]
   patterns:
-    - regex: 'std::unique_ptr<[^>]+>\\s*\\([^)]*new''severity: low
+    - regex: 'std::unique_ptr<[^>]+>\s*\([^)]*new'
+  severity: low
   description: "Manual new with unique_ptr - prefer make_unique"
   remediation: "Use std::make_unique<T>() instead of unique_ptr<T>(new T())"
 
@@ -39,7 +44,8 @@
 - id: cpp-format-string-sprintf
   languages: [cpp]
   patterns:
-    - regex: 'sprintf\\s*\\(\\s*[^,]+,\\s*[^\\\"]*%[^\\\"]*[^,\\)]+\\s*\\)''severity: high
+    - regex: 'sprintf\s*\(\s*[^,]+,\s*[^\\\"]*%[^\\\"]*[^,\)]+\s*\]'
+  severity: high
   description: "C-style sprintf in C++ code - use std::ostringstream"
   remediation: "Use std::ostringstream or std::format (C++20) for type-safe formatting"
 
@@ -47,7 +53,8 @@
 - id: cpp-command-injection-system
   languages: [cpp]
   patterns:
-    - regex: 'system\\s*\\(\\s*[^\\\"]*\\+[^\\)]+\\)''severity: critical
+    - regex: 'system\s*\(\s*[^\\\"]*\+[^\)]+\]'
+  severity: critical
   description: "Potential command injection via system() with user input"
   remediation: "Avoid system(). Use posix_spawn or exec family with argument arrays"
 
@@ -55,7 +62,8 @@
 - id: cpp-integer-overflow-vector
   languages: [cpp]
   patterns:
-    - regex: 'std::vector<[^>]+>\\s*\\([^\\)]*\\*[^\\)]+\\)''severity: medium
+    - regex: 'std::vector<[^>]+>\s*\([^\)]*\*[^\)]+\]'
+  severity: medium
   description: "Potential integer overflow in vector size calculation"
   remediation: "Check for overflow: if (n > SIZE_MAX / sizeof(T)) throw std::bad_alloc()"
 
@@ -63,7 +71,8 @@
 - id: cpp-weak-crypto-openssl-md5
   languages: [cpp]
   patterns:
-    - regex: '(?i)(MD5|EVP_md5)''severity: medium
+    - regex: '(?i)(MD5|EVP_md5)'
+  severity: medium
   description: "Use of weak cryptographic hash function (MD5) via OpenSSL"
   remediation: "Use EVP_sha256() or libsodium for modern cryptography"
 
@@ -71,7 +80,7 @@
 - id: cpp-hardcoded-api-key
   languages: [cpp]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\s*=\\s*['''\"][a-zA-Z0-9]{16,}[''\"]'
+    - regex: '(?i)(api[_-]?key|apikey)\s*=\s*[''\\"][a-zA-Z0-9]{16,}[''\\"]'
   severity: high
   description: "Hardcoded API key detected in C++ source code"
   remediation: "Use environment variables or secure credential storage"
@@ -80,7 +89,8 @@
 - id: cpp-unsafe-reinterpret-cast
   languages: [cpp]
   patterns:
-    - regex: 'reinterpret_cast<[^>]+>\\s*\\(''severity: medium
+    - regex: 'reinterpret_cast<[^>]+>\s*\('
+  severity: medium
   description: "Use of reinterpret_cast can lead to undefined behavior"
   remediation: "Prefer static_cast or dynamic_cast. Document rationale if reinterpret_cast is necessary"
 
@@ -88,23 +98,26 @@
 - id: cpp-resource-leak-fopen
   languages: [cpp]
   patterns:
-    - regex: 'fopen\\s*\\([^\\)]+\\)[^}]*''severity: medium
+    - regex: 'fopen\s*\([^\)]+\)[^}]*'
+  severity: medium
   description: "File opened with fopen() may not be properly closed"
   remediation: "Use RAII: std::fstream or wrap FILE* in a class with destructor"
 # ======================== DEEP DETECTION RULES ========================
 - id: cpp-new-delete-mismatch
   languages: [cpp]
   patterns:
-    - regex: '\bnew\s+\w+\s*\[''severity: medium
-  description: "Array new — ensure matching delete[] is used"
-  remediation: "Use std::vector or std::unique_ptr instead of raw new[]"
+    - regex: '\bnew\s+\w+\s*\['
+  severity: medium
+  description: "Array new — ensure matching delete[\\\\] is used"
+  remediation: "Use std::vector or std::unique_ptr instead of raw new[\\\\]"
   cwe: "CWE-762"
   owasp: "N/A"
 
 - id: cpp-shared-ptr-raw
   languages: [cpp]
   patterns:
-    - regex: '(?i)shared_ptr\s*<[^>]+>\s*\(\s*new\b''severity: medium
+    - regex: '(?i)shared_ptr\s*<[^>]+>\s*\(\s*new\b'
+  severity: medium
   description: "shared_ptr with raw new — use make_shared instead"
   remediation: "Use std::make_shared<T>() for exception safety"
   cwe: "CWE-401"
@@ -114,7 +127,8 @@
 - id: cpp-cin-string
   languages: [cpp]
   patterns:
-    - regex: 'cin\s*>>\s*''severity: medium
+    - regex: 'cin\s*>>\s*'
+  severity: medium
   description: "cin >> without bounds — use getline for safer input"
   remediation: "Use std::getline() or limit input size"
   cwe: "CWE-120"
@@ -123,7 +137,8 @@
 - id: cpp-cstring-functions
   languages: [cpp]
   patterns:
-    - regex: '\b(strcpy|strcat|sprintf|gets|scanf)\s*\(''severity: high
+    - regex: '\b(strcpy|strcat|sprintf|gets|scanf)\s*\('
+  severity: high
   description: "C-string function in C++ code — use std::string instead"
   remediation: "Use std::string, snprintf, or std::getline"
   cwe: "CWE-120"
@@ -132,7 +147,8 @@
 - id: cpp-void-pointer-cast
   languages: [cpp]
   patterns:
-    - regex: '\(\s*void\s*\*\s*\)''severity: medium
+    - regex: '\(\s*void\s*\*\s*\)'
+  severity: medium
   description: "Void pointer cast — type safety violation"
   remediation: "Use proper templates or static_cast with concrete types"
   cwe: "CWE-704"
@@ -141,7 +157,8 @@
 - id: cpp-exception-pointer
   languages: [cpp]
   patterns:
-    - regex: 'catch\s*\(\s*\.\.\.\s*\)''severity: low
+    - regex: 'catch\s*\(\s*\.\.\.\s*\)'
+  severity: low
   description: "Catch-all exception — may hide important errors"
   remediation: "Catch specific exception types for proper error handling"
   cwe: "CWE-396"
@@ -150,7 +167,8 @@
 - id: cpp-raw-pointer-member
   languages: [cpp]
   patterns:
-    - regex: '\w+\s*\*\s+\w+\s*;''severity: low
+    - regex: '\w+\s*\*\s+\w+\s*;'
+  severity: low
   description: "Raw pointer member — potential memory leak"
   remediation: "Use std::unique_ptr or std::shared_ptr for ownership"
   cwe: "CWE-401"
@@ -168,7 +186,8 @@
 - id: cpp-malloc-free-mismatch
   languages: [cpp]
   patterns:
-    - regex: 'malloc\\s*\\([^)]+\\)\\s*;[^}]*delete''severity: critical
+    - regex: 'malloc\s*\([^)]+\)\s*;[^}]*delete'
+  severity: critical
   description: "malloc paired with delete — memory corruption"
   remediation: "Use malloc/free or new/delete consistently"
   cwe: "CWE-762"
@@ -177,7 +196,8 @@
 - id: cpp-calloc-free-mismatch
   languages: [cpp]
   patterns:
-    - regex: 'calloc\\s*\\([^)]+\\)\\s*;[^}]*delete''severity: critical
+    - regex: 'calloc\s*\([^)]+\)\s*;[^}]*delete'
+  severity: critical
   description: "calloc paired with delete — memory corruption"
   remediation: "Use calloc/free consistently"
   cwe: "CWE-762"
@@ -186,7 +206,8 @@
 - id: cpp-realloc-usage
   languages: [cpp]
   patterns:
-    - regex: 'realloc\\s*\\(''severity: medium
+    - regex: 'realloc\s*\('
+  severity: medium
   description: "realloc usage — C-style memory management"
   remediation: "Use std::vector instead of realloc"
   cwe: "CWE-762"
@@ -195,7 +216,8 @@
 - id: cpp-free-null-check
   languages: [cpp]
   patterns:
-    - regex: 'if\\s*\\(\\s*\\w+\\s*!=\\s*NULL\\s*\\)\\s*\\{\\s*free''severity: low
+    - regex: 'if\s*\(\s*\w+\s*!=\s*NULL\s*\)\s*\{\s*free'
+  severity: low
   description: "Unnecessary NULL check before free"
   remediation: "free(NULL) is safe, remove check"
   cwe: "CWE-676"
@@ -204,16 +226,18 @@
 - id: cpp-delete-array-mismatch
   languages: [cpp]
   patterns:
-    - regex: 'new\\s+\\w+\\s*\\[\\s*\\]\\s*;[^}]*delete\\s+\\w+\\s*;''severity: critical
-  description: "new[] paired with delete — undefined behavior"
-  remediation: "Use delete[] for array allocations"
+    - regex: 'new\s+\w+\s*\[\s*\]\s*;[^}]*delete\s+\w+\s*;'
+  severity: critical
+  description: "new[\\\\] paired with delete — undefined behavior"
+  remediation: "Use delete[\\\\] for array allocations"
   cwe: "CWE-762"
   owasp: "A06:2021"
 
 - id: cpp-placement-new
   languages: [cpp]
   patterns:
-    - regex: 'new\\s*\\(\\s*\\w+\\s*\\)\\s+\\w+''severity: medium
+    - regex: 'new\s*\(\s*\w+\s*\)\s+\w+'
+  severity: medium
   description: "Placement new — manual memory management"
   remediation: "Ensure proper destructor calls"
   cwe: "CWE-762"
@@ -222,7 +246,8 @@
 - id: cpp-aligned-new
   languages: [cpp]
   patterns:
-    - regex: 'aligned_alloc\\s*\\(|std::aligned_alloc''severity: low
+    - regex: 'aligned_alloc\s*\(|std::aligned_alloc'
+  severity: low
   description: "Aligned allocation"
   remediation: "Ensure proper deallocation with aligned_free"
   cwe: "CWE-762"
@@ -231,7 +256,8 @@
 - id: cpp-posix-memalign
   languages: [cpp]
   patterns:
-    - regex: 'posix_memalign\\s*\\(''severity: low
+    - regex: 'posix_memalign\s*\('
+  severity: low
   description: "POSIX aligned memory allocation"
   remediation: "Free with free(), not delete"
   cwe: "CWE-762"
@@ -240,7 +266,8 @@
 - id: cpp-valloc-usage
   languages: [cpp]
   patterns:
-    - regex: 'valloc\\s*\\(''severity: low
+    - regex: 'valloc\s*\('
+  severity: low
   description: "valloc is obsolete"
   remediation: "Use aligned_alloc or posix_memalign"
   cwe: "CWE-676"
@@ -249,7 +276,8 @@
 - id: cpp-memalign-usage
   languages: [cpp]
   patterns:
-    - regex: 'memalign\\s*\\(''severity: low
+    - regex: 'memalign\s*\('
+  severity: low
   description: "memalign is obsolete"
   remediation: "Use aligned_alloc or posix_memalign"
   cwe: "CWE-676"
@@ -258,7 +286,8 @@
 - id: cpp-malloc-zero
   languages: [cpp]
   patterns:
-    - regex: 'malloc\\s*\\(\\s*0\\s*\\)''severity: medium
+    - regex: 'malloc\s*\(\s*0\s*\)'
+  severity: medium
   description: "malloc(0) behavior is implementation-defined"
   remediation: "Check allocation size before malloc"
   cwe: "CWE-754"
@@ -267,7 +296,8 @@
 - id: cpp-new-nothrow
   languages: [cpp]
   patterns:
-    - regex: 'new\\s*\\(\\s*std::nothrow\\s*\\)''severity: low
+    - regex: 'new\s*\(\s*std::nothrow\s*\)'
+  severity: low
   description: "nothrow new — check return value"
   remediation: "Check for nullptr after nothrow new"
   cwe: "CWE-252"
@@ -276,7 +306,8 @@
 - id: cpp-new-handler
   languages: [cpp]
   patterns:
-    - regex: 'std::set_new_handler\\s*\\(''severity: low
+    - regex: 'std::set_new_handler\s*\('
+  severity: low
   description: "Custom new_handler"
   remediation: "Ensure handler doesn't throw"
   cwe: "CWE-754"
@@ -285,7 +316,8 @@
 - id: cpp-placement-delete
   languages: [cpp]
   patterns:
-    - regex: 'operator\\s+delete\\s*\\(\\s*void\\s*\\*\\s*\\,''severity: medium
+    - regex: 'operator\s+delete\s*\(\s*void\s*\*\s*\\\,'
+  severity: medium
   description: "Placement delete operator"
   remediation: "Ensure matching placement new"
   cwe: "CWE-762"
@@ -294,7 +326,8 @@
 - id: cpp-array-new-size
   languages: [cpp]
   patterns:
-    - regex: 'new\\s+\\w+\\s*\\[\\s*\\w+\\s*\\*\\s*\\w+''severity: high
+    - regex: 'new\s+\w+\s*\[\s*\w+\s*\*\s*\w+'
+  severity: high
   description: "Array new with multiplication — overflow risk"
   remediation: "Check for overflow before allocation"
   cwe: "CWE-190"
@@ -303,7 +336,8 @@
 - id: cpp-vector-reserve
   languages: [cpp]
   patterns:
-    - regex: '\\.reserve\\s*\\(''severity: low
+    - regex: '\.reserve\s*\('
+  severity: low
   description: "Vector reserve — may throw bad_alloc"
   remediation: "Handle bad_alloc exception"
   cwe: "CWE-754"
@@ -312,7 +346,8 @@
 - id: cpp-vector-capacity
   languages: [cpp]
   patterns:
-    - regex: '\\.capacity\\s*\\(''severity: low
+    - regex: '\.capacity\s*\('
+  severity: low
   description: "Vector capacity check"
   remediation: "Don't rely on capacity for bounds"
   cwe: "CWE-754"
@@ -321,7 +356,8 @@
 - id: cpp-string-capacity
   languages: [cpp]
   patterns:
-    - regex: 'std::string.*\\.capacity\\s*\\(''severity: low
+    - regex: 'std::string.*\.capacity\s*\('
+  severity: low
   description: "String capacity check"
   remediation: "Use size() for actual content length"
   cwe: "CWE-754"
@@ -330,7 +366,8 @@
 - id: cpp-deque-usage
   languages: [cpp]
   patterns:
-    - regex: 'std::deque<[^>]+>''severity: low
+    - regex: 'std::deque<[^>]+>'
+  severity: low
   description: "std::deque usage"
   remediation: "Be aware of non-contiguous storage"
   cwe: "CWE-676"
@@ -339,7 +376,8 @@
 - id: cpp-list-usage
   languages: [cpp]
   patterns:
-    - regex: 'std::list<[^>]+>''severity: low
+    - regex: 'std::list<[^>]+>'
+  severity: low
   description: "std::list usage"
   remediation: "Be aware of node-based storage"
   cwe: "CWE-676"
@@ -348,7 +386,8 @@
 - id: cpp-forward-list
   languages: [cpp]
   patterns:
-    - regex: 'std::forward_list<[^>]+>''severity: low
+    - regex: 'std::forward_list<[^>]+>'
+  severity: low
   description: "std::forward_list usage"
   remediation: "Single-linked list limitations"
   cwe: "CWE-676"
@@ -357,7 +396,8 @@
 - id: cpp-array-container
   languages: [cpp]
   patterns:
-    - regex: 'std::array<[^>]+>''severity: low
+    - regex: 'std::array<[^>]+>'
+  severity: low
   description: "std::array usage"
   remediation: "Fixed size — ensure size is appropriate"
   cwe: "CWE-676"
@@ -366,7 +406,8 @@
 - id: cpp-raw-array
   languages: [cpp]
   patterns:
-    - regex: '\\w+\\s+\\w+\\s*\\[\\s*\\d+\\s*\\]''severity: medium
+    - regex: '\w+\s+\w+\s*\[\s*\d+\s*\]'
+  severity: medium
   description: "Raw C-style array"
   remediation: "Use std::array or std::vector"
   cwe: "CWE-676"
@@ -375,7 +416,8 @@
 - id: cpp-variable-length-array
   languages: [cpp]
   patterns:
-    - regex: '\\w+\\s+\\w+\\s*\\[\\s*\\w+\\s*\\]''severity: high
+    - regex: '\w+\s+\w+\s*\[\s*\w+\s*\]'
+  severity: high
   description: "Variable length array — non-standard"
   remediation: "Use std::vector instead"
   cwe: "CWE-770"
@@ -384,7 +426,8 @@
 - id: cpp-flexible-array
   languages: [cpp]
   patterns:
-    - regex: '\\w+\\s+\\w+\\s*\\[\\s*\\]''severity: high
+    - regex: '\w+\s+\w+\s*\[\s*\]'
+  severity: high
   description: "Flexible array member — C99 feature"
   remediation: "Use std::vector for dynamic arrays"
   cwe: "CWE-770"
@@ -394,7 +437,8 @@
 - id: cpp-auto-ptr
   languages: [cpp]
   patterns:
-    - regex: 'std::auto_ptr<[^>]+>''severity: high
+    - regex: 'std::auto_ptr<[^>]+>'
+  severity: high
   description: "std::auto_ptr is deprecated (C++11)"
   remediation: "Use std::unique_ptr instead"
   cwe: "CWE-676"
@@ -403,7 +447,8 @@
 - id: cpp-weak-ptr-lock
   languages: [cpp]
   patterns:
-    - regex: 'weak_ptr.*\\.lock\\s*\\(''severity: low
+    - regex: 'weak_ptr.*\.lock\s*\('
+  severity: low
   description: "weak_ptr::lock usage"
   remediation: "Check returned shared_ptr for nullptr"
   cwe: "CWE-416"
@@ -412,7 +457,8 @@
 - id: cpp-enable-shared-from-this
   languages: [cpp]
   patterns:
-    - regex: 'enable_shared_from_this<[^>]+>''severity: low
+    - regex: 'enable_shared_from_this<[^>]+>'
+  severity: low
   description: "enable_shared_from_this usage"
   remediation: "Ensure object is managed by shared_ptr"
   cwe: "CWE-416"
@@ -421,7 +467,8 @@
 - id: cpp-owner-less-ptr
   languages: [cpp]
   patterns:
-    - regex: 'owner_less<[^>]+>''severity: low
+    - regex: 'owner_less<[^>]+>'
+  severity: low
   description: "owner_less for weak_ptr comparison"
   remediation: "Understand ownership semantics"
   cwe: "CWE-676"
@@ -430,7 +477,8 @@
 - id: cpp-aliasing-constructor
   languages: [cpp]
   patterns:
-    - regex: 'shared_ptr<[^>]+>\\s*\\(\\s*shared_ptr''severity: medium
+    - regex: 'shared_ptr<[^>]+>\s*\(\s*shared_ptr'
+  severity: medium
   description: "Aliasing shared_ptr constructor"
   remediation: "Ensure aliased object lifetime is managed"
   cwe: "CWE-416"
@@ -439,7 +487,8 @@
 - id: cpp-unique-ptr-array
   languages: [cpp]
   patterns:
-    - regex: 'std::unique_ptr<\\w+\\s*\\[\\s*\\]>''severity: low
+    - regex: 'std::unique_ptr<\w+\s*\[\s*\]>'
+  severity: low
   description: "unique_ptr for arrays"
   remediation: "Use std::vector for dynamic arrays"
   cwe: "CWE-676"
@@ -448,7 +497,8 @@
 - id: cpp-unique-ptr-custom-deleter
   languages: [cpp]
   patterns:
-    - regex: 'unique_ptr<[^>]+,\\s*[^>]+>''severity: medium
+    - regex: 'unique_ptr<[^>]+,\s*[^>]+>'
+  severity: medium
   description: "unique_ptr with custom deleter"
   remediation: "Ensure deleter is exception-safe"
   cwe: "CWE-754"
@@ -457,7 +507,8 @@
 - id: cpp-make-unique
   languages: [cpp]
   patterns:
-    - regex: 'std::make_unique<[^>]+>''severity: low
+    - regex: 'std::make_unique<[^>]+>'
+  severity: low
   description: "std::make_unique usage"
   remediation: "Preferred over unique_ptr(new T)"
   cwe: "CWE-676"
@@ -466,7 +517,8 @@
 - id: cpp-make-shared
   languages: [cpp]
   patterns:
-    - regex: 'std::make_shared<[^>]+>''severity: low
+    - regex: 'std::make_shared<[^>]+>'
+  severity: low
   description: "std::make_shared usage"
   remediation: "Be aware of control block sharing"
   cwe: "CWE-676"
@@ -475,7 +527,8 @@
 - id: cpp-allocate-shared
   languages: [cpp]
   patterns:
-    - regex: 'std::allocate_shared<[^>]+>''severity: low
+    - regex: 'std::allocate_shared<[^>]+>'
+  severity: low
   description: "std::allocate_shared usage"
   remediation: "Ensure allocator is appropriate"
   cwe: "CWE-676"
@@ -484,7 +537,8 @@
 - id: cpp-atomic-shared-ptr
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic<shared_ptr''severity: medium
+    - regex: 'std::atomic<shared_ptr'
+  severity: medium
   description: "Atomic shared_ptr operations"
   remediation: "Use atomic_load/store for thread safety"
   cwe: "CWE-362"
@@ -493,7 +547,8 @@
 - id: cpp-atomic-weak-ptr
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic<weak_ptr''severity: medium
+    - regex: 'std::atomic<weak_ptr'
+  severity: medium
   description: "Atomic weak_ptr operations"
   remediation: "Use atomic_load/store for thread safety"
   cwe: "CWE-362"
@@ -502,7 +557,8 @@
 - id: cpp-smart-ptr-cycle
   languages: [cpp]
   patterns:
-    - regex: 'shared_ptr.*shared_ptr''severity: medium
+    - regex: 'shared_ptr.*shared_ptr'
+  severity: medium
   description: "Potential shared_ptr cycle"
   remediation: "Use weak_ptr to break cycles"
   cwe: "CWE-401"
@@ -511,7 +567,8 @@
 - id: cpp-smart-ptr-cast
   languages: [cpp]
   patterns:
-    - regex: 'static_pointer_cast|dynamic_pointer_cast|const_pointer_cast''severity: medium
+    - regex: 'static_pointer_cast|dynamic_pointer_cast|const_pointer_cast'
+  severity: medium
   description: "Smart pointer casting"
   remediation: "Ensure cast is safe"
   cwe: "CWE-704"
@@ -520,7 +577,8 @@
 - id: cpp-smart-ptr-get
   languages: [cpp]
   patterns:
-    - regex: '\\.get\\s*\\(\\s*\\)''severity: medium
+    - regex: '\.get\s*\(\s*\)'
+  severity: medium
   description: "Smart pointer .get() — raw pointer access"
   remediation: "Avoid storing raw pointer from get()"
   cwe: "CWE-416"
@@ -529,7 +587,8 @@
 - id: cpp-smart-ptr-reset
   languages: [cpp]
   patterns:
-    - regex: '\\.reset\\s*\\(''severity: low
+    - regex: '\.reset\s*\('
+  severity: low
   description: "Smart pointer reset"
   remediation: "Ensure reset is intentional"
   cwe: "CWE-676"
@@ -538,7 +597,8 @@
 - id: cpp-smart-ptr-swap
   languages: [cpp]
   patterns:
-    - regex: '\\.swap\\s*\\(''severity: low
+    - regex: '\.swap\s*\('
+  severity: low
   description: "Smart pointer swap"
   remediation: "Ensure swap is intentional"
   cwe: "CWE-676"
@@ -547,7 +607,8 @@
 - id: cpp-smart-ptr-use-count
   languages: [cpp]
   patterns:
-    - regex: '\\.use_count\\s*\\(''severity: low
+    - regex: '\.use_count\s*\('
+  severity: low
   description: "Smart pointer use_count"
   remediation: "Don't rely on use_count for logic"
   cwe: "CWE-676"
@@ -556,7 +617,8 @@
 - id: cpp-smart-ptr-unique
   languages: [cpp]
   patterns:
-    - regex: '\\.unique\\s*\\(''severity: low
+    - regex: '\.unique\s*\('
+  severity: low
   description: "Smart pointer unique check"
   remediation: "Use for debugging, not logic"
   cwe: "CWE-676"
@@ -565,7 +627,8 @@
 - id: cpp-smart-ptr-owner-before
   languages: [cpp]
   patterns:
-    - regex: '\\.owner_before\\s*\\(''severity: low
+    - regex: '\.owner_before\s*\('
+  severity: low
   description: "Smart pointer ownership comparison"
   remediation: "Understand ownership semantics"
   cwe: "CWE-676"
@@ -575,7 +638,8 @@
 - id: cpp-throw-by-value
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s+\\w+\\s*;''severity: low
+    - regex: 'throw\s+\w+\s*;'
+  severity: low
   description: "Throw by value"
   remediation: "Throw by value, catch by reference"
   cwe: "CWE-396"
@@ -584,7 +648,8 @@
 - id: cpp-throw-pointer
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s+new\\s+''severity: high
+    - regex: 'throw\s+new\s+'
+  severity: high
   description: "Throwing pointer — memory leak risk"
   remediation: "Throw by value, not pointer"
   cwe: "CWE-401"
@@ -593,7 +658,7 @@
 - id: cpp-throw-string
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s+['''\"]'
+    - regex: 'throw\s+[''\\\"]'
   severity: medium
   description: "Throwing string literal"
   remediation: "Throw std::exception derivatives"
@@ -603,7 +668,8 @@
 - id: cpp-throw-int
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s+\\d+''severity: medium
+    - regex: 'throw\s+\d+'
+  severity: medium
   description: "Throwing integer"
   remediation: "Throw std::exception derivatives"
   cwe: "CWE-396"
@@ -612,7 +678,8 @@
 - id: cpp-throw-null
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s+nullptr|throw\\s+NULL''severity: high
+    - regex: 'throw\s+nullptr|throw\s+NULL'
+  severity: high
   description: "Throwing nullptr"
   remediation: "Throw proper exception type"
   cwe: "CWE-396"
@@ -621,7 +688,8 @@
 - id: cpp-catch-by-value
   languages: [cpp]
   patterns:
-    - regex: 'catch\\s*\\(\\s*\\w+\\s+\\w+\\s*\\)''severity: medium
+    - regex: 'catch\s*\(\s*\w+\s+\w+\s*\)'
+  severity: medium
   description: "Catch by value — object slicing"
   remediation: "Catch by const reference"
   cwe: "CWE-396"
@@ -630,7 +698,8 @@
 - id: cpp-catch-ellipsis
   languages: [cpp]
   patterns:
-    - regex: 'catch\\s*\\(\\s*\\.\\.\\.\\s*\\)''severity: low
+    - regex: 'catch\s*\(\s*\.\.\.\s*\)'
+  severity: low
   description: "Catch-all handler"
   remediation: "Catch specific exception types"
   cwe: "CWE-396"
@@ -639,7 +708,8 @@
 - id: cpp- noexcept-function
   languages: [cpp]
   patterns:
-    - regex: 'noexcept\\s*\\(\\s*\\)''severity: low
+    - regex: 'noexcept\s*\(\s*\)'
+  severity: low
   description: "noexcept function"
   remediation: "Ensure function doesn't throw"
   cwe: "CWE-754"
@@ -648,7 +718,8 @@
 - id: cpp- noexcept-expression
   languages: [cpp]
   patterns:
-    - regex: 'noexcept\\s*\\(\\s*[^)]+\\)''severity: low
+    - regex: 'noexcept\s*\(\s*[^)]+\]'
+  severity: low
   description: "noexcept expression"
   remediation: "Verify noexcept condition"
   cwe: "CWE-754"
@@ -657,7 +728,8 @@
 - id: cpp-throw-specification
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s*\\(\\s*\\)''severity: medium
+    - regex: 'throw\s*\(\s*\)'
+  severity: medium
   description: "Dynamic exception specification (deprecated)"
   remediation: "Use noexcept instead"
   cwe: "CWE-676"
@@ -666,7 +738,8 @@
 - id: cpp-uncaught-exception
   languages: [cpp]
   patterns:
-    - regex: 'std::uncaught_exception\\s*\\(''severity: low
+    - regex: 'std::uncaught_exception\s*\('
+  severity: low
   description: "uncaught_exception check"
   remediation: "Use uncaught_exceptions in C++17"
   cwe: "CWE-754"
@@ -675,7 +748,8 @@
 - id: cpp-current-exception
   languages: [cpp]
   patterns:
-    - regex: 'std::current_exception\\s*\\(''severity: low
+    - regex: 'std::current_exception\s*\('
+  severity: low
   description: "current_exception usage"
   remediation: "Handle rethrow properly"
   cwe: "CWE-754"
@@ -684,7 +758,8 @@
 - id: cpp-rethrow-exception
   languages: [cpp]
   patterns:
-    - regex: 'std::rethrow_exception\\s*\\(''severity: low
+    - regex: 'std::rethrow_exception\s*\('
+  severity: low
   description: "rethrow_exception usage"
   remediation: "Ensure exception is valid"
   cwe: "CWE-754"
@@ -693,7 +768,8 @@
 - id: cpp-nested-exception
   languages: [cpp]
   patterns:
-    - regex: 'std::nested_exception''severity: low
+    - regex: 'std::nested_exception'
+  severity: low
   description: "nested_exception usage"
   remediation: "Handle exception chains properly"
   cwe: "CWE-754"
@@ -702,7 +778,8 @@
 - id: cpp-exception-ptr
   languages: [cpp]
   patterns:
-    - regex: 'std::exception_ptr''severity: low
+    - regex: 'std::exception_ptr'
+  severity: low
   description: "exception_ptr usage"
   remediation: "Manage exception_ptr lifetime"
   cwe: "CWE-754"
@@ -712,7 +789,8 @@
 - id: cpp-thread-constructor
   languages: [cpp]
   patterns:
-    - regex: 'std::thread\\s*\\(''severity: medium
+    - regex: 'std::thread\s*\('
+  severity: medium
   description: "Thread creation"
   remediation: "Ensure thread is joined or detached"
   cwe: "CWE-775"
@@ -721,7 +799,8 @@
 - id: cpp-thread-join
   languages: [cpp]
   patterns:
-    - regex: '\\.join\\s*\\(''severity: low
+    - regex: '\.join\s*\('
+  severity: low
   description: "Thread join"
   remediation: "Handle join exceptions"
   cwe: "CWE-754"
@@ -730,7 +809,8 @@
 - id: cpp-thread-detach
   languages: [cpp]
   patterns:
-    - regex: '\\.detach\\s*\\(''severity: medium
+    - regex: '\.detach\s*\('
+  severity: medium
   description: "Thread detach — no way to wait"
   remediation: "Consider using join instead"
   cwe: "CWE-775"
@@ -739,7 +819,8 @@
 - id: cpp-thread-id
   languages: [cpp]
   patterns:
-    - regex: 'std::this_thread::get_id''severity: low
+    - regex: 'std::this_thread::get_id'
+  severity: low
   description: "Thread ID retrieval"
   remediation: "Use for logging, not logic"
   cwe: "CWE-676"
@@ -748,7 +829,8 @@
 - id: cpp-yield-thread
   languages: [cpp]
   patterns:
-    - regex: 'std::this_thread::yield''severity: low
+    - regex: 'std::this_thread::yield'
+  severity: low
   description: "Thread yield"
   remediation: "Use sparingly for performance"
   cwe: "CWE-676"
@@ -757,7 +839,8 @@
 - id: cpp-sleep-for
   languages: [cpp]
   patterns:
-    - regex: 'std::this_thread::sleep_for''severity: low
+    - regex: 'std::this_thread::sleep_for'
+  severity: low
   description: "Thread sleep"
   remediation: "Avoid in production code"
   cwe: "CWE-676"
@@ -766,7 +849,8 @@
 - id: cpp-sleep-until
   languages: [cpp]
   patterns:
-    - regex: 'std::this_thread::sleep_until''severity: low
+    - regex: 'std::this_thread::sleep_until'
+  severity: low
   description: "Thread sleep until"
   remediation: "Avoid in production code"
   cwe: "CWE-676"
@@ -775,7 +859,8 @@
 - id: cpp-mutex-lock
   languages: [cpp]
   patterns:
-    - regex: '\\.lock\\s*\\(''severity: medium
+    - regex: '\.lock\s*\('
+  severity: medium
   description: "Mutex lock"
   remediation: "Use lock_guard or unique_lock"
   cwe: "CWE-667"
@@ -784,7 +869,8 @@
 - id: cpp-mutex-unlock
   languages: [cpp]
   patterns:
-    - regex: '\\.unlock\\s*\\(''severity: medium
+    - regex: '\.unlock\s*\('
+  severity: medium
   description: "Mutex unlock"
   remediation: "Use lock_guard or unique_lock"
   cwe: "CWE-667"
@@ -793,7 +879,8 @@
 - id: cpp-lock-guard
   languages: [cpp]
   patterns:
-    - regex: 'std::lock_guard<[^>]+>''severity: low
+    - regex: 'std::lock_guard<[^>]+>'
+  severity: low
   description: "lock_guard usage"
   remediation: "Preferred for simple locking"
   cwe: "CWE-667"
@@ -802,7 +889,8 @@
 - id: cpp-unique-lock
   languages: [cpp]
   patterns:
-    - regex: 'std::unique_lock<[^>]+>''severity: low
+    - regex: 'std::unique_lock<[^>]+>'
+  severity: low
   description: "unique_lock usage"
   remediation: "Use for deferred locking"
   cwe: "CWE-667"
@@ -811,7 +899,8 @@
 - id: cpp-scope-lock
   languages: [cpp]
   patterns:
-    - regex: 'std::scoped_lock<[^>]+>''severity: low
+    - regex: 'std::scoped_lock<[^>]+>'
+  severity: low
   description: "scoped_lock usage (C++17)"
   remediation: "Preferred for multiple mutexes"
   cwe: "CWE-667"
@@ -820,7 +909,8 @@
 - id: cpp-call-once
   languages: [cpp]
   patterns:
-    - regex: 'std::call_once''severity: low
+    - regex: 'std::call_once'
+  severity: low
   description: "call_once usage"
   remediation: "Ensure once_flag is static"
   cwe: "CWE-667"
@@ -829,7 +919,8 @@
 - id: cpp-once-flag
   languages: [cpp]
   patterns:
-    - regex: 'std::once_flag''severity: low
+    - regex: 'std::once_flag'
+  severity: low
   description: "once_flag usage"
   remediation: "Ensure proper initialization"
   cwe: "CWE-667"
@@ -838,7 +929,8 @@
 - id: cpp-condition-variable
   languages: [cpp]
   patterns:
-    - regex: 'std::condition_variable''severity: medium
+    - regex: 'std::condition_variable'
+  severity: medium
   description: "Condition variable"
   remediation: "Use with predicate to avoid spurious wakeups"
   cwe: "CWE-667"
@@ -847,7 +939,8 @@
 - id: cpp-condition-variable-any
   languages: [cpp]
   patterns:
-    - regex: 'std::condition_variable_any''severity: medium
+    - regex: 'std::condition_variable_any'
+  severity: medium
   description: "condition_variable_any"
   remediation: "Use with any lockable type"
   cwe: "CWE-667"
@@ -856,7 +949,8 @@
 - id: cpp-atomic-load
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic_load\\s*\\(''severity: low
+    - regex: 'std::atomic_load\s*\('
+  severity: low
   description: "Atomic load"
   remediation: "Specify memory order if needed"
   cwe: "CWE-362"
@@ -865,7 +959,8 @@
 - id: cpp-atomic-store
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic_store\\s*\\(''severity: low
+    - regex: 'std::atomic_store\s*\('
+  severity: low
   description: "Atomic store"
   remediation: "Specify memory order if needed"
   cwe: "CWE-362"
@@ -874,7 +969,8 @@
 - id: cpp-atomic-exchange
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic_exchange\\s*\\(''severity: low
+    - regex: 'std::atomic_exchange\s*\('
+  severity: low
   description: "Atomic exchange"
   remediation: "Specify memory order if needed"
   cwe: "CWE-362"
@@ -883,7 +979,8 @@
 - id: cpp-atomic-compare-exchange
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic_compare_exchange''severity: low
+    - regex: 'std::atomic_compare_exchange'
+  severity: low
   description: "Atomic compare-exchange"
   remediation: "Handle failure case properly"
   cwe: "CWE-362"
@@ -892,7 +989,8 @@
 - id: cpp-atomic-fetch
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic_fetch_(add|sub|and|or|xor)''severity: low
+    - regex: 'std::atomic_fetch_(add|sub|and|or|xor)'
+  severity: low
   description: "Atomic fetch operations"
   remediation: "Specify memory order if needed"
   cwe: "CWE-362"
@@ -901,7 +999,8 @@
 - id: cpp-atomic-flag
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic_flag''severity: low
+    - regex: 'std::atomic_flag'
+  severity: low
   description: "atomic_flag usage"
   remediation: "Use for simple lock-free flags"
   cwe: "CWE-362"
@@ -910,7 +1009,8 @@
 - id: cpp-memory-order
   languages: [cpp]
   patterns:
-    - regex: 'std::memory_order_(relaxed|acquire|release|acq_rel|seq_cst)''severity: low
+    - regex: 'std::memory_order_(relaxed|acquire|release|acq_rel|seq_cst)'
+  severity: low
   description: "Memory order specification"
   remediation: "Understand memory ordering semantics"
   cwe: "CWE-362"
@@ -919,7 +1019,8 @@
 - id: cpp-async-launch
   languages: [cpp]
   patterns:
-    - regex: 'std::launch::''severity: low
+    - regex: 'std::launch::'
+  severity: low
   description: "Async launch policy"
   remediation: "Choose appropriate launch policy"
   cwe: "CWE-676"
@@ -928,7 +1029,8 @@
 - id: cpp-future-get
   languages: [cpp]
   patterns:
-    - regex: '\\.get\\s*\\(\\s*\\)''severity: medium
+    - regex: '\.get\s*\(\s*\)'
+  severity: medium
   description: "future::get — can only be called once"
   remediation: "Ensure get is called once"
   cwe: "CWE-667"
@@ -937,7 +1039,8 @@
 - id: cpp-promise-set
   languages: [cpp]
   patterns:
-    - regex: '\\.set_value\\s*\\(|\\.set_exception\\s*\\(''severity: medium
+    - regex: '\.set_value\s*\(|\.set_exception\s*\('
+  severity: medium
   description: "promise set — can only be set once"
   remediation: "Ensure set is called once"
   cwe: "CWE-667"
@@ -946,7 +1049,8 @@
 - id: cpp-packaged-task
   languages: [cpp]
   patterns:
-    - regex: 'std::packaged_task<[^>]+>''severity: low
+    - regex: 'std::packaged_task<[^>]+>'
+  severity: low
   description: "packaged_task usage"
   remediation: "Handle task execution properly"
   cwe: "CWE-676"
@@ -956,7 +1060,8 @@
 - id: cpp-fstream-open
   languages: [cpp]
   patterns:
-    - regex: '\\.open\\s*\\(''severity: medium
+    - regex: '\.open\s*\('
+  severity: medium
   description: "fstream open"
   remediation: "Check if file is already open"
   cwe: "CWE-775"
@@ -965,7 +1070,8 @@
 - id: cpp-fstream-close
   languages: [cpp]
   patterns:
-    - regex: '\\.close\\s*\\(''severity: low
+    - regex: '\.close\s*\('
+  severity: low
   description: "fstream close"
   remediation: "Check for errors after close"
   cwe: "CWE-754"
@@ -974,7 +1080,8 @@
 - id: cpp-ifstream-usage
   languages: [cpp]
   patterns:
-    - regex: 'std::ifstream\\s*\\(''severity: low
+    - regex: 'std::ifstream\s*\('
+  severity: low
   description: "ifstream usage"
   remediation: "Check if file opened successfully"
   cwe: "CWE-754"
@@ -983,7 +1090,8 @@
 - id: cpp-ofstream-usage
   languages: [cpp]
   patterns:
-    - regex: 'std::ofstream\\s*\\(''severity: low
+    - regex: 'std::ofstream\s*\('
+  severity: low
   description: "ofstream usage"
   remediation: "Check if file opened successfully"
   cwe: "CWE-754"
@@ -992,7 +1100,8 @@
 - id: cpp-fstream-usage
   languages: [cpp]
   patterns:
-    - regex: 'std::fstream\\s*\\(''severity: low
+    - regex: 'std::fstream\s*\('
+  severity: low
   description: "fstream usage"
   remediation: "Check if file opened successfully"
   cwe: "CWE-754"
@@ -1001,7 +1110,8 @@
 - id: cpp-file-mode
   languages: [cpp]
   patterns:
-    - regex: 'std::ios::(out|in|app|trunc|binary)''severity: low
+    - regex: 'std::ios::(out|in|app|trunc|binary)'
+  severity: low
   description: "File open mode"
   remediation: "Choose appropriate mode"
   cwe: "CWE-676"
@@ -1010,7 +1120,8 @@
 - id: cpp-read-line
   languages: [cpp]
   patterns:
-    - regex: 'std::getline\\s*\\(''severity: low
+    - regex: 'std::getline\s*\('
+  severity: low
   description: "getline usage"
   remediation: "Check stream state after read"
   cwe: "CWE-754"
@@ -1019,7 +1130,8 @@
 - id: cpp-read-char
   languages: [cpp]
   patterns:
-    - regex: '\\.get\\s*\\([^)]*char''severity: low
+    - regex: '\.get\s*\([^)]*char'
+  severity: low
   description: "Character read"
   remediation: "Check for EOF"
   cwe: "CWE-754"
@@ -1028,7 +1140,8 @@
 - id: cpp-read-block
   languages: [cpp]
   patterns:
-    - regex: '\\.read\\s*\\(''severity: medium
+    - regex: '\.read\s*\('
+  severity: medium
   description: "Block read"
   remediation: "Verify bytes read matches expected"
   cwe: "CWE-754"
@@ -1037,7 +1150,8 @@
 - id: cpp-write-block
   languages: [cpp]
   patterns:
-    - regex: '\\.write\\s*\\(''severity: medium
+    - regex: '\.write\s*\('
+  severity: medium
   description: "Block write"
   remediation: "Check for write errors"
   cwe: "CWE-754"
@@ -1046,7 +1160,8 @@
 - id: cpp-seek-position
   languages: [cpp]
   patterns:
-    - regex: '\\.seekg\\s*\\(|\\.seekp\\s*\\(''severity: low
+    - regex: '\.seekg\s*\(|\.seekp\s*\('
+  severity: low
   description: "Stream seek"
   remediation: "Check seek success"
   cwe: "CWE-754"
@@ -1055,7 +1170,8 @@
 - id: cpp-tell-position
   languages: [cpp]
   patterns:
-    - regex: '\\.tellg\\s*\\(|\\.tellp\\s*\\(''severity: low
+    - regex: '\.tellg\s*\(|\.tellp\s*\('
+  severity: low
   description: "Stream tell"
   remediation: "Check for error state"
   cwe: "CWE-754"
@@ -1064,7 +1180,8 @@
 - id: cpp-stream-error
   languages: [cpp]
   patterns:
-    - regex: '\\.fail\\s*\\(|\\.bad\\s*\\(|\\.eof\\s*\\(''severity: low
+    - regex: '\.fail\s*\(|\.bad\s*\(|\.eof\s*\('
+  severity: low
   description: "Stream error check"
   remediation: "Handle error states properly"
   cwe: "CWE-754"
@@ -1073,7 +1190,8 @@
 - id: cpp-stream-exceptions
   languages: [cpp]
   patterns:
-    - regex: '\\.exceptions\\s*\\(''severity: low
+    - regex: '\.exceptions\s*\('
+  severity: low
   description: "Stream exception mask"
   remediation: "Configure appropriate exception mask"
   cwe: "CWE-754"
@@ -1082,7 +1200,8 @@
 - id: cpp-iostream-sync
   languages: [cpp]
   patterns:
-    - regex: 'std::ios::sync_with_stdio''severity: low
+    - regex: 'std::ios::sync_with_stdio'
+  severity: low
   description: "iostream sync with stdio"
   remediation: "Disable for performance if not mixing"
   cwe: "CWE-676"
@@ -1091,7 +1210,8 @@
 - id: cpp-cin-tie
   languages: [cpp]
   patterns:
-    - regex: 'std::cin\\.tie\\s*\\(''severity: low
+    - regex: 'std::cin\.tie\s*\('
+  severity: low
   description: "cin tie configuration"
   remediation: "Understand tie implications"
   cwe: "CWE-676"
@@ -1100,7 +1220,8 @@
 - id: cpp-cout-tie
   languages: [cpp]
   patterns:
-    - regex: 'std::cout\\.tie\\s*\\(''severity: low
+    - regex: 'std::cout\.tie\s*\('
+  severity: low
   description: "cout tie configuration"
   remediation: "Understand tie implications"
   cwe: "CWE-676"
@@ -1109,7 +1230,8 @@
 - id: cpp-stream-buffer
   languages: [cpp]
   patterns:
-    - regex: '\\.rdbuf\\s*\\(''severity: low
+    - regex: '\.rdbuf\s*\('
+  severity: low
   description: "Stream buffer access"
   remediation: "Ensure buffer is valid"
   cwe: "CWE-754"
@@ -1118,7 +1240,8 @@
 - id: cpp-stream-pubseek
   languages: [cpp]
   patterns:
-    - regex: 'pubseekpos|pubseekoff''severity: low
+    - regex: 'pubseekpos|pubseekoff'
+  severity: low
   description: "Stream buffer seek"
   remediation: "Check return value"
   cwe: "CWE-754"
@@ -1127,7 +1250,8 @@
 - id: cpp-stream-in_avail
   languages: [cpp]
   patterns:
-    - regex: 'in_avail\\s*\\(''severity: low
+    - regex: 'in_avail\s*\('
+  severity: low
   description: "Stream available check"
   remediation: "Use for non-blocking read check"
   cwe: "CWE-754"
@@ -1136,7 +1260,8 @@
 - id: cpp-stream-peek
   languages: [cpp]
   patterns:
-    - regex: '\\.peek\\s*\\(''severity: low
+    - regex: '\.peek\s*\('
+  severity: low
   description: "Stream peek"
   remediation: "Check stream state after peek"
   cwe: "CWE-754"
@@ -1145,7 +1270,8 @@
 - id: cpp-stream-putback
   languages: [cpp]
   patterns:
-    - regex: '\\.putback\\s*\\(|\\.unget\\s*\\(''severity: low
+    - regex: '\.putback\s*\(|\.unget\s*\('
+  severity: low
   description: "Stream putback"
   remediation: "Ensure putback is valid"
   cwe: "CWE-754"
@@ -1154,7 +1280,8 @@
 - id: cpp-stream-flush
   languages: [cpp]
   patterns:
-    - regex: '\\.flush\\s*\\(''severity: low
+    - regex: '\.flush\s*\('
+  severity: low
   description: "Stream flush"
   remediation: "Check for flush errors"
   cwe: "CWE-754"
@@ -1163,16 +1290,18 @@
 - id: cpp-stream-endl
   languages: [cpp]
   patterns:
-    - regex: 'std::endl''severity: low
+    - regex: 'std::endl'
+  severity: low
   description: "endl forces flush"
-  remediation: "Use \\n for performance"
+  remediation: "Use \n for performance"
   cwe: "CWE-676"
   owasp: "A06:2021"
 
 - id: cpp-stream-ws
   languages: [cpp]
   patterns:
-    - regex: 'std::ws''severity: low
+    - regex: 'std::ws'
+  severity: low
   description: "ws manipulator skips whitespace"
   remediation: "Understand whitespace skipping"
   cwe: "CWE-676"
@@ -1182,7 +1311,8 @@
 - id: cpp-openssl-ctx-new
   languages: [cpp]
   patterns:
-    - regex: 'SSL_CTX_new\\s*\\(''severity: low
+    - regex: 'SSL_CTX_new\s*\('
+  severity: low
   description: "OpenSSL context creation"
   remediation: "Configure secure options"
   cwe: "CWE-326"
@@ -1191,7 +1321,8 @@
 - id: cpp-openssl-ctx-free
   languages: [cpp]
   patterns:
-    - regex: 'SSL_CTX_free\\s*\\(''severity: low
+    - regex: 'SSL_CTX_free\s*\('
+  severity: low
   description: "OpenSSL context cleanup"
   remediation: "Ensure proper cleanup"
   cwe: "CWE-775"
@@ -1200,7 +1331,8 @@
 - id: cpp-openssl-ssl-new
   languages: [cpp]
   patterns:
-    - regex: 'SSL_new\\s*\\(''severity: low
+    - regex: 'SSL_new\s*\('
+  severity: low
   description: "OpenSSL SSL object"
   remediation: "Configure secure options"
   cwe: "CWE-326"
@@ -1209,7 +1341,8 @@
 - id: cpp-openssl-ssl-free
   languages: [cpp]
   patterns:
-    - regex: 'SSL_free\\s*\\(''severity: low
+    - regex: 'SSL_free\s*\('
+  severity: low
   description: "OpenSSL SSL cleanup"
   remediation: "Ensure proper cleanup"
   cwe: "CWE-775"
@@ -1218,7 +1351,8 @@
 - id: cpp-openssl-connect
   languages: [cpp]
   patterns:
-    - regex: 'SSL_connect\\s*\\(''severity: medium
+    - regex: 'SSL_connect\s*\('
+  severity: medium
   description: "OpenSSL SSL connect"
   remediation: "Verify certificate"
   cwe: "CWE-295"
@@ -1227,7 +1361,8 @@
 - id: cpp-openssl-accept
   languages: [cpp]
   patterns:
-    - regex: 'SSL_accept\\s*\\(''severity: medium
+    - regex: 'SSL_accept\s*\('
+  severity: medium
   description: "OpenSSL SSL accept"
   remediation: "Configure secure cipher suites"
   cwe: "CWE-326"
@@ -1236,7 +1371,8 @@
 - id: cpp-openssl-read
   languages: [cpp]
   patterns:
-    - regex: 'SSL_read\\s*\\(''severity: low
+    - regex: 'SSL_read\s*\('
+  severity: low
   description: "OpenSSL SSL read"
   remediation: "Check return value"
   cwe: "CWE-754"
@@ -1245,7 +1381,8 @@
 - id: cpp-openssl-write
   languages: [cpp]
   patterns:
-    - regex: 'SSL_write\\s*\\(''severity: low
+    - regex: 'SSL_write\s*\('
+  severity: low
   description: "OpenSSL SSL write"
   remediation: "Check return value"
   cwe: "CWE-754"
@@ -1254,7 +1391,8 @@
 - id: cpp-openssl-shutdown
   languages: [cpp]
   patterns:
-    - regex: 'SSL_shutdown\\s*\\(''severity: low
+    - regex: 'SSL_shutdown\s*\('
+  severity: low
   description: "OpenSSL SSL shutdown"
   remediation: "Handle shutdown properly"
   cwe: "CWE-775"
@@ -1263,7 +1401,8 @@
 - id: cpp-openssl-error
   languages: [cpp]
   patterns:
-    - regex: 'ERR_print_errors|ERR_get_error''severity: low
+    - regex: 'ERR_print_errors|ERR_get_error'
+  severity: low
   description: "OpenSSL error handling"
   remediation: "Clear error queue appropriately"
   cwe: "CWE-754"
@@ -1272,7 +1411,8 @@
 - id: cpp-openssl-bio
   languages: [cpp]
   patterns:
-    - regex: 'BIO_new|BIO_free|BIO_read|BIO_write''severity: low
+    - regex: 'BIO_new|BIO_free|BIO_read|BIO_write'
+  severity: low
   description: "OpenSSL BIO operations"
   remediation: "Ensure proper BIO cleanup"
   cwe: "CWE-775"
@@ -1281,7 +1421,8 @@
 - id: cpp-openssl-evp
   languages: [cpp]
   patterns:
-    - regex: 'EVP_(Encrypt|Decrypt|Digest)''severity: low
+    - regex: 'EVP_(Encrypt|Decrypt|Digest)'
+  severity: low
   description: "OpenSSL EVP operations"
   remediation: "Use authenticated encryption"
   cwe: "CWE-327"
@@ -1290,7 +1431,8 @@
 - id: cpp-openssl-rsa
   languages: [cpp]
   patterns:
-    - regex: 'RSA_(generate|encrypt|decrypt)''severity: medium
+    - regex: 'RSA_(generate|encrypt|decrypt)'
+  severity: medium
   description: "OpenSSL RSA operations"
   remediation: "Use appropriate key sizes"
   cwe: "CWE-326"
@@ -1299,7 +1441,8 @@
 - id: cpp-openssl-ec
   languages: [cpp]
   patterns:
-    - regex: 'EC_(KEY|DSA)_new''severity: low
+    - regex: 'EC_(KEY|DSA)_new'
+  severity: low
   description: "OpenSSL EC operations"
   remediation: "Use secure curves"
   cwe: "CWE-326"
@@ -1308,7 +1451,8 @@
 - id: cpp-openssl-dh
   languages: [cpp]
   patterns:
-    - regex: 'DH_generate_parameters|DH_new''severity: medium
+    - regex: 'DH_generate_parameters|DH_new'
+  severity: medium
   description: "OpenSSL DH operations"
   remediation: "Use appropriate parameter sizes"
   cwe: "CWE-326"
@@ -1317,7 +1461,8 @@
 - id: cpp-openssl-rand
   languages: [cpp]
   patterns:
-    - regex: 'RAND_bytes|RAND_pseudo_bytes''severity: low
+    - regex: 'RAND_bytes|RAND_pseudo_bytes'
+  severity: low
   description: "OpenSSL random generation"
   remediation: "Use RAND_bytes for crypto"
   cwe: "CWE-330"
@@ -1326,7 +1471,8 @@
 - id: cpp-openssl-init
   languages: [cpp]
   patterns:
-    - regex: 'SSL_library_init|OpenSSL_add_all''severity: low
+    - regex: 'SSL_library_init|OpenSSL_add_all'
+  severity: low
   description: "OpenSSL initialization"
   remediation: "Ensure proper initialization"
   cwe: "CWE-754"
@@ -1335,7 +1481,8 @@
 - id: cpp-openssl-cleanup
   languages: [cpp]
   patterns:
-    - regex: 'EVP_cleanup|CRYPTO_cleanup''severity: low
+    - regex: 'EVP_cleanup|CRYPTO_cleanup'
+  severity: low
   description: "OpenSSL cleanup"
   remediation: "Ensure proper cleanup"
   cwe: "CWE-775"
@@ -1344,7 +1491,8 @@
 - id: cpp-socket-create
   languages: [cpp]
   patterns:
-    - regex: 'socket\\s*\\(''severity: medium
+    - regex: 'socket\s*\('
+  severity: medium
   description: "Socket creation"
   remediation: "Check socket creation success"
   cwe: "CWE-754"
@@ -1353,7 +1501,8 @@
 - id: cpp-socket-bind
   languages: [cpp]
   patterns:
-    - regex: 'bind\\s*\\(''severity: medium
+    - regex: 'bind\s*\('
+  severity: medium
   description: "Socket bind"
   remediation: "Validate bind address"
   cwe: "CWE-284"
@@ -1362,7 +1511,8 @@
 - id: cpp-socket-listen
   languages: [cpp]
   patterns:
-    - regex: 'listen\\s*\\(''severity: low
+    - regex: 'listen\s*\('
+  severity: low
   description: "Socket listen"
   remediation: "Set appropriate backlog"
   cwe: "CWE-770"
@@ -1371,7 +1521,8 @@
 - id: cpp-socket-accept
   languages: [cpp]
   patterns:
-    - regex: 'accept\\s*\\(''severity: medium
+    - regex: 'accept\s*\('
+  severity: medium
   description: "Socket accept"
   remediation: "Validate accepted connection"
   cwe: "CWE-346"
@@ -1380,7 +1531,8 @@
 - id: cpp-socket-connect
   languages: [cpp]
   patterns:
-    - regex: 'connect\\s*\\(''severity: medium
+    - regex: 'connect\s*\('
+  severity: medium
   description: "Socket connect"
   remediation: "Validate connection target"
   cwe: "CWE-918"
@@ -1389,7 +1541,8 @@
 - id: cpp-socket-send
   languages: [cpp]
   patterns:
-    - regex: 'send\\s*\\(''severity: low
+    - regex: 'send\s*\('
+  severity: low
   description: "Socket send"
   remediation: "Check bytes sent"
   cwe: "CWE-754"
@@ -1398,7 +1551,8 @@
 - id: cpp-socket-recv
   languages: [cpp]
   patterns:
-    - regex: 'recv\\s*\\(''severity: medium
+    - regex: 'recv\s*\('
+  severity: medium
   description: "Socket receive"
   remediation: "Validate received data"
   cwe: "CWE-20"
@@ -1407,7 +1561,8 @@
 - id: cpp-socket-sendto
   languages: [cpp]
   patterns:
-    - regex: 'sendto\\s*\\(''severity: low
+    - regex: 'sendto\s*\('
+  severity: low
   description: "Socket sendto"
   remediation: "Validate destination address"
   cwe: "CWE-754"
@@ -1416,7 +1571,8 @@
 - id: cpp-socket-recvfrom
   languages: [cpp]
   patterns:
-    - regex: 'recvfrom\\s*\\(''severity: medium
+    - regex: 'recvfrom\s*\('
+  severity: medium
   description: "Socket recvfrom"
   remediation: "Validate sender address"
   cwe: "CWE-346"
@@ -1425,7 +1581,8 @@
 - id: cpp-socket-close
   languages: [cpp]
   patterns:
-    - regex: 'closesocket\\s*\\(|close\\s*\\([^)]*socket''severity: low
+    - regex: 'closesocket\s*\(|close\s*\([^)]*socket'
+  severity: low
   description: "Socket close"
   remediation: "Check close success"
   cwe: "CWE-775"
@@ -1434,7 +1591,8 @@
 - id: cpp-socket-option
   languages: [cpp]
   patterns:
-    - regex: 'setsockopt\\s*\\(|getsockopt\\s*\\(''severity: low
+    - regex: 'setsockopt\s*\(|getsockopt\s*\('
+  severity: low
   description: "Socket options"
   remediation: "Configure secure options"
   cwe: "CWE-693"
@@ -1443,7 +1601,8 @@
 - id: cpp-socket-shutdown
   languages: [cpp]
   patterns:
-    - regex: 'shutdown\\s*\\(''severity: low
+    - regex: 'shutdown\s*\('
+  severity: low
   description: "Socket shutdown"
   remediation: "Use appropriate shutdown mode"
   cwe: "CWE-775"
@@ -1452,7 +1611,8 @@
 - id: cpp-socket-select
   languages: [cpp]
   patterns:
-    - regex: 'select\\s*\\(''severity: low
+    - regex: 'select\s*\('
+  severity: low
   description: "Socket select"
   remediation: "Set appropriate timeout"
   cwe: "CWE-770"
@@ -1461,7 +1621,8 @@
 - id: cpp-socket-poll
   languages: [cpp]
   patterns:
-    - regex: 'poll\\s*\\(''severity: low
+    - regex: 'poll\s*\('
+  severity: low
   description: "Socket poll"
   remediation: "Set appropriate timeout"
   cwe: "CWE-770"
@@ -1470,7 +1631,8 @@
 - id: cpp-socket-epoll
   languages: [cpp]
   patterns:
-    - regex: 'epoll_create|epoll_ctl|epoll_wait''severity: low
+    - regex: 'epoll_create|epoll_ctl|epoll_wait'
+  severity: low
   description: "Socket epoll"
   remediation: "Handle epoll events properly"
   cwe: "CWE-754"
@@ -1479,7 +1641,8 @@
 - id: cpp-socket-ioctl
   languages: [cpp]
   patterns:
-    - regex: 'ioctlsocket\\s*\\(|ioctl\\s*\\(''severity: low
+    - regex: 'ioctlsocket\s*\(|ioctl\s*\('
+  severity: low
   description: "Socket ioctl"
   remediation: "Use appropriate ioctl commands"
   cwe: "CWE-676"
@@ -1488,7 +1651,8 @@
 - id: cpp-socket-fcntl
   languages: [cpp]
   patterns:
-    - regex: 'fcntl\\s*\\(''severity: low
+    - regex: 'fcntl\s*\('
+  severity: low
   description: "Socket fcntl"
   remediation: "Configure appropriate flags"
   cwe: "CWE-676"
@@ -1497,7 +1661,8 @@
 - id: cpp-socket-getaddrinfo
   languages: [cpp]
   patterns:
-    - regex: 'getaddrinfo\\s*\\(''severity: low
+    - regex: 'getaddrinfo\s*\('
+  severity: low
   description: "getaddrinfo usage"
   remediation: "Free addrinfo with freeaddrinfo"
   cwe: "CWE-775"
@@ -1506,7 +1671,8 @@
 - id: cpp-socket-getnameinfo
   languages: [cpp]
   patterns:
-    - regex: 'getnameinfo\\s*\\(''severity: low
+    - regex: 'getnameinfo\s*\('
+  severity: low
   description: "getnameinfo usage"
   remediation: "Validate output buffer sizes"
   cwe: "CWE-120"
@@ -1515,7 +1681,8 @@
 - id: cpp-socket-inet-pton
   languages: [cpp]
   patterns:
-    - regex: 'inet_pton\\s*\\(''severity: low
+    - regex: 'inet_pton\s*\('
+  severity: low
   description: "inet_pton usage"
   remediation: "Check return value"
   cwe: "CWE-754"
@@ -1524,7 +1691,8 @@
 - id: cpp-socket-inet-ntop
   languages: [cpp]
   patterns:
-    - regex: 'inet_ntop\\s*\\(''severity: low
+    - regex: 'inet_ntop\s*\('
+  severity: low
   description: "inet_ntop usage"
   remediation: "Validate output buffer size"
   cwe: "CWE-120"
@@ -1533,7 +1701,8 @@
 - id: cpp-socket-htons
   languages: [cpp]
   patterns:
-    - regex: 'htons\\s*\\(|htonl\\s*\\(|ntohs\\s*\\(|ntohl\\s*\\(''severity: low
+    - regex: 'htons\s*\(|htonl\s*\(|ntohs\s*\(|ntohl\s*\('
+  severity: low
   description: "Byte order conversion"
   remediation: "Ensure correct byte order"
   cwe: "CWE-676"
@@ -1542,7 +1711,8 @@
 - id: cpp-socket-sendmsg
   languages: [cpp]
   patterns:
-    - regex: 'sendmsg\\s*\\(''severity: low
+    - regex: 'sendmsg\s*\('
+  severity: low
   description: "sendmsg usage"
   remediation: "Validate msghdr structure"
   cwe: "CWE-754"
@@ -1551,7 +1721,8 @@
 - id: cpp-socket-recvmsg
   languages: [cpp]
   patterns:
-    - regex: 'recvmsg\\s*\\(''severity: low
+    - regex: 'recvmsg\s*\('
+  severity: low
   description: "recvmsg usage"
   remediation: "Validate msghdr structure"
   cwe: "CWE-754"
@@ -1560,7 +1731,8 @@
 - id: cpp-socket-cmsg
   languages: [cpp]
   patterns:
-    - regex: 'CMSG_FIRSTHDR|CMSG_NXTHDR|CMSG_DATA''severity: low
+    - regex: 'CMSG_FIRSTHDR|CMSG_NXTHDR|CMSG_DATA'
+  severity: low
   description: "Control message handling"
   remediation: "Validate control messages"
   cwe: "CWE-20"
@@ -1569,7 +1741,8 @@
 - id: cpp-socket-sockaddr
   languages: [cpp]
   patterns:
-    - regex: 'struct\\s+sockaddr''severity: low
+    - regex: 'struct\s+sockaddr'
+  severity: low
   description: "sockaddr structure"
   remediation: "Initialize structure properly"
   cwe: "CWE-754"
@@ -1578,7 +1751,8 @@
 - id: cpp-socket-sockaddr-in
   languages: [cpp]
   patterns:
-    - regex: 'struct\\s+sockaddr_in''severity: low
+    - regex: 'struct\s+sockaddr_in'
+  severity: low
   description: "sockaddr_in structure"
   remediation: "Initialize structure properly"
   cwe: "CWE-754"
@@ -1587,7 +1761,8 @@
 - id: cpp-socket-sockaddr-in6
   languages: [cpp]
   patterns:
-    - regex: 'struct\\s+sockaddr_in6''severity: low
+    - regex: 'struct\s+sockaddr_in6'
+  severity: low
   description: "sockaddr_in6 structure"
   remediation: "Initialize structure properly"
   cwe: "CWE-754"
@@ -1596,7 +1771,8 @@
 - id: cpp-socket-addrinfo
   languages: [cpp]
   patterns:
-    - regex: 'struct\\s+addrinfo''severity: low
+    - regex: 'struct\s+addrinfo'
+  severity: low
   description: "addrinfo structure"
   remediation: "Free with freeaddrinfo"
   cwe: "CWE-775"
@@ -1605,7 +1781,8 @@
 - id: cpp-virtual-dtor
   languages: [cpp]
   patterns:
-    - regex: 'class.*virtual\\s+~\\w+\\s*\\(\\)''severity: medium
+    - regex: 'class.*virtual\s+~\w+\s*\(\)'
+  severity: medium
   description: "Virtual destructor missing"
   remediation: "Add virtual destructor"
   cwe: "CWE-404"
@@ -1615,7 +1792,8 @@
 - id: cpp-exception-spec
   languages: [cpp]
   patterns:
-    - regex: 'throw\\s*\\(\\s*\\)''severity: medium
+    - regex: 'throw\s*\(\s*\)'
+  severity: medium
   description: "Empty exception specification"
   remediation: "Use specific exceptions"
   cwe: "CWE-755"
@@ -1625,7 +1803,8 @@
 - id: cpp-auto-ptr
   languages: [cpp]
   patterns:
-    - regex: 'std::auto_ptr''severity: medium
+    - regex: 'std::auto_ptr'
+  severity: medium
   description: "Deprecated auto_ptr"
   remediation: "Use unique_ptr"
   cwe: "CWE-1104"
@@ -1635,7 +1814,8 @@
 - id: cpp-raii-socket
   languages: [cpp]
   patterns:
-    - regex: 'socket\\s*\\(.*close\\s*\\(''severity: medium
+    - regex: 'socket\s*\(.*close\s*\('
+  severity: medium
   description: "Socket resource leak"
   remediation: "Use RAII or smart pointers"
   cwe: "CWE-775"
@@ -1645,7 +1825,8 @@
 - id: cpp-atomic-weake
   languages: [cpp]
   patterns:
-    - regex: 'std::atomic.*load.*memory_order''severity: medium
+    - regex: 'std::atomic.*load.*memory_order'
+  severity: medium
   description: "Weak memory ordering"
   remediation: "Use memory_order_seq_cst"
   cwe: "CWE-362"

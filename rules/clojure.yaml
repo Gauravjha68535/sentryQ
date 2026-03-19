@@ -1,7 +1,8 @@
 - id: clojure-eval
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(eval\\s+''severity: critical
+    - regex: '(?i)\(eval\s+'
+  severity: critical
   description: "Code injection via eval"
   remediation: "Avoid eval with user input"
   cwe: "CWE-94"
@@ -11,7 +12,8 @@
 - id: clojure-read-string
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(read-string\\s+''severity: critical
+    - regex: '(?i)\(read-string\s+'
+  severity: critical
   description: "Unsafe reading (deserialization)"
   remediation: "Use clojure.edn/read-string instead"
   cwe: "CWE-502"
@@ -21,7 +23,8 @@
 - id: clojure-shell-sh
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(clojure\\.java\\.shell/sh\\s+''severity: critical
+    - regex: '(?i)\(clojure\.java\.shell/sh\s+'
+  severity: critical
   description: "OS command execution"
   remediation: "Validate arguments to sh"
   cwe: "CWE-78"
@@ -31,7 +34,8 @@
 - id: clojure-load-string
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(load-string\\s+''severity: critical
+    - regex: '(?i)\(load-string\s+'
+  severity: critical
   description: "Dynamic code loading"
   remediation: "Avoid load-string"
   cwe: "CWE-94"
@@ -41,7 +45,8 @@
 - id: clojure-xml-parse
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(clojure\\.xml/parse\\s+''severity: high
+    - regex: '(?i)\(clojure\.xml/parse\s+'
+  severity: high
   description: "XXE vulnerability"
   remediation: "Disable entity resolution"
   cwe: "CWE-611"
@@ -51,7 +56,8 @@
 - id: clojure-java-interop-eval
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(\\.\\s+.*\\s+eval\\)''severity: critical
+    - regex: '(?i)\(\.\s+.*\s+eval\)'
+  severity: critical
   description: "Java interop eval"
   remediation: "Avoid eval"
   cwe: "CWE-94"
@@ -61,7 +67,8 @@
 - id: clojure-hardcoded-secret
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(def\\s+(?:secret|password|api-key)\\s+\"[^\"]{12,}\"\\)''severity: high
+    - regex: '(?i)\(def\s+(?:secret|password|api-key)\s+\\"[^\\"]{12,}\\"\)'
+  severity: high
   description: "Hardcoded secret"
   remediation: "Use environ or similar"
   cwe: "CWE-798"
@@ -71,7 +78,8 @@
 - id: clojure-honey-sql
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(h/raw\\s+''severity: high
+    - regex: '(?i)\(h/raw\s+'
+  severity: high
   description: "Raw SQL injection risk in HoneySQL"
   remediation: "Use parameterized fields"
   cwe: "CWE-89"
@@ -81,7 +89,8 @@
 - id: clojure-jdbc-execute
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(jdbc/execute!\\s+.*\\(str\\s+''severity: critical
+    - regex: '(?i)\(jdbc/execute!\s+.*\(str\s+'
+  severity: critical
   description: "SQL injection via string concat"
   remediation: "Use parameterized vectors"
   cwe: "CWE-89"
@@ -91,7 +100,8 @@
 - id: clojure-slurp
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(slurp\\s+''severity: medium
+    - regex: '(?i)\(slurp\s+'
+  severity: medium
   description: "File read operation"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -101,7 +111,8 @@
 - id: clojure-ssrf
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(client/get\\s+.*#\\{''severity: high
+    - regex: '(?i)\(client/get\s+.*#\{'
+  severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -111,7 +122,8 @@
 - id: clojure-insecure-random
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(rand\\s+''severity: medium
+    - regex: '(?i)\(rand\s+'
+  severity: medium
   description: "Insecure random for security"
   remediation: "Use java.security.SecureRandom"
   cwe: "CWE-338"
@@ -121,7 +133,8 @@
 - id: clojure-path-traversal
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(io/copy\\s+.*#\\{|\\(clojure\\.java\\.io/copy\\s+''severity: high
+    - regex: '(?i)\(io/copy\s+.*#\{|\(clojure\.java\.io/copy\s+'
+  severity: high
   description: "Path traversal in file copy"
   remediation: "Validate source and destination paths"
   cwe: "CWE-22"
@@ -131,7 +144,7 @@
 - id: clojure-weak-crypto
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(digest\\s+'''md5|\\(digest\\s+''sha1'
+    - regex: '(?i)\(digest\s+''md5|\(digest\s+''sha1'
   severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
@@ -142,7 +155,8 @@
 - id: clojure-command-injection
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(clojure\\.java\\.shell/sh\\s+.*#\\{''severity: critical
+    - regex: '(?i)\(clojure\.java\.shell/sh\s+.*#\{'
+  severity: critical
   description: "Command injection via shell"
   remediation: "Validate command arguments"
   cwe: "CWE-78"
@@ -152,7 +166,8 @@
 - id: clojure-xxe
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(xml/parse\\s+.*:feature.*DTD''severity: high
+    - regex: '(?i)\(xml/parse\s+.*:feature.*DTD'
+  severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing"
   cwe: "CWE-611"
@@ -162,7 +177,8 @@
 - id: clojure-ssrf
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(client/get\\s+.*#\\{|\\(http/get\\s+.*#\\{''severity: high
+    - regex: '(?i)\(client/get\s+.*#\{|\(http/get\s+.*#\{'
+  severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -172,7 +188,8 @@
 - id: clojure-serialization
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(clojure\\.edn/read-string|\\(read-string''severity: high
+    - regex: '(?i)\(clojure\.edn/read-string|\(read-string'
+  severity: high
   description: "Unsafe deserialization via read-string"
   remediation: "Use JSON or safe parsers"
   cwe: "CWE-502"
@@ -182,7 +199,8 @@
 - id: clojure-template-injection
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(selmer/render-file.*#\\{|\\(hiccup/html.*#\\{''severity: high
+    - regex: '(?i)\(selmer/render-file.*#\{|\(hiccup/html.*#\{'
+  severity: high
   description: "Template injection vulnerability"
   remediation: "Sanitize template inputs"
   cwe: "CWE-1336"
@@ -192,7 +210,8 @@
 - id: clojure-hardcoded-creds
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(def\\s+(?:db|password|secret|key)\\s+\\"[^"]{4,}\\"''severity: high
+    - regex: '(?i)\(def\s+(?:db|password|secret|key)\s+\\"[^"]{4,}\\"'
+  severity: high
   description: "Hardcoded credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -202,7 +221,8 @@
 - id: clojure-ldap-injection
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(ldap/search\\s+.*#\\{|\\(ldap/query\\s+.*#\\{''severity: high
+    - regex: '(?i)\(ldap/search\s+.*#\{|\(ldap/query\s+.*#\{'
+  severity: high
   description: "LDAP injection vulnerability"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -212,7 +232,8 @@
 - id: clojure-regex-dos
   languages: [clojure]
   patterns:
-    - regex: '(?i)\\(re-seq.*\\*|\\(re-find.*\\*''severity: medium
+    - regex: '(?i)\(re-seq.*\*|\(re-find.*\*'
+  severity: medium
   description: "Potential ReDoS vulnerability"
   remediation: "Avoid nested quantifiers"
   cwe: "CWE-1333"

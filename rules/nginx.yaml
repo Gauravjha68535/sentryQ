@@ -1,7 +1,8 @@
 - id: nginx-autoindex-on
   languages: [nginx]
   patterns:
-    - regex: '(?i)\\bautoindex\\s+on''severity: medium
+    - regex: '(?i)\bautoindex\s+on'
+  severity: medium
   description: "Directory listing enabled"
   remediation: "Set autoindex off"
   cwe: "CWE-548"
@@ -11,7 +12,8 @@
 - id: nginx-insecure-ssl
   languages: [nginx]
   patterns:
-    - regex: '(?i)ssl_protocols\\s+(?:SSLv2|SSLv3|TLSv1\\b|TLSv1\\.1)''severity: high
+    - regex: '(?i)ssl_protocols\s+(?:SSLv2|SSLv3|TLSv1\b|TLSv1\.1)'
+  severity: high
   description: "Insecure SSL/TLS protocols"
   remediation: "Use TLSv1.2 and TLSv1.3 only"
   cwe: "CWE-327"
@@ -21,7 +23,8 @@
 - id: nginx-server-tokens-on
   languages: [nginx]
   patterns:
-    - regex: '(?i)server_tokens\\s+on''severity: low
+    - regex: '(?i)server_tokens\s+on'
+  severity: low
   description: "Server tokens exposed"
   remediation: "Set server_tokens off"
   cwe: "CWE-200"
@@ -31,7 +34,8 @@
 - id: nginx-ssrf-proxy
   languages: [nginx]
   patterns:
-    - regex: '(?i)proxy_pass\\s+\\$.*''severity: high
+    - regex: '(?i)proxy_pass\s+\$.*'
+  severity: high
   description: "SSRF risk with dynamic proxy_pass"
   remediation: "Validate proxy destination before proxy_pass"
   cwe: "CWE-918"
@@ -41,7 +45,8 @@
 - id: nginx-alias-traversal
   languages: [nginx]
   patterns:
-    - regex: '(?i)location\\s+/\\w+/\\s*\\{.*alias\\s+/\\w+;''severity: high
+    - regex: '(?i)location\s+/\w+/\s*\{.*alias\s+/\w+;'
+  severity: high
   description: "Directory traversal risk due to missing trailing slash"
   remediation: "Ensure alias ends with trailing slash if location ends with trailing slash"
   cwe: "CWE-22"
@@ -51,7 +56,8 @@
 - id: nginx-missing-hsts
   languages: [nginx]
   patterns:
-    - regex: '(?i)add_header\s+Strict-Transport-Security''severity: medium
+    - regex: '(?i)add_header\s+Strict-Transport-Security'
+  severity: medium
   description: "HSTS header missing 'always' directive"
   remediation: "Append 'always' to add_header Strict-Transport-Security"
   cwe: "CWE-319"
@@ -60,7 +66,8 @@
 - id: nginx-x-frame-options
   languages: [nginx]
   patterns:
-    - regex: '(?i)add_header\s+X-Frame-Options''severity: low
+    - regex: '(?i)add_header\s+X-Frame-Options'
+  severity: low
   description: "Check X-Frame-Options value"
   remediation: "Ensure value is SAMEORIGIN or DENY"
   cwe: "CWE-693"
@@ -69,7 +76,8 @@
 - id: nginx-weak-ciphers
   languages: [nginx]
   patterns:
-    - regex: '(?i)ssl_ciphers\s+.*(?:RC4|DES|MD5|EXPORT)''severity: high
+    - regex: '(?i)ssl_ciphers\s+.*(?:RC4|DES|MD5|EXPORT)'
+  severity: high
   description: "Weak SSL/TLS ciphers configured"
   remediation: "Use modern strong cipher suites"
   cwe: "CWE-327"
@@ -78,7 +86,8 @@
 - id: nginx-proxy-set-header-host
   languages: [nginx]
   patterns:
-    - regex: '(?i)proxy_set_header\s+Host\s+\$host''severity: low
+    - regex: '(?i)proxy_set_header\s+Host\s+\$host'
+  severity: low
   description: "Host header passed directly to proxy"
   remediation: "Verify downstream trusts the proxy"
   cwe: "CWE-284"
@@ -87,7 +96,8 @@
 - id: nginx-access-log-off
   languages: [nginx]
   patterns:
-    - regex: '(?i)access_log\s+off''severity: medium
+    - regex: '(?i)access_log\s+off'
+  severity: medium
   description: "Access logging disabled"
   remediation: "Enable access logging for audit trails"
   cwe: "CWE-778"
@@ -96,7 +106,8 @@
 - id: nginx-root-location
   languages: [nginx]
   patterns:
-    - regex: '(?i)location\s+/\s*\{[\s\S]*?root\s+/''severity: medium
+    - regex: '(?i)location\s+/\s*\{[\s\S]*?root\s+/'
+  severity: medium
   description: "Root directive inside location block"
   remediation: "Move root directive to server block"
   cwe: "CWE-20"
@@ -105,7 +116,8 @@
 - id: nginx-autoindex-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*autoindex\s+on\s*;''severity: high
+    - regex: '(?i)^\s*autoindex\s+on\s*;'
+  severity: high
   description: "Directory listing enabled (Information Disclosure)"
   remediation: "Disable autoindex or restrict it to trusted IP addresses."
   cwe: "CWE-548"
@@ -114,7 +126,8 @@
 - id: nginx-server-tokens-on
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*server_tokens\s+(?:on|build|.*(?=.*\d))\s*;''severity: medium
+    - regex: '(?i)^\s*server_tokens\s+(?:on|build|.*(?:.*\d))\s*;'
+  severity: medium
   description: "Server version disclosure enabled"
   remediation: "Set `server_tokens off;` to hide Nginx version details."
   cwe: "CWE-200"
@@ -123,7 +136,8 @@
 - id: nginx-root-location
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*location[\s\S]*?\{\s*\n\s*root\s+''severity: low
+    - regex: '(?i)^\s*location[\s\S]*?\{\s*\n\s*root\s+'
+  severity: low
   description: "Using root inside location block (Path Traversal Risk)"
   remediation: "Use alias instead of root inside location blocks, or define root at the server level."
   cwe: "CWE-22"
@@ -132,7 +146,8 @@
 - id: nginx-alias-trailing-slash
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*location\s+/[\w-]+\s*\{\s*\n\s*alias\s+/[^;\n]+\s*;''severity: high
+    - regex: '(?i)^\s*location\s+/[\w-]+\s*\{\s*\n\s*alias\s+/[^;\n]+\s*;'
+  severity: high
   description: "Alias without trailing slash matching location without trailing slash (LFI risk)"
   remediation: "Ensure both location and alias end with a trailing slash to prevent path traversal."
   cwe: "CWE-22"
@@ -141,7 +156,8 @@
 - id: nginx-allow-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*allow\s+all\s*;''severity: low
+    - regex: '(?i)^\s*allow\s+all\s*;'
+  severity: low
   description: "Explicit allow all directive in block"
   remediation: "Ensure unrestricted access is intended for this specific endpoint."
   cwe: "CWE-284"
@@ -150,7 +166,8 @@
 - id: nginx-allow-private-ips-external
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*allow\s+(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)''severity: medium
+    - regex: '(?i)^\s*allow\s+(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)'
+  severity: medium
   description: "Private IPs allowed (SSRF target validation needed)"
   remediation: "Ensure private IP ranges are intended to access this block if acting as public proxy."
   cwe: "CWE-284"
@@ -159,7 +176,8 @@
 - id: nginx-limit-except-bypass
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*limit_except\s+)''severity: high
+    - regex: '(?i)^\s*limit_except\s+'
+  severity: high
   description: "Improper usage of limit_except allowing bypass"
   remediation: "Define proper method restrictions. Attackers can bypass by using HEAD or OPTIONS."
   cwe: "CWE-653"
@@ -168,7 +186,8 @@
 - id: nginx-ssl-v3-tls-10-11
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*ssl_protocols[\s\S]*?(?:SSLv3|TLSv1\b|TLSv1\.1)''severity: critical
+    - regex: '(?i)^\s*ssl_protocols[\s\S]*?(?:SSLv3|TLSv1\b|TLSv1\.1)'
+  severity: critical
   description: "Insecure SSL/TLS protocols allowed"
   remediation: "Use only TLSv1.2 and TLSv1.3."
   cwe: "CWE-327"
@@ -177,7 +196,8 @@
 - id: nginx-ssl-weak-ciphers
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*ssl_ciphers[\s\S]*?(?:RC4|DES|MD5|aNULL|eNULL|EXPORT|LOW)''severity: high
+    - regex: '(?i)^\s*ssl_ciphers[\s\S]*?(?:RC4|DES|MD5|aNULL|eNULL|EXPORT|LOW)'
+  severity: high
   description: "Weak SSL ciphers configured"
   remediation: "Configure strong, modern cipher suites (e.g., Mozilla intermediate profile)."
   cwe: "CWE-327"
@@ -186,7 +206,8 @@
 - id: nginx-ssl-prefer-server-ciphers
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*ssl_prefer_server_ciphers\s+off\s*;''severity: medium
+    - regex: '(?i)^\s*ssl_prefer_server_ciphers\s+off\s*;'
+  severity: medium
   description: "Server does not enforce cipher preference"
   remediation: "Set `ssl_prefer_server_ciphers on;` to control cipher negotiation."
   cwe: "CWE-319"
@@ -195,7 +216,8 @@
 - id: nginx-missing-dhparam
   languages: [yaml]
   patterns:
-    - regex: '(?i)ssl_certificate''severity: medium
+    - regex: '(?i)ssl_certificate'
+  severity: medium
   description: "Missing custom Diffie-Hellman parameters"
   remediation: "Generate and configure `ssl_dhparam` to protect against Logjam (1024-bit primes)."
   cwe: "CWE-326"
@@ -204,7 +226,8 @@
 - id: nginx-ssl-session-tickets
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*ssl_session_tickets\s+on\s*;''severity: low
+    - regex: '(?i)^\s*ssl_session_tickets\s+on\s*;'
+  severity: low
   description: "SSL session tickets enabled without explicit rotation"
   remediation: "Ensure session ticket keys are rotated or set `ssl_session_tickets off;`."
   cwe: "CWE-320"
@@ -213,7 +236,8 @@
 - id: nginx-missing-hsts
   languages: [yaml]
   patterns:
-    - regex: '(?i)server\s*\{[\s\S]*?''severity: medium
+    - regex: '(?i)server\s*\{[\s\S]*?'
+  severity: medium
   description: "Missing HSTS header in HTTPS server block"
   remediation: "Add `add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;`"
   cwe: "CWE-319"
@@ -222,7 +246,8 @@
 - id: nginx-missing-x-frame-options
   languages: [yaml]
   patterns:
-    - regex: '(?i)server\s*\{[\s\S]*?''severity: medium
+    - regex: '(?i)server\s*\{[\s\S]*?'
+  severity: medium
   description: "Missing X-Frame-Options (Clickjacking protection)"
   remediation: "Add `add_header X-Frame-Options \"SAMEORIGIN\" always;`"
   cwe: "CWE-693"
@@ -231,7 +256,8 @@
 - id: nginx-missing-x-content-type
   languages: [yaml]
   patterns:
-    - regex: '(?i)server\s*\{[\s\S]*?''severity: low
+    - regex: '(?i)server\s*\{[\s\S]*?'
+  severity: low
   description: "Missing X-Content-Type-Options (MIME sniffing protection)"
   remediation: "Add `add_header X-Content-Type-Options \"nosniff\" always;`"
   cwe: "CWE-693"
@@ -240,7 +266,8 @@
 - id: nginx-missing-csp
   languages: [yaml]
   patterns:
-    - regex: '(?i)server\s*\{[\s\S]*?''severity: medium
+    - regex: '(?i)server\s*\{[\s\S]*?'
+  severity: medium
   description: "Missing Content-Security-Policy header"
   remediation: "Implement a strong CSP header to mitigate XSS."
   cwe: "CWE-693"
@@ -249,7 +276,7 @@
 - id: nginx-x-xss-protection
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*add_header\s+X-XSS-Protection\s+(?:"|''')?0(?:"|'')?'
+    - regex: '(?i)^\s*add_header\s+X-XSS-Protection\s+(?:"|'')?0(?:"|'')?'
   severity: low
   description: "X-XSS-Protection header explicitly disabled"
   remediation: "Either remove it (modern browsers ignore it) or set to `1; mode=block` for older legacy browsers."
@@ -259,7 +286,7 @@
 - id: nginx-referrer-policy-unsafe
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*add_header\s+Referrer-Policy\s+(?:"|''')?unsafe-url(?:"|'')?'
+    - regex: '(?i)^\s*add_header\s+Referrer-Policy\s+(?:"|'')?unsafe-url(?:"|'')?'
   severity: high
   description: "Unsafe Referrer-Policy configured"
   remediation: "Use `strict-origin-when-cross-origin` or `no-referrer`."
@@ -269,7 +296,8 @@
 - id: nginx-proxy-pass-variable
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_pass\s+.*\$[\w]+''severity: critical
+    - regex: '(?i)^\s*proxy_pass\s+.*\$[\w]+'
+  severity: critical
   description: "Dynamic proxy_pass using variables (SSRF Vulnerability)"
   remediation: "Hardcode proxy destinations. If dynamic routing is required, validate input against a strict whitelist."
   cwe: "CWE-918"
@@ -278,7 +306,8 @@
 - id: nginx-proxy-set-header-host
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_set_header\s+Host\s+\$host\s*;''severity: low
+    - regex: '(?i)^\s*proxy_set_header\s+Host\s+\$host\s*;'
+  severity: low
   description: "Proxying exact Host header to backend (Host Header Injection risk)"
   remediation: "Validate the `$host` variable or rely on hardcoded backend domain if possible."
   cwe: "CWE-113"
@@ -287,7 +316,8 @@
 - id: nginx-proxy-set-header-real-ip
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_set_header\s+X-Real-IP\s+\$remote_addr\s*;''severity: medium
+    - regex: '(?i)^\s*proxy_set_header\s+X-Real-IP\s+\$remote_addr\s*;'
+  severity: medium
   description: "Proxy passes remote_addr without validating upstream proxies (IP spoofing)"
   remediation: "Ensure `real_ip_header` and `set_real_ip_from` are correctly configured if behind a trusted CDN/WAF."
   cwe: "CWE-346"
@@ -296,7 +326,8 @@
 - id: nginx-fastcgi-pass-variable
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*fastcgi_pass\s+.*\$[\w]+''severity: high
+    - regex: '(?i)^\s*fastcgi_pass\s+.*\$[\w]+'
+  severity: high
   description: "Dynamic fastcgi_pass destination"
   remediation: "Hardcode fastcgi destinations or strictly validate the variable."
   cwe: "CWE-918"
@@ -305,7 +336,8 @@
 - id: nginx-proxy-intercept-errors-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_intercept_errors\s+off\s*;''severity: low
+    - regex: '(?i)^\s*proxy_intercept_errors\s+off\s*;'
+  severity: low
   description: "Custom error pages from backend leak infrastructure details"
   remediation: "Turn `proxy_intercept_errors on;` to serve unified Nginx error pages."
   cwe: "CWE-200"
@@ -314,7 +346,8 @@
 - id: nginx-proxy-ssl-verify-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_ssl_verify\s+off\s*;''severity: critical
+    - regex: '(?i)^\s*proxy_ssl_verify\s+off\s*;'
+  severity: critical
   description: "Downstream TLS verification disabled for proxy"
   remediation: "Enable `proxy_ssl_verify` and provide `proxy_ssl_trusted_certificate`."
   cwe: "CWE-295"
@@ -323,7 +356,8 @@
 - id: nginx-proxy-hide-header-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)proxy_pass[\s\S]*?''severity: low
+    - regex: '(?i)proxy_pass[\s\S]*?'
+  severity: low
   description: "Failing to hide backend server tokens"
   remediation: "Use `proxy_hide_header X-Powered-By;` and `proxy_hide_header Server;`."
   cwe: "CWE-200"
@@ -332,7 +366,8 @@
 - id: nginx-missing-limit-req
   languages: [yaml]
   patterns:
-    - regex: '(?i)server\s*\{[\s\S]*?''severity: medium
+    - regex: '(?i)server\s*\{[\s\S]*?'
+  severity: medium
   description: "Missing request rate limiting (limit_req)"
   remediation: "Configure `limit_req_zone` and apply `limit_req` to vulnerable forms/endpoints to prevent DoS/bruteforce."
   cwe: "CWE-400"
@@ -341,7 +376,8 @@
 - id: nginx-missing-limit-conn
   languages: [yaml]
   patterns:
-    - regex: '(?i)server\s*\{[\s\S]*?''severity: low
+    - regex: '(?i)server\s*\{[\s\S]*?'
+  severity: low
   description: "Missing concurrent connection limiting"
   remediation: "Apply `limit_conn` to prevent excessive connection tying by single IPs."
   cwe: "CWE-400"
@@ -350,7 +386,8 @@
 - id: nginx-large-client-body-size
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*client_max_body_size\s+(?:(?:[5-9]\d|\d{3,})(?:[mM]|[gG])|0)\s*;''severity: high
+    - regex: '(?i)^\s*client_max_body_size\s+(?:(?:[5-9]\d|\d{3,})(?:[mM]|[gG])|0)\s*;'
+  severity: high
   description: "Overly large or infinite client_max_body_size (DoS potential)"
   remediation: "Set an appropriate `client_max_body_size` (e.g., 2M or 10M) based on application upload needs."
   cwe: "CWE-400"
@@ -359,7 +396,8 @@
 - id: nginx-large-buffers
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*large_client_header_buffers\s+\d+\s+(?:[6-9]\d|[1-9]\d{2,})[kK]\s*;''severity: medium
+    - regex: '(?i)^\s*large_client_header_buffers\s+\d+\s+(?:[6-9]\d|[1-9]\d{2,})[kK]\s*;'
+  severity: medium
   description: "Overly large client header buffers"
   remediation: "Reduce large_client_header_buffers to prevent buffer exhaustion attacks."
   cwe: "CWE-400"
@@ -368,7 +406,8 @@
 - id: nginx-timeout-too-long
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*(?:keepalive_timeout|client_body_timeout|client_header_timeout)\s+(?:(?:[6-9]\d)|\d{3,})\s*;''severity: medium
+    - regex: '(?i)^\s*(?:keepalive_timeout|client_body_timeout|client_header_timeout)\s+(?:(?:[6-9]\d)|\d{3,})\s*;'
+  severity: medium
   description: "Excessively long timeouts configured (Slowloris risk)"
   remediation: "Set timeouts to 10-30 seconds to mitigate slow HTTP denial of service attacks."
   cwe: "CWE-400"
@@ -377,7 +416,8 @@
 - id: nginx-lua-code-injection
   languages: [yaml]
   patterns:
-    - regex: '(?i)content_by_lua_block\s*\{[\s\S]*?loadstring\(''severity: critical
+    - regex: '(?i)content_by_lua_block\s*\{[\s\S]*?loadstring\('
+  severity: critical
   description: "Lua block executes dynamic strings (RCE Vulnerability)"
   remediation: "Avoid `loadstring` or `load` with any user-controlled input in Nginx Lua."
   cwe: "CWE-94"
@@ -386,7 +426,8 @@
 - id: nginx-lua-os-execute
   languages: [yaml]
   patterns:
-    - regex: '(?i)content_by_lua(?:_file|_block)?[\s\S]*?os\.execute\(''severity: critical
+    - regex: '(?i)content_by_lua(?:_file|_block)?[\s\S]*?os\.execute\('
+  severity: critical
   description: "Lua block executes OS commands (Command Injection)"
   remediation: "Avoid calling shell commands via Nginx Lua or strictly sanitize input."
   cwe: "CWE-78"
@@ -395,7 +436,8 @@
 - id: nginx-auth-basic-weak
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*auth_basic_user_file\s+.*\.txt\s*;''severity: low
+    - regex: '(?i)^\s*auth_basic_user_file\s+.*\.txt\s*;'
+  severity: low
   description: "Using plain .txt extension for htpasswd (Exposure risk)"
   remediation: "Use .htpasswd convention and ensure the file is blocked from direct HTTP access."
   cwe: "CWE-284"
@@ -404,7 +446,7 @@
 - id: nginx-cors-wildcard
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*add_header\s+Access-Control-Allow-Origin\s+(?:"|''')?\*(?:"|'')?'
+    - regex: '(?i)^\s*add_header\s+Access-Control-Allow-Origin\s+(?:"|'')?\*(?:"|'')?'
   severity: high
   description: "CORS policy allows all origins (*)"
   remediation: "Restrict Access-Control-Allow-Origin to specific trusted domains."
@@ -414,7 +456,8 @@
 - id: nginx-add-header-override
   languages: [yaml]
   patterns:
-    - regex: '(?i)\s*add_header\s+[\s\S]*?\n\s*\w+\s*\{[\s\S]*?add_header\s+''severity: medium
+    - regex: '(?i)\s*add_header\s+[\s\S]*?\n\s*\w+\s*\{[\s\S]*?add_header\s+'
+  severity: medium
   description: "Nested add_header directives override parent block headers"
   remediation: "Remember that `add_header` in a child block clears *all* parent headers. Ensure security headers are duplicated or injected at the correct level."
   cwe: "CWE-693"
@@ -423,7 +466,8 @@
 - id: nginx-if-evil
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*if\s*\(.*\)\s*\{\s*\n\s*(?:proxy_pass|add_header)''severity: medium
+    - regex: '(?i)^\s*if\s*\(.*\)\s*\{\s*\n\s*(?:proxy_pass|add_header)'
+  severity: medium
   description: "Using volatile directives inside Nginx 'if' statements ('If is Evil')"
   remediation: "Avoid using `if` for routing or headers; use specific location blocks or maps."
   cwe: "CWE-115"
@@ -432,7 +476,8 @@
 - id: nginx-default-server-no-ssl
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*listen\s+80\s+default_server''severity: low
+    - regex: '(?i)^\s*listen\s+80\s+default_server'
+  severity: low
   description: "Default server captures port 80 traffic but TLS is not explicitly enforced"
   remediation: "Ensure port 80 defaults immediately return a 301 redirect to HTTPS via a dedicated block."
   cwe: "CWE-319"
@@ -441,7 +486,8 @@
 - id: nginx-stub-status-exposed
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*stub_status\s+on\s*;)''severity: high
+    - regex: '(?i)^\s*stub_status\s+on\s*;'
+  severity: high
   description: "Nginx stub status endpoint exposed publicly"
   remediation: "Restrict access to the stub_status handler using `allow` and `deny all`."
   cwe: "CWE-200"
@@ -450,7 +496,8 @@
 - id: nginx-worker-processes-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*user\s+root\s*;''severity: critical
+    - regex: '(?i)^\s*user\s+root\s*;'
+  severity: critical
   description: "Nginx master and workers running as root user"
   remediation: "Set standard unprivileged user (e.g., `user www-data;`)."
   cwe: "CWE-250"
@@ -459,7 +506,8 @@
 - id: nginx-proxy-pass-host-spoofing
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_pass\s+.*\$http_host''severity: critical
+    - regex: '(?i)^\s*proxy_pass\s+.*\$http_host'
+  severity: critical
   description: "Proxying to user-controlled Host header (SSRF / Routing Bypass)"
   remediation: "Do not use $http_host to build proxy_pass destinations."
   cwe: "CWE-918"
@@ -468,7 +516,8 @@
 - id: nginx-proxy-pass-uri-spoofing
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_pass\s+.*\$request_uri''severity: high
+    - regex: '(?i)^\s*proxy_pass\s+.*\$request_uri'
+  severity: high
   description: "Proxying raw user URI directly (Path Traversal / Protocol Smuggling)"
   remediation: "Let Nginx automatically append the URI or use explicit location blocks."
   cwe: "CWE-918"
@@ -477,7 +526,8 @@
 - id: nginx-rewrite-log-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*rewrite_log\s+on\s*;''severity: medium
+    - regex: '(?i)^\s*rewrite_log\s+on\s*;'
+  severity: medium
   description: "Rewrite log enabled (Information Disclosure)"
   remediation: "Disable `rewrite_log` in production to prevent leaking sensitive routing info to logs."
   cwe: "CWE-532"
@@ -486,7 +536,8 @@
 - id: nginx-access-log-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*access_log\s+off\s*;''severity: high
+    - regex: '(?i)^\s*access_log\s+off\s*;'
+  severity: high
   description: "Access logging is comprehensively disabled"
   remediation: "Enable `access_log` for forensic capabilities and incident response."
   cwe: "CWE-778"
@@ -495,7 +546,8 @@
 - id: nginx-error-log-debug
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*error_log\s+.*\s+debug\s*;''severity: low
+    - regex: '(?i)^\s*error_log\s+.*\s+debug\s*;'
+  severity: low
   description: "Error logging set to debug level"
   remediation: "Reduce error log verbosity in production to warning or error."
   cwe: "CWE-532"
@@ -504,7 +556,8 @@
 - id: nginx-merge-slashes-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*merge_slashes\s+off\s*;''severity: medium
+    - regex: '(?i)^\s*merge_slashes\s+off\s*;'
+  severity: medium
   description: "Merge slashes disabled (WAF / ACL bypass risk)"
   remediation: "Leave `merge_slashes on` (default) so Nginx normalizes `//` to `/` before ACL checks."
   cwe: "CWE-115"
@@ -513,7 +566,8 @@
 - id: nginx-proxy-cookie-domain-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)[\s\S]+proxy_pass''severity: low
+    - regex: '(?i)[\s\S]+proxy_pass'
+  severity: low
   description: "Missing proxy_cookie_domain rewriting"
   remediation: "Ensure cookies sent from backend proxies have their domain rewritten appropriately."
   cwe: "CWE-614"
@@ -522,7 +576,8 @@
 - id: nginx-proxy-cookie-path-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)[\s\S]+proxy_pass''severity: low
+    - regex: '(?i)[\s\S]+proxy_pass'
+  severity: low
   description: "Missing proxy_cookie_path rewriting"
   remediation: "Ensure cookies sent from backend proxies have their path rewritten appropriately."
   cwe: "CWE-614"
@@ -531,7 +586,7 @@
 - id: nginx-add-header-cors-credentials
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*add_header\s+Access-Control-Allow-Credentials\s+(?:"|''')?true(?:"|'')?'
+    - regex: '(?i)^\s*add_header\s+Access-Control-Allow-Credentials\s+(?:"|'')?true(?:"|'')?'
   severity: high
   description: "CORS Allow-Credentials is true"
   remediation: "Ensure this is not paired with a wildcard origin."
@@ -541,7 +596,7 @@
 - id: nginx-add-header-cors-methods-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*add_header\s+Access-Control-Allow-Methods\s+(?:"|''')?\*(?:"|'')?'
+    - regex: '(?i)^\s*add_header\s+Access-Control-Allow-Methods\s+(?:"|'')?\*(?:"|'')?'
   severity: medium
   description: "CORS Allow-Methods permits wildcard"
   remediation: "Explicitly allow only required methods (e.g., GET, POST)."
@@ -551,7 +606,8 @@
 - id: nginx-proxy-buffers-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_buffering\s+off\s*;''severity: low
+    - regex: '(?i)^\s*proxy_buffering\s+off\s*;'
+  severity: low
   description: "Proxy buffering explicitly disabled"
   remediation: "Disabling proxy buffering can expose backend servers to Slowloris attacks."
   cwe: "CWE-400"
@@ -560,7 +616,8 @@
 - id: nginx-proxy-read-timeout-huge
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})''severity: low
+    - regex: '(?i)^\s*proxy_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})'
+  severity: low
   description: "Proxy read timeout is massive"
   remediation: "Reduce proxy_read_timeout to free up Nginx workers from hanging backend requests."
   cwe: "CWE-400"
@@ -569,7 +626,8 @@
 - id: nginx-client-body-temp-path-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*client_body_temp_path\s+/(?:root|etc|var/run)''severity: high
+    - regex: '(?i)^\s*client_body_temp_path\s+/(?:root|etc|var/run)'
+  severity: high
   description: "Temp path points to sensitive OS directory"
   remediation: "Use standard `/var/lib/nginx` or `/tmp` paths for client bodies."
   cwe: "CWE-284"
@@ -578,7 +636,8 @@
 - id: nginx-fastcgi-param-script-filename-spoof
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*fastcgi_param\s+SCRIPT_FILENAME\s+\$request_uri''severity: critical
+    - regex: '(?i)^\s*fastcgi_param\s+SCRIPT_FILENAME\s+\$request_uri'
+  severity: critical
   description: "FastCGI script matches raw URI (RCE risk)"
   remediation: "Use `$document_root$fastcgi_script_name`."
   cwe: "CWE-94"
@@ -587,7 +646,8 @@
 - id: nginx-uwsgi-pass-variable
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*uwsgi_pass\s+.*\$[\w]+''severity: high
+    - regex: '(?i)^\s*uwsgi_pass\s+.*\$[\w]+'
+  severity: high
   description: "Dynamic uwsgi_pass destination"
   remediation: "Hardcode uWSGI destinations to prevent SSRF."
   cwe: "CWE-918"
@@ -596,7 +656,8 @@
 - id: nginx-scgi-pass-variable
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*scgi_pass\s+.*\$[\w]+''severity: high
+    - regex: '(?i)^\s*scgi_pass\s+.*\$[\w]+'
+  severity: high
   description: "Dynamic scgi_pass destination"
   remediation: "Hardcode SCGI destinations to prevent SSRF."
   cwe: "CWE-918"
@@ -605,7 +666,8 @@
 - id: nginx-map-default-vulnerable
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*map\s+\$\S+\s+\$\S+\s*\{\s*\n\s*default\s+\$''severity: medium
+    - regex: '(?i)^\s*map\s+\$\S+\s+\$\S+\s*\{\s*\n\s*default\s+\$'
+  severity: medium
   description: "Map default uses a dynamic variable"
   remediation: "Ensure mapping defaults to a safe, static fallback value."
   cwe: "CWE-115"
@@ -614,7 +676,8 @@
 - id: nginx-gzip-types-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*gzip_types\s+\*''severity: medium
+    - regex: '(?i)^\s*gzip_types\s+\*'
+  severity: medium
   description: "Gzip applied to all types (BREACH attack risk)"
   remediation: "Do not compress sensitive dynamic content (like HTML with CSRF tokens)."
   cwe: "CWE-319"
@@ -623,7 +686,8 @@
 - id: nginx-lua-shared-dict-huge
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*lua_shared_dict\s+\w+\s+(?:[1-9]\d{3,})[mM]''severity: low
+    - regex: '(?i)^\s*lua_shared_dict\s+\w+\s+(?:[1-9]\d{3,})[mM]'
+  severity: low
   description: "Massive Lua shared dictionary allocation"
   remediation: "Ensure server has sufficient RAM to prevent OOM termination."
   cwe: "CWE-400"
@@ -632,7 +696,8 @@
 - id: nginx-x-forwarded-for-trust
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_set_header\s+X-Forwarded-For\s+\$http_x_forwarded_for\s*;''severity: medium
+    - regex: '(?i)^\s*proxy_set_header\s+X-Forwarded-For\s+\$http_x_forwarded_for\s*;'
+  severity: medium
   description: "Blindly trusting client X-Forwarded-For header"
   remediation: "Use `$proxy_add_x_forwarded_for` instead of implicitly trusting `$http_x_forwarded_for`."
   cwe: "CWE-346"
@@ -641,7 +706,8 @@
 - id: nginx-auth-request-no-proxy-pass
   languages: [yaml]
   patterns:
-    - regex: '(?i)auth_request[\s\S]*?''severity: low
+    - regex: '(?i)auth_request[\s\S]*?'
+  severity: low
   description: "auth_request module mapped without upstream proxy"
   remediation: "Ensure the authentication subrequest has a valid internal proxy destination."
   cwe: "CWE-287"
@@ -650,7 +716,8 @@
 - id: nginx-deny-all-bypass
   languages: [yaml]
   patterns:
-    - regex: '(?i)location[\s\S]*?deny\s+all\s*;[\s\S]*?allow\s+all\s*;''severity: high
+    - regex: '(?i)location[\s\S]*?deny\s+all\s*;[\s\S]*?allow\s+all\s*;'
+  severity: high
   description: "Conflicting allow/deny logic"
   remediation: "Nginx processes access rules top-down. Do not place `allow all` after `deny all` if restriction is intended."
   cwe: "CWE-284"
@@ -659,7 +726,8 @@
 - id: nginx-fastcgi-index-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)fastcgi_pass[\s\S]*?''severity: low
+    - regex: '(?i)fastcgi_pass[\s\S]*?'
+  severity: low
   description: "FastCGI index is not explicitly defined"
   remediation: "Define `fastcgi_index index.php;` to ensure directory requests are handled securely."
   cwe: "CWE-284"
@@ -668,7 +736,8 @@
 - id: nginx-return-unvalidated-redirect
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*return\s+30[1-28]\s+.*?\$[\w]+''severity: high
+    - regex: '(?i)^\s*return\s+30[1-28]\s+.*?\$[\w]+'
+  severity: high
   description: "Unvalidated redirect using Nginx return directive"
   remediation: "Using user-controlled variables (like `$args` or `$host`) in a `return 301 http://$host` statement allows open redirects."
   cwe: "CWE-601"
@@ -677,7 +746,8 @@
 - id: nginx-proxy-pass-http-10
   languages: [yaml]
   patterns:
-    - regex: '(?i)proxy_pass[\s\S]*?''severity: medium
+    - regex: '(?i)proxy_pass[\s\S]*?'
+  severity: medium
   description: "Proxying without enforcing HTTP/1.1"
   remediation: "HTTP/1.0 does not support keepalive or Host headers effectively. Use `proxy_http_version 1.1;`."
   cwe: "CWE-16"
@@ -686,7 +756,7 @@
 - id: nginx-auth-basic-on-entire-server
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*server\s*\{[\s\S]*?auth_basic\s+(?:"|''')[^"]+(?:"|'')'
+    - regex: '(?i)^\s*server\s*\{[\s\S]*?auth_basic\s+(?:"|'')[^"]+(?:"|'')'
   severity: low
   description: "Basic authentication enabled server-wide"
   remediation: "Ensure public assets (images, css) are actively whitelisted in sub-locations to preserve performance."
@@ -696,7 +766,8 @@
 - id: nginx-location-regex-case-sensitive
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*location\s+~\s+.*?\.php\$''severity: medium
+    - regex: '(?i)^\s*location\s+~\s+.*?\.php\$'
+  severity: medium
   description: "Case-sensitive regex match for execution handlers"
   remediation: "Use `~*` for case-insensitive matching to prevent attackers from executing `file.PhP` or `file.pHP`."
   cwe: "CWE-434"
@@ -705,7 +776,8 @@
 - id: nginx-try-files-ssrf
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*try_files[\s\S]*?@[\w]+(?:[\s\S]*?proxy_pass)''severity: medium
+    - regex: '(?i)^\s*try_files[\s\S]*?@[\w]+(?:[\s\S]*?proxy_pass)'
+  severity: medium
   description: "Fallback to named location triggers proxy_pass"
   remediation: "Ensure that fallback proxy destinations strictly validate the rewritten URI to prevent internal SSRF."
   cwe: "CWE-918"
@@ -714,7 +786,8 @@
 - id: nginx-large-client-max-body-size-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)http\s*\{[\s\S]*?client_max_body_size\s+(?:(?:[5-9]\d|\d{3,})(?:[mM]|[gG])|0)\s*;''severity: high
+    - regex: '(?i)http\s*\{[\s\S]*?client_max_body_size\s+(?:(?:[5-9]\d|\d{3,})(?:[mM]|[gG])|0)\s*;'
+  severity: high
   description: "Unlimited massive uploads configured globally"
   remediation: "Restrict `client_max_body_size` globally to a low number (e.g. 1M) and actively override it *only* in the specific `location` needing large uploads."
   cwe: "CWE-400"
@@ -723,7 +796,8 @@
 - id: nginx-proxy-set-header-upgrade
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_set_header\s+Upgrade\s+\$http_upgrade''severity: medium
+    - regex: '(?i)^\s*proxy_set_header\s+Upgrade\s+\$http_upgrade'
+  severity: medium
   description: "WebSocket upgrade headers proxied blindly"
   remediation: "Ensure that connection upgrades are strictly authenticated, especially for tools like Docker or K8s dashboards."
   cwe: "CWE-284"
@@ -732,7 +806,8 @@
 - id: nginx-proxy-cache-bypass
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_cache_bypass\s+.*\$[\w]+''severity: medium
+    - regex: '(?i)^\s*proxy_cache_bypass\s+.*\$[\w]+'
+  severity: medium
   description: "Cache bypass controlled by user request variable"
   remediation: "Attackers can spam the bypass variable to DoS the backend. Rate limit aggressively."
   cwe: "CWE-400"
@@ -741,7 +816,8 @@
 - id: nginx-add-header-content-security-policy-report-only
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*add_header\s+Content-Security-Policy-Report-Only''severity: low
+    - regex: '(?i)^\s*add_header\s+Content-Security-Policy-Report-Only'
+  severity: low
   description: "CSP is in Report-Only mode"
   remediation: "Move CSP to enforcing mode in production."
   cwe: "CWE-693"
@@ -750,7 +826,8 @@
 - id: nginx-open-file-cache-inactive
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*open_file_cache\s+.*inactive=(?:(?:[1-9]\d{2,})[smh]?)''severity: low
+    - regex: '(?i)^\s*open_file_cache\s+.*inactive=(?:(?:[1-9]\d{2,})[smh]?)'
+  severity: low
   description: "Open file cache inactive period is too long"
   remediation: "Can lead to serving stale files or memory bloat. Keep inactive under 60 seconds."
   cwe: "CWE-400"
@@ -759,7 +836,8 @@
 - id: nginx-resolver-no-valid
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*resolver\s+(?:8\.8\.8\.8|1\.1\.1\.1)''severity: low
+    - regex: '(?i)^\s*resolver\s+(?:8\.8\.8\.8|1\.1\.1\.1)'
+  severity: low
   description: "DNS resolver lacks cache validation override"
   remediation: "Explicitly set `valid=30s` to prevent long DNS poisoning caching."
   cwe: "CWE-295"
@@ -768,7 +846,8 @@
 - id: nginx-ssl-verify-client-optional
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*ssl_verify_client\s+optional)''severity: high
+    - regex: '(?i)^\s*ssl_verify_client\s+optional'
+  severity: high
   description: "mTLS is optional but client verification success is not explicitly checked"
   remediation: "Check `$ssl_client_verify == SUCCESS` in the routing logic."
   cwe: "CWE-295"
@@ -777,7 +856,8 @@
 - id: nginx-ssl-verify-client-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*ssl_verify_client\s+off''severity: low
+    - regex: '(?i)^\s*ssl_verify_client\s+off'
+  severity: low
   description: "mTLS is explicitly disabled"
   remediation: "Ensure this endpoint does not process high-security traffic requiring mutual authentication."
   cwe: "CWE-287"
@@ -786,7 +866,8 @@
 - id: nginx-ssl-crl-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*ssl_verify_client\s+on''severity: medium
+    - regex: '(?i)^\s*ssl_verify_client\s+on'
+  severity: medium
   description: "mTLS enabled without Certificate Revocation List (CRL)"
   remediation: "Configure `ssl_crl` to ensure compromised client certificates are actively rejected."
   cwe: "CWE-298"
@@ -795,7 +876,8 @@
 - id: nginx-proxy-ssl-server-name
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_ssl_server_name\s+off''severity: medium
+    - regex: '(?i)^\s*proxy_ssl_server_name\s+off'
+  severity: medium
   description: "Backend SNI forwarding disabled"
   remediation: "Set `proxy_ssl_server_name on;` to ensure proper routing on backend TLS termintors."
   cwe: "CWE-295"
@@ -804,7 +886,8 @@
 - id: nginx-sendfile-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*sendfile\s+off\s*;''severity: low
+    - regex: '(?i)^\s*sendfile\s+off\s*;'
+  severity: low
   description: "Kernel sendfile disabled"
   remediation: "Set `sendfile on;` for massive performance improvements in serving static files (DoS mitigation)."
   cwe: "CWE-400"
@@ -813,7 +896,8 @@
 - id: nginx-tcp-nopush-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*tcp_nopush\s+off\s*;''severity: low
+    - regex: '(?i)^\s*tcp_nopush\s+off\s*;'
+  severity: low
   description: "TCP nopush disabled"
   remediation: "Set `tcp_nopush on;` along with `sendfile` to optimize network packets."
   cwe: "CWE-400"
@@ -822,7 +906,8 @@
 - id: nginx-tcp-nodelay-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*tcp_nodelay\s+off\s*;''severity: low
+    - regex: '(?i)^\s*tcp_nodelay\s+off\s*;'
+  severity: low
   description: "TCP nodelay disabled"
   remediation: "Set `tcp_nodelay on;` to process keepalive data immediately."
   cwe: "CWE-400"
@@ -831,7 +916,8 @@
 - id: nginx-grpc-pass-insecure
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*grpc_pass\s+grpc://''severity: high
+    - regex: '(?i)^\s*grpc_pass\s+grpc://'
+  severity: high
   description: "gRPC traffic proxied unencrypted"
   remediation: "Use `grpcs://` to encrypt backend gRPC traffic."
   cwe: "CWE-319"
@@ -840,7 +926,8 @@
 - id: nginx-memcached-pass
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*memcached_pass\s+.*\$[\w]+''severity: high
+    - regex: '(?i)^\s*memcached_pass\s+.*\$[\w]+'
+  severity: high
   description: "Dynamic memcached_pass destination"
   remediation: "Hardcode memcached destinations to prevent SSRF against internal cache servers."
   cwe: "CWE-918"
@@ -849,7 +936,8 @@
 - id: nginx-fastcgi-intercept-errors-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*fastcgi_intercept_errors\s+off''severity: low
+    - regex: '(?i)^\s*fastcgi_intercept_errors\s+off'
+  severity: low
   description: "FastCGI errors pass raw to client"
   remediation: "Set `fastcgi_intercept_errors on;` to handle 500 errors uniformly and prevent framework stack traces from leaking."
   cwe: "CWE-200"
@@ -858,7 +946,7 @@
 - id: nginx-proxy-set-header-connection-upgrade
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*proxy_set_header\s+Connection\s+(?:"|''')?upgrade(?:"|'')?'
+    - regex: '(?i)^\s*proxy_set_header\s+Connection\s+(?:"|'')?upgrade(?:"|'')?'
   severity: medium
   description: "Connection set strictly to upgrade"
   remediation: "Ensure backend supports upgrade safely, or use $http_connection to mirror client."
@@ -868,7 +956,7 @@
 - id: nginx-add-header-x-permitted-cross-domain-policies
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*add_header\s+X-Permitted-Cross-Domain-Policies\s+(?:"|''')?all(?:"|'')?'
+    - regex: '(?i)^\s*add_header\s+X-Permitted-Cross-Domain-Policies\s+(?:"|'')?all(?:"|'')?'
   severity: low
   description: "Cross domain policies completely open"
   remediation: "Set to `none` or `master-only`."
@@ -878,7 +966,8 @@
 - id: nginx-fastcgi-read-timeout-huge
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*fastcgi_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})''severity: low
+    - regex: '(?i)^\s*fastcgi_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})'
+  severity: low
   description: "FastCGI read timeout massive"
   remediation: "Reduce to prevent holding Nginx workers open for dead PHP/CGI processes."
   cwe: "CWE-400"
@@ -887,7 +976,8 @@
 - id: nginx-uwsgi-read-timeout-huge
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*uwsgi_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})''severity: low
+    - regex: '(?i)^\s*uwsgi_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})'
+  severity: low
   description: "uWSGI read timeout massive"
   remediation: "Reduce to prevent holding Nginx workers open for dead Python processes."
   cwe: "CWE-400"
@@ -896,7 +986,8 @@
 - id: nginx-scgi-read-timeout-huge
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*scgi_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})''severity: low
+    - regex: '(?i)^\s*scgi_read_timeout\s+(?:(?:[6-9]\d{2})|\d{4,})'
+  severity: low
   description: "SCGI read timeout massive"
   remediation: "Reduce to prevent hanging workers."
   cwe: "CWE-400"
@@ -905,7 +996,8 @@
 - id: nginx-disable-symlinks-off
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*disable_symlinks\s+off''severity: medium
+    - regex: '(?i)^\s*disable_symlinks\s+off'
+  severity: medium
   description: "Symlink checks disabled"
   remediation: "Set `disable_symlinks on;` to prevent Nginx from serving files outside the intended web root via symlinks."
   cwe: "CWE-284"
@@ -914,7 +1006,8 @@
 - id: nginx-map-hash-bucket-size-huge
   languages: [yaml]
   patterns:
-    - regex: '(?i)^\s*map_hash_bucket_size\s+2048''severity: low
+    - regex: '(?i)^\s*map_hash_bucket_size\s+2048'
+  severity: low
   description: "Map hash bucket size is extremely large"
   remediation: "Keep mapping sizes reasonable to prevent excessive memory allocation overhead per worker."
   cwe: "CWE-400"
@@ -923,7 +1016,8 @@
 - id: nginx-worker-processes-auto
   languages: [nginx]
   patterns:
-    - regex: '(?i)worker_processes\\s+\\d+''severity: low
+    - regex: '(?i)worker_processes\s+\d+'
+  severity: low
   description: "Worker processes set to fixed number"
   remediation: "Use auto for dynamic scaling"
   cwe: "CWE-400"
@@ -933,7 +1027,8 @@
 - id: nginx-keepalive-timeout
   languages: [nginx]
   patterns:
-    - regex: '(?i)keepalive_timeout\\s+\\d+''severity: low
+    - regex: '(?i)keepalive_timeout\s+\d+'
+  severity: low
   description: "Keepalive timeout configuration"
   remediation: "Set appropriate timeout"
   cwe: "CWE-400"
@@ -943,7 +1038,8 @@
 - id: nginx-client-body-buffer-size
   languages: [nginx]
   patterns:
-    - regex: '(?i)client_body_buffer_size\\s+\\d+[kmg]''severity: low
+    - regex: '(?i)client_body_buffer_size\s+\d+[kmg]'
+  severity: low
   description: "Client body buffer size"
   remediation: "Set buffer size appropriately"
   cwe: "CWE-400"
@@ -953,7 +1049,8 @@
 - id: nginx-proxy-buffering
   languages: [nginx]
   patterns:
-    - regex: '(?i)proxy_buffering\\s+off''severity: low
+    - regex: '(?i)proxy_buffering\s+off'
+  severity: low
   description: "Proxy buffering disabled"
   remediation: "Enable buffering for performance"
   cwe: "CWE-400"
@@ -963,7 +1060,8 @@
 - id: nginx-ssl-session-cache
   languages: [nginx]
   patterns:
-    - regex: '(?i)ssl_session_cache\\s+none''severity: medium
+    - regex: '(?i)ssl_session_cache\s+none'
+  severity: medium
   description: "SSL session cache disabled"
   remediation: "Enable SSL session cache"
   cwe: "CWE-295"

@@ -4,7 +4,8 @@
   description: "Using raw SQL strings with user input in where() or execute() leads to SQL Injection."
   severity: "high"
   patterns:
-    - regex: 'where\\s*\\(\".*?#[{].*?}.*?\"\\)''cwe: "CWE-89"
+    - regex: 'where\s*\(\\\".*?#[{].*?}.*?\\\"\)'
+  cwe: "CWE-89"
   owasp: "A03:2021-Injection"
 
 - id: rails-html-safe
@@ -12,7 +13,8 @@
   description: "Calling html_safe on user-controlled data bypasses XSS protection."
   severity: "high"
   patterns:
-    - regex: 'params\\[.*?\\]\\.html_safe''cwe: "CWE-79"
+    - regex: 'params\[.*?\]\.html_safe'
+  cwe: "CWE-79"
   owasp: "A03:2021-Injection"
 
 - id: rails-mass-assignment
@@ -20,7 +22,8 @@
   description: "Bypassing strong parameters by directly passing params to update or create can allow mass assignment."
   severity: "medium"
   patterns:
-    - regex: '\\.update\\(params\\[.*?\\]\\)''cwe: "CWE-915"
+    - regex: '\.update\(params\[.*?\]\)'
+  cwe: "CWE-915"
   owasp: "A08:2021-Software and Data Integrity Failures"
 
 # ============================================================================
@@ -33,7 +36,8 @@
 - id: rails-ar-unsafe-find-by
   languages: [ruby]
   patterns:
-    - regex: 'find_by\\s*\\(\\s*params\\[''severity: high
+    - regex: 'find_by\s*\(\s*params\['
+  severity: high
   description: "Unsafe find_by with params may allow IDOR"
   remediation: "Scope to current_user: current_user.posts.find_by(params)"
   cwe: "CWE-639"
@@ -42,7 +46,8 @@
 - id: rails-ar-unsafe-first
   languages: [ruby]
   patterns:
-    - regex: 'first\\s*\\(\\s*params\\[''severity: high
+    - regex: 'first\s*\(\s*params\['
+  severity: high
   description: "Unsafe first with params"
   remediation: "Validate and scope query"
   cwe: "CWE-639"
@@ -51,7 +56,8 @@
 - id: rails-ar-unsafe-last
   languages: [ruby]
   patterns:
-    - regex: 'last\\s*\\(\\s*params\\[''severity: high
+    - regex: 'last\s*\(\s*params\['
+  severity: high
   description: "Unsafe last with params"
   remediation: "Validate and scope query"
   cwe: "CWE-639"
@@ -60,7 +66,8 @@
 - id: rails-ar-unsafe-take
   languages: [ruby]
   patterns:
-    - regex: 'take\\s*\\(\\s*params\\[''severity: high
+    - regex: 'take\s*\(\s*params\['
+  severity: high
   description: "Unsafe take with params"
   remediation: "Validate and scope query"
   cwe: "CWE-639"
@@ -69,7 +76,8 @@
 - id: rails-ar-unsafe-pluck
   languages: [ruby]
   patterns:
-    - regex: 'pluck\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'pluck\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe pluck with user column name"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -78,7 +86,8 @@
 - id: rails-ar-unsafe-select
   languages: [ruby]
   patterns:
-    - regex: 'select\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'select\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe select with user column name"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -87,7 +96,8 @@
 - id: rails-ar-unsafe-order
   languages: [ruby]
   patterns:
-    - regex: 'order\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'order\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe order with user column name"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -96,7 +106,8 @@
 - id: rails-ar-unsafe-group
   languages: [ruby]
   patterns:
-    - regex: 'group\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'group\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe group with user column name"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -105,7 +116,8 @@
 - id: rails-ar-unsafe-having
   languages: [ruby]
   patterns:
-    - regex: 'having\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'having\s*\(\s*params\['
+  severity: critical
   description: "Unsafe having with params"
   remediation: "Use parameterized having"
   cwe: "CWE-89"
@@ -114,7 +126,8 @@
 - id: rails-ar-unsafe-joins
   languages: [ruby]
   patterns:
-    - regex: 'joins\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'joins\s*\(\s*params\['
+  severity: critical
   description: "Unsafe joins with params"
   remediation: "Use explicit joins"
   cwe: "CWE-89"
@@ -123,7 +136,8 @@
 - id: rails-ar-unsafe-from
   languages: [ruby]
   patterns:
-    - regex: 'from\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'from\s*\(\s*params\['
+  severity: critical
   description: "Unsafe from with params"
   remediation: "Never use params in from"
   cwe: "CWE-89"
@@ -132,7 +146,8 @@
 - id: rails-ar-unsafe-lock
   languages: [ruby]
   patterns:
-    - regex: 'lock\\s*\\(\\s*params\\[''severity: high
+    - regex: 'lock\s*\(\s*params\['
+  severity: high
   description: "Unsafe lock with params"
   remediation: "Use explicit lock modes"
   cwe: "CWE-89"
@@ -141,7 +156,8 @@
 - id: rails-ar-unsafe-reorder
   languages: [ruby]
   patterns:
-    - regex: 'reorder\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'reorder\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe reorder with params"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -150,7 +166,8 @@
 - id: rails-ar-unsafe-reselect
   languages: [ruby]
   patterns:
-    - regex: 'reselect\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'reselect\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe reselect with params"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -159,7 +176,8 @@
 - id: rails-ar-unsafe-merge
   languages: [ruby]
   patterns:
-    - regex: 'merge\\s*\\(\\s*params\\[''severity: high
+    - regex: 'merge\s*\(\s*params\['
+  severity: high
   description: "Unsafe merge with params"
   remediation: "Validate merge scope"
   cwe: "CWE-89"
@@ -168,7 +186,8 @@
 - id: rails-ar-unsafe-rewhere
   languages: [ruby]
   patterns:
-    - regex: 'rewhere\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'rewhere\s*\(\s*params\['
+  severity: critical
   description: "Unsafe rewhere with params"
   remediation: "Use parameterized where"
   cwe: "CWE-89"
@@ -177,7 +196,8 @@
 - id: rails-ar-unsafe-or
   languages: [ruby]
   patterns:
-    - regex: 'or\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'or\s*\(\s*params\['
+  severity: critical
   description: "Unsafe or with params"
   remediation: "Use parameterized or"
   cwe: "CWE-89"
@@ -186,7 +206,8 @@
 - id: rails-ar-unsafe-not
   languages: [ruby]
   patterns:
-    - regex: 'not\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'not\s*\(\s*params\['
+  severity: critical
   description: "Unsafe not with params"
   remediation: "Use parameterized not"
   cwe: "CWE-89"
@@ -195,7 +216,8 @@
 - id: rails-ar-unsafe-exists
   languages: [ruby]
   patterns:
-    - regex: 'exists\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'exists\s*\(\s*params\['
+  severity: critical
   description: "Unsafe exists with params"
   remediation: "Use parameterized exists"
   cwe: "CWE-89"
@@ -204,7 +226,8 @@
 - id: rails-ar-unsafe-count
   languages: [ruby]
   patterns:
-    - regex: 'count\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'count\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe count with user column"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -213,7 +236,8 @@
 - id: rails-ar-unsafe-average
   languages: [ruby]
   patterns:
-    - regex: 'average\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'average\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe average with user column"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -222,7 +246,8 @@
 - id: rails-ar-unsafe-minimum
   languages: [ruby]
   patterns:
-    - regex: 'minimum\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'minimum\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe minimum with user column"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -231,7 +256,8 @@
 - id: rails-ar-unsafe-maximum
   languages: [ruby]
   patterns:
-    - regex: 'maximum\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'maximum\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe maximum with user column"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -240,7 +266,8 @@
 - id: rails-ar-unsafe-sum
   languages: [ruby]
   patterns:
-    - regex: 'sum\\s*\\(\\s*params\\[:.*\\]\\s*\\)''severity: high
+    - regex: 'sum\s*\(\s*params\[:.*\]\s*\)'
+  severity: high
   description: "Unsafe sum with user column"
   remediation: "Whitelist allowed columns"
   cwe: "CWE-89"
@@ -249,7 +276,8 @@
 - id: rails-ar-unsafe-calculate
   languages: [ruby]
   patterns:
-    - regex: 'calculate\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'calculate\s*\(\s*params\['
+  severity: critical
   description: "Unsafe calculate with params"
   remediation: "Whitelist allowed operations"
   cwe: "CWE-89"
@@ -258,7 +286,8 @@
 - id: rails-ar-unsafe-delete-by
   languages: [ruby]
   patterns:
-    - regex: 'delete_by\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'delete_by\s*\(\s*params\['
+  severity: critical
   description: "Unsafe delete_by with params"
   remediation: "Scope and validate before delete"
   cwe: "CWE-89"
@@ -267,7 +296,8 @@
 - id: rails-ar-unsafe-destroy-by
   languages: [ruby]
   patterns:
-    - regex: 'destroy_by\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'destroy_by\s*\(\s*params\['
+  severity: critical
   description: "Unsafe destroy_by with params"
   remediation: "Scope and validate before destroy"
   cwe: "CWE-89"
@@ -276,7 +306,8 @@
 - id: rails-ar-unsafe-update-all
   languages: [ruby]
   patterns:
-    - regex: 'update_all\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'update_all\s*\(\s*params\['
+  severity: critical
   description: "Unsafe update_all with params"
   remediation: "Whitelist allowed attributes"
   cwe: "CWE-89"
@@ -285,7 +316,8 @@
 - id: rails-ar-unsafe-delete-all
   languages: [ruby]
   patterns:
-    - regex: 'delete_all\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'delete_all\s*\(\s*params\['
+  severity: critical
   description: "Unsafe delete_all with params"
   remediation: "Scope before delete_all"
   cwe: "CWE-89"
@@ -294,7 +326,8 @@
 - id: rails-ar-unsafe-destroy-all
   languages: [ruby]
   patterns:
-    - regex: 'destroy_all\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'destroy_all\s*\(\s*params\['
+  severity: critical
   description: "Unsafe destroy_all with params"
   remediation: "Scope before destroy_all"
   cwe: "CWE-89"
@@ -304,7 +337,8 @@
 - id: rails-controller-skip-before-action
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*verify_authenticity_token''severity: high
+    - regex: 'skip_before_action\s*:\s*verify_authenticity_token'
+  severity: high
   description: "CSRF protection disabled"
   remediation: "Remove skip_before_action for verify_authenticity_token"
   cwe: "CWE-352"
@@ -313,7 +347,8 @@
 - id: rails-controller-skip-verify-origin
   languages: [ruby]
   patterns:
-    - regex: 'skip_verify_origin\\s*\\(''severity: high
+    - regex: 'skip_verify_origin\s*\('
+  severity: high
   description: "Origin verification disabled"
   remediation: "Keep origin verification enabled"
   cwe: "CWE-346"
@@ -322,7 +357,8 @@
 - id: rails-controller-allow-iframe
   languages: [ruby]
   patterns:
-    - regex: 'allow_iframe\\s*\\(''severity: medium
+    - regex: 'allow_iframe\s*\('
+  severity: medium
   description: "Iframe embedding allowed"
   remediation: "Use X-Frame-Options: DENY"
   cwe: "CWE-1021"
@@ -331,7 +367,8 @@
 - id: rails-controller-send-file-params
   languages: [ruby]
   patterns:
-    - regex: 'send_file\\s*\\(\\s*params\\[''severity: high
+    - regex: 'send_file\s*\(\s*params\['
+  severity: high
   description: "send_file with user-controlled path"
   remediation: "Validate file paths against allowlist"
   cwe: "CWE-22"
@@ -340,7 +377,8 @@
 - id: rails-controller-send-data-params
   languages: [ruby]
   patterns:
-    - regex: 'send_data\\s*\\(\\s*params\\[''severity: high
+    - regex: 'send_data\s*\(\s*params\['
+  severity: high
   description: "send_data with user-controlled content"
   remediation: "Validate data source"
   cwe: "CWE-200"
@@ -349,7 +387,8 @@
 - id: rails-controller-redirect-to-params
   languages: [ruby]
   patterns:
-    - regex: 'redirect_to\\s*\\(\\s*params\\[''severity: high
+    - regex: 'redirect_to\s*\(\s*params\['
+  severity: high
   description: "redirect_to with user-controlled URL"
   remediation: "Validate redirect URLs against allowlist"
   cwe: "CWE-601"
@@ -358,7 +397,8 @@
 - id: rails-controller-redirect-back-unsafe
   languages: [ruby]
   patterns:
-    - regex: 'redirect_back\\s*\\(\\s*fallback_location:\\s*params\\[''severity: high
+    - regex: 'redirect_back\s*\(\s*fallback_location:\s*params\['
+  severity: high
   description: "redirect_back with unsafe fallback"
   remediation: "Use safe fallback location"
   cwe: "CWE-601"
@@ -367,7 +407,8 @@
 - id: rails-controller-render-inline-params
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+inline:\\s*params\\[''severity: critical
+    - regex: 'render\s+inline:\s*params\['
+  severity: critical
   description: "render inline with user input"
   remediation: "Never render inline with user data"
   cwe: "CWE-1336"
@@ -376,7 +417,8 @@
 - id: rails-controller-render-text-params
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+text:\\s*params\\[''severity: high
+    - regex: 'render\s+text:\s*params\['
+  severity: high
   description: "render text with user input"
   remediation: "Escape user input"
   cwe: "CWE-79"
@@ -385,7 +427,8 @@
 - id: rails-controller-render-json-params
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+json:\\s*params\\[''severity: medium
+    - regex: 'render\s+json:\s*params\['
+  severity: medium
   description: "render json with all params"
   remediation: "Filter sensitive fields"
   cwe: "CWE-200"
@@ -394,7 +437,8 @@
 - id: rails-controller-render-xml-params
   languages: [ruby]
   patterns:
-    - regex: 'render\\s+xml:\\s*params\\[''severity: high
+    - regex: 'render\s+xml:\s*params\['
+  severity: high
   description: "render xml with user input"
   remediation: "Validate XML content"
   cwe: "CWE-611"
@@ -403,7 +447,8 @@
 - id: rails-controller-headers-params
   languages: [ruby]
   patterns:
-    - regex: 'headers\\s*\\[\\s*params\\[''severity: high
+    - regex: 'headers\s*\[\s*params\['
+  severity: high
   description: "Setting headers with params"
   remediation: "Validate header names and values"
   cwe: "CWE-113"
@@ -412,7 +457,8 @@
 - id: rails-controller-cookies-params
   languages: [ruby]
   patterns:
-    - regex: 'cookies\\s*\\[\\s*params\\[''severity: high
+    - regex: 'cookies\s*\[\s*params\['
+  severity: high
   description: "Setting cookies with params"
   remediation: "Validate cookie names"
   cwe: "CWE-614"
@@ -421,7 +467,8 @@
 - id: rails-controller-session-params
   languages: [ruby]
   patterns:
-    - regex: 'session\\s*\\[\\s*params\\[''severity: high
+    - regex: 'session\s*\[\s*params\['
+  severity: high
   description: "Setting session with params"
   remediation: "Validate session keys"
   cwe: "CWE-384"
@@ -430,7 +477,8 @@
 - id: rails-controller-flash-params
   languages: [ruby]
   patterns:
-    - regex: 'flash\\s*\\[\\s*params\\[''severity: medium
+    - regex: 'flash\s*\[\s*params\['
+  severity: medium
   description: "Setting flash with params"
   remediation: "Validate flash keys"
   cwe: "CWE-79"
@@ -439,7 +487,8 @@
 - id: rails-controller-before-action-params
   languages: [ruby]
   patterns:
-    - regex: 'before_action\\s*:\\s*params\\[''severity: high
+    - regex: 'before_action\s*:\s*params\['
+  severity: high
   description: "before_action with dynamic method"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -448,7 +497,8 @@
 - id: rails-controller-around-action-params
   languages: [ruby]
   patterns:
-    - regex: 'around_action\\s*:\\s*params\\[''severity: high
+    - regex: 'around_action\s*:\s*params\['
+  severity: high
   description: "around_action with dynamic method"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -457,7 +507,8 @@
 - id: rails-controller-after-action-params
   languages: [ruby]
   patterns:
-    - regex: 'after_action\\s*:\\s*params\\[''severity: high
+    - regex: 'after_action\s*:\s*params\['
+  severity: high
   description: "after_action with dynamic method"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -466,7 +517,8 @@
 - id: rails-controller-rescue-from-params
   languages: [ruby]
   patterns:
-    - regex: 'rescue_from\\s*\\s*params\\[''severity: high
+    - regex: 'rescue_from\s*\s*params\['
+  severity: high
   description: "rescue_from with dynamic exception"
   remediation: "Use explicit exception classes"
   cwe: "CWE-94"
@@ -475,7 +527,8 @@
 - id: rails-controller-helper-method-params
   languages: [ruby]
   patterns:
-    - regex: 'helper_method\\s*:\\s*params\\[''severity: high
+    - regex: 'helper_method\s*:\s*params\['
+  severity: high
   description: "helper_method with dynamic method"
   remediation: "Use explicit method names"
   cwe: "CWE-94"
@@ -484,7 +537,8 @@
 - id: rails-controller-layout-params
   languages: [ruby]
   patterns:
-    - regex: 'layout\\s*:\\s*params\\[''severity: high
+    - regex: 'layout\s*:\s*params\['
+  severity: high
   description: "layout with dynamic name"
   remediation: "Use explicit layout names"
   cwe: "CWE-94"
@@ -493,7 +547,8 @@
 - id: rails-controller-skip-layout
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*set_layout''severity: low
+    - regex: 'skip_before_action\s*:\s*set_layout'
+  severity: low
   description: "Layout setting skipped"
   remediation: "Ensure layout is set properly"
   cwe: "CWE-693"
@@ -502,7 +557,8 @@
 - id: rails-controller-skip-verification
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*authenticate_user!''severity: high
+    - regex: 'skip_before_action\s*:\s*authenticate_user!'
+  severity: high
   description: "Authentication skipped"
   remediation: "Remove skip for authentication"
   cwe: "CWE-306"
@@ -511,7 +567,8 @@
 - id: rails-controller-skip-authorization
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*authorize_user''severity: high
+    - regex: 'skip_before_action\s*:\s*authorize_user'
+  severity: high
   description: "Authorization skipped"
   remediation: "Remove skip for authorization"
   cwe: "CWE-284"
@@ -520,7 +577,8 @@
 - id: rails-controller-skip-rate-limit
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*rate_limit''severity: medium
+    - regex: 'skip_before_action\s*:\s*rate_limit'
+  severity: medium
   description: "Rate limiting skipped"
   remediation: "Keep rate limiting enabled"
   cwe: "CWE-770"
@@ -529,7 +587,8 @@
 - id: rails-controller-skip-audit
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*audit_action''severity: medium
+    - regex: 'skip_before_action\s*:\s*audit_action'
+  severity: medium
   description: "Audit logging skipped"
   remediation: "Keep audit logging enabled"
   cwe: "CWE-778"
@@ -538,7 +597,8 @@
 - id: rails-controller-skip-cors
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*verify_cors''severity: medium
+    - regex: 'skip_before_action\s*:\s*verify_cors'
+  severity: medium
   description: "CORS verification skipped"
   remediation: "Keep CORS verification enabled"
   cwe: "CWE-942"
@@ -547,7 +607,8 @@
 - id: rails-controller-skip-content-type
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*verify_content_type''severity: medium
+    - regex: 'skip_before_action\s*:\s*verify_content_type'
+  severity: medium
   description: "Content type verification skipped"
   remediation: "Keep content type verification"
   cwe: "CWE-20"
@@ -556,7 +617,8 @@
 - id: rails-controller-skip-file-size
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*verify_file_size''severity: medium
+    - regex: 'skip_before_action\s*:\s*verify_file_size'
+  severity: medium
   description: "File size verification skipped"
   remediation: "Keep file size limits"
   cwe: "CWE-770"
@@ -565,7 +627,8 @@
 - id: rails-controller-skip-sanitize
   languages: [ruby]
   patterns:
-    - regex: 'skip_before_action\\s*:\\s*sanitize_params''severity: high
+    - regex: 'skip_before_action\s*:\s*sanitize_params'
+  severity: high
   description: "Parameter sanitization skipped"
   remediation: "Keep parameter sanitization"
   cwe: "CWE-20"
@@ -575,7 +638,8 @@
 - id: rails-view-raw-output
   languages: [ruby]
   patterns:
-    - regex: '<%=\\s*raw\\s*\\(''severity: high
+    - regex: '<%=\s*raw\s*\('
+  severity: high
   description: "Raw output in view"
   remediation: "Avoid raw() with user input"
   cwe: "CWE-79"
@@ -584,7 +648,8 @@
 - id: rails-view-html-safe
   languages: [ruby]
   patterns:
-    - regex: '\\.html_safe''severity: high
+    - regex: '\.html_safe'
+  severity: high
   description: "html_safe bypasses escaping"
   remediation: "Only use on trusted content"
   cwe: "CWE-79"
@@ -593,7 +658,8 @@
 - id: rails-view-content-tag-raw
   languages: [ruby]
   patterns:
-    - regex: 'content_tag\\s*\\([^,]+,\\s*params\\[''severity: high
+    - regex: 'content_tag\s*\([^,]+,\s*params\[\]'
+  severity: high
   description: "content_tag with user content"
   remediation: "Escape content properly"
   cwe: "CWE-79"
@@ -602,7 +668,8 @@
 - id: rails-view-link-to-params
   languages: [ruby]
   patterns:
-    - regex: 'link_to\\s*\\([^,]+,\\s*params\\[''severity: high
+    - regex: 'link_to\s*\([^,]+,\s*params\[\]'
+  severity: high
   description: "link_to with user URL"
   remediation: "Validate URLs"
   cwe: "CWE-601"
@@ -611,7 +678,8 @@
 - id: rails-view-image-tag-params
   languages: [ruby]
   patterns:
-    - regex: 'image_tag\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'image_tag\s*\(\s*params\['
+  severity: medium
   description: "image_tag with user source"
   remediation: "Validate image sources"
   cwe: "CWE-20"
@@ -620,7 +688,8 @@
 - id: rails-view-javascript-tag-params
   languages: [ruby]
   patterns:
-    - regex: 'javascript_tag\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'javascript_tag\s*\(\s*params\['
+  severity: critical
   description: "javascript_tag with user input"
   remediation: "Never use with user input"
   cwe: "CWE-79"
@@ -629,7 +698,8 @@
 - id: rails-view-stylesheet-link-tag-params
   languages: [ruby]
   patterns:
-    - regex: 'stylesheet_link_tag\\s*\\(\\s*params\\[''severity: high
+    - regex: 'stylesheet_link_tag\s*\(\s*params\['
+  severity: high
   description: "stylesheet_link_tag with user input"
   remediation: "Validate stylesheet paths"
   cwe: "CWE-20"
@@ -638,7 +708,8 @@
 - id: rails-view-javascript-include-tag-params
   languages: [ruby]
   patterns:
-    - regex: 'javascript_include_tag\\s*\\(\\s*params\\[''severity: critical
+    - regex: 'javascript_include_tag\s*\(\s*params\['
+  severity: critical
   description: "javascript_include_tag with user input"
   remediation: "Never use with user input"
   cwe: "CWE-79"
@@ -647,7 +718,8 @@
 - id: rails-view-form-tag-params
   languages: [ruby]
   patterns:
-    - regex: 'form_tag\\s*\\(\\s*params\\[''severity: high
+    - regex: 'form_tag\s*\(\s*params\['
+  severity: high
   description: "form_tag with user action"
   remediation: "Validate form actions"
   cwe: "CWE-601"
@@ -656,7 +728,8 @@
 - id: rails-view-form-for-params
   languages: [ruby]
   patterns:
-    - regex: 'form_for\\s*\\(\\s*params\\[''severity: high
+    - regex: 'form_for\s*\(\s*params\['
+  severity: high
   description: "form_for with user model"
   remediation: "Validate model class"
   cwe: "CWE-94"
@@ -665,7 +738,8 @@
 - id: rails-view-fields-for-params
   languages: [ruby]
   patterns:
-    - regex: 'fields_for\\s*\\(\\s*params\\[''severity: high
+    - regex: 'fields_for\s*\(\s*params\['
+  severity: high
   description: "fields_for with user input"
   remediation: "Validate field names"
   cwe: "CWE-20"
@@ -674,7 +748,8 @@
 - id: rails-view-text-field-params
   languages: [ruby]
   patterns:
-    - regex: 'text_field\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'text_field\s*\(\s*params\['
+  severity: medium
   description: "text_field with user value"
   remediation: "Validate field values"
   cwe: "CWE-20"
@@ -683,7 +758,8 @@
 - id: rails-view-password-field-params
   languages: [ruby]
   patterns:
-    - regex: 'password_field\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'password_field\s*\(\s*params\['
+  severity: medium
   description: "password_field with user value"
   remediation: "Validate field values"
   cwe: "CWE-20"
@@ -692,7 +768,8 @@
 - id: rails-view-hidden-field-params
   languages: [ruby]
   patterns:
-    - regex: 'hidden_field\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'hidden_field\s*\(\s*params\['
+  severity: medium
   description: "hidden_field with user value"
   remediation: "Validate hidden field values"
   cwe: "CWE-20"
@@ -701,7 +778,8 @@
 - id: rails-view-check-box-params
   languages: [ruby]
   patterns:
-    - regex: 'check_box\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'check_box\s*\(\s*params\['
+  severity: medium
   description: "check_box with user value"
   remediation: "Validate checkbox values"
   cwe: "CWE-20"
@@ -710,7 +788,8 @@
 - id: rails-view-radio-button-params
   languages: [ruby]
   patterns:
-    - regex: 'radio_button\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'radio_button\s*\(\s*params\['
+  severity: medium
   description: "radio_button with user value"
   remediation: "Validate radio values"
   cwe: "CWE-20"
@@ -719,7 +798,8 @@
 - id: rails-view-select-params
   languages: [ruby]
   patterns:
-    - regex: 'select\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'select\s*\(\s*params\['
+  severity: medium
   description: "select with user options"
   remediation: "Validate select options"
   cwe: "CWE-20"
@@ -728,7 +808,8 @@
 - id: rails-view-collection-select-params
   languages: [ruby]
   patterns:
-    - regex: 'collection_select\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'collection_select\s*\(\s*params\['
+  severity: medium
   description: "collection_select with user collection"
   remediation: "Validate collection source"
   cwe: "CWE-20"
@@ -737,7 +818,8 @@
 - id: rails-view-grouped-collection-select-params
   languages: [ruby]
   patterns:
-    - regex: 'grouped_collection_select\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'grouped_collection_select\s*\(\s*params\['
+  severity: medium
   description: "grouped_collection_select with user data"
   remediation: "Validate grouped data"
   cwe: "CWE-20"
@@ -746,7 +828,8 @@
 - id: rails-view-time-zone-select-params
   languages: [ruby]
   patterns:
-    - regex: 'time_zone_select\\s*\\(\\s*params\\[''severity: low
+    - regex: 'time_zone_select\s*\(\s*params\['
+  severity: low
   description: "time_zone_select with user value"
   remediation: "Validate timezone values"
   cwe: "CWE-20"
@@ -755,7 +838,8 @@
 - id: rails-view-date-select-params
   languages: [ruby]
   patterns:
-    - regex: 'date_select\\s*\\(\\s*params\\[''severity: low
+    - regex: 'date_select\s*\(\s*params\['
+  severity: low
   description: "date_select with user value"
   remediation: "Validate date values"
   cwe: "CWE-20"
@@ -764,7 +848,8 @@
 - id: rails-view-datetime-select-params
   languages: [ruby]
   patterns:
-    - regex: 'datetime_select\\s*\\(\\s*params\\[''severity: low
+    - regex: 'datetime_select\s*\(\s*params\['
+  severity: low
   description: "datetime_select with user value"
   remediation: "Validate datetime values"
   cwe: "CWE-20"
@@ -773,7 +858,8 @@
 - id: rails-view-time-select-params
   languages: [ruby]
   patterns:
-    - regex: 'time_select\\s*\\(\\s*params\\[''severity: low
+    - regex: 'time_select\s*\(\s*params\['
+  severity: low
   description: "time_select with user value"
   remediation: "Validate time values"
   cwe: "CWE-20"
@@ -782,7 +868,8 @@
 - id: rails-view-file-field-params
   languages: [ruby]
   patterns:
-    - regex: 'file_field\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'file_field\s*\(\s*params\['
+  severity: medium
   description: "file_field with user value"
   remediation: "Validate file uploads"
   cwe: "CWE-434"
@@ -791,7 +878,8 @@
 - id: rails-view-color-field-params
   languages: [ruby]
   patterns:
-    - regex: 'color_field\\s*\\(\\s*params\\[''severity: low
+    - regex: 'color_field\s*\(\s*params\['
+  severity: low
   description: "color_field with user value"
   remediation: "Validate color values"
   cwe: "CWE-20"
@@ -800,7 +888,8 @@
 - id: rails-view-search-field-params
   languages: [ruby]
   patterns:
-    - regex: 'search_field\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'search_field\s*\(\s*params\['
+  severity: medium
   description: "search_field with user value"
   remediation: "Validate search input"
   cwe: "CWE-20"
@@ -809,7 +898,8 @@
 - id: rails-view-telephone-field-params
   languages: [ruby]
   patterns:
-    - regex: 'telephone_field\\s*\\(\\s*params\\[''severity: low
+    - regex: 'telephone_field\s*\(\s*params\['
+  severity: low
   description: "telephone_field with user value"
   remediation: "Validate phone values"
   cwe: "CWE-20"
@@ -818,7 +908,8 @@
 - id: rails-view-email-field-params
   languages: [ruby]
   patterns:
-    - regex: 'email_field\\s*\\(\\s*params\\[''severity: low
+    - regex: 'email_field\s*\(\s*params\['
+  severity: low
   description: "email_field with user value"
   remediation: "Validate email values"
   cwe: "CWE-20"
@@ -827,7 +918,8 @@
 - id: rails-view-url-field-params
   languages: [ruby]
   patterns:
-    - regex: 'url_field\\s*\\(\\s*params\\[''severity: medium
+    - regex: 'url_field\s*\(\s*params\['
+  severity: medium
   description: "url_field with user value"
   remediation: "Validate URL values"
   cwe: "CWE-20"
@@ -836,7 +928,8 @@
 - id: rails-view-number-field-params
   languages: [ruby]
   patterns:
-    - regex: 'number_field\\s*\\(\\s*params\\[''severity: low
+    - regex: 'number_field\s*\(\s*params\['
+  severity: low
   description: "number_field with user value"
   remediation: "Validate number values"
   cwe: "CWE-20"
@@ -846,7 +939,8 @@
 - id: rails-model-validate-format-unsafe
   languages: [ruby]
   patterns:
-    - regex: 'validates.*format:\\s*/.*\\.\\*/''severity: medium
+    - regex: 'validates.*format:\s*/.*\.\*/'
+  severity: medium
   description: "Overly permissive format validation"
   remediation: "Use specific format patterns"
   cwe: "CWE-20"
@@ -855,7 +949,8 @@
 - id: rails-model-validate-length-unbounded
   languages: [ruby]
   patterns:
-    - regex: 'validates.*length:\\s*\\{[^}]*maximum:\\s*99999''severity: low
+    - regex: 'validates.*length:\s*\{[^}]*maximum:\s*99999'
+  severity: low
   description: "Very high maximum length"
   remediation: "Set reasonable length limits"
   cwe: "CWE-770"
@@ -864,7 +959,8 @@
 - id: rails-model-validate-numericality-no-range
   languages: [ruby]
   patterns:
-    - regex: 'validates.*numericality:\\s*true''severity: medium
+    - regex: 'validates.*numericality:\s*true'
+  severity: medium
   description: "Numericality without range"
   remediation: "Add range constraints"
   cwe: "CWE-20"
@@ -873,7 +969,8 @@
 - id: rails-model-validate-inclusion-all
   languages: [ruby]
   patterns:
-    - regex: 'validates.*inclusion:\\s*\\{[^}]*in:\\s*\\(0\\.\\.''severity: medium
+    - regex: 'validates.*inclusion:\s*\{[^}]*in:\s*\(0\.\.'
+  severity: medium
   description: "Very broad inclusion validation"
   remediation: "Use specific allowed values"
   cwe: "CWE-20"
@@ -882,7 +979,8 @@
 - id: rails-model-validate-exclusion-none
   languages: [ruby]
   patterns:
-    - regex: 'validates.*exclusion:\\s*\\{[^}]*in:\\s*\\[\\s*\\]''severity: medium
+    - regex: 'validates.*exclusion:\s*\{[^}]*in:\s*\[\s*\]'
+  severity: medium
   description: "Empty exclusion validation"
   remediation: "Specify values to exclude"
   cwe: "CWE-20"
@@ -891,7 +989,8 @@
 - id: rails-model-validate-presence-conditional
   languages: [ruby]
   patterns:
-    - regex: 'validates.*presence:\\s*true.*if:\\s*false''severity: low
+    - regex: 'validates.*presence:\s*true.*if:\s*false'
+  severity: low
   description: "Presence validation disabled"
   remediation: "Review conditional logic"
   cwe: "CWE-20"
@@ -900,7 +999,8 @@
 - id: rails-model-validate-uniqueness-no-scope
   languages: [ruby]
   patterns:
-    - regex: 'validates.*uniqueness:\\s*true''severity: medium
+    - regex: 'validates.*uniqueness:\s*true'
+  severity: medium
   description: "Uniqueness without scope"
   remediation: "Add scope for multi-tenant"
   cwe: "CWE-284"
@@ -909,7 +1009,8 @@
 - id: rails-model-validate-confirmation-disabled
   languages: [ruby]
   patterns:
-    - regex: 'validates.*password.*confirmation:\\s*false''severity: medium
+    - regex: 'validates.*password.*confirmation:\s*false'
+  severity: medium
   description: "Password confirmation disabled"
   remediation: "Enable confirmation"
   cwe: "CWE-521"
@@ -918,7 +1019,8 @@
 - id: rails-model-validate-acceptance-missing
   languages: [ruby]
   patterns:
-    - regex: 'validates.*terms.*acceptance:\\s*false''severity: low
+    - regex: 'validates.*terms.*acceptance:\s*false'
+  severity: low
   description: "Terms acceptance not validated"
   remediation: "Require acceptance"
   cwe: "CWE-284"
@@ -927,7 +1029,8 @@
 - id: rails-model-validate-comparison-missing
   languages: [ruby]
   patterns:
-    - regex: 'validates.*comparison:\\s*\\{[^}]*greater_than:\\s*0''severity: low
+    - regex: 'validates.*comparison:\s*\{[^}]*greater_than:\s*0'
+  severity: low
   description: "Comparison boundary issue"
   remediation: "Consider inclusive boundary"
   cwe: "CWE-20"
@@ -936,7 +1039,8 @@
 - id: rails-model-callback-validate-params
   languages: [ruby]
   patterns:
-    - regex: 'validate\\s*:\\s*params\\[''severity: high
+    - regex: 'validate\s*:\s*params\['
+  severity: high
   description: "Validation callback with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -945,7 +1049,8 @@
 - id: rails-model-callback-before-validation-params
   languages: [ruby]
   patterns:
-    - regex: 'before_validation\\s*:\\s*params\\[''severity: high
+    - regex: 'before_validation\s*:\s*params\['
+  severity: high
   description: "before_validation with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -954,7 +1059,8 @@
 - id: rails-model-callback-after-validation-params
   languages: [ruby]
   patterns:
-    - regex: 'after_validation\\s*:\\s*params\\[''severity: high
+    - regex: 'after_validation\s*:\s*params\['
+  severity: high
   description: "after_validation with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -963,7 +1069,8 @@
 - id: rails-model-callback-before-save-params
   languages: [ruby]
   patterns:
-    - regex: 'before_save\\s*:\\s*params\\[''severity: high
+    - regex: 'before_save\s*:\s*params\['
+  severity: high
   description: "before_save with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -972,7 +1079,8 @@
 - id: rails-model-callback-after-save-params
   languages: [ruby]
   patterns:
-    - regex: 'after_save\\s*:\\s*params\\[''severity: high
+    - regex: 'after_save\s*:\s*params\['
+  severity: high
   description: "after_save with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -981,7 +1089,8 @@
 - id: rails-model-callback-before-create-params
   languages: [ruby]
   patterns:
-    - regex: 'before_create\\s*:\\s*params\\[''severity: high
+    - regex: 'before_create\s*:\s*params\['
+  severity: high
   description: "before_create with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -990,7 +1099,8 @@
 - id: rails-model-callback-after-create-params
   languages: [ruby]
   patterns:
-    - regex: 'after_create\\s*:\\s*params\\[''severity: high
+    - regex: 'after_create\s*:\s*params\['
+  severity: high
   description: "after_create with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -999,7 +1109,8 @@
 - id: rails-model-callback-before-update-params
   languages: [ruby]
   patterns:
-    - regex: 'before_update\\s*:\\s*params\\[''severity: high
+    - regex: 'before_update\s*:\s*params\['
+  severity: high
   description: "before_update with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1008,7 +1119,8 @@
 - id: rails-model-callback-after-update-params
   languages: [ruby]
   patterns:
-    - regex: 'after_update\\s*:\\s*params\\[''severity: high
+    - regex: 'after_update\s*:\s*params\['
+  severity: high
   description: "after_update with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1017,7 +1129,8 @@
 - id: rails-model-callback-before-destroy-params
   languages: [ruby]
   patterns:
-    - regex: 'before_destroy\\s*:\\s*params\\[''severity: high
+    - regex: 'before_destroy\s*:\s*params\['
+  severity: high
   description: "before_destroy with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1026,7 +1139,8 @@
 - id: rails-model-callback-after-destroy-params
   languages: [ruby]
   patterns:
-    - regex: 'after_destroy\\s*:\\s*params\\[''severity: high
+    - regex: 'after_destroy\s*:\s*params\['
+  severity: high
   description: "after_destroy with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1035,7 +1149,8 @@
 - id: rails-model-callback-around-save-params
   languages: [ruby]
   patterns:
-    - regex: 'around_save\\s*:\\s*params\\[''severity: high
+    - regex: 'around_save\s*:\s*params\['
+  severity: high
   description: "around_save with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1044,7 +1159,8 @@
 - id: rails-model-callback-around-create-params
   languages: [ruby]
   patterns:
-    - regex: 'around_create\\s*:\\s*params\\[''severity: high
+    - regex: 'around_create\s*:\s*params\['
+  severity: high
   description: "around_create with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1053,7 +1169,8 @@
 - id: rails-model-callback-around-update-params
   languages: [ruby]
   patterns:
-    - regex: 'around_update\\s*:\\s*params\\[''severity: high
+    - regex: 'around_update\s*:\s*params\['
+  severity: high
   description: "around_update with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1062,7 +1179,8 @@
 - id: rails-model-callback-around-destroy-params
   languages: [ruby]
   patterns:
-    - regex: 'around_destroy\\s*:\\s*params\\[''severity: high
+    - regex: 'around_destroy\s*:\s*params\['
+  severity: high
   description: "around_destroy with params"
   remediation: "Use explicit callback names"
   cwe: "CWE-94"
@@ -1071,7 +1189,8 @@
 - id: rails-model-serialize-unsafe
   languages: [ruby]
   patterns:
-    - regex: 'serialize\\s*:\\s*params\\[''severity: high
+    - regex: 'serialize\s*:\s*params\['
+  severity: high
   description: "serialize with dynamic type"
   remediation: "Use explicit serializer"
   cwe: "CWE-502"
@@ -1080,7 +1199,8 @@
 - id: rails-model-store-unsafe
   languages: [ruby]
   patterns:
-    - regex: 'store\\s*:\\s*params\\[''severity: high
+    - regex: 'store\s*:\s*params\['
+  severity: high
   description: "store with dynamic accessors"
   remediation: "Use explicit accessors"
   cwe: "CWE-20"
@@ -1089,7 +1209,8 @@
 - id: rails-model-enum-unsafe
   languages: [ruby]
   patterns:
-    - regex: 'enum\\s*:\\s*params\\[''severity: high
+    - regex: 'enum\s*:\s*params\['
+  severity: high
   description: "enum with dynamic values"
   remediation: "Use explicit enum values"
   cwe: "CWE-20"
@@ -1098,7 +1219,8 @@
 - id: rails-model-has-many-through-params
   languages: [ruby]
   patterns:
-    - regex: 'has_many\\s*:\\s*params\\[''severity: high
+    - regex: 'has_many\s*:\s*params\['
+  severity: high
   description: "has_many with dynamic name"
   remediation: "Use explicit association names"
   cwe: "CWE-94"
@@ -1107,7 +1229,8 @@
 - id: rails-model-belongs-to-params
   languages: [ruby]
   patterns:
-    - regex: 'belongs_to\\s*:\\s*params\\[''severity: high
+    - regex: 'belongs_to\s*:\s*params\['
+  severity: high
   description: "belongs_to with dynamic name"
   remediation: "Use explicit association names"
   cwe: "CWE-94"
@@ -1117,7 +1240,7 @@
 - id: rails-config-secret-key-base-short
   languages: [ruby]
   patterns:
-    - regex: 'secret_key_base\\s*=\\s*['''\"][a-zA-Z0-9]{8,32}[''\"]'
+    - regex: 'secret_key_base\s*=\s*[''\\\"][a-zA-Z0-9]{8,32}[''\\\"]'
   severity: high
   description: "Weak secret_key_base"
   remediation: "Use 64+ character secret"
@@ -1127,7 +1250,8 @@
 - id: rails-config-debug-assertions-true
   languages: [ruby]
   patterns:
-    - regex: 'config\\.debug_assertions\\s*=\\s*true''severity: medium
+    - regex: 'config\.debug_assertions\s*=\s*true'
+  severity: medium
   description: "Debug assertions enabled"
   remediation: "Disable in production"
   cwe: "CWE-489"
@@ -1136,7 +1260,8 @@
 - id: rails-config-cache-classes-false
   languages: [ruby]
   patterns:
-    - regex: 'config\\.cache_classes\\s*=\\s*false''severity: medium
+    - regex: 'config\.cache_classes\s*=\s*false'
+  severity: medium
   description: "Class caching disabled"
   remediation: "Enable in production"
   cwe: "CWE-489"
@@ -1145,7 +1270,8 @@
 - id: rails-config-eager-load-false
   languages: [ruby]
   patterns:
-    - regex: 'config\\.eager_load\\s*=\\s*false''severity: low
+    - regex: 'config\.eager_load\s*=\s*false'
+  severity: low
   description: "Eager loading disabled"
   remediation: "Enable in production"
   cwe: "CWE-693"
@@ -1154,7 +1280,8 @@
 - id: rails-config-consider-all-requests-local
   languages: [ruby]
   patterns:
-    - regex: 'config\\.consider_all_requests_local\\s*=\\s*true''severity: high
+    - regex: 'config\.consider_all_requests_local\s*=\s*true'
+  severity: high
   description: "All requests considered local"
   remediation: "Disable in production"
   cwe: "CWE-209"
@@ -1163,7 +1290,8 @@
 - id: rails-config-action-controller-permit-all-origins
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_controller\\.default_protect_from_forgery\\s*=\\s*false''severity: high
+    - regex: 'config\.action_controller\.default_protect_from_forgery\s*=\s*false'
+  severity: high
   description: "CSRF protection disabled globally"
   remediation: "Enable CSRF protection"
   cwe: "CWE-352"
@@ -1172,7 +1300,8 @@
 - id: rails-config-action-mailer-default-url-options
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_mailer\\.default_url_options.*http://''severity: medium
+    - regex: 'config\.action_mailer\.default_url_options.*http://'
+  severity: medium
   description: "Mailer using HTTP URLs"
   remediation: "Use HTTPS for mailer URLs"
   cwe: "CWE-319"
@@ -1181,7 +1310,8 @@
 - id: rails-config-active-record-encryption-deterministic
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_record\\.encryption\\.deterministic_key''severity: medium
+    - regex: 'config\.active_record\.encryption\.deterministic_key'
+  severity: medium
   description: "Deterministic encryption key"
   remediation: "Use proper key management"
   cwe: "CWE-321"
@@ -1190,7 +1320,8 @@
 - id: rails-config-active-record-encryption-key-derivation-salt
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_record\\.encryption\\.key_derivation_salt''severity: medium
+    - regex: 'config\.active_record\.encryption\.key_derivation_salt'
+  severity: medium
   description: "Encryption key derivation salt"
   remediation: "Use secure random salt"
   cwe: "CWE-330"
@@ -1199,7 +1330,8 @@
 - id: rails-config-active-record-encryption-primary-key
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_record\\.encryption\\.primary_key''severity: high
+    - regex: 'config\.active_record\.encryption\.primary_key'
+  severity: high
   description: "Encryption primary key in config"
   remediation: "Use environment variable"
   cwe: "CWE-798"
@@ -1208,7 +1340,7 @@
 - id: rails-config-active-storage-service
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.service\\s*=\\s*[:''']local[:'']'
+    - regex: 'config\.active_storage\.service\s*=\s*[:'']local[:'']'
   severity: low
   description: "Active Storage using local service"
   remediation: "Consider cloud storage for production"
@@ -1218,7 +1350,8 @@
 - id: rails-config-active-storage-direct-uploads
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.direct_uploads''severity: low
+    - regex: 'config\.active_storage\.direct_uploads'
+  severity: low
   description: "Direct uploads enabled"
   remediation: "Ensure proper validation"
   cwe: "CWE-434"
@@ -1227,7 +1360,8 @@
 - id: rails-config-active-storage-analyze-later
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.analyze_later''severity: low
+    - regex: 'config\.active_storage\.analyze_later'
+  severity: low
   description: "Async analysis enabled"
   remediation: "Ensure proper queue setup"
   cwe: "CWE-693"
@@ -1236,7 +1370,8 @@
 - id: rails-config-active-storage-purge-jobs
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.purge_jobs''severity: low
+    - regex: 'config\.active_storage\.purge_jobs'
+  severity: low
   description: "Purge jobs configuration"
   remediation: "Ensure proper cleanup"
   cwe: "CWE-693"
@@ -1245,7 +1380,8 @@
 - id: rails-config-active-storage-content-types-to-serve-as-binary
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.content_types_to_serve_as_binary''severity: low
+    - regex: 'config\.active_storage\.content_types_to_serve_as_binary'
+  severity: low
   description: "Binary content types config"
   remediation: "Review allowed content types"
   cwe: "CWE-693"
@@ -1254,7 +1390,8 @@
 - id: rails-config-active-storage-content-types-to-strip-parameters-from
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.content_types_to_strip_parameters_from''severity: low
+    - regex: 'config\.active_storage\.content_types_to_strip_parameters_from'
+  severity: low
   description: "Content type parameter stripping"
   remediation: "Review stripped parameters"
   cwe: "CWE-693"
@@ -1263,7 +1400,8 @@
 - id: rails-config-active-storage-variant-processor
   languages: [ruby]
   patterns:
-    - regex: 'config\\.active_storage\\.variant_processor''severity: low
+    - regex: 'config\.active_storage\.variant_processor'
+  severity: low
   description: "Variant processor config"
   remediation: "Ensure secure image processing"
   cwe: "CWE-693"
@@ -1272,7 +1410,8 @@
 - id: rails-config-action-text-content-security-policy
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_text\\.content_security_policy''severity: low
+    - regex: 'config\.action_text\.content_security_policy'
+  severity: low
   description: "Action Text CSP config"
   remediation: "Configure CSP properly"
   cwe: "CWE-79"
@@ -1281,7 +1420,8 @@
 - id: rails-config-action-mailbox-incineration-days
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_mailbox\\.incineration_days''severity: low
+    - regex: 'config\.action_mailbox\.incineration_days'
+  severity: low
   description: "Mailbox incineration days"
   remediation: "Set appropriate retention"
   cwe: "CWE-693"
@@ -1290,7 +1430,8 @@
 - id: rails-config-action-mailbox-incineration-date-column
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_mailbox\\.incineration_date_column''severity: low
+    - regex: 'config\.action_mailbox\.incineration_date_column'
+  severity: low
   description: "Mailbox incineration column"
   remediation: "Ensure proper column setup"
   cwe: "CWE-693"
@@ -1299,7 +1440,8 @@
 - id: rails-config-action-cable-allowed-request-origin
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.allowed_request_origin''severity: low
+    - regex: 'config\.action_cable\.allowed_request_origin'
+  severity: low
   description: "Action Cable allowed origins"
   remediation: "Configure allowed origins"
   cwe: "CWE-346"
@@ -1308,7 +1450,8 @@
 - id: rails-config-action-cable-disable-request-forgery-protection
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.disable_request_forgery_protection''severity: high
+    - regex: 'config\.action_cable\.disable_request_forgery_protection'
+  severity: high
   description: "Action Cable CSRF disabled"
   remediation: "Enable CSRF protection"
   cwe: "CWE-352"
@@ -1317,7 +1460,8 @@
 - id: rails-config-action-cable-mount-path
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.mount_path''severity: low
+    - regex: 'config\.action_cable\.mount_path'
+  severity: low
   description: "Action Cable mount path"
   remediation: "Review mount path"
   cwe: "CWE-693"
@@ -1326,7 +1470,8 @@
 - id: rails-config-action-cable-url
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.url''severity: low
+    - regex: 'config\.action_cable\.url'
+  severity: low
   description: "Action Cable URL"
   remediation: "Use secure WebSocket URL"
   cwe: "CWE-319"
@@ -1335,7 +1480,8 @@
 - id: rails-config-action-cable-worker-queue-adapter
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.worker_queue_adapter''severity: low
+    - regex: 'config\.action_cable\.worker_queue_adapter'
+  severity: low
   description: "Action Cable worker adapter"
   remediation: "Configure appropriate adapter"
   cwe: "CWE-693"
@@ -1344,7 +1490,8 @@
 - id: rails-config-action-cable-execution-strategy
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.execution_strategy''severity: low
+    - regex: 'config\.action_cable\.execution_strategy'
+  severity: low
   description: "Action Cable execution strategy"
   remediation: "Review execution strategy"
   cwe: "CWE-693"
@@ -1353,7 +1500,8 @@
 - id: rails-config-action-cable-mount-server
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.mount_server''severity: low
+    - regex: 'config\.action_cable\.mount_server'
+  severity: low
   description: "Action Cable mount server"
   remediation: "Configure server properly"
   cwe: "CWE-693"
@@ -1362,7 +1510,8 @@
 - id: rails-config-action-cable-allowed-request-origins
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.allowed_request_origins''severity: low
+    - regex: 'config\.action_cable\.allowed_request_origins'
+  severity: low
   description: "Action Cable allowed origins"
   remediation: "Configure allowed origins"
   cwe: "CWE-346"
@@ -1371,7 +1520,8 @@
 - id: rails-config-action-cable-enable-logging
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.enable_logging''severity: low
+    - regex: 'config\.action_cable\.enable_logging'
+  severity: low
   description: "Action Cable logging"
   remediation: "Review logging configuration"
   cwe: "CWE-532"
@@ -1380,7 +1530,8 @@
 - id: rails-config-action-cable-log-tags
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.log_tags''severity: low
+    - regex: 'config\.action_cable\.log_tags'
+  severity: low
   description: "Action Cable log tags"
   remediation: "Review log tags"
   cwe: "CWE-532"
@@ -1389,7 +1540,8 @@
 - id: rails-config-action-cable-logger
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.logger''severity: low
+    - regex: 'config\.action_cable\.logger'
+  severity: low
   description: "Action Cable logger"
   remediation: "Configure logger properly"
   cwe: "CWE-532"
@@ -1398,7 +1550,8 @@
 - id: rails-config-action-cable-async-adapter
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.async_adapter''severity: low
+    - regex: 'config\.action_cable\.async_adapter'
+  severity: low
   description: "Action Cable async adapter"
   remediation: "Configure async adapter"
   cwe: "CWE-693"
@@ -1407,7 +1560,8 @@
 - id: rails-config-action-cable-redis-url
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.url''severity: medium
+    - regex: 'config\.action_cable\.redis\.url'
+  severity: medium
   description: "Action Cable Redis URL"
   remediation: "Secure Redis connection"
   cwe: "CWE-319"
@@ -1416,7 +1570,8 @@
 - id: rails-config-action-cable-redis-ssl-params
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.ssl_params''severity: medium
+    - regex: 'config\.action_cable\.redis\.ssl_params'
+  severity: medium
   description: "Action Cable Redis SSL params"
   remediation: "Configure SSL properly"
   cwe: "CWE-326"
@@ -1425,7 +1580,8 @@
 - id: rails-config-action-cable-redis-channel-prefix
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.channel_prefix''severity: low
+    - regex: 'config\.action_cable\.redis\.channel_prefix'
+  severity: low
   description: "Action Cable Redis channel prefix"
   remediation: "Review channel prefix"
   cwe: "CWE-693"
@@ -1434,7 +1590,8 @@
 - id: rails-config-action-cable-redis-driver
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.driver''severity: low
+    - regex: 'config\.action_cable\.redis\.driver'
+  severity: low
   description: "Action Cable Redis driver"
   remediation: "Review Redis driver"
   cwe: "CWE-693"
@@ -1443,7 +1600,8 @@
 - id: rails-config-action-cable-redis-pubsub-adapter
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.pubsub_adapter''severity: low
+    - regex: 'config\.action_cable\.redis\.pubsub_adapter'
+  severity: low
   description: "Action Cable Redis pubsub adapter"
   remediation: "Review pubsub adapter"
   cwe: "CWE-693"
@@ -1452,7 +1610,8 @@
 - id: rails-config-action-cable-redis-subscription-adapter
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.subscription_adapter''severity: low
+    - regex: 'config\.action_cable\.redis\.subscription_adapter'
+  severity: low
   description: "Action Cable Redis subscription adapter"
   remediation: "Review subscription adapter"
   cwe: "CWE-693"
@@ -1461,7 +1620,8 @@
 - id: rails-config-action-cable-redis-message-broker
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.message_broker''severity: low
+    - regex: 'config\.action_cable\.redis\.message_broker'
+  severity: low
   description: "Action Cable Redis message broker"
   remediation: "Review message broker"
   cwe: "CWE-693"
@@ -1470,7 +1630,8 @@
 - id: rails-config-action-cable-redis-connection-pool
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.connection_pool''severity: low
+    - regex: 'config\.action_cable\.redis\.connection_pool'
+  severity: low
   description: "Action Cable Redis connection pool"
   remediation: "Review connection pool"
   cwe: "CWE-693"
@@ -1479,7 +1640,8 @@
 - id: rails-config-action-cable-redis-size
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.size''severity: low
+    - regex: 'config\.action_cable\.redis\.size'
+  severity: low
   description: "Action Cable Redis pool size"
   remediation: "Review pool size"
   cwe: "CWE-693"
@@ -1488,7 +1650,8 @@
 - id: rails-config-action-cable-redis-timeout
   languages: [ruby]
   patterns:
-    - regex: 'config\\.action_cable\\.redis\\.timeout''severity: low
+    - regex: 'config\.action_cable\.redis\.timeout'
+  severity: low
   description: "Action Cable Redis timeout"
   remediation: "Review timeout setting"
   cwe: "CWE-693"

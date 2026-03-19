@@ -124,7 +124,11 @@ func StartWebServer(port int) {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			utils.LogError("Web server failed", err)
+			if strings.Contains(err.Error(), "address already in use") {
+				utils.LogError(fmt.Sprintf("Port %d is already in use. Please stop the other process or use a different port with: ./qwen-scanner --port <new-port>", port), err)
+			} else {
+				utils.LogError("Web server failed", err)
+			}
 		}
 	}()
 
@@ -279,7 +283,7 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-// GET /api/scan/:id/findings?phase=static|ai|final
+	// GET /api/scan/:id/findings?phase=static|ai|final
 	if len(parts) >= 2 && parts[1] == "findings" {
 		phase := r.URL.Query().Get("phase")
 		var findings []reporter.Finding
@@ -481,11 +485,15 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 func handleModels(w http.ResponseWriter, r *http.Request) {
 	setCORS(w)
 
-	appSettings.RLock()
-	ai.SetOllamaHost(appSettings.OllamaHost)
-	appSettings.RUnlock()
+	// Allow optional host parameter to fetch models from a different Ollama instance
+	host := r.URL.Query().Get("host")
+	if host == "" {
+		appSettings.RLock()
+		host = appSettings.OllamaHost
+		appSettings.RUnlock()
+	}
 
-	models := ai.GetInstalledModels()
+	models := ai.GetInstalledModels(host)
 	if models == nil {
 		models = []string{}
 	}

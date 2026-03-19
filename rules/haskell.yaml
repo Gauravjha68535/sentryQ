@@ -1,7 +1,8 @@
 - id: haskell-unsafe-perform-io
   languages: [haskell]
   patterns:
-    - regex: '(?i)unsafePerformIO''severity: high
+    - regex: '(?i)unsafePerformIO'
+  severity: high
   description: "Unsafe IO operation"
   remediation: "Avoid unsafePerformIO"
   cwe: "CWE-676"
@@ -11,7 +12,8 @@
 - id: haskell-system-cmd
   languages: [haskell]
   patterns:
-    - regex: '(?i)System\\.Process\\.callCommand|System\\.Cmd\\.system''severity: critical
+    - regex: '(?i)System\.Process\.callCommand|System\.Cmd\.system'
+  severity: critical
   description: "OS command execution"
   remediation: "Validate arguments or use callProcess"
   cwe: "CWE-78"
@@ -21,7 +23,8 @@
 - id: haskell-sql-concat
   languages: [haskell]
   patterns:
-    - regex: '(?i)execute.*\\+\\+|query.*\\+\\+''severity: critical
+    - regex: '(?i)execute.*\+\+|query.*\+\+'
+  severity: critical
   description: "SQL injection via concatenation"
   remediation: "Use prepared statements (? placeholders)"
   cwe: "CWE-89"
@@ -31,7 +34,8 @@
 - id: haskell-hardcoded-secret
   languages: [haskell]
   patterns:
-    - regex: '(?i)(?:password|secret|key)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
+    - regex: '(?i)(?:password|secret|key)\s*=\s*\\"[a-zA-Z0-9_-]{12,}\\"'
+  severity: high
   description: "Hardcoded secret"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -41,7 +45,8 @@
 - id: haskell-read-file
   languages: [haskell]
   patterns:
-    - regex: '(?i)readFile|ByteString\\.readFile''severity: medium
+    - regex: '(?i)readFile|ByteString\.readFile'
+  severity: medium
   description: "File read"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -51,7 +56,8 @@
 - id: haskell-unsafe-coerce
   languages: [haskell]
   patterns:
-    - regex: '(?i)unsafeCoerce''severity: medium
+    - regex: '(?i)unsafeCoerce'
+  severity: medium
   description: "Unsafe type coercion"
   remediation: "Avoid unsafeCoerce"
   cwe: "CWE-843"
@@ -61,7 +67,8 @@
 - id: haskell-network-tls-insecure
   languages: [haskell]
   patterns:
-    - regex: '(?i)settingDisableCertificateValidation\\s*=\\s*True''severity: high
+    - regex: '(?i)settingDisableCertificateValidation\s*=\s*True'
+  severity: high
   description: "SSL validation disabled"
   remediation: "Enable SSL validation"
   cwe: "CWE-295"
@@ -71,7 +78,8 @@
 - id: haskell-md5
   languages: [haskell]
   patterns:
-    - regex: '(?i)hash.*MD5|import.*Crypto\\.Hash\\.MD5''severity: medium
+    - regex: '(?i)hash.*MD5|import.*Crypto\.Hash\.MD5'
+  severity: medium
   description: "Weak MD5 hash"
   remediation: "Use SHA256"
   cwe: "CWE-328"
@@ -81,7 +89,8 @@
 - id: haskell-yaml-decode-throw
   languages: [haskell]
   patterns:
-    - regex: '(?i)Data\\.Yaml\\.decodeThrow''severity: medium
+    - regex: '(?i)Data\.Yaml\.decodeThrow'
+  severity: medium
   description: "YAML decode throw"
   remediation: "Handle parse errors safely"
   cwe: "CWE-502"
@@ -91,7 +100,8 @@
 - id: haskell-random-io
   languages: [haskell]
   patterns:
-    - regex: '(?i)randomIO|randomRIO''severity: low
+    - regex: '(?i)randomIO|randomRIO'
+  severity: low
   description: "Weak PRNG"
   remediation: "Use cryptographically secure PRNG for secrets"
   cwe: "CWE-330"
@@ -101,7 +111,8 @@
 - id: haskell-template-injection
   languages: [haskell]
   patterns:
-    - regex: '(?i)templateHaskell|TH\\.runQ''severity: high
+    - regex: '(?i)templateHaskell|TH\.runQ'
+  severity: high
   description: "Template Haskell code execution"
   remediation: "Avoid TH with untrusted input"
   cwe: "CWE-94"
@@ -111,7 +122,8 @@
 - id: haskell-ssrf
   languages: [haskell]
   patterns:
-    - regex: '(?i)httpLBS\\s*\\(.*\\$|simpleHttp\\s*\\(.*url''severity: high
+    - regex: '(?i)httpLBS\s*\(.*\$|simpleHttp\s*\(.*url'
+  severity: high
   description: "Potential SSRF via HTTP request"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -121,7 +133,8 @@
 - id: haskell-path-traversal
   languages: [haskell]
   patterns:
-    - regex: '(?i)writeFile\\s*\\(.*\\$|readFile\\s*\\(.*\\$''severity: high
+    - regex: '(?i)writeFile\s*\(.*\$|readFile\s*\(.*\$'
+  severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -131,7 +144,8 @@
 - id: haskell-weak-cipher
   languages: [haskell]
   patterns:
-    - regex: '(?i)cipher.*DES|encrypt.*DES|crypto.*MD5''severity: medium
+    - regex: '(?i)cipher.*DES|encrypt.*DES|crypto.*MD5'
+  severity: medium
   description: "Weak cryptographic algorithm"
   remediation: "Use AES-256 or modern ciphers"
   cwe: "CWE-327"
@@ -141,7 +155,8 @@
 - id: haskell-command-injection
   languages: [haskell]
   patterns:
-    - regex: '(?i)callCommand\\s*\\(.*\\$|shellCmd\\s*\\(.*\\$''severity: critical
+    - regex: '(?i)callCommand\s*\(.*\$|shellCmd\s*\(.*\$'
+  severity: critical
   description: "Command injection via shell command"
   remediation: "Use callProcess with separate arguments"
   cwe: "CWE-78"
@@ -151,7 +166,8 @@
 - id: haskell-serialization
   languages: [haskell]
   patterns:
-    - regex: '(?i)Data\\.Serialize\\.decode|read\\s*\\(.*deriving''severity: high
+    - regex: '(?i)Data\.Serialize\.decode|read\s*\(.*deriving'
+  severity: high
   description: "Unsafe deserialization"
   remediation: "Use JSON or safe serializers"
   cwe: "CWE-502"
@@ -161,7 +177,8 @@
 - id: haskell-xss
   languages: [haskell]
   patterns:
-    - regex: '(?i)blaze-html.*unsafe|String.*toHtml.*\\$''severity: high
+    - regex: '(?i)blaze-html.*unsafe|String.*toHtml.*\$'
+  severity: high
   description: "Potential XSS via HTML rendering"
   remediation: "Sanitize HTML output"
   cwe: "CWE-79"
@@ -171,7 +188,8 @@
 - id: haskell-ldap
   languages: [haskell]
   patterns:
-    - regex: '(?i)ldapSearch\\s*\\(.*\\$|ldapFilter\\s*\\(.*\\$''severity: high
+    - regex: '(?i)ldapSearch\s*\(.*\$|ldapFilter\s*\(.*\$'
+  severity: high
   description: "LDAP injection vulnerability"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -181,7 +199,8 @@
 - id: haskell-path-traversal
   languages: [haskell]
   patterns:
-    - regex: '(?i)writeFile\\s*\\(.*\\$|readFile\\s*\\(.*\\$''severity: high
+    - regex: '(?i)writeFile\s*\(.*\$|readFile\s*\(.*\$'
+  severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -191,7 +210,8 @@
 - id: haskell-xxe
   languages: [haskell]
   patterns:
-    - regex: '(?i)Text\\.XML\\.parseLBS.*dtd|Xeno\\.parse.*dtd''severity: high
+    - regex: '(?i)Text\.XML\.parseLBS.*dtd|Xeno\.parse.*dtd'
+  severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing"
   cwe: "CWE-611"
@@ -201,7 +221,8 @@
 - id: haskell-hardcoded-creds
   languages: [haskell]
   patterns:
-    - regex: '(?i)(?:db|password|secret)\\s*=\\s*\\"[^"]{4,}\\"''severity: high
+    - regex: '(?i)(?:db|password|secret)\s*=\s*\\"[^"]{4,}\\"'
+  severity: high
   description: "Hardcoded credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"

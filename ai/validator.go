@@ -96,7 +96,7 @@ Return ONLY a valid JSON object in the final part of your response:
 		Prompt: prompt,
 		Stream: false,
 		Options: map[string]interface{}{
-			"num_ctx":     8192,
+			"num_ctx":     16384,
 			"num_predict": 2048, // Validation responses are usually shorter
 			"temperature": 0.0,
 		},
@@ -109,7 +109,7 @@ Return ONLY a valid JSON object in the final part of your response:
 	}
 
 	// Create a fresh context for validation requests
-	valCtx, valCancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	valCtx, valCancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer valCancel()
 
 	httpReq, err := http.NewRequestWithContext(valCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
@@ -119,7 +119,7 @@ Return ONLY a valid JSON object in the final part of your response:
 	httpReq.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{
-		Timeout: 3 * time.Minute, // Reasonable timeout for validation requests
+		Timeout: 12 * time.Minute, // Large models (32b+) need much more time
 	}
 
 	resp, err := client.Do(httpReq)
@@ -144,31 +144,18 @@ Return ONLY a valid JSON object in the final part of your response:
 	outputStr = strings.TrimSpace(outputStr)
 
 	var result ValidationResult
-	if err := json.Unmarshal([]byte(outputStr), &result); err != nil {
-		// Try to extract JSON from response
-		startIdx := strings.Index(outputStr, "{")
-		endIdx := strings.LastIndex(outputStr, "}")
-		if startIdx >= 0 && endIdx > startIdx {
-			jsonStr := outputStr[startIdx : endIdx+1]
-			if err2 := json.Unmarshal([]byte(jsonStr), &result); err2 != nil {
-				result = ValidationResult{
-					IsTruePositive:     true,
-					Confidence:         0.8,
-					Explanation:        "AI validation completed",
-					SuggestedFix:       finding.Remediation,
-					SeverityAdjustment: "same",
-					ExploitPoC:         "",
-				}
-			}
-		} else {
-			result = ValidationResult{
-				IsTruePositive:     true,
-				Confidence:         0.8,
-				Explanation:        "AI validation completed",
-				SuggestedFix:       finding.Remediation,
-				SeverityAdjustment: "same",
-				ExploitPoC:         "",
-			}
+	// Extract JSON from response using common utility
+	jsonStr := utils.ExtractJSON(outputStr)
+	
+	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+		// Fallback for unparseable responses
+		result = ValidationResult{
+			IsTruePositive:     true,
+			Confidence:         0.8,
+			Explanation:        "AI validation completed (results may have minor formatting issues)",
+			SuggestedFix:       finding.Remediation,
+			SeverityAdjustment: "same",
+			ExploitPoC:         "N/A",
 		}
 	}
 

@@ -10,7 +10,8 @@
 - id: vue-v-html-directive
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=''severity: high
+    - regex: 'v-html\.s*='
+  severity: high
   description: "v-html directive bypasses Vue's XSS protection"
   remediation: "Avoid v-html with user input. Use text interpolation or sanitize with DOMPurify"
   cwe: "CWE-79"
@@ -19,7 +20,7 @@
 - id: vue-v-html-user-input
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.$\\.{'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.$\.{'
   severity: critical
   description: "v-html with template literal containing user input"
   remediation: "Never use v-html with user-controlled data"
@@ -29,7 +30,7 @@
 - id: vue-v-html-data-property
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..html'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..html'
   severity: high
   description: "v-html bound to data property"
   remediation: "Sanitize HTML content before binding"
@@ -39,7 +40,7 @@
 - id: vue-v-html-props
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?props\\..'
+    - regex: 'v-html\.s*=\.s*[''\.]?props\..'
   severity: high
   description: "v-html bound to props"
   remediation: "Sanitize props before rendering as HTML"
@@ -49,7 +50,7 @@
 - id: vue-v-html-computed
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+Computed'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+Computed'
   severity: high
   description: "v-html bound to computed property"
   remediation: "Sanitize computed HTML content"
@@ -59,7 +60,7 @@
 - id: vue-v-html-method
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\.('
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\.()'
   severity: high
   description: "v-html bound to method result"
   remediation: "Sanitize method return value"
@@ -69,7 +70,7 @@
 - id: vue-v-html-vue-instance
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.$\\.w+'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.$\.w+'
   severity: high
   description: "v-html bound to Vue instance property"
   remediation: "Sanitize Vue instance property"
@@ -79,7 +80,7 @@
 - id: vue-v-html-store
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.$store\\..'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.$store\..'
   severity: high
   description: "v-html bound to Vuex store"
   remediation: "Sanitize store data before rendering"
@@ -89,7 +90,7 @@
 - id: vue-v-html-api-response
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..response'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..response'
   severity: high
   description: "v-html bound to API response"
   remediation: "Sanitize API response before rendering"
@@ -99,7 +100,7 @@
 - id: vue-v-html-api-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..data'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..data'
   severity: high
   description: "v-html bound to API data"
   remediation: "Sanitize API data before rendering"
@@ -109,7 +110,7 @@
 - id: vue-v-html-api-content
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..content'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..content'
   severity: high
   description: "v-html bound to API content"
   remediation: "Sanitize content before rendering"
@@ -119,7 +120,7 @@
 - id: vue-v-html-api-html
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..html'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..html'
   severity: high
   description: "v-html bound to API HTML"
   remediation: "Sanitize HTML before rendering"
@@ -129,7 +130,7 @@
 - id: vue-v-html-api-body
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..body'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..body'
   severity: high
   description: "v-html bound to API body"
   remediation: "Sanitize body before rendering"
@@ -139,7 +140,7 @@
 - id: vue-v-html-api-text
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..text'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..text'
   severity: high
   description: "v-html bound to API text"
   remediation: "Sanitize text before rendering"
@@ -149,7 +150,7 @@
 - id: vue-v-html-api-result
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..result'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..result'
   severity: high
   description: "v-html bound to API result"
   remediation: "Sanitize result before rendering"
@@ -159,7 +160,7 @@
 - id: vue-v-html-api-output
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..output'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..output'
   severity: high
   description: "v-html bound to API output"
   remediation: "Sanitize output before rendering"
@@ -169,7 +170,7 @@
 - id: vue-v-html-api-value
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..value'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..value'
   severity: high
   description: "v-html bound to API value"
   remediation: "Sanitize value before rendering"
@@ -179,7 +180,7 @@
 - id: vue-v-html-api-message
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..message'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..message'
   severity: high
   description: "v-html bound to API message"
   remediation: "Sanitize message before rendering"
@@ -189,7 +190,7 @@
 - id: vue-v-html-api-data-html
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..data\\..html'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..data\..html'
   severity: high
   description: "v-html bound to nested API data"
   remediation: "Sanitize nested data before rendering"
@@ -199,7 +200,7 @@
 - id: vue-v-html-response-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?response\\..data'
+    - regex: 'v-html\.s*=\.s*[''\.]?response\..data'
   severity: high
   description: "v-html bound to response data"
   remediation: "Sanitize response data"
@@ -209,7 +210,7 @@
 - id: vue-v-html-response-html
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?response\\..html'
+    - regex: 'v-html\.s*=\.s*[''\.]?response\..html'
   severity: high
   description: "v-html bound to response HTML"
   remediation: "Sanitize response HTML"
@@ -219,7 +220,7 @@
 - id: vue-v-html-response-content
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?response\\..content'
+    - regex: 'v-html\.s*=\.s*[''\.]?response\..content'
   severity: high
   description: "v-html bound to response content"
   remediation: "Sanitize response content"
@@ -229,7 +230,7 @@
 - id: vue-v-html-response-body
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?response\\..body'
+    - regex: 'v-html\.s*=\.s*[''\.]?response\..body'
   severity: high
   description: "v-html bound to response body"
   remediation: "Sanitize response body"
@@ -239,7 +240,7 @@
 - id: vue-v-html-response-text
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?response\\..text'
+    - regex: 'v-html\.s*=\.s*[''\.]?response\..text'
   severity: high
   description: "v-html bound to response text"
   remediation: "Sanitize response text"
@@ -249,7 +250,7 @@
 - id: vue-v-html-response-result
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?response\\..result'
+    - regex: 'v-html\.s*=\.s*[''\.]?response\..result'
   severity: high
   description: "v-html bound to response result"
   remediation: "Sanitize response result"
@@ -260,7 +261,8 @@
 - id: vue-component-props-validation
   languages: [vue, javascript]
   patterns:
-    - regex: 'props\\.s*:\\.s*\\.{''severity: low
+    - regex: 'props\.s*:\.s*\.{'
+  severity: low
   description: "Component props defined"
   remediation: "Ensure props have type validation"
   cwe: "CWE-20"
@@ -269,7 +271,8 @@
 - id: vue-component-props-type-string
   languages: [vue, javascript]
   patterns:
-    - regex: 'type\\.s*:\\.s*String''severity: low
+    - regex: 'type\.s*:\.s*String'
+  severity: low
   description: "String prop type"
   remediation: "Add validator for string props"
   cwe: "CWE-20"
@@ -278,7 +281,8 @@
 - id: vue-component-props-type-object
   languages: [vue, javascript]
   patterns:
-    - regex: 'type\\.s*:\\.s*Object''severity: low
+    - regex: 'type\.s*:\.s*Object'
+  severity: low
   description: "Object prop type"
   remediation: "Add validator for object props"
   cwe: "CWE-20"
@@ -287,7 +291,8 @@
 - id: vue-component-props-type-array
   languages: [vue, javascript]
   patterns:
-    - regex: 'type\\.s*:\\.s*Array''severity: low
+    - regex: 'type\.s*:\.s*Array'
+  severity: low
   description: "Array prop type"
   remediation: "Add validator for array props"
   cwe: "CWE-20"
@@ -296,7 +301,8 @@
 - id: vue-component-props-default
   languages: [vue, javascript]
   patterns:
-    - regex: 'default\\.s*:\\.s*\\.{''severity: low
+    - regex: 'default\.s*:\.s*\.{'
+  severity: low
   description: "Object default prop"
   remediation: "Use factory function for object defaults"
   cwe: "CWE-20"
@@ -305,7 +311,8 @@
 - id: vue-component-props-default-array
   languages: [vue, javascript]
   patterns:
-    - regex: 'default\\.s*:\\.s*\\.[''severity: low
+    - regex: 'default\.s*:\.s*\.[\]]'
+  severity: low
   description: "Array default prop"
   remediation: "Use factory function for array defaults"
   cwe: "CWE-20"
@@ -314,7 +321,8 @@
 - id: vue-component-props-required
   languages: [vue, javascript]
   patterns:
-    - regex: 'required\\.s*:\\.s*true''severity: low
+    - regex: 'required\.s*:\.s*true'
+  severity: low
   description: "Required prop"
   remediation: "Ensure required props are validated"
   cwe: "CWE-20"
@@ -323,7 +331,8 @@
 - id: vue-component-props-validator
   languages: [vue, javascript]
   patterns:
-    - regex: 'validator\\.s*:\\.s*function''severity: low
+    - regex: 'validator\.s*:\.s*function'
+  severity: low
   description: "Custom prop validator"
   remediation: "Ensure validator is comprehensive"
   cwe: "CWE-20"
@@ -332,7 +341,8 @@
 - id: vue-component-data-function
   languages: [vue, javascript]
   patterns:
-    - regex: 'data\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'data\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "Component data function"
   remediation: "Ensure data function returns object"
   cwe: "CWE-20"
@@ -341,7 +351,8 @@
 - id: vue-component-data-object
   languages: [vue, javascript]
   patterns:
-    - regex: 'data\\.s*:\\.s*\\.{''severity: high
+    - regex: 'data\.s*:\.s*\.{'
+  severity: high
   description: "Component data as object (should be function)"
   remediation: "Use data function for components"
   cwe: "CWE-20"
@@ -350,7 +361,8 @@
 - id: vue-component-methods
   languages: [vue, javascript]
   patterns:
-    - regex: 'methods\\.s*:\\.s*\\.{''severity: low
+    - regex: 'methods\.s*:\.s*\.{'
+  severity: low
   description: "Component methods defined"
   remediation: "Validate method inputs"
   cwe: "CWE-20"
@@ -359,7 +371,8 @@
 - id: vue-component-computed
   languages: [vue, javascript]
   patterns:
-    - regex: 'computed\\.s*:\\.s*\\.{''severity: low
+    - regex: 'computed\.s*:\.s*\.{'
+  severity: low
   description: "Computed properties defined"
   remediation: "Validate computed property outputs"
   cwe: "CWE-20"
@@ -368,7 +381,8 @@
 - id: vue-component-watch
   languages: [vue, javascript]
   patterns:
-    - regex: 'watch\\.s*:\\.s*\\.{''severity: low
+    - regex: 'watch\.s*:\.s*\.{'
+  severity: low
   description: "Watchers defined"
   remediation: "Validate watcher inputs"
   cwe: "CWE-20"
@@ -377,7 +391,8 @@
 - id: vue-component-lifecycle-created
   languages: [vue, javascript]
   patterns:
-    - regex: 'created\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'created\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "Created lifecycle hook"
   remediation: "Validate API calls in created"
   cwe: "CWE-20"
@@ -386,7 +401,8 @@
 - id: vue-component-lifecycle-mounted
   languages: [vue, javascript]
   patterns:
-    - regex: 'mounted\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'mounted\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "Mounted lifecycle hook"
   remediation: "Validate DOM operations in mounted"
   cwe: "CWE-20"
@@ -395,7 +411,8 @@
 - id: vue-component-lifecycle-before-mount
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeMount\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'beforeMount\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "BeforeMount lifecycle hook"
   remediation: "Validate before mount operations"
   cwe: "CWE-20"
@@ -404,7 +421,8 @@
 - id: vue-component-lifecycle-updated
   languages: [vue, javascript]
   patterns:
-    - regex: 'updated\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'updated\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "Updated lifecycle hook"
   remediation: "Validate update operations"
   cwe: "CWE-20"
@@ -413,7 +431,8 @@
 - id: vue-component-lifecycle-before-update
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeUpdate\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'beforeUpdate\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "BeforeUpdate lifecycle hook"
   remediation: "Validate before update operations"
   cwe: "CWE-20"
@@ -422,7 +441,8 @@
 - id: vue-component-lifecycle-destroyed
   languages: [vue, javascript]
   patterns:
-    - regex: 'destroyed\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'destroyed\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "Destroyed lifecycle hook"
   remediation: "Clean up resources in destroyed"
   cwe: "CWE-775"
@@ -431,7 +451,8 @@
 - id: vue-component-lifecycle-before-destroy
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeDestroy\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'beforeDestroy\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "BeforeDestroy lifecycle hook"
   remediation: "Clean up resources before destroy"
   cwe: "CWE-775"
@@ -440,7 +461,8 @@
 - id: vue-component-lifecycle-before-unmount
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeUnmount\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'beforeUnmount\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "BeforeUnmount lifecycle hook"
   remediation: "Clean up resources before unmount"
   cwe: "CWE-775"
@@ -449,7 +471,8 @@
 - id: vue-component-lifecycle-unmounted
   languages: [vue, javascript]
   patterns:
-    - regex: 'unmounted\\.s*\\.(\\.s*\\.)\\.s*\\.{''severity: low
+    - regex: 'unmounted\.s*\.(\.s*\.)\.s*\.{'
+  severity: low
   description: "Unmounted lifecycle hook"
   remediation: "Clean up resources on unmount"
   cwe: "CWE-775"
@@ -458,7 +481,8 @@
 - id: vue-component-template-interpolation
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{.*\\.$\\.{''severity: low
+    - regex: '\.{\.{.*\.$\.{'
+  severity: low
   description: "Template interpolation"
   remediation: "Validate interpolated values"
   cwe: "CWE-79"
@@ -467,7 +491,8 @@
 - id: vue-component-template-expression
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{.*\\..''severity: low
+    - regex: '\.{\.{.*\..'
+  severity: low
   description: "Template expression"
   remediation: "Validate template expressions"
   cwe: "CWE-79"
@@ -476,7 +501,8 @@
 - id: vue-component-template-method
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{.*\\.(''severity: low
+    - regex: '\.{\.{.*\.()'
+  severity: low
   description: "Template method call"
   remediation: "Validate method calls in templates"
   cwe: "CWE-79"
@@ -486,7 +512,8 @@
 - id: vue-directive-v-bind
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind\\.s*=''severity: low
+    - regex: 'v-bind\.s*='
+  severity: low
   description: "v-bind directive"
   remediation: "Validate bound values"
   cwe: "CWE-20"
@@ -495,7 +522,8 @@
 - id: vue-directive-v-model
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-model\\.s*=''severity: low
+    - regex: 'v-model\.s*='
+  severity: low
   description: "v-model directive"
   remediation: "Validate model data"
   cwe: "CWE-20"
@@ -504,7 +532,8 @@
 - id: vue-directive-v-on
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on\\.s*=''severity: low
+    - regex: 'v-on\.s*='
+  severity: low
   description: "v-on directive"
   remediation: "Validate event handlers"
   cwe: "CWE-20"
@@ -513,7 +542,8 @@
 - id: vue-directive-v-on-click
   languages: [vue, javascript]
   patterns:
-    - regex: '@click\\.s*=''severity: low
+    - regex: '@click\.s*='
+  severity: low
   description: "@click event handler"
   remediation: "Validate click handler"
   cwe: "CWE-20"
@@ -522,7 +552,8 @@
 - id: vue-directive-v-on-submit
   languages: [vue, javascript]
   patterns:
-    - regex: '@submit\\.s*=''severity: low
+    - regex: '@submit\.s*='
+  severity: low
   description: "@submit event handler"
   remediation: "Validate form submission"
   cwe: "CWE-20"
@@ -531,7 +562,8 @@
 - id: vue-directive-v-on-change
   languages: [vue, javascript]
   patterns:
-    - regex: '@change\\.s*=''severity: low
+    - regex: '@change\.s*='
+  severity: low
   description: "@change event handler"
   remediation: "Validate change handler"
   cwe: "CWE-20"
@@ -540,7 +572,8 @@
 - id: vue-directive-v-on-input
   languages: [vue, javascript]
   patterns:
-    - regex: '@input\\.s*=''severity: low
+    - regex: '@input\.s*='
+  severity: low
   description: "@input event handler"
   remediation: "Validate input handler"
   cwe: "CWE-20"
@@ -549,7 +582,8 @@
 - id: vue-directive-v-on-focus
   languages: [vue, javascript]
   patterns:
-    - regex: '@focus\\.s*=''severity: low
+    - regex: '@focus\.s*='
+  severity: low
   description: "@focus event handler"
   remediation: "Validate focus handler"
   cwe: "CWE-20"
@@ -558,7 +592,8 @@
 - id: vue-directive-v-on-blur
   languages: [vue, javascript]
   patterns:
-    - regex: '@blur\\.s*=''severity: low
+    - regex: '@blur\.s*='
+  severity: low
   description: "@blur event handler"
   remediation: "Validate blur handler"
   cwe: "CWE-20"
@@ -567,7 +602,8 @@
 - id: vue-directive-v-on-keyup
   languages: [vue, javascript]
   patterns:
-    - regex: '@keyup\\.s*=''severity: low
+    - regex: '@keyup\.s*='
+  severity: low
   description: "@keyup event handler"
   remediation: "Validate keyup handler"
   cwe: "CWE-20"
@@ -576,7 +612,8 @@
 - id: vue-directive-v-on-keydown
   languages: [vue, javascript]
   patterns:
-    - regex: '@keydown\\.s*=''severity: low
+    - regex: '@keydown\.s*='
+  severity: low
   description: "@keydown event handler"
   remediation: "Validate keydown handler"
   cwe: "CWE-20"
@@ -585,7 +622,8 @@
 - id: vue-directive-v-on-mouseover
   languages: [vue, javascript]
   patterns:
-    - regex: '@mouseover\\.s*=''severity: low
+    - regex: '@mouseover\.s*='
+  severity: low
   description: "@mouseover event handler"
   remediation: "Validate mouseover handler"
   cwe: "CWE-20"
@@ -594,7 +632,8 @@
 - id: vue-directive-v-on-mouseout
   languages: [vue, javascript]
   patterns:
-    - regex: '@mouseout\\.s*=''severity: low
+    - regex: '@mouseout\.s*='
+  severity: low
   description: "@mouseout event handler"
   remediation: "Validate mouseout handler"
   cwe: "CWE-20"
@@ -603,7 +642,8 @@
 - id: vue-directive-v-if
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-if\\.s*=''severity: low
+    - regex: 'v-if\.s*='
+  severity: low
   description: "v-if directive"
   remediation: "Validate condition"
   cwe: "CWE-20"
@@ -612,7 +652,8 @@
 - id: vue-directive-v-else
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-else''severity: low
+    - regex: 'v-else'
+  severity: low
   description: "v-else directive"
   remediation: "Validate else condition"
   cwe: "CWE-20"
@@ -621,7 +662,8 @@
 - id: vue-directive-v-else-if
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-else-if\\.s*=''severity: low
+    - regex: 'v-else-if\.s*='
+  severity: low
   description: "v-else-if directive"
   remediation: "Validate else-if condition"
   cwe: "CWE-20"
@@ -630,7 +672,8 @@
 - id: vue-directive-v-for
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-for\\.s*=''severity: low
+    - regex: 'v-for\.s*='
+  severity: low
   description: "v-for directive"
   remediation: "Add key attribute"
   cwe: "CWE-693"
@@ -639,7 +682,8 @@
 - id: vue-directive-v-for-key
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-for\\.s*=.*:key''severity: low
+    - regex: 'v-for\.s*=.*:key'
+  severity: low
   description: "v-for with key"
   remediation: "Ensure key is unique"
   cwe: "CWE-693"
@@ -648,7 +692,8 @@
 - id: vue-directive-v-show
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-show\\.s*=''severity: low
+    - regex: 'v-show\.s*='
+  severity: low
   description: "v-show directive"
   remediation: "Validate show condition"
   cwe: "CWE-20"
@@ -657,7 +702,8 @@
 - id: vue-directive-v-text
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-text\\.s*=''severity: low
+    - regex: 'v-text\.s*='
+  severity: low
   description: "v-text directive"
   remediation: "Validate text content"
   cwe: "CWE-79"
@@ -666,7 +712,8 @@
 - id: vue-directive-v-once
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-once''severity: low
+    - regex: 'v-once'
+  severity: low
   description: "v-once directive"
   remediation: "Ensure content is safe"
   cwe: "CWE-79"
@@ -675,7 +722,8 @@
 - id: vue-directive-v-pre
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-pre''severity: low
+    - regex: 'v-pre'
+  severity: low
   description: "v-pre directive"
   remediation: "Ensure content is safe"
   cwe: "CWE-79"
@@ -684,7 +732,8 @@
 - id: vue-directive-v-cloak
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-cloak''severity: low
+    - regex: 'v-cloak'
+  severity: low
   description: "v-cloak directive"
   remediation: "Ensure proper CSS for v-cloak"
   cwe: "CWE-693"
@@ -693,7 +742,8 @@
 - id: vue-directive-v-memo
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-memo\\.s*=''severity: low
+    - regex: 'v-memo\.s*='
+  severity: low
   description: "v-memo directive"
   remediation: "Validate memo condition"
   cwe: "CWE-693"
@@ -702,7 +752,8 @@
 - id: vue-directive-v-slot
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-slot\\.s*=''severity: low
+    - regex: 'v-slot\.s*='
+  severity: low
   description: "v-slot directive"
   remediation: "Validate slot content"
   cwe: "CWE-79"
@@ -712,7 +763,7 @@
 - id: vue-router-dynamic-route
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['''\\.]:/:'
+    - regex: 'path\.s*:\.s*[''\.]:/:'
   severity: low
   description: "Dynamic route parameter"
   remediation: "Validate route parameters"
@@ -722,7 +773,8 @@
 - id: vue-router-params
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$route\\..params''severity: medium
+    - regex: '\.$route\..params'
+  severity: medium
   description: "Route params access"
   remediation: "Validate route params"
   cwe: "CWE-20"
@@ -731,7 +783,8 @@
 - id: vue-router-query
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$route\\..query''severity: medium
+    - regex: '\.$route\..query'
+  severity: medium
   description: "Query params access"
   remediation: "Validate query params"
   cwe: "CWE-20"
@@ -740,7 +793,8 @@
 - id: vue-router-hash
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$route\\..hash''severity: low
+    - regex: '\.$route\..hash'
+  severity: low
   description: "Route hash access"
   remediation: "Validate hash value"
   cwe: "CWE-20"
@@ -749,7 +803,8 @@
 - id: vue-router-push
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$router\\..push''severity: medium
+    - regex: '\.$router\..push'
+  severity: medium
   description: "Router push navigation"
   remediation: "Validate navigation target"
   cwe: "CWE-601"
@@ -758,7 +813,8 @@
 - id: vue-router-replace
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$router\\..replace''severity: medium
+    - regex: '\.$router\..replace'
+  severity: medium
   description: "Router replace navigation"
   remediation: "Validate replace target"
   cwe: "CWE-601"
@@ -767,7 +823,8 @@
 - id: vue-router-before-each
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeEach\\.s*\\.(''severity: low
+    - regex: 'beforeEach\.s*\.()'
+  severity: low
   description: "Router beforeEach guard"
   remediation: "Validate navigation guards"
   cwe: "CWE-284"
@@ -776,7 +833,8 @@
 - id: vue-router-before-enter
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeEnter\\.s*\\.(''severity: low
+    - regex: 'beforeEnter\.s*\.()'
+  severity: low
   description: "Route beforeEnter guard"
   remediation: "Validate beforeEnter guard"
   cwe: "CWE-284"
@@ -785,7 +843,8 @@
 - id: vue-router-before-leave
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeRouteLeave\\.s*\\.(''severity: low
+    - regex: 'beforeRouteLeave\.s*\.()'
+  severity: low
   description: "Component beforeRouteLeave"
   remediation: "Validate beforeLeave logic"
   cwe: "CWE-284"
@@ -794,7 +853,8 @@
 - id: vue-router-before-update
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeRouteUpdate\\.s*\\.(''severity: low
+    - regex: 'beforeRouteUpdate\.s*\.()'
+  severity: low
   description: "Component beforeRouteUpdate"
   remediation: "Validate beforeUpdate logic"
   cwe: "CWE-284"
@@ -803,7 +863,8 @@
 - id: vue-router-meta
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta\\.s*:\\.s*\\.{''severity: low
+    - regex: 'meta\.s*:\.s*\.{'
+  severity: low
   description: "Route meta configuration"
   remediation: "Validate meta configuration"
   cwe: "CWE-284"
@@ -812,7 +873,8 @@
 - id: vue-router-meta-auth
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta\\.s*:\\.s*\\.{.*auth''severity: low
+    - regex: 'meta\.s*:\.s*\.{.*auth'
+  severity: low
   description: "Route auth meta"
   remediation: "Validate auth requirements"
   cwe: "CWE-284"
@@ -821,7 +883,8 @@
 - id: vue-router-meta-roles
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta\\.s*:\\.s*\\.{.*roles''severity: low
+    - regex: 'meta\.s*:\.s*\.{.*roles'
+  severity: low
   description: "Route roles meta"
   remediation: "Validate role requirements"
   cwe: "CWE-284"
@@ -830,7 +893,8 @@
 - id: vue-router-meta-permissions
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta\\.s*:\\.s*\\.{.*permissions''severity: low
+    - regex: 'meta\.s*:\.s*\.{.*permissions'
+  severity: low
   description: "Route permissions meta"
   remediation: "Validate permission requirements"
   cwe: "CWE-284"
@@ -839,7 +903,8 @@
 - id: vue-router-redirect
   languages: [vue, javascript]
   patterns:
-    - regex: 'redirect\\.s*:''severity: low
+    - regex: 'redirect\.s*:'
+  severity: low
   description: "Route redirect"
   remediation: "Validate redirect target"
   cwe: "CWE-601"
@@ -848,7 +913,8 @@
 - id: vue-router-redirect-to
   languages: [vue, javascript]
   patterns:
-    - regex: 'redirect\\.s*:\\.s*\\.{''severity: low
+    - regex: 'redirect\.s*:\.s*\.{'
+  severity: low
   description: "Route redirect object"
   remediation: "Validate redirect configuration"
   cwe: "CWE-601"
@@ -857,7 +923,8 @@
 - id: vue-router-redirect-name
   languages: [vue, javascript]
   patterns:
-    - regex: 'redirect\\.s*:\\.s*\\.{.*name''severity: low
+    - regex: 'redirect\.s*:\.s*\.{.*name'
+  severity: low
   description: "Route redirect by name"
   remediation: "Validate redirect name"
   cwe: "CWE-601"
@@ -866,7 +933,7 @@
 - id: vue-router-redirect-path
   languages: [vue, javascript]
   patterns:
-    - regex: 'redirect\\.s*:\\.s*['''\\.]'
+    - regex: 'redirect\.s*:\.s*[''\.]'
   severity: low
   description: "Route redirect by path"
   remediation: "Validate redirect path"
@@ -876,7 +943,8 @@
 - id: vue-router-alias
   languages: [vue, javascript]
   patterns:
-    - regex: 'alias\\.s*:''severity: low
+    - regex: 'alias\.s*:'
+  severity: low
   description: "Route alias"
   remediation: "Validate alias configuration"
   cwe: "CWE-693"
@@ -885,7 +953,8 @@
 - id: vue-router-children
   languages: [vue, javascript]
   patterns:
-    - regex: 'children\\.s*:\\.s*\\.[''severity: low
+    - regex: 'children\.s*:\.s*\.[\]]'
+  severity: low
   description: "Child routes"
   remediation: "Validate child route security"
   cwe: "CWE-284"
@@ -895,7 +964,8 @@
 - id: vue-vuex-store
   languages: [vue, javascript]
   patterns:
-    - regex: 'createStore\\.s*\\.(''severity: low
+    - regex: 'createStore\.s*\.()'
+  severity: low
   description: "Vuex store creation"
   remediation: "Validate store configuration"
   cwe: "CWE-693"
@@ -904,7 +974,8 @@
 - id: vue-vuex-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'state\\.s*:\\.s*\\.{''severity: low
+    - regex: 'state\.s*:\.s*\.{'
+  severity: low
   description: "Vuex state defined"
   remediation: "Validate state initialization"
   cwe: "CWE-20"
@@ -913,7 +984,8 @@
 - id: vue-vuex-mutations
   languages: [vue, javascript]
   patterns:
-    - regex: 'mutations\\.s*:\\.s*\\.{''severity: low
+    - regex: 'mutations\.s*:\.s*\.{'
+  severity: low
   description: "Vuex mutations defined"
   remediation: "Validate mutation inputs"
   cwe: "CWE-20"
@@ -922,7 +994,8 @@
 - id: vue-vuex-actions
   languages: [vue, javascript]
   patterns:
-    - regex: 'actions\\.s*:\\.s*\\.{''severity: low
+    - regex: 'actions\.s*:\.s*\.{'
+  severity: low
   description: "Vuex actions defined"
   remediation: "Validate action inputs"
   cwe: "CWE-20"
@@ -931,7 +1004,8 @@
 - id: vue-vuex-getters
   languages: [vue, javascript]
   patterns:
-    - regex: 'getters\\.s*:\\.s*\\.{''severity: low
+    - regex: 'getters\.s*:\.s*\.{'
+  severity: low
   description: "Vuex getters defined"
   remediation: "Validate getter outputs"
   cwe: "CWE-20"
@@ -940,7 +1014,8 @@
 - id: vue-vuex-commit
   languages: [vue, javascript]
   patterns:
-    - regex: 'commit\\.s*\\.(''severity: low
+    - regex: 'commit\.s*\.()'
+  severity: low
   description: "Vuex commit"
   remediation: "Validate commit payload"
   cwe: "CWE-20"
@@ -949,7 +1024,8 @@
 - id: vue-vuex-dispatch
   languages: [vue, javascript]
   patterns:
-    - regex: 'dispatch\\.s*\\.(''severity: low
+    - regex: 'dispatch\.s*\.()'
+  severity: low
   description: "Vuex dispatch"
   remediation: "Validate dispatch payload"
   cwe: "CWE-20"
@@ -958,7 +1034,8 @@
 - id: vue-vuex-map-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'mapState\\.s*\\.(''severity: low
+    - regex: 'mapState\.s*\.()'
+  severity: low
   description: "mapState helper"
   remediation: "Validate mapped state"
   cwe: "CWE-20"
@@ -967,7 +1044,8 @@
 - id: vue-vuex-map-getters
   languages: [vue, javascript]
   patterns:
-    - regex: 'mapGetters\\.s*\\.(''severity: low
+    - regex: 'mapGetters\.s*\.()'
+  severity: low
   description: "mapGetters helper"
   remediation: "Validate mapped getters"
   cwe: "CWE-20"
@@ -976,7 +1054,8 @@
 - id: vue-vuex-map-mutations
   languages: [vue, javascript]
   patterns:
-    - regex: 'mapMutations\\.s*\\.(''severity: low
+    - regex: 'mapMutations\.s*\.()'
+  severity: low
   description: "mapMutations helper"
   remediation: "Validate mapped mutations"
   cwe: "CWE-20"
@@ -985,7 +1064,8 @@
 - id: vue-vuex-map-actions
   languages: [vue, javascript]
   patterns:
-    - regex: 'mapActions\\.s*\\.(''severity: low
+    - regex: 'mapActions\.s*\.()'
+  severity: low
   description: "mapActions helper"
   remediation: "Validate mapped actions"
   cwe: "CWE-20"
@@ -994,7 +1074,8 @@
 - id: vue-pinia-store
   languages: [vue, javascript]
   patterns:
-    - regex: 'defineStore\\.s*\\.(''severity: low
+    - regex: 'defineStore\.s*\.()'
+  severity: low
   description: "Pinia store definition"
   remediation: "Validate store configuration"
   cwe: "CWE-693"
@@ -1003,7 +1084,8 @@
 - id: vue-pinia-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'state\\.s*:\\.s*\\.(\\.s*\\.)\\.s*=>''severity: low
+    - regex: 'state\.s*:\.s*\.(\.s*\.)\.s*=>'
+  severity: low
   description: "Pinia state function"
   remediation: "Validate state initialization"
   cwe: "CWE-20"
@@ -1012,7 +1094,8 @@
 - id: vue-pinia-actions
   languages: [vue, javascript]
   patterns:
-    - regex: 'actions\\.s*:\\.s*\\.{''severity: low
+    - regex: 'actions\.s*:\.s*\.{'
+  severity: low
   description: "Pinia actions"
   remediation: "Validate action inputs"
   cwe: "CWE-20"
@@ -1021,7 +1104,8 @@
 - id: vue-pinia-getters
   languages: [vue, javascript]
   patterns:
-    - regex: 'getters\\.s*:\\.s*\\.{''severity: low
+    - regex: 'getters\.s*:\.s*\.{'
+  severity: low
   description: "Pinia getters"
   remediation: "Validate getter outputs"
   cwe: "CWE-20"
@@ -1030,7 +1114,8 @@
 - id: vue-pinia-persist
   languages: [vue, javascript]
   patterns:
-    - regex: 'persist\\.s*:''severity: low
+    - regex: 'persist\.s*:'
+  severity: low
   description: "Pinia persistence"
   remediation: "Validate persisted data"
   cwe: "CWE-312"
@@ -1039,7 +1124,8 @@
 - id: vue-pinia-persist-key
   languages: [vue, javascript]
   patterns:
-    - regex: 'key\\.s*:''severity: low
+    - regex: 'key\.s*:'
+  severity: low
   description: "Persist key"
   remediation: "Validate persist key"
   cwe: "CWE-693"
@@ -1048,7 +1134,8 @@
 - id: vue-pinia-persist-paths
   languages: [vue, javascript]
   patterns:
-    - regex: 'paths\\.s*:\\.s*\\.[''severity: low
+    - regex: 'paths\.s*:\.s*\.[\]]'
+  severity: low
   description: "Persist paths"
   remediation: "Validate persisted paths"
   cwe: "CWE-312"
@@ -1057,7 +1144,8 @@
 - id: vue-pinia-persist-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'storage\\.s*:''severity: low
+    - regex: 'storage\.s*:'
+  severity: low
   description: "Persist storage"
   remediation: "Validate storage type"
   cwe: "CWE-312"
@@ -1066,7 +1154,8 @@
 - id: vue-pinia-persist-storage-local
   languages: [vue, javascript]
   patterns:
-    - regex: 'localStorage''severity: medium
+    - regex: 'localStorage'
+  severity: medium
   description: "localStorage usage"
   remediation: "Don't store sensitive data in localStorage"
   cwe: "CWE-312"
@@ -1076,7 +1165,8 @@
 - id: vue-axios-request
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..(get|post|put|delete|patch)''severity: low
+    - regex: 'axios\..(get|post|put|delete|patch)'
+  severity: low
   description: "Axios request"
   remediation: "Validate API responses"
   cwe: "CWE-20"
@@ -1085,7 +1175,8 @@
 - id: vue-axios-get
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..get\\.s*\\.(''severity: low
+    - regex: 'axios\..get\.s*\.()'
+  severity: low
   description: "Axios GET request"
   remediation: "Validate GET parameters"
   cwe: "CWE-20"
@@ -1094,7 +1185,8 @@
 - id: vue-axios-post
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..post\\.s*\\.(''severity: low
+    - regex: 'axios\..post\.s*\.()'
+  severity: low
   description: "Axios POST request"
   remediation: "Validate POST data"
   cwe: "CWE-20"
@@ -1103,7 +1195,8 @@
 - id: vue-axios-put
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..put\\.s*\\.(''severity: low
+    - regex: 'axios\..put\.s*\.()'
+  severity: low
   description: "Axios PUT request"
   remediation: "Validate PUT data"
   cwe: "CWE-20"
@@ -1112,7 +1205,8 @@
 - id: vue-axios-delete
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..delete\\.s*\\.(''severity: low
+    - regex: 'axios\..delete\.s*\.()'
+  severity: low
   description: "Axios DELETE request"
   remediation: "Validate DELETE target"
   cwe: "CWE-20"
@@ -1121,7 +1215,8 @@
 - id: vue-axios-patch
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..patch\\.s*\\.(''severity: low
+    - regex: 'axios\..patch\.s*\.()'
+  severity: low
   description: "Axios PATCH request"
   remediation: "Validate PATCH data"
   cwe: "CWE-20"
@@ -1130,7 +1225,8 @@
 - id: vue-axios-interceptor
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..interceptors''severity: low
+    - regex: 'axios\..interceptors'
+  severity: low
   description: "Axios interceptor"
   remediation: "Validate interceptor logic"
   cwe: "CWE-20"
@@ -1139,7 +1235,8 @@
 - id: vue-axios-request-interceptor
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..interceptors\\..request''severity: low
+    - regex: 'axios\..interceptors\..request'
+  severity: low
   description: "Axios request interceptor"
   remediation: "Validate request interceptor"
   cwe: "CWE-20"
@@ -1148,7 +1245,8 @@
 - id: vue-axios-response-interceptor
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..interceptors\\..response''severity: low
+    - regex: 'axios\..interceptors\..response'
+  severity: low
   description: "Axios response interceptor"
   remediation: "Validate response interceptor"
   cwe: "CWE-20"
@@ -1157,7 +1255,8 @@
 - id: vue-axios-base-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'baseURL\\.s*:''severity: low
+    - regex: 'baseURL\.s*:'
+  severity: low
   description: "Axios base URL"
   remediation: "Validate base URL"
   cwe: "CWE-20"
@@ -1166,7 +1265,8 @@
 - id: vue-axios-headers
   languages: [vue, javascript]
   patterns:
-    - regex: 'headers\\.s*:''severity: low
+    - regex: 'headers\.s*:'
+  severity: low
   description: "Axios headers"
   remediation: "Validate headers"
   cwe: "CWE-20"
@@ -1175,7 +1275,8 @@
 - id: vue-axios-auth-header
   languages: [vue, javascript]
   patterns:
-    - regex: 'Authorization\\.s*:''severity: low
+    - regex: 'Authorization\.s*:'
+  severity: low
   description: "Authorization header"
   remediation: "Validate auth header"
   cwe: "CWE-20"
@@ -1184,7 +1285,8 @@
 - id: vue-axios-bearer-token
   languages: [vue, javascript]
   patterns:
-    - regex: 'Bearer\\.s+''severity: low
+    - regex: 'Bearer\.s+'
+  severity: low
   description: "Bearer token"
   remediation: "Validate token"
   cwe: "CWE-20"
@@ -1193,7 +1295,8 @@
 - id: vue-axios-fetch
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.(''severity: low
+    - regex: 'fetch\.s*\.()'
+  severity: low
   description: "Fetch API"
   remediation: "Validate fetch requests"
   cwe: "CWE-20"
@@ -1202,7 +1305,8 @@
 - id: vue-axios-fetch-get
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.(.*GET''severity: low
+    - regex: 'fetch\.s*\.(.*GET)'
+  severity: low
   description: "Fetch GET"
   remediation: "Validate GET request"
   cwe: "CWE-20"
@@ -1211,7 +1315,8 @@
 - id: vue-axios-fetch-post
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.(.*POST''severity: low
+    - regex: 'fetch\.s*\.(.*POST)'
+  severity: low
   description: "Fetch POST"
   remediation: "Validate POST request"
   cwe: "CWE-20"
@@ -1220,7 +1325,8 @@
 - id: vue-axios-fetch-put
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.(.*PUT''severity: low
+    - regex: 'fetch\.s*\.(.*PUT)'
+  severity: low
   description: "Fetch PUT"
   remediation: "Validate PUT request"
   cwe: "CWE-20"
@@ -1229,7 +1335,8 @@
 - id: vue-axios-fetch-delete
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.(.*DELETE''severity: low
+    - regex: 'fetch\.s*\.(.*DELETE)'
+  severity: low
   description: "Fetch DELETE"
   remediation: "Validate DELETE request"
   cwe: "CWE-20"
@@ -1238,7 +1345,8 @@
 - id: vue-axios-fetch-patch
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.(.*PATCH''severity: low
+    - regex: 'fetch\.s*\.(.*PATCH)'
+  severity: low
   description: "Fetch PATCH"
   remediation: "Validate PATCH request"
   cwe: "CWE-20"
@@ -1247,7 +1355,8 @@
 - id: vue-axios-fetch-headers
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.([^,]+,\\.s*\\.{''severity: low
+    - regex: 'fetch\.s*\.([^,]+,\.s*\.{)'
+  severity: low
   description: "Fetch with headers"
   remediation: "Validate fetch headers"
   cwe: "CWE-20"
@@ -1257,7 +1366,8 @@
 - id: vue-auth-login
   languages: [vue, javascript]
   patterns:
-    - regex: 'login\\.s*\\.(''severity: low
+    - regex: 'login\.s*\.()'
+  severity: low
   description: "Login function"
   remediation: "Validate login credentials"
   cwe: "CWE-306"
@@ -1266,7 +1376,8 @@
 - id: vue-auth-register
   languages: [vue, javascript]
   patterns:
-    - regex: 'register\\.s*\\.(''severity: low
+    - regex: 'register\.s*\.()'
+  severity: low
   description: "Register function"
   remediation: "Validate registration data"
   cwe: "CWE-20"
@@ -1275,7 +1386,8 @@
 - id: vue-auth-logout
   languages: [vue, javascript]
   patterns:
-    - regex: 'logout\\.s*\\.(''severity: low
+    - regex: 'logout\.s*\.()'
+  severity: low
   description: "Logout function"
   remediation: "Clear session on logout"
   cwe: "CWE-613"
@@ -1284,7 +1396,8 @@
 - id: vue-auth-token
   languages: [vue, javascript]
   patterns:
-    - regex: 'token\\.s*=''severity: medium
+    - regex: 'token\.s*='
+  severity: medium
   description: "Token assignment"
   remediation: "Store token securely"
   cwe: "CWE-312"
@@ -1293,7 +1406,8 @@
 - id: vue-auth-jwt
   languages: [vue, javascript]
   patterns:
-    - regex: 'jwt\\.s*=''severity: medium
+    - regex: 'jwt\.s*='
+  severity: medium
   description: "JWT assignment"
   remediation: "Store JWT securely"
   cwe: "CWE-312"
@@ -1302,7 +1416,8 @@
 - id: vue-auth-bearer
   languages: [vue, javascript]
   patterns:
-    - regex: 'Bearer\\.s+''severity: low
+    - regex: 'Bearer\.s+'
+  severity: low
   description: "Bearer token usage"
   remediation: "Validate bearer token"
   cwe: "CWE-312"
@@ -1311,7 +1426,7 @@
 - id: vue-auth-local-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'localStorage\\..setItem\\.s*\\.(\\.s*['''\\.]token'
+    - regex: 'localStorage\..setItem\.s*\.(\.s*[''\.]token)'
   severity: high
   description: "Token in localStorage"
   remediation: "Use httpOnly cookies instead"
@@ -1321,7 +1436,7 @@
 - id: vue-auth-session-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'sessionStorage\\..setItem\\.s*\\.(\\.s*['''\\.]token'
+    - regex: 'sessionStorage\..setItem\.s*\.(\.s*[''\.]token)'
   severity: medium
   description: "Token in sessionStorage"
   remediation: "Use httpOnly cookies instead"
@@ -1331,7 +1446,8 @@
 - id: vue-auth-cookie-set
   languages: [vue, javascript]
   patterns:
-    - regex: 'document\\..cookie\\.s*=''severity: medium
+    - regex: 'document\..cookie\.s*='
+  severity: medium
   description: "Cookie manipulation"
   remediation: "Use secure cookie flags"
   cwe: "CWE-614"
@@ -1340,7 +1456,8 @@
 - id: vue-auth-cookie-secure
   languages: [vue, javascript]
   patterns:
-    - regex: 'secure\\.s*:\\.s*true''severity: low
+    - regex: 'secure\.s*:\.s*true'
+  severity: low
   description: "Secure cookie flag"
   remediation: "Good practice for security"
   cwe: "CWE-614"
@@ -1349,7 +1466,8 @@
 - id: vue-auth-cookie-httponly
   languages: [vue, javascript]
   patterns:
-    - regex: 'httpOnly\\.s*:\\.s*true''severity: low
+    - regex: 'httpOnly\.s*:\.s*true'
+  severity: low
   description: "HttpOnly cookie flag"
   remediation: "Good practice for security"
   cwe: "CWE-614"
@@ -1358,7 +1476,8 @@
 - id: vue-auth-cookie-samesite
   languages: [vue, javascript]
   patterns:
-    - regex: 'sameSite\\.s*:''severity: low
+    - regex: 'sameSite\.s*:'
+  severity: low
   description: "SameSite cookie attribute"
   remediation: "Use Strict or Lax"
   cwe: "CWE-352"
@@ -1367,7 +1486,8 @@
 - id: vue-auth-guard
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeEach\\.s*\\.(\\.s*to''severity: low
+    - regex: 'beforeEach\.s*\.(\.s*to)'
+  severity: low
   description: "Route guard"
   remediation: "Implement proper auth guard"
   cwe: "CWE-284"
@@ -1376,7 +1496,8 @@
 - id: vue-auth-middleware
   languages: [vue, javascript]
   patterns:
-    - regex: 'middleware\\.s*:''severity: low
+    - regex: 'middleware\.s*:'
+  severity: low
   description: "Middleware configuration"
   remediation: "Implement proper middleware"
   cwe: "CWE-284"
@@ -1385,7 +1506,8 @@
 - id: vue-auth-permission
   languages: [vue, javascript]
   patterns:
-    - regex: 'permission\\.s*:''severity: low
+    - regex: 'permission\.s*:'
+  severity: low
   description: "Permission check"
   remediation: "Implement proper permission check"
   cwe: "CWE-284"
@@ -1400,7 +1522,7 @@
 - id: vue-v-html-user-content
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.$\\.{?\\.s*user|message|comment|content|input'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.$\.{?\.s*user|message|comment|content|input'
   severity: critical
   description: "v-html with user-controlled content (XSS critical)"
   remediation: "Use v-text or {{ }} interpolation, or sanitize with DOMPurify"
@@ -1410,7 +1532,7 @@
 - id: vue-v-html-unsanitized
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?[^\\.'']*?(?!DOMPurify|sanitize|escape)'
+    - regex: 'v-html\.s*=\.s*[''\.]?[^\.'']*?(?:DOMPurify|sanitize|escape)'
   severity: high
   description: "v-html without sanitization"
   remediation: "Always sanitize HTML content with DOMPurify before using v-html"
@@ -1420,7 +1542,7 @@
 - id: vue-v-html-api-response
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w*\\..response\\..data|\\.w*\\..api\\..\\.w+'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w*\..response\..data|\.w*\..api\..\.w+'
   severity: critical
   description: "v-html bound to API response (XSS from external source)"
   remediation: "Sanitize all API responses before rendering HTML"
@@ -1430,7 +1552,7 @@
 - id: vue-v-html-store-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.$store\\..state\\..\\.w+|store\\..getters\\..\\.w+'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.$store\..state\..\.w+|store\..getters\..\.w+'
   severity: high
   description: "v-html bound to Vuex/Pinia store (XSS if store contains unsanitized data)"
   remediation: "Sanitize store data before rendering HTML"
@@ -1440,7 +1562,7 @@
 - id: vue-v-html-route-param
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.$route\\..params\\..\\.w+|\\.$route\\..query\\..\\.w+'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.$route\..params\..\.w+|\.$route\..query\..\.w+'
   severity: critical
   description: "v-html with route parameters (XSS from URL)"
   remediation: "Never use v-html with route parameters"
@@ -1450,7 +1572,7 @@
 - id: vue-v-html-local-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?localStorage\\..getItem|sessionStorage\\..getItem'
+    - regex: 'v-html\.s*=\.s*[''\.]?localStorage\..getItem|sessionStorage\..getItem'
   severity: high
   description: "v-html with storage data (XSS from stored content)"
   remediation: "Sanitize all data from storage before rendering"
@@ -1460,7 +1582,7 @@
 - id: vue-v-html-cookie
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?document\\..cookie|\\.$cookie|\\.$cookies'
+    - regex: 'v-html\.s*=\.s*[''\.]?document\..cookie|\.$cookie|\.$cookies'
   severity: high
   description: "v-html with cookie data (XSS from cookies)"
   remediation: "Never render cookie values with v-html"
@@ -1470,7 +1592,7 @@
 - id: vue-v-html-unescape
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?unescape|decodeURI|decodeURIComponent'
+    - regex: 'v-html\.s*=\.s*[''\.]?unescape|decodeURI|decodeURIComponent'
   severity: high
   description: "v-html with decoded content (may decode malicious scripts)"
   remediation: "Sanitize after decoding"
@@ -1480,7 +1602,7 @@
 - id: vue-v-html-regex
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..replace|\\.w+\\..match|\\.w+\\..search'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..replace|\.w+\..match|\.w+\..search'
   severity: medium
   description: "v-html with regex operations (may affect sanitization)"
   remediation: "Apply sanitization after regex operations"
@@ -1490,7 +1612,7 @@
 - id: vue-v-html-slice
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\..slice|\\.w+\\..substr|\\.w+\\..substring'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\..slice|\.w+\..substr|\.w+\..substring'
   severity: medium
   description: "v-html with substring operations (may break sanitization)"
   remediation: "Sanitize after string manipulation"
@@ -1500,7 +1622,7 @@
 - id: vue-v-html-concat
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?\\.w+\\.s*\\.+\\.s*\\.w+'
+    - regex: 'v-html\.s*=\.s*[''\.]?\.w+\.s*\.+\.s*\.w+'
   severity: high
   description: "v-html with concatenated strings (may combine safe and unsafe)"
   remediation: "Sanitize final concatenated string"
@@ -1510,7 +1632,7 @@
 - id: vue-v-html-template-literal
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html\\.s*=\\.s*['''\\.]?`.*\\.$\\.{.*\\.}.*`'
+    - regex: 'v-html\.s*=\.s*[''\.]?`.*\.$\.{.*\.}.*`'
   severity: critical
   description: "v-html with template literals (injection risk)"
   remediation: "Avoid v-html with template literals"
@@ -1520,7 +1642,8 @@
 - id: vue-v-html-jsx
   languages: [vue, javascript]
   patterns:
-    - regex: 'domPropsHTML|innerHTML.*=\\.s*\\.{.*\\.}''severity: critical
+    - regex: 'domPropsHTML|innerHTML.*=\.s*\.{.*\.}'
+  severity: critical
   description: "JSX with innerHTML (XSS in Vue JSX)"
   remediation: "Use sanitization or avoid innerHTML"
   cwe: "CWE-79"
@@ -1529,7 +1652,8 @@
 - id: vue-v-html-markdown
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*marked|markdown.*render|md.*render''severity: high
+    - regex: 'v-html.*marked|markdown.*render|md.*render'
+  severity: high
   description: "v-html with markdown rendering (XSS if markdown allows HTML)"
   remediation: "Use markdown-it with HTML disabled"
   cwe: "CWE-79"
@@ -1538,7 +1662,8 @@
 - id: vue-v-html-quill
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*quill|quill\\..root\\..innerHTML''severity: high
+    - regex: 'v-html.*quill|quill\..root\..innerHTML'
+  severity: high
   description: "v-html with Quill editor content (XSS from rich text)"
   remediation: "Sanitize Quill output with DOMPurify"
   cwe: "CWE-79"
@@ -1547,7 +1672,8 @@
 - id: vue-v-html-tinymce
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*tinymce|tinyMCE\\..getContent''severity: high
+    - regex: 'v-html.*tinymce|tinyMCE\..getContent'
+  severity: high
   description: "v-html with TinyMCE content (XSS from rich text)"
   remediation: "Configure TinyMCE with sanitization"
   cwe: "CWE-79"
@@ -1556,7 +1682,8 @@
 - id: vue-v-html-ckeditor
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*ckeditor|CKEDITOR\\..instances''severity: high
+    - regex: 'v-html.*ckeditor|CKEDITOR\..instances'
+  severity: high
   description: "v-html with CKEditor content (XSS from rich text)"
   remediation: "Sanitize CKEditor output"
   cwe: "CWE-79"
@@ -1565,7 +1692,8 @@
 - id: vue-v-html-froala
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*froala|froalaEditor.*html\\..get''severity: high
+    - regex: 'v-html.*froala|froalaEditor.*html\..get'
+  severity: high
   description: "v-html with Froala content (XSS from rich text)"
   remediation: "Sanitize Froala output"
   cwe: "CWE-79"
@@ -1574,7 +1702,8 @@
 - id: vue-v-html-draftjs
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*draft-js|convertFromRaw|convertToRaw''severity: high
+    - regex: 'v-html.*draft-js|convertFromRaw|convertToRaw'
+  severity: high
   description: "v-html with Draft.js content (XSS from rich text)"
   remediation: "Sanitize Draft.js output"
   cwe: "CWE-79"
@@ -1583,7 +1712,8 @@
 - id: vue-v-html-slate
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*slate|slate.*serialize|slate.*deserialize''severity: high
+    - regex: 'v-html.*slate|slate.*serialize|slate.*deserialize'
+  severity: high
   description: "v-html with Slate editor content (XSS)"
   remediation: "Sanitize Slate output"
   cwe: "CWE-79"
@@ -1592,7 +1722,8 @@
 - id: vue-v-html-tiptap
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*tiptap|editor\\..getHTML|editor\\..getJSON''severity: high
+    - regex: 'v-html.*tiptap|editor\..getHTML|editor\..getJSON'
+  severity: high
   description: "v-html with TipTap content (XSS)"
   remediation: "Sanitize TipTap output"
   cwe: "CWE-79"
@@ -1601,7 +1732,8 @@
 - id: vue-v-html-code-mirror
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*codemirror|CodeMirror\\..getValue''severity: high
+    - regex: 'v-html.*codemirror|CodeMirror\..getValue'
+  severity: high
   description: "v-html with CodeMirror content (XSS if HTML content)"
   remediation: "Escape CodeMirror output"
   cwe: "CWE-79"
@@ -1610,7 +1742,8 @@
 - id: vue-v-html-ace-editor
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*ace|editor\\..getValue''severity: high
+    - regex: 'v-html.*ace|editor\..getValue'
+  severity: high
   description: "v-html with Ace editor content (XSS)"
   remediation: "Escape Ace editor output"
   cwe: "CWE-79"
@@ -1619,7 +1752,8 @@
 - id: vue-v-html-monaco
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*monaco|monaco\\..editor.*getValue''severity: high
+    - regex: 'v-html.*monaco|monaco\..editor.*getValue'
+  severity: high
   description: "v-html with Monaco editor content (XSS)"
   remediation: "Escape Monaco editor output"
   cwe: "CWE-79"
@@ -1628,7 +1762,8 @@
 - id: vue-v-html-svg
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*svg|<svg.*>.*</svg>''severity: high
+    - regex: 'v-html.*svg|<svg.*>.*</svg>'
+  severity: high
   description: "v-html with SVG (XSS through SVG scripts)"
   remediation: "Sanitize SVG content"
   cwe: "CWE-79"
@@ -1637,7 +1772,8 @@
 - id: vue-v-html-mathml
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*math|<math.*>.*</math>''severity: high
+    - regex: 'v-html.*math|<math.*>.*</math>'
+  severity: high
   description: "v-html with MathML (XSS through MathML scripts)"
   remediation: "Sanitize MathML content"
   cwe: "CWE-79"
@@ -1646,7 +1782,8 @@
 - id: vue-v-html-iframe
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<iframe|iframe.*srcdoc''severity: critical
+    - regex: 'v-html.*<iframe|iframe.*srcdoc'
+  severity: critical
   description: "v-html with iframe (XSS through srcdoc)"
   remediation: "Avoid iframes in v-html"
   cwe: "CWE-79"
@@ -1655,7 +1792,8 @@
 - id: vue-v-html-object
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<object|object.*data''severity: critical
+    - regex: 'v-html.*<object|object.*data'
+  severity: critical
   description: "v-html with object tag (XSS through embedded content)"
   remediation: "Avoid object tags in v-html"
   cwe: "CWE-79"
@@ -1664,7 +1802,8 @@
 - id: vue-v-html-embed
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<embed|embed.*src''severity: critical
+    - regex: 'v-html.*<embed|embed.*src'
+  severity: critical
   description: "v-html with embed tag (XSS through embedded content)"
   remediation: "Avoid embed tags in v-html"
   cwe: "CWE-79"
@@ -1673,7 +1812,8 @@
 - id: vue-v-html-applet
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<applet|applet.*code''severity: critical
+    - regex: 'v-html.*<applet|applet.*code'
+  severity: critical
   description: "v-html with applet tag (Java applet XSS)"
   remediation: "Avoid applet tags in v-html"
   cwe: "CWE-79"
@@ -1682,7 +1822,8 @@
 - id: vue-v-html-base
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<base|base.*href''severity: high
+    - regex: 'v-html.*<base|base.*href'
+  severity: high
   description: "v-html with base tag (can redirect relative URLs)"
   remediation: "Avoid base tags in v-html"
   cwe: "CWE-79"
@@ -1691,7 +1832,8 @@
 - id: vue-v-html-meta
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<meta|meta.*http-equiv''severity: medium
+    - regex: 'v-html.*<meta|meta.*http-equiv'
+  severity: medium
   description: "v-html with meta tags (can set cookies/redirects)"
   remediation: "Avoid meta tags in v-html"
   cwe: "CWE-79"
@@ -1700,7 +1842,8 @@
 - id: vue-v-html-link
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<link|link.*rel=.*stylesheet|link.*href''severity: high
+    - regex: 'v-html.*<link|link.*rel=.*stylesheet|link.*href'
+  severity: high
   description: "v-html with link tags (can load external CSS with XSS)"
   remediation: "Avoid link tags in v-html"
   cwe: "CWE-79"
@@ -1709,7 +1852,8 @@
 - id: vue-v-html-style
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<style|style.*>.*</style>''severity: high
+    - regex: 'v-html.*<style|style.*>.*</style>'
+  severity: high
   description: "v-html with style tags (CSS expression XSS in IE)"
   remediation: "Avoid style tags in v-html"
   cwe: "CWE-79"
@@ -1718,7 +1862,8 @@
 - id: vue-v-html-script
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<script|script.*>.*</script>''severity: critical
+    - regex: 'v-html.*<script|script.*>.*</script>'
+  severity: critical
   description: "v-html with script tags (direct XSS)"
   remediation: "Never allow script tags in v-html"
   cwe: "CWE-79"
@@ -1727,7 +1872,8 @@
 - id: vue-v-html-onerror
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*onerror|onload|onclick|onmouseover''severity: critical
+    - regex: 'v-html.*onerror|onload|onclick|onmouseover'
+  severity: critical
   description: "v-html with event handlers (XSS through events)"
   remediation: "Strip all on* attributes from HTML"
   cwe: "CWE-79"
@@ -1736,7 +1882,7 @@
 - id: vue-v-html-href-javascript
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*href\\.s*=\\.s*['''\\.]javascript:'
+    - regex: 'v-html.*href\.s*=\.s*[''\.]javascript:'
   severity: critical
   description: "v-html with javascript: URLs (XSS)"
   remediation: "Strip javascript: URLs from HTML"
@@ -1746,7 +1892,8 @@
 - id: vue-v-html-iframe-srcdoc
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*srcdoc|iframe.*srcdoc''severity: critical
+    - regex: 'v-html.*srcdoc|iframe.*srcdoc'
+  severity: critical
   description: "v-html with iframe srcdoc (XSS)"
   remediation: "Avoid iframe srcdoc in v-html"
   cwe: "CWE-79"
@@ -1755,7 +1902,8 @@
 - id: vue-v-html-data-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*data:.*text/html|data:.*text/javascript''severity: critical
+    - regex: 'v-html.*data:.*text/html|data:.*text/javascript'
+  severity: critical
   description: "v-html with data URLs (XSS through data URIs)"
   remediation: "Strip data: URLs from HTML"
   cwe: "CWE-79"
@@ -1764,7 +1912,8 @@
 - id: vue-v-html-blob-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*blob:|URL\\..createObjectURL''severity: high
+    - regex: 'v-html.*blob:|URL\..createObjectURL'
+  severity: high
   description: "v-html with blob URLs (potential XSS)"
   remediation: "Revoke blob URLs after use"
   cwe: "CWE-79"
@@ -1773,7 +1922,8 @@
 - id: vue-v-html-mathml-xss
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-html.*<math.*><mtext.*><script''severity: critical
+    - regex: 'v-html.*<math.*><mtext.*><script'
+  severity: critical
   description: "v-html with MathML script injection"
   remediation: "Sanitize MathML content"
   cwe: "CWE-79"
@@ -1784,7 +1934,8 @@
 - id: vue-prototype-pollution-merge
   languages: [vue, javascript]
   patterns:
-    - regex: 'Object\\..assign.*(?:req|res|input|data)|_.merge.*(?:req|res|input|data)''severity: critical
+    - regex: 'Object\..assign.*(?:req|res|input|data)|_.merge.*(?:req|res|input|data)'
+  severity: critical
   description: "Object merge with user input (prototype pollution risk)"
   remediation: "Use Object.assign({}, default, pick(input, allowed))"
   cwe: "CWE-1321"
@@ -1793,7 +1944,7 @@
 - id: vue-prototype-pollution-set
   languages: [vue, javascript]
   patterns:
-    - regex: 'Vue\\..set\\.s*\\.(\\.s*[^,]+,\\.s*['''\\.]__proto__|Vue\\..set.*[''\\.]constructor'
+    - regex: 'Vue\..set\.s*\.(\.s*[^,]+,\.s*[''\.]__proto__|Vue\..set.*[''\.]constructor)'
   severity: critical
   description: "Vue.set with __proto__ or constructor (prototype pollution)"
   remediation: "Sanitize keys before using Vue.set"
@@ -1803,7 +1954,8 @@
 - id: vue-prototype-pollution-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'data\\.(\\.)\\.s*{\\.s*return\\.s*{\\.s*__proto__:|constructor\\.s*:\\.s*{''severity: critical
+    - regex: 'data\.(\.)\.s*{\.s*return\.s*{\.s*__proto__:|constructor\.s*:\.s*{'
+  severity: critical
   description: "Data containing __proto__ or constructor (prototype pollution)"
   remediation: "Strip __proto__ and constructor from data"
   cwe: "CWE-1321"
@@ -1812,7 +1964,8 @@
 - id: vue-prototype-pollution-computed
   languages: [vue, javascript]
   patterns:
-    - regex: 'computed\\.s*:\\.s*{\\.s*__proto__:|constructor\\.s*:\\.s*{''severity: critical
+    - regex: 'computed\.s*:\.s*{\.s*__proto__:|constructor\.s*:\.s*{'
+  severity: critical
   description: "Computed properties with __proto__ (prototype pollution)"
   remediation: "Avoid using __proto__ as computed property name"
   cwe: "CWE-1321"
@@ -1821,7 +1974,8 @@
 - id: vue-prototype-pollution-methods
   languages: [vue, javascript]
   patterns:
-    - regex: 'methods\\.s*:\\.s*{\\.s*__proto__:|constructor\\.s*:\\.s*{''severity: critical
+    - regex: 'methods\.s*:\.s*{\.s*__proto__:|constructor\.s*:\.s*{'
+  severity: critical
   description: "Methods with __proto__ (prototype pollution)"
   remediation: "Avoid using __proto__ as method name"
   cwe: "CWE-1321"
@@ -1830,7 +1984,8 @@
 - id: vue-prototype-pollution-watch
   languages: [vue, javascript]
   patterns:
-    - regex: 'watch\\.s*:\\.s*{\\.s*__proto__:|constructor\\.s*:\\.s*{''severity: critical
+    - regex: 'watch\.s*:\.s*{\.s*__proto__:|constructor\.s*:\.s*{'
+  severity: critical
   description: "Watchers with __proto__ (prototype pollution)"
   remediation: "Avoid using __proto__ as watch property"
   cwe: "CWE-1321"
@@ -1839,7 +1994,8 @@
 - id: vue-prototype-pollution-props
   languages: [vue, javascript]
   patterns:
-    - regex: 'props\\.s*:\\.s*{\\.s*__proto__:|constructor\\.s*:\\.s*{''severity: critical
+    - regex: 'props\.s*:\.s*{\.s*__proto__:|constructor\.s*:\.s*{'
+  severity: critical
   description: "Props with __proto__ (prototype pollution)"
   remediation: "Avoid using __proto__ as prop name"
   cwe: "CWE-1321"
@@ -1848,7 +2004,7 @@
 - id: vue-prototype-pollution-inject
   languages: [vue, javascript]
   patterns:
-    - regex: 'inject\\.s*:\\.s*\\.[\\.s*['''\\.]__proto__[''\\.]|inject\\.s*:\\.s*{\\.s*__proto__'
+    - regex: 'inject\.s*:\.s*\.[\.s*[''\.]__proto__[''\.]|inject\.s*:\.s*{\.s*__proto__'
   severity: critical
   description: "Inject with __proto__ (prototype pollution)"
   remediation: "Avoid injecting __proto__"
@@ -1858,7 +2014,7 @@
 - id: vue-prototype-pollution-emits
   languages: [vue, javascript]
   patterns:
-    - regex: 'emits\\.s*:\\.s*\\.[\\.s*['''\\.]__proto__[''\\.]|emits\\.s*:\\.s*{\\.s*__proto__'
+    - regex: 'emits\.s*:\.s*\.[\.s*[''\.]__proto__[''\.]|emits\.s*:\.s*{\.s*__proto__'
   severity: critical
   description: "Emits with __proto__ (prototype pollution)"
   remediation: "Avoid emitting __proto__"
@@ -1868,7 +2024,7 @@
 - id: vue-prototype-pollution-expose
   languages: [vue, javascript]
   patterns:
-    - regex: 'expose\\.s*:\\.s*\\.[\\.s*['''\\.]__proto__[''\\.]'
+    - regex: 'expose\.s*:\.s*\.[\.s*[''\.]__proto__[''\.]'
   severity: critical
   description: "Expose with __proto__ (prototype pollution)"
   remediation: "Avoid exposing __proto__"
@@ -1878,7 +2034,7 @@
 - id: vue-prototype-pollution-ref
   languages: [vue, javascript]
   patterns:
-    - regex: 'ref\\.s*=\\.s*['''\\.]__proto__[''\\.]'
+    - regex: 'ref\.s*=\.s*[''\.]__proto__[''\.]'
   severity: high
   description: "Ref with __proto__ (may cause prototype pollution)"
   remediation: "Avoid using __proto__ as ref name"
@@ -1888,7 +2044,7 @@
 - id: vue-prototype-pollution-key
   languages: [vue, javascript]
   patterns:
-    - regex: ':key\\.s*=\\.s*['''\\.]__proto__|:key\\.s*=\\.s*[''\\.]constructor'
+    - regex: ':key\.s*=\.s*[''\.]__proto__|:key\.s*=\.s*[''\.]constructor'
   severity: high
   description: "Key with __proto__ or constructor"
   remediation: "Avoid using __proto__ as key"
@@ -1898,7 +2054,7 @@
 - id: vue-prototype-pollution-v-model
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-model\\.s*=\\.s*['''\\.]__proto__|v-model\\.s*=\\.s*[''\\.]constructor'
+    - regex: 'v-model\.s*=\.s*[''\.]__proto__|v-model\.s*=\.s*[''\.]constructor'
   severity: high
   description: "v-model with __proto__ (user can modify prototype)"
   remediation: "Avoid binding v-model to __proto__"
@@ -1908,7 +2064,7 @@
 - id: vue-prototype-pollution-v-bind
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind\\.s*=\\.s*['''\\.]__proto__|v-bind.*[''\\.]__proto__'
+    - regex: 'v-bind\.s*=\.s*[''\.]__proto__|v-bind.*[''\.]__proto__'
   severity: high
   description: "v-bind with __proto__ (prototype pollution)"
   remediation: "Avoid binding to __proto__"
@@ -1918,7 +2074,8 @@
 - id: vue-prototype-pollution-merge-deep
   languages: [vue, javascript]
   patterns:
-    - regex: 'mergeDeep|deepMerge|deepExtend.*(?:req|res|input|data)''severity: critical
+    - regex: 'mergeDeep|deepMerge|deepExtend.*(?:req|res|input|data)'
+  severity: critical
   description: "Deep merge with user input (prototype pollution)"
   remediation: "Avoid deep merges with user input"
   cwe: "CWE-1321"
@@ -1927,7 +2084,8 @@
 - id: vue-prototype-pollution-qs
   languages: [vue, javascript]
   patterns:
-    - regex: 'qs\\..parse.*query|query-string\\..parse.*query''severity: high
+    - regex: 'qs\..parse.*query|query-string\..parse.*query'
+  severity: high
   description: "Query string parsing (prototype pollution if allowPrototypes=true)"
   remediation: "Set allowPrototypes=false in qs options"
   cwe: "CWE-1321"
@@ -1936,7 +2094,8 @@
 - id: vue-prototype-pollution-body-parser
   languages: [vue, javascript]
   patterns:
-    - regex: 'body-parser|bodyParser|json\\..parse.*body''severity: high
+    - regex: 'body-parser|bodyParser|json\..parse.*body'
+  severity: high
   description: "Body parsing with user input (prototype pollution)"
   remediation: "Use reviver to filter __proto__ and constructor"
   cwe: "CWE-1321"
@@ -1945,7 +2104,8 @@
 - id: vue-prototype-pollution-json-parse
   languages: [vue, javascript]
   patterns:
-    - regex: 'JSON\\..parse\\.s*\\.(\\.s*[^)]*req|JSON\\..parse.*body''severity: high
+    - regex: 'JSON\..parse\.s*\.(\.s*[^)]*req|JSON\..parse.*body)'
+  severity: high
   description: "JSON.parse with user input (prototype pollution)"
   remediation: "Use reviver to filter dangerous keys"
   cwe: "CWE-1321"
@@ -1954,7 +2114,8 @@
 - id: vue-prototype-pollution-axios
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..(get|post|put|patch).*response.*data.*assign|axios.*data.*merge''severity: high
+    - regex: 'axios\..(get|post|put|patch).*response.*data.*assign|axios.*data.*merge'
+  severity: high
   description: "Axios response merged without sanitization (prototype pollution)"
   remediation: "Use response.data directly without merging"
   cwe: "CWE-1321"
@@ -1963,7 +2124,8 @@
 - id: vue-prototype-pollution-fetch
   languages: [vue, javascript]
   patterns:
-    - regex: 'fetch\\.s*\\.(.*\\.)\\.s*\\..then.*json\\.(\\.)\\.s*\\..then.*assign|fetch.*data.*merge''severity: high
+    - regex: 'fetch\.s*\.(.*\.)\.s*\..then.*json\.(\.)\.s*\..then.*assign|fetch.*data.*merge'
+  severity: high
   description: "Fetch response merged without sanitization"
   remediation: "Use response data directly"
   cwe: "CWE-1321"
@@ -1972,7 +2134,8 @@
 - id: vue-prototype-pollution-form-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'new\\.s+FormData|FormData\\..append.*__proto__|FormData\\..append.*constructor''severity: critical
+    - regex: 'new\.s+FormData|FormData\..append.*__proto__|FormData\..append.*constructor'
+  severity: critical
   description: "FormData with __proto__ or constructor"
   remediation: "Sanitize FormData keys"
   cwe: "CWE-1321"
@@ -1981,7 +2144,8 @@
 - id: vue-prototype-pollution-url-params
   languages: [vue, javascript]
   patterns:
-    - regex: 'new\\.s+URLSearchParams|URLSearchParams\\..get.*__proto__''severity: high
+    - regex: 'new\.s+URLSearchParams|URLSearchParams\..get.*__proto__'
+  severity: high
   description: "URL parameters with __proto__"
   remediation: "Sanitize URL parameters"
   cwe: "CWE-1321"
@@ -1990,7 +2154,8 @@
 - id: vue-prototype-pollution-local-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'localStorage\\..getItem.*JSON\\..parse.*__proto__|localStorage\\..setItem.*__proto__''severity: high
+    - regex: 'localStorage\..getItem.*JSON\..parse.*__proto__|localStorage\..setItem.*__proto__'
+  severity: high
   description: "Local storage with __proto__ (prototype pollution)"
   remediation: "Sanitize storage data"
   cwe: "CWE-1321"
@@ -1999,7 +2164,8 @@
 - id: vue-prototype-pollution-session-storage
   languages: [vue, javascript]
   patterns:
-    - regex: 'sessionStorage\\..getItem.*JSON\\..parse.*__proto__|sessionStorage\\..setItem.*__proto__''severity: high
+    - regex: 'sessionStorage\..getItem.*JSON\..parse.*__proto__|sessionStorage\..setItem.*__proto__'
+  severity: high
   description: "Session storage with __proto__ (prototype pollution)"
   remediation: "Sanitize storage data"
   cwe: "CWE-1321"
@@ -2008,7 +2174,8 @@
 - id: vue-prototype-pollution-indexed-db
   languages: [vue, javascript]
   patterns:
-    - regex: 'indexedDB|IDBRequest|IDBObjectStore.*__proto__''severity: high
+    - regex: 'indexedDB|IDBRequest|IDBObjectStore.*__proto__'
+  severity: high
   description: "IndexedDB with __proto__ (prototype pollution)"
   remediation: "Sanitize database keys"
   cwe: "CWE-1321"
@@ -2017,7 +2184,8 @@
 - id: vue-prototype-pollution-cookie
   languages: [vue, javascript]
   patterns:
-    - regex: 'document\\..cookie.*__proto__|\\.$cookie.*__proto__''severity: high
+    - regex: 'document\..cookie.*__proto__|\.$cookie.*__proto__'
+  severity: high
   description: "Cookies with __proto__ (prototype pollution)"
   remediation: "Sanitize cookie values"
   cwe: "CWE-1321"
@@ -2026,7 +2194,8 @@
 - id: vue-prototype-pollution-web-socket
   languages: [vue, javascript]
   patterns:
-    - regex: 'WebSocket.*onmessage.*JSON\\..parse.*__proto__|ws.*message.*__proto__''severity: high
+    - regex: 'WebSocket.*onmessage.*JSON\..parse.*__proto__|ws.*message.*__proto__'
+  severity: high
   description: "WebSocket message with __proto__ (prototype pollution)"
   remediation: "Sanitize WebSocket messages"
   cwe: "CWE-1321"
@@ -2035,7 +2204,8 @@
 - id: vue-prototype-pollution-event-bus
   languages: [vue, javascript]
   patterns:
-    - regex: 'EventBus\\..\\.$emit|EventBus\\..\\.$on.*__proto__|emitter\\..emit.*__proto__''severity: medium
+    - regex: 'EventBus\..\.$emit|EventBus\..\.$on.*__proto__|emitter\..emit.*__proto__'
+  severity: medium
   description: "Event bus with __proto__ (prototype pollution)"
   remediation: "Sanitize event data"
   cwe: "CWE-1321"
@@ -2044,7 +2214,7 @@
 - id: vue-prototype-pollution-provide-inject
   languages: [vue, javascript]
   patterns:
-    - regex: 'provide\\.s*:\\.s*{\\.s*__proto__|inject\\.s*:\\.s*\\.[\\.s*['''\\.]__proto__'
+    - regex: 'provide\.s*:\.s*{\.s*__proto__|inject\.s*:\.s*\.[\.s*[''\.]__proto__'
   severity: critical
   description: "Provide/inject with __proto__ (prototype pollution)"
   remediation: "Avoid providing __proto__"
@@ -2056,7 +2226,8 @@
 - id: vue-ssr-context-user-input
   languages: [vue, javascript]
   patterns:
-    - regex: 'context\\..(?:req|request|params|query|body)''severity: critical
+    - regex: 'context\..(?:req|request|params|query|body)'
+  severity: critical
   description: "SSR context with user input (may be serialized to client)"
   remediation: "Filter sensitive data before passing to client"
   cwe: "CWE-200"
@@ -2065,7 +2236,8 @@
 - id: vue-ssr-serialize-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'window\\..__INITIAL_STATE__|window\\..__INITIAL_DATA__|JSON\\..stringify.*store''severity: high
+    - regex: 'window\..__INITIAL_STATE__|window\..__INITIAL_DATA__|JSON\..stringify.*store'
+  severity: high
   description: "SSR state serialized to window (XSS risk if not escaped)"
   remediation: "Use JSON.stringify with HTML escaping"
   cwe: "CWE-79"
@@ -2074,7 +2246,8 @@
 - id: vue-ssr-escape-json
   languages: [vue, javascript]
   patterns:
-    - regex: 'JSON\\..stringify.*''severity: high
+    - regex: 'JSON\..stringify.*'
+  severity: high
   description: "SSR JSON stringify without HTML escaping"
   remediation: "Use serialize-javascript or JSON.stringify with escaping"
   cwe: "CWE-79"
@@ -2083,7 +2256,8 @@
 - id: vue-ssr-inline-json
   languages: [vue, javascript]
   patterns:
-    - regex: '<script>.*JSON\\..parse.*<\\./script>''severity: high
+    - regex: '<script>.*JSON\..parse.*<\./script>'
+  severity: high
   description: "Inline JSON parsing in SSR (XSS risk)"
   remediation: "Use separate script file for bootstrapping"
   cwe: "CWE-79"
@@ -2092,7 +2266,8 @@
 - id: vue-ssr-html-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'ssrContext\\..rendered.*html|renderToString.*html''severity: high
+    - regex: 'ssrContext\..rendered.*html|renderToString.*html'
+  severity: high
   description: "SSR HTML injection from user input"
   remediation: "Escape all user input in SSR"
   cwe: "CWE-79"
@@ -2101,7 +2276,8 @@
 - id: vue-ssr-title-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'title\\.s*:\\.s*.*req|title\\.s*:\\.s*.*params''severity: high
+    - regex: 'title\.s*:\.s*.*req|title\.s*:\.s*.*params'
+  severity: high
   description: "SSR title with user input (XSS)"
   remediation: "Escape title content"
   cwe: "CWE-79"
@@ -2110,7 +2286,8 @@
 - id: vue-ssr-meta-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta\\.s*:\\.s*.*req|meta\\.s*:\\.s*.*params''severity: high
+    - regex: 'meta\.s*:\.s*.*req|meta\.s*:\.s*.*params'
+  severity: high
   description: "SSR meta tags with user input (XSS)"
   remediation: "Escape meta content"
   cwe: "CWE-79"
@@ -2119,7 +2296,8 @@
 - id: vue-ssr-link-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'link\\.s*:\\.s*.*req|link\\.s*:\\.s*.*params.*href''severity: high
+    - regex: 'link\.s*:\.s*.*req|link\.s*:\.s*.*params.*href'
+  severity: high
   description: "SSR link tags with user input (open redirect)"
   remediation: "Validate href URLs"
   cwe: "CWE-601"
@@ -2128,7 +2306,8 @@
 - id: vue-ssr-script-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'script\\.s*:\\.s*.*req|script\\.s*:\\.s*.*params.*src''severity: critical
+    - regex: 'script\.s*:\.s*.*req|script\.s*:\.s*.*params.*src'
+  severity: critical
   description: "SSR script tags with user input (XSS)"
   remediation: "Never allow user input in script src"
   cwe: "CWE-79"
@@ -2137,7 +2316,8 @@
 - id: vue-ssr-style-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'style\\.s*:\\.s*.*req|style\\.s*:\\.s*.*params''severity: high
+    - regex: 'style\.s*:\.s*.*req|style\.s*:\.s*.*params'
+  severity: high
   description: "SSR style tags with user input (CSS injection)"
   remediation: "Escape CSS content"
   cwe: "CWE-79"
@@ -2146,7 +2326,8 @@
 - id: vue-ssr-json-script
   languages: [vue, javascript]
   patterns:
-    - regex: '<script.*>.*__INITIAL.*__.*<\\./script>''severity: high
+    - regex: '<script.*>.*__INITIAL.*__.*<\./script>'
+  severity: high
   description: "SSR initial state in script tag (XSS if not escaped)"
   remediation: "Use JSON.stringify with HTML escaping"
   cwe: "CWE-79"
@@ -2155,7 +2336,8 @@
 - id: vue-ssr-unescape-json
   languages: [vue, javascript]
   patterns:
-    - regex: '<script.*>.*__INITIAL.*__.*JSON\\..stringify.*''severity: critical
+    - regex: '<script.*>.*__INITIAL.*__.*JSON\..stringify.*'
+  severity: critical
   description: "SSR JSON stringify without escaping"
   remediation: "Use JSON.stringify with HTML escaping"
   cwe: "CWE-79"
@@ -2164,7 +2346,8 @@
 - id: vue-ssr-csp-nonce
   languages: [vue, javascript]
   patterns:
-    - regex: 'nonce|scriptNonce|styleNonce''severity: low
+    - regex: 'nonce|scriptNonce|styleNonce'
+  severity: low
   description: "SSR with CSP nonce (good)"
   remediation: "Implement CSP with nonces for scripts"
   cwe: "CWE-79"
@@ -2173,7 +2356,8 @@
 - id: vue-ssr-csp-nonce-missing
   languages: [vue, javascript]
   patterns:
-    - regex: '<script.*>.*<\\./script>''severity: high
+    - regex: '<script.*>.*<\./script>'
+  severity: high
   description: "SSR inline scripts without CSP nonce"
   remediation: "Add CSP nonce to inline scripts"
   cwe: "CWE-79"
@@ -2182,7 +2366,8 @@
 - id: vue-ssr-xss-filter
   languages: [vue, javascript]
   patterns:
-    - regex: 'xss\\..|filterXSS|sanitizeHTML.*req|escape.*req''severity: low
+    - regex: 'xss\..|filterXSS|sanitizeHTML.*req|escape.*req'
+  severity: low
   description: "SSR with XSS filtering (good)"
   remediation: "Always filter user input in SSR"
   cwe: "CWE-79"
@@ -2191,7 +2376,8 @@
 - id: vue-ssr-helmet
   languages: [vue, javascript]
   patterns:
-    - regex: 'Vue\\..Helmet|vue-meta|vue-head''severity: low
+    - regex: 'Vue\..Helmet|vue-meta|vue-head'
+  severity: low
   description: "SSR with meta management"
   remediation: "Ensure meta content is escaped"
   cwe: "CWE-79"
@@ -2200,7 +2386,8 @@
 - id: vue-ssr-helmet-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'helmet.*title.*req|metaInfo.*title.*params''severity: high
+    - regex: 'helmet.*title.*req|metaInfo.*title.*params'
+  severity: high
   description: "SSR helmet with user input (XSS)"
   remediation: "Escape helmet content"
   cwe: "CWE-79"
@@ -2209,7 +2396,8 @@
 - id: vue-ssr-render-to-string
   languages: [vue, javascript]
   patterns:
-    - regex: 'renderToString|renderToStream''severity: low
+    - regex: 'renderToString|renderToStream'
+  severity: low
   description: "SSR rendering function"
   remediation: "Ensure all user input is escaped"
   cwe: "CWE-79"
@@ -2218,7 +2406,8 @@
 - id: vue-ssr-render-context
   languages: [vue, javascript]
   patterns:
-    - regex: 'renderContext|ssrContext''severity: medium
+    - regex: 'renderContext|ssrContext'
+  severity: medium
   description: "SSR render context"
   remediation: "Don't put sensitive data in render context"
   cwe: "CWE-200"
@@ -2227,7 +2416,8 @@
 - id: vue-ssr-prefetch
   languages: [vue, javascript]
   patterns:
-    - regex: 'prefetch|asyncData|serverPrefetch''severity: low
+    - regex: 'prefetch|asyncData|serverPrefetch'
+  severity: low
   description: "SSR data prefetching"
   remediation: "Validate prefetched data"
   cwe: "CWE-20"
@@ -2236,7 +2426,8 @@
 - id: vue-ssr-prefetch-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'asyncData.*req|serverPrefetch.*params''severity: high
+    - regex: 'asyncData.*req|serverPrefetch.*params'
+  severity: high
   description: "SSR prefetch with user input (injection risk)"
   remediation: "Validate user input in asyncData"
   cwe: "CWE-20"
@@ -2245,7 +2436,8 @@
 - id: vue-ssr-redirect
   languages: [vue, javascript]
   patterns:
-    - regex: 'redirect.*req|ssrContext\\..redirect''severity: high
+    - regex: 'redirect.*req|ssrContext\..redirect'
+  severity: high
   description: "SSR redirect with user input (open redirect)"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -2254,7 +2446,8 @@
 - id: vue-ssr-redirect-safe
   languages: [vue, javascript]
   patterns:
-    - regex: 'redirect.*url.*isLocal|redirect.*validate''severity: low
+    - regex: 'redirect.*url.*isLocal|redirect.*validate'
+  severity: low
   description: "SSR redirect with validation (good)"
   remediation: "Always validate redirect URLs"
   cwe: "CWE-601"
@@ -2263,7 +2456,8 @@
 - id: vue-ssr-session-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'ssrContext\\..session|ssrContext\\..req\\..session''severity: high
+    - regex: 'ssrContext\..session|ssrContext\..req\..session'
+  severity: high
   description: "SSR with session data (may be exposed to client)"
   remediation: "Don't pass session data to SSR"
   cwe: "CWE-200"
@@ -2272,7 +2466,8 @@
 - id: vue-ssr-auth-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'ssrContext\\..user|ssrContext\\..auth''severity: high
+    - regex: 'ssrContext\..user|ssrContext\..auth'
+  severity: high
   description: "SSR with auth data (may expose tokens)"
   remediation: "Don't pass auth tokens to SSR"
   cwe: "CWE-200"
@@ -2281,7 +2476,8 @@
 - id: vue-ssr-cookie-data
   languages: [vue, javascript]
   patterns:
-    - regex: 'ssrContext\\..cookies|ssrContext\\..req\\..cookies''severity: high
+    - regex: 'ssrContext\..cookies|ssrContext\..req\..cookies'
+  severity: high
   description: "SSR with cookie data (may expose session)"
   remediation: "Don't expose cookies to client"
   cwe: "CWE-200"
@@ -2290,7 +2486,8 @@
 - id: vue-ssr-request-headers
   languages: [vue, javascript]
   patterns:
-    - regex: 'ssrContext\\..req\\..headers''severity: high
+    - regex: 'ssrContext\..req\..headers'
+  severity: high
   description: "SSR with request headers (may expose auth)"
   remediation: "Filter sensitive headers"
   cwe: "CWE-200"
@@ -2299,7 +2496,8 @@
 - id: vue-ssr-ip-address
   languages: [vue, javascript]
   patterns:
-    - regex: 'ssrContext\\..ip|ssrContext\\..req\\..ip''severity: medium
+    - regex: 'ssrContext\..ip|ssrContext\..req\..ip'
+  severity: medium
   description: "SSR with client IP (privacy)"
   remediation: "Don't log or expose client IP"
   cwe: "CWE-200"
@@ -2308,7 +2506,8 @@
 - id: vue-ssr-user-agent
   languages: [vue, javascript]
   patterns:
-    - regex: 'ssrContext\\..ua|ssrContext\\..req\\..ua|userAgent''severity: low
+    - regex: 'ssrContext\..ua|ssrContext\..req\..ua|userAgent'
+  severity: low
   description: "SSR with user agent"
   remediation: "User agent is generally safe"
   cwe: "CWE-200"
@@ -2319,7 +2518,8 @@
 - id: vue-vuex-state-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'state\\..token|state\\..jwt|state\\..password|state\\..apiKey|state\\..secret''severity: critical
+    - regex: 'state\..token|state\..jwt|state\..password|state\..apiKey|state\..secret'
+  severity: critical
   description: "Sensitive data in Vuex state (exposed in DevTools)"
   remediation: "Don't store secrets in Vuex, use secure session storage"
   cwe: "CWE-312"
@@ -2328,7 +2528,8 @@
 - id: vue-vuex-store-window
   languages: [vue, javascript]
   patterns:
-    - regex: 'window\\..__STORE__|window\\..__VUEX__|window\\..__PINIA__''severity: high
+    - regex: 'window\..__STORE__|window\..__VUEX__|window\..__PINIA__'
+  severity: high
   description: "Vuex/Pinia store exposed on window object"
   remediation: "Don't expose store globally"
   cwe: "CWE-200"
@@ -2337,7 +2538,8 @@
 - id: vue-vuex-localstorage-persist
   languages: [vue, javascript]
   patterns:
-    - regex: 'vuex-persistedstate|pinia-plugin-persistedstate|localStorage.*store''severity: high
+    - regex: 'vuex-persistedstate|pinia-plugin-persistedstate|localStorage.*store'
+  severity: high
   description: "Vuex/Pinia persisted to localStorage (XSS risk)"
   remediation: "Encrypt sensitive data before persisting"
   cwe: "CWE-312"
@@ -2346,7 +2548,8 @@
 - id: vue-vuex-sessionstorage-persist
   languages: [vue, javascript]
   patterns:
-    - regex: 'sessionStorage.*store|persist.*sessionStorage''severity: medium
+    - regex: 'sessionStorage.*store|persist.*sessionStorage'
+  severity: medium
   description: "Vuex/Pinia persisted to sessionStorage (XSS risk)"
   remediation: "Encrypt sensitive data before persisting"
   cwe: "CWE-312"
@@ -2355,7 +2558,8 @@
 - id: vue-vuex-cookie-persist
   languages: [vue, javascript]
   patterns:
-    - regex: 'vuex-persist.*cookie|cookie.*store''severity: high
+    - regex: 'vuex-persist.*cookie|cookie.*store'
+  severity: high
   description: "Vuex/Pinia persisted to cookies"
   remediation: "Don't persist store to cookies"
   cwe: "CWE-312"
@@ -2364,7 +2568,8 @@
 - id: vue-vuex-indexeddb-persist
   languages: [vue, javascript]
   patterns:
-    - regex: 'indexedDB.*store|idb.*persist''severity: medium
+    - regex: 'indexedDB.*store|idb.*persist'
+  severity: medium
   description: "Vuex/Pinia persisted to IndexedDB"
   remediation: "Encrypt sensitive data before persisting"
   cwe: "CWE-312"
@@ -2373,7 +2578,8 @@
 - id: vue-vuex-mutation-sensitivity
   languages: [vue, javascript]
   patterns:
-    - regex: 'mutation.*token|mutation.*password|mutation.*secret''severity: critical
+    - regex: 'mutation.*token|mutation.*password|mutation.*secret'
+  severity: critical
   description: "Sensitive data in Vuex mutations (logged in DevTools)"
   remediation: "Redact sensitive data in mutations"
   cwe: "CWE-532"
@@ -2382,7 +2588,8 @@
 - id: vue-vuex-action-sensitivity
   languages: [vue, javascript]
   patterns:
-    - regex: 'action.*token|action.*password|action.*apiKey''severity: high
+    - regex: 'action.*token|action.*password|action.*apiKey'
+  severity: high
   description: "Sensitive data in Vuex actions"
   remediation: "Redact sensitive data in actions"
   cwe: "CWE-532"
@@ -2391,7 +2598,8 @@
 - id: vue-vuex-getter-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'getter.*token|getter.*password|getter.*secret''severity: high
+    - regex: 'getter.*token|getter.*password|getter.*secret'
+  severity: high
   description: "Sensitive data exposed through getters"
   remediation: "Don't expose secrets through getters"
   cwe: "CWE-200"
@@ -2400,7 +2608,8 @@
 - id: vue-pinia-state-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'state:\\.(\\.)\\.s*=>\\.s*\\.(.*token.*\\.)|state:\\.(\\.)\\.s*=>\\.s*\\.(.*password.*\\.)''severity: critical
+    - regex: 'state:\.(\.)\.s*=>\.s*\.(.*token.*\.)|state:\.(\.)\.s*=>\.s*\.(.*password.*\.)'
+  severity: critical
   description: "Sensitive data in Pinia state"
   remediation: "Don't store secrets in Pinia"
   cwe: "CWE-312"
@@ -2409,7 +2618,8 @@
 - id: vue-pinia-actions-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'actions:\\.s*{\\.s*\\.w+.*token|actions:\\.s*{\\.s*\\.w+.*password''severity: high
+    - regex: 'actions:\.s*{\.s*\.w+.*token|actions:\.s*{\.s*\.w+.*password'
+  severity: high
   description: "Sensitive data in Pinia actions"
   remediation: "Redact sensitive data in actions"
   cwe: "CWE-532"
@@ -2418,7 +2628,8 @@
 - id: vue-pinia-getters-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'getters:\\.s*{\\.s*\\.w+.*token|getters:\\.s*{\\.s*\\.w+.*password''severity: high
+    - regex: 'getters:\.s*{\.s*\.w+.*token|getters:\.s*{\.s*\.w+.*password'
+  severity: high
   description: "Sensitive data in Pinia getters"
   remediation: "Don't expose secrets through getters"
   cwe: "CWE-200"
@@ -2427,7 +2638,8 @@
 - id: vue-pinia-persist-encrypt
   languages: [vue, javascript]
   patterns:
-    - regex: 'persist:\\.s*true''severity: high
+    - regex: 'persist:\.s*true'
+  severity: high
   description: "Pinia persistence without encryption"
   remediation: "Encrypt data when persisting"
   cwe: "CWE-312"
@@ -2436,7 +2648,8 @@
 - id: vue-pinia-storage-keys
   languages: [vue, javascript]
   patterns:
-    - regex: 'storage:\\.s*localStorage|storage:\\.s*sessionStorage''severity: medium
+    - regex: 'storage:\.s*localStorage|storage:\.s*sessionStorage'
+  severity: medium
   description: "Pinia storage configuration"
   remediation: "Don't store sensitive data in storage"
   cwe: "CWE-312"
@@ -2445,7 +2658,8 @@
 - id: vue-pinia-storage-serializer
   languages: [vue, javascript]
   patterns:
-    - regex: 'serializer:\\.s*JSON|deserializer:\\.s*JSON''severity: medium
+    - regex: 'serializer:\.s*JSON|deserializer:\.s*JSON'
+  severity: medium
   description: "Pinia JSON serializer (prototype pollution risk)"
   remediation: "Use reviver to filter dangerous keys"
   cwe: "CWE-1321"
@@ -2454,7 +2668,8 @@
 - id: vue-store-mutation-log
   languages: [vue, javascript]
   patterns:
-    - regex: 'store\\..subscribe|store\\..onAction|pinia\\..use''severity: low
+    - regex: 'store\..subscribe|store\..onAction|pinia\..use'
+  severity: low
   description: "Store subscriptions (may log sensitive data)"
   remediation: "Don't log sensitive data in subscriptions"
   cwe: "CWE-532"
@@ -2463,7 +2678,8 @@
 - id: vue-store-devtools
   languages: [vue, javascript]
   patterns:
-    - regex: 'devtools\\.s*:\\.s*true''severity: medium
+    - regex: 'devtools\.s*:\.s*true'
+  severity: medium
   description: "Vuex/Pinia devtools enabled"
   remediation: "Disable devtools in production"
   cwe: "CWE-489"
@@ -2472,7 +2688,8 @@
 - id: vue-store-devtools-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'devtools\\.s*:\\.s*true.*token|devtools\\.s*:\\.s*true.*password''severity: critical
+    - regex: 'devtools\.s*:\.s*true.*token|devtools\.s*:\.s*true.*password'
+  severity: critical
   description: "Devtools enabled with sensitive data in store"
   remediation: "Disable devtools or redact sensitive data"
   cwe: "CWE-489"
@@ -2481,7 +2698,8 @@
 - id: vue-store-module-expose
   languages: [vue, javascript]
   patterns:
-    - regex: 'modules:\\.s*{[^}]*}''severity: low
+    - regex: 'modules:\.s*{[^}]*}'
+  severity: low
   description: "Vuex modules configuration"
   remediation: "Ensure modules don't expose sensitive data"
   cwe: "CWE-200"
@@ -2490,7 +2708,8 @@
 - id: vue-store-namespace
   languages: [vue, javascript]
   patterns:
-    - regex: 'namespaced:\\.s*true''severity: low
+    - regex: 'namespaced:\.s*true'
+  severity: low
   description: "Namespaced modules (good for isolation)"
   remediation: "Good practice for large stores"
   cwe: "CWE-693"
@@ -2499,7 +2718,8 @@
 - id: vue-store-plugins
   languages: [vue, javascript]
   patterns:
-    - regex: 'plugins\\.s*:\\.s*\\.[''severity: medium
+    - regex: 'plugins\.s*:\.s*\.[\]]'
+  severity: medium
   description: "Vuex plugins (may log or modify state)"
   remediation: "Review plugins for security issues"
   cwe: "CWE-20"
@@ -2508,7 +2728,8 @@
 - id: vue-store-strict-mode
   languages: [vue, javascript]
   patterns:
-    - regex: 'strict:\\.s*true''severity: low
+    - regex: 'strict:\.s*true'
+  severity: low
   description: "Vuex strict mode (good for development)"
   remediation: "Disable strict mode in production"
   cwe: "CWE-693"
@@ -2517,7 +2738,8 @@
 - id: vue-store-state-function
   languages: [vue, javascript]
   patterns:
-    - regex: 'state:\\.s*\\.(\\.s*\\.)\\.s*=>\\.s*\\.{''severity: low
+    - regex: 'state:\.s*\.(\.s*\.)\.s*=>\.s*\.{'
+  severity: low
   description: "Pinia state function (good for isolation)"
   remediation: "Good practice for Pinia stores"
   cwe: "CWE-693"
@@ -2526,7 +2748,8 @@
 - id: vue-store-state-object
   languages: [vue, javascript]
   patterns:
-    - regex: 'state:\\.s*\\.{[^}]*\\.}''severity: high
+    - regex: 'state:\.s*\.{[^}]*\.}'
+  severity: high
   description: "Vuex state as object (shared across requests in SSR)"
   remediation: "Use function for state in SSR"
   cwe: "CWE-20"
@@ -2535,7 +2758,7 @@
 - id: vue-store-map-state
   languages: [vue, javascript]
   patterns:
-    - regex: 'mapState\\.(\\.s*['''\\.]\\.w+[''\\.]|mapGetters\\.('
+    - regex: 'mapState\.(\.s*[''\.]\.w+[''\.]|mapGetters\.())'
   severity: low
   description: "Mapping store to components"
   remediation: "Ensure mapped data is safe"
@@ -2545,7 +2768,8 @@
 - id: vue-store-spread-state
   languages: [vue, javascript]
   patterns:
-    - regex: '\\..\\..\\..mapState|\\.\\.\\.mapGetters''severity: low
+    - regex: '\..\..\..mapState|\.\.\.mapGetters'
+  severity: low
   description: "Spreading store mappings"
   remediation: "Good practice"
   cwe: "CWE-693"
@@ -2556,7 +2780,7 @@
 - id: vue-router-guard-missing
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.s*path\\.s*:\\.s*['''\\.]/[^'']*[''\\.]\\.s*,\\.s*component(?!.*beforeEnter|.*meta)'
+    - regex: '\.{\.s*path\.s*:\.s*[''\.]/[^'']*[''\.]\.s*,\.s*component(?:.*beforeEnter|.*meta)'
   severity: high
   description: "Route without guard or meta (may be unprotected)"
   remediation: "Add route guards for protected routes"
@@ -2566,7 +2790,7 @@
 - id: vue-router-guard-bypass
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*['''\\.][^'']*[''\\.]\\.s*\\.)|next\\.(\\.s*\\.$router.*\\.)'
+    - regex: 'next\.(\.s*[''\.][^'']*[''\.]\.s*\.)|next\.(\.s*\.$router.*\.)'
   severity: high
   description: "Route guard redirect bypass (open redirect)"
   remediation: "Validate redirect URLs in guards"
@@ -2576,7 +2800,8 @@
 - id: vue-router-guard-error
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*new\\.s+Error|next\\.(\\.s*error\\.)''severity: low
+    - regex: 'next\.(\.s*new\.s+Error|next\.(\.s*error\.))'
+  severity: low
   description: "Route guard error handling"
   remediation: "Handle errors gracefully"
   cwe: "CWE-754"
@@ -2585,7 +2810,8 @@
 - id: vue-router-guard-next-multiple
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(.*next\\.(''severity: high
+    - regex: 'next\.(.*next\.())'
+  severity: high
   description: "Multiple next calls in route guard (can cause bypass)"
   remediation: "Call next only once per guard"
   cwe: "CWE-754"
@@ -2594,7 +2820,8 @@
 - id: vue-router-guard-async
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeEach\\.(.*async.*\\.)|beforeEnter.*async''severity: medium
+    - regex: 'beforeEach\.(.*async.*\.)|beforeEnter.*async'
+  severity: medium
   description: "Async route guards (race conditions)"
   remediation: "Ensure async guards don't bypass checks"
   cwe: "CWE-362"
@@ -2603,7 +2830,8 @@
 - id: vue-router-guard-promise
   languages: [vue, javascript]
   patterns:
-    - regex: 'Promise\\..resolve|return.*new\\.s+Promise''severity: medium
+    - regex: 'Promise\..resolve|return.*new\.s+Promise'
+  severity: medium
   description: "Promise-based route guards"
   remediation: "Handle promise rejections"
   cwe: "CWE-754"
@@ -2612,7 +2840,8 @@
 - id: vue-router-meta-missing
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta:\\.s*\\.{[^}]*\\.}''severity: medium
+    - regex: 'meta:\.s*\.{[^}]*\.}'
+  severity: medium
   description: "Route meta without auth flags"
   remediation: "Add requiresAuth to protected routes"
   cwe: "CWE-306"
@@ -2621,7 +2850,8 @@
 - id: vue-router-meta-auth
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta:\\.s*\\.{.*requiresAuth\\.s*:\\.s*true''severity: low
+    - regex: 'meta:\.s*\.{.*requiresAuth\.s*:\.s*true'
+  severity: low
   description: "Route requires auth (good)"
   remediation: "Good practice"
   cwe: "CWE-306"
@@ -2630,7 +2860,8 @@
 - id: vue-router-meta-roles
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta:\\.s*\\.{.*roles\\.s*:\\.s*\\.[''severity: low
+    - regex: 'meta:\.s*\.{.*roles\.s*:\.s*\.[\]]'
+  severity: low
   description: "Route role requirements"
   remediation: "Validate roles properly"
   cwe: "CWE-284"
@@ -2639,7 +2870,8 @@
 - id: vue-router-meta-permissions
   languages: [vue, javascript]
   patterns:
-    - regex: 'meta:\\.s*\\.{.*permissions\\.s*:\\.s*\\.[''severity: low
+    - regex: 'meta:\.s*\.{.*permissions\.s*:\.s*\.[\]]'
+  severity: low
   description: "Route permission requirements"
   remediation: "Validate permissions properly"
   cwe: "CWE-284"
@@ -2648,7 +2880,8 @@
 - id: vue-router-before-each-logic
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeEach\\.(.*\\.)\\.s*{\\.s*if\\.s*\\.(\\.s*!isAuthenticated''severity: low
+    - regex: 'beforeEach\.(.*\.)\.s*{\.s*if\.s*\.(\.s*!isAuthenticated)'
+  severity: low
   description: "Route guard with auth check (good)"
   remediation: "Good practice"
   cwe: "CWE-306"
@@ -2657,7 +2890,8 @@
 - id: vue-router-before-each-redirect
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeEach.*next\\.(.*to\\..path.*\\.+''severity: high
+    - regex: 'beforeEach.*next\.(.*to\..path.*\.+)'
+  severity: high
   description: "Route guard with path concatenation (open redirect)"
   remediation: "Use named routes instead of path concatenation"
   cwe: "CWE-601"
@@ -2666,7 +2900,8 @@
 - id: vue-router-params-whitelist
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$route\\..params\\..\\.w+\\.s*=\\.s*.*''severity: high
+    - regex: '\.$route\..params\..\.w+\.s*=\.s*.*'
+  severity: high
   description: "Route params without validation"
   remediation: "Validate route parameters"
   cwe: "CWE-20"
@@ -2675,7 +2910,8 @@
 - id: vue-router-query-whitelist
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$route\\..query\\..\\.w+\\.s*=\\.s*.*''severity: high
+    - regex: '\.$route\..query\..\.w+\.s*=\.s*.*'
+  severity: high
   description: "Query params without validation"
   remediation: "Validate query parameters"
   cwe: "CWE-20"
@@ -2684,7 +2920,7 @@
 - id: vue-router-guard-next-local
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*['''\\.]/[''\\.]|next\\.(\\.s*[''\\.]\\..\\..'
+    - regex: 'next\.(\.s*[''\.]/[''\.]|next\.(\.s*[''\.]\..\..))'
   severity: high
   description: "Route guard redirect to root or parent"
   remediation: "Ensure redirect is safe"
@@ -2694,7 +2930,7 @@
 - id: vue-router-guard-next-external
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*['''\\.]https?://'
+    - regex: 'next\.(\.s*[''\.]https?://)'
   severity: critical
   description: "Route guard redirect to external URL (open redirect)"
   remediation: "Never redirect to external URLs from guards"
@@ -2704,7 +2940,8 @@
 - id: vue-router-guard-next-to
   languages: [vue, javascript]
   patterns:
-    - regex: 'next\\.(\\.s*\\.{\\.s*name\\.s*:\\.s*.*\\.}\\.s*\\.)''severity: low
+    - regex: 'next\.(\.s*\.{\.s*name\.s*:\.s*.*\.}\.s*\.)'
+  severity: low
   description: "Route guard redirect by name (safe)"
   remediation: "Good practice"
   cwe: "CWE-601"
@@ -2713,7 +2950,8 @@
 - id: vue-router-before-enter
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeEnter\\.s*:\\.s*\\.[''severity: medium
+    - regex: 'beforeEnter\.s*:\.s*\.[\]]'
+  severity: medium
   description: "Multiple beforeEnter guards"
   remediation: "Ensure guard order doesn't bypass auth"
   cwe: "CWE-284"
@@ -2722,7 +2960,8 @@
 - id: vue-router-before-resolve
   languages: [vue, javascript]
   patterns:
-    - regex: 'beforeResolve\\.s*\\.(''severity: medium
+    - regex: 'beforeResolve\.s*\.()'
+  severity: medium
   description: "BeforeResolve guards (after beforeEach)"
   remediation: "Ensure guards don't conflict"
   cwe: "CWE-284"
@@ -2731,7 +2970,8 @@
 - id: vue-router-after-each
   languages: [vue, javascript]
   patterns:
-    - regex: 'afterEach\\.s*\\.(''severity: low
+    - regex: 'afterEach\.s*\.()'
+  severity: low
   description: "After navigation hooks"
   remediation: "Good for logging"
   cwe: "CWE-532"
@@ -2740,7 +2980,8 @@
 - id: vue-router-after-each-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'afterEach.*token|afterEach.*password|afterEach.*secret''severity: critical
+    - regex: 'afterEach.*token|afterEach.*password|afterEach.*secret'
+  severity: critical
   description: "After navigation logging sensitive data"
   remediation: "Don't log sensitive data"
   cwe: "CWE-532"
@@ -2749,7 +2990,8 @@
 - id: vue-router-on-error
   languages: [vue, javascript]
   patterns:
-    - regex: 'onError\\.s*\\.(''severity: low
+    - regex: 'onError\.s*\.()'
+  severity: low
   description: "Router error handler"
   remediation: "Handle errors gracefully"
   cwe: "CWE-754"
@@ -2758,7 +3000,8 @@
 - id: vue-router-on-error-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'onError.*console\\..log|onError.*alert''severity: high
+    - regex: 'onError.*console\..log|onError.*alert'
+  severity: high
   description: "Router error exposing details"
   remediation: "Don't expose error details to users"
   cwe: "CWE-209"
@@ -2767,7 +3010,8 @@
 - id: vue-router-is-ready
   languages: [vue, javascript]
   patterns:
-    - regex: 'isReady\\.s*\\.(\\.s*\\.)''severity: low
+    - regex: 'isReady\.s*\.(\.s*\.)'
+  severity: low
   description: "Router ready check"
   remediation: "Good for initialization"
   cwe: "CWE-693"
@@ -2776,7 +3020,8 @@
 - id: vue-router-dynamic-route
   languages: [vue, javascript]
   patterns:
-    - regex: 'addRoute|removeRoute|hasRoute''severity: medium
+    - regex: 'addRoute|removeRoute|hasRoute'
+  severity: medium
   description: "Dynamic route manipulation"
   remediation: "Validate dynamic routes"
   cwe: "CWE-284"
@@ -2785,7 +3030,8 @@
 - id: vue-router-dynamic-route-user
   languages: [vue, javascript]
   patterns:
-    - regex: 'addRoute\\.s*\\.(\\.s*.*\\.$route\\..params|addRoute.*req''severity: critical
+    - regex: 'addRoute\.s*\.(\.s*.*\.$route\..params|addRoute.*req)'
+  severity: critical
   description: "Dynamic route with user input (route injection)"
   remediation: "Never create routes from user input"
   cwe: "CWE-284"
@@ -2794,7 +3040,7 @@
 - id: vue-router-params-regex
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['''\\.][^'']*?\\.([^'']*?\\.)'
+    - regex: 'path\.s*:\.s*[''\.][^'']*?\.([^'']*?\.)'
   severity: medium
   description: "Route path with regex (ReDoS risk)"
   remediation: "Avoid complex regex in routes"
@@ -2804,7 +3050,7 @@
 - id: vue-router-params-optional
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['''\\.][^'']*?\\.?[^'']*'
+    - regex: 'path\.s*:\.s*[''\.][^'']*?\.?[^'']*'
   severity: low
   description: "Optional route parameters"
   remediation: "Handle missing parameters"
@@ -2814,7 +3060,7 @@
 - id: vue-router-params-repeat
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['''\\.][^'']*?\\.+[^'']*'
+    - regex: 'path\.s*:\.s*[''\.][^'']*?\.+[^'']*'
   severity: medium
   description: "Repeatable route parameters"
   remediation: "Limit repeatable parameters"
@@ -2824,7 +3070,7 @@
 - id: vue-router-sensitive-paths
   languages: [vue, javascript]
   patterns:
-    - regex: 'path\\.s*:\\.s*['''\\.]/admin|path\\.s*:\\.s*[''\\.]/dashboard|path\\.s*:\\.s*[''\\.]/private'
+    - regex: 'path\.s*:\.s*[''\.]/admin|path\.s*:\.s*[''\.]/dashboard|path\.s*:\.s*[''\.]/private'
   severity: high
   description: "Sensitive route paths"
   remediation: "Add authentication guards"
@@ -2836,7 +3082,7 @@
 - id: vue-component-slot-injection
   languages: [vue, javascript]
   patterns:
-    - regex: '<slot.*name\\.s*=\\.s*['''\\.].*[''\\.]>.*{{.*}}'
+    - regex: '<slot.*name\.s*=\.s*[''\.].*[''\.]>.*{{.*}}'
   severity: high
   description: "Slots with interpolation (XSS risk)"
   remediation: "Ensure parent component sanitizes slot content"
@@ -2846,7 +3092,8 @@
 - id: vue-component-slot-html
   languages: [vue, javascript]
   patterns:
-    - regex: '<slot.*>.*<.*>.*</slot>''severity: medium
+    - regex: '<slot.*>.*<.*>.*</slot>'
+  severity: medium
   description: "Slots with HTML content (XSS risk)"
   remediation: "Sanitize slot content"
   cwe: "CWE-79"
@@ -2855,7 +3102,7 @@
 - id: vue-component-dynamic-component
   languages: [vue, javascript]
   patterns:
-    - regex: '<component\\.s+:is\\.s*=\\.s*['''\\.]\\.w+[''\\.]'
+    - regex: '<component\.s+:is\.s*=\.s*[''\.]\.w+[''\.]'
   severity: medium
   description: "Dynamic component rendering"
   remediation: "Validate component names"
@@ -2865,7 +3112,8 @@
 - id: vue-component-dynamic-component-user
   languages: [vue, javascript]
   patterns:
-    - regex: '<component\\.s+:is\\.s*=\\.s*\\.$route\\..params|:is\\.s*=\\.s*req''severity: critical
+    - regex: '<component\.s+:is\.s*=\.s*\.$route\..params|:is\.s*=\.s*req'
+  severity: critical
   description: "Dynamic component with user input (component injection)"
   remediation: "Never use user input for component names"
   cwe: "CWE-284"
@@ -2874,7 +3122,7 @@
 - id: vue-component-is-attribute
   languages: [vue, javascript]
   patterns:
-    - regex: 'is\\.s*=\\.s*['''\\.]\\.w+[''\\.]'
+    - regex: 'is\.s*=\.s*[''\.]\.w+[''\.]'
   severity: medium
   description: "is attribute for dynamic elements"
   remediation: "Validate element types"
@@ -2884,7 +3132,8 @@
 - id: vue-component-is-user
   languages: [vue, javascript]
   patterns:
-    - regex: 'is\\.s*=\\.s*\\.$route\\..params|is\\.s*=\\.s*req''severity: critical
+    - regex: 'is\.s*=\.s*\.$route\..params|is\.s*=\.s*req'
+  severity: critical
   description: "is attribute with user input (element injection)"
   remediation: "Never use user input for element types"
   cwe: "CWE-284"
@@ -2893,7 +3142,7 @@
 - id: vue-component-ref-user
   languages: [vue, javascript]
   patterns:
-    - regex: 'ref\\.s*=\\.s*['''\\.]\\.$route\\..params|ref\\.s*=\\.s*req'
+    - regex: 'ref\.s*=\.s*[''\.]\.$route\..params|ref\.s*=\.s*req'
   severity: medium
   description: "ref with user input"
   remediation: "Avoid dynamic refs with user input"
@@ -2903,7 +3152,7 @@
 - id: vue-component-ref-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'this\\..\\.$refs\\.[['''\\.]\\.$route|this\\..\\.$refs.*req'
+    - regex: 'this\..\.$refs\.[[''\.]\.$route|this\..\.$refs.*req'
   severity: medium
   description: "Dynamic ref access with user input"
   remediation: "Validate ref names"
@@ -2913,7 +3162,7 @@
 - id: vue-component-emit-user
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$emit\\.(['''\\.][^''\\.]*[''\\.]\\.s*,\\.s*.*\\.$route|\\.$emit\\.(.*req'
+    - regex: '\.$emit\.([''\.][^''\.]*[''\.]\.s*,\.s*.*\.$route|\.$emit\.(.*req))'
   severity: high
   description: "Emitting user input (XSS risk in parent)"
   remediation: "Sanitize emitted data"
@@ -2923,7 +3172,7 @@
 - id: vue-component-emit-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$emit\\.(['''\\.][^''\\.]*[''\\.]\\.s*,\\.s*.*token|\\.$emit.*password|\\.$emit.*secret'
+    - regex: '\.$emit\.([''\.][^''\.]*[''\.]\.s*,\.s*.*token|\.$emit.*password|\.$emit.*secret)'
   severity: critical
   description: "Emitting sensitive data"
   remediation: "Don't emit sensitive data"
@@ -2933,7 +3182,8 @@
 - id: vue-component-attrs-inheritance
   languages: [vue, javascript]
   patterns:
-    - regex: 'inheritAttrs\\.s*:\\.s*false''severity: low
+    - regex: 'inheritAttrs\.s*:\.s*false'
+  severity: low
   description: "InheritAttrs disabled"
   remediation: "Good for controlling attributes"
   cwe: "CWE-693"
@@ -2942,7 +3192,8 @@
 - id: vue-component-attrs-merge
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$attrs\\..\\.w+''severity: medium
+    - regex: '\.$attrs\..\.w+'
+  severity: medium
   description: "Accessing $attrs (may contain user input)"
   remediation: "Sanitize $attrs values"
   cwe: "CWE-20"
@@ -2951,7 +3202,8 @@
 - id: vue-component-listeners
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.$listeners\\..\\.w+''severity: medium
+    - regex: '\.$listeners\..\.w+'
+  severity: medium
   description: "Accessing $listeners (event injection)"
   remediation: "Validate event handlers"
   cwe: "CWE-284"
@@ -2960,7 +3212,8 @@
 - id: vue-component-scoped-slots
   languages: [vue, javascript]
   patterns:
-    - regex: '<template\\.s+#\\.w+\\.s*=\\.s*\\.\\.{.*\\.}\\.''severity: low
+    - regex: '<template\.s+#\.w+\.s*=\.s*\.\.{.*\.}\.'
+  severity: low
   description: "Scoped slots (may expose internal data)"
   remediation: "Don't expose sensitive data in slots"
   cwe: "CWE-200"
@@ -2969,7 +3222,8 @@
 - id: vue-component-mixins
   languages: [vue, javascript]
   patterns:
-    - regex: 'mixins\\.s*:\\.s*\\.[''severity: medium
+    - regex: 'mixins\.s*:\.s*\.[\]]'
+  severity: medium
   description: "Mixins used (may override security checks)"
   remediation: "Ensure mixins don't bypass security"
   cwe: "CWE-284"
@@ -2978,7 +3232,8 @@
 - id: vue-component-extends
   languages: [vue, javascript]
   patterns:
-    - regex: 'extends\\.s*:\\.s*\\.w+''severity: medium
+    - regex: 'extends\.s*:\.s*\.w+'
+  severity: medium
   description: "Component inheritance"
   remediation: "Ensure base component is secure"
   cwe: "CWE-284"
@@ -2987,7 +3242,8 @@
 - id: vue-component-provide
   languages: [vue, javascript]
   patterns:
-    - regex: 'provide\\.s*:\\.s*\\.{|provide\\.(\\.)''severity: medium
+    - regex: 'provide\.s*:\.s*\.{|provide\.(\.)'
+  severity: medium
   description: "Provide API (may expose sensitive data)"
   remediation: "Don't provide sensitive data"
   cwe: "CWE-200"
@@ -2996,7 +3252,8 @@
 - id: vue-component-inject
   languages: [vue, javascript]
   patterns:
-    - regex: 'inject\\.s*:\\.s*\\.[|inject\\.s*:\\.s*\\.{''severity: medium
+    - regex: 'inject\.s*:\.s*\.[|inject\.s*:\.s*\.{]'
+  severity: medium
   description: "Inject API (may receive sensitive data)"
   remediation: "Validate injected data"
   cwe: "CWE-20"
@@ -3005,7 +3262,8 @@
 - id: vue-component-options
   languages: [vue, javascript]
   patterns:
-    - regex: 'Vue\\..options|Vue\\..mixin''severity: high
+    - regex: 'Vue\..options|Vue\..mixin'
+  severity: high
   description: "Global Vue options (affects all components)"
   remediation: "Use caution with global mixins"
   cwe: "CWE-284"
@@ -3014,7 +3272,8 @@
 - id: vue-component-global-mixin
   languages: [vue, javascript]
   patterns:
-    - regex: 'Vue\\..mixin\\.s*\\.(\\.s*\\.{[^}]*beforeCreate|Vue\\..mixin.*created''severity: high
+    - regex: 'Vue\..mixin\.s*\.(\.s*\.{[^}]*beforeCreate|Vue\..mixin.*created)'
+  severity: high
   description: "Global mixin with lifecycle hooks"
   remediation: "Avoid global mixins with sensitive logic"
   cwe: "CWE-284"
@@ -3023,7 +3282,8 @@
 - id: vue-component-directive
   languages: [vue, javascript]
   patterns:
-    - regex: 'Vue\\..directive|directives\\.s*:\\.s*\\.{''severity: medium
+    - regex: 'Vue\..directive|directives\.s*:\.s*\.{'
+  severity: medium
   description: "Custom directives"
   remediation: "Ensure directives don't bypass security"
   cwe: "CWE-284"
@@ -3032,7 +3292,8 @@
 - id: vue-component-filter
   languages: [vue, javascript]
   patterns:
-    - regex: 'Vue\\..filter|filters\\.s*:\\.s*\\.{''severity: medium
+    - regex: 'Vue\..filter|filters\.s*:\.s*\.{'
+  severity: medium
   description: "Custom filters (may expose data)"
   remediation: "Ensure filters are safe"
   cwe: "CWE-20"
@@ -3041,7 +3302,8 @@
 - id: vue-component-transition
   languages: [vue, javascript]
   patterns:
-    - regex: '<transition|<transition-group''severity: low
+    - regex: '<transition|<transition-group'
+  severity: low
   description: "Transitions (generally safe)"
   remediation: "Good for animations"
   cwe: "CWE-693"
@@ -3050,7 +3312,8 @@
 - id: vue-component-keep-alive
   languages: [vue, javascript]
   patterns:
-    - regex: '<keep-alive''severity: low
+    - regex: '<keep-alive'
+  severity: low
   description: "Keep-alive (caches components)"
   remediation: "Don't cache components with sensitive data"
   cwe: "CWE-312"
@@ -3059,7 +3322,8 @@
 - id: vue-component-teleport
   languages: [vue, javascript]
   patterns:
-    - regex: '<teleport''severity: medium
+    - regex: '<teleport'
+  severity: medium
   description: "Teleport (moves DOM elsewhere)"
   remediation: "Ensure teleport target is trusted"
   cwe: "CWE-284"
@@ -3068,7 +3332,8 @@
 - id: vue-component-suspense
   languages: [vue, javascript]
   patterns:
-    - regex: '<suspense''severity: low
+    - regex: '<suspense'
+  severity: low
   description: "Suspense for async components"
   remediation: "Handle loading states"
   cwe: "CWE-754"
@@ -3077,7 +3342,8 @@
 - id: vue-component-error-boundary
   languages: [vue, javascript]
   patterns:
-    - regex: 'errorCaptured''severity: low
+    - regex: 'errorCaptured'
+  severity: low
   description: "Error boundary component"
   remediation: "Don't expose errors to users"
   cwe: "CWE-209"
@@ -3086,7 +3352,8 @@
 - id: vue-component-ssr-hydration
   languages: [vue, javascript]
   patterns:
-    - regex: 'client\\.s*:\\.s*false|server\\.s*:\\.s*true''severity: low
+    - regex: 'client\.s*:\.s*false|server\.s*:\.s*true'
+  severity: low
   description: "SSR-only/client-only directives"
   remediation: "Good for SSR"
   cwe: "CWE-693"
@@ -3097,7 +3364,8 @@
 - id: vue-template-function-call
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*\\.w+\\.(.*\\.)\\.s*\\.}\\.}''severity: medium
+    - regex: '\.{\.{\.s*\.w+\.(.*\.)\.s*\.}\.}'
+  severity: medium
   description: "Function calls in template (may execute malicious code)"
   remediation: "Use computed properties instead"
   cwe: "CWE-94"
@@ -3106,7 +3374,8 @@
 - id: vue-template-method-call
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*\\.w+\\..\\.w+\\.(.*\\.)\\.s*\\.}\\.}''severity: medium
+    - regex: '\.{\.{\.s*\.w+\..\.w+\.(.*\.)\.s*\.}\.}'
+  severity: medium
   description: "Method calls in template"
   remediation: "Use computed properties"
   cwe: "CWE-94"
@@ -3115,7 +3384,8 @@
 - id: vue-template-ternary
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*\\.w+\\.s*\\.?\\.s*.*\\.s*:\\.s*.*\\.s*\\.}\\.}''severity: low
+    - regex: '\.{\.{\.s*\.w+\.s*\.?\.s*.*\.s*:\.s*.*\.s*\.}\.}'
+  severity: low
   description: "Ternary in template"
   remediation: "Use computed for complex logic"
   cwe: "CWE-20"
@@ -3124,7 +3394,8 @@
 - id: vue-template-arithmetic
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*\\.w+\\.s*[\\.+\\.-\\.*\\./]\\.s*\\.w+\\.s*\\.}\\.}''severity: low
+    - regex: '\.{\.{\.s*\.w+\.s*[\.+\.-\.*\./]\.s*\.w+\.s*\.}\.}'
+  severity: low
   description: "Arithmetic in template"
   remediation: "Use computed for complex math"
   cwe: "CWE-20"
@@ -3133,7 +3404,8 @@
 - id: vue-template-regex
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*.*\\..match\\.(.*\\.)\\.s*\\.}\\.}''severity: medium
+    - regex: '\.{\.{\.s*.*\..match\.(.*\.)\.s*\.}\.}'
+  severity: medium
   description: "Regex in template (ReDoS risk)"
   remediation: "Use computed for regex operations"
   cwe: "CWE-1333"
@@ -3142,7 +3414,8 @@
 - id: vue-template-slice
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*.*\\..slice\\.(.*\\.)\\.s*\\.}\\.}''severity: low
+    - regex: '\.{\.{\.s*.*\..slice\.(.*\.)\.s*\.}\.}'
+  severity: low
   description: "Slice in template"
   remediation: "Use computed for string manipulation"
   cwe: "CWE-20"
@@ -3151,7 +3424,8 @@
 - id: vue-template-split
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*.*\\..split\\.(.*\\.)\\.s*\\.}\\.}''severity: medium
+    - regex: '\.{\.{\.s*.*\..split\.(.*\.)\.s*\.}\.}'
+  severity: medium
   description: "Split in template (may create arrays)"
   remediation: "Use computed for array operations"
   cwe: "CWE-20"
@@ -3160,7 +3434,8 @@
 - id: vue-template-join
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*.*\\..join\\.(.*\\.)\\.s*\\.}\\.}''severity: low
+    - regex: '\.{\.{\.s*.*\..join\.(.*\.)\.s*\.}\.}'
+  severity: low
   description: "Join in template"
   remediation: "Use computed for array operations"
   cwe: "CWE-20"
@@ -3169,7 +3444,8 @@
 - id: vue-template-replace
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*.*\\..replace\\.(.*\\.)\\.s*\\.}\\.}''severity: medium
+    - regex: '\.{\.{\.s*.*\..replace\.(.*\.)\.s*\.}\.}'
+  severity: medium
   description: "Replace in template (XSS risk)"
   remediation: "Use computed and sanitize"
   cwe: "CWE-79"
@@ -3178,7 +3454,8 @@
 - id: vue-template-btoa
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*btoa\\.(.*\\.)|atob\\.(.*\\.)\\.s*\\.}\\.}''severity: high
+    - regex: '\.{\.{\.s*btoa\.(.*\.)|atob\.(.*\.)\.s*\.}\.}'
+  severity: high
   description: "Base64 encoding in template (may hide XSS)"
   remediation: "Avoid base64 in templates"
   cwe: "CWE-79"
@@ -3187,7 +3464,8 @@
 - id: vue-template-escape
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*escape\\.(.*\\.)|unescape\\.(.*\\.)\\.s*\\.}\\.}''severity: high
+    - regex: '\.{\.{\.s*escape\.(.*\.)|unescape\.(.*\.)\.s*\.}\.}'
+  severity: high
   description: "Escape/unescape in template"
   remediation: "Use proper encoding"
   cwe: "CWE-79"
@@ -3196,7 +3474,8 @@
 - id: vue-template-encode-uri
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*encodeURI|decodeURI|encodeURIComponent|decodeURIComponent\\.s*\\.}\\.}''severity: medium
+    - regex: '\.{\.{\.s*encodeURI|decodeURI|encodeURIComponent|decodeURIComponent\.s*\.}\.}'
+  severity: medium
   description: "URI encoding in template"
   remediation: "Use computed for URI operations"
   cwe: "CWE-20"
@@ -3205,7 +3484,8 @@
 - id: vue-template-json
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*JSON\\..stringify|JSON\\..parse\\.s*\\.}\\.}''severity: high
+    - regex: '\.{\.{\.s*JSON\..stringify|JSON\..parse\.s*\.}\.}'
+  severity: high
   description: "JSON operations in template"
   remediation: "Use computed for JSON operations"
   cwe: "CWE-502"
@@ -3214,7 +3494,8 @@
 - id: vue-template-eval
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*eval\\.(.*\\.)\\.s*\\.}\\.}''severity: critical
+    - regex: '\.{\.{\.s*eval\.(.*\.)\.s*\.}\.}'
+  severity: critical
   description: "Eval in template (RCE)"
   remediation: "Never use eval in templates"
   cwe: "CWE-94"
@@ -3223,7 +3504,8 @@
 - id: vue-template-function-constructor
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*Function\\.(.*\\.)\\.s*\\.}\\.}''severity: critical
+    - regex: '\.{\.{\.s*Function\.(.*\.)\.s*\.}\.}'
+  severity: critical
   description: "Function constructor in template (RCE)"
   remediation: "Never use Function constructor"
   cwe: "CWE-94"
@@ -3232,7 +3514,8 @@
 - id: vue-template-set-timeout
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*setTimeout|setInterval|setImmediate\\.s*\\.}\\.}''severity: high
+    - regex: '\.{\.{\.s*setTimeout|setInterval|setImmediate\.s*\.}\.}'
+  severity: high
   description: "Timers in template"
   remediation: "Use methods for timers"
   cwe: "CWE-20"
@@ -3241,7 +3524,8 @@
 - id: vue-template-console
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*console\\..\\.w+\\.s*\\.}\\.}''severity: high
+    - regex: '\.{\.{\.s*console\..\.w+\.s*\.}\.}'
+  severity: high
   description: "Console in template (may expose data)"
   remediation: "Remove console statements"
   cwe: "CWE-532"
@@ -3250,7 +3534,8 @@
 - id: vue-template-alert
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*alert|confirm|prompt\\.s*\\.}\\.}''severity: high
+    - regex: '\.{\.{\.s*alert|confirm|prompt\.s*\.}\.}'
+  severity: high
   description: "Dialog functions in template"
   remediation: "Remove dialog functions"
   cwe: "CWE-79"
@@ -3259,7 +3544,8 @@
 - id: vue-template-window
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*window\\..|document\\..|location\\..|navigator\\..\\.s*\\.}\\.}''severity: critical
+    - regex: '\.{\.{\.s*window\..|document\..|location\..|navigator\..\.s*\.}\.}'
+  severity: critical
   description: "Window/DOM access in template"
   remediation: "Never access global objects in templates"
   cwe: "CWE-20"
@@ -3268,7 +3554,8 @@
 - id: vue-template-this
   languages: [vue, javascript]
   patterns:
-    - regex: '\\.{\\.{\\.s*this\\..\\.w+\\.s*\\.}\\.}''severity: medium
+    - regex: '\.{\.{\.s*this\..\.w+\.s*\.}\.}'
+  severity: medium
   description: "Using 'this' in template (redundant)"
   remediation: "Remove 'this' from templates"
   cwe: "CWE-693"
@@ -3279,7 +3566,8 @@
 - id: vue-v-once-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-once.*\\.{\\.{.*token|v-once.*\\.{\\.{.*password|v-once.*\\.{\\.{.*secret''severity: high
+    - regex: 'v-once.*\.{\.{.*token|v-once.*\.{\.{.*password|v-once.*\.{\.{.*secret'
+  severity: high
   description: "v-once with sensitive data (may be cached)"
   remediation: "Don't use v-once with sensitive data"
   cwe: "CWE-312"
@@ -3288,7 +3576,8 @@
 - id: vue-v-pre-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-pre.*token|v-pre.*password|v-pre.*secret''severity: high
+    - regex: 'v-pre.*token|v-pre.*password|v-pre.*secret'
+  severity: high
   description: "v-pre with sensitive data (skips compilation)"
   remediation: "Don't use v-pre with sensitive data"
   cwe: "CWE-312"
@@ -3297,7 +3586,8 @@
 - id: vue-v-cloak-sensitive
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-cloak.*token|v-cloak.*password|v-cloak.*secret''severity: medium
+    - regex: 'v-cloak.*token|v-cloak.*password|v-cloak.*secret'
+  severity: medium
   description: "v-cloak with sensitive data (briefly visible)"
   remediation: "Add proper CSS for v-cloak"
   cwe: "CWE-200"
@@ -3306,7 +3596,8 @@
 - id: vue-v-bind-href
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:href|:href.*\\.$route|:href.*\\.$store''severity: high
+    - regex: 'v-bind:href|:href.*\.$route|:href.*\.$store'
+  severity: high
   description: "Dynamic href with user input (open redirect)"
   remediation: "Validate href URLs"
   cwe: "CWE-601"
@@ -3315,7 +3606,8 @@
 - id: vue-v-bind-src
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:src|:src.*\\.$route|:src.*\\.$store''severity: high
+    - regex: 'v-bind:src|:src.*\.$route|:src.*\.$store'
+  severity: high
   description: "Dynamic src with user input (XSS)"
   remediation: "Validate src URLs"
   cwe: "CWE-79"
@@ -3324,7 +3616,8 @@
 - id: vue-v-bind-style
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:style|:style.*\\.$route|:style.*\\.$store''severity: medium
+    - regex: 'v-bind:style|:style.*\.$route|:style.*\.$store'
+  severity: medium
   description: "Dynamic style with user input (CSS injection)"
   remediation: "Sanitize style values"
   cwe: "CWE-79"
@@ -3333,7 +3626,8 @@
 - id: vue-v-bind-class
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:class|:class.*\\.$route|:class.*\\.$store''severity: low
+    - regex: 'v-bind:class|:class.*\.$route|:class.*\.$store'
+  severity: low
   description: "Dynamic class with user input"
   remediation: "Validate class names"
   cwe: "CWE-20"
@@ -3342,7 +3636,8 @@
 - id: vue-v-bind-title
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:title|:title.*\\.$route|:title.*\\.$store''severity: medium
+    - regex: 'v-bind:title|:title.*\.$route|:title.*\.$store'
+  severity: medium
   description: "Dynamic title with user input"
   remediation: "Escape title content"
   cwe: "CWE-79"
@@ -3351,7 +3646,8 @@
 - id: vue-v-bind-alt
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:alt|:alt.*\\.$route|:alt.*\\.$store''severity: low
+    - regex: 'v-bind:alt|:alt.*\.$route|:alt.*\.$store'
+  severity: low
   description: "Dynamic alt with user input"
   remediation: "Escape alt text"
   cwe: "CWE-79"
@@ -3360,7 +3656,8 @@
 - id: vue-v-bind-data-attribute
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:data-\\.w+|:data-\\.w+.*\\.$route''severity: medium
+    - regex: 'v-bind:data-\.w+|:data-\.w+.*\.$route'
+  severity: medium
   description: "Dynamic data attributes with user input"
   remediation: "Sanitize data attribute values"
   cwe: "CWE-20"
@@ -3369,7 +3666,8 @@
 - id: vue-v-bind-aria
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-bind:aria-\\.w+|:aria-\\.w+.*\\.$route''severity: low
+    - regex: 'v-bind:aria-\.w+|:aria-\.w+.*\.$route'
+  severity: low
   description: "Dynamic ARIA attributes with user input"
   remediation: "Sanitize ARIA values"
   cwe: "CWE-20"
@@ -3378,7 +3676,8 @@
 - id: vue-v-on-native
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on\\..native|@click\\..native|@submit\\..native''severity: low
+    - regex: 'v-on\..native|@click\..native|@submit\..native'
+  severity: low
   description: "Native event modifiers"
   remediation: "Good for component events"
   cwe: "CWE-693"
@@ -3387,7 +3686,8 @@
 - id: vue-v-on-prevent
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on:submit\\..prevent|@submit\\..prevent''severity: low
+    - regex: 'v-on:submit\..prevent|@submit\..prevent'
+  severity: low
   description: "Prevent default on form submit"
   remediation: "Good for SPA forms"
   cwe: "CWE-693"
@@ -3396,7 +3696,8 @@
 - id: vue-v-on-stop
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on:click\\..stop|@click\\..stop''severity: low
+    - regex: 'v-on:click\..stop|@click\..stop'
+  severity: low
   description: "Stop propagation modifier"
   remediation: "Use when needed"
   cwe: "CWE-693"
@@ -3405,7 +3706,8 @@
 - id: vue-v-on-capture
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on:click\\..capture|@click\\..capture''severity: low
+    - regex: 'v-on:click\..capture|@click\..capture'
+  severity: low
   description: "Capture phase events"
   remediation: "Use with caution"
   cwe: "CWE-693"
@@ -3414,7 +3716,8 @@
 - id: vue-v-on-self
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on:click\\..self|@click\\..self''severity: low
+    - regex: 'v-on:click\..self|@click\..self'
+  severity: low
   description: "Self-only events"
   remediation: "Good for preventing bubbling"
   cwe: "CWE-693"
@@ -3423,7 +3726,8 @@
 - id: vue-v-on-once
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on:click\\..once|@click\\..once''severity: low
+    - regex: 'v-on:click\..once|@click\..once'
+  severity: low
   description: "Once-only events"
   remediation: "Good for one-time actions"
   cwe: "CWE-693"
@@ -3432,7 +3736,8 @@
 - id: vue-v-on-passive
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-on:scroll\\..passive|@touchmove\\..passive''severity: low
+    - regex: 'v-on:scroll\..passive|@touchmove\..passive'
+  severity: low
   description: "Passive events (performance)"
   remediation: "Good for scroll performance"
   cwe: "CWE-693"
@@ -3441,7 +3746,8 @@
 - id: vue-v-model-lazy
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-model\\..lazy''severity: low
+    - regex: 'v-model\..lazy'
+  severity: low
   description: "Lazy v-model (on change event)"
   remediation: "Good for performance"
   cwe: "CWE-693"
@@ -3450,7 +3756,8 @@
 - id: vue-v-model-number
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-model\\..number''severity: low
+    - regex: 'v-model\..number'
+  severity: low
   description: "Number-cast v-model"
   remediation: "Good for numeric inputs"
   cwe: "CWE-20"
@@ -3459,7 +3766,8 @@
 - id: vue-v-model-trim
   languages: [vue, javascript]
   patterns:
-    - regex: 'v-model\\..trim''severity: low
+    - regex: 'v-model\..trim'
+  severity: low
   description: "Trimmed v-model"
   remediation: "Good for input sanitization"
   cwe: "CWE-20"
@@ -3470,7 +3778,8 @@
 - id: vue-csrf-token-missing
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..(post|put|patch|delete).*''severity: high
+    - regex: 'axios\..(post|put|patch|delete).*'
+  severity: high
   description: "State-changing request without CSRF token"
   remediation: "Enable CSRF protection in axios"
   cwe: "CWE-352"
@@ -3479,7 +3788,8 @@
 - id: vue-csrf-token-config
   languages: [vue, javascript]
   patterns:
-    - regex: 'xsrfCookieName|xsrfHeaderName''severity: low
+    - regex: 'xsrfCookieName|xsrfHeaderName'
+  severity: low
   description: "CSRF token configured (good)"
   remediation: "Good practice"
   cwe: "CWE-352"
@@ -3488,7 +3798,8 @@
 - id: vue-csrf-cookie-secure
   languages: [vue, javascript]
   patterns:
-    - regex: 'withCredentials\\.s*:\\.s*true''severity: medium
+    - regex: 'withCredentials\.s*:\.s*true'
+  severity: medium
   description: "withCredentials true (sends cookies)"
   remediation: "Ensure CSRF protection when using credentials"
   cwe: "CWE-352"
@@ -3497,7 +3808,8 @@
 - id: vue-csrf-cookie-without-token
   languages: [vue, javascript]
   patterns:
-    - regex: 'withCredentials\\.s*:\\.s*true''severity: high
+    - regex: 'withCredentials\.s*:\.s*true'
+  severity: high
   description: "Credentials without CSRF protection"
   remediation: "Enable CSRF tokens"
   cwe: "CWE-352"
@@ -3506,7 +3818,7 @@
 - id: vue-api-base-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'baseURL\\.s*:\\.s*['''\\.]https?://[^'']*[''\\.]'
+    - regex: 'baseURL\.s*:\.s*[''\.]https?://[^'']*[''\.]'
   severity: low
   description: "API base URL configured"
   remediation: "Use environment variables"
@@ -3516,7 +3828,7 @@
 - id: vue-api-hardcoded-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..get\\.s*\\.(\\.s*['''\\.]https?://[^'']*[''\\.]'
+    - regex: 'axios\..get\.s*\.(\.s*[''\.]https?://[^'']*[''\.])'
   severity: high
   description: "Hardcoded API URL"
   remediation: "Use baseURL and relative paths"
@@ -3526,7 +3838,8 @@
 - id: vue-api-timeout-missing
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..(get|post|put|patch).*''severity: medium
+    - regex: 'axios\..(get|post|put|patch).*'
+  severity: medium
   description: "API request without timeout"
   remediation: "Set timeout for all requests"
   cwe: "CWE-770"
@@ -3535,7 +3848,8 @@
 - id: vue-api-timeout-long
   languages: [vue, javascript]
   patterns:
-    - regex: 'timeout\\.s*:\\.s*[0-9]{5,}''severity: medium
+    - regex: 'timeout\.s*:\.s*[0-9]{5,}'
+  severity: medium
   description: "API timeout too long (>30 seconds)"
   remediation: "Set reasonable timeout (5-10 seconds)"
   cwe: "CWE-770"
@@ -3544,7 +3858,8 @@
 - id: vue-api-retry
   languages: [vue, javascript]
   patterns:
-    - regex: 'axiosRetry|retry.*axios''severity: low
+    - regex: 'axiosRetry|retry.*axios'
+  severity: low
   description: "API retry logic"
   remediation: "Implement exponential backoff"
   cwe: "CWE-770"
@@ -3553,7 +3868,8 @@
 - id: vue-api-retry-infinite
   languages: [vue, javascript]
   patterns:
-    - regex: 'retries\\.s*:\\.s*-1|retry.*while\\.(true\\.)''severity: high
+    - regex: 'retries\.s*:\.s*-1|retry.*while\.(true\.)'
+  severity: high
   description: "Infinite API retry (DoS risk)"
   remediation: "Limit retry count"
   cwe: "CWE-770"
@@ -3562,7 +3878,8 @@
 - id: vue-api-interceptor-auth
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..interceptors\\..request.*Authorization.*token''severity: low
+    - regex: 'axios\..interceptors\..request.*Authorization.*token'
+  severity: low
   description: "Auth interceptor (good)"
   remediation: "Good for adding auth headers"
   cwe: "CWE-306"
@@ -3571,7 +3888,8 @@
 - id: vue-api-interceptor-log
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..interceptors\\..response.*console\\..log''severity: high
+    - regex: 'axios\..interceptors\..response.*console\..log'
+  severity: high
   description: "API interceptor logging sensitive data"
   remediation: "Don't log sensitive data"
   cwe: "CWE-532"
@@ -3580,7 +3898,8 @@
 - id: vue-api-error-handler
   languages: [vue, javascript]
   patterns:
-    - regex: 'axios\\..interceptors\\..response.*catch|axios.*catch.*error''severity: low
+    - regex: 'axios\..interceptors\..response.*catch|axios.*catch.*error'
+  severity: low
   description: "API error handler"
   remediation: "Handle errors gracefully"
   cwe: "CWE-754"
@@ -3589,7 +3908,8 @@
 - id: vue-api-error-expose
   languages: [vue, javascript]
   patterns:
-    - regex: 'catch.*alert|catch.*console\\..log.*error''severity: high
+    - regex: 'catch.*alert|catch.*console\..log.*error'
+  severity: high
   description: "API error exposed to user"
   remediation: "Log errors server-side"
   cwe: "CWE-209"
@@ -3598,7 +3918,8 @@
 - id: vue-api-graphql-queries
   languages: [vue, javascript]
   patterns:
-    - regex: 'gql`|graphql-tag|useQuery|useMutation''severity: medium
+    - regex: 'gql`|graphql-tag|useQuery|useMutation'
+  severity: medium
   description: "GraphQL queries (may expose schema)"
   remediation: "Validate GraphQL operations"
   cwe: "CWE-200"
@@ -3607,7 +3928,8 @@
 - id: vue-api-graphql-injection
   languages: [vue, javascript]
   patterns:
-    - regex: 'gql`.*\\.$\\.{.*\\.}.*`''severity: high
+    - regex: 'gql`.*\.$\.{.*\.}.*`'
+  severity: high
   description: "GraphQL query interpolation (injection)"
   remediation: "Use GraphQL variables"
   cwe: "CWE-89"
@@ -3616,7 +3938,8 @@
 - id: vue-api-graphql-variables
   languages: [vue, javascript]
   patterns:
-    - regex: 'variables\\.s*:\\.s*\\.$route|variables.*\\.$store''severity: high
+    - regex: 'variables\.s*:\.s*\.$route|variables.*\.$store'
+  severity: high
   description: "GraphQL variables with user input"
   remediation: "Validate variables"
   cwe: "CWE-20"
@@ -3625,7 +3948,8 @@
 - id: vue-api-websocket
   languages: [vue, javascript]
   patterns:
-    - regex: 'new\\.s+WebSocket|io\\.(|Socket\\..io''severity: medium
+    - regex: 'new\.s+WebSocket|io\.(|Socket\..io)'
+  severity: medium
   description: "WebSocket connections"
   remediation: "Use WSS and validate origins"
   cwe: "CWE-319"
@@ -3634,7 +3958,7 @@
 - id: vue-api-websocket-ws
   languages: [vue, javascript]
   patterns:
-    - regex: 'new\\.s+WebSocket\\.s*\\.(\\.s*['''\\.]ws://'
+    - regex: 'new\.s+WebSocket\.s*\.(\.s*[''\.]ws://)'
   severity: high
   description: "WebSocket without TLS"
   remediation: "Use wss:// instead of ws://"
@@ -3644,7 +3968,8 @@
 - id: vue-api-websocket-auth
   languages: [vue, javascript]
   patterns:
-    - regex: 'new\\.s+WebSocket.*token|io\\.(.*auth.*token''severity: medium
+    - regex: 'new\.s+WebSocket.*token|io\.(.*auth.*token)'
+  severity: medium
   description: "WebSocket with auth token"
   remediation: "Validate WebSocket auth"
   cwe: "CWE-306"
@@ -3653,7 +3978,8 @@
 - id: vue-api-websocket-token-url
   languages: [vue, javascript]
   patterns:
-    - regex: 'ws://.*\\.?token=|wss://.*\\.?token=''severity: high
+    - regex: 'ws://.*\.?token=|wss://.*\.?token='
+  severity: high
   description: "Auth token in WebSocket URL"
   remediation: "Use handshake for auth"
   cwe: "CWE-312"

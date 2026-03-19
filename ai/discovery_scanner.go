@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -25,7 +26,7 @@ var globalCtx context.Context
 var globalCancel context.CancelFunc
 
 var aiHTTPClient = &http.Client{
-	Timeout: 3 * time.Minute,
+	Timeout: 35 * time.Minute, // Must exceed the per-request context timeout (30m)
 	Transport: &http.Transport{
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,
@@ -54,11 +55,33 @@ func IsInterrupted() bool {
 	return atomic.LoadInt32(&interruptFlag) == 1
 }
 
+// FlexInt handles AI models returning line_number as either int (42) or array ([14, 20, 26]).
+// When an array is returned, we take the first element.
+type FlexInt int
+
+func (fi *FlexInt) UnmarshalJSON(data []byte) error {
+	// Try int first
+	var n int
+	if err := json.Unmarshal(data, &n); err == nil {
+		*fi = FlexInt(n)
+		return nil
+	}
+	// Try array of ints
+	var arr []int
+	if err := json.Unmarshal(data, &arr); err == nil && len(arr) > 0 {
+		*fi = FlexInt(arr[0])
+		return nil
+	}
+	// Default to 0
+	*fi = 0
+	return nil
+}
+
 // DiscoveryFinding represents a single vulnerability found by AI
 type DiscoveryFinding struct {
 	IssueName        string  `json:"issue_name"`
 	Severity         string  `json:"severity"`
-	LineNumber       int     `json:"line_number"`
+	LineNumber       FlexInt `json:"line_number"`
 	Description      string  `json:"description"`
 	Remediation      string  `json:"remediation"`
 	ExploitPoC       string  `json:"exploit_poc"`
@@ -77,9 +100,9 @@ type DiscoveryResponse struct {
 var supportedDiscoveryExtensions = map[string]bool{
 	".py": true, ".js": true, ".ts": true, ".go": true, ".java": true,
 	".rb": true, ".php": true, ".cs": true, ".c": true, ".cpp": true,
-	".h": true, ".sh": true, ".bash": true, ".yaml": true, ".yml": true,
-	".json": true, ".xml": true, ".html": true, ".htm": true, ".sql": true,
+	".h": true, ".sh": true, ".bash": true, ".sql": true,
 	".dockerfile": true, ".tf": true, ".hcl": true,
+	".env": true, ".config": true, ".properties": true,
 }
 
 // maxFileSize is the maximum file size (in bytes) to send to AI (avoid overloading context)
@@ -174,8 +197,8 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			"1.  BROKEN ACCESS CONTROL: IDOR, missing RBAC/ABAC checks, horizontal/vertical privilege escalation, and bypasses in JWT/OAuth implementations.\n"+
 			"2.  INJECTION GALAXY: SSTI, NoSQLi, OS Command Injection, Log Poisoning, and LDAP/XPath/Template injections.\n"+
 			"3.  DATA INTEGRITY & LOGIC: Insecure Deserialization (Pickle/Marshal), Prototype Pollution, XXE, and complex Business Logic Bypasses (e.g. state machine manipulation).\n"+
-			"4.  SERVER-SIDE REQUEST FORGERY (SSRF): Metadata service exploitation, DNS rebinding potential, and internal network pivot points.\n"+
-			"5.  ABSENCE OF CONTROLS (CRITICAL): Identify what is MISSING—Security Headers (HSTS, CSP), input validation at entry points, CSRF tokens on state-changing actions, and rate limiting on sensitive APIs.\n\n"+
+			"4.  SERVER-SIDE REQUEST FORGERY (SSRF): Metadata service exploitation, DNS rebinding potential, and internal network pivot points.\n\n"+
+			"IMPORTANT CONSTRAINT: Do NOT flag missing infrastructure controls (e.g. missing security headers, rate limiting, CSRF tokens) as code vulnerabilities. Focus ONLY on exploitable code-level bugs with a clear Source-to-Sink taint flow.\n\n"+
 			"ULTRA-DEEP SCAN INSTRUCTIONS:\n"+
 			"- TAINT-FLOW SIMULATION: For every variable that comes from a request (Source), trace its path through the code until it hits a sensitive function (Sink). If there is no sanitization in between, it is a CRITICAL finding.\n"+
 			"- ATTACKER'S PERSPECTIVE: How would I bypass the existing regex or filters? Look for encoding tricks, null bytes, or multi-step logical flaws.\n"+
@@ -214,8 +237,8 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			Prompt: prompt,
 			Stream: false,
 			Options: map[string]interface{}{
-				"num_ctx":     4096,
-				"num_predict": 1024,
+				"num_ctx":     16384,
+				"num_predict": 4096,
 				"temperature": 0.0,
 			},
 			KeepAlive: "15m",
@@ -226,8 +249,8 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			return nil, err
 		}
 
-		// Create a fresh context for each API call with a reasonable timeout
-		reqCtx, reqCancel := context.WithTimeout(globalCtx, 2*time.Minute)
+		// Create a fresh context for each API call — large models (32b+) need up to 30 min for massive files
+		reqCtx, reqCancel := context.WithTimeout(globalCtx, 30*time.Minute)
 		defer reqCancel()
 
 		req, err := http.NewRequestWithContext(reqCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
@@ -244,7 +267,40 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			if strings.Contains(err.Error(), "context deadline exceeded") {
 				return nil, fmt.Errorf("AI model timeout - try a faster model or increase timeout settings")
 			}
-			return nil, fmt.Errorf("API request failed: %w", err)
+			// Retry on EOF (remote server dropped connection) — up to 2 retries
+			if strings.Contains(err.Error(), "EOF") {
+				for retryNum := 1; retryNum <= 2; retryNum++ {
+					func() {
+						waitSec := retryNum * 5
+						utils.LogWarn(fmt.Sprintf("Connection dropped (EOF) for %s, retry %d/2 in %ds...", filePath, retryNum, waitSec))
+						time.Sleep(time.Duration(waitSec) * time.Second)
+						
+						reqCtx2, reqCancel2 := context.WithTimeout(globalCtx, 30*time.Minute)
+						defer reqCancel2()
+						
+						req2, _ := http.NewRequestWithContext(reqCtx2, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
+						req2.Header.Set("Content-Type", "application/json")
+						resp, err = aiHTTPClient.Do(req2)
+					}()
+					if err == nil {
+						break // success
+					}
+					if !strings.Contains(err.Error(), "EOF") {
+						break // different error, stop retrying
+					}
+				}
+				if err != nil {
+					return nil, fmt.Errorf("API request failed after retries: %w", err)
+				}
+			} else {
+				return nil, fmt.Errorf("API request failed: %w", err)
+			}
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			body, _ := ioutil.ReadAll(resp.Body)
+			resp.Body.Close()
+			return nil, fmt.Errorf("Ollama API error (Status %d): %s", resp.StatusCode, string(body))
 		}
 
 		var ollamaResp OllamaAPIResponse
@@ -254,18 +310,63 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 		}
 		resp.Body.Close()
 
+		// DEBUG: Log full raw response as requested by user
+		if len(ollamaResp.Response) > 0 {
+			utils.LogInfo(fmt.Sprintf("Full AI Response for %s:\n\n%s\n\n", filePath, ollamaResp.Response))
+		} else {
+			utils.LogWarn(fmt.Sprintf("AI returned empty response for %s", filePath))
+		}
+
 		var response DiscoveryResponse
 		outputStr := ollamaResp.Response
-		startIdx := strings.Index(outputStr, "{")
-		endIdx := strings.LastIndex(outputStr, "}")
+		
+		// Robust JSON Extraction using common utility
+		jsonContent := utils.ExtractJSON(outputStr)
 
-		if startIdx >= 0 && endIdx > startIdx {
-			jsonStr := outputStr[startIdx : endIdx+1]
-			if err2 := json.Unmarshal([]byte(jsonStr), &response); err2 == nil {
+		if os.Getenv("AI_DEBUG") == "true" {
+			fmt.Printf("\n[DEBUG] Raw AI output for %s:\n%s\n", filePath, outputStr)
+		}
+
+		if err2 := json.Unmarshal([]byte(jsonContent), &response); err2 == nil {
+			for i := range response.Vulnerabilities {
+				response.Vulnerabilities[i].LineNumber += FlexInt(startLine)
+				if response.Vulnerabilities[i].LineNumber > FlexInt(totalLines) {
+					response.Vulnerabilities[i].LineNumber = FlexInt(totalLines)
+				}
+			}
+			allFindings = append(allFindings, response.Vulnerabilities...)
+		} else {
+			// Fallback 1: Try escaping unescaped quotes (AI outputs code with " inside JSON strings)
+			repaired := utils.EscapeUnescapedQuotes(jsonContent)
+			if err3 := json.Unmarshal([]byte(repaired), &response); err3 == nil {
+				utils.LogInfo(fmt.Sprintf("Recovered JSON for %s after escaping unescaped quotes", filePath))
 				for i := range response.Vulnerabilities {
-					response.Vulnerabilities[i].LineNumber += startLine
+					response.Vulnerabilities[i].LineNumber += FlexInt(startLine)
+					if response.Vulnerabilities[i].LineNumber > FlexInt(totalLines) {
+						response.Vulnerabilities[i].LineNumber = FlexInt(totalLines)
+					}
 				}
 				allFindings = append(allFindings, response.Vulnerabilities...)
+			} else {
+				// Fallback 2: Try RepairJSON for truncation issues
+				repaired2 := utils.RepairJSON(repaired)
+				if err4 := json.Unmarshal([]byte(repaired2), &response); err4 == nil {
+					utils.LogInfo(fmt.Sprintf("Recovered JSON for %s after full repair", filePath))
+					for i := range response.Vulnerabilities {
+						response.Vulnerabilities[i].LineNumber += FlexInt(startLine)
+						if response.Vulnerabilities[i].LineNumber > FlexInt(totalLines) {
+							response.Vulnerabilities[i].LineNumber = FlexInt(totalLines)
+						}
+					}
+					allFindings = append(allFindings, response.Vulnerabilities...)
+				} else {
+					utils.LogWarn(fmt.Sprintf("Failed to parse AI JSON for %s: %v", filePath, err2))
+					if os.Getenv("AI_DEBUG") != "true" {
+						preview := jsonContent
+						if len(preview) > 200 { preview = preview[:200] + "..." }
+						utils.LogInfo(fmt.Sprintf("Corrupted JSON fragment: %s", preview))
+					}
+				}
 			}
 		}
 
@@ -347,7 +448,7 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 		errorCount      int
 	)
 
-	numWorkers := 4
+	numWorkers := 2 // Reduced from 4 to 2 for reasoning models to prevent local thrashing
 	if totalFiles < numWorkers {
 		numWorkers = totalFiles
 	}
@@ -376,6 +477,15 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 			if err != nil {
 				mu.Lock()
 				errorCount++
+				filesProcessed++
+				mu.Unlock()
+				results <- nil
+				continue
+			}
+
+			// Smart Skipping: Skip very short files or pure boilerplate
+			if len(strings.TrimSpace(string(content))) < 150 {
+				mu.Lock()
 				filesProcessed++
 				mu.Unlock()
 				results <- nil
@@ -434,7 +544,7 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 						IssueName:   v.IssueName,
 						Severity:    strings.ToLower(v.Severity),
 						FilePath:    job.filePath,
-						LineNumber:  fmt.Sprintf("%d", v.LineNumber),
+						LineNumber:  fmt.Sprintf("%d", int(v.LineNumber)),
 						Description: v.Description,
 						Remediation: v.Remediation,
 						ExploitPoC:  v.ExploitPoC,

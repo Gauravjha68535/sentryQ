@@ -1,7 +1,8 @@
 - id: scala-hardcoded-password
   languages: [scala]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\s*=\\s*"[^"]{8,}"''severity: high
+    - regex: '(?i)(password|passwd|pwd)\s*=\s*"[^"]{8,}"'
+  severity: high
   description: "Hardcoded password detected in Scala source code"
   remediation: "Use environment variables or Typesafe Config for secrets"
   cwe: "CWE-798"
@@ -10,7 +11,8 @@
 - id: scala-hardcoded-api-key
   languages: [scala]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey|secret)\\s*=\\s*"[a-zA-Z0-9]{16,}"''severity: high
+    - regex: '(?i)(api[_-]?key|apikey|secret)\s*=\s*"[a-zA-Z0-9]{16,}"'
+  severity: high
   description: "Hardcoded API key or secret detected"
   remediation: "Store keys in environment variables or use a vault service"
   cwe: "CWE-798"
@@ -20,7 +22,8 @@
 - id: scala-sql-injection-concat
   languages: [scala]
   patterns:
-    - regex: '(?i)(execute|query)\\s*\\(\\s*s?".*\\$|sql".*\\$\\{''severity: critical
+    - regex: '(?i)(execute|query)\s*\(\s*s?".*\$|sql".*\$\{'
+  severity: critical
   description: "SQL injection via string interpolation"
   remediation: "Use Slick or Doobie parameterized queries. Never interpolate user input into SQL"
   cwe: "CWE-89"
@@ -29,7 +32,8 @@
 - id: scala-sql-injection-anorm
   languages: [scala]
   patterns:
-    - regex: 'SQL\\s*\\(\\s*s?".*\\$''severity: critical
+    - regex: 'SQL\s*\(\s*s?".*\$'
+  severity: critical
   description: "SQL injection in Anorm query with string interpolation"
   remediation: "Use SQL(\"SELECT * FROM users WHERE id = {id}\").on('id -> userId)"
   cwe: "CWE-89"
@@ -39,7 +43,8 @@
 - id: scala-command-injection
   languages: [scala]
   patterns:
-    - regex: '(Process|Runtime\\.getRuntime).*\\+.*|sys\\.process.*\\+|".*"\\s*\\.!''severity: critical
+    - regex: '(Process|Runtime\.getRuntime).*\+.*|sys\.process.*\+|".*"\s*\.!'
+  severity: critical
   description: "Command injection via Process or sys.process"
   remediation: "Use ProcessBuilder with argument list. Never concatenate user input"
   cwe: "CWE-78"
@@ -49,7 +54,8 @@
 - id: scala-play-xss
   languages: [scala]
   patterns:
-    - regex: '(?i)Html\\s*\\(|@Html\\s*\\(.*request''severity: high
+    - regex: '(?i)Html\s*\(|@Html\s*\(.*request'
+  severity: high
   description: "Play Framework Html() bypasses auto-escaping — XSS risk"
   remediation: "Avoid Html() with user input. Use Twirl templates for auto-escaping"
   cwe: "CWE-79"
@@ -59,7 +65,8 @@
 - id: scala-play-csrf-disabled
   languages: [scala]
   patterns:
-    - regex: '(?i)play\\.filters\\.csrf\\..*disabled|csrf\\.bypass''severity: high
+    - regex: '(?i)play\.filters\.csrf\..*disabled|csrf\.bypass'
+  severity: high
   description: "CSRF protection disabled in Play Framework"
   remediation: "Enable CSRF protection: play.filters.csrf.header.name and use @helper.CSRF"
   cwe: "CWE-352"
@@ -69,7 +76,8 @@
 - id: scala-insecure-deserialization
   languages: [scala]
   patterns:
-    - regex: '(?i)ObjectInputStream|JavaSerialization|readObject\\s*\\(''severity: critical
+    - regex: '(?i)ObjectInputStream|JavaSerialization|readObject\s*\('
+  severity: critical
   description: "Insecure Java deserialization in Scala code"
   remediation: "Use JSON (circe, play-json) or Protocol Buffers. Never deserialize untrusted data"
   cwe: "CWE-502"
@@ -79,7 +87,8 @@
 - id: scala-path-traversal
   languages: [scala]
   patterns:
-    - regex: '(?i)(Source\\.fromFile|new File)\\s*\\(.*request|Paths\\.get\\s*\\(.*param''severity: high
+    - regex: '(?i)(Source\.fromFile|new File)\s*\(.*request|Paths\.get\s*\(.*param'
+  severity: high
   description: "Path traversal via user-controlled file path"
   remediation: "Validate paths against base directory. Use Path.normalize() and startsWith()"
   cwe: "CWE-22"
@@ -89,7 +98,8 @@
 - id: scala-weak-crypto
   languages: [scala]
   patterns:
-    - regex: '(?i)(MessageDigest\\.getInstance\\s*\\(\\s*"MD5"|MessageDigest\\.getInstance\\s*\\(\\s*"SHA-1")''severity: medium
+    - regex: '(?i)(MessageDigest\.getInstance\s*\(\s*"MD5"|MessageDigest\.getInstance\s*\(\s*"SHA-1")'
+  severity: medium
   description: "Use of weak hash function (MD5/SHA-1)"
   remediation: "Use SHA-256 or bcrypt/scrypt for password hashing"
   cwe: "CWE-327"
@@ -99,7 +109,8 @@
 - id: scala-open-redirect
   languages: [scala]
   patterns:
-    - regex: 'Redirect\\s*\\(\\s*request\\.getQueryString|Redirect\\s*\\(\\s*params''severity: high
+    - regex: 'Redirect\s*\(\s*request\.getQueryString|Redirect\s*\(\s*params'
+  severity: high
   description: "Open redirect via user-controlled URL"
   remediation: "Validate redirect URLs against an allowlist"
   cwe: "CWE-601"
@@ -109,7 +120,8 @@
 - id: scala-ssrf
   languages: [scala]
   patterns:
-    - regex: '(?i)(ws\\.url|Http\\(|sttp\\.client)\\s*\\(.*request|new URL\\s*\\(.*param''severity: high
+    - regex: '(?i)(ws\.url|Http\(|sttp\.client)\s*\(.*request|new URL\s*\(.*param'
+  severity: high
   description: "SSRF via user-controlled URL"
   remediation: "Validate URLs against allowlist. Block private IP ranges"
   cwe: "CWE-918"
@@ -119,7 +131,8 @@
 - id: scala-xxe
   languages: [scala]
   patterns:
-    - regex: '(?i)XML\\.load|SAXParserFactory|DocumentBuilderFactory''severity: high
+    - regex: '(?i)XML\.load|SAXParserFactory|DocumentBuilderFactory'
+  severity: high
   description: "XML parsing may be vulnerable to XXE attacks"
   remediation: "Disable external entities: factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)"
   cwe: "CWE-611"
@@ -129,7 +142,8 @@
 - id: scala-log-forging
   languages: [scala]
   patterns:
-    - regex: '(?i)logger\\.(info|warn|error|debug)\\s*\\(.*request\\.getQueryString''severity: medium
+    - regex: '(?i)logger\.(info|warn|error|debug)\s*\(.*request\.getQueryString'
+  severity: medium
   description: "Log forging via unsanitized user input in log messages"
   remediation: "Sanitize log input: remove newlines and control characters"
   cwe: "CWE-117"
@@ -139,7 +153,8 @@
 - id: scala-ssti
   languages: [scala]
   patterns:
-    - regex: '(?i)Twirl\\.compile|views\\.html.*\\+.*request''severity: high
+    - regex: '(?i)Twirl\.compile|views\.html.*\+.*request'
+  severity: high
   description: "Server-side template injection in Play/Twirl"
   remediation: "Never concatenate user input into template content"
   cwe: "CWE-1336"
@@ -157,7 +172,8 @@
 - id: scala-play-controller-direct
   languages: [scala]
   patterns:
-    - regex: '(?i)class\\s+\\w+Controller.*Controller''severity: low
+    - regex: '(?i)class\s+\w+Controller.*Controller'
+  severity: low
   description: "Play controller class"
   remediation: "Implement proper authorization"
   cwe: "CWE-284"
@@ -166,7 +182,8 @@
 - id: scala-play-json-parser
   languages: [scala]
   patterns:
-    - regex: 'parse\\.json''severity: low
+    - regex: 'parse\.json'
+  severity: low
   description: "Play JSON parser"
   remediation: "Validate JSON data"
   cwe: "CWE-20"
@@ -175,7 +192,8 @@
 - id: scala-play-form-parser
   languages: [scala]
   patterns:
-    - regex: 'parse\\.form''severity: low
+    - regex: 'parse\.form'
+  severity: low
   description: "Play form parser"
   remediation: "Validate form data"
   cwe: "CWE-20"
@@ -184,7 +202,8 @@
 - id: scala-play-text-parser
   languages: [scala]
   patterns:
-    - regex: 'parse\\.text''severity: low
+    - regex: 'parse\.text'
+  severity: low
   description: "Play text parser"
   remediation: "Validate text data"
   cwe: "CWE-20"
@@ -193,7 +212,8 @@
 - id: scala-play-xml-parser
   languages: [scala]
   patterns:
-    - regex: 'parse\\.xml''severity: high
+    - regex: 'parse\.xml'
+  severity: high
   description: "Play XML parser"
   remediation: "Disable external entities"
   cwe: "CWE-611"
@@ -202,7 +222,8 @@
 - id: scala-play-tolerant-json
   languages: [scala]
   patterns:
-    - regex: 'parse\\.tolerantJson''severity: medium
+    - regex: 'parse\.tolerantJson'
+  severity: medium
   description: "Play tolerant JSON parser"
   remediation: "Validate JSON strictly"
   cwe: "CWE-20"
@@ -211,7 +232,8 @@
 - id: scala-play-tolerant-form
   languages: [scala]
   patterns:
-    - regex: 'parse\\.tolerantForm''severity: medium
+    - regex: 'parse\.tolerantForm'
+  severity: medium
   description: "Play tolerant form parser"
   remediation: "Validate form strictly"
   cwe: "CWE-20"
@@ -220,7 +242,8 @@
 - id: scala-play-tolerant-text
   languages: [scala]
   patterns:
-    - regex: 'parse\\.tolerantText''severity: medium
+    - regex: 'parse\.tolerantText'
+  severity: medium
   description: "Play tolerant text parser"
   remediation: "Validate text strictly"
   cwe: "CWE-20"
@@ -229,7 +252,8 @@
 - id: scala-play-tolerant-xml
   languages: [scala]
   patterns:
-    - regex: 'parse\\.tolerantXml''severity: high
+    - regex: 'parse\.tolerantXml'
+  severity: high
   description: "Play tolerant XML parser"
   remediation: "Disable external entities"
   cwe: "CWE-611"
@@ -238,7 +262,8 @@
 - id: scala-play-result-ok
   languages: [scala]
   patterns:
-    - regex: 'Ok\\s*\\(''severity: low
+    - regex: 'Ok\s*\('
+  severity: low
   description: "Play Ok result"
   remediation: "Ensure proper response"
   cwe: "CWE-693"
@@ -247,7 +272,8 @@
 - id: scala-play-result-bad-request
   languages: [scala]
   patterns:
-    - regex: 'BadRequest\\s*\\(''severity: low
+    - regex: 'BadRequest\s*\('
+  severity: low
   description: "Play BadRequest result"
   remediation: "Handle bad requests properly"
   cwe: "CWE-754"
@@ -256,7 +282,8 @@
 - id: scala-play-result-not-found
   languages: [scala]
   patterns:
-    - regex: 'NotFound\\s*\\(''severity: low
+    - regex: 'NotFound\s*\('
+  severity: low
   description: "Play NotFound result"
   remediation: "Handle not found properly"
   cwe: "CWE-754"
@@ -265,7 +292,8 @@
 - id: scala-play-result-internal-server-error
   languages: [scala]
   patterns:
-    - regex: 'InternalServerError\\s*\\(''severity: low
+    - regex: 'InternalServerError\s*\('
+  severity: low
   description: "Play InternalServerError result"
   remediation: "Don't expose error details"
   cwe: "CWE-209"
@@ -274,7 +302,8 @@
 - id: scala-play-result-redirect
   languages: [scala]
   patterns:
-    - regex: 'Redirect\\s*\\(''severity: medium
+    - regex: 'Redirect\s*\('
+  severity: medium
   description: "Play Redirect result"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -283,7 +312,8 @@
 - id: scala-play-result-see-other
   languages: [scala]
   patterns:
-    - regex: 'SeeOther\\s*\\(''severity: medium
+    - regex: 'SeeOther\s*\('
+  severity: medium
   description: "Play SeeOther result"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -292,7 +322,8 @@
 - id: scala-play-result-temporary-redirect
   languages: [scala]
   patterns:
-    - regex: 'TemporaryRedirect\\s*\\(''severity: medium
+    - regex: 'TemporaryRedirect\s*\('
+  severity: medium
   description: "Play TemporaryRedirect result"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -301,7 +332,8 @@
 - id: scala-play-result-permanent-redirect
   languages: [scala]
   patterns:
-    - regex: 'PermanentRedirect\\s*\\(''severity: medium
+    - regex: 'PermanentRedirect\s*\('
+  severity: medium
   description: "Play PermanentRedirect result"
   remediation: "Validate redirect URLs"
   cwe: "CWE-601"
@@ -310,7 +342,8 @@
 - id: scala-play-result-status
   languages: [scala]
   patterns:
-    - regex: 'Status\\s*\\(''severity: low
+    - regex: 'Status\s*\('
+  severity: low
   description: "Play Status result"
   remediation: "Use appropriate status codes"
   cwe: "CWE-693"
@@ -320,7 +353,8 @@
 - id: scala-akka-actor-system
   languages: [scala]
   patterns:
-    - regex: 'ActorSystem\\s*\\(''severity: low
+    - regex: 'ActorSystem\s*\('
+  severity: low
   description: "Akka actor system"
   remediation: "Configure actor system securely"
   cwe: "CWE-693"
@@ -329,7 +363,8 @@
 - id: scala-akka-actor-props
   languages: [scala]
   patterns:
-    - regex: 'Props\\s*\\(''severity: low
+    - regex: 'Props\s*\('
+  severity: low
   description: "Akka actor props"
   remediation: "Configure props securely"
   cwe: "CWE-693"
@@ -338,7 +373,8 @@
 - id: scala-akka-actor-actor-of
   languages: [scala]
   patterns:
-    - regex: 'actorOf\\s*\\(''severity: low
+    - regex: 'actorOf\s*\('
+  severity: low
   description: "Akka actor creation"
   remediation: "Configure actor securely"
   cwe: "CWE-693"
@@ -347,7 +383,8 @@
 - id: scala-akka-actor-tell
   languages: [scala]
   patterns:
-    - regex: '!\\s*\\(''severity: low
+    - regex: '!\s*\('
+  severity: low
   description: "Akka tell (fire and forget)"
   remediation: "Handle messages properly"
   cwe: "CWE-754"
@@ -356,7 +393,8 @@
 - id: scala-akka-actor-ask
   languages: [scala]
   patterns:
-    - regex: '\\?\\s*\\(''severity: low
+    - regex: '\?\s*\('
+  severity: low
   description: "Akka ask pattern"
   remediation: "Handle ask timeout"
   cwe: "CWE-754"
@@ -365,7 +403,8 @@
 - id: scala-akka-actor-pipe-to
   languages: [scala]
   patterns:
-    - regex: 'pipeTo\\s*\\(''severity: low
+    - regex: 'pipeTo\s*\('
+  severity: low
   description: "Akka pipeTo pattern"
   remediation: "Handle pipeTo properly"
   cwe: "CWE-754"
@@ -374,7 +413,8 @@
 - id: scala-akka-stream-source
   languages: [scala]
   patterns:
-    - regex: 'Source\\s*\\(''severity: low
+    - regex: 'Source\s*\('
+  severity: low
   description: "Akka stream source"
   remediation: "Configure source securely"
   cwe: "CWE-693"
@@ -383,7 +423,8 @@
 - id: scala-akka-stream-flow
   languages: [scala]
   patterns:
-    - regex: 'Flow\\s*\\(''severity: low
+    - regex: 'Flow\s*\('
+  severity: low
   description: "Akka stream flow"
   remediation: "Configure flow securely"
   cwe: "CWE-693"
@@ -392,7 +433,8 @@
 - id: scala-akka-stream-sink
   languages: [scala]
   patterns:
-    - regex: 'Sink\\s*\\(''severity: low
+    - regex: 'Sink\s*\('
+  severity: low
   description: "Akka stream sink"
   remediation: "Configure sink securely"
   cwe: "CWE-693"
@@ -401,7 +443,8 @@
 - id: scala-akka-http-route
   languages: [scala]
   patterns:
-    - regex: 'path\\s*\\(''severity: low
+    - regex: 'path\s*\('
+  severity: low
   description: "Akka HTTP path directive"
   remediation: "Validate path parameters"
   cwe: "CWE-20"
@@ -410,7 +453,8 @@
 - id: scala-akka-http-path-segment
   languages: [scala]
   patterns:
-    - regex: 'pathSegment\\s*\\(''severity: low
+    - regex: 'pathSegment\s*\('
+  severity: low
   description: "Akka HTTP pathSegment"
   remediation: "Validate path segment"
   cwe: "CWE-20"
@@ -419,7 +463,8 @@
 - id: scala-akka-http-path-prefix
   languages: [scala]
   patterns:
-    - regex: 'pathPrefix\\s*\\(''severity: low
+    - regex: 'pathPrefix\s*\('
+  severity: low
   description: "Akka HTTP pathPrefix"
   remediation: "Validate path prefix"
   cwe: "CWE-20"
@@ -428,7 +473,8 @@
 - id: scala-akka-http-path-suffix
   languages: [scala]
   patterns:
-    - regex: 'pathSuffix\\s*\\(''severity: low
+    - regex: 'pathSuffix\s*\('
+  severity: low
   description: "Akka HTTP pathSuffix"
   remediation: "Validate path suffix"
   cwe: "CWE-20"
@@ -437,7 +483,8 @@
 - id: scala-akka-http-get
   languages: [scala]
   patterns:
-    - regex: 'get\\s*\\{''severity: low
+    - regex: 'get\s*\{'
+  severity: low
   description: "Akka HTTP get directive"
   remediation: "Handle GET properly"
   cwe: "CWE-693"
@@ -446,7 +493,8 @@
 - id: scala-akka-http-post
   languages: [scala]
   patterns:
-    - regex: 'post\\s*\\{''severity: low
+    - regex: 'post\s*\{'
+  severity: low
   description: "Akka HTTP post directive"
   remediation: "Validate POST data"
   cwe: "CWE-20"
@@ -455,7 +503,8 @@
 - id: scala-akka-http-put
   languages: [scala]
   patterns:
-    - regex: 'put\\s*\\{''severity: low
+    - regex: 'put\s*\{'
+  severity: low
   description: "Akka HTTP put directive"
   remediation: "Validate PUT data"
   cwe: "CWE-20"
@@ -464,7 +513,8 @@
 - id: scala-akka-http-delete
   languages: [scala]
   patterns:
-    - regex: 'delete\\s*\\{''severity: low
+    - regex: 'delete\s*\{'
+  severity: low
   description: "Akka HTTP delete directive"
   remediation: "Validate DELETE request"
   cwe: "CWE-20"
@@ -473,7 +523,8 @@
 - id: scala-akka-http-patch
   languages: [scala]
   patterns:
-    - regex: 'patch\\s*\\{''severity: low
+    - regex: 'patch\s*\{'
+  severity: low
   description: "Akka HTTP patch directive"
   remediation: "Validate PATCH data"
   cwe: "CWE-20"
@@ -482,7 +533,8 @@
 - id: scala-akka-http-complete
   languages: [scala]
   patterns:
-    - regex: 'complete\\s*\\(''severity: low
+    - regex: 'complete\s*\('
+  severity: low
   description: "Akka HTTP complete"
   remediation: "Configure response properly"
   cwe: "CWE-693"
@@ -491,7 +543,8 @@
 - id: scala-akka-http-reject
   languages: [scala]
   patterns:
-    - regex: 'reject\\s*\\(''severity: low
+    - regex: 'reject\s*\('
+  severity: low
   description: "Akka HTTP reject"
   remediation: "Handle rejection properly"
   cwe: "CWE-754"
@@ -500,7 +553,8 @@
 - id: scala-akka-http-seal-route
   languages: [scala]
   patterns:
-    - regex: 'sealRoute\\s*\\(''severity: low
+    - regex: 'sealRoute\s*\('
+  severity: low
   description: "Akka HTTP sealRoute"
   remediation: "Configure exception handling"
   cwe: "CWE-754"
@@ -509,7 +563,8 @@
 - id: scala-akka-http-run-route
   languages: [scala]
   patterns:
-    - regex: 'runRoute\\s*\\(''severity: low
+    - regex: 'runRoute\s*\('
+  severity: low
   description: "Akka HTTP runRoute"
   remediation: "Configure route properly"
   cwe: "CWE-693"
@@ -518,7 +573,8 @@
 - id: scala-akka-http-bind-and-handle
   languages: [scala]
   patterns:
-    - regex: 'bindAndHandle\\s*\\(''severity: low
+    - regex: 'bindAndHandle\s*\('
+  severity: low
   description: "Akka HTTP bindAndHandle"
   remediation: "Configure server securely"
   cwe: "CWE-693"
@@ -527,7 +583,8 @@
 - id: scala-akka-cluster-join
   languages: [scala]
   patterns:
-    - regex: 'Cluster\\s*\\(.*join''severity: low
+    - regex: 'Cluster\s*\(.*join'
+  severity: low
   description: "Akka cluster join"
   remediation: "Configure cluster securely"
   cwe: "CWE-284"
@@ -537,7 +594,8 @@
 - id: scala-cats-io
   languages: [scala]
   patterns:
-    - regex: 'IO\\s*\\(''severity: low
+    - regex: 'IO\s*\('
+  severity: low
   description: "Cats IO"
   remediation: "Handle IO errors properly"
   cwe: "CWE-754"
@@ -546,7 +604,8 @@
 - id: scala-cats-sync
   languages: [scala]
   patterns:
-    - regex: 'Sync\\s*\\[''severity: low
+    - regex: 'Sync\s*\['
+  severity: low
   description: "Cats Sync type class"
   remediation: "Use Sync properly"
   cwe: "CWE-693"
@@ -555,7 +614,8 @@
 - id: scala-cats-async
   languages: [scala]
   patterns:
-    - regex: 'Async\\s*\\[''severity: low
+    - regex: 'Async\s*\['
+  severity: low
   description: "Cats Async type class"
   remediation: "Use Async properly"
   cwe: "CWE-693"
@@ -564,7 +624,8 @@
 - id: scala-cats-bracket
   languages: [scala]
   patterns:
-    - regex: 'bracket\\s*\\(''severity: low
+    - regex: 'bracket\s*\('
+  severity: low
   description: "Cats bracket"
   remediation: "Handle resource cleanup"
   cwe: "CWE-775"
@@ -573,7 +634,8 @@
 - id: scala-cats-resource
   languages: [scala]
   patterns:
-    - regex: 'Resource\\s*\\[''severity: low
+    - regex: 'Resource\s*\['
+  severity: low
   description: "Cats Resource"
   remediation: "Handle resource properly"
   cwe: "CWE-775"
@@ -582,7 +644,8 @@
 - id: scala-cats-resource-make
   languages: [scala]
   patterns:
-    - regex: 'Resource\\.make''severity: low
+    - regex: 'Resource\.make'
+  severity: low
   description: "Cats Resource.make"
   remediation: "Handle acquire/release"
   cwe: "CWE-775"
@@ -591,7 +654,8 @@
 - id: scala-cats-resource-alloc
   languages: [scala]
   patterns:
-    - regex: 'Resource\\.alloc''severity: low
+    - regex: 'Resource\.alloc'
+  severity: low
   description: "Cats Resource.alloc"
   remediation: "Handle allocation properly"
   cwe: "CWE-775"
@@ -600,7 +664,8 @@
 - id: scala-cats-resource-use
   languages: [scala]
   patterns:
-    - regex: 'resource\\.use''severity: low
+    - regex: 'resource\.use'
+  severity: low
   description: "Cats Resource use"
   remediation: "Handle resource use"
   cwe: "CWE-775"
@@ -609,7 +674,8 @@
 - id: scala-cats-monad-error
   languages: [scala]
   patterns:
-    - regex: 'MonadError\\s*\\[''severity: low
+    - regex: 'MonadError\s*\['
+  severity: low
   description: "Cats MonadError"
   remediation: "Handle errors properly"
   cwe: "CWE-754"
@@ -618,7 +684,8 @@
 - id: scala-cats-applicative-error
   languages: [scala]
   patterns:
-    - regex: 'ApplicativeError\\s*\\[''severity: low
+    - regex: 'ApplicativeError\s*\['
+  severity: low
   description: "Cats ApplicativeError"
   remediation: "Handle errors properly"
   cwe: "CWE-754"
@@ -627,7 +694,8 @@
 - id: scala-cats-either-t
   languages: [scala]
   patterns:
-    - regex: 'EitherT\\s*\\[''severity: low
+    - regex: 'EitherT\s*\['
+  severity: low
   description: "Cats EitherT"
   remediation: "Handle Either properly"
   cwe: "CWE-754"
@@ -636,7 +704,8 @@
 - id: scala-cats-option-t
   languages: [scala]
   patterns:
-    - regex: 'OptionT\\s*\\[''severity: low
+    - regex: 'OptionT\s*\['
+  severity: low
   description: "Cats OptionT"
   remediation: "Handle Option properly"
   cwe: "CWE-754"
@@ -645,7 +714,8 @@
 - id: scala-cats-validated
   languages: [scala]
   patterns:
-    - regex: 'Validated\\s*\\[''severity: low
+    - regex: 'Validated\s*\['
+  severity: low
   description: "Cats Validated"
   remediation: "Handle validation properly"
   cwe: "CWE-20"
@@ -654,7 +724,8 @@
 - id: scala-cats-kleisli
   languages: [scala]
   patterns:
-    - regex: 'Kleisli\\s*\\[''severity: low
+    - regex: 'Kleisli\s*\['
+  severity: low
   description: "Cats Kleisli"
   remediation: "Handle Kleisli properly"
   cwe: "CWE-693"
@@ -664,7 +735,8 @@
 - id: scala-zio-zio
   languages: [scala]
   patterns:
-    - regex: 'ZIO\\s*\\(''severity: low
+    - regex: 'ZIO\s*\('
+  severity: low
   description: "ZIO effect"
   remediation: "Handle ZIO errors properly"
   cwe: "CWE-754"
@@ -673,7 +745,8 @@
 - id: scala-zio-zio-runtime
   languages: [scala]
   patterns:
-    - regex: 'Runtime\\.default''severity: low
+    - regex: 'Runtime\.default'
+  severity: low
   description: "ZIO runtime"
   remediation: "Configure runtime properly"
   cwe: "CWE-693"
@@ -682,7 +755,8 @@
 - id: scala-zio-zio-unsafe
   languages: [scala]
   patterns:
-    - regex: 'Unsafe\\.unsafe''severity: medium
+    - regex: 'Unsafe\.unsafe'
+  severity: medium
   description: "ZIO unsafe block"
   remediation: "Use at application boundary"
   cwe: "CWE-693"
@@ -691,7 +765,8 @@
 - id: scala-zio-zio-fiber
   languages: [scala]
   patterns:
-    - regex: 'Fiber\\s*\\[''severity: low
+    - regex: 'Fiber\s*\['
+  severity: low
   description: "ZIO Fiber"
   remediation: "Handle fiber properly"
   cwe: "CWE-754"
@@ -700,7 +775,8 @@
 - id: scala-zio-zio-exit
   languages: [scala]
   patterns:
-    - regex: 'Exit\\s*\\[''severity: low
+    - regex: 'Exit\s*\['
+  severity: low
   description: "ZIO Exit"
   remediation: "Handle exit properly"
   cwe: "CWE-754"
@@ -709,7 +785,8 @@
 - id: scala-zio-zio-cause
   languages: [scala]
   patterns:
-    - regex: 'Cause\\s*\\[''severity: low
+    - regex: 'Cause\s*\['
+  severity: low
   description: "ZIO Cause"
   remediation: "Handle cause properly"
   cwe: "CWE-754"
@@ -718,7 +795,8 @@
 - id: scala-zio-zio-layer
   languages: [scala]
   patterns:
-    - regex: 'ZLayer\\s*\\[''severity: low
+    - regex: 'ZLayer\s*\['
+  severity: low
   description: "ZIO Layer"
   remediation: "Configure layer properly"
   cwe: "CWE-693"
@@ -727,7 +805,8 @@
 - id: scala-zio-zio-environment
   languages: [scala]
   patterns:
-    - regex: 'ZEnvironment\\s*\\[''severity: low
+    - regex: 'ZEnvironment\s*\['
+  severity: low
   description: "ZIO Environment"
   remediation: "Configure environment properly"
   cwe: "CWE-693"
@@ -736,7 +815,8 @@
 - id: scala-zio-zio-scope
   languages: [scala]
   patterns:
-    - regex: 'Scope\\s*\\[''severity: low
+    - regex: 'Scope\s*\['
+  severity: low
   description: "ZIO Scope"
   remediation: "Handle scope properly"
   cwe: "CWE-775"
@@ -745,7 +825,8 @@
 - id: scala-zio-zio-ref
   languages: [scala]
   patterns:
-    - regex: 'Ref\\s*\\[''severity: low
+    - regex: 'Ref\s*\['
+  severity: low
   description: "ZIO Ref"
   remediation: "Handle Ref properly"
   cwe: "CWE-362"
@@ -754,7 +835,8 @@
 - id: scala-zio-zio-promise
   languages: [scala]
   patterns:
-    - regex: 'Promise\\s*\\[''severity: low
+    - regex: 'Promise\s*\['
+  severity: low
   description: "ZIO Promise"
   remediation: "Handle Promise properly"
   cwe: "CWE-362"
@@ -763,7 +845,8 @@
 - id: scala-zio-zio-queue
   languages: [scala]
   patterns:
-    - regex: 'Queue\\s*\\[''severity: low
+    - regex: 'Queue\s*\['
+  severity: low
   description: "ZIO Queue"
   remediation: "Handle Queue properly"
   cwe: "CWE-400"
@@ -772,7 +855,8 @@
 - id: scala-zio-zio-hub
   languages: [scala]
   patterns:
-    - regex: 'Hub\\s*\\[''severity: low
+    - regex: 'Hub\s*\['
+  severity: low
   description: "ZIO Hub"
   remediation: "Handle Hub properly"
   cwe: "CWE-400"
@@ -781,7 +865,8 @@
 - id: scala-zio-zio-semaphore
   languages: [scala]
   patterns:
-    - regex: 'Semaphore\\s*\\[''severity: low
+    - regex: 'Semaphore\s*\['
+  severity: low
   description: "ZIO Semaphore"
   remediation: "Handle Semaphore properly"
   cwe: "CWE-667"
@@ -790,7 +875,8 @@
 - id: scala-zio-zio-clock
   languages: [scala]
   patterns:
-    - regex: 'Clock\\s*\\.''severity: low
+    - regex: 'Clock\s*\.'
+  severity: low
   description: "ZIO Clock"
   remediation: "Handle Clock properly"
   cwe: "CWE-693"
@@ -799,7 +885,8 @@
 - id: scala-zio-zio-console
   languages: [scala]
   patterns:
-    - regex: 'Console\\s*\\.''severity: low
+    - regex: 'Console\s*\.'
+  severity: low
   description: "ZIO Console"
   remediation: "Handle Console properly"
   cwe: "CWE-693"
@@ -808,7 +895,8 @@
 - id: scala-zio-zio-random
   languages: [scala]
   patterns:
-    - regex: 'Random\\s*\\.''severity: low
+    - regex: 'Random\s*\.'
+  severity: low
   description: "ZIO Random"
   remediation: "Use for non-crypto randomness"
   cwe: "CWE-330"
@@ -817,7 +905,8 @@
 - id: scala-zio-zio-system
   languages: [scala]
   patterns:
-    - regex: 'System\\s*\\.''severity: low
+    - regex: 'System\s*\.'
+  severity: low
   description: "ZIO System"
   remediation: "Handle System properly"
   cwe: "CWE-693"
@@ -826,7 +915,8 @@
 - id: scala-zio-zio-stream
   languages: [scala]
   patterns:
-    - regex: 'ZStream\\s*\\[''severity: low
+    - regex: 'ZStream\s*\['
+  severity: low
   description: "ZIO Stream"
   remediation: "Handle stream properly"
   cwe: "CWE-400"
@@ -835,7 +925,8 @@
 - id: scala-zio-zio-stream-chunk
   languages: [scala]
   patterns:
-    - regex: 'Chunk\\s*\\[''severity: low
+    - regex: 'Chunk\s*\['
+  severity: low
   description: "ZIO Chunk"
   remediation: "Handle Chunk properly"
   cwe: "CWE-693"
@@ -844,7 +935,8 @@
 - id: scala-zio-zio-schema
   languages: [scala]
   patterns:
-    - regex: 'Schema\\s*\\[''severity: low
+    - regex: 'Schema\s*\['
+  severity: low
   description: "ZIO Schema"
   remediation: "Validate schema data"
   cwe: "CWE-20"
@@ -853,7 +945,8 @@
 - id: scala-zio-zio-json
   languages: [scala]
   patterns:
-    - regex: 'zio\\.json''severity: low
+    - regex: 'zio\.json'
+  severity: low
   description: "ZIO JSON"
   remediation: "Validate JSON data"
   cwe: "CWE-20"
@@ -862,7 +955,8 @@
 - id: scala-zio-zio-http
   languages: [scala]
   patterns:
-    - regex: 'zio\\.http''severity: low
+    - regex: 'zio\.http'
+  severity: low
   description: "ZIO HTTP"
   remediation: "Configure HTTP properly"
   cwe: "CWE-693"
@@ -871,7 +965,8 @@
 - id: scala-zio-zio-test
   languages: [scala]
   patterns:
-    - regex: 'zio\\.test''severity: low
+    - regex: 'zio\.test'
+  severity: low
   description: "ZIO Test"
   remediation: "Write proper tests"
   cwe: "CWE-693"
@@ -881,7 +976,8 @@
 - id: scala-sbt-build-sbt
   languages: [scala]
   patterns:
-    - regex: 'build\\.sbt''severity: low
+    - regex: 'build\.sbt'
+  severity: low
   description: "SBT build file"
   remediation: "Configure build securely"
   cwe: "CWE-693"
@@ -890,7 +986,8 @@
 - id: scala-sbt-resolvers
   languages: [scala]
   patterns:
-    - regex: 'resolvers\\s*\\+''severity: low
+    - regex: 'resolvers\s*\+'
+  severity: low
   description: "SBT resolvers"
   remediation: "Use trusted resolvers"
   cwe: "CWE-829"
@@ -899,7 +996,8 @@
 - id: scala-sbt-fork
   languages: [scala]
   patterns:
-    - regex: 'fork\\s*=\\s*true''severity: low
+    - regex: 'fork\s*=\s*true'
+  severity: low
   description: "SBT fork"
   remediation: "Configure fork properly"
   cwe: "CWE-693"
@@ -908,7 +1006,8 @@
 - id: scala-sbt-assembly
   languages: [scala]
   patterns:
-    - regex: 'sbt-assembly''severity: low
+    - regex: 'sbt-assembly'
+  severity: low
   description: "SBT assembly plugin"
   remediation: "Configure assembly properly"
   cwe: "CWE-693"
@@ -917,7 +1016,8 @@
 - id: scala-sbt-native-packager
   languages: [scala]
   patterns:
-    - regex: 'sbt-native-packager''severity: low
+    - regex: 'sbt-native-packager'
+  severity: low
   description: "SBT native packager"
   remediation: "Configure packager properly"
   cwe: "CWE-693"
@@ -926,7 +1026,8 @@
 - id: scala-sbt-docker
   languages: [scala]
   patterns:
-    - regex: 'sbt-docker''severity: low
+    - regex: 'sbt-docker'
+  severity: low
   description: "SBT docker plugin"
   remediation: "Configure docker securely"
   cwe: "CWE-693"
@@ -935,7 +1036,8 @@
 - id: scala-sbt-revolver
   languages: [scala]
   patterns:
-    - regex: 'sbt-revolver''severity: low
+    - regex: 'sbt-revolver'
+  severity: low
   description: "SBT revolver plugin"
   remediation: "Use for development only"
   cwe: "CWE-489"
@@ -944,7 +1046,8 @@
 - id: scala-sbt-spray
   languages: [scala]
   patterns:
-    - regex: 'sbt-spray''severity: low
+    - regex: 'sbt-spray'
+  severity: low
   description: "SBT spray plugin"
   remediation: "Use for development only"
   cwe: "CWE-489"
@@ -953,7 +1056,8 @@
 - id: scala-sbt-boilerplate
   languages: [scala]
   patterns:
-    - regex: 'sbt-boilerplate''severity: low
+    - regex: 'sbt-boilerplate'
+  severity: low
   description: "SBT boilerplate plugin"
   remediation: "Review generated code"
   cwe: "CWE-693"
@@ -962,7 +1066,8 @@
 - id: scala-sbt-build-info
   languages: [scala]
   patterns:
-    - regex: 'sbt-buildinfo''severity: low
+    - regex: 'sbt-buildinfo'
+  severity: low
   description: "SBT buildinfo plugin"
   remediation: "Don't expose sensitive build info"
   cwe: "CWE-200"
@@ -971,7 +1076,8 @@
 - id: scala-sbt-git
   languages: [scala]
   patterns:
-    - regex: 'sbt-git''severity: low
+    - regex: 'sbt-git'
+  severity: low
   description: "SBT git plugin"
   remediation: "Configure git properly"
   cwe: "CWE-693"
@@ -980,7 +1086,8 @@
 - id: scala-sbt-release
   languages: [scala]
   patterns:
-    - regex: 'sbt-release''severity: low
+    - regex: 'sbt-release'
+  severity: low
   description: "SBT release plugin"
   remediation: "Configure release properly"
   cwe: "CWE-693"
@@ -989,7 +1096,8 @@
 - id: scala-sbt-sonatype
   languages: [scala]
   patterns:
-    - regex: 'sbt-sonatype''severity: low
+    - regex: 'sbt-sonatype'
+  severity: low
   description: "SBT sonatype plugin"
   remediation: "Configure sonatype securely"
   cwe: "CWE-693"
@@ -999,7 +1107,8 @@
 - id: scala-spark-spark-session
   languages: [scala]
   patterns:
-    - regex: 'SparkSession\\.builder''severity: low
+    - regex: 'SparkSession\.builder'
+  severity: low
   description: "Spark session builder"
   remediation: "Configure Spark securely"
   cwe: "CWE-693"
@@ -1008,7 +1117,8 @@
 - id: scala-spark-rdd
   languages: [scala]
   patterns:
-    - regex: 'RDD\\s*\\[''severity: low
+    - regex: 'RDD\s*\['
+  severity: low
   description: "Spark RDD"
   remediation: "Handle RDD properly"
   cwe: "CWE-693"
@@ -1017,7 +1127,8 @@
 - id: scala-spark-dataset
   languages: [scala]
   patterns:
-    - regex: 'Dataset\\s*\\[''severity: low
+    - regex: 'Dataset\s*\['
+  severity: low
   description: "Spark Dataset"
   remediation: "Handle Dataset properly"
   cwe: "CWE-693"
@@ -1026,7 +1137,8 @@
 - id: scala-spark-sql
   languages: [scala]
   patterns:
-    - regex: 'spark\\.sql\\s*\\(''severity: medium
+    - regex: 'spark\.sql\s*\('
+  severity: medium
   description: "Spark SQL"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -1035,7 +1147,8 @@
 - id: scala-spark-read
   languages: [scala]
   patterns:
-    - regex: 'spark\\.read''severity: low
+    - regex: 'spark\.read'
+  severity: low
   description: "Spark read"
   remediation: "Validate data source"
   cwe: "CWE-20"
@@ -1044,7 +1157,8 @@
 - id: scala-spark-write
   languages: [scala]
   patterns:
-    - regex: 'spark\\.write''severity: low
+    - regex: 'spark\.write'
+  severity: low
   description: "Spark write"
   remediation: "Validate data destination"
   cwe: "CWE-20"
@@ -1053,7 +1167,8 @@
 - id: scala-spark-json
   languages: [scala]
   patterns:
-    - regex: 'spark\\.read\\.json''severity: low
+    - regex: 'spark\.read\.json'
+  severity: low
   description: "Spark JSON read"
   remediation: "Validate JSON data"
   cwe: "CWE-20"
@@ -1062,7 +1177,8 @@
 - id: scala-spark-csv
   languages: [scala]
   patterns:
-    - regex: 'spark\\.read\\.csv''severity: low
+    - regex: 'spark\.read\.csv'
+  severity: low
   description: "Spark CSV read"
   remediation: "Validate CSV data"
   cwe: "CWE-20"
@@ -1071,7 +1187,8 @@
 - id: scala-spark-jdbc
   languages: [scala]
   patterns:
-    - regex: 'jdbc\\s*\\(''severity: medium
+    - regex: 'jdbc\s*\('
+  severity: medium
   description: "Spark JDBC"
   remediation: "Secure JDBC connection"
   cwe: "CWE-319"
@@ -1080,7 +1197,8 @@
 - id: scala-spark-ml
   languages: [scala]
   patterns:
-    - regex: 'org\\.apache\\.spark\\.ml''severity: low
+    - regex: 'org\.apache\.spark\.ml'
+  severity: low
   description: "Spark ML"
   remediation: "Validate ML data"
   cwe: "CWE-20"
@@ -1090,7 +1208,8 @@
 - id: scala-collection-mutable
   languages: [scala]
   patterns:
-    - regex: 'scala\\.collection\\.mutable''severity: low
+    - regex: 'scala\.collection\.mutable'
+  severity: low
   description: "Mutable collections"
   remediation: "Prefer immutable collections"
   cwe: "CWE-362"
@@ -1099,7 +1218,8 @@
 - id: scala-collection-immutable
   languages: [scala]
   patterns:
-    - regex: 'scala\\.collection\\.immutable''severity: low
+    - regex: 'scala\.collection\.immutable'
+  severity: low
   description: "Immutable collections"
   remediation: "Good default choice"
   cwe: "CWE-362"
@@ -1108,7 +1228,8 @@
 - id: scala-collection-parallel
   languages: [scala]
   patterns:
-    - regex: '\\.par\\.''severity: low
+    - regex: '\.par\.'
+  severity: low
   description: "Parallel collections"
   remediation: "Ensure thread safety"
   cwe: "CWE-362"
@@ -1117,7 +1238,8 @@
 - id: scala-pattern-match-wildcard
   languages: [scala]
   patterns:
-    - regex: 'case\\s+_\\s*=>''severity: low
+    - regex: 'case\s+_\s*=>'
+  severity: low
   description: "Wildcard pattern match"
   remediation: "Ensure all cases are handled"
   cwe: "CWE-754"
@@ -1126,7 +1248,8 @@
 - id: scala-pattern-match-guard
   languages: [scala]
   patterns:
-    - regex: 'case\\s+.*if\\s+''severity: low
+    - regex: 'case\s+.*if\s+'
+  severity: low
   description: "Pattern match guard"
   remediation: "Ensure guard is safe"
   cwe: "CWE-754"
@@ -1135,7 +1258,8 @@
 - id: scala-pattern-match-extract
   languages: [scala]
   patterns:
-    - regex: 'case\\s+\\w+\\s*\\(''severity: low
+    - regex: 'case\s+\w+\s*\('
+  severity: low
   description: "Pattern match extractor"
   remediation: "Ensure extractor is safe"
   cwe: "CWE-754"
@@ -1144,7 +1268,8 @@
 - id: scala-pattern-match-sealed
   languages: [scala]
   patterns:
-    - regex: 'sealed\\s+(trait|abstract class)''severity: low
+    - regex: 'sealed\s+(trait|abstract class)'
+  severity: low
   description: "Sealed trait/class"
   remediation: "Good for exhaustive matching"
   cwe: "CWE-754"
@@ -1153,7 +1278,8 @@
 - id: scala-implicit-conversion
   languages: [scala]
   patterns:
-    - regex: 'implicit\\s+def''severity: medium
+    - regex: 'implicit\s+def'
+  severity: medium
   description: "Implicit conversion"
   remediation: "Use implicit conversions carefully"
   cwe: "CWE-693"
@@ -1162,7 +1288,8 @@
 - id: scala-implicit-class
   languages: [scala]
   patterns:
-    - regex: 'implicit\\s+class''severity: medium
+    - regex: 'implicit\s+class'
+  severity: medium
   description: "Implicit class"
   remediation: "Use implicit classes carefully"
   cwe: "CWE-693"
@@ -1171,7 +1298,8 @@
 - id: scala-implicit-val
   languages: [scala]
   patterns:
-    - regex: 'implicit\\s+val''severity: low
+    - regex: 'implicit\s+val'
+  severity: low
   description: "Implicit val"
   remediation: "Use implicit vals carefully"
   cwe: "CWE-693"
@@ -1180,7 +1308,8 @@
 - id: scala-implicit-var
   languages: [scala]
   patterns:
-    - regex: 'implicit\\s+var''severity: medium
+    - regex: 'implicit\s+var'
+  severity: medium
   description: "Implicit var"
   remediation: "Avoid implicit vars"
   cwe: "CWE-693"
@@ -1189,7 +1318,8 @@
 - id: scala-macro-impl
   languages: [scala]
   patterns:
-    - regex: 'macro\\s+''severity: medium
+    - regex: 'macro\s+'
+  severity: medium
   description: "Macro implementation"
   remediation: "Review macro code"
   cwe: "CWE-693"
@@ -1198,7 +1328,8 @@
 - id: scala-macro-use
   languages: [scala]
   patterns:
-    - regex: '@macro''severity: medium
+    - regex: '@macro'
+  severity: medium
   description: "Macro usage"
   remediation: "Review macro expansion"
   cwe: "CWE-693"
@@ -1207,7 +1338,8 @@
 - id: scala-type-alias
   languages: [scala]
   patterns:
-    - regex: 'type\\s+\\w+\\s*=''severity: low
+    - regex: 'type\s+\w+\s*='
+  severity: low
   description: "Type alias"
   remediation: "Ensure type alias is clear"
   cwe: "CWE-693"
@@ -1216,7 +1348,8 @@
 - id: scala-type-member
   languages: [scala]
   patterns:
-    - regex: 'type\\s+\\w+\\s*<:''severity: low
+    - regex: 'type\s+\w+\s*<:'
+  severity: low
   description: "Type member"
   remediation: "Ensure type bounds are safe"
   cwe: "CWE-693"
@@ -1226,7 +1359,8 @@
 - id: scala-akka-remote
   languages: [scala]
   patterns:
-    - regex: '(?i)akka\.actor\.provider.*cluster''severity: high
+    - regex: '(?i)akka\.actor\.provider.*cluster'
+  severity: high
   description: "Akka remote actor system"
   remediation: "Secure Akka remote"
   cwe: "CWE-284"
@@ -1236,7 +1370,8 @@
 - id: scala-spray-xss
   languages: [scala]
   patterns:
-    - regex: '(?i)respondWithMediaType.*html''severity: high
+    - regex: '(?i)respondWithMediaType.*html'
+  severity: high
   description: "Spray response without encoding"
   remediation: "Encode responses"
   cwe: "CWE-79"
@@ -1246,7 +1381,8 @@
 - id: scala-future-timeout
   languages: [scala]
   patterns:
-    - regex: '(?i)Future\s+.*\s+onTimeout''severity: medium
+    - regex: '(?i)Future\s+.*\s+onTimeout'
+  severity: medium
   description: "Future without timeout"
   remediation: "Add timeout to Futures"
   cwe: "CWE-400"
@@ -1256,7 +1392,8 @@
 - id: scala-weak-random
   languages: [scala]
   patterns:
-    - regex: '(?i)new\s+Random\s*\\(''severity: medium
+    - regex: '(?i)new\s+Random\s*\('
+  severity: medium
   description: "Insecure random"
   remediation: "Use SecureRandom"
   cwe: "CWE-338"
@@ -1266,7 +1403,8 @@
 - id: scala-collection-mutable
   languages: [scala]
   patterns:
-    - regex: '(?i)mutable\.Map|mutable\.List|mutable\.Set''severity: low
+    - regex: '(?i)mutable\.Map|mutable\.List|mutable\.Set'
+  severity: low
   description: "Mutable collection in concurrent context"
   remediation: "Use immutable collections"
   cwe: "CWE-362"

@@ -42,6 +42,41 @@ func getDefaultConfidence(severity string) float64 {
 	}
 }
 
+// blockedRuleIDs contains rules that are known to produce overwhelming false positives.
+// These are skipped during scanning rather than deleted from YAML (easier to undo).
+var blockedRuleIDs = map[string]bool{
+	"js-json-escape":               true, // fires on require() statements, 108+ false findings
+	"js-redos-html-tag-regex":       true, // fires on HTML template strings, not regex
+	"js-redos-long-regex":           true, // fires on multi-line template literals
+	"js-redos-alternation-overlap":  true, // matches entire file scope incorrectly
+	"js-browser-clipboard-read":     true, // fires on server-side Node.js (no clipboard API)
+	"gql-perf-unbatched-resolvers":  true, // fires on non-GraphQL Express apps
+	"dart-environment-config":       true, // Dart rule fires on generic .env files
+	"js-type-coercion-equals":       true, // code quality linting, not security
+	// Supply chain YAML rules that duplicate or fabricate findings:
+	"supplychain-typosquatting-npm":     true, // fires on every require() — Go Levenshtein checker handles this properly
+	"supplychain-typosquatting-pip":     true, // fires on every import — Go Levenshtein checker handles this properly
+	"supplychain-typosquatting-general": true, // matches "react", "express" etc literally in any context
+	"supplychain-known-vulnerable-deps": true, // fabricates findings without actual CVE data from OSV
+	"supplychain-missing-lockfile":      true, // fires on any requirements.txt / package.json
+	"js-type-coercion-boolean":          true, // code quality noise
+	"js-type-coercion-plus":             true, // code quality noise
+	"generic-missing-security-headers":  true, // too noisy for targeted security reports
+	"ts-api-key-security":               true, // fires on process.env access
+	
+	// Rule False Positives reported by user
+	"ts-secrets-management":       true, // flags process.env as hardcoded secret
+	"lambda-high-timeout":         true, // flags general requests.get timeout as lambda timeout
+	"js-crypto-constant-time":     true, // flags typeof comparisons
+	"ts-timeout":                  true, // flags Math.random() as session timeout risk
+	"py-ssrf-timeout-missing":     true, // flags explicitly provided timeouts if it doesn't parse args perfectly
+	"java-servlet-http-servlet":   true, // flags basic usage of HttpServlet
+	"js-timing-attack-index-of":   true, // flags path prefix checks with startsWith
+	"gql-auth-jwt-weak-secret":    true, // misfires on strongly-typed long secrets
+	"gql-auth-jwt-no-expiry":      true, // misfires despite explicit expiresIn config
+	"js-error-file-path":          true, // flags path.resolve out of error contexts
+}
+
 // Pre-compiled regexes for framework detection (avoid recompiling per scan)
 var frameworkDetectors = map[string]*regexp.Regexp{
 	"django":  regexp.MustCompile(`(?i)"django"\s*[:=]|django-admin`),
@@ -257,6 +292,11 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 
 	var findings []reporter.Finding
 	for _, rule := range rules {
+		// Skip known-broken rules that produce mass false positives
+		if blockedRuleIDs[rule.ID] {
+			continue
+		}
+
 		// Strict Isolation: Only run framework-specific rules on relevant files
 		if rule.Framework != "" {
 			if !shouldApplyFrameworkRule(rule.Framework, filePath, cleanSource) {

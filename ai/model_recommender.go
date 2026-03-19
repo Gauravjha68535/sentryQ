@@ -27,10 +27,18 @@ type OllamaTagsResponse struct {
 	} `json:"models"`
 }
 
-// GetInstalledModels fetches the list of locally installed models from Ollama
-func GetInstalledModels() []string {
-	client := &http.Client{Timeout: 2 * time.Second}
-	resp, err := client.Get(GetOllamaBaseURL() + "/api/tags")
+// GetInstalledModels fetches the list of locally installed models from Ollama.
+// If host is empty, it uses the global ollamaBaseURL.
+func GetInstalledModels(host string) []string {
+	baseURL := host
+	if baseURL == "" {
+		baseURL = GetOllamaBaseURL()
+	} else if !strings.HasPrefix(baseURL, "http://") && !strings.HasPrefix(baseURL, "https://") {
+		baseURL = "http://" + baseURL
+	}
+
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get(baseURL + "/api/tags")
 	if err != nil {
 		return nil
 	}
@@ -55,7 +63,7 @@ func GetInstalledModels() []string {
 
 // GetDefaultModel dynamically determines the best default model based on what is installed
 func GetDefaultModel() string {
-	installed := GetInstalledModels()
+	installed := GetInstalledModels("")
 
 	// If the user has explicitly installed models, try to pick the best one
 	if len(installed) > 0 {
@@ -82,7 +90,7 @@ func GetModelRecommendations(ram *utils.RAMInfo) []ModelRecommendation {
 		{Name: "llama3.1:13b", Size: "13B", RAMRequired: "16GB", Speed: "Medium", Accuracy: "Best", Description: "Highest accuracy for validation"},
 	}
 
-	installed := GetInstalledModels()
+	installed := GetInstalledModels("")
 	installedMap := make(map[string]bool)
 	for _, m := range installed {
 		installedMap[m] = true

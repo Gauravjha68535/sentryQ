@@ -1,7 +1,8 @@
 - id: php-laravel-validation-sometimes
   languages: [php]
   patterns:
-    - regex: 'sometimes\|?[^\|]*\|?(?:string|integer|numeric)''severity: low
+    - regex: 'sometimes\|?[^\|]*\|?(?:string|integer|numeric)'
+  severity: low
   description: "Laravel validation with 'sometimes' rule - ensure conditional validation"
   remediation: "Use sometimes for optional fields with clear validation rules"
   cwe: "CWE-20"
@@ -10,7 +11,8 @@
 - id: php-laravel-validation-nullable
   languages: [php]
   patterns:
-    - regex: 'nullable\|?[^\|]*\|?(?:string|integer|numeric)''severity: low
+    - regex: 'nullable\|?[^\|]*\|?(?:string|integer|numeric)'
+  severity: low
   description: "Laravel validation with 'nullable' rule - field can be null"
   remediation: "Use nullable for optional fields, handle null values appropriately"
   cwe: "CWE-20"
@@ -19,7 +21,8 @@
 - id: php-laravel-validation-regex
   languages: [php]
   patterns:
-    - regex: 'regex:[^|]*\([^)]*\)[^|]*\|''severity: medium
+    - regex: 'regex:[^|]*\([^)]*\)[^|]*\|'
+  severity: medium
   description: "Laravel regex validation with parentheses - ReDoS risk"
   remediation: "Simplify regex patterns, avoid nested quantifiers"
   cwe: "CWE-1333"
@@ -28,7 +31,8 @@
 - id: php-laravel-validation-exists
   languages: [php]
   patterns:
-    - regex: 'exists:[^,]+\s*,\s*[^,]+''severity: low
+    - regex: 'exists:[^,]+\s*,\s*[^,]+'
+  severity: low
   description: "Laravel exists validation - ensures foreign key exists"
   remediation: "Good practice for referential integrity"
   cwe: "CWE-20"
@@ -37,7 +41,8 @@
 - id: php-laravel-validation-array
   languages: [php]
   patterns:
-    - regex: 'array\|?[^\|]*\|?\*\.''severity: low
+    - regex: 'array\|?[^\|]*\|?\*\.'
+  severity: low
   description: "Laravel array validation with wildcard - validate each item"
   remediation: "Use *.* syntax to validate array items"
   cwe: "CWE-20"
@@ -46,7 +51,8 @@
 - id: php-laravel-policy-missing
   languages: [php]
   patterns:
-    - regex: 'can\s*\(\s*["\x27][^"\x27]+["\x27]\s*,\s*[^)]+\)''severity: low
+    - regex: 'can\s*\(\s*["\x27][^"\x27]+["\x27]\s*,\s*[^)]+\]'
+  severity: low
   description: "Laravel authorization check - ensure policy exists"
   remediation: "Define policies for all models"
   cwe: "CWE-284"
@@ -55,7 +61,8 @@
 - id: php-laravel-telescope
   languages: [php]
   patterns:
-    - regex: 'telescope|Telescope::''severity: high
+    - regex: 'telescope|Telescope::'
+  severity: high
   description: "Laravel Telescope debugging enabled - sensitive data exposure"
   remediation: "Disable Telescope in production or restrict access"
   cwe: "CWE-200"
@@ -64,7 +71,8 @@
 - id: php-laravel-horizon
   languages: [php]
   patterns:
-    - regex: 'horizon|Horizon::''severity: medium
+    - regex: 'horizon|Horizon::'
+  severity: medium
   description: "Laravel Horizon dashboard - may expose queue information"
   remediation: "Secure Horizon dashboard with authentication"
   cwe: "CWE-200"
@@ -73,7 +81,8 @@
 - id: php-laravel-debugbar
   languages: [php]
   patterns:
-    - regex: 'debugbar|Debugbar::''severity: high
+    - regex: 'debugbar|Debugbar::'
+  severity: high
   description: "Laravel Debugbar enabled - exposes queries, variables, logs"
   remediation: "Disable Debugbar in production"
   cwe: "CWE-200"
@@ -82,7 +91,8 @@
 - id: php-laravel-ignition
   languages: [php]
   patterns:
-    - regex: 'ignition|Ignition::''severity: medium
+    - regex: 'ignition|Ignition::'
+  severity: medium
   description: "Laravel Ignition error page - may expose sensitive data"
   remediation: "Disable Ignition in production"
   cwe: "CWE-209"
@@ -91,7 +101,8 @@
 - id: php-laravel-tinker
   languages: [php]
   patterns:
-    - regex: 'tinker|Artisan::call\(["\x27]tinker''severity: high
+    - regex: 'tinker|Artisan::call\(["\x27]tinker'
+  severity: high
   description: "Laravel Tinker - interactive shell in production"
   remediation: "Never enable Tinker in production"
   cwe: "CWE-94"
@@ -100,7 +111,8 @@
 - id: php-laravel-serializes-models
   languages: [php]
   patterns:
-    - regex: 'SerializesModels''severity: medium
+    - regex: 'SerializesModels'
+  severity: medium
   description: "Laravel SerializesModels trait - may cause issues with stale data"
   remediation: "Use model IDs and re-retrieve in job"
   cwe: "CWE-20"
@@ -109,7 +121,8 @@
 - id: php-laravel-broadcast-event
   languages: [php]
   patterns:
-    - regex: 'broadcast|ShouldBroadcast''severity: medium
+    - regex: 'broadcast|ShouldBroadcast'
+  severity: medium
   description: "Laravel event broadcasting - ensure data is not sensitive"
   remediation: "Filter broadcast data to remove sensitive fields"
   cwe: "CWE-200"
@@ -118,7 +131,8 @@
 - id: php-laravel-notification
   languages: [php]
   patterns:
-    - regex: 'Notification::send|Notifiable''severity: low
+    - regex: 'Notification::send|Notifiable'
+  severity: low
   description: "Laravel notifications - ensure channels are secure"
   remediation: "Use queue for notifications, validate content"
   cwe: "CWE-20"
@@ -127,7 +141,8 @@
 - id: php-laravel-mail-send
   languages: [php]
   patterns:
-    - regex: 'Mail::send|Mail::raw|Mail::to''severity: low
+    - regex: 'Mail::send|Mail::raw|Mail::to'
+  severity: low
   description: "Laravel mail sending - validate email content"
   remediation: "Sanitize email content, prevent header injection"
   cwe: "CWE-20"
@@ -136,7 +151,8 @@
 - id: php-laravel-mail-header-injection
   languages: [php]
   patterns:
-    - regex: 'addHeader|withSwiftMessage.*header''severity: high
+    - regex: 'addHeader|withSwiftMessage.*header'
+  severity: high
   description: "Custom email headers - header injection risk"
   remediation: "Validate header names and values"
   cwe: "CWE-113"
@@ -145,7 +161,8 @@
 - id: php-laravel-cache-remember
   languages: [php]
   patterns:
-    - regex: 'Cache::remember|Cache::rememberForever''severity: low
+    - regex: 'Cache::remember|Cache::rememberForever'
+  severity: low
   description: "Laravel caching - ensure cache keys are unique"
   remediation: "Use cache tags for organization"
   cwe: "CWE-20"
@@ -154,7 +171,8 @@
 - id: php-laravel-session-flash
   languages: [php]
   patterns:
-    - regex: 'session\(\)->flash|with\(["\x27][^"\x27]+["\x27],\s*$''severity: low
+    - regex: 'session\(\)->flash|with\(["\x27][^"\x27]+["\x27],\s*$'
+  severity: low
   description: "Laravel flash session data - ensure not sensitive"
   remediation: "Don't flash sensitive data"
   cwe: "CWE-312"
@@ -163,7 +181,8 @@
 - id: php-laravel-file-upload
   languages: [php]
   patterns:
-    - regex: 'store|storeAs|putFile''severity: high
+    - regex: 'store|storeAs|putFile'
+  severity: high
   description: "Laravel file upload - validate file types and content"
   remediation: "Use validation: mimes, max, dimensions"
   cwe: "CWE-434"
@@ -172,7 +191,8 @@
 - id: php-symfony-debug-mode
   languages: [php]
   patterns:
-    - regex: 'APP_DEBUG\s*=\s*1|kernel\.debug\s*=>\s*true''severity: medium
+    - regex: 'APP_DEBUG\s*=\s*1|kernel\.debug\s*=>\s*true'
+  severity: medium
   description: "Symfony debug mode enabled in production - exposes sensitive data"
   remediation: "Set APP_DEBUG=0 in production .env"
   cwe: "CWE-200"
@@ -181,7 +201,7 @@
 - id: php-symfony-secret
   languages: [php]
   patterns:
-    - regex: 'APP_SECRET\\s*=\\s*['''"][^''"]{1,15}[''"]'
+    - regex: 'APP_SECRET\s*=\s*[''"][^''"]{1,15}[''"]'
   severity: medium
   description: "Symfony APP_SECRET too short - weak CSRF protection"
   remediation: "Use a long random string (32+ characters) for APP_SECRET"
@@ -191,7 +211,8 @@
 - id: php-symfony-database-url
   languages: [php]
   patterns:
-    - regex: 'DATABASE_URL\s*=\s*["\x27][^"\x27]+["\x27]''severity: high
+    - regex: 'DATABASE_URL\s*=\s*["\x27][^"\x27]+["\x27]'
+  severity: high
   description: "Symfony database URL in .env - ensure not committed"
   remediation: "Use environment variables, add .env to .gitignore"
   cwe: "CWE-798"
@@ -200,7 +221,8 @@
 - id: php-symfony-mailer-dsn
   languages: [php]
   patterns:
-    - regex: 'MAILER_DSN\s*=\s*["\x27][^"\x27]+["\x27]''severity: high
+    - regex: 'MAILER_DSN\s*=\s*["\x27][^"\x27]+["\x27]'
+  severity: high
   description: "Symfony mailer DSN in .env - ensure not committed"
   remediation: "Use environment variables, secure SMTP credentials"
   cwe: "CWE-798"
@@ -209,7 +231,8 @@
 - id: php-symfony-access-control
   languages: [php]
   patterns:
-    - regex: 'access_control:\s*-\s*\{\s*path:\s*\^/''severity: low
+    - regex: 'access_control:\s*-\s*\{\s*path:\s*\^/'
+  severity: low
   description: "Symfony access control configured - ensure proper restrictions"
   remediation: "Review access control for all routes"
   cwe: "CWE-284"
@@ -218,7 +241,8 @@
 - id: php-symfony-anonymous-access
   languages: [php]
   patterns:
-    - regex: 'anonymous:\s*~|anonymous:\s*true''severity: high
+    - regex: 'anonymous:\s*~|anonymous:\s*true'
+  severity: high
   description: "Symfony firewall allows anonymous access - may expose protected routes"
   remediation: "Restrict anonymous access to public routes only"
   cwe: "CWE-306"
@@ -227,7 +251,8 @@
 - id: php-symfony-form-csrf
   languages: [php]
   patterns:
-    - regex: 'csrf_protection:\s*false''severity: medium
+    - regex: 'csrf_protection:\s*false'
+  severity: medium
   description: "Symfony form CSRF protection disabled"
   remediation: "Enable CSRF protection: csrf_protection: true"
   cwe: "CWE-352"
@@ -236,7 +261,8 @@
 - id: php-symfony-form-allow-extra-fields
   languages: [php]
   patterns:
-    - regex: 'allow_extra_fields:\s*true''severity: high
+    - regex: 'allow_extra_fields:\s*true'
+  severity: high
   description: "Symfony form allows extra fields - mass assignment risk"
   remediation: "Set allow_extra_fields: false and validate all fields"
   cwe: "CWE-915"
@@ -245,7 +271,8 @@
 - id: php-symfony-method-mismatch
   languages: [php]
   patterns:
-    - regex: 'methods:\s*\[\s*["\x27](?:GET|POST|PUT|DELETE)["\x27]\s*\]''severity: low
+    - regex: 'methods:\s*\[\s*["\x27](?:GET|POST|PUT|DELETE)["\x27]\s*\]'
+  severity: low
   description: "Symfony route method restriction - good practice"
   remediation: "Continue restricting HTTP methods"
   cwe: "CWE-20"
@@ -254,7 +281,8 @@
 - id: php-symfony-param-converter
   languages: [php]
   patterns:
-    - regex: '@ParamConverter|@ParamConverter\("?\w+"?\)''severity: medium
+    - regex: '@ParamConverter|@ParamConverter\("?\w+"?\)'
+  severity: medium
   description: "Symfony param converter - ensure entity access is authorized"
   remediation: "Add security checks after param conversion"
   cwe: "CWE-639"
@@ -263,7 +291,8 @@
 - id: php-symfony-entity-lookup
   languages: [php]
   patterns:
-    - regex: '$this->getDoctrine\(\)->getRepository\([^)]+\)->find\($id\)''severity: high
+    - regex: '$this->getDoctrine\(\)->getRepository\([^)]+\)->find\($id\]'
+  severity: high
   description: "Direct entity lookup by ID - IDOR vulnerability"
   remediation: "Check user permissions before returning entity"
   cwe: "CWE-639"
@@ -272,7 +301,8 @@
 - id: php-symfony-serialize
   languages: [php]
   patterns:
-    - regex: 'serializer->(?:serialize|deserialize)''severity: high
+    - regex: 'serializer->(?:serialize|deserialize)'
+  severity: high
   description: "Symfony serializer - ensure no object injection"
   remediation: "Use allowed_classes option or limit to specific formats"
   cwe: "CWE-502"
@@ -281,7 +311,8 @@
 - id: php-symfony-serialize-user-input
   languages: [php]
   patterns:
-    - regex: 'serializer->deserialize\s*\(\s*$request->getContent''severity: high
+    - regex: 'serializer->deserialize\s*\(\s*$request->getContent'
+  severity: high
   description: "Deserializing user input - object injection risk"
   remediation: "Validate and limit deserialization to safe types"
   cwe: "CWE-502"
@@ -290,7 +321,8 @@
 - id: php-symfony-yaml-parse
   languages: [php]
   patterns:
-    - regex: 'Yaml::parse\s*\(\s*[^,]+\)''severity: high
+    - regex: 'Yaml::parse\s*\(\s*[^,]+\)'
+  severity: high
   description: "Symfony YAML parsing - may create objects"
   remediation: "Use Yaml::PARSE_OBJECT_FOR_MAP flag or validate input"
   cwe: "CWE-502"
@@ -299,7 +331,8 @@
 - id: php-symfony-validator-constraint
   languages: [php]
   patterns:
-    - regex: 'createConstraint|addConstraint''severity: low
+    - regex: 'createConstraint|addConstraint'
+  severity: low
   description: "Custom validation constraint - ensure logic is secure"
   remediation: "Review custom constraint logic"
   cwe: "CWE-20"
@@ -308,7 +341,8 @@
 - id: php-symfony-cache-pool
   languages: [php]
   patterns:
-    - regex: 'cache\.pool|CacheItemPoolInterface''severity: low
+    - regex: 'cache\.pool|CacheItemPoolInterface'
+  severity: low
   description: "Symfony cache pool usage - ensure cache isolation"
   remediation: "Use separate cache pools for different data types"
   cwe: "CWE-20"
@@ -317,7 +351,8 @@
 - id: php-symfony-messenger
   languages: [php]
   patterns:
-    - regex: 'handleMessage|MessageHandlerInterface''severity: low
+    - regex: 'handleMessage|MessageHandlerInterface'
+  severity: low
   description: "Symfony messenger handler - ensure message validation"
   remediation: "Validate message contents in handler"
   cwe: "CWE-20"
@@ -326,7 +361,8 @@
 - id: php-symfony-transport
   languages: [php]
   patterns:
-    - regex: 'TransportInterface|AMQPTransport|DoctrineTransport''severity: low
+    - regex: 'TransportInterface|AMQPTransport|DoctrineTransport'
+  severity: low
   description: "Symfony messenger transport - ensure transport security"
   remediation: "Use encrypted transports for sensitive messages"
   cwe: "CWE-319"
@@ -335,7 +371,8 @@
 - id: php-symfony-ldap
   languages: [php]
   patterns:
-    - regex: 'Ldap::create|LdapInterface''severity: high
+    - regex: 'Ldap::create|LdapInterface'
+  severity: high
   description: "Symfony LDAP authentication - ensure LDAP injection protection"
   remediation: "Use ldap_escape() for user input"
   cwe: "CWE-90"
@@ -344,7 +381,8 @@
 - id: php-symfony-oauth
   languages: [php]
   patterns:
-    - regex: 'OAuthToken|OAuthUserProvider''severity: medium
+    - regex: 'OAuthToken|OAuthUserProvider'
+  severity: medium
   description: "Symfony OAuth - ensure OAuth configuration is secure"
   remediation: "Validate OAuth callback URLs, use state parameter"
   cwe: "CWE-287"
@@ -353,7 +391,8 @@
 - id: php-symfony-jwt
   languages: [php]
   patterns:
-    - regex: 'JWTToken|JWT|LexikJWTAuthenticationBundle''severity: low
+    - regex: 'JWTToken|JWT|LexikJWTAuthenticationBundle'
+  severity: low
   description: "Symfony JWT authentication - ensure JWT configuration"
   remediation: "Use short-lived tokens, validate signature"
   cwe: "CWE-287"
@@ -362,7 +401,7 @@
 - id: php-codeigniter-database-config
   languages: [php]
   patterns:
-    - regex: '$db\[['''"\x27]default[''"\x27]\].*\[\s*[''"\x27](?:hostname|username|password|database)[''"\x27]\s*\]\s*=\s*["\x27][^"\x27]+["\x27]'
+    - regex: '$db\[[''"\x27]default[''"\x27]\].*\[\s*[''"\x27](?:hostname|username|password|database)[''"\x27]\s*\]\s*=\s*["\x27][^"\x27]+["\x27]'
   severity: high
   description: "CodeIgniter database credentials in config - may expose credentials"
   remediation: "Use environment variables for database credentials"
@@ -372,7 +411,7 @@
 - id: php-codeigniter-encryption-key
   languages: [php]
   patterns:
-    - regex: '$config\[['''"\x27]encryption_key[''"\x27]\]\s*=\s*["\x27][^"\x27]{1,15}["\x27]'
+    - regex: '$config\[[''"\x27]encryption_key[''"\x27]\]\s*=\s*["\x27][^"\x27]{1,15}["\x27]'
   severity: high
   description: "CodeIgniter encryption key too short - weak encryption"
   remediation: "Use a strong 32-character random string for encryption_key"
@@ -382,7 +421,7 @@
 - id: php-codeigniter-csrf-disabled
   languages: [php]
   patterns:
-    - regex: '$config\[['''"\x27]csrf_protection[''"\x27]\]\s*=\s*(?:false|FALSE)'
+    - regex: '$config\[[''"\x27]csrf_protection[''"\x27]\]\s*=\s*(?:false|FALSE)'
   severity: medium
   description: "CodeIgniter CSRF protection disabled"
   remediation: "Enable CSRF protection: $config['csrf_protection'] = TRUE"
@@ -392,7 +431,7 @@
 - id: php-codeigniter-xss-filter
   languages: [php]
   patterns:
-    - regex: '$config\[['''"\x27]global_xss_filtering[''"\x27]\]\s*=\s*(?:true|TRUE)'
+    - regex: '$config\[[''"\x27]global_xss_filtering[''"\x27]\]\s*=\s*(?:true|TRUE)'
   severity: medium
   description: "CodeIgniter global XSS filtering - may break legitimate input"
   remediation: "Disable global XSS filtering and use output escaping"
@@ -402,7 +441,7 @@
 - id: php-codeigniter-session-config
   languages: [php]
   patterns:
-    - regex: '$config\[['''"\x27](?:sess_encrypt_cookie|sess_use_database)[''"\x27]\]\s*=\s*(?:false|FALSE)'
+    - regex: '$config\[[''"\x27](?:sess_encrypt_cookie|sess_use_database)[''"\x27]\]\s*=\s*(?:false|FALSE)'
   severity: high
   description: "CodeIgniter session security features disabled"
   remediation: "Enable sess_encrypt_cookie and sess_use_database"
@@ -412,7 +451,7 @@
 - id: php-codeigniter-session-name
   languages: [php]
   patterns:
-    - regex: '$config\[['''"\x27]sess_cookie_name[''"\x27]\]\s*=\s*["\x27]ci_session["\x27]'
+    - regex: '$config\[[''"\x27]sess_cookie_name[''"\x27]\]\s*=\s*["\x27]ci_session["\x27]'
   severity: low
   description: "CodeIgniter default session name - easily identifiable"
   remediation: "Change session name to custom value"
@@ -422,7 +461,8 @@
 - id: php-codeigniter-query-builder-injection
   languages: [php]
   patterns:
-    - regex: '$this->db->(?:where|like|having)\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: '$this->db->(?:where|like|having)\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "CodeIgniter query builder with user input - SQL injection"
   remediation: "Use query bindings: $this->db->where('field', $value)"
   cwe: "CWE-89"
@@ -431,7 +471,8 @@
 - id: php-codeigniter-query-injection
   languages: [php]
   patterns:
-    - regex: '$this->db->query\s*\(\s*["\x27][^"\x27]*$''severity: critical
+    - regex: '$this->db->query\s*\(\s*["\x27][^"\x27]*$'
+  severity: critical
   description: "CodeIgniter raw query with interpolation - SQL injection"
   remediation: "Use query bindings: $this->db->query('SELECT ?', [$value])"
   cwe: "CWE-89"
@@ -440,7 +481,8 @@
 - id: php-codeigniter-escape-missing
   languages: [php]
   patterns:
-    - regex: '$this->db->(?:insert|update)\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: '$this->db->(?:insert|update)\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "CodeIgniter insert/update with user input - SQL injection"
   remediation: "CodeIgniter automatically escapes, but validate input first"
   cwe: "CWE-89"
@@ -449,7 +491,8 @@
 - id: php-codeigniter-file-upload
   languages: [php]
   patterns:
-    - regex: 'do_upload|upload->data''severity: high
+    - regex: 'do_upload|upload->data'
+  severity: high
   description: "CodeIgniter file upload - ensure validation"
   remediation: "Use upload library with allowed_types and max_size"
   cwe: "CWE-434"
@@ -458,7 +501,8 @@
 - id: php-codeigniter-file-upload-validation
   languages: [php]
   patterns:
-    - regex: 'allowed_types\s*=\s*["\x27]\*["\x27]''severity: high
+    - regex: 'allowed_types\s*=\s*["\x27]\*["\x27]'
+  severity: high
   description: "CodeIgniter file upload with wildcard allowed_types"
   remediation: "Restrict allowed file types: 'gif|jpg|png|pdf'"
   cwe: "CWE-434"
@@ -467,7 +511,8 @@
 - id: php-codeigniter-file-upload-path
   languages: [php]
   patterns:
-    - regex: 'upload_path\s*=\s*["\x27][^"\x27]*["\x27]\s*;\s*$config''severity: low
+    - regex: 'upload_path\s*=\s*["\x27][^"\x27]*["\x27]\s*;\s*$config'
+  severity: low
   description: "CodeIgniter upload path - ensure outside webroot"
   remediation: "Store uploads outside webroot with proper permissions"
   cwe: "CWE-22"
@@ -476,7 +521,8 @@
 - id: php-codeigniter-validation-callback
   languages: [php]
   patterns:
-    - regex: 'callback_[a-z_]+''severity: low
+    - regex: 'callback_[a-z_]+'
+  severity: low
   description: "CodeIgniter validation callback - ensure callback is safe"
   remediation: "Review callback logic for security"
   cwe: "CWE-20"
@@ -485,7 +531,8 @@
 - id: php-codeigniter-uri-segment
   languages: [php]
   patterns:
-    - regex: '$this->uri->segment\([^)]+\)''severity: high
+    - regex: '$this->uri->segment\([^)]+\]'
+  severity: high
   description: "CodeIgniter URI segment - user-controlled input"
   remediation: "Validate URI segments before use"
   cwe: "CWE-20"
@@ -494,7 +541,8 @@
 - id: php-codeigniter-uri-routing
   languages: [php]
   patterns:
-    - regex: '$route\[["\x27][^"\x27]+["\x27]\]\s*=\s*["\x27][^"\x27]+["\x27]''severity: low
+    - regex: '$route\[["\x27][^"\x27]+["\x27]\]\s*=\s*["\x27][^"\x27]+["\x27]'
+  severity: low
   description: "CodeIgniter custom routes - ensure no wildcards"
   remediation: "Use specific routes, avoid :any wildcard"
   cwe: "CWE-20"
@@ -503,7 +551,7 @@
 - id: php-codeigniter-hook
   languages: [php]
   patterns:
-    - regex: '$hook\[['''"\x27]pre_controller[''"\x27]\]'
+    - regex: '$hook\[[''"\x27]pre_controller[''"\x27]\]'
   severity: low
   description: "CodeIgniter hooks - may affect all requests"
   remediation: "Review hook code for security implications"
@@ -513,7 +561,7 @@
 - id: php-codeigniter-404-override
   languages: [php]
   patterns:
-    - regex: '$route\[['''"\x27]404_override[''"\x27]\]\s*=\s*["\x27][^"\x27]+["\x27]'
+    - regex: '$route\[[''"\x27]404_override[''"\x27]\]\s*=\s*["\x27][^"\x27]+["\x27]'
   severity: low
   description: "CodeIgniter 404 override - may hide errors"
   remediation: "Use custom 404 pages but log actual errors"
@@ -523,7 +571,8 @@
 - id: php-codeigniter-cache
   languages: [php]
   patterns:
-    - regex: '$this->output->cache''severity: low
+    - regex: '$this->output->cache'
+  severity: low
   description: "CodeIgniter page caching - may cache sensitive data"
   remediation: "Don't cache authenticated pages"
   cwe: "CWE-524"
@@ -532,7 +581,8 @@
 - id: php-codeigniter-email
   languages: [php]
   patterns:
-    - regex: '$this->email->send\(\)''severity: low
+    - regex: '$this->email->send\(\)'
+  severity: low
   description: "CodeIgniter email sending - validate content"
   remediation: "Sanitize email content, prevent header injection"
   cwe: "CWE-20"
@@ -541,7 +591,8 @@
 - id: php-codeigniter-email-header
   languages: [php]
   patterns:
-    - regex: '$this->email->set_header|headers''severity: high
+    - regex: '$this->email->set_header|headers'
+  severity: high
   description: "CodeIgniter email headers - header injection risk"
   remediation: "Validate header values, avoid user input in headers"
   cwe: "CWE-113"
@@ -550,7 +601,8 @@
 - id: php-codeigniter-ftp
   languages: [php]
   patterns:
-    - regex: '$this->ftp->upload|ftp->download''severity: high
+    - regex: '$this->ftp->upload|ftp->download'
+  severity: high
   description: "CodeIgniter FTP operations - ensure secure FTP"
   remediation: "Use SFTP or FTPS, validate paths"
   cwe: "CWE-319"
@@ -561,7 +613,7 @@
 - id: php-wp-config-debug
   languages: [php]
   patterns:
-    - regex: 'define\\s*\\(\\s*['''"]WP_DEBUG[''"]\\s*,\\s*(?:true|TRUE)\\s*\\)'
+    - regex: 'define\s*\(\s*[''"]WP_DEBUG[''"]\s*,\s*(?:true|TRUE)\s*\)'
   severity: medium
   description: "WordPress debug mode enabled in production - exposes sensitive data"
   remediation: "Set WP_DEBUG to false in production wp-config.php"
@@ -571,7 +623,7 @@
 - id: php-wp-config-salt
   languages: [php]
   patterns:
-    - regex: 'define\\s*\\(\\s*['''"](?:AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY)[''"]\\s*,\\s*[''"][^''"]*[''"]'
+    - regex: 'define\s*\(\s*[''"](?:AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|NONCE_KEY)[''"]\s*,\s*[''"][^''"]*[''"]'
   severity: high
   description: "WordPress salts in wp-config - ensure they are unique and strong"
   remediation: "Use https://api.wordpress.org/secret-key/1.1/salt/ to generate strong salts"
@@ -581,7 +633,7 @@
 - id: php-wp-config-db
   languages: [php]
   patterns:
-    - regex: 'define\\s*\\(\\s*['''"](?:DB_NAME|DB_USER|DB_PASSWORD|DB_HOST)[''"]\\s*,\\s*[''"][^''"]*[''"]'
+    - regex: 'define\s*\(\s*[''"](?:DB_NAME|DB_USER|DB_PASSWORD|DB_HOST)[''"]\s*,\s*[''"][^''"]*[''"]'
   severity: high
   description: "WordPress database credentials in wp-config"
   remediation: "Use strong passwords, restrict database user permissions"
@@ -591,7 +643,7 @@
 - id: php-wp-config-table-prefix
   languages: [php]
   patterns:
-    - regex: '\$table_prefix\\s*=\\s*['''"]wp_[''"]'
+    - regex: '\$table_prefix\s*=\s*[''"]wp_[''"]'
   severity: medium
   description: "WordPress default table prefix - easily guessable"
   remediation: "Change table prefix to something unique: 'wp8a3d9_'', ''myapp_'"
@@ -601,7 +653,8 @@
 - id: php-wp-ajax-nonce-missing
   languages: [php]
   patterns:
-    - regex: 'wp_ajax_\\w+.*''severity: medium
+    - regex: 'wp_ajax_\w+.*'
+  severity: medium
   description: "WordPress AJAX handler without nonce verification - CSRF vulnerability"
   remediation: "Add nonce verification: check_ajax_referer('nonce_action', 'nonce')"
   cwe: "CWE-352"
@@ -610,7 +663,8 @@
 - id: php-wp-admin-nonce-missing
   languages: [php]
   patterns:
-    - regex: 'admin-post\\.php.*''severity: medium
+    - regex: 'admin-post\.php.*'
+  severity: medium
   description: "WordPress admin POST handler without nonce - CSRF vulnerability"
   remediation: "Add nonce verification: wp_verify_nonce($_POST['_wpnonce'], 'action')"
   cwe: "CWE-352"
@@ -619,7 +673,7 @@
 - id: php-wp-role-check
   languages: [php]
   patterns:
-    - regex: 'current_user_can\\s*\\(\\s*['''"]administrator[''"]'
+    - regex: 'current_user_can\s*\(\s*[''"]administrator[''"]'
   severity: low
   description: "WordPress role check - good practice"
   remediation: "Continue using capability checks, avoid hardcoded roles"
@@ -629,7 +683,8 @@
 - id: php-wp-authorization-missing
   languages: [php]
   patterns:
-    - regex: 'function\\s+\\w+_handler.*''severity: high
+    - regex: 'function\s+\w+_handler.*'
+  severity: high
   description: "WordPress handler without authorization check"
   remediation: "Add current_user_can() checks before processing"
   cwe: "CWE-862"
@@ -638,7 +693,7 @@
 - id: php-wp-query-injection
   languages: [php]
   patterns:
-    - regex: '\$wpdb->(?:get_results|get_var|query|prepare)?\\s*\\(\\s*['''"].*\$'
+    - regex: '\$wpdb->(?:get_results|get_var|query|prepare)?\s*\(\s*[''"].*\$'
   severity: critical
   description: "WordPress database query with interpolation - SQL injection"
   remediation: "Use $wpdb->prepare() with placeholders: %s, %d"
@@ -648,7 +703,7 @@
 - id: php-wp-prepare-missing
   languages: [php]
   patterns:
-    - regex: '\$wpdb->(?:get_results|get_var|query)\\s*\\(\\s*['''"][^''"]+\$'
+    - regex: '\$wpdb->(?:get_results|get_var|query)\s*\(\s*[''"][^''"]+\$'
   severity: critical
   description: "WordPress $wpdb query without prepare() - SQL injection"
   remediation: "Use $wpdb->prepare(): $wpdb->get_results($wpdb->prepare('SELECT * FROM table WHERE id = %d', $id))"
@@ -658,7 +713,8 @@
 - id: php-wp-insert-escape
   languages: [php]
   patterns:
-    - regex: '\$wpdb->insert\\s*\\([^,]+,\\s*\$_(?:POST|GET|REQUEST)''severity: high
+    - regex: '\$wpdb->insert\s*\([^,]+,\s*\$_(?:POST|GET|REQUEST)'
+  severity: high
   description: "WordPress insert with user input - SQL injection risk"
   remediation: "$wpdb->insert() automatically escapes, but validate input first"
   cwe: "CWE-89"
@@ -667,7 +723,8 @@
 - id: php-wp-update-escape
   languages: [php]
   patterns:
-    - regex: '\$wpdb->update\\s*\\([^,]+,\\s*\$_(?:POST|GET|REQUEST)''severity: high
+    - regex: '\$wpdb->update\s*\([^,]+,\s*\$_(?:POST|GET|REQUEST)'
+  severity: high
   description: "WordPress update with user input - SQL injection risk"
   remediation: "$wpdb->update() automatically escapes, but validate input first"
   cwe: "CWE-89"
@@ -676,7 +733,7 @@
 - id: php-wp-like-escape
   languages: [php]
   patterns:
-    - regex: 'LIKE\\s*['''"]%\$|LIKE\\s*[''"]\$'
+    - regex: 'LIKE\s*[''"]%\$|LIKE\s*[''"]\$'
   severity: critical
   description: "WordPress LIKE query with direct variable - SQL injection"
   remediation: "Use $wpdb->esc_like() and prepare(): LIKE '%' . $wpdb->esc_like($input) . '%'"
@@ -686,7 +743,8 @@
 - id: php-wp-orderby-injection
   languages: [php]
   patterns:
-    - regex: 'ORDER\\s+BY\\s+\$|orderby=.*\$''severity: high
+    - regex: 'ORDER\s+BY\s+\$|orderby=.*\$'
+  severity: high
   description: "WordPress ORDER BY with variable - SQL injection"
   remediation: "Validate orderby against allowlist of columns"
   cwe: "CWE-89"
@@ -695,7 +753,8 @@
 - id: php-wp-meta-query-injection
   languages: [php]
   patterns:
-    - regex: 'meta_(?:key|value)\\s*=\\s*\$''severity: high
+    - regex: 'meta_(?:key|value)\s*=\s*\$'
+  severity: high
   description: "WordPress meta query with variable - SQL injection"
   remediation: "Use WP_Query with proper sanitization"
   cwe: "CWE-89"
@@ -704,7 +763,8 @@
 - id: php-wp-post-author-idor
   languages: [php]
   patterns:
-    - regex: 'wp_update_post|wp_insert_post.*\$_(?:GET|POST)''severity: high
+    - regex: 'wp_update_post|wp_insert_post.*\$_(?:GET|POST)'
+  severity: high
   description: "WordPress post operations with user input - IDOR risk"
   remediation: "Check user permissions before post operations"
   cwe: "CWE-639"
@@ -713,7 +773,8 @@
 - id: php-wp-delete-post-idor
   languages: [php]
   patterns:
-    - regex: 'wp_delete_post\\s*\\(\\s*\$_(?:GET|POST)''severity: high
+    - regex: 'wp_delete_post\s*\(\s*\$_(?:GET|POST)'
+  severity: high
   description: "WordPress delete post with user input - IDOR vulnerability"
   remediation: "Verify user can delete post: current_user_can('delete_post', $post_id)"
   cwe: "CWE-639"
@@ -722,7 +783,8 @@
 - id: php-wp-get-post-idor
   languages: [php]
   patterns:
-    - regex: 'get_post\\s*\\(\\s*\$_(?:GET|POST)''severity: high
+    - regex: 'get_post\s*\(\s*\$_(?:GET|POST)'
+  severity: high
   description: "WordPress get_post with user input - IDOR risk"
   remediation: "Check if post is public or user has access"
   cwe: "CWE-639"
@@ -731,7 +793,8 @@
 - id: php-wp-user-meta
   languages: [php]
   patterns:
-    - regex: '(?:get|update|delete)_user_meta''severity: low
+    - regex: '(?:get|update|delete)_user_meta'
+  severity: low
   description: "WordPress user meta operations - ensure proper user ID"
   remediation: "Verify user ID matches current user or user has capability"
   cwe: "CWE-639"
@@ -740,7 +803,7 @@
 - id: php-wp-option-update
   languages: [php]
   patterns:
-    - regex: 'update_option\\s*\\(\\s*['''"][^''"]+[''"]\\s*,\\s*\$_(?:POST|GET|REQUEST)'
+    - regex: 'update_option\s*\(\s*[''"][^''"]+[''"]\s*,\s*\$_(?:POST|GET|REQUEST)'
   severity: high
   description: "WordPress option update with user input - privilege escalation"
   remediation: "Never update options from user input without authorization"
@@ -750,7 +813,8 @@
 - id: php-wp-file-include
   languages: [php]
   patterns:
-    - regex: '(?:include|require).*\$_(?:GET|POST)''severity: high
+    - regex: '(?:include|require).*\$_(?:GET|POST)'
+  severity: high
   description: "WordPress file inclusion with user input - LFI/RFI"
   remediation: "Use plugin APIs, never include files from user input"
   cwe: "CWE-98"
@@ -759,7 +823,7 @@
 - id: php-wp-template-part
   languages: [php]
   patterns:
-    - regex: 'get_template_part\\s*\\(\\s*['''"][^''"]*\$'
+    - regex: 'get_template_part\s*\(\s*[''"][^''"]*\$'
   severity: high
   description: "WordPress template part with dynamic name - file inclusion"
   remediation: "Validate template name against allowlist"
@@ -769,7 +833,8 @@
 - id: php-wp-locale-template
   languages: [php]
   patterns:
-    - regex: 'load_template|locate_template''severity: medium
+    - regex: 'load_template|locate_template'
+  severity: medium
   description: "WordPress template loading - ensure path is safe"
   remediation: "Use child theme paths, validate input"
   cwe: "CWE-22"
@@ -778,7 +843,8 @@
 - id: php-wp-upload-override
   languages: [php]
   patterns:
-    - regex: 'wp_handle_upload|wp_handle_upload_prefilter''severity: medium
+    - regex: 'wp_handle_upload|wp_handle_upload_prefilter'
+  severity: medium
   description: "WordPress file upload handling - ensure validation"
   remediation: "Add custom validation in prefilter"
   cwe: "CWE-434"
@@ -787,7 +853,8 @@
 - id: php-wp-upload-path
   languages: [php]
   patterns:
-    - regex: 'wp_upload_dir|upload_path''severity: low
+    - regex: 'wp_upload_dir|upload_path'
+  severity: low
   description: "WordPress upload directory - ensure permissions"
   remediation: "Set proper directory permissions (755 for directories, 644 for files)"
   cwe: "CWE-732"
@@ -796,7 +863,8 @@
 - id: php-wp-http-api-ssrf
   languages: [php]
   patterns:
-    - regex: 'wp_remote_(?:get|post|request)\\s*\\(\\s*\$_(?:GET|POST)''severity: high
+    - regex: 'wp_remote_(?:get|post|request)\s*\(\s*\$_(?:GET|POST)'
+  severity: high
   description: "WordPress HTTP API with user input - SSRF vulnerability"
   remediation: "Validate URLs against allowlist, block internal IPs"
   cwe: "CWE-918"
@@ -805,7 +873,8 @@
 - id: php-wp-http-api-redirects
   languages: [php]
   patterns:
-    - regex: 'wp_remote_(?:get|post).*redirection''severity: medium
+    - regex: 'wp_remote_(?:get|post).*redirection'
+  severity: medium
   description: "WordPress HTTP API following redirects - may follow malicious redirects"
   remediation: "Limit redirects: add 'redirection' => 0 to options"
   cwe: "CWE-601"
@@ -814,7 +883,8 @@
 - id: php-wp-kses-allowed-html
   languages: [php]
   patterns:
-    - regex: 'wp_kses_allowed_html''severity: medium
+    - regex: 'wp_kses_allowed_html'
+  severity: medium
   description: "WordPress KSES allowed HTML filter - ensure safe tags"
   remediation: "Remove dangerous tags and attributes"
   cwe: "CWE-79"
@@ -823,7 +893,8 @@
 - id: php-wp-esc-missing
   languages: [php]
   patterns:
-    - regex: 'echo\\s+\$_(?:GET|POST|REQUEST)|print\\s+\$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'echo\s+\$_(?:GET|POST|REQUEST)|print\s+\$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "WordPress direct output of user input - XSS vulnerability"
   remediation: "Use escaping functions: esc_html(), esc_attr(), esc_url()"
   cwe: "CWE-79"
@@ -832,7 +903,8 @@
 - id: php-wp-query-pagination
   languages: [php]
   patterns:
-    - regex: 'query_posts|WP_Query\\s*\\(''severity: medium
+    - regex: 'query_posts|WP_Query\s*\('
+  severity: medium
   description: "WordPress custom queries - ensure parameters are safe"
   remediation: "Use pre_get_posts filter instead of query_posts()"
   cwe: "CWE-20"
@@ -841,7 +913,8 @@
 - id: php-wp-paged-injection
   languages: [php]
   patterns:
-    - regex: 'paged\\s*=\\s*\$_(?:GET|POST)''severity: high
+    - regex: 'paged\s*=\s*\$_(?:GET|POST)'
+  severity: high
   description: "WordPress paged parameter from user input - SQL injection risk"
   remediation: "Use absint() on paged parameter: $paged = absint(get_query_var('paged'))"
   cwe: "CWE-89"
@@ -850,7 +923,8 @@
 - id: php-wp-shortcode
   languages: [php]
   patterns:
-    - regex: 'add_shortcode\\s*\\(|do_shortcode''severity: medium
+    - regex: 'add_shortcode\s*\(|do_shortcode'
+  severity: medium
   description: "WordPress shortcode handling - ensure shortcodes are safe"
   remediation: "Validate shortcode attributes, escape output"
   cwe: "CWE-79"
@@ -859,7 +933,8 @@
 - id: php-wp-shortcode-attr
   languages: [php]
   patterns:
-    - regex: 'shortcode_atts|extract\\(\\s*\$atts''severity: high
+    - regex: 'shortcode_atts|extract\(\s*\$atts'
+  severity: high
   description: "WordPress shortcode attribute extraction - may overwrite variables"
   remediation: "Use shortcode_atts() but avoid extract()"
   cwe: "CWE-915"
@@ -868,7 +943,8 @@
 - id: php-wp-rest-api
   languages: [php]
   patterns:
-    - regex: 'register_rest_route''severity: medium
+    - regex: 'register_rest_route'
+  severity: medium
   description: "WordPress REST API route registration"
   remediation: "Add permission_callback to all REST routes"
   cwe: "CWE-306"
@@ -877,7 +953,7 @@
 - id: php-wp-rest-permission
   languages: [php]
   patterns:
-    - regex: 'permission_callback\\s*=>\\s*['''"](?:__return_true|\\w+)[''"]'
+    - regex: 'permission_callback\s*=>\s*[''"](?:__return_true|\w+)[''"]'
   severity: high
   description: "WordPress REST API permission callback - ensure proper checks"
   remediation: "Use specific permission checks, never __return_true"
@@ -887,7 +963,8 @@
 - id: php-wp-cron
   languages: [php]
   patterns:
-    - regex: 'wp_schedule_event|wp_cron''severity: low
+    - regex: 'wp_schedule_event|wp_cron'
+  severity: low
   description: "WordPress cron events - ensure tasks are secure"
   remediation: "Use wp_schedule_event with unique hooks"
   cwe: "CWE-20"
@@ -896,7 +973,8 @@
 - id: php-wp-cron-url
   languages: [php]
   patterns:
-    - regex: 'wp-cron\\.php''severity: high
+    - regex: 'wp-cron\.php'
+  severity: high
   description: "WordPress wp-cron.php exposed - DoS vulnerability"
   remediation: "Set DISABLE_WP_CRON true and use system cron"
   cwe: "CWE-770"
@@ -905,7 +983,8 @@
 - id: php-wp-xmlrpc
   languages: [php]
   patterns:
-    - regex: 'xmlrpc\\.php|enable_xmlrpc''severity: high
+    - regex: 'xmlrpc\.php|enable_xmlrpc'
+  severity: high
   description: "WordPress XML-RPC enabled - brute force and DoS attacks"
   remediation: "Disable XML-RPC: add_filter('xmlrpc_enabled', '__return_false')"
   cwe: "CWE-770"
@@ -914,7 +993,8 @@
 - id: php-wp-xmlrpc-pingback
   languages: [php]
   patterns:
-    - regex: 'pingback\\.pingback|pingback.ping''severity: high
+    - regex: 'pingback\.pingback|pingback.ping'
+  severity: high
   description: "WordPress XML-RPC pingback - SSRF and DDoS attacks"
   remediation: "Disable pingbacks: add_filter('xmlrpc_methods', 'remove_pingback')"
   cwe: "CWE-918"
@@ -923,7 +1003,8 @@
 - id: php-wp-comment-nonce
   languages: [php]
   patterns:
-    - regex: 'wp_handle_comment_submission.*''severity: medium
+    - regex: 'wp_handle_comment_submission.*'
+  severity: medium
   description: "WordPress comment handling without nonce - CSRF"
   remediation: "Nonces are handled by WordPress, ensure comment form includes wp_nonce_field()"
   cwe: "CWE-352"
@@ -932,7 +1013,8 @@
 - id: php-wp-comment-author
   languages: [php]
   patterns:
-    - regex: 'comment_author|comment_author_email''severity: medium
+    - regex: 'comment_author|comment_author_email'
+  severity: medium
   description: "WordPress comment author data - ensure escaping"
   remediation: "Use esc_html() for comment author output"
   cwe: "CWE-79"
@@ -941,7 +1023,8 @@
 - id: php-composer-lock-missing
   languages: [json]
   patterns:
-    - regex: '^''severity: high
+    - regex: '^'
+  severity: high
   description: "Composer lock file missing - builds not reproducible"
   remediation: "Run composer update and commit composer.lock"
   cwe: "CWE-1391"
@@ -950,7 +1033,8 @@
 - id: php-composer-dev-deps
   languages: [json]
   patterns:
-    - regex: '"require-dev"\\s*:\\s*\\{''severity: medium
+    - regex: '"require-dev"\s*:\s*\{'
+  severity: medium
   description: "Composer dev dependencies defined - ensure not installed in production"
   remediation: "Run composer install --no-dev in production"
   cwe: "CWE-1391"
@@ -959,7 +1043,8 @@
 - id: php-composer-star-version
   languages: [json]
   patterns:
-    - regex: '"[^"]+"\\s*:\\s*"\\*"''severity: high
+    - regex: '"[^"]+"\s*:\s*"\*"'
+  severity: high
   description: "Composer dependency with wildcard version - unpredictable updates"
   remediation: "Pin to specific versions: \"^1.2.3\" or \"~1.2.3\""
   cwe: "CWE-1391"
@@ -968,7 +1053,8 @@
 - id: php-composer-dev-master
   languages: [json]
   patterns:
-    - regex: '"[^"]+"\\s*:\\s*"dev-master"''severity: high
+    - regex: '"[^"]+"\s*:\s*"dev-master"'
+  severity: high
   description: "Composer dependency on dev-master - unstable, may introduce vulnerabilities"
   remediation: "Use stable tagged versions instead of dev branches"
   cwe: "CWE-1391"
@@ -977,7 +1063,8 @@
 - id: php-composer-scripts
   languages: [json]
   patterns:
-    - regex: '"scripts"\\s*:\\s*\\{''severity: medium
+    - regex: '"scripts"\s*:\s*\{'
+  severity: medium
   description: "Composer scripts defined - may execute arbitrary code"
   remediation: "Review scripts for security implications"
   cwe: "CWE-94"
@@ -986,7 +1073,8 @@
 - id: php-composer-post-install
   languages: [json]
   patterns:
-    - regex: '\"post-install-cmd\"|\"post-update-cmd\"''severity: high
+    - regex: '\\"post-install-cmd\\"|\\"post-update-cmd\\"'
+  severity: high
   description: "Composer post-install scripts - may run during deployment"
   remediation: "Ensure scripts are safe and idempotent"
   cwe: "CWE-94"
@@ -995,7 +1083,8 @@
 - id: php-composer-repositories
   languages: [json]
   patterns:
-    - regex: '"repositories"\\s*:\\s*\\[''severity: high
+    - regex: '"repositories"\s*:\s*\['
+  severity: high
   description: "Composer custom repositories - may contain untrusted code"
   remediation: "Only use trusted repositories (Packagist, vcs with verification)"
   cwe: "CWE-829"
@@ -1004,7 +1093,8 @@
 - id: php-composer-vcs
   languages: [json]
   patterns:
-    - regex: '"type"\\s*:\\s*"vcs"''severity: high
+    - regex: '"type"\s*:\s*"vcs"'
+  severity: high
   description: "Composer VCS repository - ensure source is trusted"
   remediation: "Pin to specific commit hashes for security"
   cwe: "CWE-829"
@@ -1013,7 +1103,8 @@
 - id: php-composer-package
   languages: [json]
   patterns:
-    - regex: '"type"\\s*:\\s*"package"''severity: high
+    - regex: '"type"\s*:\s*"package"'
+  severity: high
   description: "Composer package repository - bypasses security checks"
   remediation: "Avoid package type repositories, use vcs or dist"
   cwe: "CWE-829"
@@ -1022,7 +1113,8 @@
 - id: php-composer-path
   languages: [json]
   patterns:
-    - regex: '"type"\\s*:\\s*"path"''severity: medium
+    - regex: '"type"\s*:\s*"path"'
+  severity: medium
   description: "Composer path repository - local dependency"
   remediation: "Ensure local paths are not exposed in production"
   cwe: "CWE-200"
@@ -1031,7 +1123,8 @@
 - id: php-composer-artifact
   languages: [json]
   patterns:
-    - regex: '"type"\\s*:\\s*"artifact"''severity: medium
+    - regex: '"type"\s*:\s*"artifact"'
+  severity: medium
   description: "Composer artifact repository - may contain outdated packages"
   remediation: "Verify artifact integrity before use"
   cwe: "CWE-829"
@@ -1040,7 +1133,8 @@
 - id: php-composer-minimum-stability
   languages: [json]
   patterns:
-    - regex: '"minimum-stability"\\s*:\\s*"dev"''severity: high
+    - regex: '"minimum-stability"\s*:\s*"dev"'
+  severity: high
   description: "Composer minimum stability dev - may include unstable packages"
   remediation: "Set minimum-stability to 'stable' for production"
   cwe: "CWE-1391"
@@ -1051,7 +1145,8 @@
 - id: php-session-fixation
   languages: [php]
   patterns:
-    - regex: 'session_start\\(\\);''severity: high
+    - regex: 'session_start\(\);'
+  severity: high
   description: "Session started without regeneration - vulnerable to session fixation"
   remediation: "Call session_regenerate_id(true) after login"
   cwe: "CWE-384"
@@ -1060,7 +1155,8 @@
 - id: php-session-id-in-url
   languages: [php]
   patterns:
-    - regex: 'SID|session_name\\(\\)\\s*\\.\\s*=|session_id\\(\\)\\s*\\.\\s*=''severity: high
+    - regex: 'SID|session_name\(\)\s*\.\s*=|session_id\(\)\s*\.\s*='
+  severity: high
   description: "Session ID in URL - exposure in logs, referrer headers"
   remediation: "Ensure session.use_only_cookies = 1 in php.ini"
   cwe: "CWE-200"
@@ -1069,7 +1165,7 @@
 - id: php-session-use-only-cookies
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.use_only_cookies[''"],\\s*0\\)'
+    - regex: 'ini_set\([''"]session\.use_only_cookies[''"],\s*0\)'
   severity: high
   description: "Session allows ID in URL - exposes session ID"
   remediation: "Set session.use_only_cookies = 1"
@@ -1079,7 +1175,7 @@
 - id: php-session-use-trans-sid
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.use_trans_sid[''"],\\s*1\\)'
+    - regex: 'ini_set\([''"]session\.use_trans_sid[''"],\s*1\)'
   severity: high
   description: "Transparent SID enabled - exposes session in URLs"
   remediation: "Set session.use_trans_sid = 0"
@@ -1089,7 +1185,7 @@
 - id: php-session-cookie-httponly
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.cookie_httponly[''"],\\s*0\\)'
+    - regex: 'ini_set\([''"]session\.cookie_httponly[''"],\s*0\)'
   severity: high
   description: "Session cookie without HttpOnly flag - accessible to JavaScript"
   remediation: "Set session.cookie_httponly = 1"
@@ -1099,7 +1195,7 @@
 - id: php-session-cookie-secure
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.cookie_secure[''"],\\s*0\\)'
+    - regex: 'ini_set\([''"]session\.cookie_secure[''"],\s*0\)'
   severity: medium
   description: "Session cookie without Secure flag - sent over HTTP"
   remediation: "Set session.cookie_secure = 1 when using HTTPS"
@@ -1109,7 +1205,7 @@
 - id: php-session-cookie-samesite
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.cookie_samesite[''"],\\s*[''"](?:None|none)[''"]\\)'
+    - regex: 'ini_set\([''"]session\.cookie_samesite[''"],\s*[''"](?:None|none)[''"]\)'
   severity: high
   description: "Session cookie with SameSite=None - requires Secure flag, CSRF risk"
   remediation: "Use SameSite=Lax or Strict"
@@ -1119,7 +1215,7 @@
 - id: php-session-cookie-domain
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.cookie_domain[''"],\\s*[''"]\\.[^''"]+[''"]\\)'
+    - regex: 'ini_set\([''"]session\.cookie_domain[''"],\s*[''"]\.[^''"]+[''"]\)'
   severity: medium
   description: "Session cookie domain too broad - sent to subdomains"
   remediation: "Restrict cookie domain to specific domain"
@@ -1129,7 +1225,7 @@
 - id: php-session-cookie-path
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.cookie_path[''"],\\s*[''"]/[''"]\\)'
+    - regex: 'ini_set\([''"]session\.cookie_path[''"],\s*[''"]/[''"]\)'
   severity: low
   description: "Session cookie path set to root - sent to all paths"
   remediation: "Restrict cookie path to application path"
@@ -1139,7 +1235,7 @@
 - id: php-session-gc-maxlifetime
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.gc_maxlifetime[''"],\\s*[6-9]\\d{5,}\\)'
+    - regex: 'ini_set\([''"]session\.gc_maxlifetime[''"],\s*[6-9]\d{5,}\)'
   severity: high
   description: "Session lifetime too long (hours/days) - increased hijacking window"
   remediation: "Set session.gc_maxlifetime to reasonable value (1800-7200 seconds)"
@@ -1149,7 +1245,7 @@
 - id: php-session-cache-limiter
   languages: [php]
   patterns:
-    - regex: 'session_cache_limiter\\(['''"]public[''"]\\)'
+    - regex: 'session_cache_limiter\([''"]public[''"]\)'
   severity: high
   description: "Session cache limiter set to public - may cache authenticated pages"
   remediation: "Use session_cache_limiter('private_no_expire') or 'private'"
@@ -1159,7 +1255,7 @@
 - id: php-session-save-path
   languages: [php]
   patterns:
-    - regex: 'session_save_path\\(['''"](?:/tmp|/var/tmp)[''"]\\)'
+    - regex: 'session_save_path\([''"](?:/tmp|/var/tmp)[''"]\)'
   severity: high
   description: "Session save path in world-writable directory - session hijacking"
   remediation: "Use secure directory with restricted permissions"
@@ -1169,7 +1265,8 @@
 - id: php-session-save-path-perms
   languages: [php]
   patterns:
-    - regex: 'session_save_path\\([^)]+\\);?''severity: medium
+    - regex: 'session_save_path\([^)]+\);?'
+  severity: medium
   description: "Session save path set without checking permissions"
   remediation: "Ensure session directory has 700 permissions"
   cwe: "CWE-732"
@@ -1178,7 +1275,7 @@
 - id: php-session-serialize-handler
   languages: [php]
   patterns:
-    - regex: 'ini_set\\(['''"]session\\.serialize_handler[''"],\\s*[''"]php[''"]\\)'
+    - regex: 'ini_set\([''"]session\.serialize_handler[''"],\s*[''"]php[''"]\)'
   severity: high
   description: "PHP serialize handler - may allow object injection"
   remediation: "Use 'php_serialize' handler: session.serialize_handler = php_serialize"
@@ -1188,7 +1285,8 @@
 - id: php-session-serialize-injection
   languages: [php]
   patterns:
-    - regex: 'session_decode|session_encode''severity: high
+    - regex: 'session_decode|session_encode'
+  severity: high
   description: "Manual session encoding/decoding - object injection risk"
   remediation: "Avoid manual session manipulation"
   cwe: "CWE-502"
@@ -1197,7 +1295,8 @@
 - id: php-setcookie-httponly
   languages: [php]
   patterns:
-    - regex: 'setcookie\\s*\\([^)]+''severity: high
+    - regex: 'setcookie\s*\([^)]+'
+  severity: high
   description: "setcookie() without HttpOnly flag - accessible to JavaScript"
   remediation: "Use setcookie(..., ['httponly' => true]) or setcookie(..., ..., true)"
   cwe: "CWE-614"
@@ -1206,7 +1305,8 @@
 - id: php-setcookie-secure
   languages: [php]
   patterns:
-    - regex: 'setcookie\\s*\\([^)]+''severity: high
+    - regex: 'setcookie\s*\([^)]+'
+  severity: high
   description: "setcookie() without Secure flag - sent over HTTP"
   remediation: "Add 'secure' => true to options array"
   cwe: "CWE-614"
@@ -1215,7 +1315,8 @@
 - id: php-setcookie-samesite
   languages: [php]
   patterns:
-    - regex: 'setcookie\\s*\\([^)]+''severity: medium
+    - regex: 'setcookie\s*\([^)]+'
+  severity: medium
   description: "setcookie() without SameSite attribute - CSRF risk"
   remediation: "Add 'samesite' => 'Lax' or 'Strict' to options"
   cwe: "CWE-352"
@@ -1224,7 +1325,7 @@
 - id: php-setcookie-samesite-none
   languages: [php]
   patterns:
-    - regex: 'samesite\\s*=>\\s*['''"]None[''"]'
+    - regex: 'samesite\s*=>\s*[''"]None[''"]'
   severity: high
   description: "Cookie with SameSite=None - requires Secure flag"
   remediation: "Ensure 'secure' => true with SameSite=None"
@@ -1234,7 +1335,7 @@
 - id: php-setcookie-path-root
   languages: [php]
   patterns:
-    - regex: 'setcookie\\s*\\([^,]+,\\s*[^,]+,\\s*[^,]+,\\s*['''"]/[''"]'
+    - regex: 'setcookie\s*\([^,]+,\s*[^,]+,\s*[^,]+,\s*[''"]/[''"]'
   severity: low
   description: "Cookie path set to root - sent to all paths"
   remediation: "Restrict cookie path to specific application path"
@@ -1244,7 +1345,7 @@
 - id: php-setcookie-domain-broad
   languages: [php]
   patterns:
-    - regex: 'setcookie\\s*\\([^,]+,\\s*[^,]+,\\s*[^,]+,\\s*[^,]+,\\s*['''"]\\.[^''"]+[''"]'
+    - regex: 'setcookie\s*\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[''"]\.[^''"]+[''"]'
   severity: medium
   description: "Cookie domain too broad - sent to subdomains"
   remediation: "Restrict cookie domain to specific domain"
@@ -1254,7 +1355,8 @@
 - id: php-setcookie-expires-far
   languages: [php]
   patterns:
-    - regex: 'setcookie\\s*\\([^,]+,\\s*[^,]+,\\s*time\\(\\)\\s*\\+\\s*[6-9]\\d{6,}''severity: high
+    - regex: 'setcookie\s*\([^,]+,\s*[^,]+,\s*time\(\)\s*\+\s*[6-9]\d{6,}'
+  severity: high
   description: "Cookie with far future expiration (years) - persists too long"
   remediation: "Use session cookies or short expiration times"
   cwe: "CWE-613"
@@ -1263,7 +1365,8 @@
 - id: php-setrawcookie
   languages: [php]
   patterns:
-    - regex: 'setrawcookie\\s*\\(''severity: high
+    - regex: 'setrawcookie\s*\('
+  severity: high
   description: "setrawcookie() bypasses URL encoding - header injection risk"
   remediation: "Use setcookie() instead of setrawcookie()"
   cwe: "CWE-113"
@@ -1272,7 +1375,7 @@
 - id: php-header-set-cookie
   languages: [php]
   patterns:
-    - regex: 'header\\s*\\(\\s*['''"]Set-Cookie:'
+    - regex: 'header\s*\(\s*[''"]Set-Cookie:'
   severity: high
   description: "Manual Set-Cookie header - header injection risk"
   remediation: "Use setcookie() function instead of manual headers"
@@ -1282,7 +1385,8 @@
 - id: php-session-files
   languages: [php]
   patterns:
-    - regex: 'session\\.save_handler\\s*=\\s*files''severity: low
+    - regex: 'session\.save_handler\s*=\s*files'
+  severity: low
   description: "Session files storage - ensure directory permissions"
   remediation: "Use secure session save path with proper permissions"
   cwe: "CWE-732"
@@ -1291,7 +1395,8 @@
 - id: php-unserialize-user-input
   languages: [php]
   patterns:
-    - regex: 'unserialize\s*\(\s*$_(?:POST|GET|REQUEST|COOKIE)''severity: critical
+    - regex: 'unserialize\s*\(\s*$_(?:POST|GET|REQUEST|COOKIE)'
+  severity: critical
   description: "unserialize() with user input - remote code execution"
   remediation: "Use json_decode() instead, or if needed, use allowed_classes option"
   cwe: "CWE-502"
@@ -1300,7 +1405,8 @@
 - id: php-unserialize-allowed-classes-true
   languages: [php]
   patterns:
-    - regex: 'unserialize\s*\([^)]+,\s*\[\s*["\x27]allowed_classes["\x27]\s*=>\s*(?:true|\[\s*\]\s*\))''severity: critical
+    - regex: 'unserialize\s*\([^)]+,\s*\[\s*["\x27]allowed_classes["\x27]\s*=>\s*(?:true|\[\s*\]\s*\))'
+  severity: critical
   description: "unserialize() with allowed_classes true - allows all classes"
   remediation: "Set allowed_classes to false or specific allowlist"
   cwe: "CWE-502"
@@ -1309,7 +1415,8 @@
 - id: php-unserialize-allowed-classes-array
   languages: [php]
   patterns:
-    - regex: 'unserialize\s*\([^)]+,\s*\[\s*["\x27]allowed_classes["\x27]\s*=>\s*\[\s*["\x27][^"\x27]+["\x27]\s*\]\s*\]''severity: medium
+    - regex: 'unserialize\s*\([^)]+,\s*\[\s*["\x27]allowed_classes["\x27]\s*=>\s*\[\s*["\x27][^"\x27]+["\x27]\s*\]\s*\]'
+  severity: medium
   description: "unserialize() with allowed_classes allowlist - safer"
   remediation: "Ensure allowlist contains only safe classes"
   cwe: "CWE-502"
@@ -1318,7 +1425,8 @@
 - id: php-unserialize-php-session
   languages: [php]
   patterns:
-    - regex: 'session_decode|unserialize.*session''severity: critical
+    - regex: 'session_decode|unserialize.*session'
+  severity: critical
   description: "Session unserialization - object injection in session"
   remediation: "Use session.serialize_handler = php_serialize"
   cwe: "CWE-502"
@@ -1327,7 +1435,8 @@
 - id: php-igbinary-unserialize
   languages: [php]
   patterns:
-    - regex: 'igbinary_unserialize\s*\(''severity: critical
+    - regex: 'igbinary_unserialize\s*\('
+  severity: critical
   description: "igbinary_unserialize() with untrusted data - object injection"
   remediation: "Use igbinary_unserialize with allowed_classes option"
   cwe: "CWE-502"
@@ -1336,7 +1445,8 @@
 - id: php-msgpack-unpack
   languages: [php]
   patterns:
-    - regex: 'msgpack_unpack|MessagePackUnpacker''severity: high
+    - regex: 'msgpack_unpack|MessagePackUnpacker'
+  severity: high
   description: "MessagePack deserialization - object injection risk"
   remediation: "Use safe MessagePack implementation with type checking"
   cwe: "CWE-502"
@@ -1345,7 +1455,8 @@
 - id: php-wddx-deserialize
   languages: [php]
   patterns:
-    - regex: 'wddx_deserialize\s*\(''severity: high
+    - regex: 'wddx_deserialize\s*\('
+  severity: high
   description: "WDDX deserialization - object injection risk"
   remediation: "Avoid WDDX format, use JSON instead"
   cwe: "CWE-502"
@@ -1354,7 +1465,8 @@
 - id: php-simplexml-import-dom
   languages: [php]
   patterns:
-    - regex: 'simplexml_import_dom|simplexml_load''severity: high
+    - regex: 'simplexml_import_dom|simplexml_load'
+  severity: high
   description: "SimpleXML import - XXE vulnerability"
   remediation: "Set libxml_disable_entity_loader(true) before parsing"
   cwe: "CWE-611"
@@ -1363,7 +1475,8 @@
 - id: php-domdocument-load-xml
   languages: [php]
   patterns:
-    - regex: 'DOMDocument::loadXML|DOMDocument::load''severity: high
+    - regex: 'DOMDocument::loadXML|DOMDocument::load'
+  severity: high
   description: "DOMDocument XML loading - XXE vulnerability"
   remediation: "Set LIBXML_NONET option: loadXML($xml, LIBXML_NONET)"
   cwe: "CWE-611"
@@ -1372,7 +1485,8 @@
 - id: php-xml-parse
   languages: [php]
   patterns:
-    - regex: 'xml_parse\s*\(''severity: high
+    - regex: 'xml_parse\s*\('
+  severity: high
   description: "XML parser - XXE vulnerability"
   remediation: "Disable external entities with xml_parser_set_option"
   cwe: "CWE-611"
@@ -1381,7 +1495,8 @@
 - id: php-simplexml-xxe
   languages: [php]
   patterns:
-    - regex: 'simplexml_load_string\s*\([^)]*\)''severity: high
+    - regex: 'simplexml_load_string\s*\([^)]*\]'
+  severity: high
   description: "SimpleXML without entity loader disabled - XXE vulnerability"
   remediation: "Call libxml_disable_entity_loader(true) before parsing"
   cwe: "CWE-611"
@@ -1390,7 +1505,8 @@
 - id: php-libxml-entity-loader
   languages: [php]
   patterns:
-    - regex: 'libxml_disable_entity_loader\s*\(\s*false\s*\)''severity: high
+    - regex: 'libxml_disable_entity_loader\s*\(\s*false\s*\)'
+  severity: high
   description: "External entities explicitly enabled - XXE vulnerability"
   remediation: "Always disable entity loader: libxml_disable_entity_loader(true)"
   cwe: "CWE-611"
@@ -1399,7 +1515,8 @@
 - id: php-yaml-parse
   languages: [php]
   patterns:
-    - regex: 'yaml_parse\s*\(|spyc_load|Symfony\\Component\\Yaml\\Yaml::parse''severity: high
+    - regex: 'yaml_parse\s*\(|spyc_load|Symfony.omponentYamlYaml::parse'
+  severity: high
   description: "YAML parsing - may create objects"
   remediation: "Use yaml_parse with safe classes or disable objects"
   cwe: "CWE-502"
@@ -1408,7 +1525,8 @@
 - id: php-yaml-parse-file
   languages: [php]
   patterns:
-    - regex: 'yaml_parse_file|yaml_parse_url''severity: high
+    - regex: 'yaml_parse_file|yaml_parse_url'
+  severity: high
   description: "YAML file parsing - may create objects from file"
   remediation: "Validate YAML file source, disable object creation"
   cwe: "CWE-502"
@@ -1417,7 +1535,8 @@
 - id: php-json-decode-object
   languages: [php]
   patterns:
-    - regex: 'json_decode\s*\(\s*[^,]+\)''severity: medium
+    - regex: 'json_decode\s*\(\s*[^,]+\)'
+  severity: medium
   description: "json_decode() returning objects - may contain untrusted classes"
   remediation: "Use json_decode($str, true) for associative arrays"
   cwe: "CWE-20"
@@ -1426,7 +1545,8 @@
 - id: php-json-decode-depth
   languages: [php]
   patterns:
-    - regex: 'json_decode\s*\([^)]+,\s*(?:true|false),\s*[4-9]\d+''severity: low
+    - regex: 'json_decode\s*\([^)]+,\s*(?:true|false),\s*[4-9]\d+'
+  severity: low
   description: "json_decode with depth limit - good DoS protection"
   remediation: "Continue using depth limits"
   cwe: "CWE-770"
@@ -1435,7 +1555,8 @@
 - id: php-json-decode-large
   languages: [php]
   patterns:
-    - regex: 'json_decode\s*\(\s*file_get_contents\s*\([^)]+\)''severity: high
+    - regex: 'json_decode\s*\(\s*file_get_contents\s*\([^)]+\]'
+  severity: high
   description: "Decoding large JSON files - memory exhaustion risk"
   remediation: "Use streaming JSON parser for large files"
   cwe: "CWE-770"
@@ -1444,7 +1565,8 @@
 - id: php-serialize-object
   languages: [php]
   patterns:
-    - regex: 'class\s+\w+\s*\{[^}]*__wakeup[^}]*__destruct''severity: high
+    - regex: 'class\s+\w+\s*\{[^}]*__wakeup[^}]*__destruct'
+  severity: high
   description: "Class with magic methods that can be exploited in deserialization"
   remediation: "Avoid magic methods in classes that may be unserialized"
   cwe: "CWE-502"
@@ -1453,7 +1575,8 @@
 - id: php-phpobject-injection
   languages: [php]
   patterns:
-    - regex: 'O:\d+:"[^"]+":\d+:\{''severity: critical
+    - regex: 'O:\d+:"[^"]+":\d+:\{'
+  severity: critical
   description: "PHP object serialization string - potential object injection"
   remediation: "Never unserialize data containing object strings from untrusted sources"
   cwe: "CWE-502"
@@ -1462,7 +1585,8 @@
 - id: php-gzuncompress-serialize
   languages: [php]
   patterns:
-    - regex: 'gzuncompress|gzinflate.*unserialize''severity: critical
+    - regex: 'gzuncompress|gzinflate.*unserialize'
+  severity: critical
   description: "Compressed data being unserialized - object injection"
   remediation: "Avoid unserializing compressed untrusted data"
   cwe: "CWE-502"
@@ -1471,7 +1595,8 @@
 - id: php-base64-unserialize
   languages: [php]
   patterns:
-    - regex: 'base64_decode.*unserialize''severity: critical
+    - regex: 'base64_decode.*unserialize'
+  severity: critical
   description: "Base64 encoded data being unserialized - object injection"
   remediation: "Use json_decode instead of base64+unserialize"
   cwe: "CWE-502"
@@ -1480,7 +1605,8 @@
 - id: php-strrot13-unserialize
   languages: [php]
   patterns:
-    - regex: 'str_rot13.*unserialize''severity: critical
+    - regex: 'str_rot13.*unserialize'
+  severity: critical
   description: "ROT13 encoded data being unserialized - object injection"
   remediation: "Avoid encoding tricks with unserialize"
   cwe: "CWE-502"
@@ -1489,7 +1615,8 @@
 - id: php-apcu-fetch
   languages: [php]
   patterns:
-    - regex: 'apcu_fetch|apc_fetch''severity: medium
+    - regex: 'apcu_fetch|apc_fetch'
+  severity: medium
   description: "APCu cache fetch - may return serialized objects"
   remediation: "Ensure cached data is safe or use json_encode"
   cwe: "CWE-502"
@@ -1498,7 +1625,8 @@
 - id: php-memcache-get
   languages: [php]
   patterns:
-    - regex: 'Memcache::get|Memcached::get''severity: medium
+    - regex: 'Memcache::get|Memcached::get'
+  severity: medium
   description: "Memcache get - may return serialized objects"
   remediation: "Use igbinary serializer or json_encode"
   cwe: "CWE-502"
@@ -1507,7 +1635,8 @@
 - id: php-redis-get
   languages: [php]
   patterns:
-    - regex: 'Redis::get|Redis::mget''severity: medium
+    - regex: 'Redis::get|Redis::mget'
+  severity: medium
   description: "Redis get - may return serialized objects"
   remediation: "Use Redis with json serializer option"
   cwe: "CWE-502"
@@ -1518,7 +1647,8 @@
 - id: php-file-include-user-input
   languages: [php]
   patterns:
-    - regex: '(?:include|require|include_once|require_once)\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: '(?:include|require|include_once|require_once)\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "File inclusion with user input - LFI/RFI vulnerability"
   remediation: "Never include files based on user input"
   cwe: "CWE-98"
@@ -1527,7 +1657,8 @@
 - id: php-file-get-contents-user
   languages: [php]
   patterns:
-    - regex: 'file_get_contents\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'file_get_contents\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "file_get_contents with user input - path traversal/SSRF"
   remediation: "Validate paths against allowlist, block external URLs"
   cwe: "CWE-22"
@@ -1536,7 +1667,8 @@
 - id: php-fopen-user
   languages: [php]
   patterns:
-    - regex: 'fopen\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'fopen\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "fopen with user input - path traversal"
   remediation: "Never use user input directly in file paths"
   cwe: "CWE-22"
@@ -1545,7 +1677,8 @@
 - id: php-file-put-contents-user
   languages: [php]
   patterns:
-    - regex: 'file_put_contents\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'file_put_contents\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "file_put_contents with user input - arbitrary file write"
   remediation: "Never allow user-controlled file write paths"
   cwe: "CWE-22"
@@ -1554,7 +1687,8 @@
 - id: php-unlink-user
   languages: [php]
   patterns:
-    - regex: 'unlink\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'unlink\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "unlink with user input - arbitrary file deletion"
   remediation: "Never delete files based on user input"
   cwe: "CWE-22"
@@ -1563,7 +1697,8 @@
 - id: php-rename-user
   languages: [php]
   patterns:
-    - regex: 'rename\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'rename\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "rename with user input - file manipulation"
   remediation: "Never use user input in file rename operations"
   cwe: "CWE-22"
@@ -1572,7 +1707,8 @@
 - id: php-copy-user
   languages: [php]
   patterns:
-    - regex: 'copy\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'copy\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "copy with user input - arbitrary file copy"
   remediation: "Never use user input in file copy operations"
   cwe: "CWE-22"
@@ -1581,7 +1717,8 @@
 - id: php-move-uploaded-file-user
   languages: [php]
   patterns:
-    - regex: 'move_uploaded_file\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'move_uploaded_file\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "move_uploaded_file with user destination - path traversal"
   remediation: "Generate safe filenames, never use user input for destination"
   cwe: "CWE-22"
@@ -1590,7 +1727,8 @@
 - id: php-readfile-user
   languages: [php]
   patterns:
-    - regex: 'readfile\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'readfile\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "readfile with user input - path traversal"
   remediation: "Validate file paths against allowlist"
   cwe: "CWE-22"
@@ -1599,7 +1737,8 @@
 - id: php-file-user
   languages: [php]
   patterns:
-    - regex: 'file\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'file\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "file() with user input - path traversal"
   remediation: "Never use user input in file paths"
   cwe: "CWE-22"
@@ -1608,7 +1747,8 @@
 - id: php-parse-ini-file-user
   languages: [php]
   patterns:
-    - regex: 'parse_ini_file\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'parse_ini_file\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "parse_ini_file with user input - file inclusion"
   remediation: "Never parse INI files from user input"
   cwe: "CWE-98"
@@ -1617,7 +1757,8 @@
 - id: php-simplexml-load-file-user
   languages: [php]
   patterns:
-    - regex: 'simplexml_load_file\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'simplexml_load_file\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "simplexml_load_file with user input - XXE/LFI"
   remediation: "Never load XML files from user input"
   cwe: "CWE-611"
@@ -1626,7 +1767,8 @@
 - id: php-dom-load-file-user
   languages: [php]
   patterns:
-    - regex: 'DOMDocument::load\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'DOMDocument::load\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "DOMDocument::load with user input - XXE/LFI"
   remediation: "Never load XML files from user input"
   cwe: "CWE-611"
@@ -1635,7 +1777,7 @@
 - id: php-path-concatenation
   languages: [php]
   patterns:
-    - regex: '['''"]\\.\\.?\\/[''"]|[''"]\\/[^''"]*[''"]\\s*\\.\\s*\$'
+    - regex: '[''"]\.\.?\\/[''"]|[''"]\\/[^''"]*[''"]\s*\.\s*\$'
   severity: high
   description: "Path concatenation with dot-dot - path traversal risk"
   remediation: "Use realpath() and validate against base directory"
@@ -1645,7 +1787,8 @@
 - id: php-basename-usage
   languages: [php]
   patterns:
-    - regex: 'basename\s*\(\s*$_(?:GET|POST|REQUEST)''severity: medium
+    - regex: 'basename\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: medium
   description: "basename() on user input - may not prevent all traversal"
   remediation: "Use basename() and additional validation"
   cwe: "CWE-22"
@@ -1654,7 +1797,8 @@
 - id: php-realpath-missing
   languages: [php]
   patterns:
-    - regex: 'fopen\s*\([^,]+,\s*["\x27]r["\x27]\)''severity: high
+    - regex: 'fopen\s*\([^,]+,\s*["\x27]r["\x27]\)'
+  severity: high
   description: "File open without path canonicalization"
   remediation: "Use realpath() to canonicalize paths before use"
   cwe: "CWE-22"
@@ -1663,7 +1807,8 @@
 - id: php-ftp-file-ops
   languages: [php]
   patterns:
-    - regex: 'ftp_(?:get|put|fget|fput|nb_get|nb_put)''severity: high
+    - regex: 'ftp_(?:get|put|fget|fput|nb_get|nb_put)'
+  severity: high
   description: "FTP file operations - ensure secure FTP"
   remediation: "Use SFTP or FTPS with validation"
   cwe: "CWE-319"
@@ -1672,7 +1817,8 @@
 - id: php-zip-extract
   languages: [php]
   patterns:
-    - regex: 'ZipArchive::extractTo|zip_entry_read''severity: high
+    - regex: 'ZipArchive::extractTo|zip_entry_read'
+  severity: high
   description: "ZIP extraction - Zip Slip vulnerability"
   remediation: "Validate extracted paths, check for ../ in entry names"
   cwe: "CWE-22"
@@ -1681,7 +1827,8 @@
 - id: php-zip-entry-name
   languages: [php]
   patterns:
-    - regex: 'zip_entry_name.*\.\.\/''severity: high
+    - regex: 'zip_entry_name.*\.\.\\\/'
+  severity: high
   description: "ZIP entry with directory traversal - Zip Slip attack"
   remediation: "Reject entries with ../ in filename"
   cwe: "CWE-22"
@@ -1690,7 +1837,8 @@
 - id: php-phar-extract
   languages: [php]
   patterns:
-    - regex: 'Phar::extractTo''severity: high
+    - regex: 'Phar::extractTo'
+  severity: high
   description: "PHAR extraction - path traversal risk"
   remediation: "Validate extraction paths, use basename()"
   cwe: "CWE-22"
@@ -1699,7 +1847,8 @@
 - id: php-tar-extract
   languages: [php]
   patterns:
-    - regex: 'Archive_Tar|PharData.*extract''severity: high
+    - regex: 'Archive_Tar|PharData.*extract'
+  severity: high
   description: "TAR extraction - path traversal risk"
   remediation: "Validate extracted file paths"
   cwe: "CWE-22"
@@ -1708,7 +1857,8 @@
 - id: php-file-permissions
   languages: [php]
   patterns:
-    - regex: 'chmod\s*\(\s*[^,]+,\s*0?[467]?[0-7]{3}''severity: medium
+    - regex: 'chmod\s*\(\s*[^,]+,\s*0?[467]?[0-7]{3}'
+  severity: medium
   description: "File permission changes - ensure least privilege"
   remediation: "Use 0644 for files, 0755 for directories"
   cwe: "CWE-732"
@@ -1717,7 +1867,8 @@
 - id: php-file-permissions-world-writable
   languages: [php]
   patterns:
-    - regex: 'chmod\s*\(\s*[^,]+,\s*0?666|chmod\s*\(\s*[^,]+,\s*0?777''severity: high
+    - regex: 'chmod\s*\(\s*[^,]+,\s*0?666|chmod\s*\(\s*[^,]+,\s*0?777'
+  severity: high
   description: "World-writable file permissions - security risk"
   remediation: "Never use 666 or 777 permissions"
   cwe: "CWE-732"
@@ -1726,7 +1877,8 @@
 - id: php-temp-file
   languages: [php]
   patterns:
-    - regex: 'tempnam|tmpfile|sys_get_temp_dir''severity: low
+    - regex: 'tempnam|tmpfile|sys_get_temp_dir'
+  severity: low
   description: "Temporary file creation - ensure secure temp dir"
   remediation: "Use sys_get_temp_dir() and check permissions"
   cwe: "CWE-377"
@@ -1735,7 +1887,8 @@
 - id: php-temp-file-race
   languages: [php]
   patterns:
-    - regex: 'file_exists.*(?:fopen|unlink|rename)''severity: high
+    - regex: 'file_exists.*(?:fopen|unlink|rename)'
+  severity: high
   description: "TOCTOU race condition in file operations"
   remediation: "Use atomic operations or file locking"
   cwe: "CWE-367"
@@ -1746,7 +1899,8 @@
 - id: php-system-user-input
   languages: [php]
   patterns:
-    - regex: 'system\s*\(\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: 'system\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "system() with user input - command injection"
   remediation: "Never pass user input to system()"
   cwe: "CWE-78"
@@ -1755,7 +1909,8 @@
 - id: php-exec-user-input
   languages: [php]
   patterns:
-    - regex: 'exec\s*\(\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: 'exec\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "exec() with user input - command injection"
   remediation: "Never pass user input to exec()"
   cwe: "CWE-78"
@@ -1764,7 +1919,8 @@
 - id: php-shell-exec-user-input
   languages: [php]
   patterns:
-    - regex: 'shell_exec\s*\(\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: 'shell_exec\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "shell_exec() with user input - command injection"
   remediation: "Never use shell_exec() with user input"
   cwe: "CWE-78"
@@ -1773,7 +1929,8 @@
 - id: php-passthru-user-input
   languages: [php]
   patterns:
-    - regex: 'passthru\s*\(\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: 'passthru\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "passthru() with user input - command injection"
   remediation: "Never pass user input to passthru()"
   cwe: "CWE-78"
@@ -1782,7 +1939,8 @@
 - id: php-popen-user-input
   languages: [php]
   patterns:
-    - regex: 'popen\s*\(\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: 'popen\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "popen() with user input - command injection"
   remediation: "Never use popen() with user input"
   cwe: "CWE-78"
@@ -1791,7 +1949,8 @@
 - id: php-proc-open-user-input
   languages: [php]
   patterns:
-    - regex: 'proc_open\s*\(\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: 'proc_open\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "proc_open() with user input - command injection"
   remediation: "Never use proc_open() with user input"
   cwe: "CWE-78"
@@ -1800,7 +1959,8 @@
 - id: php-backtick-operator
   languages: [php]
   patterns:
-    - regex: '`[^`]*$_(?:GET|POST|REQUEST)[^`]*`''severity: critical
+    - regex: '`[^`]*$_(?:GET|POST|REQUEST)[^`]*`'
+  severity: critical
   description: "Backtick operator with user input - command injection"
   remediation: "Never use backticks with user input"
   cwe: "CWE-78"
@@ -1809,7 +1969,8 @@
 - id: php-system-concat
   languages: [php]
   patterns:
-    - regex: 'system\s*\(\s*["\x27][^"\x27]*\.[^)]*$''severity: critical
+    - regex: 'system\s*\(\s*["\x27][^"\x27]*\.[^)]*$'
+  severity: critical
   description: "system() with string concatenation - command injection"
   remediation: "Avoid building commands with string concatenation"
   cwe: "CWE-78"
@@ -1818,7 +1979,8 @@
 - id: php-exec-concat
   languages: [php]
   patterns:
-    - regex: 'exec\s*\(\s*["\x27][^"\x27]*\.[^)]*$''severity: critical
+    - regex: 'exec\s*\(\s*["\x27][^"\x27]*\.[^)]*$'
+  severity: critical
   description: "exec() with string concatenation - command injection"
   remediation: "Never build commands with string concatenation"
   cwe: "CWE-78"
@@ -1827,7 +1989,8 @@
 - id: php-escapeshellarg-missing
   languages: [php]
   patterns:
-    - regex: 'exec\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*$''severity: high
+    - regex: 'exec\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*$'
+  severity: high
   description: "exec() with variable without escapeshellarg()"
   remediation: "Use escapeshellarg() on each argument"
   cwe: "CWE-78"
@@ -1836,7 +1999,8 @@
 - id: php-escapeshellcmd-missing
   languages: [php]
   patterns:
-    - regex: 'system\s*\(\s*$''severity: high
+    - regex: 'system\s*\(\s*$'
+  severity: high
   description: "system() with variable without escapeshellcmd()"
   remediation: "Use escapeshellcmd() on entire command string"
   cwe: "CWE-78"
@@ -1845,7 +2009,8 @@
 - id: php-passthru-concat
   languages: [php]
   patterns:
-    - regex: 'passthru\s*\(\s*["\x27][^"\x27]*\.[^)]*$''severity: critical
+    - regex: 'passthru\s*\(\s*["\x27][^"\x27]*\.[^)]*$'
+  severity: critical
   description: "passthru() with string concatenation - command injection"
   remediation: "Never use passthru() with concatenated strings"
   cwe: "CWE-78"
@@ -1854,7 +2019,8 @@
 - id: php-shell-exec-concat
   languages: [php]
   patterns:
-    - regex: 'shell_exec\s*\(\s*["\x27][^"\x27]*\.[^)]*$''severity: critical
+    - regex: 'shell_exec\s*\(\s*["\x27][^"\x27]*\.[^)]*$'
+  severity: critical
   description: "shell_exec() with string concatenation - command injection"
   remediation: "Never use shell_exec() with concatenated strings"
   cwe: "CWE-78"
@@ -1863,7 +2029,8 @@
 - id: php-popen-concat
   languages: [php]
   patterns:
-    - regex: 'popen\s*\(\s*["\x27][^"\x27]*\.[^)]*$''severity: critical
+    - regex: 'popen\s*\(\s*["\x27][^"\x27]*\.[^)]*$'
+  severity: critical
   description: "popen() with string concatenation - command injection"
   remediation: "Never use popen() with concatenated strings"
   cwe: "CWE-78"
@@ -1872,7 +2039,8 @@
 - id: php-proc-open-concat
   languages: [php]
   patterns:
-    - regex: 'proc_open\s*\(\s*["\x27][^"\x27]*\.[^)]*$''severity: critical
+    - regex: 'proc_open\s*\(\s*["\x27][^"\x27]*\.[^)]*$'
+  severity: critical
   description: "proc_open() with string concatenation - command injection"
   remediation: "Use argument arrays instead of command strings"
   cwe: "CWE-78"
@@ -1881,7 +2049,8 @@
 - id: php-eval-user-input
   languages: [php]
   patterns:
-    - regex: 'eval\s*\(\s*$_(?:GET|POST|REQUEST)''severity: critical
+    - regex: 'eval\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: critical
   description: "eval() with user input - remote code execution"
   remediation: "Never use eval() with user input"
   cwe: "CWE-94"
@@ -1890,7 +2059,8 @@
 - id: php-eval-concat
   languages: [php]
   patterns:
-    - regex: 'eval\s*\(\s*["\x27][^"\x27]*\.[^)]*$''severity: critical
+    - regex: 'eval\s*\(\s*["\x27][^"\x27]*\.[^)]*$'
+  severity: critical
   description: "eval() with string concatenation - code injection"
   remediation: "Never use eval() with dynamic content"
   cwe: "CWE-94"
@@ -1899,7 +2069,8 @@
 - id: php-assert-user-input
   languages: [php]
   patterns:
-    - regex: 'assert\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'assert\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "assert() with user input - code execution"
   remediation: "Never use assert() with user input"
   cwe: "CWE-94"
@@ -1908,7 +2079,8 @@
 - id: php-assert-string
   languages: [php]
   patterns:
-    - regex: 'assert\s*\(\s*["\x27][^"\x27]*["\x27]''severity: high
+    - regex: 'assert\s*\(\s*["\x27][^"\x27]*["\x27]'
+  severity: high
   description: "assert() with string argument - code execution"
   remediation: "Use assertion only for debugging, never with strings"
   cwe: "CWE-94"
@@ -1917,7 +2089,8 @@
 - id: php-create-function
   languages: [php]
   patterns:
-    - regex: 'create_function\s*\(''severity: high
+    - regex: 'create_function\s*\('
+  severity: high
   description: "create_function() is deprecated and allows code injection"
   remediation: "Use anonymous functions instead"
   cwe: "CWE-94"
@@ -1926,7 +2099,8 @@
 - id: php-call-user-func
   languages: [php]
   patterns:
-    - regex: 'call_user_func\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'call_user_func\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "call_user_func with user input - arbitrary function execution"
   remediation: "Never call functions based on user input"
   cwe: "CWE-94"
@@ -1935,7 +2109,8 @@
 - id: php-call-user-func-array
   languages: [php]
   patterns:
-    - regex: 'call_user_func_array\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'call_user_func_array\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "call_user_func_array with user input - arbitrary function execution"
   remediation: "Never allow user input to determine function called"
   cwe: "CWE-94"
@@ -1944,7 +2119,8 @@
 - id: php-array-map-user
   languages: [php]
   patterns:
-    - regex: 'array_map\s*\(\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'array_map\s*\(\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "array_map with user callback - arbitrary function execution"
   remediation: "Use predefined callbacks only"
   cwe: "CWE-94"
@@ -1953,7 +2129,8 @@
 - id: php-array-filter-user
   languages: [php]
   patterns:
-    - regex: 'array_filter\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'array_filter\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "array_filter with user callback - arbitrary function execution"
   remediation: "Use predefined callbacks only"
   cwe: "CWE-94"
@@ -1962,7 +2139,8 @@
 - id: php-usort-user
   languages: [php]
   patterns:
-    - regex: 'usort\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'usort\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "usort with user callback - arbitrary function execution"
   remediation: "Use predefined comparison functions only"
   cwe: "CWE-94"
@@ -1971,7 +2149,8 @@
 - id: php-uksort-user
   languages: [php]
   patterns:
-    - regex: 'uksort\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'uksort\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "uksort with user callback - arbitrary function execution"
   remediation: "Use predefined comparison functions only"
   cwe: "CWE-94"
@@ -1980,7 +2159,8 @@
 - id: php-array-walk-user
   languages: [php]
   patterns:
-    - regex: 'array_walk\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)''severity: high
+    - regex: 'array_walk\s*\(\s*[^,]+,\s*$_(?:GET|POST|REQUEST)'
+  severity: high
   description: "array_walk with user callback - arbitrary function execution"
   remediation: "Use predefined callbacks only"
   cwe: "CWE-94"
@@ -1989,7 +2169,7 @@
 - id: php-base64-idor
   languages: [php]
   patterns:
-  - regex: '(?i)base64_decode\(\$[^)]+\).*explode\(['''"]\:[''"]'
+  - regex: '(?i)base64_decode\(\$[^)]+\).*explode\([''"]\\\:[''"]'
   severity: critical
   description: "IDOR via unsigned base64 token. base64 encoding without an HMAC signature is trivially forgeable."
   remediation: "Sign verification tokens with a strong HMAC or use JWTs to prevent forgery."
@@ -1999,7 +2179,8 @@
 - id: php-extract-eval-injection
   languages: [php]
   patterns:
-  - regex: '(?i)extract\(\$[^)]+\)(?:.|\n)*eval\(''severity: critical
+  - regex: '(?i)extract\(\$[^)]+\)(?:.|\n)*eval\('
+  severity: critical
   description: "extract() immediately preceding eval() allows critical variable injection and code execution."
   remediation: "Never use extract() on untrusted arrays, and avoid eval() entirely."
   cwe: "CWE-94"
@@ -2008,7 +2189,8 @@
 - id: php-process-list-credentials
   languages: [php]
   patterns:
-  - regex: '(?i)mysqldump\s+-u\{\$[^}]+\}\s+-p\{\$[^}]+\}''severity: critical
+  - regex: '(?i)mysqldump\s+-u\{\$[^}]+\}\s+-p\{\$[^}]+\}'
+  severity: critical
   description: "Database credentials injected directly into a shell command line, exposing them to the process list (ps aux)."
   remediation: "Pass database credentials via environment variables instead of command line arguments."
   cwe: "CWE-214"
@@ -2017,7 +2199,8 @@
 - id: php-curl-ssrf-unrestricted
   languages: [php]
   patterns:
-  - regex: '(?i)curl_setopt\([^\,]+,\s*CURLOPT_URL,\s*\$.*\)''severity: high
+  - regex: '(?i)curl_setopt\([^\\\,]+,\s*CURLOPT_URL,\s*\$.*\)'
+  severity: high
   description: "cURL handler lacking CURLOPT_PROTOCOLS restriction allows SSRF scheme bypass (dict://, file://, gopher://)."
   remediation: "Restrict allowed cURL protocols using CURLOPT_PROTOCOLS to limit to HTTPS only."
   cwe: "CWE-918"
@@ -2026,7 +2209,7 @@
 - id: php-laravel-cache-poisoning
   languages: [php]
   patterns:
-  - regex: '(?i)Cache::(?:get|put)\(['''"]widget_\{\$type\}_'
+  - regex: '(?i)Cache::(?:get|put)\([''"]widget_\{\$type\}_'
   severity: high
   description: "Cache key poisoning via user-controlled input interpolated directly into the cache key."
   remediation: "Strictly validate or explicitly define cache keys to prevent collision and data exposure."
@@ -2036,7 +2219,7 @@
 - id: php-oauth-open-redirect
   languages: [php]
   patterns:
-  - regex: '(?i)(?:return|redirect\()->.*\$request->(?:input|get)\(['''"](?:next|redirect|url)[''"]'
+  - regex: '(?i)(?:return|redirect\()->.*\$request->(?:input|get)\([''"](?:next|redirect|url)[''"]'
   severity: high
   description: "Unsanitized 'next' or 'redirect' URL parameter used immediately following an OAuth authentication callback establishes an Open Redirect phishing path."
   remediation: "Strictly validate redirection targets against an internal relative path allowlist before routing the user post-login."
@@ -2046,7 +2229,7 @@
 - id: php-raw-db-column-interpolation
   languages: [php]
   patterns:
-  - regex: '(?i)DB::select\(\s*["''']SELECT\s+\{\$[a-zA-Z_]+\}'
+  - regex: '(?i)DB::select\(\s*["'']SELECT\s+\{\$[a-zA-Z_]+\}'
   severity: high
   description: "Raw SQL parameter interpolation of table column names (SELECT {$field}) circumvents value parameterization, allowing schema discovery / data exfiltration."
   remediation: "Validate requested columns against a hardcoded array allowlist before executing dynamic selects."
@@ -2056,7 +2239,8 @@
 - id: php-idor-explode-truncation
   languages: [php]
   patterns:
-  - regex: '(?i)list\([^)]+\)\s*=\s*explode\([^,]+,\s*\$[^)]+\)''severity: medium
+  - regex: '(?i)list\([^)]+\)\s*=\s*explode\([^,]+,\s*\$[^)]+\]'
+  severity: medium
   description: "Token splitting via explode() used for authentication can be spoofed by appending arbitrary padding to hit the split target, leading to IDOR."
   remediation: "Ensure split lengths are strictly validated (e.g., exactly two segments) or rely on unforgeable serialized signed objects (JWTs)."
   cwe: "CWE-287"
@@ -2065,7 +2249,8 @@
 - id: php-webhook-sig-bypass
   languages: [php]
   patterns:
-    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:\$_SERVER|\$request->header)[\s\S]{0,500}unserialize\s*\(''severity: critical
+    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:\$_SERVER|\$request->header)[\s\S]{0,500}unserialize\s*\('
+  severity: critical
   description: "Potential signature bypass: Webhook signature is read but unserialize() follows. Ensure signature is verified and execution is aborted on mismatch."
   remediation: "Verify HMAC signature before calling unserialize(). Use hash_equals() to prevent timing attacks."
   cwe: "CWE-347"
@@ -2074,7 +2259,7 @@
 - id: php-laravel-ssrf-auth-chain
   languages: [php]
   patterns:
-    - regex: '(?s)\$request->(?:input|get)\(['''"](?:url|target|next|state)[''"]\)[\s\S]{0,500}(?:Auth|Login|Socialite|redirectTo)'
+    - regex: '(?s)\$request->(?:input|get)\([''"](?:url|target|next|state)[''"]\)[\s\S]{0,500}(?:Auth|Login|Socialite|redirectTo)'
   severity: high
   description: "Potential SSRF-to-Account-Takeover chain: User-controlled URL parameter used in authentication flow."
   remediation: "Strictly validate redirect URLs and state parameters against an allowlist."
@@ -2084,7 +2269,8 @@
 - id: php-fake-sanitizer-path
   languages: [php]
   patterns:
-    - regex: '(?i)str_replace\s*\(\s*["\x27]\s+["\x27]\s*,\s*["\x27][^"\x27]+["\x27]\s*,\s*\$_(?:GET|POST|REQUEST)''severity: medium
+    - regex: '(?i)str_replace\s*\(\s*["\x27]\s+["\x27]\s*,\s*["\x27][^"\x27]+["\x27]\s*,\s*\$_(?:GET|POST|REQUEST)'
+  severity: medium
   description: "Fake sanitizer: only replacing spaces is insufficient to prevent path traversal or command injection."
   remediation: "Use real sanitization functions like basename(), realpath(), or filter_var()."
   cwe: "CWE-20"

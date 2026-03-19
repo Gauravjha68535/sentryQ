@@ -5,7 +5,10 @@
 - id: lambda-env-secret
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)environment:?\s*\{[^}]*(?:PASSWORD|API_KEY|SECRET|TOKEN|PRIVATE_KEY|ACCESS_KEY)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]''- regex: '(?i)Environment\s*\{[^}]*Variables\s*\{[^}]*(?:PASSWORD|API_KEY|SECRET|TOKEN)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]''- regex: '(?i)env\s*\{[^}]*(?:PASSWORD|API_KEY|SECRET|TOKEN|PRIVATE_KEY)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]''severity: critical
+    - regex: '(?i)environment:?\s*\{[^}]*(?:PASSWORD|API_KEY|SECRET|TOKEN|PRIVATE_KEY|ACCESS_KEY)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]'
+    - regex: '(?i)Environment\s*\{[^}]*Variables\s*\{[^}]*(?:PASSWORD|API_KEY|SECRET|TOKEN)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]'
+    - regex: '(?i)env\s*\{[^}]*(?:PASSWORD|API_KEY|SECRET|TOKEN|PRIVATE_KEY)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]'
+  severity: critical
   description: "Lambda function with hardcoded secret in environment variables"
   remediation: "Use AWS Secrets Manager or Parameter Store for sensitive values"
   cwe: "CWE-798"
@@ -14,7 +17,9 @@
 - id: lambda-env-aws-credentials
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)environment:?\s*\{[^}]*(?:AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)\s*[=:]\s*["\x27][^"\x27]{10,}["\x27]''- regex: '(?i)Environment\s*\{[^}]*Variables\s*\{[^}]*(?:AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)\s*[=:]\s*["\x27][^"\x27]{10,}["\x27]''severity: critical
+    - regex: '(?i)environment:?\s*\{[^}]*(?:AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)\s*[=:]\s*["\x27][^"\x27]{10,}["\x27]'
+    - regex: '(?i)Environment\s*\{[^}]*Variables\s*\{[^}]*(?:AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)\s*[=:]\s*["\x27][^"\x27]{10,}["\x27]'
+  severity: critical
   description: "Lambda function with AWS credentials in environment variables"
   remediation: "Use IAM execution roles instead of storing credentials"
   cwe: "CWE-798"
@@ -24,7 +29,10 @@
 - id: lambda-role-wildcard-action
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)Role:\s*[^,\n]*iam::[^,\n]*:role/[^,\n]*"[^"]*Action["\s]*:?\s*["\x27]*\*["\x27]*''- regex: '(?i)AssumeRolePolicyDocument[^}]*"Effect"\s*:\s*"Allow"[^}]*"Action"\s*:\s*"\*"''- regex: '(?i)Statement[^}]*Effect[^}]*Allow[^}]*Action.*\*''severity: critical
+    - regex: '(?i)Role:\s*[^,\n]*iam::[^,\n]*:role/[^,\n]*"[^"]*Action["\s]*:?\s*["\x27]*\*["\x27]*'
+    - regex: '(?i)AssumeRolePolicyDocument[^}]*"Effect"\s*:\s*"Allow"[^}]*"Action"\s*:\s*"\*"'
+    - regex: '(?i)Statement[^}]*Effect[^}]*Allow[^}]*Action.*\*'
+  severity: critical
   description: "Lambda execution role with wildcard IAM actions"
   remediation: "Use least privilege IAM actions with specific service:action format"
   cwe: "CWE-250"
@@ -33,7 +41,10 @@
 - id: lambda-role-wildcard-resource
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)Resource:\s*["\x27]*\*["\x27]*''- regex: '(?i)Arn:\s*["\x27]*\*["\x27]*''- regex: '(?i)Resources\s*:\s*\*''severity: critical
+    - regex: '(?i)Resource:\s*["\x27]*\*["\x27]*'
+    - regex: '(?i)Arn:\s*["\x27]*\*["\x27]*'
+    - regex: '(?i)Resources\s*:\s*\*'
+  severity: critical
   description: "Lambda execution role with wildcard IAM resources"
   remediation: "Specify precise resource ARNs for each permission"
   cwe: "CWE-250"
@@ -42,7 +53,10 @@
 - id: lambda-admin-policy
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)PolicyName.*AdministratorAccess''- regex: '(?i)"Action"\s*:\s*"\*"[^}]*"Resource"\s*:\s*"\*"''- regex: '(?i)arn:aws:iam::\*:role/[^,\n]*Admin[^,\n]*''severity: critical
+    - regex: '(?i)PolicyName.*AdministratorAccess'
+    - regex: '(?i)"Action"\s*:\s*"\*"[^}]*"Resource"\s*:\s*"\*"'
+    - regex: '(?i)arn:aws:iam::\*:role/[^,\n]*Admin[^,\n]*'
+  severity: critical
   description: "Lambda with AdministratorAccess policy attached"
   remediation: "Use service-specific IAM roles with minimum required permissions"
   cwe: "CWE-250"
@@ -52,7 +66,8 @@
 - id: lambda-no-vpc-sensitive-data
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}(?:database|db|database-url|connection-string|mongodb|redis|mysql|postgres|sql)''severity: high
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}(?:database|db|database-url|connection-string|mongodb|redis|mysql|postgres|sql)'
+  severity: high
   description: "Lambda accessing sensitive data without VPC configuration"
   remediation: "Configure VPC with private subnets and NAT gateway for database access"
   cwe: "CWE-284"
@@ -61,7 +76,8 @@
 - id: lambda-vpc-no-security-groups
   languages: [yaml]
   patterns:
-    - regex: '(?i)VpcConfig:\s*\{[^}]*SecurityGroupIds:\s*\[\s*\]''severity: high
+    - regex: '(?i)VpcConfig:\s*\{[^}]*SecurityGroupIds:\s*\[\s*\]'
+  severity: high
   description: "Lambda in VPC without security group configuration"
   remediation: "Add SecurityGroupIds to restrict network traffic"
   cwe: "CWE-284"
@@ -70,7 +86,8 @@
 - id: lambda-vpc-no-subnets
   languages: [yaml]
   patterns:
-    - regex: '(?i)VpcConfig:\s*\{[^}]*SubnetIds:\s*\[\s*\]''severity: high
+    - regex: '(?i)VpcConfig:\s*\{[^}]*SubnetIds:\s*\[\s*\]'
+  severity: high
   description: "Lambda in VPC without subnet configuration"
   remediation: "Add SubnetIds in at least two private subnets for high availability"
   cwe: "CWE-284"
@@ -80,7 +97,11 @@
 - id: lambda-url-public-access
   languages: [yaml, python, javascript, typescript]
   patterns:
-    - regex: '(?i)FunctionUrlConfig:\s*\{[^}]*AuthType:\s*NONE''- regex: '(?i)FunctionUrl:\s*[^,\n]*AuthType:\s*NONE''- regex: '(?i)url\s*:\s*https://[^/\s]+/[^/\s]*''- regex: '(?i)Cors:\s*\{[^}]*AllowCredentials:\s*true[^}]*AllowOrigins:\s*\[\s*["\x27]*\*["\x27]*\s*\]''severity: critical
+    - regex: '(?i)FunctionUrlConfig:\s*\{[^}]*AuthType:\s*NONE'
+    - regex: '(?i)FunctionUrl:\s*[^,\n]*AuthType:\s*NONE'
+    - regex: '(?i)url\s*:\s*https://[^/\s]+/[^/\s]*'
+    - regex: '(?i)Cors:\s*\{[^}]*AllowCredentials:\s*true[^}]*AllowOrigins:\s*\[\s*["\x27]*\*["\x27]*\s*\]'
+  severity: critical
   description: "Lambda function URL allows public access without authentication"
   remediation: "Use AuthType: AWS_IAM or implement custom authentication"
   cwe: "CWE-284"
@@ -89,7 +110,10 @@
 - id: lambda-url-cors-allow-all
   languages: [yaml, python, javascript, typescript]
   patterns:
-    - regex: '(?i)AllowOrigins:\s*\[\s*["\x27]*\*["\x27]*\s*\]''- regex: '(?i)AllowOrigin\s*:\s*["\x27]*\*["\x27]*''- regex: '(?i)CorsAllowOrigin\s*:\s*["\x27]*\*["\x27]*''severity: high
+    - regex: '(?i)AllowOrigins:\s*\[\s*["\x27]*\*["\x27]*\s*\]'
+    - regex: '(?i)AllowOrigin\s*:\s*["\x27]*\*["\x27]*'
+    - regex: '(?i)CorsAllowOrigin\s*:\s*["\x27]*\*["\x27]*'
+  severity: high
   description: "Lambda function URL with overly permissive CORS settings"
   remediation: "Restrict AllowOrigins to specific trusted domains"
   cwe: "CWE-346"
@@ -99,7 +123,11 @@
 - id: lambda-verbose-logging
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)LoggingConfig:\s*\{[^}]*LogLevel:\s*DEBUG''- regex: '(?i)Environment\s*\{[^}]*LOG_LEVEL\s*[=:]\s*["\x27]DEBUG["\x27]''- regex: '(?i)logging\s*:\s*DEBUG''- regex: '(?i)log_level\s*:\s*["\x27]?DEBUG["\x27]?''severity: medium
+    - regex: '(?i)LoggingConfig:\s*\{[^}]*LogLevel:\s*DEBUG'
+    - regex: '(?i)Environment\s*\{[^}]*LOG_LEVEL\s*[=:]\s*["\x27]DEBUG["\x27]'
+    - regex: '(?i)logging\s*:\s*DEBUG'
+    - regex: '(?i)log_level\s*:\s*["\x27]?DEBUG["\x27]?'
+  severity: medium
   description: "Lambda with verbose DEBUG logging may expose sensitive data"
   remediation: "Use INFO or WARN log level in production"
   cwe: "CWE-532"
@@ -108,7 +136,9 @@
 - id: lambda-log-sensitive-data
   languages: [python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)(?:log|print|console\.log|logger|fmt\.Print).*?(?:password|secret|token|api_key|authorization|bearer|credential)''- regex: '(?i)(?:request\.body|req\.body|event\.body).*?(?:password|secret|token)''severity: high
+    - regex: '(?i)(?:log|print|console\.log|logger|fmt\.Print).*?(?:password|secret|token|api_key|authorization|bearer|credential)'
+    - regex: '(?i)(?:request\.body|req\.body|event\.body).*?(?:password|secret|token)'
+  severity: high
   description: "Lambda code logs sensitive information"
   remediation: "Mask sensitive data before logging, use structured logging"
   cwe: "CWE-532"
@@ -118,7 +148,9 @@
 - id: lambda-default-timeout
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)(?:Timeout|timeout):\s*3\s*(?:seconds|sec)?''- regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}Default''severity: medium
+    - regex: '(?i)(?:Timeout|timeout):\s*3\s*(?:seconds|sec)?'
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}Default'
+  severity: medium
   description: "Lambda using default timeout of 3 seconds may cause DoS"
   remediation: "Set appropriate timeout based on expected execution time (max 900 seconds)"
   cwe: "CWE-400"
@@ -127,7 +159,9 @@
 - id: lambda-high-timeout
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)Timeout:\s*([6-9]|[1-9]\d{1,})\s*(?:seconds|sec)?''- regex: '(?i)timeout\s*=\s*([6-9]|[1-9]\d{1,})''severity: medium
+    - regex: '(?i)Timeout:\s*([6-9]|[1-9]\d{1,})\s*(?:seconds|sec)?'
+    - regex: '(?i)timeout\s*=\s*([6-9]|[1-9]\d{1,})'
+  severity: medium
   description: "Lambda with high timeout may cause unnecessary costs and delays"
   remediation: "Set minimum timeout needed for function execution"
   cwe: "CWE-400"
@@ -136,7 +170,10 @@
 - id: lambda-ephemeral-storage-large
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)EphemeralStorage:\s*\{[^}]*Size:\s*([3-9]\d{2,}|\d{4,})''- regex: '(?i)EphemeralStorageSize:\s*([3-9]\d{2,}|\d{4,})''- regex: '(?i)SizeInMB:\s*([3-9]\d{2,}|\d{4,})''severity: medium
+    - regex: '(?i)EphemeralStorage:\s*\{[^}]*Size:\s*([3-9]\d{2,}|\d{4,})'
+    - regex: '(?i)EphemeralStorageSize:\s*([3-9]\d{2,}|\d{4,})'
+    - regex: '(?i)SizeInMB:\s*([3-9]\d{2,}|\d{4,})'
+  severity: medium
   description: "Lambda ephemeral storage too large (max 10240 MB)"
   remediation: "Keep ephemeral storage to minimum required (default 512 MB)"
   cwe: "CWE-400"
@@ -146,7 +183,8 @@
 - id: lambda-no-tracing
   languages: [yaml, python, javascript, typescript, java, go]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function''severity: medium
+    - regex: '(?i)Type:\s*AWS::Lambda::Function'
+  severity: medium
   description: "Lambda function missing X-Ray tracing configuration"
   remediation: "Enable tracing: TracingConfig: Mode: Active"
   cwe: "CWE-778"
@@ -155,7 +193,9 @@
 - id: lambda-tracing-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)TracingConfig:\s*\{[^}]*Mode:\s*PassThrough''- regex: '(?i)TracingConfigMode:\s*PassThrough''severity: medium
+    - regex: '(?i)TracingConfig:\s*\{[^}]*Mode:\s*PassThrough'
+    - regex: '(?i)TracingConfigMode:\s*PassThrough'
+  severity: medium
   description: "Lambda tracing set to PassThrough instead of Active"
   remediation: "Set TracingConfig: Mode: Active for distributed tracing"
   cwe: "CWE-778"
@@ -165,7 +205,10 @@
 - id: serverless-debug-mode
   languages: [yaml]
   patterns:
-    - regex: '(?i)provider:?\s*\{[^}]*debug:\s*true''- regex: '(?i)custom:?\s*\{[^}]*serverlessDebug:\s*true''- regex: '(?i)plugins:?\s*\[.*serverless-offline.*\]''severity: high
+    - regex: '(?i)provider:?\s*\{[^}]*debug:\s*true'
+    - regex: '(?i)custom:?\s*\{[^}]*serverlessDebug:\s*true'
+    - regex: '(?i)plugins:?\s*\[.*serverless-offline.*\]'
+  severity: high
   description: "Serverless framework with debug mode enabled"
   remediation: "Disable debug mode in production environments"
   cwe: "CWE-11"
@@ -174,7 +217,9 @@
 - id: serverless-hardcoded-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)environment:?\s*\{[^}]*(?:AWS_ACCESS_KEY|AWS_SECRET|SECRET|API_KEY|PASSWORD|TOKEN)\s*:''- regex: '(?i)provider:?\s*\{[^}]*environment:?\s*\{[^}]*(?:SECRET|KEY|TOKEN|PASSWORD)''severity: critical
+    - regex: '(?i)environment:?\s*\{[^}]*(?:AWS_ACCESS_KEY|AWS_SECRET|SECRET|API_KEY|PASSWORD|TOKEN)\s*:'
+    - regex: '(?i)provider:?\s*\{[^}]*environment:?\s*\{[^}]*(?:SECRET|KEY|TOKEN|PASSWORD)'
+  severity: critical
   description: "Serverless.yml contains hardcoded secrets in environment"
   remediation: "Use serverless-secrets-plugin or AWS Secrets Manager"
   cwe: "CWE-798"
@@ -183,7 +228,9 @@
 - id: serverless-verbose-logging
   languages: [yaml]
   patterns:
-    - regex: '(?i)logging:?\s*(?:level:?\s*)?debug''- regex: '(?i)logLevel:?\s*debug''severity: medium
+    - regex: '(?i)logging:?\s*(?:level:?\s*)?debug'
+    - regex: '(?i)logLevel:?\s*debug'
+  severity: medium
   description: "Serverless with verbose logging enabled"
   remediation: "Set logging level to INFO or WARN in production"
   cwe: "CWE-532"
@@ -193,7 +240,8 @@
 - id: sam-env-secret
   languages: [yaml]
   patterns:
-    - regex: '(?i)Environment:?\s*\{[^}]*Variables:?\s*\{[^}]*(?:Password|ApiKey|Secret|Token|Key)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]''severity: critical
+    - regex: '(?i)Environment:?\s*\{[^}]*Variables:?\s*\{[^}]*(?:Password|ApiKey|Secret|Token|Key)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]'
+  severity: critical
   description: "SAM template with hardcoded secret in environment variables"
   remediation: "Use AWS Systems Manager Parameter Store or Secrets Manager"
   cwe: "CWE-798"
@@ -202,7 +250,9 @@
 - id: sam-wildcard-role
   languages: [yaml]
   patterns:
-    - regex: '(?i)Role:\s*["\x27]*\*["\x27]*''- regex: '(?i)AssumeRolePolicyDocument:?\s*\{[^}]*"Effect":\s*"Allow"[^}]*"Action":\s*"\*"''severity: critical
+    - regex: '(?i)Role:\s*["\x27]*\*["\x27]*'
+    - regex: '(?i)AssumeRolePolicyDocument:?\s*\{[^}]*"Effect":\s*"Allow"[^}]*"Action":\s*"\*"'
+  severity: critical
   description: "SAM template with wildcard IAM role"
   remediation: "Specify precise IAM role with least privilege permissions"
   cwe: "CWE-250"
@@ -211,7 +261,9 @@
 - id: sam-public-function-url
   languages: [yaml]
   patterns:
-    - regex: '(?i)FunctionUrlConfig:?\s*\{[^}]*AuthType:?\s*(?:NONE|"None")''- regex: '(?i)FunctionUrl:?\s*[^,\n]*''severity: critical
+    - regex: '(?i)FunctionUrlConfig:?\s*\{[^}]*AuthType:?\s*(?:NONE|"None")'
+    - regex: '(?i)FunctionUrl:?\s*[^,\n]*'
+  severity: critical
   description: "SAM template with public function URL"
   remediation: "Set AuthType to AWS_IAM for authenticated access"
   cwe: "CWE-284"
@@ -220,7 +272,8 @@
 - id: sam-no-layer-version
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Serverless::Function[\s\S]{0,300}(?:Dependencies|npm|package\.json|requirements\.txt)''severity: low
+    - regex: '(?i)Type:\s*AWS::Serverless::Function[\s\S]{0,300}(?:Dependencies|npm|package\.json|requirements\.txt)'
+  severity: low
   description: "SAM function without layer version may increase deployment size"
   remediation: "Use Lambda Layers for common dependencies"
   cwe: "CWE-400"
@@ -230,7 +283,8 @@
 - id: cfn-lambda-env-secret
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}Environment:?\s*\{[^}]*Variables:?\s*\{[^}]*(?:Password|ApiKey|Secret|Token|Key)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]''severity: critical
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}Environment:?\s*\{[^}]*Variables:?\s*\{[^}]*(?:Password|ApiKey|Secret|Token|Key)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]'
+  severity: critical
   description: "CloudFormation Lambda with hardcoded secret in environment"
   remediation: "Use CloudFormation dynamic references to Secrets Manager"
   cwe: "CWE-798"
@@ -239,7 +293,8 @@
 - id: cfn-lambda-no-kms-key
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}Environment:?\s*\{''severity: medium
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]{0,500}Environment:?\s*\{'
+  severity: medium
   description: "Lambda environment variables not encrypted with KMS"
   remediation: "Add KmsKeyArn for environment variable encryption"
   cwe: "CWE-311"
@@ -249,7 +304,10 @@
 - id: azure-function-auth-disabled
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)"authLevel":\s*"anonymous"''- regex: '(?i)AuthorizationLevel:\s*Anonymous''- regex: '(?i)"enabled":\s*false[^}]*"azureWebJobsDisableFunction"?:\s*true''severity: critical
+    - regex: '(?i)"authLevel":\s*"anonymous"'
+    - regex: '(?i)AuthorizationLevel:\s*Anonymous'
+    - regex: '(?i)"enabled":\s*false[^}]*"azureWebJobsDisableFunction"?:\s*true'
+  severity: critical
   description: "Azure Function with anonymous authentication enabled"
   remediation: "Set authLevel to function or admin for protected access"
   cwe: "CWE-284"
@@ -258,7 +316,9 @@
 - id: azure-function-cors-allow-all
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)CORS:\s*\{[^}]*"allowedOrigins":\s*\[\s*["\x27]*\*["\x27]*\s*\]''- regex: '(?i)"cors":\s*\{[^}]*"allowCredentials":\s*false[^}]*"origins":\s*\[\s*["\x27]*\*["\x27]*\s*\]''severity: high
+    - regex: '(?i)CORS:\s*\{[^}]*"allowedOrigins":\s*\[\s*["\x27]*\*["\x27]*\s*\]'
+    - regex: '(?i)"cors":\s*\{[^}]*"allowCredentials":\s*false[^}]*"origins":\s*\[\s*["\x27]*\*["\x27]*\s*\]'
+  severity: high
   description: "Azure Function with overly permissive CORS settings"
   remediation: "Restrict allowedOrigins to specific trusted domains"
   cwe: "CWE-346"
@@ -267,7 +327,9 @@
 - id: azure-function-https-only-disabled
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)"httpsOnly":\s*false''- regex: '(?i)httpsOnly:\s*false''severity: high
+    - regex: '(?i)"httpsOnly":\s*false'
+    - regex: '(?i)httpsOnly:\s*false'
+  severity: high
   description: "Azure Function with HTTPS-only enforcement disabled"
   remediation: "Set httpsOnly to true to enforce HTTPS"
   cwe: "CWE-295"
@@ -276,7 +338,9 @@
 - id: azure-function-verbose-logging
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)"logLevel":\s*"verbose"''- regex: '(?i)logging:?\s*\{[^}]*"level":\s*"debug"''severity: medium
+    - regex: '(?i)"logLevel":\s*"verbose"'
+    - regex: '(?i)logging:?\s*\{[^}]*"level":\s*"debug"'
+  severity: medium
   description: "Azure Function with verbose logging enabled"
   remediation: "Set logLevel to information in production"
   cwe: "CWE-532"
@@ -286,7 +350,10 @@
 - id: gcp-function-public-access
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)"entryPoint":\s*"[^"]*"[^}]*"httpsTrigger":\s*\{\s*\}|httpsTrigger:\s*\{\s*\}''- regex: '(?i)httpsTrigger:\s*\{\s*\}''- regex: '(?i)"authLevel":\s*"ALLOW_ANY"''severity: critical
+    - regex: '(?i)"entryPoint":\s*"[^"]*"[^}]*"httpsTrigger":\s*\{\s*\}|httpsTrigger:\s*\{\s*\}'
+    - regex: '(?i)httpsTrigger:\s*\{\s*\}'
+    - regex: '(?i)"authLevel":\s*"ALLOW_ANY"'
+  severity: critical
   description: "Google Cloud Function with public access (no authentication)"
   remediation: "Set ingressSettings to INTERNAL_ONLY or use IAM for authentication"
   cwe: "CWE-284"
@@ -295,7 +362,10 @@
 - id: gcp-function-no-encryption
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)"encryption":\s*"NONE"''- regex: '(?i)encryptionKey:\s*""''- regex: '(?i)encryptions:\s*null''severity: high
+    - regex: '(?i)"encryption":\s*"NONE"'
+    - regex: '(?i)encryptionKey:\s*""'
+    - regex: '(?i)encryptions:\s*null'
+  severity: high
   description: "Google Cloud Function without customer-managed encryption"
   remediation: "Use customer-managed encryption keys (CMEK) for sensitive data"
   cwe: "CWE-311"
@@ -304,7 +374,9 @@
 - id: gcp-function-2nd-gen-no-session
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)"buildConfig":\s*\{[^}]*"runtime":\s*"python[0-9]*"[^}]*\}''- regex: '(?i)"serviceConfig":\s*\{[^}]*(?:minInstanceCount|maxInstanceCount)[^}]*\}''severity: medium
+    - regex: '(?i)"buildConfig":\s*\{[^}]*"runtime":\s*"python[0-9]*"[^}]*\}'
+    - regex: '(?i)"serviceConfig":\s*\{[^}]*(?:minInstanceCount|maxInstanceCount)[^}]*\}'
+  severity: medium
   description: "Google Cloud Functions 2nd gen without session affinity configuration"
   remediation: "Configure sessionAffinity for stateful workloads"
   cwe: "CWE-400"
@@ -313,7 +385,9 @@
 - id: gcp-function-allow-unauthenticated
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)"allowedUnauthorizedUsers":\s*\[''- regex: '(?i)"ingressSettings":\s*"ALLOW_ALL"''severity: critical
+    - regex: '(?i)"allowedUnauthorizedUsers":\s*\['
+    - regex: '(?i)"ingressSettings":\s*"ALLOW_ALL"'
+  severity: critical
   description: "Google Cloud Function allows unauthenticated invocations"
   remediation: "Set ingressSettings to INTERNAL_ONLY and configure IAM properly"
   cwe: "CWE-284"
@@ -323,7 +397,10 @@
 - id: openfaas-no-auth
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)read_only_root_filesystem:\s*false''- regex: '(?i)readonly_root_filesystem:\s*false''- regex: '(?i)"security":\s*\{\s*"readonlyrootfilesystem":\s*false\s*\}''severity: high
+    - regex: '(?i)read_only_root_filesystem:\s*false'
+    - regex: '(?i)readonly_root_filesystem:\s*false'
+    - regex: '(?i)"security":\s*\{\s*"readonlyrootfilesystem":\s*false\s*\}'
+  severity: high
   description: "OpenFaaS function with writable root filesystem"
   remediation: "Set read_only_root_filesystem to true for security"
   cwe: "CWE-284"
@@ -332,7 +409,9 @@
 - id: openfaas-privileged
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)privileged:\s*true''- regex: '(?i)"privileged":\s*true''severity: critical
+    - regex: '(?i)privileged:\s*true'
+    - regex: '(?i)"privileged":\s*true'
+  severity: critical
   description: "OpenFaaS function running in privileged mode"
   remediation: "Set privileged to false unless absolutely necessary"
   cwe: "CWE-284"
@@ -341,7 +420,8 @@
 - id: openfaas-secrets-plaintext
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)environment:?\s*\{[^}]*(?:password|secret|token|key)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]''severity: critical
+    - regex: '(?i)environment:?\s*\{[^}]*(?:password|secret|token|key)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]'
+  severity: critical
   description: "OpenFaaS function with secrets in environment variables"
   remediation: "Use Kubernetes secrets or sealed secrets for sensitive data"
   cwe: "CWE-798"
@@ -350,7 +430,9 @@
 - id: openfaas-no-resource-limits
   languages: [yaml, json]
   patterns:
-    - regex: '(?i)limits:?\s*\{\s*\}|limits:\s*null''- regex: '(?i)resources:?\s*\{\s*\}''severity: medium
+    - regex: '(?i)limits:?\s*\{\s*\}|limits:\s*null'
+    - regex: '(?i)resources:?\s*\{\s*\}'
+  severity: medium
   description: "OpenFaaS function without resource limits"
   remediation: "Set memory and CPU limits to prevent resource exhaustion"
   cwe: "CWE-400"
@@ -360,7 +442,9 @@
 - id: lambda-public-access
   languages: [yaml]
   patterns:
-    - regex: '(?i)Action:\s*"lambda:\*"[^}]*"Principal":\s*"\*"''- regex: '(?i)Action:\s*"lambda:InvokeFunction"[^}]*"Principal":\s*"\*"''severity: critical
+    - regex: '(?i)Action:\s*"lambda:\*"[^}]*"Principal":\s*"\*"'
+    - regex: '(?i)Action:\s*"lambda:InvokeFunction"[^}]*"Principal":\s*"\*"'
+  severity: critical
   description: "Lambda function with public invoke permission"
   remediation: "Restrict lambda:InvokeFunction permission to specific IAM principals"
   cwe: "CWE-284"
@@ -369,7 +453,8 @@
 - id: lambda-async-no-dlq
   languages: [yaml]
   patterns:
-    - regex: '(?i)Handler:\s*[^,\n]*.handler[^,\n]*''severity: medium
+    - regex: '(?i)Handler:\s*[^,\n]*.handler[^,\n]*'
+  severity: medium
   description: "Lambda async invocation without Dead Letter Queue"
   remediation: "Configure DeadLetterConfig or DestinationConfig for failed async invocations"
   cwe: "CWE-232"
@@ -378,7 +463,8 @@
 - id: lambda-customer-managed-key
   languages: [yaml]
   patterns:
-    - regex: '(?i)KmsKeyArn:\s*"''severity: medium
+    - regex: '(?i)KmsKeyArn:\s*"'
+  severity: medium
   description: "Lambda using non-customer-managed KMS key"
   remediation: "Use customer-managed keys (CMK) in KMS for encryption control"
   cwe: "CWE-311"
@@ -387,7 +473,8 @@
 - id: lambda-snap-start-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)Runtime:\s*java[0-9]+[\s\S]{0,300}(?:java|runtime)''severity: low
+    - regex: '(?i)Runtime:\s*java[0-9]+[\s\S]{0,300}(?:java|runtime)'
+  severity: low
   description: "Lambda Java runtime without SnapStart enabled"
   remediation: "Enable SnapStart for Java functions to improve cold start latency"
   cwe: "CWE-400"
@@ -396,7 +483,8 @@
 - id: lambda-inside-vpc-no-nat
   languages: [yaml]
   patterns:
-    - regex: '(?i)VpcConfig:?\s*\{[^}]*SubnetIds:?\s*\[[^\]]+\][^}]*\}''severity: high
+    - regex: '(?i)VpcConfig:?\s*\{[^}]*SubnetIds:?\s*\[[^\]]+\][^}]*\}'
+  severity: high
   description: "Lambda in VPC without NAT Gateway for internet access"
   remediation: "Configure NAT Gateway in private subnets for outbound internet access"
   cwe: "CWE-284"
@@ -406,7 +494,9 @@
 - id: serverless-wildcard-resources
   languages: [yaml]
   patterns:
-    - regex: '(?i)provider:?\s*\{[^}]*iam:.*resource:\s*\*''- regex: '(?i)iamRoleStatements:?\s*\[.*"Resource":\s*"\*"''severity: critical
+    - regex: '(?i)provider:?\s*\{[^}]*iam:.*resource:\s*\*'
+    - regex: '(?i)iamRoleStatements:?\s*\[.*"Resource":\s*"\*"'
+  severity: critical
   description: "Serverless framework IAM statements with wildcard resources"
   remediation: "Specify precise resource ARNs in iamRoleStatements"
   cwe: "CWE-250"
@@ -415,7 +505,9 @@
 - id: serverless-function-anyone-invoke
   languages: [yaml]
   patterns:
-    - regex: '(?i)events:?\s*\[.*http:\s*\{[^}]*public:\s*true''- regex: '(?i)events:?\s*\[.*httpApi:\s*\{[^}]*auth:\s*null''severity: critical
+    - regex: '(?i)events:?\s*\[.*http:\s*\{[^}]*public:\s*true'
+    - regex: '(?i)events:?\s*\[.*httpApi:\s*\{[^}]*auth:\s*null'
+  severity: critical
   description: "Serverless function publicly accessible"
   remediation: "Remove public: true or configure authorizer for HTTP events"
   cwe: "CWE-284"

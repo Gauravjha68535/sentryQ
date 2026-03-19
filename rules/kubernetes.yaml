@@ -1,7 +1,8 @@
 - id: k8s-privileged-container
   languages: [yaml]
   patterns:
-    - regex: '(?i)privileged:\\s*true''severity: critical
+    - regex: '(?i)privileged:\s*true'
+  severity: critical
   description: "Pod running privileged container"
   remediation: "Set privileged: false or remove the field entirely"
 
@@ -10,7 +11,8 @@
 - id: k8s-host-network
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostNetwork:\\s*true''severity: high
+    - regex: '(?i)hostNetwork:\s*true'
+  severity: high
   description: "Pod using host network namespace"
   remediation: "Set hostNetwork: false and use Kubernetes networking"
 
@@ -19,7 +21,8 @@
 - id: k8s-host-pid
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostPID:\\s*true''severity: high
+    - regex: '(?i)hostPID:\s*true'
+  severity: high
   description: "Pod sharing host PID namespace"
   remediation: "Set hostPID: false unless absolutely necessary"
 
@@ -28,7 +31,8 @@
 - id: k8s-host-ipc
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostIPC:\\s*true''severity: high
+    - regex: '(?i)hostIPC:\s*true'
+  severity: high
   description: "Pod sharing host IPC namespace"
   remediation: "Set hostIPC: false unless absolutely necessary"
 
@@ -37,7 +41,8 @@
 - id: k8s-run-as-root
   languages: [yaml]
   patterns:
-    - regex: '(?i)runAsUser:\\s*0|runAsNonRoot:\\s*false''severity: high
+    - regex: '(?i)runAsUser:\s*0|runAsNonRoot:\s*false'
+  severity: high
   description: "Container running as root user"
   remediation: "Set runAsNonRoot: true and specify non-root runAsUser"
 
@@ -46,7 +51,8 @@
 - id: k8s-writable-root-fs
   languages: [yaml]
   patterns:
-    - regex: '(?i)readOnlyRootFilesystem:\\s*false|securityContext''severity: medium
+    - regex: '(?i)readOnlyRootFilesystem:\s*false|securityContext'
+  severity: medium
   description: "Container root filesystem is writable"
   remediation: "Set readOnlyRootFilesystem: true and use volumes for writable paths"
 
@@ -55,7 +61,8 @@
 - id: k8s-cap-add
   languages: [yaml]
   patterns:
-    - regex: '(?i)add:\\s*\\[?\\s*(ALL|SYS_ADMIN|NET_ADMIN|SYS_PTRACE)''severity: high
+    - regex: '(?i)add:\s*\[?\s*(ALL|SYS_ADMIN|NET_ADMIN|SYS_PTRACE)'
+  severity: high
   description: "Dangerous Linux capabilities added to container"
   remediation: "Remove unnecessary capabilities. Use minimal required set"
 
@@ -64,7 +71,8 @@
 - id: k8s-no-resource-limits
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:\\s*\\{\\s*|''severity: medium
+    - regex: '(?i)resources:\s*\{\s*|'
+  severity: medium
   description: "Container without resource limits defined"
   remediation: "Define resources.limits and resources.requests for CPU and memory"
 
@@ -73,7 +81,8 @@
 - id: k8s-default-service-account
   languages: [yaml]
   patterns:
-    - regex: '(?i)serviceAccountName:\\s*default|serviceAccount:\\s*default''severity: medium
+    - regex: '(?i)serviceAccountName:\s*default|serviceAccount:\s*default'
+  severity: medium
   description: "Pod using default service account"
   remediation: "Create and use dedicated service accounts with minimal permissions"
 
@@ -82,7 +91,8 @@
 - id: k8s-automount-sa-token
   languages: [yaml]
   patterns:
-    - regex: '(?i)automountServiceAccountToken:\\s*true|''severity: medium
+    - regex: '(?i)automountServiceAccountToken:\s*true|'
+  severity: medium
   description: "Service account token automatically mounted"
   remediation: "Set automountServiceAccountToken: false if not needed"
 
@@ -91,7 +101,8 @@
 - id: k8s-host-path-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)hostPath:\\s*\\{''severity: high
+    - regex: '(?i)hostPath:\s*\{'
+  severity: high
   description: "Pod using hostPath volume"
   remediation: "Use PersistentVolumeClaim or ConfigMap/Secret instead of hostPath"
 
@@ -100,7 +111,8 @@
 - id: k8s-allow-privilege-escalation
   languages: [yaml]
   patterns:
-    - regex: '(?i)allowPrivilegeEscalation:\\s*true|''severity: high
+    - regex: '(?i)allowPrivilegeEscalation:\s*true|'
+  severity: high
   description: "Container allows privilege escalation"
   remediation: "Set allowPrivilegeEscalation: false in securityContext"
 
@@ -109,7 +121,8 @@
 - id: k8s-ingress-no-tls
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*Ingress''severity: high
+    - regex: '(?i)kind:\s*Ingress'
+  severity: high
   description: "Ingress resource without TLS configuration"
   remediation: "Add tls section with secretName for HTTPS termination"
 
@@ -118,7 +131,8 @@
 - id: k8s-clusterrole-default-sa
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*ClusterRoleBinding.*name:\\s*default''severity: critical
+    - regex: '(?i)kind:\s*ClusterRoleBinding.*name:\s*default'
+  severity: critical
   description: "ClusterRole bound to default service account"
   remediation: "Use dedicated service accounts with minimal required permissions"
 
@@ -127,7 +141,7 @@
 - id: k8s-secrets-in-env
   languages: [yaml]
   patterns:
-    - regex: '(?i)value:\\s*['''\"][^''\"]{8,}[''\"].*password|value:\\s*[''\"][^''\"]{8,}[''\"].*secret'
+    - regex: '(?i)value:\s*[''\\"][^''\\"]{8,}[''\\"].*password|value:\s*[''\\"][^''\\"]{8,}[''\\"].*secret'
   severity: high
   description: "Secrets hardcoded in environment variables"
   remediation: "Use secretKeyRef to reference Kubernetes Secrets"
@@ -137,7 +151,8 @@
 - id: k8s-nodeport-service
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*NodePort''severity: medium
+    - regex: '(?i)type:\s*NodePort'
+  severity: medium
   description: "Service exposed via NodePort"
   remediation: "Use ClusterIP with Ingress or LoadBalancer for external access"
 
@@ -146,7 +161,8 @@
 - id: k8s-probe-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*(Deployment|StatefulSet)''severity: medium
+    - regex: '(?i)kind:\s*(Deployment|StatefulSet)'
+  severity: medium
   description: "Deployment without liveness/readiness probes"
   remediation: "Add livenessProbe and readinessProbe for health checking"
 
@@ -155,7 +171,8 @@
 - id: k8s-image-pull-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)imagePullPolicy:\\s*Always''severity: low
+    - regex: '(?i)imagePullPolicy:\s*Always'
+  severity: low
   description: "Image pull policy set to Always"
   remediation: "Use IfNotPresent with tagged images for production"
 
@@ -164,7 +181,8 @@
 - id: k8s-latest-image-tag
   languages: [yaml]
   patterns:
-    - regex: '(?i)image:\\s*[^:]+:latest|image:\\s*[^:]+$''severity: medium
+    - regex: '(?i)image:\s*[^:]+:latest|image:\s*[^:]+$'
+  severity: medium
   description: "Using :latest tag or no tag for container image"
   remediation: "Pin image to specific version: image: nginx:1.25.3"
 
@@ -173,7 +191,8 @@
 - id: k8s-network-policy-missing
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*Namespace''severity: medium
+    - regex: '(?i)kind:\s*Namespace'
+  severity: medium
   description: "Namespace without NetworkPolicy"
   remediation: "Create NetworkPolicy to restrict pod-to-pod communication"
 
@@ -189,7 +208,8 @@
 - id: k8s-rbac-cluster-admin-binding
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*ClusterRoleBinding.*cluster-admin''severity: critical
+    - regex: '(?i)kind:\s*ClusterRoleBinding.*cluster-admin'
+  severity: critical
   description: "ClusterRoleBinding to cluster-admin"
   remediation: "Use least privilege. Create custom ClusterRoles"
   cwe: "CWE-284"
@@ -198,7 +218,7 @@
 - id: k8s-rbac-wildcard-resources
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:\\s*\\[\\s*['''\"]\\*[''\"]'
+    - regex: '(?i)resources:\s*\[\s*[''\\\"]\*[''\\\"]'
   severity: high
   description: "RBAC wildcard resources"
   remediation: "Specify explicit resources"
@@ -208,7 +228,7 @@
 - id: k8s-rbac-wildcard-verbs
   languages: [yaml]
   patterns:
-    - regex: '(?i)verbs:\\s*\\[\\s*['''\"]\\*[''\"]'
+    - regex: '(?i)verbs:\s*\[\s*[''\\\"]\*[''\\\"]'
   severity: high
   description: "RBAC wildcard verbs"
   remediation: "Specify explicit verbs"
@@ -218,7 +238,7 @@
 - id: k8s-rbac-wildcard-apigroups
   languages: [yaml]
   patterns:
-    - regex: '(?i)apiGroups:\\s*\\[\\s*['''\"]\\*[''\"]'
+    - regex: '(?i)apiGroups:\s*\[\s*[''\\\"]\*[''\\\"]'
   severity: high
   description: "RBAC wildcard API groups"
   remediation: "Specify explicit API groups"
@@ -228,7 +248,8 @@
 - id: k8s-rbac-escalate-verb
   languages: [yaml]
   patterns:
-    - regex: '(?i)verbs:.*escalate''severity: critical
+    - regex: '(?i)verbs:.*escalate'
+  severity: critical
   description: "RBAC escalate verb"
   remediation: "Remove escalate verb"
   cwe: "CWE-284"
@@ -237,7 +258,8 @@
 - id: k8s-rbac-bind-verb
   languages: [yaml]
   patterns:
-    - regex: '(?i)verbs:.*bind''severity: critical
+    - regex: '(?i)verbs:.*bind'
+  severity: critical
   description: "RBAC bind verb"
   remediation: "Remove bind verb"
   cwe: "CWE-284"
@@ -246,7 +268,8 @@
 - id: k8s-rbac-impersonate-verb
   languages: [yaml]
   patterns:
-    - regex: '(?i)verbs:.*impersonate''severity: critical
+    - regex: '(?i)verbs:.*impersonate'
+  severity: critical
   description: "RBAC impersonate verb"
   remediation: "Remove impersonate verb"
   cwe: "CWE-284"
@@ -255,7 +278,8 @@
 - id: k8s-rbac-secrets-access
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:.*secrets.*verbs:.*get''severity: high
+    - regex: '(?i)resources:.*secrets.*verbs:.*get'
+  severity: high
   description: "RBAC secrets access"
   remediation: "Limit secrets access"
   cwe: "CWE-284"
@@ -264,7 +288,8 @@
 - id: k8s-rbac-pods-exec
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:.*pods.*verbs:.*create.*exec''severity: high
+    - regex: '(?i)resources:.*pods.*verbs:.*create.*exec'
+  severity: high
   description: "RBAC pod exec access"
   remediation: "Limit pod exec access"
   cwe: "CWE-284"
@@ -273,7 +298,8 @@
 - id: k8s-rbac-nodes-proxy
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:.*nodes.*verbs:.*proxy''severity: high
+    - regex: '(?i)resources:.*nodes.*verbs:.*proxy'
+  severity: high
   description: "RBAC nodes proxy access"
   remediation: "Limit nodes proxy access"
   cwe: "CWE-284"
@@ -282,7 +308,8 @@
 - id: k8s-rbac-service-account-token
   languages: [yaml]
   patterns:
-    - regex: '(?i)resources:.*serviceaccounts.*token''severity: high
+    - regex: '(?i)resources:.*serviceaccounts.*token'
+  severity: high
   description: "RBAC service account token access"
   remediation: "Limit token access"
   cwe: "CWE-284"
@@ -291,7 +318,8 @@
 - id: k8s-rbac-role-aggregation
   languages: [yaml]
   patterns:
-    - regex: '(?i)aggregationRule:''severity: low
+    - regex: '(?i)aggregationRule:'
+  severity: low
   description: "Role aggregation"
   remediation: "Review aggregated roles"
   cwe: "CWE-284"
@@ -300,7 +328,8 @@
 - id: k8s-rbac-subject-user
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*User.*name:''severity: medium
+    - regex: '(?i)kind:\s*User.*name:'
+  severity: medium
   description: "RBAC subject is User"
   remediation: "Prefer ServiceAccounts"
   cwe: "CWE-284"
@@ -309,7 +338,8 @@
 - id: k8s-rbac-subject-group
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*Group.*name:''severity: medium
+    - regex: '(?i)kind:\s*Group.*name:'
+  severity: medium
   description: "RBAC subject is Group"
   remediation: "Review group membership"
   cwe: "CWE-284"
@@ -318,7 +348,8 @@
 - id: k8s-rbac-subject-service-account
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*ServiceAccount''severity: low
+    - regex: '(?i)kind:\s*ServiceAccount'
+  severity: low
   description: "RBAC subject is ServiceAccount"
   remediation: "Good practice"
   cwe: "CWE-284"
@@ -327,7 +358,8 @@
 - id: k8s-rbac-namespace-scope
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*RoleBinding''severity: low
+    - regex: '(?i)kind:\s*RoleBinding'
+  severity: low
   description: "Namespace-scoped RoleBinding"
   remediation: "Prefer namespace scope"
   cwe: "CWE-284"
@@ -336,7 +368,8 @@
 - id: k8s-rbac-cluster-scope
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*ClusterRoleBinding''severity: medium
+    - regex: '(?i)kind:\s*ClusterRoleBinding'
+  severity: medium
   description: "Cluster-scoped RoleBinding"
   remediation: "Use namespace scope when possible"
   cwe: "CWE-284"
@@ -345,7 +378,8 @@
 - id: k8s-rbac-custom-role
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*Role''severity: low
+    - regex: '(?i)kind:\s*Role'
+  severity: low
   description: "Custom Role"
   remediation: "Review custom roles"
   cwe: "CWE-284"
@@ -354,7 +388,8 @@
 - id: k8s-rbac-custom-cluster-role
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*ClusterRole''severity: medium
+    - regex: '(?i)kind:\s*ClusterRole'
+  severity: medium
   description: "Custom ClusterRole"
   remediation: "Review custom ClusterRoles"
   cwe: "CWE-284"
@@ -363,7 +398,8 @@
 - id: k8s-rbac-label-selector
   languages: [yaml]
   patterns:
-    - regex: '(?i)labelSelector:''severity: low
+    - regex: '(?i)labelSelector:'
+  severity: low
   description: "RBAC label selector"
   remediation: "Review label selectors"
   cwe: "CWE-284"
@@ -373,7 +409,8 @@
 - id: k8s-network-policy-ingress
   languages: [yaml]
   patterns:
-    - regex: '(?i)policyTypes:.*Ingress''severity: low
+    - regex: '(?i)policyTypes:.*Ingress'
+  severity: low
   description: "NetworkPolicy ingress"
   remediation: "Define ingress rules"
   cwe: "CWE-284"
@@ -382,7 +419,8 @@
 - id: k8s-network-policy-egress
   languages: [yaml]
   patterns:
-    - regex: '(?i)policyTypes:.*Egress''severity: low
+    - regex: '(?i)policyTypes:.*Egress'
+  severity: low
   description: "NetworkPolicy egress"
   remediation: "Define egress rules"
   cwe: "CWE-284"
@@ -391,7 +429,8 @@
 - id: k8s-network-policy-allow-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)ingress:\\s*\\[\\s*\\{\\s*\\}\\s*\\]''severity: high
+    - regex: '(?i)ingress:\s*\[\s*\{\s*\}\s*\]'
+  severity: high
   description: "NetworkPolicy allows all ingress"
   remediation: "Define specific ingress rules"
   cwe: "CWE-284"
@@ -400,7 +439,8 @@
 - id: k8s-network-policy-deny-all
   languages: [yaml]
   patterns:
-    - regex: '(?i)podSelector:\\s*\\{\\s*\\}.*ingress:\\s*\\[\\s*\\]''severity: low
+    - regex: '(?i)podSelector:\s*\{\s*\}.*ingress:\s*\[\s*\]'
+  severity: low
   description: "NetworkPolicy deny all"
   remediation: "Good default deny policy"
   cwe: "CWE-284"
@@ -409,7 +449,8 @@
 - id: k8s-network-policy-namespace
   languages: [yaml]
   patterns:
-    - regex: '(?i)namespaceSelector:''severity: low
+    - regex: '(?i)namespaceSelector:'
+  severity: low
   description: "NetworkPolicy namespace selector"
   remediation: "Review namespace selectors"
   cwe: "CWE-284"
@@ -418,7 +459,8 @@
 - id: k8s-network-policy-pod-selector
   languages: [yaml]
   patterns:
-    - regex: '(?i)podSelector:''severity: low
+    - regex: '(?i)podSelector:'
+  severity: low
   description: "NetworkPolicy pod selector"
   remediation: "Review pod selectors"
   cwe: "CWE-284"
@@ -427,7 +469,8 @@
 - id: k8s-network-policy-ip-block
   languages: [yaml]
   patterns:
-    - regex: '(?i)ipBlock:''severity: low
+    - regex: '(?i)ipBlock:'
+  severity: low
   description: "NetworkPolicy IP block"
   remediation: "Review IP blocks"
   cwe: "CWE-284"
@@ -436,7 +479,8 @@
 - id: k8s-network-policy-port
   languages: [yaml]
   patterns:
-    - regex: '(?i)ports:''severity: low
+    - regex: '(?i)ports:'
+  severity: low
   description: "NetworkPolicy port"
   remediation: "Review port rules"
   cwe: "CWE-284"
@@ -445,7 +489,8 @@
 - id: k8s-network-policy-protocol
   languages: [yaml]
   patterns:
-    - regex: '(?i)protocol:\\s*TCP|protocol:\\s*UDP''severity: low
+    - regex: '(?i)protocol:\s*TCP|protocol:\s*UDP'
+  severity: low
   description: "NetworkPolicy protocol"
   remediation: "Review protocol rules"
   cwe: "CWE-284"
@@ -454,7 +499,8 @@
 - id: k8s-network-policy-cidr
   languages: [yaml]
   patterns:
-    - regex: '(?i)cidr:''severity: low
+    - regex: '(?i)cidr:'
+  severity: low
   description: "NetworkPolicy CIDR"
   remediation: "Review CIDR blocks"
   cwe: "CWE-284"
@@ -463,7 +509,8 @@
 - id: k8s-network-policy-except
   languages: [yaml]
   patterns:
-    - regex: '(?i)except:''severity: low
+    - regex: '(?i)except:'
+  severity: low
   description: "NetworkPolicy except"
   remediation: "Review except blocks"
   cwe: "CWE-284"
@@ -472,7 +519,8 @@
 - id: k8s-network-policy-match-labels
   languages: [yaml]
   patterns:
-    - regex: '(?i)matchLabels:''severity: low
+    - regex: '(?i)matchLabels:'
+  severity: low
   description: "NetworkPolicy match labels"
   remediation: "Review match labels"
   cwe: "CWE-284"
@@ -481,7 +529,8 @@
 - id: k8s-network-policy-match-expressions
   languages: [yaml]
   patterns:
-    - regex: '(?i)matchExpressions:''severity: low
+    - regex: '(?i)matchExpressions:'
+  severity: low
   description: "NetworkPolicy match expressions"
   remediation: "Review match expressions"
   cwe: "CWE-284"
@@ -490,7 +539,8 @@
 - id: k8s-network-policy-not-selector
   languages: [yaml]
   patterns:
-    - regex: '(?i)not:''severity: low
+    - regex: '(?i)not:'
+  severity: low
   description: "NetworkPolicy not selector"
   remediation: "Review not selectors"
   cwe: "CWE-284"
@@ -499,7 +549,8 @@
 - id: k8s-network-policy-or-selector
   languages: [yaml]
   patterns:
-    - regex: '(?i)or:''severity: low
+    - regex: '(?i)or:'
+  severity: low
   description: "NetworkPolicy or selector"
   remediation: "Review or selectors"
   cwe: "CWE-284"
@@ -508,7 +559,8 @@
 - id: k8s-network-policy-and-selector
   languages: [yaml]
   patterns:
-    - regex: '(?i)and:''severity: low
+    - regex: '(?i)and:'
+  severity: low
   description: "NetworkPolicy and selector"
   remediation: "Review and selectors"
   cwe: "CWE-284"
@@ -517,7 +569,8 @@
 - id: k8s-network-policy-sctp
   languages: [yaml]
   patterns:
-    - regex: '(?i)protocol:\\s*SCTP''severity: low
+    - regex: '(?i)protocol:\s*SCTP'
+  severity: low
   description: "NetworkPolicy SCTP"
   remediation: "Review SCTP rules"
   cwe: "CWE-284"
@@ -526,7 +579,8 @@
 - id: k8s-network-policy-end-port
   languages: [yaml]
   patterns:
-    - regex: '(?i)endPort:''severity: low
+    - regex: '(?i)endPort:'
+  severity: low
   description: "NetworkPolicy endPort"
   remediation: "Review port ranges"
   cwe: "CWE-284"
@@ -535,7 +589,8 @@
 - id: k8s-network-policy-fqdn
   languages: [yaml]
   patterns:
-    - regex: '(?i)fqdn:''severity: low
+    - regex: '(?i)fqdn:'
+  severity: low
   description: "NetworkPolicy FQDN"
   remediation: "Review FQDN rules"
   cwe: "CWE-284"
@@ -544,7 +599,8 @@
 - id: k8s-network-policy-to-ports
   languages: [yaml]
   patterns:
-    - regex: '(?i)toPorts:''severity: low
+    - regex: '(?i)toPorts:'
+  severity: low
   description: "NetworkPolicy toPorts"
   remediation: "Review toPorts rules"
   cwe: "CWE-284"
@@ -554,7 +610,8 @@
 - id: k8s-secret-type-opaque
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*Opaque''severity: low
+    - regex: '(?i)type:\s*Opaque'
+  severity: low
   description: "Opaque Secret"
   remediation: "Use appropriate secret types"
   cwe: "CWE-312"
@@ -563,7 +620,8 @@
 - id: k8s-secret-type-tls
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*kubernetes\\.io/tls''severity: low
+    - regex: '(?i)type:\s*kubernetes\.io/tls'
+  severity: low
   description: "TLS Secret"
   remediation: "Protect TLS secrets"
   cwe: "CWE-312"
@@ -572,7 +630,8 @@
 - id: k8s-secret-type-docker
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*kubernetes\\.io/dockerconfigjson''severity: low
+    - regex: '(?i)type:\s*kubernetes\.io/dockerconfigjson'
+  severity: low
   description: "Docker registry Secret"
   remediation: "Protect registry credentials"
   cwe: "CWE-312"
@@ -581,7 +640,8 @@
 - id: k8s-secret-type-basic-auth
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*kubernetes\\.io/basic-auth''severity: low
+    - regex: '(?i)type:\s*kubernetes\.io/basic-auth'
+  severity: low
   description: "Basic auth Secret"
   remediation: "Protect basic auth credentials"
   cwe: "CWE-312"
@@ -590,7 +650,8 @@
 - id: k8s-secret-type-ssh
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*kubernetes\\.io/ssh-auth''severity: low
+    - regex: '(?i)type:\s*kubernetes\.io/ssh-auth'
+  severity: low
   description: "SSH auth Secret"
   remediation: "Protect SSH keys"
   cwe: "CWE-312"
@@ -599,7 +660,8 @@
 - id: k8s-secret-type-service-account
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*kubernetes\\.io/service-account-token''severity: low
+    - regex: '(?i)type:\s*kubernetes\.io/service-account-token'
+  severity: low
   description: "Service account token Secret"
   remediation: "Protect service account tokens"
   cwe: "CWE-312"
@@ -608,7 +670,8 @@
 - id: k8s-secret-type-bootstrap-token
   languages: [yaml]
   patterns:
-    - regex: '(?i)type:\\s*bootstrap\\.kubernetes\\.io/token''severity: low
+    - regex: '(?i)type:\s*bootstrap\.kubernetes\.io/token'
+  severity: low
   description: "Bootstrap token Secret"
   remediation: "Protect bootstrap tokens"
   cwe: "CWE-312"
@@ -617,7 +680,8 @@
 - id: k8s-secret-data-base64
   languages: [yaml]
   patterns:
-    - regex: '(?i)data:''severity: low
+    - regex: '(?i)data:'
+  severity: low
   description: "Secret data (base64)"
   remediation: "Remember base64 is not encryption"
   cwe: "CWE-312"
@@ -626,7 +690,8 @@
 - id: k8s-secret-string-data
   languages: [yaml]
   patterns:
-    - regex: '(?i)stringData:''severity: low
+    - regex: '(?i)stringData:'
+  severity: low
   description: "Secret stringData"
   remediation: "Don't commit stringData"
   cwe: "CWE-312"
@@ -635,7 +700,8 @@
 - id: k8s-secret-immutable
   languages: [yaml]
   patterns:
-    - regex: '(?i)immutable:\\s*true''severity: low
+    - regex: '(?i)immutable:\s*true'
+  severity: low
   description: "Immutable Secret"
   remediation: "Good for security"
   cwe: "CWE-312"
@@ -644,7 +710,8 @@
 - id: k8s-secret-encryption-at-rest
   languages: [yaml]
   patterns:
-    - regex: '(?i)encryptionConfiguration''severity: low
+    - regex: '(?i)encryptionConfiguration'
+  severity: low
   description: "Secret encryption at rest"
   remediation: "Enable encryption at rest"
   cwe: "CWE-312"
@@ -653,7 +720,8 @@
 - id: k8s-secret-external-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)external-secrets|externalSecret''severity: low
+    - regex: '(?i)external-secrets|externalSecret'
+  severity: low
   description: "External Secrets"
   remediation: "Good for secret management"
   cwe: "CWE-312"
@@ -662,7 +730,8 @@
 - id: k8s-secret-vault-injector
   languages: [yaml]
   patterns:
-    - regex: '(?i)vault\\.hashicorp\\.com''severity: low
+    - regex: '(?i)vault\.hashicorp\.com'
+  severity: low
   description: "Vault injector"
   remediation: "Good for secret management"
   cwe: "CWE-312"
@@ -671,7 +740,8 @@
 - id: k8s-secret-sealed-secrets
   languages: [yaml]
   patterns:
-    - regex: '(?i)SealedSecret''severity: low
+    - regex: '(?i)SealedSecret'
+  severity: low
   description: "Sealed Secrets"
   remediation: "Good for GitOps"
   cwe: "CWE-312"
@@ -680,7 +750,8 @@
 - id: k8s-secret-sops
   languages: [yaml]
   patterns:
-    - regex: '(?i)\\.sops\\.yaml|sops:''severity: low
+    - regex: '(?i)\.sops\.yaml|sops:'
+  severity: low
   description: "SOPS encrypted secrets"
   remediation: "Good for GitOps"
   cwe: "CWE-312"
@@ -689,7 +760,8 @@
 - id: k8s-secret-aws-secrets-manager
   languages: [yaml]
   patterns:
-    - regex: '(?i)secretsmanager\\.amazonaws\\.com''severity: low
+    - regex: '(?i)secretsmanager\.amazonaws\.com'
+  severity: low
   description: "AWS Secrets Manager"
   remediation: "Good for secret management"
   cwe: "CWE-312"
@@ -698,7 +770,8 @@
 - id: k8s-secret-azure-key-vault
   languages: [yaml]
   patterns:
-    - regex: '(?i)keyvault\\.azure\\.com''severity: low
+    - regex: '(?i)keyvault\.azure\.com'
+  severity: low
   description: "Azure Key Vault"
   remediation: "Good for secret management"
   cwe: "CWE-312"
@@ -707,7 +780,8 @@
 - id: k8s-secret-gcp-secret-manager
   languages: [yaml]
   patterns:
-    - regex: '(?i)secretmanager\\.googleapis\\.com''severity: low
+    - regex: '(?i)secretmanager\.googleapis\.com'
+  severity: low
   description: "GCP Secret Manager"
   remediation: "Good for secret management"
   cwe: "CWE-312"
@@ -716,7 +790,8 @@
 - id: k8s-secret-rotation
   languages: [yaml]
   patterns:
-    - regex: '(?i)rotation:''severity: low
+    - regex: '(?i)rotation:'
+  severity: low
   description: "Secret rotation"
   remediation: "Implement secret rotation"
   cwe: "CWE-324"
@@ -725,7 +800,8 @@
 - id: k8s-secret-mount-path
   languages: [yaml]
   patterns:
-    - regex: '(?i)mountPath:.*secret''severity: low
+    - regex: '(?i)mountPath:.*secret'
+  severity: low
   description: "Secret mount path"
   remediation: "Use appropriate mount paths"
   cwe: "CWE-312"
@@ -735,7 +811,8 @@
 - id: k8s-configmap-data
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*ConfigMap.*data:''severity: low
+    - regex: '(?i)kind:\s*ConfigMap.*data:'
+  severity: low
   description: "ConfigMap data"
   remediation: "Don't store secrets in ConfigMaps"
   cwe: "CWE-312"
@@ -744,7 +821,8 @@
 - id: k8s-configmap-binary-data
   languages: [yaml]
   patterns:
-    - regex: '(?i)binaryData:''severity: low
+    - regex: '(?i)binaryData:'
+  severity: low
   description: "ConfigMap binaryData"
   remediation: "Don't store secrets"
   cwe: "CWE-312"
@@ -753,7 +831,8 @@
 - id: k8s-configmap-from-file
   languages: [yaml]
   patterns:
-    - regex: '(?i)fromFile:''severity: low
+    - regex: '(?i)fromFile:'
+  severity: low
   description: "ConfigMap from file"
   remediation: "Validate file contents"
   cwe: "CWE-312"
@@ -762,7 +841,8 @@
 - id: k8s-configmap-from-literal
   languages: [yaml]
   patterns:
-    - regex: '(?i)fromLiteral:''severity: low
+    - regex: '(?i)fromLiteral:'
+  severity: low
   description: "ConfigMap from literal"
   remediation: "Don't include secrets"
   cwe: "CWE-312"
@@ -771,7 +851,8 @@
 - id: k8s-configmap-env-from
   languages: [yaml]
   patterns:
-    - regex: '(?i)envFrom:.*configMapRef''severity: low
+    - regex: '(?i)envFrom:.*configMapRef'
+  severity: low
   description: "ConfigMap envFrom"
   remediation: "Don't include secrets"
   cwe: "CWE-312"
@@ -780,7 +861,8 @@
 - id: k8s-configmap-env
   languages: [yaml]
   patterns:
-    - regex: '(?i)env:.*valueFrom:.*configMapKeyRef''severity: low
+    - regex: '(?i)env:.*valueFrom:.*configMapKeyRef'
+  severity: low
   description: "ConfigMap env"
   remediation: "Don't include secrets"
   cwe: "CWE-312"
@@ -789,7 +871,8 @@
 - id: k8s-configmap-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)volumes:.*configMap''severity: low
+    - regex: '(?i)volumes:.*configMap'
+  severity: low
   description: "ConfigMap volume"
   remediation: "Don't include secrets"
   cwe: "CWE-312"
@@ -798,7 +881,8 @@
 - id: k8s-configmap-volume-mount
   languages: [yaml]
   patterns:
-    - regex: '(?i)volumeMounts:.*configMap''severity: low
+    - regex: '(?i)volumeMounts:.*configMap'
+  severity: low
   description: "ConfigMap volume mount"
   remediation: "Don't include secrets"
   cwe: "CWE-312"
@@ -807,7 +891,8 @@
 - id: k8s-configmap-immutable
   languages: [yaml]
   patterns:
-    - regex: '(?i)immutable:\\s*true''severity: low
+    - regex: '(?i)immutable:\s*true'
+  severity: low
   description: "Immutable ConfigMap"
   remediation: "Good for stability"
   cwe: "CWE-693"
@@ -816,7 +901,8 @@
 - id: k8s-configmap-labels
   languages: [yaml]
   patterns:
-    - regex: '(?i)labels:''severity: low
+    - regex: '(?i)labels:'
+  severity: low
   description: "ConfigMap labels"
   remediation: "Use appropriate labels"
   cwe: "CWE-693"
@@ -825,7 +911,8 @@
 - id: k8s-configmap-annotations
   languages: [yaml]
   patterns:
-    - regex: '(?i)annotations:''severity: low
+    - regex: '(?i)annotations:'
+  severity: low
   description: "ConfigMap annotations"
   remediation: "Use appropriate annotations"
   cwe: "CWE-693"
@@ -834,7 +921,8 @@
 - id: k8s-configmap-owner-reference
   languages: [yaml]
   patterns:
-    - regex: '(?i)ownerReferences:''severity: low
+    - regex: '(?i)ownerReferences:'
+  severity: low
   description: "ConfigMap owner reference"
   remediation: "Review owner references"
   cwe: "CWE-693"
@@ -843,7 +931,8 @@
 - id: k8s-configmap-finalizers
   languages: [yaml]
   patterns:
-    - regex: '(?i)finalizers:''severity: low
+    - regex: '(?i)finalizers:'
+  severity: low
   description: "ConfigMap finalizers"
   remediation: "Review finalizers"
   cwe: "CWE-693"
@@ -852,7 +941,8 @@
 - id: k8s-configmap-managed-fields
   languages: [yaml]
   patterns:
-    - regex: '(?i)managedFields:''severity: low
+    - regex: '(?i)managedFields:'
+  severity: low
   description: "ConfigMap managed fields"
   remediation: "Review managed fields"
   cwe: "CWE-693"
@@ -861,7 +951,8 @@
 - id: k8s-configmap-resource-version
   languages: [yaml]
   patterns:
-    - regex: '(?i)resourceVersion:''severity: low
+    - regex: '(?i)resourceVersion:'
+  severity: low
   description: "ConfigMap resource version"
   remediation: "Don't hardcode"
   cwe: "CWE-693"
@@ -870,7 +961,8 @@
 - id: k8s-configmap-uid
   languages: [yaml]
   patterns:
-    - regex: '(?i)uid:''severity: low
+    - regex: '(?i)uid:'
+  severity: low
   description: "ConfigMap UID"
   remediation: "Don't hardcode"
   cwe: "CWE-693"
@@ -879,7 +971,8 @@
 - id: k8s-configmap-creation-timestamp
   languages: [yaml]
   patterns:
-    - regex: '(?i)creationTimestamp:''severity: low
+    - regex: '(?i)creationTimestamp:'
+  severity: low
   description: "ConfigMap creation timestamp"
   remediation: "Don't hardcode"
   cwe: "CWE-693"
@@ -888,7 +981,8 @@
 - id: k8s-configmap-generation
   languages: [yaml]
   patterns:
-    - regex: '(?i)generation:''severity: low
+    - regex: '(?i)generation:'
+  severity: low
   description: "ConfigMap generation"
   remediation: "Don't hardcode"
   cwe: "CWE-693"
@@ -897,7 +991,8 @@
 - id: k8s-configmap-cluster-name
   languages: [yaml]
   patterns:
-    - regex: '(?i)clusterName:''severity: low
+    - regex: '(?i)clusterName:'
+  severity: low
   description: "ConfigMap cluster name"
   remediation: "Don't hardcode"
   cwe: "CWE-693"
@@ -906,7 +1001,8 @@
 - id: k8s-configmap-managed-by
   languages: [yaml]
   patterns:
-    - regex: '(?i)app\\.kubernetes\\.io/managed-by''severity: low
+    - regex: '(?i)app\.kubernetes\.io/managed-by'
+  severity: low
   description: "ConfigMap managed-by"
   remediation: "Review management tool"
   cwe: "CWE-693"
@@ -916,7 +1012,8 @@
 - id: k8s-pod-security-context
   languages: [yaml]
   patterns:
-    - regex: '(?i)securityContext:''severity: low
+    - regex: '(?i)securityContext:'
+  severity: low
   description: "Pod security context"
   remediation: "Configure security context"
   cwe: "CWE-250"
@@ -925,7 +1022,8 @@
 - id: k8s-pod-fs-group
   languages: [yaml]
   patterns:
-    - regex: '(?i)fsGroup:''severity: low
+    - regex: '(?i)fsGroup:'
+  severity: low
   description: "Pod fsGroup"
   remediation: "Set appropriate fsGroup"
   cwe: "CWE-250"
@@ -934,7 +1032,8 @@
 - id: k8s-pod-fs-group-change-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)fsGroupChangePolicy:''severity: low
+    - regex: '(?i)fsGroupChangePolicy:'
+  severity: low
   description: "Pod fsGroup change policy"
   remediation: "Review change policy"
   cwe: "CWE-250"
@@ -943,7 +1042,8 @@
 - id: k8s-pod-supplemental-groups
   languages: [yaml]
   patterns:
-    - regex: '(?i)supplementalGroups:''severity: low
+    - regex: '(?i)supplementalGroups:'
+  severity: low
   description: "Pod supplemental groups"
   remediation: "Set appropriate groups"
   cwe: "CWE-250"
@@ -952,7 +1052,8 @@
 - id: k8s-pod-sysctls
   languages: [yaml]
   patterns:
-    - regex: '(?i)sysctls:''severity: medium
+    - regex: '(?i)sysctls:'
+  severity: medium
   description: "Pod sysctls"
   remediation: "Review sysctls"
   cwe: "CWE-250"
@@ -961,7 +1062,8 @@
 - id: k8s-pod-seccomp-profile
   languages: [yaml]
   patterns:
-    - regex: '(?i)seccompProfile:''severity: low
+    - regex: '(?i)seccompProfile:'
+  severity: low
   description: "Pod seccomp profile"
   remediation: "Use RuntimeDefault or Localhost"
   cwe: "CWE-250"
@@ -970,7 +1072,8 @@
 - id: k8s-pod-apparmor-profile
   languages: [yaml]
   patterns:
-    - regex: '(?i)apparmor\\.security\\.kubernetes\\.io''severity: low
+    - regex: '(?i)apparmor\.security\.kubernetes\.io'
+  severity: low
   description: "Pod AppArmor profile"
   remediation: "Use AppArmor profiles"
   cwe: "CWE-250"
@@ -979,7 +1082,8 @@
 - id: k8s-pod-runtime-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)runtimeClassName:''severity: low
+    - regex: '(?i)runtimeClassName:'
+  severity: low
   description: "Pod runtime class"
   remediation: "Use appropriate runtime"
   cwe: "CWE-250"
@@ -988,7 +1092,8 @@
 - id: k8s-pod-overhead
   languages: [yaml]
   patterns:
-    - regex: '(?i)overhead:''severity: low
+    - regex: '(?i)overhead:'
+  severity: low
   description: "Pod overhead"
   remediation: "Review overhead"
   cwe: "CWE-693"
@@ -997,7 +1102,8 @@
 - id: k8s-pod-topology-spread
   languages: [yaml]
   patterns:
-    - regex: '(?i)topologySpreadConstraints:''severity: low
+    - regex: '(?i)topologySpreadConstraints:'
+  severity: low
   description: "Pod topology spread"
   remediation: "Configure for availability"
   cwe: "CWE-693"
@@ -1006,7 +1112,8 @@
 - id: k8s-pod-affinity
   languages: [yaml]
   patterns:
-    - regex: '(?i)affinity:''severity: low
+    - regex: '(?i)affinity:'
+  severity: low
   description: "Pod affinity"
   remediation: "Configure appropriately"
   cwe: "CWE-693"
@@ -1015,7 +1122,8 @@
 - id: k8s-pod-node-affinity
   languages: [yaml]
   patterns:
-    - regex: '(?i)nodeAffinity:''severity: low
+    - regex: '(?i)nodeAffinity:'
+  severity: low
   description: "Pod node affinity"
   remediation: "Configure appropriately"
   cwe: "CWE-693"
@@ -1024,7 +1132,8 @@
 - id: k8s-pod-pod-affinity
   languages: [yaml]
   patterns:
-    - regex: '(?i)podAffinity:''severity: low
+    - regex: '(?i)podAffinity:'
+  severity: low
   description: "Pod affinity"
   remediation: "Configure appropriately"
   cwe: "CWE-693"
@@ -1033,7 +1142,8 @@
 - id: k8s-pod-pod-anti-affinity
   languages: [yaml]
   patterns:
-    - regex: '(?i)podAntiAffinity:''severity: low
+    - regex: '(?i)podAntiAffinity:'
+  severity: low
   description: "Pod anti-affinity"
   remediation: "Configure for HA"
   cwe: "CWE-693"
@@ -1042,7 +1152,8 @@
 - id: k8s-pod-tolerations
   languages: [yaml]
   patterns:
-    - regex: '(?i)tolerations:''severity: low
+    - regex: '(?i)tolerations:'
+  severity: low
   description: "Pod tolerations"
   remediation: "Review tolerations"
   cwe: "CWE-693"
@@ -1051,7 +1162,8 @@
 - id: k8s-pod-node-selector
   languages: [yaml]
   patterns:
-    - regex: '(?i)nodeSelector:''severity: low
+    - regex: '(?i)nodeSelector:'
+  severity: low
   description: "Pod node selector"
   remediation: "Configure appropriately"
   cwe: "CWE-693"
@@ -1060,7 +1172,8 @@
 - id: k8s-pod-scheduler-name
   languages: [yaml]
   patterns:
-    - regex: '(?i)schedulerName:''severity: low
+    - regex: '(?i)schedulerName:'
+  severity: low
   description: "Pod scheduler name"
   remediation: "Use appropriate scheduler"
   cwe: "CWE-693"
@@ -1069,7 +1182,8 @@
 - id: k8s-pod-priority-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)priorityClassName:''severity: low
+    - regex: '(?i)priorityClassName:'
+  severity: low
   description: "Pod priority class"
   remediation: "Set appropriate priority"
   cwe: "CWE-693"
@@ -1078,7 +1192,8 @@
 - id: k8s-pod-preemption-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)preemptionPolicy:''severity: low
+    - regex: '(?i)preemptionPolicy:'
+  severity: low
   description: "Pod preemption policy"
   remediation: "Review preemption"
   cwe: "CWE-693"
@@ -1087,7 +1202,8 @@
 - id: k8s-pod-dns-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)dnsPolicy:''severity: low
+    - regex: '(?i)dnsPolicy:'
+  severity: low
   description: "Pod DNS policy"
   remediation: "Configure appropriately"
   cwe: "CWE-693"
@@ -1097,7 +1213,8 @@
 - id: k8s-ingress-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)ingressClassName:''severity: low
+    - regex: '(?i)ingressClassName:'
+  severity: low
   description: "Ingress class"
   remediation: "Specify ingress class"
   cwe: "CWE-693"
@@ -1106,7 +1223,8 @@
 - id: k8s-ingress-rules
   languages: [yaml]
   patterns:
-    - regex: '(?i)rules:''severity: low
+    - regex: '(?i)rules:'
+  severity: low
   description: "Ingress rules"
   remediation: "Define rules properly"
   cwe: "CWE-693"
@@ -1115,7 +1233,8 @@
 - id: k8s-ingress-host
   languages: [yaml]
   patterns:
-    - regex: '(?i)host:''severity: low
+    - regex: '(?i)host:'
+  severity: low
   description: "Ingress host"
   remediation: "Specify hosts"
   cwe: "CWE-693"
@@ -1124,7 +1243,8 @@
 - id: k8s-ingress-path
   languages: [yaml]
   patterns:
-    - regex: '(?i)path:''severity: low
+    - regex: '(?i)path:'
+  severity: low
   description: "Ingress path"
   remediation: "Define paths properly"
   cwe: "CWE-693"
@@ -1133,7 +1253,8 @@
 - id: k8s-ingress-path-type
   languages: [yaml]
   patterns:
-    - regex: '(?i)pathType:''severity: low
+    - regex: '(?i)pathType:'
+  severity: low
   description: "Ingress path type"
   remediation: "Use ImplementationSpecific or Prefix"
   cwe: "CWE-693"
@@ -1142,7 +1263,8 @@
 - id: k8s-ingress-backend
   languages: [yaml]
   patterns:
-    - regex: '(?i)backend:''severity: low
+    - regex: '(?i)backend:'
+  severity: low
   description: "Ingress backend"
   remediation: "Configure backend properly"
   cwe: "CWE-693"
@@ -1151,7 +1273,8 @@
 - id: k8s-ingress-service
   languages: [yaml]
   patterns:
-    - regex: '(?i)service:''severity: low
+    - regex: '(?i)service:'
+  severity: low
   description: "Ingress service"
   remediation: "Configure service properly"
   cwe: "CWE-693"
@@ -1160,7 +1283,8 @@
 - id: k8s-ingress-port
   languages: [yaml]
   patterns:
-    - regex: '(?i)port:''severity: low
+    - regex: '(?i)port:'
+  severity: low
   description: "Ingress port"
   remediation: "Specify port"
   cwe: "CWE-693"
@@ -1169,7 +1293,8 @@
 - id: k8s-ingress-annotation
   languages: [yaml]
   patterns:
-    - regex: '(?i)annotations:''severity: low
+    - regex: '(?i)annotations:'
+  severity: low
   description: "Ingress annotations"
   remediation: "Review annotations"
   cwe: "CWE-693"
@@ -1178,7 +1303,8 @@
 - id: k8s-ingress-ssl-redirect
   languages: [yaml]
   patterns:
-    - regex: '(?i)ssl-redirect|force-ssl-redirect''severity: low
+    - regex: '(?i)ssl-redirect|force-ssl-redirect'
+  severity: low
   description: "Ingress SSL redirect"
   remediation: "Enable SSL redirect"
   cwe: "CWE-319"
@@ -1187,7 +1313,8 @@
 - id: k8s-ingress-rate-limit
   languages: [yaml]
   patterns:
-    - regex: '(?i)rate-limit|limit-rps''severity: low
+    - regex: '(?i)rate-limit|limit-rps'
+  severity: low
   description: "Ingress rate limit"
   remediation: "Configure rate limiting"
   cwe: "CWE-770"
@@ -1196,7 +1323,8 @@
 - id: k8s-ingress-auth
   languages: [yaml]
   patterns:
-    - regex: '(?i)auth-type|auth-url''severity: low
+    - regex: '(?i)auth-type|auth-url'
+  severity: low
   description: "Ingress authentication"
   remediation: "Configure authentication"
   cwe: "CWE-306"
@@ -1205,7 +1333,8 @@
 - id: k8s-ingress-cors
   languages: [yaml]
   patterns:
-    - regex: '(?i)cors-allow-origin|enable-cors''severity: low
+    - regex: '(?i)cors-allow-origin|enable-cors'
+  severity: low
   description: "Ingress CORS"
   remediation: "Configure CORS properly"
   cwe: "CWE-942"
@@ -1214,7 +1343,8 @@
 - id: k8s-ingress-proxy-body-size
   languages: [yaml]
   patterns:
-    - regex: '(?i)proxy-body-size''severity: low
+    - regex: '(?i)proxy-body-size'
+  severity: low
   description: "Ingress body size limit"
   remediation: "Set appropriate limit"
   cwe: "CWE-770"
@@ -1223,7 +1353,8 @@
 - id: k8s-ingress-proxy-timeout
   languages: [yaml]
   patterns:
-    - regex: '(?i)proxy-connect-timeout|proxy-read-timeout''severity: low
+    - regex: '(?i)proxy-connect-timeout|proxy-read-timeout'
+  severity: low
   description: "Ingress timeout"
   remediation: "Set appropriate timeouts"
   cwe: "CWE-770"
@@ -1232,7 +1363,8 @@
 - id: k8s-gateway-api
   languages: [yaml]
   patterns:
-    - regex: '(?i)kind:\\s*Gateway''severity: low
+    - regex: '(?i)kind:\s*Gateway'
+  severity: low
   description: "Gateway API"
   remediation: "Configure Gateway properly"
   cwe: "CWE-693"
@@ -1241,7 +1373,8 @@
 - id: k8s-gateway-listener
   languages: [yaml]
   patterns:
-    - regex: '(?i)listeners:''severity: low
+    - regex: '(?i)listeners:'
+  severity: low
   description: "Gateway listeners"
   remediation: "Configure listeners properly"
   cwe: "CWE-693"
@@ -1250,7 +1383,8 @@
 - id: k8s-gateway-route
   languages: [yaml]
   patterns:
-    - regex: '(?i)HTTPRoute|TCPRoute|TLSRoute''severity: low
+    - regex: '(?i)HTTPRoute|TCPRoute|TLSRoute'
+  severity: low
   description: "Gateway routes"
   remediation: "Configure routes properly"
   cwe: "CWE-693"
@@ -1259,7 +1393,8 @@
 - id: k8s-gateway-reference-grant
   languages: [yaml]
   patterns:
-    - regex: '(?i)ReferenceGrant''severity: low
+    - regex: '(?i)ReferenceGrant'
+  severity: low
   description: "Gateway ReferenceGrant"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1268,7 +1403,8 @@
 - id: k8s-gateway-tls-mode
   languages: [yaml]
   patterns:
-    - regex: '(?i)mode:\\s*Terminate|mode:\\s*Passthrough''severity: low
+    - regex: '(?i)mode:\s*Terminate|mode:\s*Passthrough'
+  severity: low
   description: "Gateway TLS mode"
   remediation: "Use Terminate for TLS"
   cwe: "CWE-319"
@@ -1278,7 +1414,8 @@
 - id: k8s-prometheus-servicemonitor
   languages: [yaml]
   patterns:
-    - regex: '(?i)ServiceMonitor''severity: low
+    - regex: '(?i)ServiceMonitor'
+  severity: low
   description: "Prometheus ServiceMonitor"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1287,7 +1424,8 @@
 - id: k8s-prometheus-podmonitor
   languages: [yaml]
   patterns:
-    - regex: '(?i)PodMonitor''severity: low
+    - regex: '(?i)PodMonitor'
+  severity: low
   description: "Prometheus PodMonitor"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1296,7 +1434,8 @@
 - id: k8s-prometheus-probe
   languages: [yaml]
   patterns:
-    - regex: '(?i)Probe''severity: low
+    - regex: '(?i)Probe'
+  severity: low
   description: "Prometheus Probe"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1305,7 +1444,8 @@
 - id: k8s-prometheus-rule
   languages: [yaml]
   patterns:
-    - regex: '(?i)PrometheusRule''severity: low
+    - regex: '(?i)PrometheusRule'
+  severity: low
   description: "PrometheusRule"
   remediation: "Configure alerts properly"
   cwe: "CWE-693"
@@ -1314,7 +1454,8 @@
 - id: k8s-fluentd-config
   languages: [yaml]
   patterns:
-    - regex: '(?i)fluentd|fluent-bit''severity: low
+    - regex: '(?i)fluentd|fluent-bit'
+  severity: low
   description: "Fluentd logging"
   remediation: "Configure logging properly"
   cwe: "CWE-532"
@@ -1323,7 +1464,8 @@
 - id: k8s-elastic-agent
   languages: [yaml]
   patterns:
-    - regex: '(?i)elastic-agent|filebeat''severity: low
+    - regex: '(?i)elastic-agent|filebeat'
+  severity: low
   description: "Elastic logging"
   remediation: "Configure logging properly"
   cwe: "CWE-532"
@@ -1332,7 +1474,8 @@
 - id: k8s-jaeger-tracing
   languages: [yaml]
   patterns:
-    - regex: '(?i)jaeger|tracing''severity: low
+    - regex: '(?i)jaeger|tracing'
+  severity: low
   description: "Jaeger tracing"
   remediation: "Configure tracing properly"
   cwe: "CWE-532"
@@ -1341,7 +1484,8 @@
 - id: k8s-otel-collector
   languages: [yaml]
   patterns:
-    - regex: '(?i)otel|OpenTelemetry''severity: low
+    - regex: '(?i)otel|OpenTelemetry'
+  severity: low
   description: "OpenTelemetry"
   remediation: "Configure properly"
   cwe: "CWE-532"
@@ -1350,7 +1494,8 @@
 - id: k8s-grafana-dashboard
   languages: [yaml]
   patterns:
-    - regex: '(?i)GrafanaDashboard''severity: low
+    - regex: '(?i)GrafanaDashboard'
+  severity: low
   description: "Grafana dashboard"
   remediation: "Don't expose dashboards publicly"
   cwe: "CWE-200"
@@ -1359,7 +1504,8 @@
 - id: k8s-alertmanager-config
   languages: [yaml]
   patterns:
-    - regex: '(?i)Alertmanager''severity: low
+    - regex: '(?i)Alertmanager'
+  severity: low
   description: "Alertmanager"
   remediation: "Configure alerts properly"
   cwe: "CWE-693"
@@ -1368,7 +1514,8 @@
 - id: k8s-metrics-server
   languages: [yaml]
   patterns:
-    - regex: '(?i)metrics-server''severity: low
+    - regex: '(?i)metrics-server'
+  severity: low
   description: "Metrics server"
   remediation: "Secure metrics server"
   cwe: "CWE-200"
@@ -1377,7 +1524,8 @@
 - id: k8s-hpa
   languages: [yaml]
   patterns:
-    - regex: '(?i)HorizontalPodAutoscaler''severity: low
+    - regex: '(?i)HorizontalPodAutoscaler'
+  severity: low
   description: "HPA"
   remediation: "Configure properly"
   cwe: "CWE-770"
@@ -1386,7 +1534,8 @@
 - id: k8s-vpa
   languages: [yaml]
   patterns:
-    - regex: '(?i)VerticalPodAutoscaler''severity: low
+    - regex: '(?i)VerticalPodAutoscaler'
+  severity: low
   description: "VPA"
   remediation: "Configure properly"
   cwe: "CWE-770"
@@ -1395,7 +1544,8 @@
 - id: k8s-pdb
   languages: [yaml]
   patterns:
-    - regex: '(?i)PodDisruptionBudget''severity: low
+    - regex: '(?i)PodDisruptionBudget'
+  severity: low
   description: "PDB"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1404,7 +1554,8 @@
 - id: k8s-limit-range
   languages: [yaml]
   patterns:
-    - regex: '(?i)LimitRange''severity: low
+    - regex: '(?i)LimitRange'
+  severity: low
   description: "LimitRange"
   remediation: "Configure properly"
   cwe: "CWE-770"
@@ -1413,7 +1564,8 @@
 - id: k8s-resource-quota
   languages: [yaml]
   patterns:
-    - regex: '(?i)ResourceQuota''severity: low
+    - regex: '(?i)ResourceQuota'
+  severity: low
   description: "ResourceQuota"
   remediation: "Configure properly"
   cwe: "CWE-770"
@@ -1422,7 +1574,8 @@
 - id: k8s-priority-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)PriorityClass''severity: low
+    - regex: '(?i)PriorityClass'
+  severity: low
   description: "PriorityClass"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1431,7 +1584,8 @@
 - id: k8s-runtime-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)RuntimeClass''severity: low
+    - regex: '(?i)RuntimeClass'
+  severity: low
   description: "RuntimeClass"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1440,7 +1594,8 @@
 - id: k8s-validating-webhook
   languages: [yaml]
   patterns:
-    - regex: '(?i)ValidatingWebhookConfiguration''severity: low
+    - regex: '(?i)ValidatingWebhookConfiguration'
+  severity: low
   description: "ValidatingWebhook"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1449,7 +1604,8 @@
 - id: k8s-mutating-webhook
   languages: [yaml]
   patterns:
-    - regex: '(?i)MutatingWebhookConfiguration''severity: low
+    - regex: '(?i)MutatingWebhookConfiguration'
+  severity: low
   description: "MutatingWebhook"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1459,7 +1615,8 @@
 - id: k8s-pvc
   languages: [yaml]
   patterns:
-    - regex: '(?i)PersistentVolumeClaim''severity: low
+    - regex: '(?i)PersistentVolumeClaim'
+  severity: low
   description: "PVC"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1468,7 +1625,8 @@
 - id: k8s-pv
   languages: [yaml]
   patterns:
-    - regex: '(?i)PersistentVolume''severity: low
+    - regex: '(?i)PersistentVolume'
+  severity: low
   description: "PV"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1477,7 +1635,8 @@
 - id: k8s-storage-class
   languages: [yaml]
   patterns:
-    - regex: '(?i)StorageClass''severity: low
+    - regex: '(?i)StorageClass'
+  severity: low
   description: "StorageClass"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1486,7 +1645,8 @@
 - id: k8s-volume-claim-template
   languages: [yaml]
   patterns:
-    - regex: '(?i)volumeClaimTemplates''severity: low
+    - regex: '(?i)volumeClaimTemplates'
+  severity: low
   description: "VolumeClaimTemplate"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1495,7 +1655,8 @@
 - id: k8s-empty-dir
   languages: [yaml]
   patterns:
-    - regex: '(?i)emptyDir:''severity: low
+    - regex: '(?i)emptyDir:'
+  severity: low
   description: "emptyDir volume"
   remediation: "Set sizeLimit"
   cwe: "CWE-770"
@@ -1504,7 +1665,8 @@
 - id: k8s-downward-api
   languages: [yaml]
   patterns:
-    - regex: '(?i)downwardAPI:''severity: low
+    - regex: '(?i)downwardAPI:'
+  severity: low
   description: "downwardAPI volume"
   remediation: "Don't expose sensitive info"
   cwe: "CWE-200"
@@ -1513,7 +1675,8 @@
 - id: k8s-projected-volume
   languages: [yaml]
   patterns:
-    - regex: '(?i)projected:''severity: low
+    - regex: '(?i)projected:'
+  severity: low
   description: "Projected volume"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1522,7 +1685,8 @@
 - id: k8s-csi-driver
   languages: [yaml]
   patterns:
-    - regex: '(?i)CSIDriver''severity: low
+    - regex: '(?i)CSIDriver'
+  severity: low
   description: "CSI Driver"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1531,7 +1695,8 @@
 - id: k8s-csi-node
   languages: [yaml]
   patterns:
-    - regex: '(?i)CSINode''severity: low
+    - regex: '(?i)CSINode'
+  severity: low
   description: "CSI Node"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1540,7 +1705,8 @@
 - id: k8s-csi-storage
   languages: [yaml]
   patterns:
-    - regex: '(?i)CSIStorageCapacity''severity: low
+    - regex: '(?i)CSIStorageCapacity'
+  severity: low
   description: "CSI Storage Capacity"
   remediation: "Configure properly"
   cwe: "CWE-693"
@@ -1549,7 +1715,8 @@
 - id: k8s-pod-disruption-budget
   languages: [yaml]
   patterns:
-    - regex: '(?i)PodDisruptionBudget''severity: medium
+    - regex: '(?i)PodDisruptionBudget'
+  severity: medium
   description: "Pod disruption budget defined"
   remediation: "Configure for availability"
   cwe: "CWE-693"
@@ -1559,7 +1726,8 @@
 - id: k8s-resource-quota
   languages: [yaml]
   patterns:
-    - regex: '(?i)ResourceQuota''severity: medium
+    - regex: '(?i)ResourceQuota'
+  severity: medium
   description: "Resource quota defined"
   remediation: "Configure for limits"
   cwe: "CWE-400"
@@ -1569,7 +1737,8 @@
 - id: k8s-limit-range
   languages: [yaml]
   patterns:
-    - regex: '(?i)LimitRange''severity: low
+    - regex: '(?i)LimitRange'
+  severity: low
   description: "Limit range defined"
   remediation: "Configure resource limits"
   cwe: "CWE-400"
@@ -1579,7 +1748,8 @@
 - id: k8s-network-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)NetworkPolicy''severity: medium
+    - regex: '(?i)NetworkPolicy'
+  severity: medium
   description: "Network policy defined"
   remediation: "Configure network isolation"
   cwe: "CWE-284"
@@ -1589,7 +1759,8 @@
 - id: k8s-pod-security-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)PodSecurityPolicy''severity: high
+    - regex: '(?i)PodSecurityPolicy'
+  severity: high
   description: "Pod security policy"
   remediation: "Configure pod security"
   cwe: "CWE-250"

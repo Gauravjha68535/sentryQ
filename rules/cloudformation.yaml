@@ -1,7 +1,8 @@
 - id: cfn-iam-wildcard-action
   languages: [yaml]
   patterns:
-    - regex: '(?i)Action\\s*:\\s*(?:\\*|\\[.*\\*.*\\])''severity: high
+    - regex: '(?i)Action\s*:\s*(?:\*|\[.*\*.*\])'
+  severity: high
   description: "Wildcard IAM action"
   remediation: "Use least privilege IAM actions"
   cwe: "CWE-269"
@@ -11,7 +12,8 @@
 - id: cfn-iam-wildcard-resource
   languages: [yaml]
   patterns:
-    - regex: '(?i)Resource\\s*:\\s*\\*''severity: high
+    - regex: '(?i)Resource\s*:\s*\*'
+  severity: high
   description: "Wildcard IAM resource"
   remediation: "Specify precise resource ARNs"
   cwe: "CWE-269"
@@ -21,7 +23,8 @@
 - id: cfn-s3-public-read
   languages: [yaml]
   patterns:
-    - regex: '(?i)AccessControl\\s*:\\s*PublicRead''severity: critical
+    - regex: '(?i)AccessControl\s*:\s*PublicRead'
+  severity: critical
   description: "Public S3 bucket"
   remediation: "Use Private access control"
   cwe: "CWE-284"
@@ -31,7 +34,8 @@
 - id: cfn-sg-open-ingress
   languages: [yaml]
   patterns:
-    - regex: '(?i)CidrIp\\s*:\\s*0\\.0\\.0\\.0/0''severity: high
+    - regex: '(?i)CidrIp\s*:\s*0\.0\.0\.0/0'
+  severity: high
   description: "Open security group ingress"
   remediation: "Restrict IP ranges for ingress"
   cwe: "CWE-284"
@@ -41,7 +45,8 @@
 - id: cfn-rds-no-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)StorageEncrypted\\s*:\\s*false''severity: high
+    - regex: '(?i)StorageEncrypted\s*:\s*false'
+  severity: high
   description: "RDS instances without encryption"
   remediation: "Enable StorageEncrypted: true"
   cwe: "CWE-311"
@@ -51,7 +56,8 @@
 - id: cfn-s3-no-versioning
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::S3::Bucket''severity: low
+    - regex: '(?i)Type:\s*AWS::S3::Bucket'
+  severity: low
   description: "S3 Bucket without versioning"
   remediation: "Enable VersioningConfiguration"
   cwe: "CWE-119"
@@ -60,7 +66,8 @@
 - id: cfn-s3-no-logging
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::S3::Bucket''severity: medium
+    - regex: '(?i)Type:\s*AWS::S3::Bucket'
+  severity: medium
   description: "S3 Bucket without access logging"
   remediation: "Enable LoggingConfiguration"
   cwe: "CWE-778"
@@ -69,7 +76,8 @@
 - id: cfn-iam-user-explicit-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::IAM::Policy[\s\S]*?Users:''severity: medium
+    - regex: '(?i)Type:\s*AWS::IAM::Policy[\s\S]*?Users:'
+  severity: medium
   description: "IAM Policy directly attached to User"
   remediation: "Attach policies to IAM Groups instead"
   cwe: "CWE-269"
@@ -78,7 +86,7 @@
 - id: cfn-sg-all-ports
   languages: [yaml]
   patterns:
-    - regex: '(?i)FromPort:\s*['''"]?0[''"]?\s*\n\s*ToPort:\s*[''"]?65535[''"]?'
+    - regex: '(?i)FromPort:\s*[''"]?0[''"]?\s*\n\s*ToPort:\s*[''"]?65535[''"]?'
   severity: high
   description: "Security Group opens all ports"
   remediation: "Specify exact required ports"
@@ -88,7 +96,7 @@
 - id: cfn-rds-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)PubliclyAccessible:\s*(?:true|"true"|'''true'')'
+    - regex: '(?i)PubliclyAccessible:\s*(?:true|"true"|''true'')'
   severity: critical
   description: "RDS instance is publicly accessible"
   remediation: "Set PubliclyAccessible to false"
@@ -98,7 +106,8 @@
 - id: cfn-api-gateway-no-auth
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ApiGateway::Method[\s\S]*?AuthorizationType:\s*NONE''severity: high
+    - regex: '(?i)Type:\s*AWS::ApiGateway::Method[\s\S]*?AuthorizationType:\s*NONE'
+  severity: high
   description: "API Gateway method without authorization"
   remediation: "Use AWS_IAM, COGNITO_USER_POOLS, or CUSTOM"
   cwe: "CWE-306"
@@ -107,7 +116,8 @@
 - id: cfn-sqs-no-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SQS::Queue''severity: medium
+    - regex: '(?i)Type:\s*AWS::SQS::Queue'
+  severity: medium
   description: "SQS Queue without server-side encryption"
   remediation: "Set KmsMasterKeyId"
   cwe: "CWE-311"
@@ -116,7 +126,8 @@
 - id: cfn-efs-unencrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EFS::FileSystem[\s\S]*?Encrypted:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::EFS::FileSystem[\s\S]*?Encrypted:\s*false'
+  severity: high
   description: "EFS File System is unencrypted"
   remediation: "Set Encrypted to true"
   cwe: "CWE-311"
@@ -125,7 +136,8 @@
 - id: cfn-hardcoded-aws-key
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:AccessKeyId|SecretAccessKey):\s*''severity: critical
+    - regex: '(?i)(?:AccessKeyId|SecretAccessKey):\s*'
+  severity: critical
   description: "Hardcoded AWS Access Key"
   remediation: "Use Secrets Manager or Parameters"
   cwe: "CWE-798"
@@ -134,7 +146,8 @@
 - id: cfn-elasticsearch-unencrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Elasticsearch::Domain[\s\S]*?EncryptionAtRestOptions:[\s\S]*?Enabled:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::Elasticsearch::Domain[\s\S]*?EncryptionAtRestOptions:[\s\S]*?Enabled:\s*false'
+  severity: high
   description: "Elasticsearch domain unencrypted at rest"
   remediation: "Enable EncryptionAtRestOptions"
   cwe: "CWE-311"
@@ -145,7 +158,8 @@
 - id: cfn-iam-password-weak
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::IAM::PasswordPolicy[\s\S]*?MinimumLength:\s*[0-7]''severity: medium
+    - regex: '(?i)Type:\s*AWS::IAM::PasswordPolicy[\s\S]*?MinimumLength:\s*[0-7]'
+  severity: medium
   description: "Weak IAM password policy"
   remediation: "Set MinimumLength to 14+"
   cwe: "CWE-521"
@@ -155,7 +169,8 @@
 - id: cfn-iam-mfa-not-required
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::IAM::PasswordPolicy[\s\S]*?RequireSymbols:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::IAM::PasswordPolicy[\s\S]*?RequireSymbols:\s*false'
+  severity: high
   description: "IAM password policy does not require MFA"
   remediation: "Enable MFA for all users"
   cwe: "CWE-308"
@@ -165,7 +180,8 @@
 - id: cfn-iam-passrole-wildcard
   languages: [yaml]
   patterns:
-    - regex: '(?i)Action:\s*iam:PassRole[\s\S]*?Resource:\s*\*''severity: critical
+    - regex: '(?i)Action:\s*iam:PassRole[\s\S]*?Resource:\s*\*'
+  severity: critical
   description: "iam:PassRole with wildcard resource"
   remediation: "Specify exact role ARNs"
   cwe: "CWE-269"
@@ -175,7 +191,8 @@
 - id: cfn-iam-access-advisory
   languages: [yaml]
   patterns:
-    - regex: '(?i)Action:\s*\[\s*\*\s*\]''severity: medium
+    - regex: '(?i)Action:\s*\[\s*\*\s*\]'
+  severity: medium
   description: "IAM policy with all actions advisory"
   remediation: "Review and restrict actions"
   cwe: "CWE-269"
@@ -185,7 +202,8 @@
 - id: cfn-iam-root-account
   languages: [yaml]
   patterns:
-    - regex: '(?i)Root\s*:\s*true''severity: critical
+    - regex: '(?i)Root\s*:\s*true'
+  severity: critical
   description: "Using root account"
   remediation: "Use IAM users instead of root"
   cwe: "CWE-272"
@@ -195,7 +213,8 @@
 - id: cfn-iam-inline-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::IAM::User[\s\S]*?Policy:''severity: medium
+    - regex: '(?i)Type:\s*AWS::IAM::User[\s\S]*?Policy:'
+  severity: medium
   description: "Inline IAM policy on user"
   remediation: "Use managed policies instead"
   cwe: "CWE-269"
@@ -206,7 +225,8 @@
 - id: cfn-s3-bucket-policy-wildcard
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::S3::BucketPolicy[\s\S]*?Principal:\s*\*''severity: critical
+    - regex: '(?i)Type:\s*AWS::S3::BucketPolicy[\s\S]*?Principal:\s*\*'
+  severity: critical
   description: "S3 bucket policy allows wildcard principal"
   remediation: "Specify exact principals"
   cwe: "CWE-284"
@@ -216,7 +236,8 @@
 - id: cfn-s3-block-public-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)BlockPublicAcls:\s*false|BlockPublicPolicy:\s*false''severity: high
+    - regex: '(?i)BlockPublicAcls:\s*false|BlockPublicPolicy:\s*false'
+  severity: high
   description: "S3 block public access disabled"
   remediation: "Enable block public access"
   cwe: "CWE-284"
@@ -226,7 +247,8 @@
 - id: cfn-s3-http-allowed
   languages: [yaml]
   patterns:
-    - regex: '(?i)RedirectRule:\s*Protocol:\s*http''severity: medium
+    - regex: '(?i)RedirectRule:\s*Protocol:\s*http'
+  severity: medium
   description: "S3 redirect allows HTTP"
   remediation: "Use HTTPS for redirects"
   cwe: "CWE-319"
@@ -236,7 +258,8 @@
 - id: cfn-s3-encryption-cmk
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::S3::Bucket[\s\S]*?KMSKeyId:\s*alias/aws/s3''severity: low
+    - regex: '(?i)Type:\s*AWS::S3::Bucket[\s\S]*?KMSKeyId:\s*alias/aws/s3'
+  severity: low
   description: "S3 using default KMS key"
   remediation: "Use custom CMK for better control"
   cwe: "CWE-311"
@@ -246,7 +269,8 @@
 - id: cfn-s3-lifecycle-expiration
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::S3::Bucket[\s\S]*?LifecycleConfiguration''severity: low
+    - regex: '(?i)Type:\s*AWS::S3::Bucket[\s\S]*?LifecycleConfiguration'
+  severity: low
   description: "No lifecycle expiration policy"
   remediation: "Set expiration for objects"
   cwe: "CWE-799"
@@ -257,7 +281,8 @@
 - id: cfn-ec2-public-ip
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::Instance[\s\S]*?AssociatePublicIpAddress:\s*true''severity: high
+    - regex: '(?i)Type:\s*AWS::EC2::Instance[\s\S]*?AssociatePublicIpAddress:\s*true'
+  severity: high
   description: "EC2 instance with public IP"
   remediation: "Use private subnet or Elastic IP with restrictions"
   cwe: "CWE-284"
@@ -267,7 +292,8 @@
 - id: cfn-ec2-no-key-pair
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::Instance''severity: medium
+    - regex: '(?i)Type:\s*AWS::EC2::Instance'
+  severity: medium
   description: "EC2 instance without key pair"
   remediation: "Use key pair for SSH access"
   cwe: "CWE-312"
@@ -277,7 +303,8 @@
 - id: cfn-ec2-termination-protection
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::Instance[\s\S]*?DisableApiTermination:\s*false''severity: medium
+    - regex: '(?i)Type:\s*AWS::EC2::Instance[\s\S]*?DisableApiTermination:\s*false'
+  severity: medium
   description: "EC2 termination protection disabled"
   remediation: "Enable DisableApiTermination"
   cwe: "CWE-276"
@@ -287,7 +314,8 @@
 - id: cfn-ec2-detailed-monitoring
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::Instance[\s\S]*?Monitoring:\s*false''severity: low
+    - regex: '(?i)Type:\s*AWS::EC2::Instance[\s\S]*?Monitoring:\s*false'
+  severity: low
   description: "EC2 detailed monitoring disabled"
   remediation: "Enable detailed monitoring"
   cwe: "CWE-778"
@@ -297,7 +325,8 @@
 - id: cfn-ec2-security-group
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::SecurityGroup[\s\S]*?GroupDescription:\s*default''severity: medium
+    - regex: '(?i)Type:\s*AWS::EC2::SecurityGroup[\s\S]*?GroupDescription:\s*default'
+  severity: medium
   description: "Default security group rules"
   remediation: "Restrict default security group"
   cwe: "CWE-284"
@@ -308,7 +337,8 @@
 - id: cfn-vpc-flow-logs
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::VPC''severity: medium
+    - regex: '(?i)Type:\s*AWS::EC2::VPC'
+  severity: medium
   description: "VPC without flow logs"
   remediation: "Enable VPC flow logs"
   cwe: "CWE-778"
@@ -318,7 +348,8 @@
 - id: cfn-vpc-endpoint-exposed
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::VPCEndpoint[\s\S]*?Policy:\s*\{\s*Statement:\s*\[\s*\{\s*Principal:\s*\*''severity: high
+    - regex: '(?i)Type:\s*AWS::EC2::VPCEndpoint[\s\S]*?Policy:\s*\{\s*Statement:\s*\[\s*\{\s*Principal:\s*\*'
+  severity: high
   description: "VPC endpoint with open policy"
   remediation: "Restrict VPC endpoint policy"
   cwe: "CWE-284"
@@ -328,7 +359,8 @@
 - id: cfn-nat-gateway
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::NatGateway''severity: low
+    - regex: '(?i)Type:\s*AWS::EC2::NatGateway'
+  severity: low
   description: "NAT Gateway in use"
   remediation: "Use NAT Gateway with proper sizing"
   cwe: "CWE-284"
@@ -338,7 +370,8 @@
 - id: cfn-vpc-dns-hostnames
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::VPC[\s\S]*?EnableDnsHostnames:\s*false''severity: medium
+    - regex: '(?i)Type:\s*AWS::EC2::VPC[\s\S]*?EnableDnsHostnames:\s*false'
+  severity: medium
   description: "VPC DNS hostnames disabled"
   remediation: "Enable DNS hostnames"
   cwe: "CWE-284"
@@ -349,7 +382,8 @@
 - id: cfn-lambda-env-exposed
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?Environment:[\s\S]*?Variables:\s*\{\s*\}''severity: high
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?Environment:[\s\S]*?Variables:\s*\{\s*\}'
+  severity: high
   description: "Lambda environment variables exposed"
   remediation: "Use Secrets Manager for sensitive data"
   cwe: "CWE-200"
@@ -359,7 +393,8 @@
 - id: cfn-lambda-wildcard-role
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?Role:\s*\*''severity: critical
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?Role:\s*\*'
+  severity: critical
   description: "Lambda with wildcard IAM role"
   remediation: "Specify exact IAM role"
   cwe: "CWE-269"
@@ -369,7 +404,8 @@
 - id: cfn-lambda-layers-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::LayerVersion[\s\S]*?LicenseInfo:\s*MIT''severity: medium
+    - regex: '(?i)Type:\s*AWS::Lambda::LayerVersion[\s\S]*?LicenseInfo:\s*MIT'
+  severity: medium
   description: "Lambda layer publicly available"
   remediation: "Restrict layer access"
   cwe: "CWE-284"
@@ -379,7 +415,8 @@
 - id: cfn-lambda-vpc-none
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?VpcConfig:\s*\{\}''severity: low
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?VpcConfig:\s*\{\}'
+  severity: low
   description: "Lambda not in VPC"
   remediation: "Use VPC for sensitive workloads"
   cwe: "CWE-284"
@@ -389,7 +426,8 @@
 - id: cfn-lambda-ephemeral-storage
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?EphemeralStorage:\s*\{\s*Size:\s*512''severity: low
+    - regex: '(?i)Type:\s*AWS::Lambda::Function[\s\S]*?EphemeralStorage:\s*\{\s*Size:\s*512'
+  severity: low
   description: "Lambda ephemeral storage limited"
   remediation: "Increase ephemeral storage if needed"
   cwe: "CWE-400"
@@ -400,7 +438,8 @@
 - id: cfn-ecs-privileged
   languages: [yaml]
   patterns:
-    - regex: '(?i)Privileged:\s*true''severity: critical
+    - regex: '(?i)Privileged:\s*true'
+  severity: critical
   description: "ECS task runs in privileged mode"
   remediation: "Disable privileged mode"
   cwe: "CWE-250"
@@ -410,7 +449,8 @@
 - id: cfn-eks-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EKS::Cluster[\s\S]*?ResourcesVpcConfig:[\s\S]*?EndpointPublicAccess:\s*true''severity: high
+    - regex: '(?i)Type:\s*AWS::EKS::Cluster[\s\S]*?ResourcesVpcConfig:[\s\S]*?EndpointPublicAccess:\s*true'
+  severity: high
   description: "EKS cluster publicly accessible"
   remediation: "Disable public endpoint access"
   cwe: "CWE-284"
@@ -420,7 +460,8 @@
 - id: cfn-eks-root-user
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EKS::Cluster[\s\S]*?Logging:[\s\S]*?ClusterLogging:''severity: medium
+    - regex: '(?i)Type:\s*AWS::EKS::Cluster[\s\S]*?Logging:[\s\S]*?ClusterLogging:'
+  severity: medium
   description: "EKS cluster logging not configured"
   remediation: "Enable cluster logging"
   cwe: "CWE-778"
@@ -430,7 +471,8 @@
 - id: cfn-ecs-execution-role
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ECS::TaskDefinition[\s\S]*?ExecutionRoleArn:\s*\*''severity: high
+    - regex: '(?i)Type:\s*AWS::ECS::TaskDefinition[\s\S]*?ExecutionRoleArn:\s*\*'
+  severity: high
   description: "ECS task execution role too broad"
   remediation: "Specify exact execution role"
   cwe: "CWE-269"
@@ -441,7 +483,8 @@
 - id: cfn-cloudtrail-not-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail''severity: critical
+    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail'
+  severity: critical
   description: "CloudTrail not enabled"
   remediation: "Enable CloudTrail logging"
   cwe: "CWE-778"
@@ -451,7 +494,8 @@
 - id: cfn-cloudtrail-not-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail[\s\S]*?KMSKeyId:\s*alias/aws/cloudtrail''severity: medium
+    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail[\s\S]*?KMSKeyId:\s*alias/aws/cloudtrail'
+  severity: medium
   description: "CloudTrail using default KMS key"
   remediation: "Use custom CMK for CloudTrail"
   cwe: "CWE-311"
@@ -461,7 +505,8 @@
 - id: cfn-cloudtrail-no-validation
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail[\s\S]*?EnableLogFileValidation:\s*false''severity: medium
+    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail[\s\S]*?EnableLogFileValidation:\s*false'
+  severity: medium
   description: "CloudTrail log validation disabled"
   remediation: "Enable log file validation"
   cwe: "CWE-778"
@@ -471,7 +516,8 @@
 - id: cfn-cloudtrail-s3-bucket
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail[\s\S]*?S3BucketName:\s*\*''severity: high
+    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail[\s\S]*?S3BucketName:\s*\*'
+  severity: high
   description: "CloudTrail writes to wildcard S3 bucket"
   remediation: "Specify exact S3 bucket"
   cwe: "CWE-284"
@@ -482,7 +528,7 @@
 - id: cfn-secrets-not-in-sm
   languages: [yaml]
   patterns:
-    - regex: '(?i)(?:Password|Secret|ApiKey|Token):\s*['''"]\w+[''"]'
+    - regex: '(?i)(?:Password|Secret|ApiKey|Token):\s*[''"]\w+[''"]'
   severity: critical
   description: "Hardcoded secret in template"
   remediation: "Use Secrets Manager"
@@ -493,7 +539,8 @@
 - id: cfn-secrets-rotation-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SecretsManager::Secret[\s\S]*?RotationRules:\s*AutomaticallyAfterDays:\s*0''severity: medium
+    - regex: '(?i)Type:\s*AWS::SecretsManager::Secret[\s\S]*?RotationRules:\s*AutomaticallyAfterDays:\s*0'
+  severity: medium
   description: "Secret rotation disabled"
   remediation: "Enable automatic rotation"
   cwe: "CWE-262"
@@ -503,7 +550,8 @@
 - id: cfn-secrets-replica
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SecretsManager::Secret[\s\S]*?ReplicaRegions:''severity: low
+    - regex: '(?i)Type:\s*AWS::SecretsManager::Secret[\s\S]*?ReplicaRegions:'
+  severity: low
   description: "Secret not replicated"
   remediation: "Enable cross-region replication"
   cwe: "CWE-704"
@@ -514,7 +562,8 @@
 - id: cfn-kms-wildcard
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::KMS::Key[\s\S]*?KeyUsage:\s*ENCRYPT_DECRYPT[\s\S]*?Principal:\s*\*''severity: critical
+    - regex: '(?i)Type:\s*AWS::KMS::Key[\s\S]*?KeyUsage:\s*ENCRYPT_DECRYPT[\s\S]*?Principal:\s*\*'
+  severity: critical
   description: "KMS key with wildcard principal"
   remediation: "Restrict key usage to specific principals"
   cwe: "CWE-269"
@@ -524,7 +573,8 @@
 - id: cfn-kms-rotation-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::KMS::Key[\s\S]*?EnableKeyRotation:\s*false''severity: medium
+    - regex: '(?i)Type:\s*AWS::KMS::Key[\s\S]*?EnableKeyRotation:\s*false'
+  severity: medium
   description: "KMS key rotation disabled"
   remediation: "Enable key rotation"
   cwe: "CWE-262"
@@ -534,7 +584,8 @@
 - id: cfn-kms-external-key
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::KMS::ExternalKey''severity: medium
+    - regex: '(?i)Type:\s*AWS::KMS::ExternalKey'
+  severity: medium
   description: "KMS external key (bring your own key)"
   remediation: "Use AWS managed keys if possible"
   cwe: "CWE-311"
@@ -545,7 +596,8 @@
 - id: cfn-dynamodb-pitr-disabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::DynamoDB::Table[\s\S]*?PointInTimeRecoverySpecification:[\s\S]*?PointInTimeRecoveryEnabled:\s*false''severity: medium
+    - regex: '(?i)Type:\s*AWS::DynamoDB::Table[\s\S]*?PointInTimeRecoverySpecification:[\s\S]*?PointInTimeRecoveryEnabled:\s*false'
+  severity: medium
   description: "DynamoDB point-in-time recovery disabled"
   remediation: "Enable PITR"
   cwe: "CWE-778"
@@ -555,7 +607,8 @@
 - id: cfn-dynamodb-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::DynamoDB::Table[\s\S]*?SSESpecification:[\s\S]*?SSEEnabled:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::DynamoDB::Table[\s\S]*?SSESpecification:[\s\S]*?SSEEnabled:\s*false'
+  severity: high
   description: "DynamoDB encryption at rest disabled"
   remediation: "Enable SSE"
   cwe: "CWE-311"
@@ -565,7 +618,8 @@
 - id: cfn-dynamodb-stream
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::DynamoDB::Table[\s\S]*?StreamSpecification:''severity: low
+    - regex: '(?i)Type:\s*AWS::DynamoDB::Table[\s\S]*?StreamSpecification:'
+  severity: low
   description: "DynamoDB streams enabled"
   remediation: "Disable if not needed"
   cwe: "CWE-200"
@@ -576,7 +630,8 @@
 - id: cfn-redshift-not-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Redshift::Cluster[\s\S]*?Encrypted:\s*false''severity: critical
+    - regex: '(?i)Type:\s*AWS::Redshift::Cluster[\s\S]*?Encrypted:\s*false'
+  severity: critical
   description: "Redshift cluster not encrypted"
   remediation: "Enable encryption"
   cwe: "CWE-311"
@@ -586,7 +641,8 @@
 - id: cfn-redshift-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Redshift::Cluster[\s\S]*?PubliclyAccessible:\s*true''severity: critical
+    - regex: '(?i)Type:\s*AWS::Redshift::Cluster[\s\S]*?PubliclyAccessible:\s*true'
+  severity: critical
   description: "Redshift cluster publicly accessible"
   remediation: "Set publicly accessible to false"
   cwe: "CWE-284"
@@ -596,7 +652,7 @@
 - id: cfn-redshift-username-password
   languages: [yaml]
   patterns:
-    - regex: '(?i)MasterUserPassword:\s*['''"]\w+[''"]'
+    - regex: '(?i)MasterUserPassword:\s*[''"]\w+[''"]'
   severity: critical
   description: "Redshift master password in template"
   remediation: "Use Secrets Manager"
@@ -608,7 +664,8 @@
 - id: cfn-cw-logs-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Logs::LogGroup[\s\S]*?KmsKeyId:\s*alias/aws/logs''severity: medium
+    - regex: '(?i)Type:\s*AWS::Logs::LogGroup[\s\S]*?KmsKeyId:\s*alias/aws/logs'
+  severity: medium
   description: "CloudWatch Logs using default KMS"
   remediation: "Use custom CMK"
   cwe: "CWE-311"
@@ -618,7 +675,8 @@
 - id: cfn-cw-alarm-no-action
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudWatch::Alarm''severity: medium
+    - regex: '(?i)Type:\s*AWS::CloudWatch::Alarm'
+  severity: medium
   description: "CloudWatch alarm has no action"
   remediation: "Add alarm actions"
   cwe: "CWE-778"
@@ -628,7 +686,8 @@
 - id: cfn-cw-log-retention
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Logs::LogGroup[\s\S]*?RetentionInDays:\s*1''severity: low
+    - regex: '(?i)Type:\s*AWS::Logs::LogGroup[\s\S]*?RetentionInDays:\s*1'
+  severity: low
   description: "CloudWatch log retention too short"
   remediation: "Increase retention period"
   cwe: "CWE-799"
@@ -639,7 +698,8 @@
 - id: cfn-waf-not-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::WAFv2::WebACL''severity: medium
+    - regex: '(?i)Type:\s*AWS::WAFv2::WebACL'
+  severity: medium
   description: "WAF not enabled globally"
   remediation: "Enable WAF on all resources"
   cwe: "CWE-284"
@@ -649,7 +709,8 @@
 - id: cfn-shield-not-enabled
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Shield::ProtectiveResource''severity: medium
+    - regex: '(?i)Type:\s*AWS::Shield::ProtectiveResource'
+  severity: medium
   description: "AWS Shield not enabled"
   remediation: "Enable Shield for critical resources"
   cwe: "CWE-284"
@@ -660,7 +721,8 @@
 - id: cfn-ebs-unencrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::Volume[\s\S]*?Encrypted:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::EC2::Volume[\s\S]*?Encrypted:\s*false'
+  severity: high
   description: "EBS volume unencrypted"
   remediation: "Enable encryption"
   cwe: "CWE-311"
@@ -670,7 +732,8 @@
 - id: cfn-ebs-snapshot-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::Snapshot[\s\S]*?CreateVolumePermissions:\s*\{\s*GroupName:\s*all''severity: critical
+    - regex: '(?i)Type:\s*AWS::EC2::Snapshot[\s\S]*?CreateVolumePermissions:\s*\{\s*GroupName:\s*all'
+  severity: critical
   description: "EBS snapshot publicly shared"
   remediation: "Remove public access"
   cwe: "CWE-284"
@@ -681,7 +744,8 @@
 - id: cfn-cognito-no-mfa
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Cognito::UserPool[\s\S]*?MfaConfiguration:\s*OFF''severity: high
+    - regex: '(?i)Type:\s*AWS::Cognito::UserPool[\s\S]*?MfaConfiguration:\s*OFF'
+  severity: high
   description: "Cognito user pool MFA disabled"
   remediation: "Enable MFA"
   cwe: "CWE-308"
@@ -691,7 +755,8 @@
 - id: cfn-cognito-identity-pool
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Cognito::IdentityPool[\s\S]*?AllowUnauthenticatedIdentities:\s*true''severity: medium
+    - regex: '(?i)Type:\s*AWS::Cognito::IdentityPool[\s\S]*?AllowUnauthenticatedIdentities:\s*true'
+  severity: medium
   description: "Cognito identity pool allows unauthenticated"
   remediation: "Disable unauthenticated identities"
   cwe: "CWE-284"
@@ -701,7 +766,8 @@
 - id: cfn-cognito-password-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Cognito::UserPool[\s\S]*?MinimumLength:\s*[0-7]''severity: medium
+    - regex: '(?i)Type:\s*AWS::Cognito::UserPool[\s\S]*?MinimumLength:\s*[0-7]'
+  severity: medium
   description: "Weak Cognito password policy"
   remediation: "Set minimum length to 14+"
   cwe: "CWE-521"
@@ -712,7 +778,8 @@
 - id: cfn-kinesis-not-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Kinesis::Stream[\s\S]*?EncryptionType:\s*NONE''severity: high
+    - regex: '(?i)Type:\s*AWS::Kinesis::Stream[\s\S]*?EncryptionType:\s*NONE'
+  severity: high
   description: "Kinesis stream not encrypted"
   remediation: "Enable server-side encryption"
   cwe: "CWE-311"
@@ -722,7 +789,8 @@
 - id: cfn-kinesis-short-retention
   languages: [yaml]
   patterns:
-    - regex: '(?i)RetentionPeriodHours:\s*24''severity: low
+    - regex: '(?i)RetentionPeriodHours:\s*24'
+  severity: low
   description: "Kinesis short retention period"
   remediation: "Increase retention if needed"
   cwe: "CWE-779"
@@ -733,7 +801,8 @@
 - id: cfn-msk-not-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::MSK::Cluster[\s\S]*?EncryptionInfo:[\s\S]*?EncryptionAtRest:\s*false''severity: critical
+    - regex: '(?i)Type:\s*AWS::MSK::Cluster[\s\S]*?EncryptionInfo:[\s\S]*?EncryptionAtRest:\s*false'
+  severity: critical
   description: "MSK cluster not encrypted at rest"
   remediation: "Enable encryption at rest"
   cwe: "CWE-311"
@@ -743,7 +812,8 @@
 - id: cfn-msk-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::MSK::Cluster[\s\S]*?BrokerNodeGroupInfo:[\s\S]*?ConnectivityInfo:[\s\S]*?PublicAccess:\s*true''severity: critical
+    - regex: '(?i)Type:\s*AWS::MSK::Cluster[\s\S]*?BrokerNodeGroupInfo:[\s\S]*?ConnectivityInfo:[\s\S]*?PublicAccess:\s*true'
+  severity: critical
   description: "MSK cluster publicly accessible"
   remediation: "Disable public access"
   cwe: "CWE-284"
@@ -754,7 +824,8 @@
 - id: cfn-sns-not-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SNS::Topic[\s\S]*?KmsMasterKeyId:\s*alias/aws/sns''severity: medium
+    - regex: '(?i)Type:\s*AWS::SNS::Topic[\s\S]*?KmsMasterKeyId:\s*alias/aws/sns'
+  severity: medium
   description: "SNS topic using default KMS"
   remediation: "Use custom CMK"
   cwe: "CWE-311"
@@ -764,7 +835,8 @@
 - id: cfn-sns-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SNS::TopicPolicy[\s\S]*?Principal:\s*\*''severity: high
+    - regex: '(?i)Type:\s*AWS::SNS::TopicPolicy[\s\S]*?Principal:\s*\*'
+  severity: high
   description: "SNS topic publicly accessible"
   remediation: "Restrict topic policy"
   cwe: "CWE-284"
@@ -775,7 +847,8 @@
 - id: cfn-elasticache-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ElastiCache::ReplicationGroup[\s\S]*?AtRestEncryptionEnabled:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::ElastiCache::ReplicationGroup[\s\S]*?AtRestEncryptionEnabled:\s*false'
+  severity: high
   description: "ElastiCache encryption at rest disabled"
   remediation: "Enable at-rest encryption"
   cwe: "CWE-311"
@@ -785,7 +858,8 @@
 - id: cfn-elasticache-transit
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ElastiCache::ReplicationGroup[\s\S]*?TransitEncryptionEnabled:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::ElastiCache::ReplicationGroup[\s\S]*?TransitEncryptionEnabled:\s*false'
+  severity: high
   description: "ElastiCache transit encryption disabled"
   remediation: "Enable transit encryption"
   cwe: "CWE-311"
@@ -796,7 +870,8 @@
 - id: cfn-sagemaker-vpc
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SageMaker::Model[\s\S]*?VpcConfig:''severity: medium
+    - regex: '(?i)Type:\s*AWS::SageMaker::Model[\s\S]*?VpcConfig:'
+  severity: medium
   description: "SageMaker not in VPC"
   remediation: "Use VPC for sensitive models"
   cwe: "CWE-284"
@@ -806,7 +881,8 @@
 - id: cfn-sagemaker-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SageMaker::EndpointConfig[\s\S]*?KmsKeyId:\s*alias/aws/sagemaker''severity: medium
+    - regex: '(?i)Type:\s*AWS::SageMaker::EndpointConfig[\s\S]*?KmsKeyId:\s*alias/aws/sagemaker'
+  severity: medium
   description: "SageMaker using default KMS"
   remediation: "Use custom CMK"
   cwe: "CWE-311"
@@ -817,7 +893,8 @@
 - id: cfn-apigateway-access-logging
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?AccessLogSetting:''severity: medium
+    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?AccessLogSetting:'
+  severity: medium
   description: "API Gateway access logging not enabled"
   remediation: "Enable access logging"
   cwe: "CWE-778"
@@ -827,7 +904,8 @@
 - id: cfn-apigateway-cache
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?CacheClusterEnabled:\s*true''severity: medium
+    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?CacheClusterEnabled:\s*true'
+  severity: medium
   description: "API Gateway caching without encryption"
   remediation: "Enable cache encryption"
   cwe: "CWE-311"
@@ -837,7 +915,8 @@
 - id: cfn-apigateway-waf
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?WebAclArn:''severity: medium
+    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?WebAclArn:'
+  severity: medium
   description: "API Gateway without WAF"
   remediation: "Associate WAF web ACL"
   cwe: "CWE-284"
@@ -848,7 +927,8 @@
 - id: cfn-eventbus-policy
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Events::EventBusPolicy[\s\S]*?Principal:\s*\*''severity: high
+    - regex: '(?i)Type:\s*AWS::Events::EventBusPolicy[\s\S]*?Principal:\s*\*'
+  severity: high
   description: "EventBridge event bus policy too broad"
   remediation: "Restrict event bus policy"
   cwe: "CWE-284"
@@ -859,7 +939,8 @@
 - id: cfn-sqs-visibility-timeout
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SQS::Queue[\s\S]*?VisibilityTimeout:\s*[0-9]''severity: low
+    - regex: '(?i)Type:\s*AWS::SQS::Queue[\s\S]*?VisibilityTimeout:\s*[0-9]'
+  severity: low
   description: "SQS visibility timeout too short"
   remediation: "Increase visibility timeout"
   cwe: "CWE-400"
@@ -869,7 +950,8 @@
 - id: cfn-sqs-dlq
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SQS::Queue[\s\S]*?DeadLetterConfig:''severity: medium
+    - regex: '(?i)Type:\s*AWS::SQS::Queue[\s\S]*?DeadLetterConfig:'
+  severity: medium
   description: "SQS dead letter queue not configured"
   remediation: "Configure DLQ for failed messages"
   cwe: "CWE-755"
@@ -880,7 +962,8 @@
 - id: cfn-stepfunctions-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::StepFunctions::StateMachine[\s\S]*?EncryptionOption:\s*AES256''severity: medium
+    - regex: '(?i)Type:\s*AWS::StepFunctions::StateMachine[\s\S]*?EncryptionOption:\s*AES256'
+  severity: medium
   description: "Step Functions using default encryption"
   remediation: "Use customer managed KMS"
   cwe: "CWE-311"
@@ -891,7 +974,8 @@
 - id: cfn-codebuild-privileged
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CodeBuild::Project[\s\S]*?PrivilegedMode:\s*true''severity: high
+    - regex: '(?i)Type:\s*AWS::CodeBuild::Project[\s\S]*?PrivilegedMode:\s*true'
+  severity: high
   description: "CodeBuild privileged mode enabled"
   remediation: "Disable privileged mode"
   cwe: "CWE-250"
@@ -901,7 +985,8 @@
 - id: cfn-codebuild-env
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CodeBuild::Project[\s\S]*?EnvironmentVariable:\s*\[\s*\{''severity: medium
+    - regex: '(?i)Type:\s*AWS::CodeBuild::Project[\s\S]*?EnvironmentVariable:\s*\[\s*\{'
+  severity: medium
   description: "CodeBuild environment variables"
   remediation: "Use Parameter Store for secrets"
   cwe: "CWE-798"
@@ -912,7 +997,8 @@
 - id: cfn-codepipeline-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CodePipeline::Pipeline[\s\S]*?ArtifactStore:[\s\S]*?EncryptionKey:''severity: medium
+    - regex: '(?i)Type:\s*AWS::CodePipeline::Pipeline[\s\S]*?ArtifactStore:[\s\S]*?EncryptionKey:'
+  severity: medium
   description: "CodePipeline artifact encryption"
   remediation: "Use customer managed KMS"
   cwe: "CWE-311"
@@ -923,7 +1009,8 @@
 - id: cfn-emr-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EMR::Cluster[\s\S]*?EncryptionConfiguration:[\s\S]*?EnableAtRestEncryption:\s*false''severity: high
+    - regex: '(?i)Type:\s*AWS::EMR::Cluster[\s\S]*?EncryptionConfiguration:[\s\S]*?EnableAtRestEncryption:\s*false'
+  severity: high
   description: "EMR encryption disabled"
   remediation: "Enable encryption"
   cwe: "CWE-311"
@@ -934,7 +1021,8 @@
 - id: cfn-appsync-api-key
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::AppSync::ApiKey''severity: medium
+    - regex: '(?i)Type:\s*AWS::AppSync::ApiKey'
+  severity: medium
   description: "AppSync API key in use"
   remediation: "Use Cognito or IAM auth"
   cwe: "CWE-287"
@@ -944,7 +1032,8 @@
 - id: cfn-appsync-logging
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::AppSync::GraphQLApi[\s\S]*?LogConfig:''severity: medium
+    - regex: '(?i)Type:\s*AWS::AppSync::GraphQLApi[\s\S]*?LogConfig:'
+  severity: medium
   description: "AppSync logging not configured"
   remediation: "Enable field level logging"
   cwe: "CWE-778"
@@ -955,7 +1044,8 @@
 - id: cfn-backup-plan
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Backup::BackupPlan''severity: medium
+    - regex: '(?i)Type:\s*AWS::Backup::BackupPlan'
+  severity: medium
   description: "Backup plan not configured"
   remediation: "Create backup plan"
   cwe: "CWE-778"
@@ -966,7 +1056,8 @@
 - id: cfn-sns-subscription
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SNS::Subscription[\s\S]*?Protocol:\s*http''severity: medium
+    - regex: '(?i)Type:\s*AWS::SNS::Subscription[\s\S]*?Protocol:\s*http'
+  severity: medium
   description: "SNS HTTP subscription (insecure)"
   remediation: "Use HTTPS for subscriptions"
   cwe: "CWE-319"
@@ -975,7 +1066,8 @@
 - id: cfn-eks-endpoint-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)EndpointPublicAccess:\s*true''severity: high
+    - regex: '(?i)EndpointPublicAccess:\s*true'
+  severity: high
   description: "EKS cluster public access"
   remediation: "Set EndpointPublicAccess to false"
   cwe: "CWE-284"
@@ -984,7 +1076,8 @@
 - id: cfn-eks-secrets-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EKS::Cluster''severity: medium
+    - regex: '(?i)Type:\s*AWS::EKS::Cluster'
+  severity: medium
   description: "EKS missing secrets encryption"
   remediation: "Configure EncryptionConfig for EKS cluster"
   cwe: "CWE-311"
@@ -993,7 +1086,8 @@
 - id: cfn-iam-no-permission-boundary
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::IAM::Role''severity: low
+    - regex: '(?i)Type:\s*AWS::IAM::Role'
+  severity: low
   description: "IAM Role missing PermissionsBoundary"
   remediation: "Attach a PermissionsBoundary"
   cwe: "CWE-269"
@@ -1002,7 +1096,8 @@
 - id: cfn-dynamodb-no-sse
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::DynamoDB::Table''severity: medium
+    - regex: '(?i)Type:\s*AWS::DynamoDB::Table'
+  severity: medium
   description: "DynamoDB missing SSE"
   remediation: "Enable SSESpecification"
   cwe: "CWE-311"
@@ -1011,7 +1106,8 @@
 - id: cfn-redshift-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Redshift::Cluster[\s\S]*?PubliclyAccessible:\s*true''severity: critical
+    - regex: '(?i)Type:\s*AWS::Redshift::Cluster[\s\S]*?PubliclyAccessible:\s*true'
+  severity: critical
   description: "Redshift cluster is publicly accessible"
   remediation: "Set PubliclyAccessible to false"
   cwe: "CWE-284"
@@ -1020,7 +1116,8 @@
 - id: cfn-cloudfront-no-waf
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudFront::Distribution''severity: low
+    - regex: '(?i)Type:\s*AWS::CloudFront::Distribution'
+  severity: low
   description: "CloudFront distribution missing WAF"
   remediation: "Associate a WebACLId"
   cwe: "CWE-306"
@@ -1029,7 +1126,8 @@
 - id: cfn-cloudfront-ssl3
   languages: [yaml]
   patterns:
-    - regex: '(?i)MinimumProtocolVersion:\s*SSLv3''severity: critical
+    - regex: '(?i)MinimumProtocolVersion:\s*SSLv3'
+  severity: critical
   description: "CloudFront using SSLv3"
   remediation: "Use TLSv1.2_2021 or higher"
   cwe: "CWE-327"
@@ -1038,7 +1136,8 @@
 - id: cfn-sns-topic-public
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SNS::TopicPolicy[\s\S]*?Principal:\s*\*[\s\S]*?Action:\s*sns:Publish''severity: high
+    - regex: '(?i)Type:\s*AWS::SNS::TopicPolicy[\s\S]*?Principal:\s*\*[\s\S]*?Action:\s*sns:Publish'
+  severity: high
   description: "Public SNS publish allowed"
   remediation: "Restrict SNS publish permissions"
   cwe: "CWE-284"
@@ -1047,7 +1146,8 @@
 - id: cfn-lambda-vpc
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Lambda::Function''severity: low
+    - regex: '(?i)Type:\s*AWS::Lambda::Function'
+  severity: low
   description: "Lambda function not in VPC"
   remediation: "Configure VpcConfig to run inside VPC"
   cwe: "CWE-668"
@@ -1056,7 +1156,8 @@
 - id: cfn-apigw-cache-unencrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?CacheClusterEnabled:\s*true''severity: medium
+    - regex: '(?i)Type:\s*AWS::ApiGateway::Stage[\s\S]*?CacheClusterEnabled:\s*true'
+  severity: medium
   description: "API Gateway cache unencrypted"
   remediation: "Set CacheDataEncrypted to true"
   cwe: "CWE-311"
@@ -1065,7 +1166,8 @@
 - id: cfn-s3-block-public-acls
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::S3::Bucket''severity: medium
+    - regex: '(?i)Type:\s*AWS::S3::Bucket'
+  severity: medium
   description: "S3 bucket missing BlockPublicAcls"
   remediation: "Enable BlockPublicAcls"
   cwe: "CWE-284"
@@ -1074,7 +1176,8 @@
 - id: cfn-rds-storage-encrypted
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::RDS::DBInstance''severity: high
+    - regex: '(?i)Type:\s*AWS::RDS::DBInstance'
+  severity: high
   description: "RDS instance unencrypted"
   remediation: "Set StorageEncrypted to true"
   cwe: "CWE-311"
@@ -1083,7 +1186,8 @@
 - id: cfn-kms-key-rotation
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::KMS::Key''severity: medium
+    - regex: '(?i)Type:\s*AWS::KMS::Key'
+  severity: medium
   description: "KMS Key missing auto-rotation"
   remediation: "Set EnableKeyRotation to true"
   cwe: "CWE-320"
@@ -1092,7 +1196,8 @@
 - id: cfn-cloudtrail-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail''severity: medium
+    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail'
+  severity: medium
   description: "CloudTrail logs unencrypted"
   remediation: "Configure KMSKeyId for CloudTrail"
   cwe: "CWE-311"
@@ -1101,7 +1206,8 @@
 - id: cfn-cloudtrail-validation
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail''severity: medium
+    - regex: '(?i)Type:\s*AWS::CloudTrail::Trail'
+  severity: medium
   description: "CloudTrail log validation disabled"
   remediation: "Set EnableLogFileValidation to true"
   cwe: "CWE-345"
@@ -1110,7 +1216,8 @@
 - id: cfn-elb-access-logs
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ElasticLoadBalancingV2::LoadBalancer''severity: low
+    - regex: '(?i)Type:\s*AWS::ElasticLoadBalancingV2::LoadBalancer'
+  severity: low
   description: "ALB missing access logs"
   remediation: "Enable access logging to S3"
   cwe: "CWE-778"
@@ -1119,7 +1226,8 @@
 - id: cfn-elb-drop-invalid-headers
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::ElasticLoadBalancingV2::LoadBalancer''severity: medium
+    - regex: '(?i)Type:\s*AWS::ElasticLoadBalancingV2::LoadBalancer'
+  severity: medium
   description: "ALB accepts invalid HTTP headers"
   remediation: "Enable dropping invalid headers"
   cwe: "CWE-113"
@@ -1128,7 +1236,8 @@
 - id: cfn-ec2-imdsv2
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EC2::Instance''severity: medium
+    - regex: '(?i)Type:\s*AWS::EC2::Instance'
+  severity: medium
   description: "EC2 instance missing IMDSv2"
   remediation: "Set HttpTokens to required"
   cwe: "CWE-290"
@@ -1137,7 +1246,8 @@
 - id: cfn-workspace-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::WorkSpaces::Workspace''severity: high
+    - regex: '(?i)Type:\s*AWS::WorkSpaces::Workspace'
+  severity: high
   description: "WorkSpace volumes unencrypted"
   remediation: "Provide a VolumeEncryptionKey"
   cwe: "CWE-311"
@@ -1146,7 +1256,8 @@
 - id: cfn-sagemaker-notebook-internet
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::SageMaker::NotebookInstance''severity: high
+    - regex: '(?i)Type:\s*AWS::SageMaker::NotebookInstance'
+  severity: high
   description: "SageMaker notebook has direct internet access"
   remediation: "Set DirectInternetAccess to Disabled"
   cwe: "CWE-284"
@@ -1155,7 +1266,8 @@
 - id: cfn-dynamodb-pitr
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::DynamoDB::Table''severity: medium
+    - regex: '(?i)Type:\s*AWS::DynamoDB::Table'
+  severity: medium
   description: "DynamoDB point-in-time recovery disabled"
   remediation: "Enable PointInTimeRecovery"
   cwe: "CWE-933"
@@ -1165,7 +1277,8 @@
 - id: cfn-glue-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Glue::SecurityConfig''severity: high
+    - regex: '(?i)Type:\s*AWS::Glue::SecurityConfig'
+  severity: high
   description: "Glue security config missing encryption"
   remediation: "Enable encryption"
   cwe: "CWE-311"
@@ -1175,7 +1288,8 @@
 - id: cfn-kinesis-stream-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::Kinesis::Stream''severity: high
+    - regex: '(?i)Type:\s*AWS::Kinesis::Stream'
+  severity: high
   description: "Kinesis stream not encrypted"
   remediation: "Enable server-side encryption"
   cwe: "CWE-311"
@@ -1185,7 +1299,8 @@
 - id: cfn-rds-multi-az
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::RDS::DBInstance''severity: medium
+    - regex: '(?i)Type:\s*AWS::RDS::DBInstance'
+  severity: medium
   description: "RDS instance not Multi-AZ"
   remediation: "Enable MultiAZ for HA"
   cwe: "CWE-693"
@@ -1195,7 +1310,8 @@
 - id: cfn-efs-encryption
   languages: [yaml]
   patterns:
-    - regex: '(?i)Type:\s*AWS::EFS::FileSystem''severity: high
+    - regex: '(?i)Type:\s*AWS::EFS::FileSystem'
+  severity: high
   description: "EFS not encrypted"
   remediation: "Enable encryption"
   cwe: "CWE-311"

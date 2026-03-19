@@ -1,7 +1,8 @@
 - id: vyper-raw-call
   languages: [vyper]
   patterns:
-    - regex: '(?i)raw_call\\s*\\(''severity: critical
+    - regex: '(?i)raw_call\s*\('
+  severity: critical
   description: "Raw call - reentrancy and logic risks"
   remediation: "Validate raw calls rigorously"
   cwe: "CWE-242"
@@ -10,7 +11,8 @@
 - id: vyper-delegate-call
   languages: [vyper]
   patterns:
-    - regex: '(?i)raw_call\\s*\\(.*is_delegate_call\\s*=\\s*True''severity: critical
+    - regex: '(?i)raw_call\s*\(.*is_delegate_call\s*=\s*True'
+  severity: critical
   description: "Delegate call risk"
   remediation: "Ensure target contract is trusted"
   cwe: "CWE-829"
@@ -19,7 +21,8 @@
 - id: vyper-send-ether
   languages: [vyper]
   patterns:
-    - regex: '(?i)send\\s*\\(''severity: high
+    - regex: '(?i)send\s*\('
+  severity: high
   description: "Ether send - reentrancy risk"
   remediation: "Ensure state is updated before send"
   cwe: "CWE-362"
@@ -28,7 +31,8 @@
 - id: vyper-selfdestruct
   languages: [vyper]
   patterns:
-    - regex: '(?i)selfdestruct\\s*\\(''severity: high
+    - regex: '(?i)selfdestruct\s*\('
+  severity: high
   description: "Selfdestruct operation"
   remediation: "Protect with strong access control"
   cwe: "CWE-284"
@@ -37,7 +41,8 @@
 - id: vyper-block-timestamp
   languages: [vyper]
   patterns:
-    - regex: '(?i)block\\.timestamp''severity: medium
+    - regex: '(?i)block\.timestamp'
+  severity: medium
   description: "Time dependence"
   remediation: "Do not use for critical randomness"
   cwe: "CWE-330"
@@ -46,7 +51,8 @@
 - id: vyper-tx-origin
   languages: [vyper]
   patterns:
-    - regex: '(?i)tx\\.origin''severity: high
+    - regex: '(?i)tx\.origin'
+  severity: high
   description: "tx.origin for auth (phishing risk)"
   remediation: "Use msg.sender instead"
   cwe: "CWE-287"
@@ -55,7 +61,8 @@
 - id: vyper-zero-address-check
   languages: [vyper]
   patterns:
-    - regex: '(?i)def\\s+transfer\\s*\\(.*?to\\s*:\\s*address''severity: medium
+    - regex: '(?i)def\s+transfer\s*\(.*?to\s*:\s*address'
+  severity: medium
   description: "Missing zero address check"
   remediation: "Check for ZERO_ADDRESS"
   cwe: "CWE-20"
@@ -65,7 +72,8 @@
 - id: vyper-integer-overflow
   languages: [vyper]
   patterns:
-    - regex: '(?i)(?:\w+\s*=\s*\w+\s*[\+\-\*]\s*\w+)''severity: medium
+    - regex: '(?i)(?:\w+\s*=\s*\w+\s*[\+\\\-\*]\s*\w+)'
+  severity: medium
   description: "Potential integer overflow/underflow (pre-0.3.0)"
   remediation: "Use SafeMath or verify Vyper version >= 0.3.0"
   cwe: "CWE-190"
@@ -74,7 +82,8 @@
 - id: vyper-reentrancy-no-lock
   languages: [vyper]
   patterns:
-    - regex: '(?i)def\s+\w+\s*\([\s\S]*?\)[\s\S]*?(?:send\s*\([\s\S]*?\)|raw_call\s*\([\s\S]*?\))''severity: critical
+    - regex: '(?i)def\s+\w+\s*\([\s\S]*?\)[\s\S]*?(?:send\s*\([\s\S]*?\)|raw_call\s*\([\s\S]*?\))'
+  severity: critical
   description: "External call without reentrancy guard"
   remediation: "Add @nonreentrant('lock') decorator"
   cwe: "CWE-829"
@@ -83,7 +92,8 @@
 - id: vyper-unchecked-return
   languages: [vyper]
   patterns:
-    - regex: '(?i)(?:raw_call|send)\s*\([\s\S]*?\)''severity: high
+    - regex: '(?i)(?:raw_call|send)\s*\([\s\S]*?\)'
+  severity: high
   description: "Unchecked return value from external call"
   remediation: "Wrap external call in assert or check return boolean"
   cwe: "CWE-252"
@@ -92,7 +102,8 @@
 - id: vyper-default-visibility
   languages: [vyper]
   patterns:
-    - regex: '(?i)def\s+\w+\s*\([\s\S]*?\)\s*:)''severity: low
+    - regex: '(?i)def\s+\w+\s*\([\s\S]*?\)\s*:'
+  severity: low
   description: "Missing explicit visibility"
   remediation: "Add @public or @internal"
   cwe: "CWE-710"
@@ -101,7 +112,8 @@
 - id: vyper-suicide-authorization
   languages: [vyper]
   patterns:
-    - regex: '(?i)selfdestruct\\s*\\([\\s\\S]*?\\)''severity: critical
+    - regex: '(?i)selfdestruct\s*\([\s\S]*?\)'
+  severity: critical
   description: "Selfdestruct allows unauthorized execution"
   remediation: "Assert msg.sender is owner before selfdestruct"
   cwe: "CWE-284"
@@ -111,7 +123,8 @@
 - id: vyper-weak-random
   languages: [vyper]
   patterns:
-    - regex: '(?i)block\\.timestamp.*%\\s*\\d+''severity: medium
+    - regex: '(?i)block\.timestamp.*%\s*\d+'
+  severity: medium
   description: "Weak randomness from block timestamp"
   remediation: "Use chainlink VRF for secure randomness"
   cwe: "CWE-338"
@@ -121,7 +134,8 @@
 - id: vyper-unchecked-call
   languages: [vyper]
   patterns:
-    - regex: '(?i)raw_call\\s*\\(.*gas\\s*=\\s*[^0-9]''severity: high
+    - regex: '(?i)raw_call\s*\(.*gas\s*=\s*[^0-9]'
+  severity: high
   description: "Unchecked low-level call with gas"
   remediation: "Check return value or use sufficient gas"
   cwe: "CWE-252"
@@ -131,7 +145,8 @@
 - id: vyper-ether-balance
   languages: [vyper]
   patterns:
-    - regex: '(?i)self\\.balance.*\\+|\\.balance\\s*<\\s*msg\\.value''severity: high
+    - regex: '(?i)self\.balance.*\+|\.balance\s*<\s*msg\.value'
+  severity: high
   description: "Missing balance check in payable function"
   remediation: "Verify contract balance meets requirements"
   cwe: "CWE-20"
@@ -141,7 +156,8 @@
 - id: vyper-access-control
   languages: [vyper]
   patterns:
-    - regex: '(?i)@external\\s+def\\s+\\w+''severity: high
+    - regex: '(?i)@external\s+def\s+\w+'
+  severity: high
   description: "External function missing access control"
   remediation: "Add access control modifiers"
   cwe: "CWE-862"
@@ -151,7 +167,8 @@
 - id: vyper-arithmetic-overflow
   languages: [vyper]
   patterns:
-    - regex: '(?i)\\w+\\s*\\+\\s*\\w+|\\w+\\s*\\-\\s*\\w+|\\w+\\s*\\*\\s*\\w+''severity: medium
+    - regex: '(?i)\w+\s*\+\s*\w+|\w+\s*\\-\s*\w+|\w+\s*\*\s*\w+'
+  severity: medium
   description: "Arithmetic operation without overflow check"
   remediation: "Use SafeMath or Vyper 0.3.0+ for built-in checks"
   cwe: "CWE-190"
@@ -161,7 +178,8 @@
 - id: vyper-immutable-bypass
   languages: [vyper]
   patterns:
-    - regex: '(?i)@ immutable\\s*\\(.*\\)\\s*:\\s*\\w+\\s*=''severity: medium
+    - regex: '(?i)@ immutable\s*\(.*\)\s*:\s*\w+\s*='
+  severity: medium
   description: "Immutable variable initialized in constructor"
   remediation: "Ensure immutable variables are set correctly"
   cwe: "CWE-665"
@@ -171,7 +189,8 @@
 - id: vyper-abi-encoding
   languages: [vyper]
   patterns:
-    - regex: '(?i)@ external\\s+def.*\\.decode|abi\\.decode.*dynamic''severity: medium
+    - regex: '(?i)@ external\s+def.*\.decode|abi\.decode.*dynamic'
+  severity: medium
   description: "Dynamic ABI decoding - potential bytes32 confusion"
   remediation: "Validate decoded data types"
   cwe: "CWE-704"
@@ -181,7 +200,8 @@
 - id: vyper-ether-transfer
   languages: [vyper]
   patterns:
-    - regex: '(?i)selfdestruct.*msg\\.sender|suicide.*msg\\.sender''severity: critical
+    - regex: '(?i)selfdestruct.*msg\.sender|suicide.*msg\.sender'
+  severity: critical
   description: "Unauthorized selfdestruct"
   remediation: "Add access control"
   cwe: "CWE-284"
@@ -191,7 +211,8 @@
 - id: vyper-msg-sender-check
   languages: [vyper]
   patterns:
-    - regex: '(?i)@ external\\s+def.*''severity: high
+    - regex: '(?i)@ external\s+def.*'
+  severity: high
   description: "External function missing sender check"
   remediation: "Add msg.sender verification"
   cwe: "CWE-862"
@@ -201,7 +222,8 @@
 - id: vyper-event-emit
   languages: [vyper]
   patterns:
-    - regex: '(?i)log\\.Transfer|log\\.Approval''severity: low
+    - regex: '(?i)log\.Transfer|log\.Approval'
+  severity: low
   description: "Event missing indexed fields"
   remediation: "Use indexed for event fields"
   cwe: "CWE-493"
@@ -211,7 +233,8 @@
 - id: vyper-division
   languages: [vyper]
   patterns:
-    - regex: '(?i)\\w+\\s*/\\s*\\w+|\\w+\\s*%\\s*\\w+''severity: medium
+    - regex: '(?i)\w+\s*/\s*\w+|\w+\s*%\s*\w+'
+  severity: medium
   description: "Division/modulo without zero check"
   remediation: "Check denominator is non-zero"
   cwe: "CWE-369"
@@ -221,7 +244,8 @@
 - id: vyper-msg-value
   languages: [vyper]
   patterns:
-    - regex: '(?i)@ external\\s+def.*''severity: medium
+    - regex: '(?i)@ external\s+def.*'
+  severity: medium
   description: "Payable function without value check"
   remediation: "Verify msg.value meets requirements"
   cwe: "CWE-20"

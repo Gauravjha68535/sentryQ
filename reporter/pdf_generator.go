@@ -34,10 +34,14 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 	pdf.CellFormat(297, 15, "Security Scan Report", "", 1, "C", false, 0, "")
 	pdf.Ln(5)
 
+	targetDir := sanitizePDFText(summary.TargetDirectory)
+	scanDate := sanitizePDFText(summary.ScanDate)
+	scannerVersion := sanitizePDFText(summary.ScannerVersion)
+
 	pdf.SetFont("Helvetica", "", 14)
-	pdf.CellFormat(297, 8, fmt.Sprintf("Target: %s", summary.TargetDirectory), "", 1, "C", false, 0, "")
-	pdf.CellFormat(297, 8, fmt.Sprintf("Generated: %s", summary.ScanDate), "", 1, "C", false, 0, "")
-	pdf.CellFormat(297, 8, fmt.Sprintf("Scanner Version: v%s", summary.ScannerVersion), "", 1, "C", false, 0, "")
+	pdf.CellFormat(297, 8, fmt.Sprintf("Target: %s", targetDir), "", 1, "C", false, 0, "")
+	pdf.CellFormat(297, 8, fmt.Sprintf("Generated: %s", scanDate), "", 1, "C", false, 0, "")
+	pdf.CellFormat(297, 8, fmt.Sprintf("Scanner Version: v%s", scannerVersion), "", 1, "C", false, 0, "")
 	pdf.Ln(15)
 
 	// Risk Score Box
@@ -126,9 +130,9 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 	drawRow := func(idx int, f Finding, isContinuation bool, title string) {
 		x, y := pdf.GetXY()
 
-		descTxt := truncateString(f.Description, 200)
-		issueTxt := truncateString(f.IssueName, 60)
-		fileTxt := truncateString(f.FilePath, 60)
+		descTxt := sanitizePDFText(truncateString(f.Description, 200))
+		issueTxt := sanitizePDFText(truncateString(f.IssueName, 60))
+		fileTxt := sanitizePDFText(truncateString(f.FilePath, 60))
 
 		descLines := pdf.SplitText(descTxt, fColWidths[7]-2)
 		issueLines := pdf.SplitText(issueTxt, fColWidths[1]-2)

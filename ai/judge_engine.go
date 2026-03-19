@@ -32,14 +32,15 @@ type JudgeVerdict struct {
 
 // JudgeVerdictItem represents one Judge decision on a group of findings
 type JudgeVerdictItem struct {
-	MasterID     int    `json:"master_id"`
-	DuplicateIDs []int  `json:"duplicate_ids"`
-	Verdict      string `json:"verdict"` // "keep", "drop", "merge"
-	Reason       string `json:"reason"`
-	Severity     string `json:"final_severity,omitempty"`
+	MasterID       int    `json:"master_id"`
+	DuplicateIDs   []int  `json:"duplicate_ids"`
+	Verdict        string `json:"verdict"` // "keep", "drop", "merge"
+	Reason         string `json:"reason"`
+	Severity       string `json:"final_severity,omitempty"`
+	SimplifiedName string `json:"simplified_name,omitempty"`
 }
 
-const maxJudgeBatchSize = 40 // Reduced batch size for better reliability with local LLMs
+const maxJudgeBatchSize = 10 // Small batches prevent remote LLM timeouts with reasoning models
 
 // JudgeFindings takes two independent reports (static and AI) and uses a Judge LLM
 // to deduplicate, remove false positives, and merge them into one master report.
@@ -50,6 +51,23 @@ func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Find
 
 	utils.LogInfo(fmt.Sprintf("⚖️  Judge LLM starting review: %d static + %d AI findings using model %s",
 		len(staticFindings), len(aiFindings), judgeModel))
+
+	// Only judge static findings from files that also have AI findings (massive speedup)
+	aiFiles := make(map[string]bool)
+	for _, f := range aiFindings {
+		aiFiles[f.FilePath] = true
+	}
+	var relevantStatic []reporter.Finding
+	var passThroughStatic []reporter.Finding
+	for _, f := range staticFindings {
+		if aiFiles[f.FilePath] {
+			relevantStatic = append(relevantStatic, f)
+		} else {
+			passThroughStatic = append(passThroughStatic, f)
+		}
+	}
+	utils.LogInfo(fmt.Sprintf("⚖️  Filtering: %d static findings overlap with AI files, %d pass through directly",
+		len(relevantStatic), len(passThroughStatic)))
 
 	// Configure Ollama host for the judge if different
 	originalHost := GetOllamaBaseURL()
@@ -63,7 +81,7 @@ func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Find
 	var allJudge []JudgeFinding
 	idCounter := 1
 
-	for _, f := range staticFindings {
+	for _, f := range relevantStatic {
 		findingByID[idCounter] = f
 		allJudge = append(allJudge, JudgeFinding{
 			ID:          idCounter,
@@ -141,6 +159,11 @@ func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Find
 				f.Severity = v.Severity
 			}
 
+			// Clean up the issue name if Judge provided a simplified one
+			if v.SimplifiedName != "" {
+				f.IssueName = v.SimplifiedName
+			}
+
 			// If the master is a static finding but a duplicate is an AI finding,
 			// prefer the AI description for richer context
 			for _, dupID := range v.DuplicateIDs {
@@ -167,9 +190,12 @@ func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Find
 		}
 	}
 
-	utils.LogInfo(fmt.Sprintf("⚖️  Judge complete: %d input → %d final findings (%d dropped, %d merged)",
-		len(staticFindings)+len(aiFindings), len(finalFindings),
-		len(droppedIDs), len(mergedIDs)-len(finalFindings)))
+	// Add back all static findings from files without AI findings (they bypass the judge)
+	finalFindings = append(finalFindings, passThroughStatic...)
+
+	utils.LogInfo(fmt.Sprintf("⚖️  Judge complete: %d judged + %d pass-through → %d final findings (%d dropped, %d merged)",
+		len(relevantStatic)+len(aiFindings), len(passThroughStatic), len(finalFindings),
+		len(droppedIDs), len(mergedIDs)-len(finalFindings)+len(passThroughStatic)))
 
 	return finalFindings, nil
 }
@@ -179,7 +205,7 @@ func runJudgeBatch(findings []JudgeFinding, modelName string) ([]JudgeVerdictIte
 	findingsJSON, _ := json.MarshalIndent(findings, "", "  ")
 
 	// Create a fresh context for this judge request - don't reuse potentially cancelled context
-	judgeCtx, judgeCancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	judgeCtx, judgeCancel := context.WithTimeout(context.Background(), 20*time.Minute)
 	defer judgeCancel()
 
 	prompt := fmt.Sprintf(`You are a Supreme Security Auditor and Judge. You have received findings from TWO independent security scanners that analyzed the same codebase:
@@ -194,7 +220,8 @@ Your job is to produce a FINAL, deduplicated, high-precision verdict.
 2. **FALSE POSITIVES**: If a finding is clearly a false positive (e.g., a test file, a comment, dead code, or a safe usage pattern), mark its verdict as "drop".
 3. **UNIQUE FINDINGS**: If a finding is unique to one scanner and appears valid, keep it. Verdict: "keep".
 4. **SEVERITY ADJUSTMENT**: If the combined evidence from both scanners suggests the severity should change, set "final_severity".
-5. **PRIORITIZE AI DESCRIPTIONS**: When merging, prefer the AI scanner's description since it provides deeper context.
+5. **SIMPLIFIED NAME**: For ALL kept findings, you MUST provide a "simplified_name". Convert raw or technical rule IDs (like "java-dangerous-runtime-exec", "js-json-escape") into human-readable, standard vulnerability categories (e.g., "Command Injection", "SQL Injection", "Cross-Site Scripting (XSS)", "Hardcoded Secret", "Path Traversal").
+6. **PRIORITIZE AI DESCRIPTIONS**: When merging, prefer the AI scanner's description since it provides deeper context.
 
 ## INPUT FINDINGS:
 %s
@@ -207,7 +234,8 @@ Your job is to produce a FINAL, deduplicated, high-precision verdict.
       "duplicate_ids": [5],
       "verdict": "keep",
       "reason": "Both scanners detected SQL injection on line 42. Merged.",
-      "final_severity": "critical"
+      "final_severity": "critical",
+      "simplified_name": "SQL Injection"
     },
     {
       "master_id": 3,
@@ -240,7 +268,7 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{
-		Timeout: 5 * time.Minute, // Judge can take up to 5 minutes on large batches
+		Timeout: 20 * time.Minute, // Remote 32b+ models processing 40 findings need 10-20 min
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -258,15 +286,11 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 
 	outputStr := strings.TrimSpace(apiResp.Response)
 
-	// Extract JSON block
-	startIdx := strings.Index(outputStr, "{")
-	endIdx := strings.LastIndex(outputStr, "}")
-	if startIdx < 0 || endIdx <= startIdx {
-		return nil, fmt.Errorf("judge LLM returned invalid JSON response")
-	}
+	// Extract JSON block using common utility
+	jsonStr := utils.ExtractJSON(outputStr)
 
 	var verdict JudgeVerdict
-	if err := json.Unmarshal([]byte(outputStr[startIdx:endIdx+1]), &verdict); err != nil {
+	if err := json.Unmarshal([]byte(jsonStr), &verdict); err != nil {
 		return nil, fmt.Errorf("failed to parse judge verdict: %v", err)
 	}
 

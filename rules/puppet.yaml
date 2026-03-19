@@ -1,7 +1,7 @@
 - id: puppet-hardcoded-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)\\$?(?:password|secret)\\s*=\\s*['''"]'
+    - regex: '(?i)\$?(?:password|secret)\s*=\s*[''"]'
   severity: high
   description: "Hardcoded password"
   remediation: "Use Hiera eyaml for secrets"
@@ -11,7 +11,8 @@
 - id: puppet-exec-command
   languages: [puppet]
   patterns:
-    - regex: '(?i)exec\\s*\\{.*command\\s*=>.*\\$\\{''severity: high
+    - regex: '(?i)exec\s*\{.*command\s*=>.*\$\{'
+  severity: high
   description: "Command injection in exec"
   remediation: "Validate inputs or use fully qualified commands"
   cwe: "CWE-78"
@@ -20,7 +21,7 @@
 - id: puppet-file-insecure-mode
   languages: [puppet]
   patterns:
-    - regex: '(?i)file\\s*\\{.*mode\\s*=>\\s*['''"]?0?777'
+    - regex: '(?i)file\s*\{.*mode\s*=>\s*[''"]?0?777'
   severity: high
   description: "World-writable file"
   remediation: "Use stricter permissions"
@@ -30,7 +31,8 @@
 - id: puppet-hardcoded-ssh-key
   languages: [puppet]
   patterns:
-    - regex: '(?i)-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----''severity: high
+    - regex: '(?i)-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----'
+  severity: high
   description: "Hardcoded SSH private key"
   remediation: "Use Puppet secrets or external secrets management"
   cwe: "CWE-798"
@@ -39,7 +41,7 @@
 - id: puppet-hardcoded-aws-key
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:aws_access_key_id|aws_secret_access_key)\\s*[=:]\\s*['''"][A-Z0-9]{16,}'
+    - regex: '(?i)(?:aws_access_key_id|aws_secret_access_key)\s*[=:]\s*[''"][A-Z0-9]{16,}'
   severity: critical
   description: "Hardcoded AWS credentials"
   remediation: "Use IAM roles or secrets manager"
@@ -49,7 +51,7 @@
 - id: puppet-hardcoded-api-token
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:api[_-]?token|auth[_-]?token|access[_-]?token)\\s*[=:]\\s*['''"][a-zA-Z0-9_-]{20,}'
+    - regex: '(?i)(?:api[_-]?token|auth[_-]?token|access[_-]?token)\s*[=:]\s*[''"][a-zA-Z0-9_-]{20,}'
   severity: high
   description: "Hardcoded API token"
   remediation: "Use external secrets management"
@@ -59,7 +61,8 @@
 - id: puppet-sql-injection
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:mysql|postgresql|redis|mongodb)::[a-z_]+\\s*\\{.*password\\s*=>.*\\$\\{''severity: high
+    - regex: '(?i)(?:mysql|postgresql|redis|mongodb)::[a-z_]+\s*\{.*password\s*=>.*\$\{'
+  severity: high
   description: "Potential SQL injection in database config"
   remediation: "Use parameterized queries and validated inputs"
   cwe: "CWE-89"
@@ -68,7 +71,7 @@
 - id: puppet-insecure-service
   languages: [puppet]
   patterns:
-    - regex: '(?i)service\\s*\\{.*user\\s*=>\\s*['''"]root[''"]'
+    - regex: '(?i)service\s*\{.*user\s*=>\s*[''"]root[''"]'
   severity: medium
   description: "Service running as root"
   remediation: "Use dedicated service accounts"
@@ -78,7 +81,8 @@
 - id: puppet-http-no-ssl
   languages: [puppet]
   patterns:
-    - regex: 'http://''severity: medium
+    - regex: 'http://'
+  severity: medium
   description: "Non-HTTPS URL in use"
   remediation: "Use HTTPS for sensitive data transmission"
   cwe: "CWE-295"
@@ -87,7 +91,7 @@
 - id: puppet-download-untrusted
   languages: [puppet]
   patterns:
-    - regex: '(?i)source\\s*=>\\s*['''"]http://(?!localhost|127\\.0\\.0\\.1)'
+    - regex: '(?i)source\s*=>\s*[''"]http://(?:localhost|127\.0\.0\.1)'
   severity: high
   description: "Downloading files from untrusted source"
   remediation: "Use HTTPS or trusted internal mirrors"
@@ -97,7 +101,8 @@
 - id: puppet-unsafe-var-substitution
   languages: [puppet]
   patterns:
-    - regex: '(?i)exec\\s*\\{.*command\\s*=>.*Interpolat''severity: high
+    - regex: '(?i)exec\s*\{.*command\s*=>.*Interpolat'
+  severity: high
   description: "Unsafe variable substitution in exec"
   remediation: "Validate and sanitize variables"
   cwe: "CWE-95"
@@ -106,7 +111,7 @@
 - id: puppet-world-readable-file
   languages: [puppet]
   patterns:
-    - regex: '(?i)file\\s*\\{.*mode\\s*=>\\s*['''"]?0?6[0-7][0-7]'
+    - regex: '(?i)file\s*\{.*mode\s*=>\s*[''"]?0?6[0-7][0-7]'
   severity: medium
   description: "World-readable sensitive file"
   remediation: "Use more restrictive permissions (e.g., 0600)"
@@ -116,7 +121,7 @@
 - id: puppet-hardcoded-secret-key
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:secret|encryption|encryption_key)\\s*[=:]\\s*['''"][a-zA-Z0-9+/=]{16,}'
+    - regex: '(?i)(?:secret|encryption|encryption_key)\s*[=:]\s*[''"][a-zA-Z0-9+/=]{16,}'
   severity: high
   description: "Hardcoded secret key"
   remediation: "Use external secrets management"
@@ -126,7 +131,8 @@
 - id: puppet-sudo-nopasswd
   languages: [puppet]
   patterns:
-    - regex: '(?i)sudoers.*NOPASSWD''severity: high
+    - regex: '(?i)sudoers.*NOPASSWD'
+  severity: high
   description: "Sudo without password"
   remediation: "Require password for sudo operations"
   cwe: "CWE-269"
@@ -135,7 +141,7 @@
 - id: puppet-insecure-tmp
   languages: [puppet]
   patterns:
-    - regex: '(?i)/tmp.*mode\\s*=>\\s*['''"]?0?777'
+    - regex: '(?i)/tmp.*mode\s*=>\s*[''"]?0?777'
   severity: high
   description: "Insecure /tmp directory"
   remediation: "Use restricted /tmp with sticky bit"
@@ -145,7 +151,7 @@
 - id: puppet-verbose-logging
   languages: [puppet]
   patterns:
-    - regex: '(?i)log_level\\s*=>\\s*['''"]debug[''"]'
+    - regex: '(?i)log_level\s*=>\s*[''"]debug[''"]'
   severity: low
   description: "Verbose logging enabled"
   remediation: "Use appropriate log levels for production"
@@ -155,7 +161,7 @@
 - id: puppet-default-credentials
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:username|user)\\s*=>\\s*['''"]admin[''"].*password.*=>.*[''"]password[''"]'
+    - regex: '(?i)(?:username|user)\s*=>\s*[''"]admin[''"].*password.*=>.*[''"]password[''"]'
   severity: critical
   description: "Default credentials detected"
   remediation: "Change default credentials"
@@ -165,7 +171,7 @@
 - id: puppet-hardcoded-ip
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:bind_address|listen|host)\\s*[=:]\\s*['''"]\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
+    - regex: '(?i)(?:bind_address|listen|host)\s*[=:]\s*[''"]\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
   severity: low
   description: "Hardcoded IP address"
   remediation: "Use environment variables or variables"
@@ -175,7 +181,7 @@
 - id: puppet-insecure-tcp
   languages: [puppet]
   patterns:
-    - regex: '(?i)protocol\\s*=>\\s*['''"]tcp[''"]'
+    - regex: '(?i)protocol\s*=>\s*[''"]tcp[''"]'
   severity: medium
   description: "Insecure TCP protocol"
   remediation: "Use secure alternatives like TLS"
@@ -185,7 +191,8 @@
 - id: puppet-ssl-disabled
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:ssl|https|tls)\\s*=>\\s*false''severity: high
+    - regex: '(?i)(?:ssl|https|tls)\s*=>\s*false'
+  severity: high
   description: "SSL/TLS disabled"
   remediation: "Enable SSL/TLS for secure communication"
   cwe: "CWE-295"
@@ -194,7 +201,7 @@
 - id: puppet-weak-cipher
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:cipher|ciphers)\\s*[=:]\\s*['''"](?:rc4|des|md5|null)'
+    - regex: '(?i)(?:cipher|ciphers)\s*[=:]\s*[''"](?:rc4|des|md5|null)'
   severity: high
   description: "Weak encryption cipher"
   remediation: "Use strong ciphers (e.g., AES-256)"
@@ -204,7 +211,8 @@
 - id: puppet-env-var-secret
   languages: [puppet]
   patterns:
-    - regex: '(?i)environment\\s*=>.*(?:PASSWORD|SECRET|TOKEN|KEY)''severity: high
+    - regex: '(?i)environment\s*=>.*(?:PASSWORD|SECRET|TOKEN|KEY)'
+  severity: high
   description: "Secrets in environment variables"
   remediation: "Use secrets management tools"
   cwe: "CWE-798"
@@ -213,7 +221,7 @@
 - id: puppet-backdoor-user
   languages: [puppet]
   patterns:
-    - regex: '(?i)user\\s*\\{.*name\\s*=>\\s*['''"](?:backdoor|admin|guest)'
+    - regex: '(?i)user\s*\{.*name\s*=>\s*[''"](?:backdoor|admin|guest)'
   severity: critical
   description: "Potential backdoor user account"
   remediation: "Remove suspicious accounts"
@@ -223,7 +231,7 @@
 - id: puppet-insecure-repository
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:yum|apt)::repo.*source\\s*=>\\s*['''"]http://'
+    - regex: '(?i)(?:yum|apt)::repo.*source\s*=>\s*[''"]http://'
   severity: high
   description: "Insecure package repository"
   remediation: "Use HTTPS repositories"
@@ -233,7 +241,8 @@
 - id: puppet-unsafe-archive
   languages: [puppet]
   patterns:
-    - regex: '(?i)archive\\s*\\{.*extract\\s*=>\\s*true''severity: medium
+    - regex: '(?i)archive\s*\{.*extract\s*=>\s*true'
+  severity: medium
   description: "Unsafe archive extraction"
   remediation: "Validate archive sources and contents"
   cwe: "CWE-22"
@@ -242,7 +251,7 @@
 - id: puppet-hardcoded-database-url
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:database|db)::connection\\s*=>\\s*['''"]jdbc:.*password='
+    - regex: '(?i)(?:database|db)::connection\s*=>\s*[''"]jdbc:.*password='
   severity: critical
   description: "Hardcoded database connection with credentials"
   remediation: "Use credential management"
@@ -252,7 +261,8 @@
 - id: puppet-insecure-ssh-config
   languages: [puppet]
   patterns:
-    - regex: '(?i)ssh.*permit_empty_passwords\\s*=>\\s*true''severity: high
+    - regex: '(?i)ssh.*permit_empty_passwords\s*=>\s*true'
+  severity: high
   description: "SSH allows empty passwords"
   remediation: "Disable empty passwords in SSH"
   cwe: "CWE-798"
@@ -261,7 +271,8 @@
 - id: puppet-privileged-container
   languages: [puppet]
   patterns:
-    - regex: '(?i)docker::run.*privileged\\s*=>\\s*true''severity: critical
+    - regex: '(?i)docker::run.*privileged\s*=>\s*true'
+  severity: critical
   description: "Privileged container"
   remediation: "Avoid privileged containers"
   cwe: "CWE-250"
@@ -270,7 +281,7 @@
 - id: puppet-cleartext-ftp
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:ftp|ftps)\\s*::?.*['''"]ftp://'
+    - regex: '(?i)(?:ftp|ftps)\s*::?.*[''"]ftp://'
   severity: high
   description: "FTP protocol in use"
   remediation: "Use SFTP or secure transfer methods"
@@ -280,7 +291,8 @@
 - id: puppet-insecure-kerberos
   languages: [puppet]
   patterns:
-    - regex: '(?i)kerberos.*(require_preauth|preauth)\\s*=>\\s*false''severity: high
+    - regex: '(?i)kerberos.*(require_preauth|preauth)\s*=>\s*false'
+  severity: high
   description: "Kerberos pre-authentication disabled"
   remediation: "Enable Kerberos pre-authentication"
   cwe: "CWE-308"
@@ -289,7 +301,7 @@
 - id: puppet-hardcoded-private-key-pass
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:passphrase|private_key_password)\\s*[=:]\\s*['''"]'
+    - regex: '(?i)(?:passphrase|private_key_password)\s*[=:]\s*[''"]'
   severity: high
   description: "Hardcoded private key passphrase"
   remediation: "Use key management"
@@ -299,7 +311,8 @@
 - id: puppet-insecure-rsync
   languages: [puppet]
   patterns:
-    - regex: '(?i)rsync.*(without|ssh|encrypted)''severity: medium
+    - regex: '(?i)rsync.*(without|ssh|encrypted)'
+  severity: medium
   description: "Insecure rsync usage"
   remediation: "Use rsync over SSH"
   cwe: "CWE-494"
@@ -308,7 +321,7 @@
 - id: puppet-telnet-enabled
   languages: [puppet]
   patterns:
-    - regex: '(?i)package\\s*\\{.*['''"]telnet[''"]'
+    - regex: '(?i)package\s*\{.*[''"]telnet[''"]'
   severity: medium
   description: "Telnet package installed"
   remediation: "Remove telnet and use SSH"
@@ -318,7 +331,8 @@
 - id: puppet-weak-random
   languages: [puppet]
   patterns:
-    - regex: '(?i)random\\s*=>.*Math\\.random''severity: medium
+    - regex: '(?i)random\s*=>.*Math\.random'
+  severity: medium
   description: "Weak random number generation"
   remediation: "Use secure random generators"
   cwe: "CWE-338"
@@ -327,7 +341,8 @@
 - id: puppet-debug-mode
   languages: [puppet]
   patterns:
-    - regex: '(?i)(?:debug|trace)\\s*=>\\s*true''severity: low
+    - regex: '(?i)(?:debug|trace)\s*=>\s*true'
+  severity: low
   description: "Debug or trace mode enabled"
   remediation: "Disable in production"
   cwe: "CWE-11"
@@ -336,7 +351,7 @@
 - id: puppet-unsafe-include
   languages: [puppet]
   patterns:
-    - regex: '(?i)include\\s+['''"](?:http|https|ftp)://'
+    - regex: '(?i)include\s+[''"](?:http|https|ftp)://'
   severity: high
   description: "Including external Puppet manifests"
   remediation: "Use trusted local modules"
@@ -346,7 +361,7 @@
 - id: puppet-hardcoded-mysql-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)mysql::server.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)mysql::server.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded MySQL password"
   remediation: "Use MySQL secure password"
@@ -356,7 +371,7 @@
 - id: puppet-hardcoded-postgres-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)postgresql::server.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)postgresql::server.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded PostgreSQL password"
   remediation: "Use PostgreSQL secure password"
@@ -366,7 +381,7 @@
 - id: puppet-hardcoded-redis-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)redis::instance.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)redis::instance.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Redis password"
   remediation: "Use Redis ACLs"
@@ -376,7 +391,7 @@
 - id: puppet-hardcoded-mongodb-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)mongodb.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)mongodb.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded MongoDB password"
   remediation: "Use MongoDB authentication"
@@ -386,7 +401,8 @@
 - id: puppet-insecure-iptables
   languages: [puppet]
   patterns:
-    - regex: '(?i)iptables.*ACCEPT.*--src\\s+0\\.0\\.0\\.0/0''severity: high
+    - regex: '(?i)iptables.*ACCEPT.*--src\s+0\.0\.0\.0/0'
+  severity: high
   description: "Allowing all traffic in firewall"
   remediation: "Restrict to specific IPs"
   cwe: "CWE-770"
@@ -395,7 +411,7 @@
 - id: puppet-nfs-unsecured
   languages: [puppet]
   patterns:
-    - regex: '(?i)nfs::mount.*options\\s*=>\\s*['''"]\\(rw,'
+    - regex: '(?i)nfs::mount.*options\s*=>\s*[''"]\(rw,'
   severity: high
   description: "Unsecured NFS mount"
   remediation: "Use secure NFS options"
@@ -405,7 +421,8 @@
 - id: puppet-smb-unsecured
   languages: [puppet]
   patterns:
-    - regex: '(?i)cifs::mount.*guest''severity: high
+    - regex: '(?i)cifs::mount.*guest'
+  severity: high
   description: "Unsecured SMB/CIFS mount"
   remediation: "Require authentication"
   cwe: "CWE-732"
@@ -414,7 +431,7 @@
 - id: puppet-httpd-weak-ssl
   languages: [puppet]
   patterns:
-    - regex: '(?i)apache::mod::ssl.*ssl_protocol\\s*=>\\s*['''"]TLSv1'
+    - regex: '(?i)apache::mod::ssl.*ssl_protocol\s*=>\s*[''"]TLSv1'
   severity: high
   description: "Weak SSL/TLS protocol in Apache"
   remediation: "Use TLSv1.2 or higher"
@@ -424,7 +441,7 @@
 - id: puppet-nginx-weak-ssl
   languages: [puppet]
   patterns:
-    - regex: '(?i)nginx::resource::server.*ssl_protocols\\s*=>\\s*\\['''TLSv1'
+    - regex: '(?i)nginx::resource::server.*ssl_protocols\s*=>\s*\[''TLSv1'
   severity: high
   description: "Weak SSL/TLS protocol in Nginx"
   remediation: "Use TLSv1.2 or higher"
@@ -434,7 +451,8 @@
 - id: puppet-unsafe-cron-command
   languages: [puppet]
   patterns:
-    - regex: '(?i)cron\\s*\\{.*command\\s*=>.*\\$\\{.*\\}''severity: high
+    - regex: '(?i)cron\s*\{.*command\s*=>.*\$\{.*\}'
+  severity: high
   description: "Unsafe variable in cron command"
   remediation: "Validate cron variables"
   cwe: "CWE-78"
@@ -443,7 +461,7 @@
 - id: puppet-writable-etc
   languages: [puppet]
   patterns:
-    - regex: '(?i)file\\s*\\{.*path\\s*=>\\s*['''"]/etc[''"].*mode\\s*=>\\s*[''"]?0?777'
+    - regex: '(?i)file\s*\{.*path\s*=>\s*[''"]/etc[''"].*mode\s*=>\s*[''"]?0?777'
   severity: critical
   description: "World-writable /etc directory"
   remediation: "Use secure permissions"
@@ -453,7 +471,7 @@
 - id: puppet-writable-usr-bin
   languages: [puppet]
   patterns:
-    - regex: '(?i)file\\s*\\{.*path\\s*=>\\s*['''"]/usr/bin[''"].*mode\\s*=>\\s*[''"]?0?777'
+    - regex: '(?i)file\s*\{.*path\s*=>\s*[''"]/usr/bin[''"].*mode\s*=>\s*[''"]?0?777'
   severity: critical
   description: "World-writable /usr/bin directory"
   remediation: "Use secure permissions"
@@ -463,7 +481,7 @@
 - id: puppet-insecure-selinux
   languages: [puppet]
   patterns:
-    - regex: '(?i)selinux::mode\\s*=>\\s*['''"]disabled[''"]'
+    - regex: '(?i)selinux::mode\s*=>\s*[''"]disabled[''"]'
   severity: medium
   description: "SELinux disabled"
   remediation: "Enable SELinux in enforcing mode"
@@ -473,7 +491,7 @@
 - id: puppet-insecure-firewall
   languages: [puppet]
   patterns:
-    - regex: '(?i)firewall\\s*\\{.*action\\s*=>\\s*['''"]accept[''"].*state\\s*=>\\s*[''"]new[''"]'
+    - regex: '(?i)firewall\s*\{.*action\s*=>\s*[''"]accept[''"].*state\s*=>\s*[''"]new[''"]'
   severity: medium
   description: "Firewall allows all new connections"
   remediation: "Restrict firewall rules"
@@ -483,7 +501,8 @@
 - id: puppet-anonymous-ftp
   languages: [puppet]
   patterns:
-    - regex: '(?i)vsftpd.*anonymous_enable\\s*=>\\s*YES''severity: high
+    - regex: '(?i)vsftpd.*anonymous_enable\s*=>\s*YES'
+  severity: high
   description: "Anonymous FTP enabled"
   remediation: "Disable anonymous FTP"
   cwe: "CWE-284"
@@ -492,7 +511,8 @@
 - id: puppet-insecure-ldap
   languages: [puppet]
   patterns:
-    - regex: '(?i)ldap.*ssl\\s*=>\\s*false''severity: high
+    - regex: '(?i)ldap.*ssl\s*=>\s*false'
+  severity: high
   description: "LDAP without SSL"
   remediation: "Use LDAPS or StartTLS"
   cwe: "CWE-295"
@@ -501,7 +521,7 @@
 - id: puppet-insecure-tomcat
   languages: [puppet]
   patterns:
-    - regex: '(?i)tomcat::instance.*user\\s*=>\\s*['''"]root[''"]'
+    - regex: '(?i)tomcat::instance.*user\s*=>\s*[''"]root[''"]'
   severity: high
   description: "Tomcat running as root"
   remediation: "Use dedicated tomcat user"
@@ -511,7 +531,8 @@
 - id: puppet-weak-ssh-cipher
   languages: [puppet]
   patterns:
-    - regex: '(?i)sshd_config.*Ciphers\\s*.*(aes128-cbc|aes192-cbc|aes256-cbc|3des-cbc)''severity: high
+    - regex: '(?i)sshd_config.*Ciphers\s*.*(aes128-cbc|aes192-cbc|aes256-cbc|3des-cbc)'
+  severity: high
   description: "Weak SSH cipher"
   remediation: "Use strong ciphers"
   cwe: "CWE-327"
@@ -520,7 +541,8 @@
 - id: puppet-ssh-root-login
   languages: [puppet]
   patterns:
-    - regex: '(?i)sshd_config.*PermitRootLogin\\s*yes''severity: high
+    - regex: '(?i)sshd_config.*PermitRootLogin\s*yes'
+  severity: high
   description: "SSH root login enabled"
   remediation: "Disable root login"
   cwe: "CWE-798"
@@ -529,7 +551,8 @@
 - id: puppet-ssh-password-auth
   languages: [puppet]
   patterns:
-    - regex: '(?i)sshd_config.*PasswordAuthentication\\s*yes''severity: high
+    - regex: '(?i)sshd_config.*PasswordAuthentication\s*yes'
+  severity: high
   description: "SSH password authentication enabled"
   remediation: "Use key-based authentication"
   cwe: "CWE-798"
@@ -538,7 +561,7 @@
 - id: puppet-unsafe-file-owner
   languages: [puppet]
   patterns:
-    - regex: '(?i)file\\s*\\{.*owner\\s*=>\\s*['''"]nobody[''"]'
+    - regex: '(?i)file\s*\{.*owner\s*=>\s*[''"]nobody[''"]'
   severity: low
   description: "File owned by nobody"
   remediation: "Use appropriate owner"
@@ -548,7 +571,8 @@
 - id: puppet-insecure-regex
   languages: [puppet]
   patterns:
-    - regex: '(?i)validate_regex\\s*\\(.*\\.\\*\\)''severity: low
+    - regex: '(?i)validate_regex\s*\(.*\.\*\)'
+  severity: low
   description: "Overly permissive regex"
   remediation: "Use specific regex patterns"
   cwe: "CWE-625"
@@ -557,7 +581,7 @@
 - id: puppet-hardcoded-rabbitmq-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)rabbitmq::user.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)rabbitmq::user.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded RabbitMQ password"
   remediation: "Use secure password"
@@ -567,7 +591,7 @@
 - id: puppet-hardcoded-keystone-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)keystone.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)keystone.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Keystone password"
   remediation: "Use Keystone secure password"
@@ -577,7 +601,7 @@
 - id: puppet-hardcoded-glance-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)glance.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)glance.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Glance password"
   remediation: "Use Glance secure password"
@@ -587,7 +611,7 @@
 - id: puppet-hardcoded-nova-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)nova::.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)nova::.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Nova password"
   remediation: "Use Nova secure password"
@@ -597,7 +621,7 @@
 - id: puppet-hardcoded-neutron-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)neutron.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)neutron.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Neutron password"
   remediation: "Use Neutron secure password"
@@ -607,7 +631,7 @@
 - id: puppet-hardcoded-swift-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)swift.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)swift.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Swift password"
   remediation: "Use Swift secure password"
@@ -617,7 +641,7 @@
 - id: puppet-hardcoded-cinder-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)cinder.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)cinder.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Cinder password"
   remediation: "Use Cinder secure password"
@@ -627,7 +651,7 @@
 - id: puppet-hardcoded-heat-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)heat.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)heat.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Heat password"
   remediation: "Use Heat secure password"
@@ -637,7 +661,7 @@
 - id: puppet-hardcoded-ceilometer-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)ceilometer.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)ceilometer.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Ceilometer password"
   remediation: "Use Ceilometer secure password"
@@ -647,7 +671,7 @@
 - id: puppet-hardcoded-horizon-secret
   languages: [puppet]
   patterns:
-    - regex: '(?i)horizon.*secret_key\\s*=>\\s*['''"][^'''
+    - regex: '(?i)horizon.*secret_key\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Horizon secret key"
   remediation: "Use Horizon secure secret"
@@ -657,7 +681,7 @@
 - id: puppet-hardcoded-kafka-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)kafka::broker.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)kafka::broker.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Kafka password"
   remediation: "Use Kafka secure password"
@@ -667,7 +691,7 @@
 - id: puppet-hardcoded-zookeeper-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)zookeeper.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)zookeeper.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded ZooKeeper password"
   remediation: "Use ZooKeeper secure password"
@@ -677,7 +701,7 @@
 - id: puppet-hardcoded-elasticsearch-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)elasticsearch.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)elasticsearch.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Elasticsearch password"
   remediation: "Use Elasticsearch secure password"
@@ -687,7 +711,7 @@
 - id: puppet-hardcoded-kibana-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)kibana.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)kibana.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Kibana password"
   remediation: "Use Kibana secure password"
@@ -697,7 +721,7 @@
 - id: puppet-hardcoded-logstash-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)logstash.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)logstash.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Logstash password"
   remediation: "Use Logstash secure password"
@@ -707,7 +731,7 @@
 - id: puppet-hardcoded-consul-token
   languages: [puppet]
   patterns:
-    - regex: '(?i)consul.*acl_token\\s*=>\\s*['''"][^'''
+    - regex: '(?i)consul.*acl_token\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Consul ACL token"
   remediation: "Use Consul secure token"
@@ -717,7 +741,7 @@
 - id: puppet-hardcoded-vault-token
   languages: [puppet]
   patterns:
-    - regex: '(?i)vault.*token\\s*=>\\s*['''"][^'''
+    - regex: '(?i)vault.*token\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Vault token"
   remediation: "Use Vault secure token"
@@ -727,7 +751,7 @@
 - id: puppet-hardcoded-etcd-key
   languages: [puppet]
   patterns:
-    - regex: '(?i)etcd.*initial_cluster_token\\s*=>\\s*['''"][^'''
+    - regex: '(?i)etcd.*initial_cluster_token\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded etcd cluster token"
   remediation: "Use secure etcd token"
@@ -737,7 +761,7 @@
 - id: puppet-hardcoded-riak-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)riak::java.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)riak::java.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Riak password"
   remediation: "Use Riak secure password"
@@ -747,7 +771,7 @@
 - id: puppet-hardcoded-cassandra-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)cassandra.*authenticator_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)cassandra.*authenticator_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Cassandra password"
   remediation: "Use Cassandra secure password"
@@ -757,7 +781,7 @@
 - id: puppet-hardcoded-couchdb-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)couchdb.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)couchdb.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded CouchDB admin password"
   remediation: "Use CouchDB secure password"
@@ -767,7 +791,7 @@
 - id: puppet-hardcoded-influxdb-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)influxdb.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)influxdb.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded InfluxDB admin password"
   remediation: "Use InfluxDB secure password"
@@ -777,7 +801,8 @@
 - id: puppet-hardcoded-prometheus-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)prometheus::web.*basic_auth_users\\s*=>''severity: high
+    - regex: '(?i)prometheus::web.*basic_auth_users\s*=>'
+  severity: high
   description: "Hardcoded Prometheus basic auth"
   remediation: "Use secure authentication"
   cwe: "CWE-798"
@@ -786,7 +811,7 @@
 - id: puppet-hardcoded-grafana-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)grafana::config.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)grafana::config.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Grafana admin password"
   remediation: "Use Grafana secure password"
@@ -796,7 +821,7 @@
 - id: puppet-hardcoded-nagios-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)nagios.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)nagios.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Nagios password"
   remediation: "Use Nagios secure password"
@@ -806,7 +831,7 @@
 - id: puppet-hardcoded-zabbix-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)zabbix::server.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)zabbix::server.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Zabbix password"
   remediation: "Use Zabbix secure password"
@@ -816,7 +841,7 @@
 - id: puppet-hardcoded-jenkins-api-token
   languages: [puppet]
   patterns:
-    - regex: '(?i)jenkins::cli.*api_token\\s*=>\\s*['''"][^'''
+    - regex: '(?i)jenkins::cli.*api_token\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Jenkins API token"
   remediation: "Use Jenkins secure token"
@@ -826,7 +851,8 @@
 - id: puppet-hardcoded-gitlab-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)gitlab::gitlab-rails.*initial_root_password\\s*=>''severity: critical
+    - regex: '(?i)gitlab::gitlab-rails.*initial_root_password\s*=>'
+  severity: critical
   description: "Hardcoded GitLab root password"
   remediation: "Use GitLab secure password"
   cwe: "CWE-798"
@@ -835,7 +861,7 @@
 - id: puppet-hardcoded-jira-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)jira.*jira_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)jira.*jira_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Jira password"
   remediation: "Use Jira secure password"
@@ -845,7 +871,7 @@
 - id: puppet-hardcoded-confluence-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)confluence.*confluence_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)confluence.*confluence_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Confluence password"
   remediation: "Use Confluence secure password"
@@ -855,7 +881,7 @@
 - id: puppet-hardcoded-nexus-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)nexus.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)nexus.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Nexus admin password"
   remediation: "Use Nexus secure password"
@@ -865,7 +891,7 @@
 - id: puppet-hardcoded-sonarqube-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)sonarqube.*sonar_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)sonarqube.*sonar_password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded SonarQube password"
   remediation: "Use SonarQube secure password"
@@ -875,7 +901,7 @@
 - id: puppet-hardcoded-datadog-api-key
   languages: [puppet]
   patterns:
-    - regex: '(?i)datadog::agent.*api_key\\s*=>\\s*['''"][a-zA-Z0-9]{32}'
+    - regex: '(?i)datadog::agent.*api_key\s*=>\s*[''"][a-zA-Z0-9]{32}'
   severity: critical
   description: "Hardcoded Datadog API key"
   remediation: "Use Datadog secure API key"
@@ -885,7 +911,7 @@
 - id: puppet-hardcoded-splunk-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)splunk.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)splunk.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Splunk password"
   remediation: "Use Splunk secure password"
@@ -895,7 +921,7 @@
 - id: puppet-hardcoded-ansible-vault
   languages: [puppet]
   patterns:
-    - regex: '(?i)ansible::vault_password_file\\s*=>\\s*['''"]'
+    - regex: '(?i)ansible::vault_password_file\s*=>\s*[''"]'
   severity: critical
   description: "Hardcoded Ansible vault password file"
   remediation: "Use Ansible vault"
@@ -905,7 +931,7 @@
 - id: puppet-hardcoded-sendmail-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)sendmail.*smtp_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)sendmail.*smtp_password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Sendmail SMTP password"
   remediation: "Use secure SMTP password"
@@ -915,7 +941,7 @@
 - id: puppet-hardcoded-postfix-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)postfix::sasl.*smtp_sasl_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)postfix::sasl.*smtp_sasl_password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Postfix SASL password"
   remediation: "Use secure SASL password"
@@ -925,7 +951,7 @@
 - id: puppet-hardcoded-dovecot-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)dovecot.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)dovecot.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Dovecot password"
   remediation: "Use secure Dovecot password"
@@ -935,7 +961,7 @@
 - id: puppet-hardcoded-courier-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)courier::imap.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)courier::imap.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Courier IMAP password"
   remediation: "Use secure IMAP password"
@@ -945,7 +971,7 @@
 - id: puppet-hardcoded-exim-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)exim.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)exim.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Exim password"
   remediation: "Use secure Exim password"
@@ -955,7 +981,7 @@
 - id: puppet-hardcoded-openvpn-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)openvpn::server.*secret\\s*=>\\s*['''"][^'''
+    - regex: '(?i)openvpn::server.*secret\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded OpenVPN secret"
   remediation: "Use secure OpenVPN secret"
@@ -965,7 +991,7 @@
 - id: puppet-hardcoded-ipsec-secret
   languages: [puppet]
   patterns:
-    - regex: '(?i)ipsec::secret\\s*=>\\s*['''"][^'''
+    - regex: '(?i)ipsec::secret\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded IPSec secret"
   remediation: "Use secure IPSec secret"
@@ -975,7 +1001,7 @@
 - id: puppet-hardcoded-wireguard-key
   languages: [puppet]
   patterns:
-    - regex: '(?i)wireguard.*private_key\\s*=>\\s*['''"][A-Za-z0-9+/=]{43}'
+    - regex: '(?i)wireguard.*private_key\s*=>\s*[''"][A-Za-z0-9+/=]{43}'
   severity: critical
   description: "Hardcoded WireGuard private key"
   remediation: "Use secure WireGuard key"
@@ -985,7 +1011,7 @@
 - id: puppet-hardcoded-nfs-secret
   languages: [puppet]
   patterns:
-    - regex: '(?i)nfs::v4::server.*mount_secret\\s*=>\\s*['''"][^'''
+    - regex: '(?i)nfs::v4::server.*mount_secret\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded NFS secret"
   remediation: "Use secure NFS secret"
@@ -995,7 +1021,7 @@
 - id: puppet-hardcoded-samba-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)samba::server.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)samba::server.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Samba password"
   remediation: "Use secure Samba password"
@@ -1005,7 +1031,7 @@
 - id: puppet-hardcoded-ldap-bind-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)ldap::server.*bind_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)ldap::server.*bind_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded LDAP bind password"
   remediation: "Use secure LDAP password"
@@ -1015,7 +1041,7 @@
 - id: puppet-hardcoded-kerberos-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)kerberos::kdc.*master_key\\s*=>\\s*['''"][^'''
+    - regex: '(?i)kerberos::kdc.*master_key\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Kerberos master key"
   remediation: "Use secure Kerberos key"
@@ -1025,7 +1051,7 @@
 - id: puppet-hardcoded-freeipa-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)ipa::server.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)ipa::server.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded FreeIPA admin password"
   remediation: "Use secure IPA password"
@@ -1035,7 +1061,7 @@
 - id: puppet-hardcoded-vsftpd-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)vsftpd.*ftp_username\\s*=>\\s*['''"][^'''
+    - regex: '(?i)vsftpd.*ftp_username\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded vsftpd password"
   remediation: "Use secure vsftpd password"
@@ -1045,7 +1071,7 @@
 - id: puppet-hardcoded-proftpd-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)proftpd.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)proftpd.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded ProFTPD password"
   remediation: "Use secure ProFTPD password"
@@ -1055,7 +1081,7 @@
 - id: puppet-hardcoded-pureftpd-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)pureftpd.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)pureftpd.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Pure-FTPd password"
   remediation: "Use secure Pure-FTPd password"
@@ -1065,7 +1091,7 @@
 - id: puppet-hardcoded-mysql-root-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)mysql::server::root_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)mysql::server::root_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded MySQL root password"
   remediation: "Use secure MySQL root password"
@@ -1075,7 +1101,7 @@
 - id: puppet-hardcoded-postgres-postgres-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)postgresql::server::postgres_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)postgresql::server::postgres_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded PostgreSQL postgres password"
   remediation: "Use secure PostgreSQL password"
@@ -1085,7 +1111,7 @@
 - id: puppet-hardcoded-oracle-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)oracle.*system_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)oracle.*system_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Oracle system password"
   remediation: "Use secure Oracle password"
@@ -1095,7 +1121,7 @@
 - id: puppet-hardcoded-sqlserver-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)sqlserver.*sa_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)sqlserver.*sa_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded SQL Server sa password"
   remediation: "Use secure SQL Server password"
@@ -1105,7 +1131,7 @@
 - id: puppet-hardcoded-firebird-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)firebird.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)firebird.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Firebird password"
   remediation: "Use secure Firebird password"
@@ -1115,7 +1141,7 @@
 - id: puppet-hardcoded-interbase-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)interbase.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)interbase.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded InterBase password"
   remediation: "Use secure InterBase password"
@@ -1125,7 +1151,7 @@
 - id: puppet-hardcoded-sybase-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)sybase.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)sybase.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Sybase password"
   remediation: "Use secure Sybase password"
@@ -1135,7 +1161,7 @@
 - id: puppet-hardcoded-activemq-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)activemq::admin.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)activemq::admin.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded ActiveMQ admin password"
   remediation: "Use secure ActiveMQ password"
@@ -1145,7 +1171,7 @@
 - id: puppet-hardcoded-websphere-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)websphere.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)websphere.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded WebSphere password"
   remediation: "Use secure WebSphere password"
@@ -1155,7 +1181,7 @@
 - id: puppet-hardcoded-weblogic-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)weblogic.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)weblogic.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded WebLogic password"
   remediation: "Use secure WebLogic password"
@@ -1165,7 +1191,7 @@
 - id: puppet-hardcoded-was-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)websphere_application_server.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)websphere_application_server.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded WAS password"
   remediation: "Use secure WAS password"
@@ -1175,7 +1201,7 @@
 - id: puppet-hardcoded-jboss-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)jboss::domain.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)jboss::domain.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded JBoss admin password"
   remediation: "Use secure JBoss password"
@@ -1185,7 +1211,7 @@
 - id: puppet-hardcoded-wildfly-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)wildfly::management::user.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)wildfly::management::user.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded WildFly management password"
   remediation: "Use secure WildFly password"
@@ -1195,7 +1221,7 @@
 - id: puppet-hardcoded-payara-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)payara.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)payara.*password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded Payara password"
   remediation: "Use secure Payara password"
@@ -1205,7 +1231,7 @@
 - id: puppet-hardcoded-glassfish-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)glassfish.*admin_password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)glassfish.*admin_password\s*=>\s*[''"][^'']'
   severity: critical
   description: "Hardcoded GlassFish admin password"
   remediation: "Use secure GlassFish password"
@@ -1215,7 +1241,7 @@
 - id: puppet-hardcoded-tomcat-manager-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)tomcat::manager.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)tomcat::manager.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Tomcat manager password"
   remediation: "Use secure Tomcat manager password"
@@ -1225,7 +1251,7 @@
 - id: puppet-hardcoded-jetty-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)jetty.*realm\\s*=>.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)jetty.*realm\s*=>.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Jetty password"
   remediation: "Use secure Jetty password"
@@ -1235,7 +1261,7 @@
 - id: puppet-hardcoded-nginx-basic-auth
   languages: [puppet]
   patterns:
-    - regex: '(?i)nginx::resource::location.*htpasswd.*['''\"][^'''
+    - regex: '(?i)nginx::resource::location.*htpasswd.*[''\\\"][^'']'
   severity: high
   description: "Hardcoded Nginx basic auth password"
   remediation: "Use secure Nginx auth"
@@ -1245,7 +1271,7 @@
 - id: puppet-hardcoded-apache-basic-auth
   languages: [puppet]
   patterns:
-    - regex: '(?i)apache::htpasswd.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)apache::htpasswd.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Apache htpasswd password"
   remediation: "Use secure Apache auth"
@@ -1255,7 +1281,8 @@
 - id: puppet-hardcoded-haproxy-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)haproxy::userlist.*user.*password''severity: high
+    - regex: '(?i)haproxy::userlist.*user.*password'
+  severity: high
   description: "Hardcoded HAProxy password"
   remediation: "Use secure HAProxy auth"
   cwe: "CWE-798"
@@ -1264,7 +1291,7 @@
 - id: puppet-hardcoded-varnish-secret
   languages: [puppet]
   patterns:
-    - regex: '(?i)varnish.*secret\\s*=>\\s*['''"][^'''
+    - regex: '(?i)varnish.*secret\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Varnish secret"
   remediation: "Use secure Varnish secret"
@@ -1274,7 +1301,7 @@
 - id: puppet-hardcoded-caddy-password
   languages: [puppet]
   patterns:
-    - regex: '(?i)caddy::basic_auth.*password\\s*=>\\s*['''"][^'''
+    - regex: '(?i)caddy::basic_auth.*password\s*=>\s*[''"][^'']'
   severity: high
   description: "Hardcoded Caddy basic auth password"
   remediation: "Use secure Caddy auth"
@@ -1285,7 +1312,8 @@
 - id: puppet-ssh-roots-login
   languages: [puppet]
   patterns:
-    - regex: '(?i)sshd_config.*PermitRootLogin\s+yes''severity: critical
+    - regex: '(?i)sshd_config.*PermitRootLogin\s+yes'
+  severity: critical
   description: "SSH root login enabled"
   remediation: "Disable root login"
   cwe: "CWE-284"
@@ -1295,7 +1323,7 @@
 - id: puppet-firewalld-disabled
   languages: [puppet]
   patterns:
-    - regex: '(?i)service\s+{\s+'''firewalld''.*ensure\s+=>\s+''stopped'''
+    - regex: '(?i)service\s+{\s+''firewalld''.*ensure\s+=>\s+''stopped'''
   severity: high
   description: "Firewalld disabled"
   remediation: "Enable and configure firewalld"
@@ -1306,7 +1334,7 @@
 - id: puppet-selinux-disabled
   languages: [puppet]
   patterns:
-    - regex: '(?i)selinux::mode\s+'''disabled'''
+    - regex: '(?i)selinux::mode\s+''disabled'''
   severity: high
   description: "SELinux disabled"
   remediation: "Use enforcing or permissive"
@@ -1317,7 +1345,8 @@
 - id: puppet-https-hiera
   languages: [puppet]
   patterns:
-    - regex: '(?i)hiera.yaml.*:backends:\s+-\s+yaml''severity: medium
+    - regex: '(?i)hiera.yaml.*:backends:\s+-\s+yaml'
+  severity: medium
   description: "Hiera backend configuration"
   remediation: "Use secure Hiera backends"
   cwe: "CWE-311"
@@ -1327,7 +1356,8 @@
 - id: puppet-trusted External Facts
   languages: [puppet]
   patterns:
-    - regex: '(?i)trusted_external_facts\s+=''severity: medium
+    - regex: '(?i)trusted_external_facts\s+='
+  severity: medium
   description: "External facts enabled"
   remediation: "Validate external facts"
   cwe: "CWE-284"

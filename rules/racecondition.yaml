@@ -7,7 +7,8 @@
 - id: race-file-check-then-use
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp]
   patterns:
-    - regex: '(?i)(?:os\.stat|File\.exists|path\.exists|fileExists|isFile|isDirectory).*&&.*(?:os\.open|open|FileInputStream|FileReader|ReadStream)''severity: high
+    - regex: '(?i)(?:os\.stat|File\.exists|path\.exists|fileExists|isFile|isDirectory).*&&.*(?:os\.open|open|FileInputStream|FileReader|ReadStream)'
+  severity: high
   description: "File race condition: checking file existence before opening - attacker may modify file between check and use"
   remediation: "Open file first, then check permissions, or use O_NOFOLLOW and handle exceptions properly"
   cwe: "CWE-367"
@@ -16,7 +17,8 @@
 - id: race-file-permission-check
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp]
   patterns:
-    - regex: '(?i)(?:access|canRead|canWrite|canExecute|exists|isWritable|isReadable)\s*\([^)]*\).*(?:open|read|write|execute|create)''severity: high
+    - regex: '(?i)(?:access|canRead|canWrite|canExecute|exists|isWritable|isReadable)\s*\([^)]*\).*(?:open|read|write|execute|create)'
+  severity: high
   description: "TOCTOU: permission check followed by file operation - time window for attack"
   remediation: "Perform operations atomically or use file descriptors, handle exceptions from operations"
   cwe: "CWE-367"
@@ -25,7 +27,8 @@
 - id: race-file-insecure-temp-creation
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp, c, cpp]
   patterns:
-    - regex: '(?i)(?:mktemp|tempnam|tmpnam|TemporaryFile\.new|File\.createTempFile).*''severity: high
+    - regex: '(?i)(?:mktemp|tempnam|tmpnam|TemporaryFile\.new|File\.createTempFile).*'
+  severity: high
   description: "Insecure temporary file creation - predictable filenames allow symlink attacks"
   remediation: "Use O_EXCL flag, mkstemp(), or secure temp file APIs that create files atomically"
   cwe: "CWE-378"
@@ -34,7 +37,8 @@
 - id: race-file-symlink-attack
   languages: [python, java, c, cpp, go, ruby, php]
   patterns:
-    - regex: '(?i)(?:unlink|remove|delete)\s*\([^)]*\).*(?:symlink|readlink)|symlink.*(?:unlink|remove|delete)''severity: high
+    - regex: '(?i)(?:unlink|remove|delete)\s*\([^)]*\).*(?:symlink|readlink)|symlink.*(?:unlink|remove|delete)'
+  severity: high
   description: "Potential symlink attack - checking/removing file without proper validation"
   remediation: "Open file with O_NOFOLLOW, use fstat() to verify file ownership before operations"
   cwe: "CWE-379"
@@ -45,7 +49,8 @@
 - id: race-db-read-modify-write
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:SELECT|select).*(?:WHERE|where).*(?:IF|if).*(?:UPDATE|update|INSERT|insert|DELETE|delete)|read.*then.*write.*without.*lock''severity: critical
+    - regex: '(?i)(?:SELECT|select).*(?:WHERE|where).*(?:IF|if).*(?:UPDATE|update|INSERT|insert|DELETE|delete)|read.*then.*write.*without.*lock'
+  severity: critical
   description: "Database read-modify-write without locking - classic race condition in data operations"
   remediation: "Use SELECT FOR UPDATE, database transactions, or optimistic locking with version columns"
   cwe: "CWE-362"
@@ -54,7 +59,8 @@
 - id: race-db-no-transaction
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:execute|query|run)\s*\([^)]*(?:INSERT|UPDATE|DELETE|select).*(?:execute|query|run)\s*\([^)]*(?:INSERT|UPDATE|DELETE)|connection.*without.*transaction''severity: high
+    - regex: '(?i)(?:execute|query|run)\s*\([^)]*(?:INSERT|UPDATE|DELETE|select).*(?:execute|query|run)\s*\([^)]*(?:INSERT|UPDATE|DELETE)|connection.*without.*transaction'
+  severity: high
   description: "Multiple database operations without explicit transaction - non-atomic operations"
   remediation: "Wrap multiple related operations in a transaction with proper isolation level"
   cwe: "CWE-362"
@@ -63,7 +69,8 @@
 - id: race-db-increment-without-lock
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:increment|incrementAndGet|addAndGet|\+\+|\+=).*(?:database|query|update).*''severity: high
+    - regex: '(?i)(?:increment|incrementAndGet|addAndGet|\+\+|\+=).*(?:database|query|update).*'
+  severity: high
   description: "Atomic increment operation without proper database-level locking"
   remediation: "Use database atomic operations (UPDATE counter = counter + 1) or SELECT FOR UPDATE"
   cwe: "CWE-362"
@@ -74,7 +81,8 @@
 - id: race-auth-check-then-act
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp]
   patterns:
-    - regex: '(?i)(?:if|unless|guard)\s*\(.*(?:isAuthenticated|isLoggedIn|hasPermission|checkAccess).*\).*(?:grant|allow|create|execute|delete)''severity: critical
+    - regex: '(?i)(?:if|unless|guard)\s*\(.*(?:isAuthenticated|isLoggedIn|hasPermission|checkAccess).*\).*(?:grant|allow|create|execute|delete)'
+  severity: critical
   description: "Check-then-act in authentication/authorization - permission may change between check and action"
   remediation: "Use authorization decisions at the point of action, check permissions immediately before operation"
   cwe: "CWE-367"
@@ -83,7 +91,8 @@
 - id: race-session-concurrent-access
   languages: [javascript, typescript, python, java, ruby, php, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:session|Session)\s*\[.*\].*=.*(?:session|Session)\s*\[.*\]''severity: high
+    - regex: '(?i)(?:session|Session)\s*\[.*\].*=.*(?:session|Session)\s*\[.*\]'
+  severity: high
   description: "Concurrent session modification without synchronization - session data corruption possible"
   remediation: "Use thread-safe session stores, mutexes, or atomic operations for session updates"
   cwe: "CWE-362"
@@ -92,7 +101,8 @@
 - id: race-token-generation-concurrent
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp]
   patterns:
-    - regex: '(?i)(?:generate|create|make).*(?:token|id|session).*''severity: high
+    - regex: '(?i)(?:generate|create|make).*(?:token|id|session).*'
+  severity: high
   description: "Token/session generation without proper synchronization - possible duplicate or predictable values"
   remediation: "Use cryptographically secure random generators and atomic token generation with uniqueness checks"
   cwe: "CWE-330"
@@ -103,7 +113,8 @@
 - id: race-double-checked-locking-unsafe
   languages: [java, kotlin, csharp, c, cpp]
   patterns:
-    - regex: '(?i)(?:synchronized|lock|mutex)\s*\(.*\).*if\s*\(.*instance\s*==\s*null|if\s*\(.*instance\s*==\s*null.*synchronized''severity: high
+    - regex: '(?i)(?:synchronized|lock|mutex)\s*\(.*\).*if\s*\(.*instance\s*==\s*null|if\s*\(.*instance\s*==\s*null.*synchronized'
+  severity: high
   description: "Double-checked locking anti-pattern - may return uninitialized object under race conditions"
   remediation: "Use volatile keyword, eager initialization, or Bill Pugh Singleton pattern with holder"
   cwe: "CWE-609"
@@ -112,7 +123,8 @@
 - id: race-singleton-not-thread-safe
   languages: [java, kotlin, csharp, c, cpp, python, go, ruby, php]
   patterns:
-    - regex: '(?i)(?:static|class|def|func|function).*(?:getInstance|getInstance\(\)|instance\s*=|Singleton).*''severity: high
+    - regex: '(?i)(?:static|class|def|func|function).*(?:getInstance|getInstance\(\)|instance\s*=|Singleton).*'
+  severity: high
   description: "Singleton pattern without thread-safety guarantees - race condition on instance creation"
   remediation: "Use proper synchronization, eager initialization, or holder pattern for thread-safe singletons"
   cwe: "CWE-362"
@@ -121,7 +133,8 @@
 - id: race-lazy-init-without-sync
   languages: [java, kotlin, csharp, c, cpp]
   patterns:
-    - regex: '(?i)(?:private|protected)?\s*(?:static)?\s*(?:volatile)?\s*\w+\s+\w+\s*=.*if\s*\(.*==\s*null''severity: high
+    - regex: '(?i)(?:private|protected)?\s*(?:static)?\s*(?:volatile)?\s*\w+\s+\w+\s*=.*if\s*\(.*==\s*null'
+  severity: high
   description: "Lazy initialization without proper synchronization - causes race conditions in multi-threaded code"
   remediation: "Use synchronized blocks, volatile keyword, or Initialization-on-demand holder idiom"
   cwe: "CWE-362"
@@ -132,7 +145,8 @@
 - id: race-payment-insufficient-balance-check
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:if|when|unless)\s*\(.*balance.*>=.*\).*(?:debit|withdraw|transfer|payment)''severity: critical
+    - regex: '(?i)(?:if|when|unless)\s*\(.*balance.*>=.*\).*(?:debit|withdraw|transfer|payment)'
+  severity: critical
   description: "Balance check before deduction without atomic operation - allows overdrawing under race conditions"
   remediation: "Use database-level atomic operations or SELECT FOR UPDATE with proper transaction isolation"
   cwe: "CWE-367"
@@ -141,7 +155,8 @@
 - id: race-payment-concurrent-transaction
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:processPayment|transfer|withdraw|deposit|deduct).*.*(?:processPayment|transfer|withdraw|deposit|deduct)''severity: critical
+    - regex: '(?i)(?:processPayment|transfer|withdraw|deposit|deduct).*.*(?:processPayment|transfer|withdraw|deposit|deduct)'
+  severity: critical
   description: "Concurrent payment/transaction processing without proper locking - financial data inconsistency"
   remediation: "Use database transactions with appropriate isolation level, or implement distributed locks"
   cwe: "CWE-362"
@@ -150,7 +165,8 @@
 - id: race-coupon-redeem-concurrent
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:coupon|promo|discount|voucher).*(?:redeem|use|apply).*''severity: high
+    - regex: '(?i)(?:coupon|promo|discount|voucher).*(?:redeem|use|apply).*'
+  severity: high
   description: "Coupon/promo code redemption without concurrency control - can be redeemed multiple times"
   remediation: "Use database transactions with SELECT FOR UPDATE, add unique constraint on redemption records"
   cwe: "CWE-362"
@@ -161,7 +177,8 @@
 - id: race-time-of-check-time-of-use
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp, c, cpp]
   patterns:
-    - regex: '(?i)(?:check|verify|validate|ensure)\s*\([^)]*\).*(?:then|after|followed by).*(?:use|act|execute|perform|open|create)''severity: high
+    - regex: '(?i)(?:check|verify|validate|ensure)\s*\([^)]*\).*(?:then|after|followed by).*(?:use|act|execute|perform|open|create)'
+  severity: high
   description: "Classic TOCTOU pattern - state may change between verification and action"
   remediation: "Perform operations atomically or move check to the point of action"
   cwe: "CWE-367"
@@ -170,7 +187,8 @@
 - id: race-condition-timestamp-check
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp]
   patterns:
-    - regex: '(?i)(?:timestamp|time|expiry|expires|valid)\s*[<>]=?\s*(?:now|Date|Time|System|new).*''severity: medium
+    - regex: '(?i)(?:timestamp|time|expiry|expires|valid)\s*[<>]=?\s*(?:now|Date|Time|System|new).*'
+  severity: medium
   description: "Timestamp-based validation without atomicity - time window for replay or manipulation"
   remediation: "Use atomic time checks, server-side validation, or cryptographic time tokens"
   cwe: "CWE-367"
@@ -181,7 +199,8 @@
 - id: race-shared-mutable-state
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp, c, cpp]
   patterns:
-    - regex: '(?i)(?:global|static|shared|public)\s+\w+\s+=\s*\[|\{\(|new\s+Array|new\s+List|new\s+Map.*''severity: medium
+    - regex: '(?i)(?:global|static|shared|public)\s+\w+\s+=\s*\[|\{\(|new\s+Array|new\s+List|new\s+Map.*'
+  severity: medium
   description: "Shared mutable state without thread-safety measures - potential race conditions"
   remediation: "Use thread-safe data structures, synchronization primitives, or immutable data patterns"
   cwe: "CWE-362"
@@ -190,7 +209,8 @@
 - id: race-wait-without-notify
   languages: [java, kotlin, csharp]
   patterns:
-    - regex: '(?i)(?:wait|sleep|Thread\.sleep)\s*\(.*\)''severity: high
+    - regex: '(?i)(?:wait|sleep|Thread\.sleep)\s*\(.*\)'
+  severity: high
   description: "Thread wait/sleep without proper notification - potential deadlock or missed updates"
   remediation: "Use proper condition variables, notify/wait patterns, or higher-level concurrency constructs"
   cwe: "CWE-662"
@@ -199,7 +219,8 @@
 - id: race-no-mutex-for-shared-resource
   languages: [c, cpp, go, rust]
   patterns:
-    - regex: '(?i)(?:global|static|shared|extern).*\w+.*(?:=|:).*''severity: high
+    - regex: '(?i)(?:global|static|shared|extern).*\w+.*(?:=|:).*'
+  severity: high
   description: "Shared resource access without mutex/lock - data race vulnerability"
   remediation: "Use mutex, atomic operations, or thread-local storage for shared resources"
   cwe: "CWE-362"
@@ -210,7 +231,8 @@
 - id: race-unsafe-compare-and-swap
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp, c, cpp]
   patterns:
-    - regex: '(?i)(?:compare|check|verify).*(?:then|after|).*(?:swap|set|assign|update).*''severity: high
+    - regex: '(?i)(?:compare|check|verify).*(?:then|after|).*(?:swap|set|assign|update).*'
+  severity: high
   description: "Compare-and-swap pattern without atomic operation - value may change between check and swap"
   remediation: "Use atomic compare-and-swap (CAS) operations or database-level atomic updates"
   cwe: "CWE-362"
@@ -219,7 +241,8 @@
 - id: race-counter-without-atomic
   languages: [python, java, javascript, typescript, go, ruby, php, kotlin, swift, csharp, c, cpp]
   patterns:
-    - regex: '(?i)(?:counter|count|increment|decrement|total|sum|amount).*\+\+|\+\=.*''severity: high
+    - regex: '(?i)(?:counter|count|increment|decrement|total|sum|amount).*\+\+|\+\\=.*'
+  severity: high
   description: "Counter increment without atomic operation - lost updates in concurrent scenarios"
   remediation: "Use atomic integers, mutex-protected sections, or database atomic increment operations"
   cwe: "CWE-362"
@@ -228,7 +251,8 @@
 - id: race-iterator-concurrent-modification
   languages: [python, java, javascript, typescript, ruby, php, kotlin, swift, csharp]
   patterns:
-    - regex: '(?i)(?:for|foreach|while|iterator).*\[.*\].*\+\+|forEach.*\+\+|stream\.forEach.*''severity: high
+    - regex: '(?i)(?:for|foreach|while|iterator).*\[.*\].*\+\+|forEach.*\+\+|stream\.forEach.*'
+  severity: high
   description: "Collection iteration with concurrent modification - ConcurrentModificationException or data corruption"
   remediation: "Use thread-safe collections (ConcurrentHashMap, CopyOnWriteArrayList) or proper synchronization"
   cwe: "CWE-362"

@@ -190,28 +190,56 @@ func (tis *ThreatIntelScanner) loadCVECache() {
 func (tis *ThreatIntelScanner) updateCVECache() {
 	// Fetch recent CVEs from NVD API
 	client := &http.Client{
-		Timeout: 20 * time.Second,
+		Timeout: 120 * time.Second, // NVD responses can be large
 	}
 
-	req, err := http.NewRequest("GET", "https://services.nvd.nist.gov/rest/json/cves/2.0", nil)
-	if err != nil {
-		utils.LogWarn(fmt.Sprintf("Failed to create request for CVE cache: %v", err))
-		return
-	}
+	// Implement date-filtered requests to drastically reduce payload size
+	lookbackDays := 120
+	startTime := time.Now().AddDate(0, 0, -lookbackDays).UTC().Format("2006-01-02T15:04:05.000")
+	endTime := time.Now().UTC().Format("2006-01-02T15:04:05.000")
+	nvdURL := fmt.Sprintf("https://services.nvd.nist.gov/rest/json/cves/2.0?lastModStartDate=%s&lastModEndDate=%s&resultsPerPage=100", startTime, endTime)
 
-	// Add NVD API Key for better rate limits if provided
+	var resp *http.Response
+	var err error
 	nvdKey := os.Getenv("NVD_API_KEY")
-	if nvdKey != "" {
-		req.Header.Set("apiKey", nvdKey)
-		utils.LogInfo("Using NVD API key for threat intelligence updates.")
+
+	// Retry loop for NVD API
+	for attempt := 1; attempt <= 3; attempt++ {
+		req, errReq := http.NewRequest("GET", nvdURL, nil)
+		if errReq != nil {
+			utils.LogWarn(fmt.Sprintf("Failed to create request for CVE cache: %v", errReq))
+			return
+		}
+
+		// Add NVD API Key for better rate limits if provided
+		if nvdKey != "" {
+			req.Header.Set("apiKey", nvdKey)
+			if attempt == 1 {
+				utils.LogInfo("Using NVD API key for threat intelligence updates.")
+			}
+		}
+
+		resp, err = client.Do(req)
+		if err == nil && resp.StatusCode == 200 {
+			break
+		}
+
+		if err != nil {
+			utils.LogWarn(fmt.Sprintf("NVD update attempt %d failed: %v", attempt, err))
+		} else {
+			utils.LogWarn(fmt.Sprintf("NVD update attempt %d returned status %d", attempt, resp.StatusCode))
+			resp.Body.Close()
+		}
+
+		if attempt < 3 {
+			time.Sleep(2 * time.Second)
+		}
 	}
 
-	resp, err := client.Do(req)
-	if err != nil {
-		utils.LogWarn(fmt.Sprintf("Failed to update CVE cache: %v", err))
+	if err != nil || (resp != nil && resp.StatusCode != 200) {
+		utils.LogWarn("Failed to update CVE cache after 3 attempts. Using existing cache if available.")
 		return
 	}
-	defer resp.Body.Close()
 
 	// Validate API key if provided (check for auth errors)
 	if nvdKey != "" && (resp.StatusCode == 403 || resp.StatusCode == 401) {

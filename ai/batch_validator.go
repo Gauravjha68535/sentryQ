@@ -189,7 +189,7 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 					job.finding.CWE = ""
 					job.finding.OWASP = ""
 					falsePositives++
-					color.New(color.FgHiBlack).Printf("         ✗ False Positive (%.0f%% confidence)\n", result.Confidence*100)
+					color.New(color.FgHiBlack).Printf("         ○ Filtered (False Positive) [%.0f%% confidence]\n", result.Confidence*100)
 				}
 
 				calibrator.RecordValidation(job.finding.Severity, result.IsTruePositive)

@@ -103,6 +103,10 @@ func NewTaintAnalyzer() *TaintAnalyzer {
 			regexp.MustCompile(`(?i)(\.where\(.*\?|\.filter\(|\.exclude\(|\.get\(pk=|\.objects\.|\.findOne\(|\.findById\(|\.findByPk\()`),
 			// Template engines with auto-escaping
 			regexp.MustCompile(`(?i)(html/template|template\.HTML|markupsafe\.escape|Markup\(|SafeString)`),
+			// Safe output functions (not sinks — they PRODUCE safe output)
+			regexp.MustCompile(`(?i)(JSON\.stringify|JSON\.parse|jsonify|json\.dumps|json\.loads|urlparse|url\.parse|path\.resolve|path\.join)`),
+			// Guard validation functions
+			regexp.MustCompile(`(?i)(startsWith|endsWith|includes|indexOf|match|test|validate|isValid|whitelist|allowlist|ALLOWED)`),
 		},
 		// Scope Boundaries: Basic boundary detection to clear taint state and avoid false positives across functions
 		scopeStartPattern: regexp.MustCompile(`(?i)(^|\s)(func\s+\w+|def\s+\w+|class\s+\w+|public\s+\w+\s+\w+\(|private\s+\w+\s+\w+\(|protected\s+\w+\s+\w+\()`),
@@ -149,8 +153,6 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 	// De-duplication: track reported source-sink pairs to avoid duplicates
 	reportedPairs := make(map[string]bool)
 
-	// Inter-Procedural: Track local functions that receive tainted arguments
-	taintedFunctions := make(map[string]bool)
 
 	// Pre-compile sink regexes for performance
 	compiledSinks := make([]*regexp.Regexp, 0)
@@ -167,8 +169,6 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 	methodChainRe := ta.methodChainRe
 	concatRe := ta.concatRe
 	interpolationRe := ta.interpolationRe
-	funcCallRe := ta.funcCallRe
-
 	scopeLevel := 0
 
 	for lineNum, line := range lines {
@@ -290,52 +290,15 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 			}
 		}
 
-		// 3b. Inter-Procedural Taint Tracking (passing taint to a custom function)
-		if callMatch := funcCallRe.FindAllStringSubmatch(trimmedLine, -1); len(callMatch) > 0 {
-			for _, match := range callMatch {
-				funcName := match[1]
-				args := match[2]
-
-				// Skip known native safe functions
-				if strings.Contains(strings.ToLower(funcName), "print") || strings.Contains(strings.ToLower(funcName), "log") {
-					continue
-				}
-
-				for varName, info := range taintedVars {
-					// Check if a tainted variable is passed as an argument
-					if !sanitizedVars[varName] && containsVariable(args, varName) {
-						taintedFunctions[funcName] = true // Mark this function as receiving taint
-
-						// Report inter-procedural risk
-						pairKey := fmt.Sprintf("%s→%d→%s", info.SourceVar, info.SourceLine, funcName)
-						if !reportedPairs[pairKey] {
-							reportedPairs[pairKey] = true
-							findings = append(findings, reporter.Finding{
-								SrNo:        srNo,
-								IssueName:   "Inter-Procedural Taint Propagation",
-								FilePath:    filePath,
-								Description: fmt.Sprintf("Tainted variable '%s' is passed as argument to custom function '%s()' on line %d. Ensure %s() safely handles dangerous inputs.", varName, funcName, currentLine, funcName),
-								ExploitPath: append(info.Path, fmt.Sprintf("Line %d: Passed to function '%s()'", currentLine, funcName)),
-								Severity:    "high", // Slightly lower than critical since we don't know the sink
-								LineNumber:  fmt.Sprintf("%d", currentLine),
-								AiValidated: "No",
-								Remediation: "Sanitize arguments before passing them to internal helper functions, or implement context-aware encoding inside the function.",
-								RuleID:      "dataflow-inter-procedural",
-								Source:      "taint-analyzer",
-								CWE:         "CWE-20",
-								OWASP:       "A03:2021-Injection",
-								Confidence:  0.80, // Lower confidence due to unknown function body
-							})
-							srNo++
-						}
-					}
-				}
-			}
-		}
 
 		// 4. Check for taint sinks with tainted input
 		for i, re := range compiledSinks {
 			if re.MatchString(line) {
+				// Safe sink exclusion: skip sinks that use parameterized patterns
+				if isSafeSinkUsage(line, sinkPatterns[i]) {
+					continue
+				}
+
 				for varName, info := range taintedVars {
 					if !sanitizedVars[varName] && containsVariable(line, varName) {
 
@@ -348,6 +311,16 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 
 						// Graduated confidence scoring
 						confidence := calculateTaintConfidence(currentLine, info)
+
+						// Guard clause detection: scan lines between source and sink for validation
+						if hasGuardClause(lines, info.SourceLine, currentLine) {
+							confidence = 0.25 // Effectively suppress — guard exists
+						}
+
+						// Skip very low confidence findings
+						if confidence < 0.30 {
+							continue
+						}
 
 						findings = append(findings, reporter.Finding{
 							SrNo:        srNo,
@@ -402,6 +375,93 @@ func calculateTaintConfidence(sinkLine int, info taintInfo) float64 {
 		confidence = 0.60
 	}
 	return confidence
+}
+
+// isSafeSinkUsage checks if a sink line contains patterns that make it safe.
+// For example, parameterized queries with ? placeholders, execFile with array args, etc.
+func isSafeSinkUsage(line, sinkPattern string) bool {
+	lowerLine := strings.ToLower(line)
+	injType := getInjectionType(sinkPattern)
+
+	switch injType {
+	case "SQL":
+		// Parameterized queries: uses ?, $1, %s placeholders with separate args
+		if strings.Contains(line, "?") && (strings.Contains(line, "[") || strings.Contains(line, ",")) {
+			return true // e.g., db.query("SELECT * FROM users WHERE id = ?", [id])
+		}
+		if strings.Contains(line, "$1") || strings.Contains(line, "$2") {
+			return true // PostgreSQL parameterized
+		}
+	case "Command":
+		// execFile / spawn with array args = no shell invocation
+		if strings.Contains(lowerLine, "execfile") || strings.Contains(lowerLine, "spawn") {
+			return true
+		}
+		// subprocess.run with list args
+		if strings.Contains(lowerLine, "subprocess") && strings.Contains(line, "[") {
+			return true
+		}
+	case "XSS":
+		// textContent is safe (not innerHTML)
+		if strings.Contains(lowerLine, "textcontent") {
+			return true
+		}
+	case "SSRF":
+		// If the line also contains validation keywords, it's likely guarded
+		if strings.Contains(lowerLine, "allowlist") || strings.Contains(lowerLine, "whitelist") || strings.Contains(lowerLine, "allowed_hosts") {
+			return true
+		}
+	}
+
+	// Safe output functions that should never be sinks
+	safeOutputFuncs := []string{"jsonify", "json.dumps", "json_encode", "json.stringify",
+		"urlparse", "url.parse", "path.resolve", "path.join",
+		"textcontent", "createtextnode"}
+	for _, safe := range safeOutputFuncs {
+		if strings.Contains(lowerLine, safe) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// hasGuardClause scans lines between source and sink for validation/guard patterns.
+// If found, the taint flow is likely guarded and should be suppressed.
+func hasGuardClause(lines []string, sourceLine, sinkLine int) bool {
+	// Convert to 0-indexed
+	start := sourceLine // already 1-indexed, so this is line after source
+	end := sinkLine - 1
+	if start < 0 {
+		start = 0
+	}
+	if end >= len(lines) {
+		end = len(lines) - 1
+	}
+
+	guardPatterns := []string{
+		"not in ", "not_in", "!= ", "!== ",
+		"startswith", "endswith", "includes(",
+		"indexof(", "match(", ".test(",
+		"validate", "isvalid", "whitelist", "allowlist",
+		"allowed_hosts", "return 403", "return 401", "return 400",
+		"raise ", "throw ", "abort(",
+		"path.sep", "filepath.clean",
+	}
+
+	for i := start; i <= end; i++ {
+		lowerLine := strings.ToLower(strings.TrimSpace(lines[i]))
+		// Skip empty lines
+		if lowerLine == "" {
+			continue
+		}
+		for _, pattern := range guardPatterns {
+			if strings.Contains(lowerLine, pattern) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // extractVariableName extracts a variable name from an assignment line

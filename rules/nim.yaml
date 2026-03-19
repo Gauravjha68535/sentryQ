@@ -1,7 +1,8 @@
 - id: nim-exec-gorge
   languages: [nim]
   patterns:
-    - regex: '(?i)\\bgorge\\s*\\(''severity: critical
+    - regex: '(?i)\bgorge\s*\('
+  severity: critical
   description: "OS command execution via gorge()"
   remediation: "Avoid gorge with user input"
   cwe: "CWE-78"
@@ -11,7 +12,8 @@
 - id: nim-exec-gorgeex
   languages: [nim]
   patterns:
-    - regex: '(?i)\\bgorgeEx\\s*\\(''severity: critical
+    - regex: '(?i)\bgorgeEx\s*\('
+  severity: critical
   description: "OS command execution via gorgeEx()"
   remediation: "Avoid gorgeEx with user input"
   cwe: "CWE-78"
@@ -21,7 +23,8 @@
 - id: nim-exec-execprocess
   languages: [nim]
   patterns:
-    - regex: '(?i)execProcess\\s*\\(''severity: critical
+    - regex: '(?i)execProcess\s*\('
+  severity: critical
   description: "OS command execution via execProcess"
   remediation: "Validate all arguments"
   cwe: "CWE-78"
@@ -31,7 +34,8 @@
 - id: nim-exec-execshellcmd
   languages: [nim]
   patterns:
-    - regex: '(?i)execShellCmd\\s*\\(''severity: critical
+    - regex: '(?i)execShellCmd\s*\('
+  severity: critical
   description: "Shell command execution"
   remediation: "Avoid shell commands with user input"
   cwe: "CWE-78"
@@ -41,7 +45,8 @@
 - id: nim-exec-execCmd
   languages: [nim]
   patterns:
-    - regex: '(?i)execCmd\\s*\\(''severity: critical
+    - regex: '(?i)execCmd\s*\('
+  severity: critical
   description: "Command execution via execCmd"
   remediation: "Validate and sanitize arguments"
   cwe: "CWE-78"
@@ -51,7 +56,8 @@
 - id: nim-exec-startProcess
   languages: [nim]
   patterns:
-    - regex: '(?i)startProcess\\s*\\(''severity: high
+    - regex: '(?i)startProcess\s*\('
+  severity: high
   description: "Process execution via startProcess"
   remediation: "Validate all process arguments"
   cwe: "CWE-78"
@@ -61,7 +67,8 @@
 - id: nim-sql-dbformat
   languages: [nim]
   patterns:
-    - regex: '(?i)db\\.exec\\s*\\(\\s*sql\\s*\".*\\$|db\\.exec.*fmt\"''severity: critical
+    - regex: '(?i)db\.exec\s*\(\s*sql\s*\\".*\$|db\.exec.*fmt\\"'
+  severity: critical
   description: "SQL injection via string interpolation"
   remediation: "Use parameterized queries with ?"
   cwe: "CWE-89"
@@ -71,7 +78,8 @@
 - id: nim-sql-concat
   languages: [nim]
   patterns:
-    - regex: '(?i)db\\.exec\\s*\\(.*\\&''severity: critical
+    - regex: '(?i)db\.exec\s*\(.*\\\&'
+  severity: critical
   description: "SQL injection via string concatenation"
   remediation: "Use dbFormat with ? placeholders"
   cwe: "CWE-89"
@@ -81,7 +89,8 @@
 - id: nim-unsafe-addr
   languages: [nim]
   patterns:
-    - regex: '(?i)\\bunsafeAddr\\s*\\(''severity: high
+    - regex: '(?i)\bunsafeAddr\s*\('
+  severity: high
   description: "Unsafe address access"
   remediation: "Use addr() or avoid pointer manipulation"
   cwe: "CWE-822"
@@ -91,7 +100,8 @@
 - id: nim-cast
   languages: [nim]
   patterns:
-    - regex: '(?i)\\bcast\\[''severity: high
+    - regex: '(?i)\bcast\['
+  severity: high
   description: "Type cast - bypasses type system"
   remediation: "Avoid casts, use type-safe alternatives"
   cwe: "CWE-843"
@@ -101,7 +111,8 @@
 - id: nim-ptr-deref
   languages: [nim]
   patterns:
-    - regex: '(?i)\\bptr\\s+\\w+|\\bpointer\\b''severity: medium
+    - regex: '(?i)\bptr\s+\w+|\bpointer\b'
+  severity: medium
   description: "Raw pointer usage"
   remediation: "Use ref types instead of ptr"
   cwe: "CWE-822"
@@ -111,7 +122,8 @@
 - id: nim-alloc
   languages: [nim]
   patterns:
-    - regex: '(?i)\\balloc\\s*\\(|\\balloc0\\s*\\(''severity: medium
+    - regex: '(?i)\balloc\s*\(|\balloc0\s*\('
+  severity: medium
   description: "Manual memory allocation"
   remediation: "Use seq or ref types for automatic memory management"
   cwe: "CWE-401"
@@ -121,7 +133,8 @@
 - id: nim-dealloc
   languages: [nim]
   patterns:
-    - regex: '(?i)\\bdealloc\\s*\\(''severity: high
+    - regex: '(?i)\bdealloc\s*\('
+  severity: high
   description: "Manual memory deallocation - potential use-after-free"
   remediation: "Use GC-managed types"
   cwe: "CWE-416"
@@ -131,7 +144,8 @@
 - id: nim-emit
   languages: [nim]
   patterns:
-    - regex: '(?i)\\{\\s*\\.emit:''severity: high
+    - regex: '(?i)\{\s*\.emit:'
+  severity: high
   description: "Raw C/JS code emission"
   remediation: "Minimize emit pragmas, validate generated code"
   cwe: "CWE-94"
@@ -141,7 +155,8 @@
 - id: nim-hardcoded-secret
   languages: [nim]
   patterns:
-    - regex: '(?i)(?:secret|password|api_?key|token)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
+    - regex: '(?i)(?:secret|password|api_?key|token)\s*=\s*\\"[a-zA-Z0-9_-]{12,}\\"'
+  severity: high
   description: "Hardcoded secret detected"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -151,7 +166,8 @@
 - id: nim-gc-unsafe
   languages: [nim]
   patterns:
-    - regex: '(?i)\\{\\s*\\.gcsafe\\s*\\.\\}|\\{\\s*\\.nosafety''severity: medium
+    - regex: '(?i)\{\s*\.gcsafe\s*\.\}|\{\s*\.nosafety'
+  severity: medium
   description: "GC safety annotations overridden"
   remediation: "Ensure thread safety with proper GC annotations"
   cwe: "CWE-362"
@@ -161,7 +177,8 @@
 - id: nim-dynlib
   languages: [nim]
   patterns:
-    - regex: '(?i)\\{\\s*\\.dynlib:''severity: medium
+    - regex: '(?i)\{\s*\.dynlib:'
+  severity: medium
   description: "Dynamic library loading"
   remediation: "Validate library paths before loading"
   cwe: "CWE-426"
@@ -171,7 +188,8 @@
 - id: nim-importc
   languages: [nim]
   patterns:
-    - regex: '(?i)\\{\\s*\\.importc''severity: medium
+    - regex: '(?i)\{\s*\.importc'
+  severity: medium
   description: "C FFI import - inherits C unsafety"
   remediation: "Add safety wrappers around imported C functions"
   cwe: "CWE-676"
@@ -181,7 +199,8 @@
 - id: nim-http-no-ssl
   languages: [nim]
   patterns:
-    - regex: '(?i)newHttpClient\\s*\\(.*sslContext\\s*=\\s*nil''severity: high
+    - regex: '(?i)newHttpClient\s*\(.*sslContext\s*=\s*nil'
+  severity: high
   description: "HTTP client without SSL"
   remediation: "Provide valid SSL context"
   cwe: "CWE-295"
@@ -191,7 +210,8 @@
 - id: nim-file-read
   languages: [nim]
   patterns:
-    - regex: '(?i)readFile\\s*\\(.*\\$|readFile\\s*\\(.*\\&''severity: medium
+    - regex: '(?i)readFile\s*\(.*\$|readFile\s*\(.*\\&'
+  severity: medium
   description: "File read with dynamic path"
   remediation: "Validate file paths before reading"
   cwe: "CWE-22"
@@ -201,7 +221,8 @@
 - id: nim-ssrf
   languages: [nim]
   patterns:
-    - regex: '(?i)httpclient\\.get\\s*\\(.*\\$''severity: high
+    - regex: '(?i)httpclient\.get\s*\(.*\$'
+  severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -211,7 +232,8 @@
 - id: nim-weak-random
   languages: [nim]
   patterns:
-    - regex: '(?i)random\\.rand\\s*\\(''severity: medium
+    - regex: '(?i)random\.rand\s*\('
+  severity: medium
   description: "Insecure random for cryptographic use"
   remediation: "Use random.randomBytes from std/crypto"
   cwe: "CWE-338"
@@ -221,7 +243,8 @@
 - id: nim-yaml-unsafe
   languages: [nim]
   patterns:
-    - regex: '(?i)parseJson\\s*\\(.*\\$|parseYAML\\s*\\(.*\\$''severity: high
+    - regex: '(?i)parseJson\s*\(.*\$|parseYAML\s*\(.*\$'
+  severity: high
   description: "Unsafe JSON/YAML parsing"
   remediation: "Validate JSON/YAML structure"
   cwe: "CWE-502"
@@ -231,7 +254,8 @@
 - id: nim-xxe
   languages: [nim]
   patterns:
-    - regex: '(?i)xmlparser\\.parse\\s*\\(.*http|xmltree\\.parse\\s*\\(.*dtd''severity: high
+    - regex: '(?i)xmlparser\.parse\s*\(.*http|xmltree\.parse\s*\(.*dtd'
+  severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing"
   cwe: "CWE-611"
@@ -241,7 +265,8 @@
 - id: nim-weak-cipher
   languages: [nim]
   patterns:
-    - regex: '(?i)crypto\\.md5|crypto\\.sha1''severity: medium
+    - regex: '(?i)crypto\.md5|crypto\.sha1'
+  severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
   cwe: "CWE-327"
@@ -251,7 +276,8 @@
 - id: nim-command-injection
   languages: [nim]
   patterns:
-    - regex: '(?i)gorge\\s*\\(.*\\$|execProcess\\s*\\(.*\\$\\*''severity: critical
+    - regex: '(?i)gorge\s*\(.*\$|execProcess\s*\(.*\$\*'
+  severity: critical
   description: "Command injection via string interpolation"
   remediation: "Use argument arrays"
   cwe: "CWE-78"
@@ -261,7 +287,8 @@
 - id: nim-serialization
   languages: [nim]
   patterns:
-    - regex: '(?i)unpickle\\s*\\(|readFile.*pickle''severity: high
+    - regex: '(?i)unpickle\s*\(|readFile.*pickle'
+  severity: high
   description: "Unsafe deserialization"
   remediation: "Use JSON instead"
   cwe: "CWE-502"
@@ -271,7 +298,8 @@
 - id: nim-template-injection
   languages: [nim]
   patterns:
-    - regex: '(?i)strfmt\\.format.*\\$|tmpl\\.execute.*\\$''severity: high
+    - regex: '(?i)strfmt\.format.*\$|tmpl\.execute.*\$'
+  severity: high
   description: "Template injection"
   remediation: "Sanitize template inputs"
   cwe: "CWE-1336"
@@ -281,7 +309,8 @@
 - id: nim-hardcoded-credentials
   languages: [nim]
   patterns:
-    - regex: '(?i)(?:db|user|host)\\s*=\\s*\\"[^"]{4,}\\"|connect\\s*\\(.*\\"[^"]*\\"''severity: high
+    - regex: '(?i)(?:db|user|host)\s*=\s*\\"[^"]{4,}\\"|connect\s*\(.*\\"[^"]*\\"'
+  severity: high
   description: "Hardcoded database credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -291,7 +320,8 @@
 - id: nim-eval
   languages: [nim]
   patterns:
-    - regex: '(?i)parseExpr\\s*\\(|"\\$\".*parse''severity: critical
+    - regex: '(?i)parseExpr\s*\(|"\$\\".*parse'
+  severity: critical
   description: "Dynamic code execution via parse"
   remediation: "Avoid parsing untrusted code"
   cwe: "CWE-94"
@@ -301,7 +331,8 @@
 - id: nim-ssrf
   languages: [nim]
   patterns:
-    - regex: '(?i)httpclient\\.request\\s*\\(.*url\\s*=''severity: high
+    - regex: '(?i)httpclient\.request\s*\(.*url\s*='
+  severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -311,7 +342,8 @@
 - id: nim-xss
   languages: [nim]
   patterns:
-    - regex: '(?i)html\\.parseHtml.*\\$|setInnerHTML.*\\$''severity: high
+    - regex: '(?i)html\.parseHtml.*\$|setInnerHTML.*\$'
+  severity: high
   description: "Potential XSS via HTML insertion"
   remediation: "Sanitize HTML output"
   cwe: "CWE-79"

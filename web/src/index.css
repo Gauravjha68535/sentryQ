@@ -445,6 +445,47 @@ pre {
   background: white;
 }
 
+/* ── Checkbox ── */
+.checkbox-custom {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-primary);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.checkbox-custom:checked {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.checkbox-custom:checked::after {
+  content: "✔";
+  color: white;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.checkbox-custom:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.checkbox-custom:hover:not(:checked) {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+}
+
 /* ── Severity Badge ── */
 .severity-badge {
   display: inline-flex;

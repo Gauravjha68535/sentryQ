@@ -9,6 +9,7 @@ const defaultConfig = {
     aiModel: '',
     ollamaHost: 'localhost:11434',
     consolidationModel: '',
+    consolidationOllamaHost: '',
     judgeModel: '',
     judgeOllamaHost: '',
     enableMLFPReduction: false,
@@ -45,25 +46,34 @@ export default function NewScan() {
         }
     }
 
-    const fetchInstalledModels = async () => {
+    const fetchInstalledModels = async (host = null) => {
+        setLoadingModels(true)
+        if (host) setAvailableModels([]) // Indicate refresh for remote host
         try {
-            const res = await fetch('/api/models')
+            const modelUrl = host ? `/api/models?host=${encodeURIComponent(host)}` : '/api/models'
+            const res = await fetch(modelUrl)
             if (res.ok) {
                 const data = await res.json()
-                setAvailableModels(data.models || [])
+                const models = data.models || []
+                setAvailableModels(models)
 
-                // Set default models if empty
-                if (data.models && data.models.length > 0) {
+                if (models.length > 0) {
                     setConfig(prev => {
                         const newConfig = { ...prev }
-                        if (!newConfig.aiModel) newConfig.aiModel = data.models[0]
-                        if (!newConfig.consolidationModel) newConfig.consolidationModel = data.models[data.models.length - 1] // Pick highest/last as fallback larger model
+                        // If host is provided, update selections even if already set
+                        if (host || !newConfig.aiModel) newConfig.aiModel = models[0]
+                        if (host || !newConfig.consolidationModel) newConfig.consolidationModel = models[models.length - 1]
                         return newConfig
                     })
+                } else if (host) {
+                    alert(`No models found on Ollama host: ${host}.`)
                 }
+            } else {
+                if (host) alert(`Failed to fetch models from ${host}`)
             }
         } catch (e) {
             console.error("Failed to fetch models", e)
+            if (host) alert(`Connection error to ${host}.`)
         } finally {
             setLoadingModels(false)
         }
@@ -193,11 +203,7 @@ export default function NewScan() {
                         <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             padding: '16px', borderRadius: '10px',
-                            border: `1px solid ${config.enableDeepScan && !config.enableEnsemble ? 'var(--accent-primary)' : 'var(--border-primary)'}`,
-                            background: config.enableDeepScan && !config.enableEnsemble ? 'rgba(99, 102, 241, 0.06)' : 'transparent',
                             transition: 'all 0.2s ease',
-                            opacity: config.enableEnsemble ? 0.5 : 1,
-                            pointerEvents: config.enableEnsemble ? 'none' : 'auto'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{
@@ -214,25 +220,19 @@ export default function NewScan() {
                                     </div>
                                 </div>
                             </div>
-                            <label className="toggle">
-                                <input
-                                    type="checkbox"
-                                    checked={config.enableDeepScan}
-                                    onChange={() => setConfig(prev => ({ ...prev, enableDeepScan: !prev.enableDeepScan }))}
-                                />
-                                <span className="toggle-slider" />
-                            </label>
+                            <input
+                                type="checkbox"
+                                className="checkbox-custom"
+                                checked={config.enableDeepScan}
+                                onChange={() => setConfig(prev => ({ ...prev, enableDeepScan: !prev.enableDeepScan }))}
+                            />
                         </div>
 
                         {/* AI-Powered Toggle */}
                         <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             padding: '16px', borderRadius: '10px',
-                            border: `1px solid ${config.enableAI && !config.enableEnsemble ? 'var(--accent-primary)' : 'var(--border-primary)'}`,
-                            background: config.enableAI && !config.enableEnsemble ? 'rgba(99, 102, 241, 0.06)' : 'transparent',
                             transition: 'all 0.2s ease',
-                            opacity: config.enableEnsemble ? 0.5 : 1,
-                            pointerEvents: config.enableEnsemble ? 'none' : 'auto'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{
@@ -249,78 +249,110 @@ export default function NewScan() {
                                     </div>
                                 </div>
                             </div>
-                            <label className="toggle">
-                                <input
-                                    type="checkbox"
-                                    checked={config.enableAI}
-                                    onChange={() => setConfig(prev => ({ ...prev, enableAI: !prev.enableAI }))}
-                                />
-                                <span className="toggle-slider" />
-                            </label>
+                            <input
+                                type="checkbox"
+                                className="checkbox-custom"
+                                checked={config.enableAI}
+                                onChange={() => setConfig(prev => ({ ...prev, enableAI: !prev.enableAI }))}
+                            />
                         </div>
 
                         {/* Ensemble Audit Toggle */}
                         <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             padding: '16px', borderRadius: '10px',
-                            border: `1px solid ${config.enableEnsemble ? '#f59e0b' : 'var(--border-primary)'}`,
-                            background: config.enableEnsemble ? 'rgba(245, 158, 11, 0.08)' : 'transparent',
                             transition: 'all 0.2s ease'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{
                                     width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    background: config.enableEnsemble ? '#f59e0b' : 'var(--bg-tertiary)',
+                                    background: config.enableEnsemble ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
                                     color: config.enableEnsemble ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s'
                                 }}>
                                     <Layers size={18} />
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>Ensemble Audit
-                                        <span style={{ fontSize: '0.62rem', fontWeight: 600, padding: '2px 6px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', borderRadius: '4px', marginLeft: '8px' }}>ADVANCED</span>
+                                        <span style={{ fontSize: '0.62rem', fontWeight: 600, padding: '2px 6px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--accent-primary)', borderRadius: '4px', marginLeft: '8px' }}>ADVANCED</span>
                                     </div>
                                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>
                                         3-phase pipeline: Static scan → AI scan → Judge LLM merge. Designed for thorough, long-running audits.
                                     </div>
                                 </div>
                             </div>
-                            <label className="toggle">
-                                <input
-                                    type="checkbox"
-                                    checked={config.enableEnsemble}
-                                    onChange={() => setConfig(prev => ({
-                                        ...prev,
-                                        enableEnsemble: !prev.enableEnsemble,
-                                        enableDeepScan: !prev.enableEnsemble ? true : prev.enableDeepScan,
-                                        enableAI: !prev.enableEnsemble ? true : prev.enableAI
-                                    }))}
-                                />
-                                <span className="toggle-slider" />
-                            </label>
+                            <input
+                                type="checkbox"
+                                className="checkbox-custom"
+                                checked={config.enableEnsemble}
+                                onChange={() => setConfig(prev => ({
+                                    ...prev,
+                                    enableEnsemble: !prev.enableEnsemble,
+                                    enableDeepScan: !prev.enableEnsemble ? true : prev.enableDeepScan,
+                                    enableAI: !prev.enableEnsemble ? true : prev.enableAI
+                                }))}
+                            />
                         </div>
                     </div>
 
-                    {/* AI Configuration (visible when AI or Ensemble enabled) */}
+                    {/* Ollama Host Configuration - Consolidated & Prominent */}
+                    <div style={{ 
+                        marginTop: '8px', 
+                        padding: '16px', 
+                        borderRadius: '12px', 
+                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)', 
+                        border: '2px solid rgba(99, 102, 241, 0.25)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <label style={{ fontSize: '0.9rem', fontWeight: 800, color: '#6366f1', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Globe size={16} /> Ollama Host API
+                            </label>
+                            {loadingModels && <span className="animate-spin" style={{ fontSize: '0.75rem', color: '#6366f1' }}>⏳</span>}
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input
+                                className="input"
+                                type="text"
+                                value={config.ollamaHost}
+                                onChange={(e) => setConfig(prev => ({ ...prev, ollamaHost: e.target.value }))}
+                                placeholder="localhost:11434 or 192.168.1.100:11434"
+                                style={{ flex: 1, fontSize: '0.95rem', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid rgba(99, 102, 241, 0.2)' }}
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={() => fetchInstalledModels(config.ollamaHost)}
+                                disabled={loadingModels || !config.ollamaHost}
+                                style={{ 
+                                    background: 'var(--accent-primary)', 
+                                    padding: '0 20px', 
+                                    height: '42px', 
+                                    fontWeight: 800, 
+                                    fontSize: '0.82rem', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '8px',
+                                    whiteSpace: 'nowrap',
+                                    minWidth: '150px',
+                                    boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)'
+                                }}
+                            >
+                                <Play size={14} fill="currentColor" /> REFRESH MODELS
+                            </button>
+                        </div>
+                        <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '10px', lineHeight: 1.4 }}>
+                            Enter your host (e.g., your friend's <b>IP:11434</b>) and click refresh to load available models.
+                        </p>
+                    </div>
+
+                    {/* AI Model Selections (visible when AI or Ensemble enabled) */}
                     {(config.enableAI || config.enableEnsemble) && (
                         <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.3s ease' }}>
                             <div>
                                 <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                                    Ollama Host API
+                                    Discovery & Validation Model
                                 </label>
-                                <input
-                                    className="input"
-                                    type="text"
-                                    value={config.ollamaHost}
-                                    onChange={(e) => setConfig(prev => ({ ...prev, ollamaHost: e.target.value }))}
-                                    placeholder="localhost:11434"
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                                    Discovery & Validation Model {loadingModels && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(Loading...)</span>}
-                                </label>
-
                                 {availableModels.length > 0 ? (
                                     <select
                                         className="input"
@@ -331,10 +363,6 @@ export default function NewScan() {
                                         {availableModels.map(model => (
                                             <option key={model} value={model}>{model}</option>
                                         ))}
-                                        <option value="custom" disabled>---</option>
-                                        {!availableModels.includes(config.aiModel) && config.aiModel !== '' && (
-                                            <option value={config.aiModel}>{config.aiModel} (Custom)</option>
-                                        )}
                                     </select>
                                 ) : (
                                     <input
@@ -342,7 +370,7 @@ export default function NewScan() {
                                         type="text"
                                         value={config.aiModel}
                                         onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))}
-                                        placeholder="Enter model name (e.g. deepseek-r1:7b)"
+                                        placeholder="e.g. qwen2.5-coder:7b"
                                     />
                                 )}
                             </div>
@@ -351,7 +379,6 @@ export default function NewScan() {
                                 <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
                                     Final Consolidation Model (Larger LLM)
                                 </label>
-
                                 {availableModels.length > 0 ? (
                                     <select
                                         className="input"
@@ -360,12 +387,8 @@ export default function NewScan() {
                                         style={{ appearance: 'auto' }}
                                     >
                                         {availableModels.map(model => (
-                                            <option key={`consolidation-${model}`} value={model}>{model}</option>
+                                            <option key={`consol-${model}`} value={model}>{model}</option>
                                         ))}
-                                        <option value="custom" disabled>---</option>
-                                        {!availableModels.includes(config.consolidationModel) && config.consolidationModel !== '' && (
-                                            <option value={config.consolidationModel}>{config.consolidationModel} (Custom)</option>
-                                        )}
                                     </select>
                                 ) : (
                                     <input
@@ -373,64 +396,47 @@ export default function NewScan() {
                                         type="text"
                                         value={config.consolidationModel}
                                         onChange={(e) => setConfig(prev => ({ ...prev, consolidationModel: e.target.value }))}
-                                        placeholder="Enter larger model (e.g. qwen2.5-coder:14b)"
+                                        placeholder="e.g. qwen2.5-coder:14b"
                                     />
                                 )}
-                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '6px' }}>
-                                    {availableModels.length > 0
-                                        ? `Found ${availableModels.length} installed models in Ollama.`
-                                        : "Model must be installed in Ollama. Run `ollama list` to check."}
-                                </p>
                             </div>
 
-                            {/* Judge Model (only for Ensemble) */}
                             {config.enableEnsemble && (
-                                <>
-                                    <div style={{ marginTop: '8px', padding: '12px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.15)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600, fontSize: '0.78rem', color: '#f59e0b' }}>
-                                            <Layers size={12} /> Judge LLM Configuration
-                                        </div>
-
-                                        <div style={{ marginBottom: '12px' }}>
-                                            <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>
-                                                Judge Model (merges both reports)
-                                            </label>
-                                            {availableModels.length > 0 ? (
-                                                <select
-                                                    className="input"
-                                                    value={config.judgeModel || config.consolidationModel}
-                                                    onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))}
-                                                    style={{ appearance: 'auto' }}
-                                                >
-                                                    {availableModels.map(model => (
-                                                        <option key={`judge-${model}`} value={model}>{model}</option>
-                                                    ))}
-                                                </select>
-                                            ) : (
-                                                <input
-                                                    className="input"
-                                                    type="text"
-                                                    value={config.judgeModel}
-                                                    onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))}
-                                                    placeholder="Enter judge model (e.g. qwen2.5:32b)"
-                                                />
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>
-                                                Judge Ollama Host (optional, for remote server)
-                                            </label>
-                                            <input
-                                                className="input"
-                                                type="text"
-                                                value={config.judgeOllamaHost}
-                                                onChange={(e) => setConfig(prev => ({ ...prev, judgeOllamaHost: e.target.value }))}
-                                                placeholder="Same as above (or e.g. 192.168.1.50:11434)"
-                                            />
-                                        </div>
+                                <div style={{ 
+                                    padding: '16px', 
+                                    borderRadius: '12px', 
+                                    background: 'rgba(99, 102, 241, 0.04)', 
+                                    border: '1px solid rgba(99, 102, 241, 0.12)',
+                                    marginTop: '8px'
+                                }}>
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <Layers size={14} /> Judge Model Configuration
+                                    </label>
+                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                                        The Judge LLM merges independent scan reports into a single consolidated finding.
                                     </div>
-                                </>
+                                    {availableModels.length > 0 ? (
+                                        <select
+                                            className="input"
+                                            value={config.judgeModel || config.consolidationModel}
+                                            onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))}
+                                            style={{ appearance: 'auto', background: 'var(--bg-secondary)' }}
+                                        >
+                                            {availableModels.map(model => (
+                                                <option key={`judge-${model}`} value={model}>{model}</option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            className="input"
+                                            type="text"
+                                            value={config.judgeModel}
+                                            onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))}
+                                            placeholder="e.g. llama3.1:8b"
+                                            style={{ background: 'var(--bg-secondary)' }}
+                                        />
+                                    )}
+                                </div>
                             )}
                         </div>
                     )}
@@ -443,14 +449,12 @@ export default function NewScan() {
                         <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             padding: '16px', borderRadius: '10px',
-                            border: `1px solid ${config.enableMLFPReduction ? '#06b6d4' : 'var(--border-primary)'}`,
-                            background: config.enableMLFPReduction ? 'rgba(6, 182, 212, 0.06)' : 'transparent',
                             transition: 'all 0.2s ease', animation: 'fadeIn 0.3s ease'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{
                                     width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    background: config.enableMLFPReduction ? '#06b6d4' : 'var(--bg-tertiary)',
+                                    background: config.enableMLFPReduction ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
                                     color: config.enableMLFPReduction ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s'
                                 }}>
                                     <Sparkles size={18} />
@@ -462,14 +466,12 @@ export default function NewScan() {
                                     </div>
                                 </div>
                             </div>
-                            <label className="toggle">
-                                <input
-                                    type="checkbox"
-                                    checked={config.enableMLFPReduction}
-                                    onChange={() => setConfig(prev => ({ ...prev, enableMLFPReduction: !prev.enableMLFPReduction }))}
-                                />
-                                <span className="toggle-slider" />
-                            </label>
+                            <input
+                                type="checkbox"
+                                className="checkbox-custom"
+                                checked={config.enableMLFPReduction}
+                                onChange={() => setConfig(prev => ({ ...prev, enableMLFPReduction: !prev.enableMLFPReduction }))}
+                            />
                         </div>
                     )}
 

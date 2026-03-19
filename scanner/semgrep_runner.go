@@ -110,6 +110,10 @@ func RunSemgrep(ctx context.Context, targetDir string) ([]reporter.Finding, erro
 	utils.LogInfo(fmt.Sprintf("Semgrep found %d potential issues", len(output.Results)))
 
 	for _, result := range output.Results {
+		if blockedRuleIDs[result.CheckID] {
+			continue
+		}
+		
 		lineRef := formatLineRef(result.Start.Line, result.End.Line)
 		severity := mapSemgrepSeverity(result.Severity)
 		description := result.Extra.Message

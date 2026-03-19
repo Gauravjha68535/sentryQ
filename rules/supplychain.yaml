@@ -10,7 +10,7 @@
     - regex: |-
         (?i)"name":\s*"(@private|@internal|@company|@corp|@enterprise)
     - regex: |-
-        (?i)"name":\s*"(@[a-zA-Z0-9]+)-(common|shared|internal|utils|lib|core)
+# DUPLICATE REMOVED:         (?i)"name":\s*"(@[a-zA-Z0-9]+)-(common|shared|internal|utils|lib|core)
     - regex: |-
         (?i)npm\s+install\s+@[a-zA-Z0-9]+-[a-zA-Z0-9]+\s+--save
   severity: critical
@@ -498,7 +498,7 @@
     - regex: |-
         (?i)"[a-zA-Z0-9-]+"\s*:\s*"\*"
     - regex: |-
-        (?i)"[a-zA-Z0-9-]+"\s*:\s*">=\s*0\.0\.0"
+# DUPLICATE REMOVED:         (?i)"[a-zA-Z0-9-]+"\s*:\s*">=\s*0\.0\.0"
     - regex: |-
         (?i)[a-zA-Z0-9_-]+\s*>=\s*0
     - regex: |-

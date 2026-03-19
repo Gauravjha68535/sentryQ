@@ -1,7 +1,8 @@
 - id: generic-exposed-dev-version
   languages: [javascript, typescript, python, go, ruby, php, csharp, html, tsx, jsx]
   patterns:
-  - regex: '(?i)v1\.0\.0-dev''severity: medium
+  - regex: '(?i)v1\.0\.0-dev'
+  severity: medium
   description: "Exposed v1.0.0-dev version string signals non-production hardening and aids version-targeted exploitation."
   remediation: "Remove hardcoded pre-production version tags from sidebars, health endpoints, and error responses prior to deployment."
   cwe: "CWE-200"
@@ -10,7 +11,8 @@
 - id: generic-raw-exception-messages
   languages: [javascript, typescript, python, go, ruby, php, csharp]
   patterns:
-  - regex: '(?i)(?:res\.status\(\d+\)\.send|return.*Response|fmt\.Fprintf.*(?:w|res)|c\.JSON|render\s+json:\s*\{\s*error:)\s*(?:err\.message|e\.message|err\.Error\(\)|e\.to_s|str\(e\)|e\.getMessage\(\))''severity: medium
+  - regex: '(?i)(?:res\.status\(\d+\)\.send|return.*Response|fmt\.Fprintf.*(?:w|res)|c\.JSON|render\s+json:\s*\{\s*error:)\s*(?:err\.message|e\.message|err\.Error\(\)|e\.to_s|str\(e\)|e\.getMessage\(\))'
+  severity: medium
   description: "Raw exception messages returned in error responses. Internal paths, library versions, and SQL query structures can leak."
   remediation: "Catch exceptions and return generic, sanitized error messages to the client. Log the raw exception locally."
   cwe: "CWE-209"
@@ -19,7 +21,8 @@
 - id: generic-missing-security-headers
   languages: [javascript, typescript, python, go, ruby, php, csharp]
   patterns:
-  - regex: '(?i)(?:app\.listen|http\.ListenAndServe|Flask\(__name__\)|Rails\.application\.initialize!)''severity: low
+  - regex: '(?i)(?:app\.listen|http\.ListenAndServe|Flask\(__name__\)|Rails\.application\.initialize!)'
+  severity: low
   description: "Application initialization detected. Ensure global HTTP security headers (X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security, Content-Security-Policy) are configured."
   remediation: "Implement a global middleware to enforce strict HTTP security headers on all web responses."
   cwe: "CWE-693"

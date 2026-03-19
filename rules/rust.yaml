@@ -1,7 +1,8 @@
 - id: rust-hardcoded-password
   languages: [rust]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\\.s*=\\.s*[\\.\\.27][^\\.\\.27]{8,}[\\.\\.27]''severity: high
+    - regex: '(?i)(password|passwd|pwd)\.s*=\.s*[\.\.27][^\.\.27]{8,}[\.\.27]'
+  severity: high
   description: "Hardcoded password detected in Rust source code"
   remediation: "Use environment variables via std::env or a secrets manager like HashiCorp Vault"
   cwe: "CWE-798"
@@ -10,7 +11,8 @@
 - id: rust-hardcoded-api-key
   languages: [rust]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\\.s*=\\.s*[\\.\\.27][a-zA-Z0-9]{16,}[\\.\\.27]''severity: high
+    - regex: '(?i)(api[_-]?key|apikey)\.s*=\.s*[\.\.27][a-zA-Z0-9]{16,}[\.\.27]'
+  severity: high
   description: "Hardcoded API key detected in Rust source code"
   remediation: "Store API keys in environment variables or use aws-config crate for AWS credentials"
   cwe: "CWE-798"
@@ -19,7 +21,8 @@
 - id: rust-hardcoded-aws-credentials
   languages: [rust]
   patterns:
-    - regex: 'AKIA[0-9A-Z]{16}''severity: critical
+    - regex: 'AKIA[0-9A-Z]{16}'
+  severity: critical
   description: "AWS Access Key ID detected in Rust source code"
   remediation: "Remove AWS credentials from code. Use IAM roles or aws-config crate"
   cwe: "CWE-798"
@@ -29,7 +32,8 @@
 - id: rust-sql-injection-format
   languages: [rust]
   patterns:
-    - regex: '(?i)(execute|query)\\.s*\\.\\.s*format!\\.s*\\.\\.s*[\\.\\.27].*\\..*\\..*[\\.\\.27]''- ast:
+    - regex: '(?i)(execute|query)\.s*\.\.s*format!\.s*\.\.s*[\.\.27].*\..*\..*[\.\.27]'
+    - ast:
         language: rust
         query: '(call_expression function: (identifier) @func (#eq? @func "execute") arguments: (arguments (macro_invocation macro: (identifier) @macro (#eq? @macro "format!"))))'
   severity: critical
@@ -41,7 +45,8 @@
 - id: rust-sql-injection-concat
   languages: [rust]
   patterns:
-    - regex: '(?i)\\.query\\.s*\\.\\.s*[\\.\\.27].*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)\.query\.s*\.\.s*[\.\.27].*\..*[\.\.27]'
+  severity: critical
   description: "SQL injection risk via string concatenation in query"
   remediation: "Use parameterized queries: conn.execute(\"SELECT * FROM users WHERE id = $1\", &[&user_id])"
   cwe: "CWE-89"
@@ -51,9 +56,10 @@
 - id: rust-command-injection
   languages: [rust]
   patterns:
-    - regex: 'Command::new\\.s*\\.\\.s*[\\.\\.27].*\\..*[\\.\\.27]''- ast:
+    - regex: 'Command::new\.s*\.\.s*[\.\.27].*\..*[\.\.27]'
+    - ast:
         language: rust
-        query: '(call_expression function: (path_expression path: (identifier) @path (#eq? @path "Command")) arguments: (arguments (string_literal) @cmd (#match? @cmd "\\+")))'
+        query: '(call_expression function: (path_expression path: (identifier) @path (#eq? @path "Command")) arguments: (arguments (string_literal) @cmd (#match? @cmd "\+")))'
   severity: critical
   description: "Potential command injection via Command with string concatenation"
   remediation: "Pass command arguments as separate parameters: Command::new(\"ls\").arg(user_input)"
@@ -63,7 +69,8 @@
 - id: rust-shell-injection
   languages: [rust]
   patterns:
-    - regex: '(?i)(system|popen)\\.s*\\.\\.s*[\\.\\.27].*\\..*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)(system|popen)\.s*\.\.s*[\.\.27].*\..*\..*[\.\.27]'
+  severity: critical
   description: "Shell command with interpolated user input detected"
   remediation: "Avoid shell commands. Use std::process::Command with explicit arguments"
   cwe: "CWE-78"
@@ -73,7 +80,8 @@
 - id: rust-unsafe-block
   languages: [rust]
   patterns:
-    - regex: 'unsafe\\.s*\\.''severity: medium
+    - regex: 'unsafe\.s*\.'
+  severity: medium
   description: "Unsafe block detected - ensure proper safety invariants"
   remediation: "Document safety invariants and minimize unsafe code usage. Use safe abstractions when possible"
   cwe: "CWE-787"
@@ -82,7 +90,8 @@
 - id: rust-raw-pointer-deref
   languages: [rust]
   patterns:
-    - regex: '\\.\\.s*[a-zA-Z_][a-zA-Z0-9_]*\\.s*as\\.s+\\.mut''severity: high
+    - regex: '\.\.s*[a-zA-Z_][a-zA-Z0-9_]*\.s*as\.s+\.mut'
+  severity: high
   description: "Raw pointer dereference may lead to undefined behavior"
   remediation: "Use safe references or Box/Rc/Arc. If unsafe is necessary, add thorough safety comments"
   cwe: "CWE-825"
@@ -92,7 +101,8 @@
 - id: rust-weak-crypto-md5
   languages: [rust]
   patterns:
-    - regex: '(?i)(Md5::new|md5::compute|Sha1::new)''severity: medium
+    - regex: '(?i)(Md5::new|md5::compute|Sha1::new)'
+  severity: medium
   description: "Use of weak cryptographic hash function (MD5/SHA1)"
   remediation: "Use SHA-256 via sha2 crate or Argon2 via argon2 crate for password hashing"
   cwe: "CWE-327"
@@ -101,7 +111,8 @@
 - id: rust-weak-random
   languages: [rust]
   patterns:
-    - regex: 'rand::random\\.s*\\.\\.s*\\.|rand::thread_rng''severity: medium
+    - regex: 'rand::random\.s*\.\.s*\.|rand::thread_rng'
+  severity: medium
   description: "Use of non-cryptographic random for security-sensitive operations"
   remediation: "Use rand::rngs::OsRng or getrandom crate for cryptographically secure randomness"
   cwe: "CWE-330"
@@ -111,7 +122,8 @@
 - id: rust-insecure-tls
   languages: [rust]
   patterns:
-    - regex: 'danger_accept_invalid_certs\\.s*:\\.s*true''severity: high
+    - regex: 'danger_accept_invalid_certs\.s*:\.s*true'
+  severity: high
   description: "TLS certificate verification disabled"
   remediation: "Never disable certificate validation in production. Use rustls or native-tls with proper CA verification"
   cwe: "CWE-295"
@@ -120,7 +132,8 @@
 - id: rust-http-not-https
   languages: [rust]
   patterns:
-    - regex: 'http://[^\\.\\.27\\.s]+''severity: low
+    - regex: 'http://[^\.\.27\.s]+'
+  severity: low
   description: "Insecure HTTP URL detected (should use HTTPS)"
   remediation: "Use HTTPS for all external communications to ensure data encryption in transit"
   cwe: "CWE-319"
@@ -130,7 +143,8 @@
 - id: rust-panic-in-lib
   languages: [rust]
   patterns:
-    - regex: 'panic!\\.s*\\.''severity: low
+    - regex: 'panic!\.s*\.'
+  severity: low
   description: "panic!() call in library code - consider using Result instead"
   remediation: "Return Result or Option for recoverable errors in library code. Reserve panic! for unrecoverable states"
   cwe: "CWE-755"
@@ -139,7 +153,8 @@
 - id: rust-mem-leak-box-cycle
   languages: [rust]
   patterns:
-    - regex: 'Rc<RefCell<.*>>|Arc<Mutex<.*>>.*self''severity: medium
+    - regex: 'Rc<RefCell<.*>>|Arc<Mutex<.*>>.*self'
+  severity: medium
   description: "Potential reference cycle with Rc/Arc that may cause memory leak"
   remediation: "Use Weak<T> to break reference cycles. Consider restructuring ownership"
   cwe: "CWE-401"
@@ -149,7 +164,8 @@
 - id: rust-insecure-serde
   languages: [rust]
   patterns:
-    - regex: '#\\.serde\\.deserialize_with\\.s*=\\.s*\\.from_str\\.\\.\\.''severity: medium
+    - regex: '#\.serde\.deserialize_with\.s*=\.s*\.from_str\.\.\.'
+  severity: medium
   description: "Custom deserializer may bypass validation"
   remediation: "Validate all deserialized data. Use serde_with crate for safe custom deserialization"
   cwe: "CWE-502"
@@ -159,7 +175,8 @@
 - id: rust-actix-cors-wildcard
   languages: [rust]
   patterns:
-    - regex: 'Cors::permissive\\.\\.|Cors::default\\.\\.\\.allow_any_origin\\.\\.''severity: medium
+    - regex: 'Cors::permissive\.\.|Cors::default\.\.\.allow_any_origin\.\.'
+  severity: medium
   description: "Overly permissive CORS policy allows any origin"
   remediation: "Specify allowed origins explicitly: Cors::default().allowed_origin(\"https://example.com\")"
   cwe: "CWE-942"
@@ -168,7 +185,8 @@
 - id: rust-unsafe-block-any
   languages: [rust]
   patterns:
-    - regex: '\\.unsafe\\.s*\\.''severity: high
+    - regex: '\.unsafe\.s*\.'
+  severity: high
   description: "Unsafe block — memory safety bypass"
   remediation: "Minimize unsafe code. Document safety invariants. Consider safe alternatives"
   cwe: "CWE-119"
@@ -177,7 +195,8 @@
 - id: rust-ptr-read-write
   languages: [rust]
   patterns:
-    - regex: '(?i)(ptr::(read|write|copy)|std::ptr::(null|null_mut))''severity: high
+    - regex: '(?i)(ptr::(read|write|copy)|std::ptr::(null|null_mut))'
+  severity: high
   description: "Raw pointer operation — UB if misused"
   remediation: "Prefer safe abstractions. Verify alignment and validity"
   cwe: "CWE-119"
@@ -186,7 +205,8 @@
 - id: rust-transmute
   languages: [rust]
   patterns:
-    - regex: 'mem::transmute\\.s*[<(]''severity: critical
+    - regex: 'mem::transmute\.s*[<(]'
+  severity: critical
   description: "mem::transmute — reinterprets bits, can cause UB"
   remediation: "Use safe casts (as, From/Into). transmute is almost always wrong"
   cwe: "CWE-704"
@@ -195,7 +215,8 @@
 - id: rust-forget
   languages: [rust]
   patterns:
-    - regex: 'mem::forget\\.s*\\.''severity: medium
+    - regex: 'mem::forget\.s*\.'
+  severity: medium
   description: "mem::forget — intentional memory leak"
   remediation: "Use ManuallyDrop if needed. Ensure forget is intentional"
   cwe: "CWE-401"
@@ -204,7 +225,8 @@
 - id: rust-env-var
   languages: [rust]
   patterns:
-    - regex: 'env::(var|args)\\.s*\\.''severity: low
+    - regex: 'env::(var|args)\.s*\.'
+  severity: low
   description: "Environment variable access — validate before use"
   remediation: "Validate env vars. Use typed config libraries"
   cwe: "CWE-20"
@@ -213,7 +235,8 @@
 - id: rust-process-command-shell
   languages: [rust]
   patterns:
-    - regex: 'Command::new\\.s*\\.\\.s*\\.(sh|bash|cmd|powershell)\\.''severity: critical
+    - regex: 'Command::new\.s*\.\.s*\.(sh|bash|cmd|powershell)\.'
+  severity: critical
   description: "Shell command execution — injection risk"
   remediation: "Avoid shell. Use Command::new with direct binary + args"
   cwe: "CWE-78"
@@ -222,7 +245,8 @@
 - id: rust-reqwest-no-tls
   languages: [rust]
   patterns:
-    - regex: 'danger_accept_invalid_certs\\.s*\\.\\.s*true\\.s*\\.''severity: critical
+    - regex: 'danger_accept_invalid_certs\.s*\.\.s*true\.s*\.'
+  severity: critical
   description: "TLS certificate validation disabled"
   remediation: "Enable certificate validation in production"
   cwe: "CWE-295"
@@ -240,7 +264,8 @@
 - id: rust-vec-with-capacity-unchecked
   languages: [rust]
   patterns:
-    - regex: 'Vec::with_capacity\\.s*\\.(\\.s*[a-zA-Z_][a-zA-Z0-9_]*\\.s*\\.)''severity: medium
+    - regex: 'Vec::with_capacity\.s*\.(\.s*[a-zA-Z_][a-zA-Z0-9_]*\.s*\.)'
+  severity: medium
   description: "Vec with capacity from variable may cause memory exhaustion"
   remediation: "Validate capacity before allocation"
   cwe: "CWE-789"
@@ -249,7 +274,8 @@
 - id: rust-box-leak
   languages: [rust]
   patterns:
-    - regex: 'Box::leak\\.s*\\.(''severity: medium
+    - regex: 'Box::leak\.s*\.()'
+  severity: medium
   description: "Box::leak creates intentional memory leak"
   remediation: "Ensure leak is intentional and documented"
   cwe: "CWE-401"
@@ -258,7 +284,8 @@
 - id: rust-rc-cycle
   languages: [rust]
   patterns:
-    - regex: 'Rc<RefCell<''severity: medium
+    - regex: 'Rc<RefCell<'
+  severity: medium
   description: "Rc<RefCell> may create reference cycles"
   remediation: "Use Weak to break cycles"
   cwe: "CWE-401"
@@ -267,7 +294,8 @@
 - id: rust-arc-mutex-deadlock
   languages: [rust]
   patterns:
-    - regex: 'Arc<Mutex<''severity: low
+    - regex: 'Arc<Mutex<'
+  severity: low
   description: "Arc<Mutex> may cause deadlocks"
   remediation: "Ensure consistent lock ordering"
   cwe: "CWE-833"
@@ -276,7 +304,8 @@
 - id: rust-cell-interior-mutability
   languages: [rust]
   patterns:
-    - regex: 'Cell<|RefCell<''severity: low
+    - regex: 'Cell<|RefCell<'
+  severity: low
   description: "Interior mutability with Cell/RefCell"
   remediation: "Ensure thread safety"
   cwe: "CWE-362"
@@ -285,7 +314,8 @@
 - id: rust-unsafe-cell
   languages: [rust]
   patterns:
-    - regex: 'UnsafeCell<''severity: high
+    - regex: 'UnsafeCell<'
+  severity: high
   description: "UnsafeCell bypasses borrow checker"
   remediation: "Document safety invariants"
   cwe: "CWE-242"
@@ -294,7 +324,8 @@
 - id: rust-manually-drop
   languages: [rust]
   patterns:
-    - regex: 'ManuallyDrop<''severity: medium
+    - regex: 'ManuallyDrop<'
+  severity: medium
   description: "ManuallyDrop prevents automatic drop"
   remediation: "Ensure manual drop is called"
   cwe: "CWE-401"
@@ -303,7 +334,8 @@
 - id: rust-maybe-uninit
   languages: [rust]
   patterns:
-    - regex: 'MaybeUninit<''severity: high
+    - regex: 'MaybeUninit<'
+  severity: high
   description: "MaybeUninit allows uninitialized memory"
   remediation: "Ensure proper initialization before use"
   cwe: "CWE-824"
@@ -312,7 +344,8 @@
 - id: rust-slice-from-raw
   languages: [rust]
   patterns:
-    - regex: 'slice::from_raw_parts''severity: high
+    - regex: 'slice::from_raw_parts'
+  severity: high
   description: "Creating slice from raw pointer"
   remediation: "Ensure pointer validity and length"
   cwe: "CWE-824"
@@ -321,7 +354,8 @@
 - id: rust-vec-from-raw
   languages: [rust]
   patterns:
-    - regex: 'Vec::from_raw_parts''severity: high
+    - regex: 'Vec::from_raw_parts'
+  severity: high
   description: "Creating Vec from raw parts"
   remediation: "Ensure pointer, length, and capacity validity"
   cwe: "CWE-824"
@@ -330,7 +364,8 @@
 - id: rust-box-from-raw
   languages: [rust]
   patterns:
-    - regex: 'Box::from_raw''severity: high
+    - regex: 'Box::from_raw'
+  severity: high
   description: "Creating Box from raw pointer"
   remediation: "Ensure pointer was allocated by Box"
   cwe: "CWE-824"
@@ -339,7 +374,8 @@
 - id: rust-drop-in-place
   languages: [rust]
   patterns:
-    - regex: 'ptr::drop_in_place''severity: high
+    - regex: 'ptr::drop_in_place'
+  severity: high
   description: "Manual drop in place"
   remediation: "Ensure proper memory management"
   cwe: "CWE-401"
@@ -348,7 +384,8 @@
 - id: rust-read-volatile
   languages: [rust]
   patterns:
-    - regex: 'ptr::read_volatile''severity: high
+    - regex: 'ptr::read_volatile'
+  severity: high
   description: "Volatile read bypasses optimizations"
   remediation: "Ensure volatile access is necessary"
   cwe: "CWE-242"
@@ -357,7 +394,8 @@
 - id: rust-write-volatile
   languages: [rust]
   patterns:
-    - regex: 'ptr::write_volatile''severity: high
+    - regex: 'ptr::write_volatile'
+  severity: high
   description: "Volatile write bypasses optimizations"
   remediation: "Ensure volatile access is necessary"
   cwe: "CWE-242"
@@ -366,7 +404,8 @@
 - id: rust-copy-nonoverlapping
   languages: [rust]
   patterns:
-    - regex: 'ptr::copy_nonoverlapping''severity: high
+    - regex: 'ptr::copy_nonoverlapping'
+  severity: high
   description: "Non-overlapping copy without checks"
   remediation: "Ensure regions don't overlap"
   cwe: "CWE-120"
@@ -375,7 +414,8 @@
 - id: rust-copy
   languages: [rust]
   patterns:
-    - regex: 'ptr::copy''severity: medium
+    - regex: 'ptr::copy'
+  severity: medium
   description: "Pointer copy may overlap"
   remediation: "Ensure proper copy semantics"
   cwe: "CWE-120"
@@ -384,7 +424,8 @@
 - id: rust-write-bytes
   languages: [rust]
   patterns:
-    - regex: 'ptr::write_bytes''severity: medium
+    - regex: 'ptr::write_bytes'
+  severity: medium
   description: "Writing bytes to pointer"
   remediation: "Ensure pointer validity"
   cwe: "CWE-824"
@@ -393,7 +434,8 @@
 - id: rust-offset
   languages: [rust]
   patterns:
-    - regex: 'ptr::offset''severity: medium
+    - regex: 'ptr::offset'
+  severity: medium
   description: "Pointer offset arithmetic"
   remediation: "Ensure offset is within bounds"
   cwe: "CWE-824"
@@ -402,7 +444,8 @@
 - id: rust-add
   languages: [rust]
   patterns:
-    - regex: 'ptr::add''severity: medium
+    - regex: 'ptr::add'
+  severity: medium
   description: "Pointer addition"
   remediation: "Ensure result is within bounds"
   cwe: "CWE-824"
@@ -411,7 +454,8 @@
 - id: rust-sub
   languages: [rust]
   patterns:
-    - regex: 'ptr::sub''severity: medium
+    - regex: 'ptr::sub'
+  severity: medium
   description: "Pointer subtraction"
   remediation: "Ensure result is within bounds"
   cwe: "CWE-824"
@@ -421,7 +465,8 @@
 - id: rust-thread-spawn-panic
   languages: [rust]
   patterns:
-    - regex: 'thread::spawn.*unwrap\\.(\\.)''severity: medium
+    - regex: 'thread::spawn.*unwrap\.(\.)'
+  severity: medium
   description: "Thread spawn with unwrap may panic"
   remediation: "Handle thread spawn errors"
   cwe: "CWE-754"
@@ -430,7 +475,8 @@
 - id: rust-parking-lot
   languages: [rust]
   patterns:
-    - regex: 'parking_lot::''severity: low
+    - regex: 'parking_lot::'
+  severity: low
   description: "Using parking_lot instead of std sync"
   remediation: "Ensure parking_lot is appropriate"
   cwe: "CWE-693"
@@ -439,7 +485,8 @@
 - id: rust-crossbeam-channel
   languages: [rust]
   patterns:
-    - regex: 'crossbeam::channel''severity: low
+    - regex: 'crossbeam::channel'
+  severity: low
   description: "Using crossbeam channels"
   remediation: "Ensure proper channel usage"
   cwe: "CWE-693"
@@ -448,7 +495,8 @@
 - id: rust-rayon-parallel
   languages: [rust]
   patterns:
-    - regex: 'rayon::prelude::.*par_''severity: low
+    - regex: 'rayon::prelude::.*par_'
+  severity: low
   description: "Parallel iteration with rayon"
   remediation: "Ensure thread safety of operations"
   cwe: "CWE-362"
@@ -457,7 +505,8 @@
 - id: rust-atomic-ordering-relaxed
   languages: [rust]
   patterns:
-    - regex: 'Ordering::Relaxed''severity: medium
+    - regex: 'Ordering::Relaxed'
+  severity: medium
   description: "Relaxed atomic ordering"
   remediation: "Use stronger ordering if needed"
   cwe: "CWE-362"
@@ -466,7 +515,8 @@
 - id: rust-atomic-ordering-acquire
   languages: [rust]
   patterns:
-    - regex: 'Ordering::Acquire''severity: low
+    - regex: 'Ordering::Acquire'
+  severity: low
   description: "Acquire atomic ordering"
   remediation: "Ensure proper synchronization"
   cwe: "CWE-362"
@@ -475,7 +525,8 @@
 - id: rust-atomic-ordering-release
   languages: [rust]
   patterns:
-    - regex: 'Ordering::Release''severity: low
+    - regex: 'Ordering::Release'
+  severity: low
   description: "Release atomic ordering"
   remediation: "Ensure proper synchronization"
   cwe: "CWE-362"
@@ -484,7 +535,8 @@
 - id: rust-atomic-ordering-acq-rel
   languages: [rust]
   patterns:
-    - regex: 'Ordering::AcqRel''severity: low
+    - regex: 'Ordering::AcqRel'
+  severity: low
   description: "Acquire-Release atomic ordering"
   remediation: "Ensure proper synchronization"
   cwe: "CWE-362"
@@ -493,7 +545,8 @@
 - id: rust-atomic-ordering-seq-cst
   languages: [rust]
   patterns:
-    - regex: 'Ordering::SeqCst''severity: low
+    - regex: 'Ordering::SeqCst'
+  severity: low
   description: "Sequentially consistent ordering"
   remediation: "Good default for most cases"
   cwe: "CWE-362"
@@ -502,7 +555,8 @@
 - id: rust-condvar-wait
   languages: [rust]
   patterns:
-    - regex: 'Condvar::wait''severity: low
+    - regex: 'Condvar::wait'
+  severity: low
   description: "Condition variable wait"
   remediation: "Handle spurious wakeups"
   cwe: "CWE-667"
@@ -511,7 +565,8 @@
 - id: rust-condvar-wait-timeout
   languages: [rust]
   patterns:
-    - regex: 'Condvar::wait_timeout''severity: low
+    - regex: 'Condvar::wait_timeout'
+  severity: low
   description: "Condition variable wait with timeout"
   remediation: "Handle timeout appropriately"
   cwe: "CWE-667"
@@ -520,7 +575,8 @@
 - id: rust-barrier-wait
   languages: [rust]
   patterns:
-    - regex: 'Barrier::wait''severity: low
+    - regex: 'Barrier::wait'
+  severity: low
   description: "Barrier wait"
   remediation: "Ensure all threads reach barrier"
   cwe: "CWE-667"
@@ -529,7 +585,8 @@
 - id: rust-once-call-once
   languages: [rust]
   patterns:
-    - regex: 'ONCE\\..call_once''severity: low
+    - regex: 'ONCE\..call_once'
+  severity: low
   description: "Once initialization"
   remediation: "Ensure initialization is safe"
   cwe: "CWE-667"
@@ -538,7 +595,8 @@
 - id: rust-lazy-static
   languages: [rust]
   patterns:
-    - regex: 'lazy_static!''severity: low
+    - regex: 'lazy_static!'
+  severity: low
   description: "Lazy static initialization"
   remediation: "Ensure thread-safe initialization"
   cwe: "CWE-667"
@@ -547,7 +605,8 @@
 - id: rust-once-cell
   languages: [rust]
   patterns:
-    - regex: 'once_cell::''severity: low
+    - regex: 'once_cell::'
+  severity: low
   description: "Once cell initialization"
   remediation: "Ensure proper initialization"
   cwe: "CWE-667"
@@ -556,7 +615,8 @@
 - id: rust-dashmap
   languages: [rust]
   patterns:
-    - regex: 'dashmap::DashMap''severity: low
+    - regex: 'dashmap::DashMap'
+  severity: low
   description: "Concurrent hash map"
   remediation: "Ensure proper concurrent access"
   cwe: "CWE-362"
@@ -565,7 +625,8 @@
 - id: rust-flume-channel
   languages: [rust]
   patterns:
-    - regex: 'flume::''severity: low
+    - regex: 'flume::'
+  severity: low
   description: "Flume channel"
   remediation: "Ensure proper channel usage"
   cwe: "CWE-693"
@@ -574,7 +635,8 @@
 - id: rust-channel-mpmc
   languages: [rust]
   patterns:
-    - regex: 'channel::mpmc''severity: low
+    - regex: 'channel::mpmc'
+  severity: low
   description: "Multi-producer multi-consumer channel"
   remediation: "Ensure proper synchronization"
   cwe: "CWE-362"
@@ -583,7 +645,8 @@
 - id: rust-channel-mpsc
   languages: [rust]
   patterns:
-    - regex: 'channel::mpsc''severity: low
+    - regex: 'channel::mpsc'
+  severity: low
   description: "Multi-producer single-consumer channel"
   remediation: "Ensure single consumer"
   cwe: "CWE-362"
@@ -592,7 +655,8 @@
 - id: rust-channel-spsc
   languages: [rust]
   patterns:
-    - regex: 'channel::spsc''severity: low
+    - regex: 'channel::spsc'
+  severity: low
   description: "Single-producer single-consumer channel"
   remediation: "Ensure single producer and consumer"
   cwe: "CWE-362"
@@ -602,7 +666,8 @@
 - id: rust-tokio-runtime-builder
   languages: [rust]
   patterns:
-    - regex: 'tokio::runtime::Builder''severity: low
+    - regex: 'tokio::runtime::Builder'
+  severity: low
   description: "Custom tokio runtime builder"
   remediation: "Configure runtime appropriately"
   cwe: "CWE-693"
@@ -611,7 +676,8 @@
 - id: rust-tokio-spawn-blocking
   languages: [rust]
   patterns:
-    - regex: 'tokio::task::spawn_blocking''severity: low
+    - regex: 'tokio::task::spawn_blocking'
+  severity: low
   description: "Blocking task in tokio"
   remediation: "Ensure blocking is necessary"
   cwe: "CWE-400"
@@ -620,7 +686,8 @@
 - id: rust-tokio-select
   languages: [rust]
   patterns:
-    - regex: 'tokio::select!''severity: low
+    - regex: 'tokio::select!'
+  severity: low
   description: "Tokio select macro"
   remediation: "Handle all branches properly"
   cwe: "CWE-754"
@@ -629,7 +696,8 @@
 - id: rust-tokio-join
   languages: [rust]
   patterns:
-    - regex: 'tokio::join!''severity: low
+    - regex: 'tokio::join!'
+  severity: low
   description: "Tokio join macro"
   remediation: "Handle join results"
   cwe: "CWE-754"
@@ -638,7 +706,8 @@
 - id: rust-tokio-try-join
   languages: [rust]
   patterns:
-    - regex: 'tokio::try_join!''severity: low
+    - regex: 'tokio::try_join!'
+  severity: low
   description: "Tokio try_join macro"
   remediation: "Handle errors properly"
   cwe: "CWE-754"
@@ -647,7 +716,8 @@
 - id: rust-tokio-time-sleep
   languages: [rust]
   patterns:
-    - regex: 'tokio::time::sleep''severity: low
+    - regex: 'tokio::time::sleep'
+  severity: low
   description: "Tokio sleep"
   remediation: "Handle sleep cancellation"
   cwe: "CWE-754"
@@ -656,7 +726,8 @@
 - id: rust-tokio-time-interval
   languages: [rust]
   patterns:
-    - regex: 'tokio::time::interval''severity: low
+    - regex: 'tokio::time::interval'
+  severity: low
   description: "Tokio interval timer"
   remediation: "Handle interval ticks properly"
   cwe: "CWE-754"
@@ -665,7 +736,8 @@
 - id: rust-tokio-time-timeout
   languages: [rust]
   patterns:
-    - regex: 'tokio::time::timeout''severity: low
+    - regex: 'tokio::time::timeout'
+  severity: low
   description: "Tokio timeout wrapper"
   remediation: "Handle timeout properly"
   cwe: "CWE-754"
@@ -674,7 +746,8 @@
 - id: rust-tokio-sync-broadcast
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::broadcast''severity: low
+    - regex: 'tokio::sync::broadcast'
+  severity: low
   description: "Tokio broadcast channel"
   remediation: "Handle channel capacity"
   cwe: "CWE-400"
@@ -683,7 +756,8 @@
 - id: rust-tokio-sync-watch
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::watch''severity: low
+    - regex: 'tokio::sync::watch'
+  severity: low
   description: "Tokio watch channel"
   remediation: "Handle watch updates"
   cwe: "CWE-693"
@@ -692,7 +766,8 @@
 - id: rust-tokio-sync-mpsc
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::mpsc''severity: low
+    - regex: 'tokio::sync::mpsc'
+  severity: low
   description: "Tokio mpsc channel"
   remediation: "Handle channel capacity"
   cwe: "CWE-400"
@@ -701,7 +776,8 @@
 - id: rust-tokio-sync-mutex
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Mutex''severity: low
+    - regex: 'tokio::sync::Mutex'
+  severity: low
   description: "Tokio async mutex"
   remediation: "Avoid holding across await points"
   cwe: "CWE-833"
@@ -710,7 +786,8 @@
 - id: rust-tokio-sync-rwlock
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::RwLock''severity: low
+    - regex: 'tokio::sync::RwLock'
+  severity: low
   description: "Tokio async RwLock"
   remediation: "Avoid holding across await points"
   cwe: "CWE-833"
@@ -719,7 +796,8 @@
 - id: rust-tokio-sync-semaphore
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Semaphore''severity: low
+    - regex: 'tokio::sync::Semaphore'
+  severity: low
   description: "Tokio semaphore"
   remediation: "Ensure permits are released"
   cwe: "CWE-667"
@@ -728,7 +806,8 @@
 - id: rust-tokio-sync-barrier
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Barrier''severity: low
+    - regex: 'tokio::sync::Barrier'
+  severity: low
   description: "Tokio barrier"
   remediation: "Ensure all tasks reach barrier"
   cwe: "CWE-667"
@@ -737,7 +816,8 @@
 - id: rust-tokio-sync-notify
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Notify''severity: low
+    - regex: 'tokio::sync::Notify'
+  severity: low
   description: "Tokio notify"
   remediation: "Handle notifications properly"
   cwe: "CWE-667"
@@ -746,7 +826,8 @@
 - id: rust-tokio-io-read
   languages: [rust]
   patterns:
-    - regex: 'tokio::io::AsyncRead''severity: low
+    - regex: 'tokio::io::AsyncRead'
+  severity: low
   description: "Tokio async read"
   remediation: "Handle read errors"
   cwe: "CWE-754"
@@ -755,7 +836,8 @@
 - id: rust-tokio-io-write
   languages: [rust]
   patterns:
-    - regex: 'tokio::io::AsyncWrite''severity: low
+    - regex: 'tokio::io::AsyncWrite'
+  severity: low
   description: "Tokio async write"
   remediation: "Handle write errors"
   cwe: "CWE-754"
@@ -764,7 +846,8 @@
 - id: rust-tokio-io-bufreader
   languages: [rust]
   patterns:
-    - regex: 'tokio::io::BufReader''severity: low
+    - regex: 'tokio::io::BufReader'
+  severity: low
   description: "Tokio buffered reader"
   remediation: "Handle buffer properly"
   cwe: "CWE-693"
@@ -773,7 +856,8 @@
 - id: rust-tokio-io-bufwriter
   languages: [rust]
   patterns:
-    - regex: 'tokio::io::BufWriter''severity: low
+    - regex: 'tokio::io::BufWriter'
+  severity: low
   description: "Tokio buffered writer"
   remediation: "Flush buffer when needed"
   cwe: "CWE-693"
@@ -783,7 +867,8 @@
 - id: rust-actix-web-http-only
   languages: [rust]
   patterns:
-    - regex: 'actix_web::web''severity: low
+    - regex: 'actix_web::web'
+  severity: low
   description: "Actix web extractor"
   remediation: "Validate extracted data"
   cwe: "CWE-20"
@@ -792,7 +877,8 @@
 - id: rust-actix-web-app
   languages: [rust]
   patterns:
-    - regex: 'actix_web::App''severity: low
+    - regex: 'actix_web::App'
+  severity: low
   description: "Actix web app builder"
   remediation: "Configure middleware properly"
   cwe: "CWE-693"
@@ -801,7 +887,8 @@
 - id: rust-actix-web-server
   languages: [rust]
   patterns:
-    - regex: 'actix_web::HttpServer''severity: low
+    - regex: 'actix_web::HttpServer'
+  severity: low
   description: "Actix web server"
   remediation: "Configure server securely"
   cwe: "CWE-693"
@@ -810,7 +897,8 @@
 - id: rust-actix-web-middleware
   languages: [rust]
   patterns:
-    - regex: 'actix_web::middleware''severity: low
+    - regex: 'actix_web::middleware'
+  severity: low
   description: "Actix middleware"
   remediation: "Configure middleware securely"
   cwe: "CWE-693"
@@ -819,7 +907,8 @@
 - id: rust-actix-web-cors
   languages: [rust]
   patterns:
-    - regex: 'actix_cors::Cors''severity: low
+    - regex: 'actix_cors::Cors'
+  severity: low
   description: "Actix CORS middleware"
   remediation: "Configure CORS properly"
   cwe: "CWE-942"
@@ -828,7 +917,8 @@
 - id: rust-actix-web-session
   languages: [rust]
   patterns:
-    - regex: 'actix_session::Session''severity: low
+    - regex: 'actix_session::Session'
+  severity: low
   description: "Actix session"
   remediation: "Configure session securely"
   cwe: "CWE-613"
@@ -837,7 +927,8 @@
 - id: rust-actix-web-identity
   languages: [rust]
   patterns:
-    - regex: 'actix_identity::Identity''severity: low
+    - regex: 'actix_identity::Identity'
+  severity: low
   description: "Actix identity"
   remediation: "Configure identity securely"
   cwe: "CWE-287"
@@ -846,7 +937,8 @@
 - id: rust-actix-web-validator
   languages: [rust]
   patterns:
-    - regex: 'actix_web_validator::Json''severity: low
+    - regex: 'actix_web_validator::Json'
+  severity: low
   description: "Actix validator"
   remediation: "Configure validation properly"
   cwe: "CWE-20"
@@ -855,7 +947,8 @@
 - id: rust-axum-router
   languages: [rust]
   patterns:
-    - regex: 'axum::Router''severity: low
+    - regex: 'axum::Router'
+  severity: low
   description: "Axum router"
   remediation: "Configure routes securely"
   cwe: "CWE-693"
@@ -864,7 +957,8 @@
 - id: rust-axum-extract
   languages: [rust]
   patterns:
-    - regex: 'axum::extract''severity: low
+    - regex: 'axum::extract'
+  severity: low
   description: "Axum extractor"
   remediation: "Validate extracted data"
   cwe: "CWE-20"
@@ -873,7 +967,8 @@
 - id: rust-axum-response
   languages: [rust]
   patterns:
-    - regex: 'axum::response''severity: low
+    - regex: 'axum::response'
+  severity: low
   description: "Axum response"
   remediation: "Configure response properly"
   cwe: "CWE-693"
@@ -882,7 +977,8 @@
 - id: rust-axum-middleware
   languages: [rust]
   patterns:
-    - regex: 'axum::middleware''severity: low
+    - regex: 'axum::middleware'
+  severity: low
   description: "Axum middleware"
   remediation: "Configure middleware securely"
   cwe: "CWE-693"
@@ -891,7 +987,8 @@
 - id: rust-axum-error
   languages: [rust]
   patterns:
-    - regex: 'axum::error_handling''severity: low
+    - regex: 'axum::error_handling'
+  severity: low
   description: "Axum error handling"
   remediation: "Handle errors properly"
   cwe: "CWE-754"
@@ -900,7 +997,8 @@
 - id: rust-axum-json
   languages: [rust]
   patterns:
-    - regex: 'axum::Json''severity: low
+    - regex: 'axum::Json'
+  severity: low
   description: "Axum JSON extractor"
   remediation: "Validate JSON data"
   cwe: "CWE-20"
@@ -909,7 +1007,8 @@
 - id: rust-axum-form
   languages: [rust]
   patterns:
-    - regex: 'axum::Form''severity: low
+    - regex: 'axum::Form'
+  severity: low
   description: "Axum form extractor"
   remediation: "Validate form data"
   cwe: "CWE-20"
@@ -918,7 +1017,8 @@
 - id: rust-axum-query
   languages: [rust]
   patterns:
-    - regex: 'axum::Query''severity: low
+    - regex: 'axum::Query'
+  severity: low
   description: "Axum query extractor"
   remediation: "Validate query parameters"
   cwe: "CWE-20"
@@ -927,7 +1027,8 @@
 - id: rust-axum-path
   languages: [rust]
   patterns:
-    - regex: 'axum::Path''severity: low
+    - regex: 'axum::Path'
+  severity: low
   description: "Axum path extractor"
   remediation: "Validate path parameters"
   cwe: "CWE-20"
@@ -936,7 +1037,8 @@
 - id: rust-axum-state
   languages: [rust]
   patterns:
-    - regex: 'axum::extract::State''severity: low
+    - regex: 'axum::extract::State'
+  severity: low
   description: "Axum state extractor"
   remediation: "Configure state securely"
   cwe: "CWE-693"
@@ -945,7 +1047,8 @@
 - id: rust-axum-extension
   languages: [rust]
   patterns:
-    - regex: 'axum::extract::Extension''severity: low
+    - regex: 'axum::extract::Extension'
+  severity: low
   description: "Axum extension"
   remediation: "Configure extension securely"
   cwe: "CWE-693"
@@ -954,7 +1057,8 @@
 - id: rust-axum-original-uri
   languages: [rust]
   patterns:
-    - regex: 'axum::extract::OriginalUri''severity: low
+    - regex: 'axum::extract::OriginalUri'
+  severity: low
   description: "Axum original URI"
   remediation: "Validate URI properly"
   cwe: "CWE-20"
@@ -964,7 +1068,8 @@
 - id: rust-ring-rand
   languages: [rust]
   patterns:
-    - regex: 'ring::rand::''severity: low
+    - regex: 'ring::rand::'
+  severity: low
   description: "Ring random"
   remediation: "Good for cryptographic randomness"
   cwe: "CWE-330"
@@ -973,7 +1078,8 @@
 - id: rust-ring-digest
   languages: [rust]
   patterns:
-    - regex: 'ring::digest::''severity: low
+    - regex: 'ring::digest::'
+  severity: low
   description: "Ring digest"
   remediation: "Use SHA-256 or stronger"
   cwe: "CWE-327"
@@ -982,7 +1088,8 @@
 - id: rust-ring-hmac
   languages: [rust]
   patterns:
-    - regex: 'ring::hmac::''severity: low
+    - regex: 'ring::hmac::'
+  severity: low
   description: "Ring HMAC"
   remediation: "Use HMAC-SHA256 or stronger"
   cwe: "CWE-327"
@@ -991,7 +1098,8 @@
 - id: rust-ring-aead
   languages: [rust]
   patterns:
-    - regex: 'ring::aead::''severity: low
+    - regex: 'ring::aead::'
+  severity: low
   description: "Ring AEAD"
   remediation: "Use AES-GCM or ChaCha20-Poly1305"
   cwe: "CWE-327"
@@ -1000,7 +1108,8 @@
 - id: rust-ring-signature
   languages: [rust]
   patterns:
-    - regex: 'ring::signature::''severity: low
+    - regex: 'ring::signature::'
+  severity: low
   description: "Ring signature"
   remediation: "Use Ed25519 or RSA-PSS"
   cwe: "CWE-327"
@@ -1009,7 +1118,8 @@
 - id: rust-rustls-config
   languages: [rust]
   patterns:
-    - regex: 'rustls::ClientConfig''severity: low
+    - regex: 'rustls::ClientConfig'
+  severity: low
   description: "Rustls client config"
   remediation: "Configure TLS securely"
   cwe: "CWE-326"
@@ -1018,7 +1128,8 @@
 - id: rust-rustls-server-config
   languages: [rust]
   patterns:
-    - regex: 'rustls::ServerConfig''severity: low
+    - regex: 'rustls::ServerConfig'
+  severity: low
   description: "Rustls server config"
   remediation: "Configure TLS securely"
   cwe: "CWE-326"
@@ -1027,7 +1138,8 @@
 - id: rust-rustls-webpki
   languages: [rust]
   patterns:
-    - regex: 'webpki::''severity: low
+    - regex: 'webpki::'
+  severity: low
   description: "WebPKI certificate validation"
   remediation: "Enable certificate validation"
   cwe: "CWE-295"
@@ -1036,7 +1148,8 @@
 - id: rust-openssl-sys
   languages: [rust]
   patterns:
-    - regex: 'openssl::''severity: low
+    - regex: 'openssl::'
+  severity: low
   description: "OpenSSL bindings"
   remediation: "Configure OpenSSL securely"
   cwe: "CWE-326"
@@ -1045,7 +1158,8 @@
 - id: rust-openssl-ctx
   languages: [rust]
   patterns:
-    - regex: 'openssl::ssl::SslContext''severity: low
+    - regex: 'openssl::ssl::SslContext'
+  severity: low
   description: "OpenSSL SSL context"
   remediation: "Configure context securely"
   cwe: "CWE-326"
@@ -1054,7 +1168,8 @@
 - id: rust-openssl-stream
   languages: [rust]
   patterns:
-    - regex: 'openssl::ssl::SslStream''severity: low
+    - regex: 'openssl::ssl::SslStream'
+  severity: low
   description: "OpenSSL SSL stream"
   remediation: "Configure stream securely"
   cwe: "CWE-326"
@@ -1063,7 +1178,8 @@
 - id: rust-openssl-verify
   languages: [rust]
   patterns:
-    - regex: 'openssl::ssl::SslVerifyMode''severity: low
+    - regex: 'openssl::ssl::SslVerifyMode'
+  severity: low
   description: "OpenSSL verify mode"
   remediation: "Enable certificate verification"
   cwe: "CWE-295"
@@ -1072,7 +1188,8 @@
 - id: rust-sodiumoxide
   languages: [rust]
   patterns:
-    - regex: 'sodiumoxide::''severity: low
+    - regex: 'sodiumoxide::'
+  severity: low
   description: "Sodium oxide crypto"
   remediation: "Good choice for modern crypto"
   cwe: "CWE-327"
@@ -1081,7 +1198,8 @@
 - id: rust-chacha20poly1305
   languages: [rust]
   patterns:
-    - regex: 'chacha20poly1305::''severity: low
+    - regex: 'chacha20poly1305::'
+  severity: low
   description: "ChaCha20-Poly1305"
   remediation: "Good choice for AEAD"
   cwe: "CWE-327"
@@ -1090,7 +1208,8 @@
 - id: rust-aes-gcm
   languages: [rust]
   patterns:
-    - regex: 'aes_gcm::''severity: low
+    - regex: 'aes_gcm::'
+  severity: low
   description: "AES-GCM"
   remediation: "Good choice for AEAD"
   cwe: "CWE-327"
@@ -1099,7 +1218,8 @@
 - id: rust-hkdf
   languages: [rust]
   patterns:
-    - regex: 'hkdf::''severity: low
+    - regex: 'hkdf::'
+  severity: low
   description: "HKDF key derivation"
   remediation: "Good choice for key derivation"
   cwe: "CWE-327"
@@ -1108,7 +1228,8 @@
 - id: rust-pbkdf2
   languages: [rust]
   patterns:
-    - regex: 'pbkdf2::''severity: low
+    - regex: 'pbkdf2::'
+  severity: low
   description: "PBKDF2 password hashing"
   remediation: "Use sufficient iterations"
   cwe: "CWE-916"
@@ -1117,7 +1238,8 @@
 - id: rust-argon2
   languages: [rust]
   patterns:
-    - regex: 'argon2::''severity: low
+    - regex: 'argon2::'
+  severity: low
   description: "Argon2 password hashing"
   remediation: "Good choice for passwords"
   cwe: "CWE-916"
@@ -1126,7 +1248,8 @@
 - id: rust-bcrypt
   languages: [rust]
   patterns:
-    - regex: 'bcrypt::''severity: low
+    - regex: 'bcrypt::'
+  severity: low
   description: "Bcrypt password hashing"
   remediation: "Use appropriate cost factor"
   cwe: "CWE-916"
@@ -1135,7 +1258,8 @@
 - id: rust-scrypt
   languages: [rust]
   patterns:
-    - regex: 'scrypt::''severity: low
+    - regex: 'scrypt::'
+  severity: low
   description: "Scrypt password hashing"
   remediation: "Use appropriate parameters"
   cwe: "CWE-916"
@@ -1145,7 +1269,8 @@
 - id: rust-serde-derive
   languages: [rust]
   patterns:
-    - regex: '#\\.[derive\\.(Serialize''severity: low
+    - regex: '#\.[derive\.(Serialize)]'
+  severity: low
   description: "Serde serialize derive"
   remediation: "Review serialized fields"
   cwe: "CWE-200"
@@ -1154,7 +1279,8 @@
 - id: rust-serde-deserialize
   languages: [rust]
   patterns:
-    - regex: '#\\.[derive\\.(Deserialize''severity: low
+    - regex: '#\.[derive\.(Deserialize)]'
+  severity: low
   description: "Serde deserialize derive"
   remediation: "Validate deserialized data"
   cwe: "CWE-20"
@@ -1163,7 +1289,8 @@
 - id: rust-serde-json
   languages: [rust]
   patterns:
-    - regex: 'serde_json::''severity: low
+    - regex: 'serde_json::'
+  severity: low
   description: "Serde JSON"
   remediation: "Validate JSON data"
   cwe: "CWE-20"
@@ -1172,7 +1299,8 @@
 - id: rust-serde-yaml
   languages: [rust]
   patterns:
-    - regex: 'serde_yaml::''severity: low
+    - regex: 'serde_yaml::'
+  severity: low
   description: "Serde YAML"
   remediation: "Validate YAML data"
   cwe: "CWE-20"
@@ -1181,7 +1309,8 @@
 - id: rust-serde-toml
   languages: [rust]
   patterns:
-    - regex: 'toml::''severity: low
+    - regex: 'toml::'
+  severity: low
   description: "TOML serialization"
   remediation: "Validate TOML data"
   cwe: "CWE-20"
@@ -1190,7 +1319,8 @@
 - id: rust-serde-bincode
   languages: [rust]
   patterns:
-    - regex: 'bincode::''severity: low
+    - regex: 'bincode::'
+  severity: low
   description: "Bincode serialization"
   remediation: "Don't deserialize untrusted data"
   cwe: "CWE-502"
@@ -1199,7 +1329,8 @@
 - id: rust-serde-msgpack
   languages: [rust]
   patterns:
-    - regex: 'rmp_serde::''severity: low
+    - regex: 'rmp_serde::'
+  severity: low
   description: "MessagePack serialization"
   remediation: "Validate MessagePack data"
   cwe: "CWE-20"
@@ -1208,7 +1339,8 @@
 - id: rust-serde-cbor
   languages: [rust]
   patterns:
-    - regex: 'serde_cbor::''severity: low
+    - regex: 'serde_cbor::'
+  severity: low
   description: "CBOR serialization"
   remediation: "Validate CBOR data"
   cwe: "CWE-20"
@@ -1217,7 +1349,8 @@
 - id: rust-serde-protobuf
   languages: [rust]
   patterns:
-    - regex: 'prost::''severity: low
+    - regex: 'prost::'
+  severity: low
   description: "Protocol Buffers"
   remediation: "Validate protobuf data"
   cwe: "CWE-20"
@@ -1226,7 +1359,8 @@
 - id: rust-serde-flatbuffers
   languages: [rust]
   patterns:
-    - regex: 'flatbuffers::''severity: low
+    - regex: 'flatbuffers::'
+  severity: low
   description: "FlatBuffers"
   remediation: "Validate FlatBuffers data"
   cwe: "CWE-20"
@@ -1235,7 +1369,8 @@
 - id: rust-serde-capnp
   languages: [rust]
   patterns:
-    - regex: 'capnp::''severity: low
+    - regex: 'capnp::'
+  severity: low
   description: "Cap'n Proto"
   remediation: "Validate Cap'n Proto data"
   cwe: "CWE-20"
@@ -1244,7 +1379,8 @@
 - id: rust-serde-rmp
   languages: [rust]
   patterns:
-    - regex: 'rmp::''severity: low
+    - regex: 'rmp::'
+  severity: low
   description: "Rust MessagePack"
   remediation: "Validate MessagePack data"
   cwe: "CWE-20"
@@ -1253,7 +1389,8 @@
 - id: rust-serde-ron
   languages: [rust]
   patterns:
-    - regex: 'ron::''severity: low
+    - regex: 'ron::'
+  severity: low
   description: "RON serialization"
   remediation: "Validate RON data"
   cwe: "CWE-20"
@@ -1262,7 +1399,8 @@
 - id: rust-serde-avro
   languages: [rust]
   patterns:
-    - regex: 'apache_avro::''severity: low
+    - regex: 'apache_avro::'
+  severity: low
   description: "Apache Avro"
   remediation: "Validate Avro data"
   cwe: "CWE-20"
@@ -1271,7 +1409,8 @@
 - id: rust-serde-thrift
   languages: [rust]
   patterns:
-    - regex: 'thrift::''severity: low
+    - regex: 'thrift::'
+  severity: low
   description: "Apache Thrift"
   remediation: "Validate Thrift data"
   cwe: "CWE-20"
@@ -1280,7 +1419,8 @@
 - id: rust-serde-grpc
   languages: [rust]
   patterns:
-    - regex: 'tonic::''severity: low
+    - regex: 'tonic::'
+  severity: low
   description: "Tonic gRPC"
   remediation: "Configure gRPC securely"
   cwe: "CWE-326"
@@ -1289,7 +1429,8 @@
 - id: rust-serde-bson
   languages: [rust]
   patterns:
-    - regex: 'bson::''severity: low
+    - regex: 'bson::'
+  severity: low
   description: "BSON serialization"
   remediation: "Validate BSON data"
   cwe: "CWE-20"
@@ -1298,7 +1439,8 @@
 - id: rust-serde-xml
   languages: [rust]
   patterns:
-    - regex: 'quick_xml::''severity: low
+    - regex: 'quick_xml::'
+  severity: low
   description: "XML serialization"
   remediation: "Disable external entities"
   cwe: "CWE-611"
@@ -1307,7 +1449,8 @@
 - id: rust-serde-html
   languages: [rust]
   patterns:
-    - regex: 'html5ever::''severity: low
+    - regex: 'html5ever::'
+  severity: low
   description: "HTML parsing"
   remediation: "Sanitize HTML output"
   cwe: "CWE-79"
@@ -1316,7 +1459,8 @@
 - id: rust-serde-url
   languages: [rust]
   patterns:
-    - regex: 'url::''severity: low
+    - regex: 'url::'
+  severity: low
   description: "URL parsing"
   remediation: "Validate URLs"
   cwe: "CWE-20"
@@ -1326,7 +1470,8 @@
 - id: rust-ffi-c-string
   languages: [rust]
   patterns:
-    - regex: 'std::ffi::CString''severity: medium
+    - regex: 'std::ffi::CString'
+  severity: medium
   description: "C string creation"
   remediation: "Ensure null termination"
   cwe: "CWE-170"
@@ -1335,7 +1480,8 @@
 - id: rust-ffi-c-str
   languages: [rust]
   patterns:
-    - regex: 'std::ffi::CStr''severity: medium
+    - regex: 'std::ffi::CStr'
+  severity: medium
   description: "C string from pointer"
   remediation: "Ensure pointer validity"
   cwe: "CWE-824"
@@ -1344,7 +1490,8 @@
 - id: rust-ffi-os-string
   languages: [rust]
   patterns:
-    - regex: 'std::ffi::OsString''severity: low
+    - regex: 'std::ffi::OsString'
+  severity: low
   description: "OS string"
   remediation: "Validate OS strings"
   cwe: "CWE-20"
@@ -1353,7 +1500,8 @@
 - id: rust-ffi-os-str
   languages: [rust]
   patterns:
-    - regex: 'std::ffi::OsStr''severity: low
+    - regex: 'std::ffi::OsStr'
+  severity: low
   description: "OS string slice"
   remediation: "Validate OS strings"
   cwe: "CWE-20"
@@ -1362,7 +1510,8 @@
 - id: rust-ffi-c-void
   languages: [rust]
   patterns:
-    - regex: 'std::os::raw::c_void''severity: high
+    - regex: 'std::os::raw::c_void'
+  severity: high
   description: "Void pointer"
   remediation: "Ensure type safety"
   cwe: "CWE-824"
@@ -1371,7 +1520,8 @@
 - id: rust-ffi-c-int
   languages: [rust]
   patterns:
-    - regex: 'std::os::raw::c_int''severity: low
+    - regex: 'std::os::raw::c_int'
+  severity: low
   description: "C int type"
   remediation: "Validate C int values"
   cwe: "CWE-190"
@@ -1380,7 +1530,8 @@
 - id: rust-ffi-c-char
   languages: [rust]
   patterns:
-    - regex: 'std::os::raw::c_char''severity: low
+    - regex: 'std::os::raw::c_char'
+  severity: low
   description: "C char type"
   remediation: "Validate C char values"
   cwe: "CWE-190"
@@ -1389,7 +1540,8 @@
 - id: rust-ffi-c-fn
   languages: [rust]
   patterns:
-    - regex: 'extern.*fn''severity: high
+    - regex: 'extern.*fn'
+  severity: high
   description: "External function"
   remediation: "Ensure FFI safety"
   cwe: "CWE-242"
@@ -1398,7 +1550,8 @@
 - id: rust-ffi-c-static
   languages: [rust]
   patterns:
-    - regex: 'extern.*static''severity: high
+    - regex: 'extern.*static'
+  severity: high
   description: "External static"
   remediation: "Ensure FFI safety"
   cwe: "CWE-242"
@@ -1407,7 +1560,8 @@
 - id: rust-ffi-link
   languages: [rust]
   patterns:
-    - regex: '#\\.[link''severity: medium
+    - regex: '#\.[link]'
+  severity: medium
   description: "Link attribute"
   remediation: "Ensure library safety"
   cwe: "CWE-242"
@@ -1416,7 +1570,8 @@
 - id: rust-ffi-repr-c
   languages: [rust]
   patterns:
-    - regex: '#\\.[repr\\.(C\\.)''severity: medium
+    - regex: '#\.[repr\.(C\.)]'
+  severity: medium
   description: "C representation"
   remediation: "Ensure layout compatibility"
   cwe: "CWE-242"
@@ -1425,7 +1580,8 @@
 - id: rust-ffi-repr-packed
   languages: [rust]
   patterns:
-    - regex: '#\\.[repr\\.(packed\\.)''severity: high
+    - regex: '#\.[repr\.(packed\.)]'
+  severity: high
   description: "Packed representation"
   remediation: "Ensure proper alignment"
   cwe: "CWE-824"
@@ -1434,7 +1590,8 @@
 - id: rust-ffi-repr-transparent
   languages: [rust]
   patterns:
-    - regex: '#\\.[repr\\.(transparent\\.)''severity: low
+    - regex: '#\.[repr\.(transparent\.)]'
+  severity: low
   description: "Transparent representation"
   remediation: "Ensure single non-ZST field"
   cwe: "CWE-242"
@@ -1443,7 +1600,8 @@
 - id: rust-ffi-repr-align
   languages: [rust]
   patterns:
-    - regex: '#\\.[repr\\.(align''severity: low
+    - regex: '#\.[repr\.(align)]'
+  severity: low
   description: "Align representation"
   remediation: "Ensure proper alignment"
   cwe: "CWE-242"
@@ -1452,7 +1610,8 @@
 - id: rust-ffi-repr-simd
   languages: [rust]
   patterns:
-    - regex: '#\\.[repr\\.(simd\\.)''severity: low
+    - regex: '#\.[repr\.(simd\.)]'
+  severity: low
   description: "SIMD representation"
   remediation: "Ensure platform support"
   cwe: "CWE-242"
@@ -1462,7 +1621,8 @@
 - id: rust-macro-declare
   languages: [rust]
   patterns:
-    - regex: 'macro_rules!''severity: low
+    - regex: 'macro_rules!'
+  severity: low
   description: "Macro declaration"
   remediation: "Ensure macro hygiene"
   cwe: "CWE-693"
@@ -1471,7 +1631,8 @@
 - id: rust-macro-use
   languages: [rust]
   patterns:
-    - regex: '#\\.[macro_use''severity: low
+    - regex: '#\.[macro_use]'
+  severity: low
   description: "Macro use attribute"
   remediation: "Review macro imports"
   cwe: "CWE-693"
@@ -1480,7 +1641,8 @@
 - id: rust-macro-export
   languages: [rust]
   patterns:
-    - regex: '#\\.[macro_export''severity: low
+    - regex: '#\.[macro_export]'
+  severity: low
   description: "Macro export"
   remediation: "Review exported macros"
   cwe: "CWE-693"
@@ -1489,7 +1651,8 @@
 - id: rust-proc-macro
   languages: [rust]
   patterns:
-    - regex: '#\\.[proc_macro''severity: low
+    - regex: '#\.[proc_macro]'
+  severity: low
   description: "Procedural macro"
   remediation: "Review proc macro code"
   cwe: "CWE-693"
@@ -1498,7 +1661,8 @@
 - id: rust-proc-macro-derive
   languages: [rust]
   patterns:
-    - regex: '#\\.[proc_macro_derive''severity: low
+    - regex: '#\.[proc_macro_derive]'
+  severity: low
   description: "Proc macro derive"
   remediation: "Review derive macro"
   cwe: "CWE-693"
@@ -1507,7 +1671,8 @@
 - id: rust-proc-macro-attribute
   languages: [rust]
   patterns:
-    - regex: '#\\.[proc_macro_attribute''severity: low
+    - regex: '#\.[proc_macro_attribute]'
+  severity: low
   description: "Proc macro attribute"
   remediation: "Review attribute macro"
   cwe: "CWE-693"
@@ -1516,7 +1681,8 @@
 - id: rust-quote
   languages: [rust]
   patterns:
-    - regex: 'quote::''severity: low
+    - regex: 'quote::'
+  severity: low
   description: "Quote token stream"
   remediation: "Ensure proper quoting"
   cwe: "CWE-693"
@@ -1525,7 +1691,8 @@
 - id: rust-syn
   languages: [rust]
   patterns:
-    - regex: 'syn::''severity: low
+    - regex: 'syn::'
+  severity: low
   description: "Syn parsing"
   remediation: "Ensure proper parsing"
   cwe: "CWE-693"
@@ -1534,7 +1701,8 @@
 - id: rust-proc-macro2
   languages: [rust]
   patterns:
-    - regex: 'proc_macro2::''severity: low
+    - regex: 'proc_macro2::'
+  severity: low
   description: "Proc macro2"
   remediation: "Ensure proper token handling"
   cwe: "CWE-693"
@@ -1543,7 +1711,8 @@
 - id: rust-dyn-trait
   languages: [rust]
   patterns:
-    - regex: 'dyn\\.s+\\.w+''severity: low
+    - regex: 'dyn\.s+\.w+'
+  severity: low
   description: "Dynamic trait object"
   remediation: "Ensure proper trait bounds"
   cwe: "CWE-693"
@@ -1552,7 +1721,8 @@
 - id: rust-impl-trait
   languages: [rust]
   patterns:
-    - regex: 'impl\\.s+\\.w+\\.s+for''severity: low
+    - regex: 'impl\.s+\.w+\.s+for'
+  severity: low
   description: "Trait implementation"
   remediation: "Ensure proper trait impl"
   cwe: "CWE-693"
@@ -1561,7 +1731,8 @@
 - id: rust-auto-trait
   languages: [rust]
   patterns:
-    - regex: 'auto\\.s+trait''severity: low
+    - regex: 'auto\.s+trait'
+  severity: low
   description: "Auto trait"
   remediation: "Ensure proper auto trait"
   cwe: "CWE-693"
@@ -1570,7 +1741,8 @@
 - id: rust-marker-trait
   languages: [rust]
   patterns:
-    - regex: 'marker::''severity: low
+    - regex: 'marker::'
+  severity: low
   description: "Marker trait"
   remediation: "Ensure proper marker usage"
   cwe: "CWE-693"
@@ -1579,7 +1751,8 @@
 - id: rust-send-sync
   languages: [rust]
   patterns:
-    - regex: 'Send|Sync''severity: low
+    - regex: 'Send|Sync'
+  severity: low
   description: "Send/Sync traits"
   remediation: "Ensure thread safety"
   cwe: "CWE-362"
@@ -1588,7 +1761,8 @@
 - id: rust-unpin
   languages: [rust]
   patterns:
-    - regex: 'Unpin''severity: low
+    - regex: 'Unpin'
+  severity: low
   description: "Unpin trait"
   remediation: "Ensure proper pinning"
   cwe: "CWE-693"
@@ -1603,7 +1777,8 @@
 - id: rust-command-injection
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.\\.s*[\\.\\.27].*[\\.\\.27]\\.\\.s*\\.arg\\.s*\\.\\.s*[^)]*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: '(?i)Command::new\.s*\.\.s*[\.\.27].*[\.\.27]\.\.s*\.arg\.s*\.\.s*[^)]*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Potential command injection via Command with user input"
   remediation: "Pass command arguments as separate parameters. Validate all inputs."
   cwe: "CWE-78"
@@ -1612,7 +1787,8 @@
 - id: rust-command-injection-format
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.\\.s*format!\\.s*\\.\\.s*[\\.\\.27].*\\..*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)Command::new\.s*\.\.s*format!\.s*\.\.s*[\.\.27].*\..*\..*[\.\.27]'
+  severity: critical
   description: "Command injection via format! macro in command"
   remediation: "Use separate args instead of formatting command strings"
   cwe: "CWE-78"
@@ -1621,7 +1797,8 @@
 - id: rust-command-injection-concat
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.\\.s*[\\.\\.27].*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)Command::new\.s*\.\.s*[\.\.27].*\..*[\.\.27]'
+  severity: critical
   description: "Command injection via string concatenation"
   remediation: "Never concatenate user input into command strings"
   cwe: "CWE-78"
@@ -1630,7 +1807,8 @@
 - id: rust-command-injection-args
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.args\\.s*\\.\\.s*&\\.[^\\.]*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.args\.s*\.\.s*&\.[^\.]*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Command args from user input without validation"
   remediation: "Validate all command arguments"
   cwe: "CWE-78"
@@ -1639,7 +1817,8 @@
 - id: rust-command-injection-env
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.env\\.s*\\.\\.s*[\\.\\.27][^\\.\\.27]+[\\.\\.27],\\.s*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.env\.s*\.\.s*[\.\.27][^\.\.27]+[\.\.27],\.s*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Command environment from user input"
   remediation: "Never set environment variables from user input"
   cwe: "CWE-78"
@@ -1648,7 +1827,8 @@
 - id: rust-command-injection-current-dir
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.current_dir\\.s*\\.\\.s*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.current_dir\.s*\.\.s*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Command working directory from user input"
   remediation: "Validate directory paths from user input"
   cwe: "CWE-78"
@@ -1657,7 +1837,8 @@
 - id: rust-command-injection-stdin
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.stdin\\.s*\\.[^)]*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.stdin\.s*\.[^)]*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Command stdin from user input"
   remediation: "Validate data before passing to command stdin"
   cwe: "CWE-78"
@@ -1666,7 +1847,8 @@
 - id: rust-command-injection-stdout
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.stdout\\.s*\\.[^)]*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.stdout\.s*\.[^)]*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Command stdout redirection from user input"
   remediation: "Validate stdout paths from user input"
   cwe: "CWE-78"
@@ -1675,7 +1857,8 @@
 - id: rust-command-injection-stderr
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.stderr\\.s*\\.[^)]*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.stderr\.s*\.[^)]*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Command stderr redirection from user input"
   remediation: "Validate stderr paths from user input"
   cwe: "CWE-78"
@@ -1684,7 +1867,8 @@
 - id: rust-command-injection-shell-c
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.\\.s*[\\.\\.27](sh|bash|cmd|powershell)[\\.\\.27]\\.\\.s*\\.arg\\.s*\\.\\.s*[\\.\\.27]-[cC][\\.\\.27]\\.\\.s*\\.arg\\.s*\\.\\.s*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: '(?i)Command::new\.s*\.\.s*[\.\.27](sh|bash|cmd|powershell)[\.\.27]\.\.s*\.arg\.s*\.\.s*[\.\.27]-[cC][\.\.27]\.\.s*\.arg\.s*\.\.s*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Shell -c with user input (direct injection)"
   remediation: "Never pass user input to shell -c"
   cwe: "CWE-78"
@@ -1693,7 +1877,8 @@
 - id: rust-command-injection-shell-metachar
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.arg\\.s*\\.\\.s*[\\.\\.27][^\\.\\.27]*[;&|`$][^\\.\\.27]*[\\.\\.27]\\.''severity: critical
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.arg\.s*\.\.s*[\.\.27][^\.\.27]*[;&|`$][^\.\.27]*[\.\.27]\.'
+  severity: critical
   description: "Command with shell metacharacters may allow injection"
   remediation: "Avoid shell execution; use direct binary calls"
   cwe: "CWE-78"
@@ -1702,7 +1887,8 @@
 - id: rust-command-output-unchecked
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.output\\.s*\\.\\.s*\\.''severity: medium
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.output\.s*\.\.s*\.'
+  severity: medium
   description: "Command output without checking exit status"
   remediation: "Check command exit status before using output"
   cwe: "CWE-754"
@@ -1711,7 +1897,8 @@
 - id: rust-command-status-unchecked
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.status\\.s*\\.\\.s*\\.''severity: medium
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.status\.s*\.\.s*\.'
+  severity: medium
   description: "Command status without checking success"
   remediation: "Check if command succeeded with .success()"
   cwe: "CWE-754"
@@ -1720,7 +1907,8 @@
 - id: rust-command-spawn-leak
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.spawn\\.s*\\.\\.s*\\.''severity: medium
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.spawn\.s*\.\.s*\.'
+  severity: medium
   description: "Spawned command not waited on (zombie process)"
   remediation: "Wait on child process or use .status()/.output()"
   cwe: "CWE-401"
@@ -1729,7 +1917,8 @@
 - id: rust-command-spawn-kill
   languages: [rust]
   patterns:
-    - regex: '(?i)child\\.kill\\.s*\\.\\.s*\\.''severity: low
+    - regex: '(?i)child\.kill\.s*\.\.s*\.'
+  severity: low
   description: "Child process killed without checking if exited"
   remediation: "Check if process already exited before killing"
   cwe: "CWE-754"
@@ -1738,7 +1927,8 @@
 - id: rust-system-call
   languages: [rust]
   patterns:
-    - regex: '(?i)std::process::Command::new\\.s*\\.\\.s*[\\.\\.27]system[\\.\\.27]\\.''severity: critical
+    - regex: '(?i)std::process::Command::new\.s*\.\.s*[\.\.27]system[\.\.27]\.'
+  severity: critical
   description: "Calling system() via Command (shell injection risk)"
   remediation: "Avoid system() calls; use direct command execution"
   cwe: "CWE-78"
@@ -1747,7 +1937,8 @@
 - id: rust-process-exit
   languages: [rust]
   patterns:
-    - regex: '(?i)std::process::exit\\.s*\\.\\.s*[^)]+\\.''severity: medium
+    - regex: '(?i)std::process::exit\.s*\.\.s*[^)]+\.'
+  severity: medium
   description: "Process exit in library (may terminate program)"
   remediation: "Return Result instead of exiting"
   cwe: "CWE-754"
@@ -1756,7 +1947,8 @@
 - id: rust-process-abort
   languages: [rust]
   patterns:
-    - regex: '(?i)std::process::abort\\.s*\\.\\.s*\\.''severity: high
+    - regex: '(?i)std::process::abort\.s*\.\.s*\.'
+  severity: high
   description: "Process abort (core dump, no cleanup)"
   remediation: "Use graceful shutdown instead"
   cwe: "CWE-754"
@@ -1765,7 +1957,8 @@
 - id: rust-env-var-cmd
   languages: [rust]
   patterns:
-    - regex: '(?i)std::env::var\\.s*\\.\\.s*[\\.\\.27][^\\.\\.27]*[\\.\\.27]\\.\\.s*[^;]*Command::new''severity: high
+    - regex: '(?i)std::env::var\.s*\.\.s*[\.\.27][^\.\.27]*[\.\.27]\.\.s*[^;]*Command::new'
+  severity: high
   description: "Command constructed from environment variable"
   remediation: "Validate environment variables before use in commands"
   cwe: "CWE-78"
@@ -1774,7 +1967,8 @@
 - id: rust-command-piped
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.[^)]+\\.\\.s*\\.stdout\\.s*\\.[^)]+\\.\\.s*\\.stdin\\.s*\\.[^)]+\\.''severity: medium
+    - regex: '(?i)Command::new\.s*\.[^)]+\.\.s*\.stdout\.s*\.[^)]+\.\.s*\.stdin\.s*\.[^)]+\.'
+  severity: medium
   description: "Piped commands (potential pipe injection)"
   remediation: "Avoid complex pipelines; handle in Rust"
   cwe: "CWE-78"
@@ -1783,7 +1977,8 @@
 - id: rust-command-arg0-user
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.\\.s*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: '(?i)Command::new\.s*\.\.s*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Command name from user input (arbitrary execution)"
   remediation: "Never use user input as command name"
   cwe: "CWE-78"
@@ -1792,7 +1987,8 @@
 - id: rust-command-path-relative
   languages: [rust]
   patterns:
-    - regex: '(?i)Command::new\\.s*\\.\\.s*[\\.\\.27][^/\\.27]*[\\.\\.27]\\.''severity: low
+    - regex: '(?i)Command::new\.s*\.\.s*[\.\.27][^/\.27]*[\.\.27]\.'
+  severity: low
   description: "Relative command path (PATH injection risk)"
   remediation: "Use absolute paths or validate PATH"
   cwe: "CWE-426"
@@ -1801,7 +1997,8 @@
 - id: rust-command-wait-timeout
   languages: [rust]
   patterns:
-    - regex: '(?i)child\\.wait\\.s*\\.\\.s*\\.''severity: low
+    - regex: '(?i)child\.wait\.s*\.\.s*\.'
+  severity: low
   description: "Child process wait without timeout"
   remediation: "Use wait_timeout for long-running processes"
   cwe: "CWE-770"
@@ -1810,7 +2007,8 @@
 - id: rust-command-kill-after-wait
   languages: [rust]
   patterns:
-    - regex: '(?i)child\\.kill\\.s*\\.\\.s*\\..*child\\.wait''severity: low
+    - regex: '(?i)child\.kill\.s*\.\.s*\..*child\.wait'
+  severity: low
   description: "Kill before wait may cause zombie"
   remediation: "Wait first, then kill if needed"
   cwe: "CWE-401"
@@ -1819,7 +2017,8 @@
 - id: rust-command-try-wait-loop
   languages: [rust]
   patterns:
-    - regex: '(?i)loop\\.s*\\.\\.s*.*\\.try_wait\\.s*\\.\\.s*\\.''severity: low
+    - regex: '(?i)loop\.s*\.\.s*.*\.try_wait\.s*\.\.s*\.'
+  severity: low
   description: "Busy loop with try_wait (CPU spin)"
   remediation: "Use blocking wait or add sleep"
   cwe: "CWE-770"
@@ -1830,7 +2029,8 @@
 - id: rust-sql-format
   languages: [rust]
   patterns:
-    - regex: '(?i)(?:sqlx|diesel|postgres|mysql|rusqlite)::query\\.s*\\.\\.s*format!\\.s*\\.\\.s*[\\.\\.27].*\\..*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)(?:sqlx|diesel|postgres|mysql|rusqlite)::query\.s*\.\.s*format!\.s*\.\.s*[\.\.27].*\..*\..*[\.\.27]'
+  severity: critical
   description: "SQL injection via format! macro"
   remediation: "Use parameterized queries with $1, $2 placeholders"
   cwe: "CWE-89"
@@ -1839,7 +2039,8 @@
 - id: rust-sql-concat
   languages: [rust]
   patterns:
-    - regex: '(?i)(?:sqlx|diesel|postgres|mysql|rusqlite)::query\\.s*\\.\\.s*[\\.\\.27].*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)(?:sqlx|diesel|postgres|mysql|rusqlite)::query\.s*\.\.s*[\.\.27].*\..*[\.\.27]'
+  severity: critical
   description: "SQL injection via string concatenation"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -1848,7 +2049,8 @@
 - id: rust-sql-dynamic
   languages: [rust]
   patterns:
-    - regex: '(?i)(?:sqlx|diesel|postgres|mysql|rusqlite)::query\\.s*\\.\\.s*&[a-zA-Z_][a-zA-Z0-9_]*\\.s*\\.''severity: high
+    - regex: '(?i)(?:sqlx|diesel|postgres|mysql|rusqlite)::query\.s*\.\.s*&[a-zA-Z_][a-zA-Z0-9_]*\.s*\.'
+  severity: high
   description: "Dynamic SQL query from variable"
   remediation: "Use parameterized queries; validate if dynamic SQL needed"
   cwe: "CWE-89"
@@ -1857,7 +2059,8 @@
 - id: rust-sql-raw-sqlx
   languages: [rust]
   patterns:
-    - regex: '(?i)sqlx::query\\.s*\\.\\.s*[\\.\\.27][^\\.\\.27]*\\.\\.s*[a-zA-Z_]+\\.s*\\.''severity: critical
+    - regex: '(?i)sqlx::query\.s*\.\.s*[\.\.27][^\.\.27]*\.\.s*[a-zA-Z_]+\.s*\.'
+  severity: critical
   description: "SQLx query with template placeholders (potential injection)"
   remediation: "Use sqlx::query! macro with $1 syntax"
   cwe: "CWE-89"
@@ -1866,7 +2069,8 @@
 - id: rust-sql-query-as
   languages: [rust]
   patterns:
-    - regex: '(?i)sqlx::query_as\\.s*\\.\\.s*[\\.\\.27][^\\.\\.27]*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)sqlx::query_as\.s*\.\.s*[\.\.27][^\.\.27]*\..*[\.\.27]'
+  severity: critical
   description: "SQLx query_as with string concatenation"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -1875,7 +2079,8 @@
 - id: rust-sql-query-scoped
   languages: [rust]
   patterns:
-    - regex: '(?i)sqlx::query_scoped\\.s*\\.\\.s*[\\.\\.27][^\\.\\.27]*\\..*[\\.\\.27]''severity: critical
+    - regex: '(?i)sqlx::query_scoped\.s*\.\.s*[\.\.27][^\.\.27]*\..*[\.\.27]'
+  severity: critical
   description: "SQLx query_scoped with string concatenation"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -1884,7 +2089,8 @@
 - id: rust-diesel-sql-query
   languages: [rust]
   patterns:
-    - regex: '(?i)diesel::sql_query\\.s*\\.\\.s*format!\\.s*\\.|diesel::sql_query\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)diesel::sql_query\.s*\.\.s*format!\.s*\.|diesel::sql_query\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "Diesel raw SQL with string manipulation"
   remediation: "Use diesel's query builder instead of raw SQL"
   cwe: "CWE-89"
@@ -1893,7 +2099,8 @@
 - id: rust-diesel-filter-string
   languages: [rust]
   patterns:
-    - regex: '(?i)\\.filter\\.s*\\.\\.s*format!\\.s*\\.|\\.filter\\.s*\\.\\.s*[\\.\\.27].*\\..*[\\.\\.27]''severity: high
+    - regex: '(?i)\.filter\.s*\.\.s*format!\.s*\.|\.filter\.s*\.\.s*[\.\.27].*\..*[\.\.27]'
+  severity: high
   description: "Diesel filter with string interpolation"
   remediation: "Use diesel's expression DSL for filters"
   cwe: "CWE-89"
@@ -1902,7 +2109,8 @@
 - id: rust-diesel-order-string
   languages: [rust]
   patterns:
-    - regex: '(?i)\\.order\\.s*\\.\\.s*format!\\.s*\\.|\\.order\\.s*\\.\\.s*[\\.\\.27].*\\..*[\\.\\.27]''severity: high
+    - regex: '(?i)\.order\.s*\.\.s*format!\.s*\.|\.order\.s*\.\.s*[\.\.27].*\..*[\.\.27]'
+  severity: high
   description: "Diesel order with string interpolation"
   remediation: "Use diesel's expression DSL for ordering"
   cwe: "CWE-89"
@@ -1911,7 +2119,8 @@
 - id: rust-diesel-select-string
   languages: [rust]
   patterns:
-    - regex: '(?i)\\.select\\.s*\\.\\.s*format!\\.s*\\.|\\.select\\.s*\\.\\.s*[\\.\\.27].*\\..*[\\.\\.27]''severity: high
+    - regex: '(?i)\.select\.s*\.\.s*format!\.s*\.|\.select\.s*\.\.s*[\.\.27].*\..*[\.\.27]'
+  severity: high
   description: "Diesel select with string interpolation"
   remediation: "Use diesel's expression DSL for selects"
   cwe: "CWE-89"
@@ -1920,7 +2129,8 @@
 - id: rust-postgres-client-query
   languages: [rust]
   patterns:
-    - regex: '(?i)client\\.query\\.s*\\.\\.s*&format!\\.s*\\.|client\\.query\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)client\.query\.s*\.\.s*&format!\.s*\.|client\.query\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "PostgreSQL query with string formatting"
   remediation: "Use prepared statements with $1, $2"
   cwe: "CWE-89"
@@ -1929,7 +2139,8 @@
 - id: rust-postgres-client-execute
   languages: [rust]
   patterns:
-    - regex: '(?i)client\\.execute\\.s*\\.\\.s*&format!\\.s*\\.|client\\.execute\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)client\.execute\.s*\.\.s*&format!\.s*\.|client\.execute\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "PostgreSQL execute with string formatting"
   remediation: "Use prepared statements"
   cwe: "CWE-89"
@@ -1938,7 +2149,8 @@
 - id: rust-mysql-query
   languages: [rust]
   patterns:
-    - regex: '(?i)conn\\.query\\.s*\\.\\.s*format!\\.s*\\.|conn\\.query\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)conn\.query\.s*\.\.s*format!\.s*\.|conn\.query\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "MySQL query with string formatting"
   remediation: "Use prepared statements with ? placeholders"
   cwe: "CWE-89"
@@ -1947,7 +2159,8 @@
 - id: rust-mysql-exec
   languages: [rust]
   patterns:
-    - regex: '(?i)conn\\.exec\\.s*\\.\\.s*format!\\.s*\\.|conn\\.exec\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)conn\.exec\.s*\.\.s*format!\.s*\.|conn\.exec\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "MySQL exec with string formatting"
   remediation: "Use prepared statements"
   cwe: "CWE-89"
@@ -1956,7 +2169,8 @@
 - id: rust-rusqlite-query
   languages: [rust]
   patterns:
-    - regex: '(?i)conn\\.query\\.s*\\.\\.s*&format!\\.s*\\.|conn\\.query\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)conn\.query\.s*\.\.s*&format!\.s*\.|conn\.query\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "SQLite query with string formatting"
   remediation: "Use prepared statements with ? placeholders"
   cwe: "CWE-89"
@@ -1965,7 +2179,8 @@
 - id: rust-rusqlite-execute
   languages: [rust]
   patterns:
-    - regex: '(?i)conn\\.execute\\.s*\\.\\.s*&format!\\.s*\\.|conn\\.execute\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)conn\.execute\.s*\.\.s*&format!\.s*\.|conn\.execute\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "SQLite execute with string formatting"
   remediation: "Use prepared statements"
   cwe: "CWE-89"
@@ -1974,7 +2189,8 @@
 - id: rust-sql-like-clause
   languages: [rust]
   patterns:
-    - regex: '(?i)LIKE\\.s*[\\.\\.27]%.*r\\.(FormValue|URL\\.Query).*%[\\.\\.27]''severity: high
+    - regex: '(?i)LIKE\.s*[\.\.27]%.*r\.(FormValue|URL\.Query).*%[\.\.27]'
+  severity: high
   description: "SQL LIKE clause with user input without escaping"
   remediation: "Escape special characters or use parameterized queries"
   cwe: "CWE-89"
@@ -1983,7 +2199,8 @@
 - id: rust-sql-in-clause
   languages: [rust]
   patterns:
-    - regex: '(?i)IN\\.s*\\.\\.s*[\\.\\.27].*r\\.(FormValue|URL\\.Query).*[\\.\\.27]''severity: high
+    - regex: '(?i)IN\.s*\.\.s*[\.\.27].*r\.(FormValue|URL\.Query).*[\.\.27]'
+  severity: high
   description: "SQL IN clause with string concatenation"
   remediation: "Use multiple parameters for IN clause"
   cwe: "CWE-89"
@@ -1992,7 +2209,8 @@
 - id: rust-sql-order-by
   languages: [rust]
   patterns:
-    - regex: '(?i)ORDER BY\\.s*[\\.\\.27].*r\\.(FormValue|URL\\.Query).*[\\.\\.27]''severity: medium
+    - regex: '(?i)ORDER BY\.s*[\.\.27].*r\.(FormValue|URL\.Query).*[\.\.27]'
+  severity: medium
   description: "ORDER BY with user input"
   remediation: "Validate column names against allowlist"
   cwe: "CWE-89"
@@ -2001,7 +2219,8 @@
 - id: rust-sql-group-by
   languages: [rust]
   patterns:
-    - regex: '(?i)GROUP BY\\.s*[\\.\\.27].*r\\.(FormValue|URL\\.Query).*[\\.\\.27]''severity: medium
+    - regex: '(?i)GROUP BY\.s*[\.\.27].*r\.(FormValue|URL\.Query).*[\.\.27]'
+  severity: medium
   description: "GROUP BY with user input"
   remediation: "Validate column names against allowlist"
   cwe: "CWE-89"
@@ -2010,7 +2229,8 @@
 - id: rust-sql-limit-offset
   languages: [rust]
   patterns:
-    - regex: '(?i)LIMIT\\.s*[\\.\\.27].*r\\.(FormValue|URL\\.Query).*[\\.\\.27]|OFFSET\\.s*[\\.\\.27].*r\\.(FormValue|URL\\.Query).*[\\.\\.27]''severity: medium
+    - regex: '(?i)LIMIT\.s*[\.\.27].*r\.(FormValue|URL\.Query).*[\.\.27]|OFFSET\.s*[\.\.27].*r\.(FormValue|URL\.Query).*[\.\.27]'
+  severity: medium
   description: "LIMIT/OFFSET with user input without validation"
   remediation: "Parse to integer and validate range"
   cwe: "CWE-89"
@@ -2019,7 +2239,8 @@
 - id: rust-sql-union
   languages: [rust]
   patterns:
-    - regex: '(?i)UNION.*SELECT.*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: '(?i)UNION.*SELECT.*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "UNION query with user input"
   remediation: "Never allow user input in UNION queries"
   cwe: "CWE-89"
@@ -2028,7 +2249,8 @@
 - id: rust-sql-subquery
   languages: [rust]
   patterns:
-    - regex: '(?i)SELECT.*\\.SELECT.*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: '(?i)SELECT.*\.SELECT.*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Subquery with user input"
   remediation: "Validate all subquery inputs"
   cwe: "CWE-89"
@@ -2037,7 +2259,8 @@
 - id: rust-sql-case-when
   languages: [rust]
   patterns:
-    - regex: '(?i)CASE WHEN.*r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: '(?i)CASE WHEN.*r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "CASE statement with user input"
   remediation: "Use parameters for CASE conditions"
   cwe: "CWE-89"
@@ -2046,7 +2269,8 @@
 - id: rust-sql-where-raw
   languages: [rust]
   patterns:
-    - regex: '(?i)WHERE\\.s*[\\.\\.27].*r\\.(FormValue|URL\\.Query).*[\\.\\.27]''severity: high
+    - regex: '(?i)WHERE\.s*[\.\.27].*r\.(FormValue|URL\.Query).*[\.\.27]'
+  severity: high
   description: "WHERE clause with raw user input"
   remediation: "Always use parameters for WHERE conditions"
   cwe: "CWE-89"
@@ -2055,7 +2279,8 @@
 - id: rust-sql-exec-batch
   languages: [rust]
   patterns:
-    - regex: '(?i)execute_batch\\.s*\\.\\.s*format!\\.s*\\.|execute_batch\\.s*\\.\\.s*[\\.\\.27].*\\.''severity: critical
+    - regex: '(?i)execute_batch\.s*\.\.s*format!\.s*\.|execute_batch\.s*\.\.s*[\.\.27].*\.'
+  severity: critical
   description: "SQL batch execution with string formatting (multiple statements)"
   remediation: "Never use execute_batch with user input"
   cwe: "CWE-89"
@@ -2066,7 +2291,8 @@
 - id: rust-unsafe-block
   languages: [rust]
   patterns:
-    - regex: 'unsafe\\.s*\\.''severity: high
+    - regex: 'unsafe\.s*\.'
+  severity: high
   description: "Unsafe block detected - may bypass memory safety"
   remediation: "Document safety invariants; minimize unsafe usage"
   cwe: "CWE-119"
@@ -2075,7 +2301,8 @@
 - id: rust-unsafe-fn
   languages: [rust]
   patterns:
-    - regex: 'unsafe\\.s+fn\\.s+''severity: high
+    - regex: 'unsafe\.s+fn\.s+'
+  severity: high
   description: "Unsafe function - caller must ensure safety"
   remediation: "Document safety preconditions; provide safe wrapper"
   cwe: "CWE-119"
@@ -2084,7 +2311,8 @@
 - id: rust-unsafe-trait
   languages: [rust]
   patterns:
-    - regex: 'unsafe\\.s+trait\\.s+''severity: high
+    - regex: 'unsafe\.s+trait\.s+'
+  severity: high
   description: "Unsafe trait - implementor must ensure safety"
   remediation: "Document safety requirements for implementors"
   cwe: "CWE-119"
@@ -2093,7 +2321,8 @@
 - id: rust-unsafe-impl
   languages: [rust]
   patterns:
-    - regex: 'unsafe\\.s+impl\\.s+''severity: high
+    - regex: 'unsafe\.s+impl\.s+'
+  severity: high
   description: "Unsafe impl - must uphold safety invariants"
   remediation: "Verify implementation meets safety requirements"
   cwe: "CWE-119"
@@ -2102,7 +2331,8 @@
 - id: rust-deref-raw-pointer
   languages: [rust]
   patterns:
-    - regex: '\\.\\.s*[a-zA-Z_][a-zA-Z0-9_]*\\.s+as\\.s+\\.''severity: critical
+    - regex: '\.\.s*[a-zA-Z_][a-zA-Z0-9_]*\.s+as\.s+\.'
+  severity: critical
   description: "Raw pointer dereference (may cause UB)"
   remediation: "Ensure pointer is valid and aligned"
   cwe: "CWE-824"
@@ -2111,7 +2341,8 @@
 - id: rust-transmute
   languages: [rust]
   patterns:
-    - regex: 'std::mem::transmute\\.s*[<:(]''severity: critical
+    - regex: 'std::mem::transmute\.s*[<:(]'
+  severity: critical
   description: "mem::transmute - reinterprets bits, may cause UB"
   remediation: "Use safe conversions (From/Into) when possible"
   cwe: "CWE-704"
@@ -2120,7 +2351,8 @@
 - id: rust-transmute-copy
   languages: [rust]
   patterns:
-    - regex: 'std::mem::transmute_copy\\.s*[<:(]''severity: critical
+    - regex: 'std::mem::transmute_copy\.s*[<:(]'
+  severity: critical
   description: "mem::transmute_copy - copies bits, may cause UB"
   remediation: "Avoid transmute_copy; use safe alternatives"
   cwe: "CWE-704"
@@ -2129,7 +2361,8 @@
 - id: rust-union
   languages: [rust]
   patterns:
-    - regex: 'union\\.s+[a-zA-Z_][a-zA-Z0-9_]*\\.s*\\.''severity: high
+    - regex: 'union\.s+[a-zA-Z_][a-zA-Z0-9_]*\.s*\.'
+  severity: high
   description: "Union type - reading wrong field is UB"
   remediation: "Document union invariants; use safe wrappers"
   cwe: "CWE-704"
@@ -2138,7 +2371,8 @@
 - id: rust-ptr-read
   languages: [rust]
   patterns:
-    - regex: 'ptr::read\\.s*[<(]''severity: high
+    - regex: 'ptr::read\.s*[<(]'
+  severity: high
   description: "ptr::read - creates bitwise copy, may duplicate resources"
   remediation: "Ensure pointer is valid and properly aligned"
   cwe: "CWE-824"
@@ -2147,7 +2381,8 @@
 - id: rust-ptr-write
   languages: [rust]
   patterns:
-    - regex: 'ptr::write\\.s*[<(]''severity: high
+    - regex: 'ptr::write\.s*[<(]'
+  severity: high
   description: "ptr::write - overwrites without dropping"
   remediation: "Ensure proper resource management"
   cwe: "CWE-824"
@@ -2156,7 +2391,8 @@
 - id: rust-ptr-copy
   languages: [rust]
   patterns:
-    - regex: 'ptr::copy\\.s*[<(]''severity: high
+    - regex: 'ptr::copy\.s*[<(]'
+  severity: high
   description: "ptr::copy - copies memory, may overlap"
   remediation: "Use copy_nonoverlapping if regions don't overlap"
   cwe: "CWE-120"
@@ -2165,7 +2401,8 @@
 - id: rust-ptr-copy-nonoverlapping
   languages: [rust]
   patterns:
-    - regex: 'ptr::copy_nonoverlapping\\.s*[<(]''severity: high
+    - regex: 'ptr::copy_nonoverlapping\.s*[<(]'
+  severity: high
   description: "ptr::copy_nonoverlapping - assumes no overlap"
   remediation: "Ensure regions don't actually overlap"
   cwe: "CWE-120"
@@ -2174,7 +2411,8 @@
 - id: rust-ptr-offset
   languages: [rust]
   patterns:
-    - regex: 'ptr::offset\\.s*[<(]''severity: high
+    - regex: 'ptr::offset\.s*[<(]'
+  severity: high
   description: "ptr::offset - pointer arithmetic"
   remediation: "Ensure offset stays within allocation"
   cwe: "CWE-824"
@@ -2183,7 +2421,8 @@
 - id: rust-ptr-add
   languages: [rust]
   patterns:
-    - regex: 'ptr::add\\.s*[<(]''severity: high
+    - regex: 'ptr::add\.s*[<(]'
+  severity: high
   description: "ptr::add - pointer addition"
   remediation: "Ensure result is within bounds"
   cwe: "CWE-824"
@@ -2192,7 +2431,8 @@
 - id: rust-ptr-sub
   languages: [rust]
   patterns:
-    - regex: 'ptr::sub\\.s*[<(]''severity: high
+    - regex: 'ptr::sub\.s*[<(]'
+  severity: high
   description: "ptr::sub - pointer subtraction"
   remediation: "Ensure result is within bounds"
   cwe: "CWE-824"
@@ -2201,7 +2441,8 @@
 - id: rust-ptr-wrapping-offset
   languages: [rust]
   patterns:
-    - regex: 'ptr::wrapping_offset\\.s*[<(]''severity: medium
+    - regex: 'ptr::wrapping_offset\.s*[<(]'
+  severity: medium
   description: "ptr::wrapping_offset - pointer arithmetic that wraps"
   remediation: "Ensure wrapping behavior is intended"
   cwe: "CWE-824"
@@ -2210,7 +2451,8 @@
 - id: rust-slice-from-raw-parts
   languages: [rust]
   patterns:
-    - regex: 'slice::from_raw_parts\\.s*[<(]''severity: critical
+    - regex: 'slice::from_raw_parts\.s*[<(]'
+  severity: critical
   description: "Creating slice from raw pointer (must be valid)"
   remediation: "Ensure pointer is valid for the length"
   cwe: "CWE-824"
@@ -2219,7 +2461,8 @@
 - id: rust-slice-from-raw-parts-mut
   languages: [rust]
   patterns:
-    - regex: 'slice::from_raw_parts_mut\\.s*[<(]''severity: critical
+    - regex: 'slice::from_raw_parts_mut\.s*[<(]'
+  severity: critical
   description: "Creating mutable slice from raw pointer"
   remediation: "Ensure exclusive access and validity"
   cwe: "CWE-824"
@@ -2228,7 +2471,8 @@
 - id: rust-vec-from-raw-parts
   languages: [rust]
   patterns:
-    - regex: 'Vec::from_raw_parts\\.s*[<(]''severity: critical
+    - regex: 'Vec::from_raw_parts\.s*[<(]'
+  severity: critical
   description: "Creating Vec from raw parts (must be valid)"
   remediation: "Ensure pointer, length, capacity are correct"
   cwe: "CWE-824"
@@ -2237,7 +2481,8 @@
 - id: rust-string-from-raw-parts
   languages: [rust]
   patterns:
-    - regex: 'String::from_raw_parts\\.s*[<(]''severity: critical
+    - regex: 'String::from_raw_parts\.s*[<(]'
+  severity: critical
   description: "Creating String from raw parts (must be valid UTF-8)"
   remediation: "Ensure data is valid UTF-8"
   cwe: "CWE-704"
@@ -2246,7 +2491,8 @@
 - id: rust-box-from-raw
   languages: [rust]
   patterns:
-    - regex: 'Box::from_raw\\.s*[<(]''severity: critical
+    - regex: 'Box::from_raw\.s*[<(]'
+  severity: critical
   description: "Box from raw pointer (must be from Box::into_raw)"
   remediation: "Ensure pointer was allocated by Box"
   cwe: "CWE-824"
@@ -2255,7 +2501,8 @@
 - id: rust-rc-from-raw
   languages: [rust]
   patterns:
-    - regex: 'Rc::from_raw\\.s*[<(]''severity: critical
+    - regex: 'Rc::from_raw\.s*[<(]'
+  severity: critical
   description: "Rc from raw pointer (must be from Rc::into_raw)"
   remediation: "Ensure pointer was from Rc"
   cwe: "CWE-824"
@@ -2264,7 +2511,8 @@
 - id: rust-arc-from-raw
   languages: [rust]
   patterns:
-    - regex: 'Arc::from_raw\\.s*[<(]''severity: critical
+    - regex: 'Arc::from_raw\.s*[<(]'
+  severity: critical
   description: "Arc from raw pointer (must be from Arc::into_raw)"
   remediation: "Ensure pointer was from Arc"
   cwe: "CWE-824"
@@ -2273,7 +2521,8 @@
 - id: rust-maybe-uninit
   languages: [rust]
   patterns:
-    - regex: 'MaybeUninit::<[^>]+>::uninit''severity: high
+    - regex: 'MaybeUninit::<[^>]+>::uninit'
+  severity: high
   description: "MaybeUninit - uninitialized memory, must be initialized before use"
   remediation: "Ensure proper initialization with write or assume_init"
   cwe: "CWE-824"
@@ -2282,7 +2531,8 @@
 - id: rust-maybe-uninit-assume-init
   languages: [rust]
   patterns:
-    - regex: '\\.assume_init\\.s*\\.\\.s*\\.''severity: high
+    - regex: '\.assume_init\.s*\.\.s*\.'
+  severity: high
   description: "assume_init on MaybeUninit (UB if not initialized)"
   remediation: "Ensure memory is fully initialized before assume_init"
   cwe: "CWE-824"
@@ -2291,7 +2541,8 @@
 - id: rust-maybe-uninit-slice
   languages: [rust]
   patterns:
-    - regex: 'MaybeUninit::slice_assume_init''severity: high
+    - regex: 'MaybeUninit::slice_assume_init'
+  severity: high
   description: "assume_init on slice (UB if any element uninitialized)"
   remediation: "Ensure all elements are initialized"
   cwe: "CWE-824"
@@ -2300,7 +2551,8 @@
 - id: rust-manually-drop
   languages: [rust]
   patterns:
-    - regex: 'ManuallyDrop::new''severity: medium
+    - regex: 'ManuallyDrop::new'
+  severity: medium
   description: "ManuallyDrop prevents automatic drop"
   remediation: "Ensure manual drop is called when needed"
   cwe: "CWE-401"
@@ -2309,7 +2561,8 @@
 - id: rust-manually-drop-take
   languages: [rust]
   patterns:
-    - regex: 'ManuallyDrop::take''severity: medium
+    - regex: 'ManuallyDrop::take'
+  severity: medium
   description: "ManuallyDrop::take - moves out without dropping"
   remediation: "Ensure proper resource management"
   cwe: "CWE-401"
@@ -2318,7 +2571,8 @@
 - id: rust-manually-drop-drop
   languages: [rust]
   patterns:
-    - regex: 'ManuallyDrop::drop''severity: medium
+    - regex: 'ManuallyDrop::drop'
+  severity: medium
   description: "ManuallyDrop::drop - manually drops"
   remediation: "Avoid calling drop manually; let it go out of scope"
   cwe: "CWE-401"
@@ -2327,7 +2581,8 @@
 - id: rust-drop-in-place
   languages: [rust]
   patterns:
-    - regex: 'ptr::drop_in_place''severity: high
+    - regex: 'ptr::drop_in_place'
+  severity: high
   description: "drop_in_place - manually calls destructor"
   remediation: "Ensure pointer is valid and not used after drop"
   cwe: "CWE-401"
@@ -2338,7 +2593,8 @@
 - id: rust-box-leak
   languages: [rust]
   patterns:
-    - regex: 'Box::leak\\.s*\\.\\.s*\\.''severity: medium
+    - regex: 'Box::leak\.s*\.\.s*\.'
+  severity: medium
   description: "Box::leak - intentionally leaks memory"
   remediation: "Document leak as intentional; use for static data"
   cwe: "CWE-401"
@@ -2347,7 +2603,8 @@
 - id: rust-vec-leak
   languages: [rust]
   patterns:
-    - regex: 'Vec::leak\\.s*\\.\\.s*\\.''severity: medium
+    - regex: 'Vec::leak\.s*\.\.s*\.'
+  severity: medium
   description: "Vec::leak - intentionally leaks memory"
   remediation: "Document leak as intentional"
   cwe: "CWE-401"
@@ -2356,7 +2613,8 @@
 - id: rust-string-leak
   languages: [rust]
   patterns:
-    - regex: 'String::leak\\.s*\\.\\.s*\\.''severity: medium
+    - regex: 'String::leak\.s*\.\.s*\.'
+  severity: medium
   description: "String::leak - intentionally leaks memory"
   remediation: "Document leak as intentional"
   cwe: "CWE-401"
@@ -2365,7 +2623,8 @@
 - id: rust-rc-count
   languages: [rust]
   patterns:
-    - regex: 'Rc::strong_count|Rc::weak_count''severity: low
+    - regex: 'Rc::strong_count|Rc::weak_count'
+  severity: low
   description: "Rc count inspection (may be unreliable across threads)"
   remediation: "Use for debugging only, not for logic"
   cwe: "CWE-362"
@@ -2374,7 +2633,8 @@
 - id: rust-rc-cycle
   languages: [rust]
   patterns:
-    - regex: 'Rc<RefCell<[^>]+>>.*Rc<RefCell<[^>]+>>''severity: high
+    - regex: 'Rc<RefCell<[^>]+>>.*Rc<RefCell<[^>]+>>'
+  severity: high
   description: "Potential Rc cycle (memory leak)"
   remediation: "Use Weak to break cycles"
   cwe: "CWE-401"
@@ -2383,7 +2643,8 @@
 - id: rust-rc-clone-cycle
   languages: [rust]
   patterns:
-    - regex: 'Rc::clone.*Rc::clone.*self''severity: medium
+    - regex: 'Rc::clone.*Rc::clone.*self'
+  severity: medium
   description: "Rc clones may create cycles"
   remediation: "Use Weak references for backlinks"
   cwe: "CWE-401"
@@ -2392,7 +2653,8 @@
 - id: rust-arc-clone
   languages: [rust]
   patterns:
-    - regex: 'Arc::clone\\.s*\\.\\.s*&\\.s*self''severity: low
+    - regex: 'Arc::clone\.s*\.\.s*&\.s*self'
+  severity: low
   description: "Arc clone inside Arc (reference counting overhead)"
   remediation: "Consider if Arc is needed or use & references"
   cwe: "CWE-770"
@@ -2401,7 +2663,8 @@
 - id: rust-arc-strong-count
   languages: [rust]
   patterns:
-    - regex: 'Arc::strong_count''severity: low
+    - regex: 'Arc::strong_count'
+  severity: low
   description: "Arc strong_count may be unreliable with weak/upgrade"
   remediation: "Use for debugging only"
   cwe: "CWE-362"
@@ -2410,7 +2673,8 @@
 - id: rust-cell-interior-mut
   languages: [rust]
   patterns:
-    - regex: 'Cell<[^>]+>|RefCell<[^>]+>''severity: low
+    - regex: 'Cell<[^>]+>|RefCell<[^>]+>'
+  severity: low
   description: "Interior mutability with Cell/RefCell"
   remediation: "Ensure thread safety; RefCell is !Sync"
   cwe: "CWE-362"
@@ -2419,7 +2683,8 @@
 - id: rust-refcell-borrow
   languages: [rust]
   patterns:
-    - regex: 'RefCell::borrow_mut.*RefCell::borrow''severity: high
+    - regex: 'RefCell::borrow_mut.*RefCell::borrow'
+  severity: high
   description: "RefCell borrow_mut and borrow in same scope (may panic)"
   remediation: "Use scopes to limit borrow duration"
   cwe: "CWE-667"
@@ -2428,7 +2693,8 @@
 - id: rust-refcell-borrow-two-mut
   languages: [rust]
   patterns:
-    - regex: 'RefCell::borrow_mut.*RefCell::borrow_mut''severity: high
+    - regex: 'RefCell::borrow_mut.*RefCell::borrow_mut'
+  severity: high
   description: "Two mutable borrows of same RefCell (will panic)"
   remediation: "Use separate scopes or interior mutability pattern"
   cwe: "CWE-667"
@@ -2437,7 +2703,8 @@
 - id: rust-refcell-try-borrow
   languages: [rust]
   patterns:
-    - regex: 'RefCell::try_borrow.*?''severity: medium
+    - regex: 'RefCell::try_borrow.*?'
+  severity: medium
   description: "try_borrow without handling error case"
   remediation: "Check Result from try_borrow"
   cwe: "CWE-754"
@@ -2446,7 +2713,8 @@
 - id: rust-refcell-try-borrow-mut
   languages: [rust]
   patterns:
-    - regex: 'RefCell::try_borrow_mut.*?''severity: medium
+    - regex: 'RefCell::try_borrow_mut.*?'
+  severity: medium
   description: "try_borrow_mut without handling error case"
   remediation: "Check Result from try_borrow_mut"
   cwe: "CWE-754"
@@ -2455,7 +2723,8 @@
 - id: rust-mutex-poison
   languages: [rust]
   patterns:
-    - regex: 'Mutex::lock.*?''severity: low
+    - regex: 'Mutex::lock.*?'
+  severity: low
   description: "Mutex lock without handling poison"
   remediation: "Handle poison errors (lock().unwrap() or .lock().unwrap_or_else)"
   cwe: "CWE-754"
@@ -2464,7 +2733,8 @@
 - id: rust-mutex-deadlock
   languages: [rust]
   patterns:
-    - regex: 'Mutex::lock.*Mutex::lock''severity: medium
+    - regex: 'Mutex::lock.*Mutex::lock'
+  severity: medium
   description: "Nested mutex locks (potential deadlock)"
   remediation: "Ensure consistent lock ordering"
   cwe: "CWE-833"
@@ -2473,7 +2743,8 @@
 - id: rust-rwlock-deadlock
   languages: [rust]
   patterns:
-    - regex: 'RwLock::write.*RwLock::read|RwLock::read.*RwLock::write''severity: medium
+    - regex: 'RwLock::write.*RwLock::read|RwLock::read.*RwLock::write'
+  severity: medium
   description: "RwLock write after read (may deadlock)"
   remediation: "Upgrade read to write with upgradeable read"
   cwe: "CWE-833"
@@ -2482,7 +2753,8 @@
 - id: rust-rwlock-upgrade
   languages: [rust]
   patterns:
-    - regex: 'RwLockWriteGuard::downgrade''severity: low
+    - regex: 'RwLockWriteGuard::downgrade'
+  severity: low
   description: "RwLock downgrade (may be okay)"
   remediation: "Ensure no deadlocks from downgrade"
   cwe: "CWE-667"
@@ -2491,7 +2763,8 @@
 - id: rust-condvar-wait
   languages: [rust]
   patterns:
-    - regex: 'Condvar::wait.*?''severity: high
+    - regex: 'Condvar::wait.*?'
+  severity: high
   description: "Condvar wait without loop (spurious wakeups)"
   remediation: "Always use while loop with predicate"
   cwe: "CWE-667"
@@ -2500,7 +2773,8 @@
 - id: rust-condvar-wait-timeout
   languages: [rust]
   patterns:
-    - regex: 'Condvar::wait_timeout.*?''severity: high
+    - regex: 'Condvar::wait_timeout.*?'
+  severity: high
   description: "Condvar wait_timeout without loop (spurious wakeups)"
   remediation: "Always use while loop with predicate"
   cwe: "CWE-667"
@@ -2509,7 +2783,8 @@
 - id: rust-barrier-wait
   languages: [rust]
   patterns:
-    - regex: 'Barrier::wait.*?''severity: low
+    - regex: 'Barrier::wait.*?'
+  severity: low
   description: "Barrier wait without checking leader"
   remediation: "Check if thread is leader after wait"
   cwe: "CWE-667"
@@ -2518,7 +2793,8 @@
 - id: rust-once-call-once
   languages: [rust]
   patterns:
-    - regex: 'Once::call_once.*?''severity: low
+    - regex: 'Once::call_once.*?'
+  severity: low
   description: "Once call_once may panic on reentrancy"
   remediation: "Ensure initialization function doesn't call call_once again"
   cwe: "CWE-667"
@@ -2527,7 +2803,8 @@
 - id: rust-lazy-static
   languages: [rust]
   patterns:
-    - regex: 'lazy_static!''severity: low
+    - regex: 'lazy_static!'
+  severity: low
   description: "lazy_static! may have initialization overhead"
   remediation: "Consider once_cell or std::sync::OnceLock"
   cwe: "CWE-693"
@@ -2536,7 +2813,8 @@
 - id: rust-once-cell
   languages: [rust]
   patterns:
-    - regex: 'once_cell::sync::OnceCell''severity: low
+    - regex: 'once_cell::sync::OnceCell'
+  severity: low
   description: "OnceCell for lazy initialization"
   remediation: "Ensure set is called before get"
   cwe: "CWE-754"
@@ -2545,7 +2823,8 @@
 - id: rust-once-cell-get
   languages: [rust]
   patterns:
-    - regex: 'OnceCell::get.*?''severity: medium
+    - regex: 'OnceCell::get.*?'
+  severity: medium
   description: "OnceCell get without checking if set"
   remediation: "Check if cell is initialized before use"
   cwe: "CWE-754"
@@ -2554,7 +2833,8 @@
 - id: rust-once-cell-set
   languages: [rust]
   patterns:
-    - regex: 'OnceCell::set.*?''severity: medium
+    - regex: 'OnceCell::set.*?'
+  severity: medium
   description: "OnceCell set without checking result (may already be set)"
   remediation: "Check if set was successful"
   cwe: "CWE-754"
@@ -2563,7 +2843,8 @@
 - id: rust-once-cell-get-or-init
   languages: [rust]
   patterns:
-    - regex: 'OnceCell::get_or_init''severity: low
+    - regex: 'OnceCell::get_or_init'
+  severity: low
   description: "OnceCell get_or_init (safe but may deadlock if recursive)"
   remediation: "Ensure init function doesn't call get_or_init again"
   cwe: "CWE-833"
@@ -2574,7 +2855,8 @@
 - id: rust-thread-spawn
   languages: [rust]
   patterns:
-    - regex: 'thread::spawn\\.s*\\.[^)]*\\.''severity: low
+    - regex: 'thread::spawn\.s*\.[^)]*\.'
+  severity: low
   description: "Thread spawned without JoinHandle (may detach)"
   remediation: "Store JoinHandle and join at end"
   cwe: "CWE-401"
@@ -2583,7 +2865,8 @@
 - id: rust-thread-spawn-no-join
   languages: [rust]
   patterns:
-    - regex: 'thread::spawn\\.s*\\.[^)]*\\.''severity: medium
+    - regex: 'thread::spawn\.s*\.[^)]*\.'
+  severity: medium
   description: "Spawned thread not joined (may leak resources)"
   remediation: "Join threads or use scoped threads"
   cwe: "CWE-401"
@@ -2592,7 +2875,8 @@
 - id: rust-thread-spawn-capture
   languages: [rust]
   patterns:
-    - regex: 'thread::spawn\\.s*\\.\\.s*move\\.s*\\.\\.\\.s*\\..*&\\.s+''severity: high
+    - regex: 'thread::spawn\.s*\.\.s*move\.s*\.\.\.s*\..*&\.s+'
+  severity: high
   description: "Thread captures reference in move closure (may outlive)"
   remediation: "Use Arc or ensure references outlive thread"
   cwe: "CWE-416"
@@ -2601,7 +2885,8 @@
 - id: rust-thread-scoped
   languages: [rust]
   patterns:
-    - regex: 'thread::scope\\.s*\\.''severity: low
+    - regex: 'thread::scope\.s*\.'
+  severity: low
   description: "Scoped threads (safe reference borrowing)"
   remediation: "Good for borrowing from stack"
   cwe: "CWE-693"
@@ -2610,7 +2895,8 @@
 - id: rust-thread-park
   languages: [rust]
   patterns:
-    - regex: 'thread::park\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'thread::park\.s*\.\.s*\.'
+  severity: low
   description: "Thread parked (may be unparked by others)"
   remediation: "Ensure unpark is called"
   cwe: "CWE-833"
@@ -2619,7 +2905,8 @@
 - id: rust-thread-unpark
   languages: [rust]
   patterns:
-    - regex: 'thread::unpark\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'thread::unpark\.s*\.\.s*\.'
+  severity: low
   description: "Thread unparked"
   remediation: "Ensure thread is waiting to be unparked"
   cwe: "CWE-667"
@@ -2628,7 +2915,8 @@
 - id: rust-thread-sleep
   languages: [rust]
   patterns:
-    - regex: 'thread::sleep\\.s*\\.''severity: low
+    - regex: 'thread::sleep\.s*\.'
+  severity: low
   description: "Thread sleeping (blocks thread)"
   remediation: "Consider async alternatives for non-blocking"
   cwe: "CWE-770"
@@ -2637,7 +2925,8 @@
 - id: rust-thread-yield
   languages: [rust]
   patterns:
-    - regex: 'thread::yield_now\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'thread::yield_now\.s*\.\.s*\.'
+  severity: low
   description: "Thread yields (may improve fairness)"
   remediation: "Use for cooperative scheduling"
   cwe: "CWE-667"
@@ -2646,7 +2935,8 @@
 - id: rust-thread-current
   languages: [rust]
   patterns:
-    - regex: 'thread::current''severity: low
+    - regex: 'thread::current'
+  severity: low
   description: "Getting current thread handle"
   remediation: "Used for thread-local storage"
   cwe: "CWE-693"
@@ -2655,7 +2945,8 @@
 - id: rust-thread-id
   languages: [rust]
   patterns:
-    - regex: 'thread::current\\.\\.\\.id\\.\\.''severity: low
+    - regex: 'thread::current\.\.\.id\.\.'
+  severity: low
   description: "Getting thread ID"
   remediation: "Use for logging/debugging only"
   cwe: "CWE-200"
@@ -2664,7 +2955,8 @@
 - id: rust-thread-name
   languages: [rust]
   patterns:
-    - regex: 'thread::current\\.\\.\\.name\\.\\.''severity: low
+    - regex: 'thread::current\.\.\.name\.\.'
+  severity: low
   description: "Getting thread name"
   remediation: "Use for debugging"
   cwe: "CWE-200"
@@ -2673,7 +2965,8 @@
 - id: rust-channel-mpsc
   languages: [rust]
   patterns:
-    - regex: 'std::sync::mpsc::channel''severity: low
+    - regex: 'std::sync::mpsc::channel'
+  severity: low
   description: "MPSC channel (may block if full)"
   remediation: "Use bounded channels or handle send errors"
   cwe: "CWE-833"
@@ -2682,7 +2975,8 @@
 - id: rust-channel-send
   languages: [rust]
   patterns:
-    - regex: 'sender\\.send\\.s*\\.[^)]+\\.''severity: medium
+    - regex: 'sender\.send\.s*\.[^)]+\.'
+  severity: medium
   description: "Channel send without error check (receiver may be gone)"
   remediation: "Check send result for disconnected receiver"
   cwe: "CWE-754"
@@ -2691,7 +2985,8 @@
 - id: rust-channel-recv
   languages: [rust]
   patterns:
-    - regex: 'receiver\\.recv\\.s*\\.\\.s*\\.''severity: medium
+    - regex: 'receiver\.recv\.s*\.\.s*\.'
+  severity: medium
   description: "Channel recv without error check (may block forever)"
   remediation: "Use recv_timeout or handle disconnection"
   cwe: "CWE-754"
@@ -2700,7 +2995,8 @@
 - id: rust-channel-recv-timeout
   languages: [rust]
   patterns:
-    - regex: 'receiver\\.recv_timeout''severity: low
+    - regex: 'receiver\.recv_timeout'
+  severity: low
   description: "Channel recv with timeout"
   remediation: "Handle timeout errors"
   cwe: "CWE-754"
@@ -2709,7 +3005,8 @@
 - id: rust-channel-try-recv
   languages: [rust]
   patterns:
-    - regex: 'receiver\\.try_recv''severity: low
+    - regex: 'receiver\.try_recv'
+  severity: low
   description: "Non-blocking channel receive"
   remediation: "Handle empty/disconnected cases"
   cwe: "CWE-754"
@@ -2718,7 +3015,8 @@
 - id: rust-channel-iter
   languages: [rust]
   patterns:
-    - regex: 'receiver\\.iter\\.\\.''severity: medium
+    - regex: 'receiver\.iter\.\.'
+  severity: medium
   description: "Channel iterator (blocks when empty)"
   remediation: "Use try_iter for non-blocking"
   cwe: "CWE-833"
@@ -2727,7 +3025,8 @@
 - id: rust-channel-try-iter
   languages: [rust]
   patterns:
-    - regex: 'receiver\\.try_iter\\.\\.''severity: low
+    - regex: 'receiver\.try_iter\.\.'
+  severity: low
   description: "Non-blocking channel iterator"
   remediation: "Good for non-blocking loops"
   cwe: "CWE-754"
@@ -2736,7 +3035,8 @@
 - id: rust-crossbeam-channel
   languages: [rust]
   patterns:
-    - regex: 'crossbeam_channel::''severity: low
+    - regex: 'crossbeam_channel::'
+  severity: low
   description: "Crossbeam channels (more features)"
   remediation: "Good alternative to std::sync::mpsc"
   cwe: "CWE-693"
@@ -2745,7 +3045,8 @@
 - id: rust-crossbeam-select
   languages: [rust]
   patterns:
-    - regex: 'crossbeam_channel::select!''severity: low
+    - regex: 'crossbeam_channel::select!'
+  severity: low
   description: "Crossbeam select macro"
   remediation: "Handle all channel operations"
   cwe: "CWE-754"
@@ -2754,7 +3055,8 @@
 - id: rust-flume-channel
   languages: [rust]
   patterns:
-    - regex: 'flume::''severity: low
+    - regex: 'flume::'
+  severity: low
   description: "Flume channels (async-friendly)"
   remediation: "Good for async code"
   cwe: "CWE-693"
@@ -2763,7 +3065,8 @@
 - id: rust-rayon-par-iter
   languages: [rust]
   patterns:
-    - regex: 'par_iter''severity: low
+    - regex: 'par_iter'
+  severity: low
   description: "Rayon parallel iterator"
   remediation: "Ensure operations are thread-safe"
   cwe: "CWE-362"
@@ -2772,7 +3075,8 @@
 - id: rust-rayon-join
   languages: [rust]
   patterns:
-    - regex: 'rayon::join''severity: low
+    - regex: 'rayon::join'
+  severity: low
   description: "Rayon join (parallel execution)"
   remediation: "Ensure functions can run in parallel"
   cwe: "CWE-362"
@@ -2781,7 +3085,8 @@
 - id: rust-rayon-scope
   languages: [rust]
   patterns:
-    - regex: 'rayon::scope''severity: low
+    - regex: 'rayon::scope'
+  severity: low
   description: "Rayon scope for spawning"
   remediation: "Good for scoped parallelism"
   cwe: "CWE-693"
@@ -2790,7 +3095,8 @@
 - id: rust-atomic-ordering
   languages: [rust]
   patterns:
-    - regex: 'Ordering::(Relaxed|Acquire|Release|AcqRel|SeqCst)''severity: medium
+    - regex: 'Ordering::(Relaxed|Acquire|Release|AcqRel|SeqCst)'
+  severity: medium
   description: "Atomic ordering selection"
   remediation: "Use appropriate ordering; SeqCst is safest but slowest"
   cwe: "CWE-362"
@@ -2799,7 +3105,8 @@
 - id: rust-atomic-load-store
   languages: [rust]
   patterns:
-    - regex: 'Atomic.*::(load|store)''severity: low
+    - regex: 'Atomic.*::(load|store)'
+  severity: low
   description: "Atomic load/store operations"
   remediation: "Ensure proper ordering"
   cwe: "CWE-362"
@@ -2808,7 +3115,8 @@
 - id: rust-atomic-compare-exchange
   languages: [rust]
   patterns:
-    - regex: 'Atomic.*::compare_exchange''severity: low
+    - regex: 'Atomic.*::compare_exchange'
+  severity: low
   description: "Atomic compare-exchange"
   remediation: "Handle failure cases"
   cwe: "CWE-754"
@@ -2817,7 +3125,8 @@
 - id: rust-atomic-fetch-update
   languages: [rust]
   patterns:
-    - regex: 'Atomic.*::fetch_(add|sub|and|or|xor)''severity: low
+    - regex: 'Atomic.*::fetch_(add|sub|and|or|xor)'
+  severity: low
   description: "Atomic fetch-and-* operations"
   remediation: "Ensure correct ordering"
   cwe: "CWE-362"
@@ -2828,7 +3137,8 @@
 - id: rust-tokio-spawn
   languages: [rust]
   patterns:
-    - regex: 'tokio::spawn\\.s*\\.''severity: low
+    - regex: 'tokio::spawn\.s*\.'
+  severity: low
   description: "Tokio spawn without JoinHandle (may detach)"
   remediation: "Store JoinHandle and await if needed"
   cwe: "CWE-401"
@@ -2837,7 +3147,8 @@
 - id: rust-tokio-spawn-blocking
   languages: [rust]
   patterns:
-    - regex: 'tokio::task::spawn_blocking''severity: low
+    - regex: 'tokio::task::spawn_blocking'
+  severity: low
   description: "Spawn blocking task (for CPU-bound work)"
   remediation: "Use for blocking operations only"
   cwe: "CWE-770"
@@ -2846,7 +3157,8 @@
 - id: rust-tokio-spawn-local
   languages: [rust]
   patterns:
-    - regex: 'tokio::task::spawn_local''severity: low
+    - regex: 'tokio::task::spawn_local'
+  severity: low
   description: "Spawn local task (!Send futures)"
   remediation: "Ensure task doesn't outlive its scope"
   cwe: "CWE-401"
@@ -2855,7 +3167,8 @@
 - id: rust-tokio-join-handle-await
   languages: [rust]
   patterns:
-    - regex: 'tokio::spawn.*\\.await''severity: medium
+    - regex: 'tokio::spawn.*\.await'
+  severity: medium
   description: "JoinHandle awaited without error check (task may have panicked)"
   remediation: "Check JoinHandle result for panic"
   cwe: "CWE-754"
@@ -2864,7 +3177,8 @@
 - id: rust-tokio-select
   languages: [rust]
   patterns:
-    - regex: 'tokio::select!''severity: low
+    - regex: 'tokio::select!'
+  severity: low
   description: "Tokio select macro"
   remediation: "Handle all branches; ensure select is fair"
   cwe: "CWE-754"
@@ -2873,7 +3187,8 @@
 - id: rust-tokio-select-bias
   languages: [rust]
   patterns:
-    - regex: 'select!.*(biased;|; else)''severity: low
+    - regex: 'select!.*(biased;|; else)'
+  severity: low
   description: "Biased select (may starve branches)"
   remediation: "Use unbiased select unless intentional"
   cwe: "CWE-754"
@@ -2882,7 +3197,8 @@
 - id: rust-tokio-join
   languages: [rust]
   patterns:
-    - regex: 'tokio::join!''severity: low
+    - regex: 'tokio::join!'
+  severity: low
   description: "Tokio join macro (runs futures concurrently)"
   remediation: "Handle errors from all futures"
   cwe: "CWE-754"
@@ -2891,7 +3207,8 @@
 - id: rust-tokio-try-join
   languages: [rust]
   patterns:
-    - regex: 'tokio::try_join!''severity: low
+    - regex: 'tokio::try_join!'
+  severity: low
   description: "Tokio try_join (short-circuits on error)"
   remediation: "Ensure all futures can be cancelled"
   cwe: "CWE-754"
@@ -2900,7 +3217,8 @@
 - id: rust-tokio-time-sleep
   languages: [rust]
   patterns:
-    - regex: 'tokio::time::sleep''severity: low
+    - regex: 'tokio::time::sleep'
+  severity: low
   description: "Async sleep (non-blocking)"
   remediation: "Handle cancellation"
   cwe: "CWE-754"
@@ -2909,7 +3227,8 @@
 - id: rust-tokio-time-timeout
   languages: [rust]
   patterns:
-    - regex: 'tokio::time::timeout''severity: low
+    - regex: 'tokio::time::timeout'
+  severity: low
   description: "Timeout wrapper for async operations"
   remediation: "Handle timeout errors (Elapsed)"
   cwe: "CWE-754"
@@ -2918,7 +3237,8 @@
 - id: rust-tokio-time-interval
   languages: [rust]
   patterns:
-    - regex: 'tokio::time::interval''severity: low
+    - regex: 'tokio::time::interval'
+  severity: low
   description: "Interval timer for periodic tasks"
   remediation: "Handle tick misses; use tick() correctly"
   cwe: "CWE-770"
@@ -2927,7 +3247,8 @@
 - id: rust-tokio-time-interval-missed
   languages: [rust]
   patterns:
-    - regex: 'interval\\.tick\\.\\..*?if.*?missed''severity: low
+    - regex: 'interval\.tick\.\..*?if.*?missed'
+  severity: low
   description: "Checking for missed ticks"
   remediation: "Good practice for interval handling"
   cwe: "CWE-754"
@@ -2936,7 +3257,8 @@
 - id: rust-tokio-sync-mpsc
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::mpsc::channel''severity: low
+    - regex: 'tokio::sync::mpsc::channel'
+  severity: low
   description: "Tokio MPSC channel"
   remediation: "Handle send/recv errors"
   cwe: "CWE-754"
@@ -2945,7 +3267,8 @@
 - id: rust-tokio-sync-mpsc-send
   languages: [rust]
   patterns:
-    - regex: 'sender\\.send.*\\.await''severity: medium
+    - regex: 'sender\.send.*\.await'
+  severity: medium
   description: "Async send without error check"
   remediation: "Check send result for closed receiver"
   cwe: "CWE-754"
@@ -2954,7 +3277,8 @@
 - id: rust-tokio-sync-mpsc-recv
   languages: [rust]
   patterns:
-    - regex: 'receiver\\.recv.*\\.await''severity: medium
+    - regex: 'receiver\.recv.*\.await'
+  severity: medium
   description: "Async recv without checking for None"
   remediation: "Handle None (channel closed)"
   cwe: "CWE-754"
@@ -2963,7 +3287,8 @@
 - id: rust-tokio-sync-broadcast
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::broadcast::channel''severity: low
+    - regex: 'tokio::sync::broadcast::channel'
+  severity: low
   description: "Tokio broadcast channel"
   remediation: "Handle lag errors (Receiver::recv)"
   cwe: "CWE-754"
@@ -2972,7 +3297,8 @@
 - id: rust-tokio-sync-broadcast-send
   languages: [rust]
   patterns:
-    - regex: 'broadcast::Sender::send.*?''severity: medium
+    - regex: 'broadcast::Sender::send.*?'
+  severity: medium
   description: "Broadcast send without checking for no receivers"
   remediation: "Check send result"
   cwe: "CWE-754"
@@ -2981,7 +3307,8 @@
 - id: rust-tokio-sync-watch
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::watch::channel''severity: low
+    - regex: 'tokio::sync::watch::channel'
+  severity: low
   description: "Watch channel (value changes)"
   remediation: "Handle receiver errors"
   cwe: "CWE-754"
@@ -2990,7 +3317,8 @@
 - id: rust-tokio-sync-watch-changed
   languages: [rust]
   patterns:
-    - regex: 'watch::Receiver::changed.*\\.await''severity: medium
+    - regex: 'watch::Receiver::changed.*\.await'
+  severity: medium
   description: "Watch changed without checking result"
   remediation: "Check for closed sender"
   cwe: "CWE-754"
@@ -2999,7 +3327,8 @@
 - id: rust-tokio-sync-mutex
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Mutex''severity: low
+    - regex: 'tokio::sync::Mutex'
+  severity: low
   description: "Tokio async Mutex"
   remediation: "Don't hold across .await unless necessary"
   cwe: "CWE-833"
@@ -3008,7 +3337,8 @@
 - id: rust-tokio-sync-mutex-hold-await
   languages: [rust]
   patterns:
-    - regex: 'Mutex::lock.*\\.await.*\\.await''severity: high
+    - regex: 'Mutex::lock.*\.await.*\.await'
+  severity: high
   description: "Mutex held across .await (may cause deadlock)"
   remediation: "Restructure to minimize lock hold time"
   cwe: "CWE-833"
@@ -3017,7 +3347,8 @@
 - id: rust-tokio-sync-rwlock
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::RwLock''severity: low
+    - regex: 'tokio::sync::RwLock'
+  severity: low
   description: "Tokio async RwLock"
   remediation: "Be careful with read->write upgrades"
   cwe: "CWE-833"
@@ -3026,7 +3357,8 @@
 - id: rust-tokio-sync-rwlock-upgrade
   languages: [rust]
   patterns:
-    - regex: 'RwLock::(read|write).*upgradeable_read''severity: medium
+    - regex: 'RwLock::(read|write).*upgradeable_read'
+  severity: medium
   description: "RwLock upgrade (may deadlock)"
   remediation: "Use upgradeable_read for upgrades"
   cwe: "CWE-833"
@@ -3035,7 +3367,8 @@
 - id: rust-tokio-sync-semaphore
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Semaphore''severity: low
+    - regex: 'tokio::sync::Semaphore'
+  severity: low
   description: "Async semaphore for limiting concurrency"
   remediation: "Release permits with SemaphorePermit"
   cwe: "CWE-770"
@@ -3044,7 +3377,8 @@
 - id: rust-tokio-sync-semaphore-acquire
   languages: [rust]
   patterns:
-    - regex: 'semaphore\\.acquire.*\\.await''severity: medium
+    - regex: 'semaphore\.acquire.*\.await'
+  severity: medium
   description: "Semaphore acquire without checking closed"
   remediation: "Handle semaphore closed errors"
   cwe: "CWE-754"
@@ -3053,7 +3387,8 @@
 - id: rust-tokio-sync-barrier
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Barrier''severity: low
+    - regex: 'tokio::sync::Barrier'
+  severity: low
   description: "Async barrier for synchronization"
   remediation: "Handle barrier wait"
   cwe: "CWE-667"
@@ -3062,7 +3397,8 @@
 - id: rust-tokio-sync-notify
   languages: [rust]
   patterns:
-    - regex: 'tokio::sync::Notify''severity: low
+    - regex: 'tokio::sync::Notify'
+  severity: low
   description: "Async notification (one-shot)"
   remediation: "Use for task waking"
   cwe: "CWE-667"
@@ -3071,7 +3407,8 @@
 - id: rust-tokio-sync-notify-notified
   languages: [rust]
   patterns:
-    - regex: 'Notify::notified.*\\.await''severity: low
+    - regex: 'Notify::notified.*\.await'
+  severity: low
   description: "Wait for notification"
   remediation: "Handle spurious wakeups"
   cwe: "CWE-754"
@@ -3080,7 +3417,8 @@
 - id: rust-tokio-io-copy
   languages: [rust]
   patterns:
-    - regex: 'tokio::io::copy.*\\.await''severity: medium
+    - regex: 'tokio::io::copy.*\.await'
+  severity: medium
   description: "Async copy without error check"
   remediation: "Check copy result for errors"
   cwe: "CWE-754"
@@ -3089,7 +3427,8 @@
 - id: rust-tokio-io-read-exact
   languages: [rust]
   patterns:
-    - regex: 'read_exact.*\\.await''severity: medium
+    - regex: 'read_exact.*\.await'
+  severity: medium
   description: "read_exact without error check (EOF is error)"
   remediation: "Handle unexpected EOF"
   cwe: "CWE-754"
@@ -3100,7 +3439,8 @@
 - id: rust-actix-web-app
   languages: [rust]
   patterns:
-    - regex: 'actix_web::App::new''severity: low
+    - regex: 'actix_web::App::new'
+  severity: low
   description: "Actix Web app creation"
   remediation: "Configure middleware properly"
   cwe: "CWE-693"
@@ -3109,7 +3449,8 @@
 - id: rust-actix-web-data
   languages: [rust]
   patterns:
-    - regex: 'app\\.app_data|web::Data::new''severity: low
+    - regex: 'app\.app_data|web::Data::new'
+  severity: low
   description: "Actix Web shared app data"
   remediation: "Use Arc for shared state if needed"
   cwe: "CWE-693"
@@ -3118,7 +3459,8 @@
 - id: rust-actix-web-extract
   languages: [rust]
   patterns:
-    - regex: 'web::(Json|Path|Query|Form)''severity: low
+    - regex: 'web::(Json|Path|Query|Form)'
+  severity: low
   description: "Actix Web extractor"
   remediation: "Validate extracted data"
   cwe: "CWE-20"
@@ -3127,7 +3469,8 @@
 - id: rust-actix-web-extract-unchecked
   languages: [rust]
   patterns:
-    - regex: 'web::Json<[^>]+>.*?''severity: high
+    - regex: 'web::Json<[^>]+>.*?'
+  severity: high
   description: "JSON extractor without validation"
   remediation: "Validate deserialized data"
   cwe: "CWE-20"
@@ -3136,7 +3479,8 @@
 - id: rust-actix-web-extract-path
   languages: [rust]
   patterns:
-    - regex: 'web::Path<[^>]+>''severity: medium
+    - regex: 'web::Path<[^>]+>'
+  severity: medium
   description: "Path parameter extractor"
   remediation: "Validate path parameters"
   cwe: "CWE-20"
@@ -3145,7 +3489,8 @@
 - id: rust-actix-web-extract-query
   languages: [rust]
   patterns:
-    - regex: 'web::Query<[^>]+>''severity: medium
+    - regex: 'web::Query<[^>]+>'
+  severity: medium
   description: "Query parameter extractor"
   remediation: "Validate query parameters"
   cwe: "CWE-20"
@@ -3154,7 +3499,8 @@
 - id: rust-actix-web-extract-form
   languages: [rust]
   patterns:
-    - regex: 'web::Form<[^>]+>''severity: medium
+    - regex: 'web::Form<[^>]+>'
+  severity: medium
   description: "Form data extractor"
   remediation: "Validate form data"
   cwe: "CWE-20"
@@ -3163,7 +3509,8 @@
 - id: rust-actix-web-guard
   languages: [rust]
   patterns:
-    - regex: 'guard::(Get|Post|Put|Delete)''severity: low
+    - regex: 'guard::(Get|Post|Put|Delete)'
+  severity: low
   description: "Route guard"
   remediation: "Ensure proper HTTP method restrictions"
   cwe: "CWE-693"
@@ -3172,7 +3519,8 @@
 - id: rust-actix-web-middleware
   languages: [rust]
   patterns:
-    - regex: 'wrap\\.s*\\.\\.s*(?:Logger|Compress|DefaultHeaders)::''severity: low
+    - regex: 'wrap\.s*\.\.s*(?:Logger|Compress|DefaultHeaders)::'
+  severity: low
   description: "Actix Web middleware"
   remediation: "Configure middleware appropriately"
   cwe: "CWE-693"
@@ -3181,7 +3529,8 @@
 - id: rust-actix-web-cors
   languages: [rust]
   patterns:
-    - regex: 'Cors::permissive\\.\\.|allow_any_origin\\.\\.''severity: high
+    - regex: 'Cors::permissive\.\.|allow_any_origin\.\.'
+  severity: high
   description: "Permissive CORS policy"
   remediation: "Restrict CORS to specific origins"
   cwe: "CWE-942"
@@ -3190,7 +3539,8 @@
 - id: rust-actix-web-cors-credentials
   languages: [rust]
   patterns:
-    - regex: 'allow_any_origin\\.\\.\\.s*\\.\\.s*supports_credentials\\.\\.''severity: critical
+    - regex: 'allow_any_origin\.\.\.s*\.\.s*supports_credentials\.\.'
+  severity: critical
   description: "CORS credentials with any origin (security risk)"
   remediation: "Specify exact origins when using credentials"
   cwe: "CWE-942"
@@ -3199,7 +3549,8 @@
 - id: rust-actix-web-cors-max-age
   languages: [rust]
   patterns:
-    - regex: 'max_age\\.s*\\.\\.s*[0-9]{6,}''severity: low
+    - regex: 'max_age\.s*\.\.s*[0-9]{6,}'
+  severity: low
   description: "CORS max age too long"
   remediation: "Set reasonable preflight cache duration"
   cwe: "CWE-942"
@@ -3208,7 +3559,8 @@
 - id: rust-actix-web-session
   languages: [rust]
   patterns:
-    - regex: 'Session::(get|insert|remove)''severity: low
+    - regex: 'Session::(get|insert|remove)'
+  severity: low
   description: "Session access"
   remediation: "Don't store sensitive data in session"
   cwe: "CWE-312"
@@ -3217,7 +3569,8 @@
 - id: rust-actix-web-session-cookie
   languages: [rust]
   patterns:
-    - regex: 'CookieSession::.*secure\\.false\\.''severity: high
+    - regex: 'CookieSession::.*secure\.false\.'
+  severity: high
   description: "Session cookie without Secure flag"
   remediation: "Set secure(true) for HTTPS"
   cwe: "CWE-614"
@@ -3226,7 +3579,8 @@
 - id: rust-actix-web-session-http-only
   languages: [rust]
   patterns:
-    - regex: 'CookieSession::.*http_only\\.false\\.''severity: high
+    - regex: 'CookieSession::.*http_only\.false\.'
+  severity: high
   description: "Session cookie without HttpOnly flag"
   remediation: "Set http_only(true)"
   cwe: "CWE-614"
@@ -3235,7 +3589,8 @@
 - id: rust-actix-web-session-same-site
   languages: [rust]
   patterns:
-    - regex: 'CookieSession::.*same_site\\.None\\.''severity: medium
+    - regex: 'CookieSession::.*same_site\.None\.'
+  severity: medium
   description: "Session cookie without SameSite attribute"
   remediation: "Set same_site(Lax or Strict)"
   cwe: "CWE-352"
@@ -3244,7 +3599,8 @@
 - id: rust-actix-web-identity
   languages: [rust]
   patterns:
-    - regex: 'Identity::(identity|remember|forget)''severity: low
+    - regex: 'Identity::(identity|remember|forget)'
+  severity: low
   description: "Identity management"
   remediation: "Ensure secure identity storage"
   cwe: "CWE-287"
@@ -3253,7 +3609,8 @@
 - id: rust-actix-web-identity-remember
   languages: [rust]
   patterns:
-    - regex: 'Identity::remember.*user_id''severity: low
+    - regex: 'Identity::remember.*user_id'
+  severity: low
   description: "Remember user identity"
   remediation: "Use secure, random session IDs"
   cwe: "CWE-287"
@@ -3262,7 +3619,8 @@
 - id: rust-actix-web-error-handler
   languages: [rust]
   patterns:
-    - regex: 'error_handlers::(?:ErrorHandlers|json)''severity: low
+    - regex: 'error_handlers::(?:ErrorHandlers|json)'
+  severity: low
   description: "Custom error handler"
   remediation: "Don't leak internal errors"
   cwe: "CWE-209"
@@ -3271,7 +3629,8 @@
 - id: rust-actix-web-responder
   languages: [rust]
   patterns:
-    - regex: 'impl\\.s+Responder\\.s+for''severity: low
+    - regex: 'impl\.s+Responder\.s+for'
+  severity: low
   description: "Custom responder implementation"
   remediation: "Ensure proper content-type and encoding"
   cwe: "CWE-693"
@@ -3280,7 +3639,8 @@
 - id: rust-actix-web-http-response
   languages: [rust]
   patterns:
-    - regex: 'HttpResponse::Ok\\.\\.\\.body\\..*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'HttpResponse::Ok\.\.\.body\..*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "User input directly in response body (XSS risk)"
   remediation: "Escape or sanitize user input"
   cwe: "CWE-79"
@@ -3289,7 +3649,8 @@
 - id: rust-actix-web-http-response-json
   languages: [rust]
   patterns:
-    - regex: 'HttpResponse::Ok\\.\\.\\.json\\..*r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: 'HttpResponse::Ok\.\.\.json\..*r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "User input in JSON response"
   remediation: "Validate before JSON serialization"
   cwe: "CWE-20"
@@ -3298,7 +3659,8 @@
 - id: rust-axum-router
   languages: [rust]
   patterns:
-    - regex: 'axum::Router::new''severity: low
+    - regex: 'axum::Router::new'
+  severity: low
   description: "Axum router creation"
   remediation: "Configure routes appropriately"
   cwe: "CWE-693"
@@ -3307,7 +3669,8 @@
 - id: rust-axum-route
   languages: [rust]
   patterns:
-    - regex: '\\.route\\.s*\\.\\.s*[\\.\\.27][^\\.\\.27]+[\\.\\.27]''severity: low
+    - regex: '\.route\.s*\.\.s*[\.\.27][^\.\.27]+[\.\.27]'
+  severity: low
   description: "Route definition"
   remediation: "Use typed paths where possible"
   cwe: "CWE-693"
@@ -3316,7 +3679,8 @@
 - id: rust-axum-extract
   languages: [rust]
   patterns:
-    - regex: 'axum::extract::(Json|Path|Query|Form)''severity: low
+    - regex: 'axum::extract::(Json|Path|Query|Form)'
+  severity: low
   description: "Axum extractor"
   remediation: "Validate extracted data"
   cwe: "CWE-20"
@@ -3325,7 +3689,8 @@
 - id: rust-axum-extract-json
   languages: [rust]
   patterns:
-    - regex: 'Json<[^>]+>.*?''severity: high
+    - regex: 'Json<[^>]+>.*?'
+  severity: high
   description: "JSON extractor without validation"
   remediation: "Validate deserialized data"
   cwe: "CWE-20"
@@ -3334,7 +3699,8 @@
 - id: rust-axum-extract-path
   languages: [rust]
   patterns:
-    - regex: 'Path<[^>]+>''severity: medium
+    - regex: 'Path<[^>]+>'
+  severity: medium
   description: "Path parameter extractor"
   remediation: "Validate path parameters"
   cwe: "CWE-20"
@@ -3343,7 +3709,8 @@
 - id: rust-axum-extract-query
   languages: [rust]
   patterns:
-    - regex: 'Query<[^>]+>''severity: medium
+    - regex: 'Query<[^>]+>'
+  severity: medium
   description: "Query parameter extractor"
   remediation: "Validate query parameters"
   cwe: "CWE-20"
@@ -3352,7 +3719,8 @@
 - id: rust-axum-extract-form
   languages: [rust]
   patterns:
-    - regex: 'Form<[^>]+>''severity: medium
+    - regex: 'Form<[^>]+>'
+  severity: medium
   description: "Form data extractor"
   remediation: "Validate form data"
   cwe: "CWE-20"
@@ -3363,7 +3731,8 @@
 - id: rust-file-open
   languages: [rust]
   patterns:
-    - regex: 'File::open\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'File::open\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Opening file with user input (path traversal)"
   remediation: "Validate and restrict file paths"
   cwe: "CWE-22"
@@ -3372,7 +3741,8 @@
 - id: rust-file-create
   languages: [rust]
   patterns:
-    - regex: 'File::create\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'File::create\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Creating file with user input (path traversal)"
   remediation: "Never allow user input for file creation paths"
   cwe: "CWE-22"
@@ -3381,7 +3751,8 @@
 - id: rust-file-open-options
   languages: [rust]
   patterns:
-    - regex: 'OpenOptions::new\\.\\.\\.open\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'OpenOptions::new\.\.\.open\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Opening file with user input via OpenOptions"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -3390,7 +3761,8 @@
 - id: rust-file-read-to_string
   languages: [rust]
   patterns:
-    - regex: 'read_to_string\\.s*\\.\\.s*&?mut\\.s*[^)]+\\.''severity: medium
+    - regex: 'read_to_string\.s*\.\.s*&?mut\.s*[^)]+\.'
+  severity: medium
   description: "read_to_string without error check"
   remediation: "Handle read errors"
   cwe: "CWE-754"
@@ -3399,7 +3771,8 @@
 - id: rust-file-read_to_end
   languages: [rust]
   patterns:
-    - regex: 'read_to_end\\.s*\\.\\.s*&?mut\\.s*[^)]+\\.''severity: medium
+    - regex: 'read_to_end\.s*\.\.s*&?mut\.s*[^)]+\.'
+  severity: medium
   description: "read_to_end without error check"
   remediation: "Handle read errors"
   cwe: "CWE-754"
@@ -3408,7 +3781,8 @@
 - id: rust-file-write_all
   languages: [rust]
   patterns:
-    - regex: 'write_all\\.s*\\.\\.s*[^)]+\\.''severity: medium
+    - regex: 'write_all\.s*\.\.s*[^)]+\.'
+  severity: medium
   description: "write_all without error check"
   remediation: "Handle write errors"
   cwe: "CWE-754"
@@ -3417,7 +3791,8 @@
 - id: rust-fs-read
   languages: [rust]
   patterns:
-    - regex: 'std::fs::read\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'std::fs::read\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "fs::read with user input (path traversal)"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -3426,7 +3801,8 @@
 - id: rust-fs-read-to-string
   languages: [rust]
   patterns:
-    - regex: 'std::fs::read_to_string\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'std::fs::read_to_string\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "fs::read_to_string with user input"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -3435,7 +3811,8 @@
 - id: rust-fs-write
   languages: [rust]
   patterns:
-    - regex: 'std::fs::write\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'std::fs::write\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "fs::write with user input path"
   remediation: "Never allow user input for write paths"
   cwe: "CWE-22"
@@ -3444,7 +3821,8 @@
 - id: rust-fs-remove-file
   languages: [rust]
   patterns:
-    - regex: 'std::fs::remove_file\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'std::fs::remove_file\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Removing file with user input"
   remediation: "Never allow user input for file deletion"
   cwe: "CWE-22"
@@ -3453,7 +3831,8 @@
 - id: rust-fs-remove-dir
   languages: [rust]
   patterns:
-    - regex: 'std::fs::remove_dir\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'std::fs::remove_dir\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Removing directory with user input"
   remediation: "Never allow user input for directory deletion"
   cwe: "CWE-22"
@@ -3462,7 +3841,8 @@
 - id: rust-fs-remove-dir-all
   languages: [rust]
   patterns:
-    - regex: 'std::fs::remove_dir_all\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'std::fs::remove_dir_all\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Recursive directory removal with user input"
   remediation: "Never allow user input for directory deletion"
   cwe: "CWE-22"
@@ -3471,7 +3851,8 @@
 - id: rust-fs-rename
   languages: [rust]
   patterns:
-    - regex: 'std::fs::rename\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'std::fs::rename\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Renaming file/dir with user input"
   remediation: "Validate both source and target paths"
   cwe: "CWE-22"
@@ -3480,7 +3861,8 @@
 - id: rust-fs-copy
   languages: [rust]
   patterns:
-    - regex: 'std::fs::copy\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'std::fs::copy\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Copying file with user input path"
   remediation: "Validate source and target paths"
   cwe: "CWE-22"
@@ -3489,7 +3871,8 @@
 - id: rust-fs-hard-link
   languages: [rust]
   patterns:
-    - regex: 'std::fs::hard_link\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'std::fs::hard_link\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Creating hard link with user input"
   remediation: "Validate both paths"
   cwe: "CWE-59"
@@ -3498,7 +3881,8 @@
 - id: rust-fs-symlink
   languages: [rust]
   patterns:
-    - regex: 'std::os::unix::fs::symlink|std::os::windows::fs::symlink_file''severity: high
+    - regex: 'std::os::unix::fs::symlink|std::os::windows::fs::symlink_file'
+  severity: high
   description: "Creating symlink with user input"
   remediation: "Validate both target and link paths"
   cwe: "CWE-59"
@@ -3507,7 +3891,8 @@
 - id: rust-fs-read-link
   languages: [rust]
   patterns:
-    - regex: 'std::fs::read_link\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: 'std::fs::read_link\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "Reading symlink with user input"
   remediation: "Validate symlink path"
   cwe: "CWE-59"
@@ -3516,7 +3901,8 @@
 - id: rust-fs-metadata
   languages: [rust]
   patterns:
-    - regex: 'std::fs::metadata\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: 'std::fs::metadata\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "Getting file metadata with user input"
   remediation: "Validate file path"
   cwe: "CWE-22"
@@ -3525,7 +3911,8 @@
 - id: rust-fs-symlink-metadata
   languages: [rust]
   patterns:
-    - regex: 'std::fs::symlink_metadata\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: 'std::fs::symlink_metadata\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "Getting symlink metadata with user input"
   remediation: "Validate symlink path"
   cwe: "CWE-59"
@@ -3534,7 +3921,8 @@
 - id: rust-fs-set-permissions
   languages: [rust]
   patterns:
-    - regex: 'std::fs::set_permissions\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'std::fs::set_permissions\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Setting file permissions with user input path"
   remediation: "Validate file path; never from user input"
   cwe: "CWE-732"
@@ -3543,7 +3931,8 @@
 - id: rust-fs-create-dir
   languages: [rust]
   patterns:
-    - regex: 'std::fs::create_dir\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'std::fs::create_dir\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Creating directory with user input"
   remediation: "Validate and restrict directory paths"
   cwe: "CWE-22"
@@ -3552,7 +3941,8 @@
 - id: rust-fs-create-dir-all
   languages: [rust]
   patterns:
-    - regex: 'std::fs::create_dir_all\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'std::fs::create_dir_all\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Creating directory tree with user input"
   remediation: "Validate and restrict base path"
   cwe: "CWE-22"
@@ -3561,7 +3951,8 @@
 - id: rust-temp-dir
   languages: [rust]
   patterns:
-    - regex: 'tempfile::tempdir\\.\\.''severity: low
+    - regex: 'tempfile::tempdir\.\.'
+  severity: low
   description: "Temporary directory created"
   remediation: "Ensure temp dir is cleaned up"
   cwe: "CWE-377"
@@ -3570,7 +3961,8 @@
 - id: rust-temp-file
   languages: [rust]
   patterns:
-    - regex: 'tempfile::tempfile\\.\\.''severity: low
+    - regex: 'tempfile::tempfile\.\.'
+  severity: low
   description: "Temporary file created"
   remediation: "Ensure temp file is closed properly"
   cwe: "CWE-377"
@@ -3579,7 +3971,8 @@
 - id: rust-file-sync-all
   languages: [rust]
   patterns:
-    - regex: 'sync_all\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'sync_all\.s*\.\.s*\.'
+  severity: low
   description: "sync_all without error check"
   remediation: "Handle sync errors"
   cwe: "CWE-754"
@@ -3588,7 +3981,8 @@
 - id: rust-file-sync-data
   languages: [rust]
   patterns:
-    - regex: 'sync_data\\.s*\\.\\.s*\\.''severity: low
+    - regex: 'sync_data\.s*\.\.s*\.'
+  severity: low
   description: "sync_data without error check"
   remediation: "Handle sync errors"
   cwe: "CWE-754"
@@ -3599,7 +3993,8 @@
 - id: rust-tcp-listener
   languages: [rust]
   patterns:
-    - regex: 'TcpListener::bind\\.s*\\.\\.s*[\\.\\.27]0\\.0\\.0\\.0''severity: medium
+    - regex: 'TcpListener::bind\.s*\.\.s*[\.\.27]0\.0\.0\.0'
+  severity: medium
   description: "Listening on all interfaces (may expose to network)"
   remediation: "Bind to specific interface (127.0.0.1 for local)"
   cwe: "CWE-284"
@@ -3608,7 +4003,8 @@
 - id: rust-tcp-listener-incoming
   languages: [rust]
   patterns:
-    - regex: 'listener\\.incoming\\.\\.''severity: low
+    - regex: 'listener\.incoming\.\.'
+  severity: low
   description: "Accepting incoming connections"
   remediation: "Handle connection errors"
   cwe: "CWE-754"
@@ -3617,7 +4013,8 @@
 - id: rust-tcp-stream-read
   languages: [rust]
   patterns:
-    - regex: 'stream\\.read\\.s*\\.[^)]+\\.''severity: medium
+    - regex: 'stream\.read\.s*\.[^)]+\.'
+  severity: medium
   description: "TCP read without error check"
   remediation: "Handle read errors"
   cwe: "CWE-754"
@@ -3626,7 +4023,8 @@
 - id: rust-tcp-stream-write
   languages: [rust]
   patterns:
-    - regex: 'stream\\.write\\.s*\\.[^)]+\\.''severity: medium
+    - regex: 'stream\.write\.s*\.[^)]+\.'
+  severity: medium
   description: "TCP write without error check"
   remediation: "Handle write errors"
   cwe: "CWE-754"
@@ -3635,7 +4033,8 @@
 - id: rust-tcp-stream-flush
   languages: [rust]
   patterns:
-    - regex: 'stream\\.flush\\.s*\\.\\.s*\\.''severity: medium
+    - regex: 'stream\.flush\.s*\.\.s*\.'
+  severity: medium
   description: "TCP flush without error check"
   remediation: "Handle flush errors"
   cwe: "CWE-754"
@@ -3644,7 +4043,8 @@
 - id: rust-tcp-stream-peek
   languages: [rust]
   patterns:
-    - regex: 'stream\\.peek\\.s*\\.[^)]+\\.''severity: medium
+    - regex: 'stream\.peek\.s*\.[^)]+\.'
+  severity: medium
   description: "TCP peek without error check"
   remediation: "Handle peek errors"
   cwe: "CWE-754"
@@ -3653,7 +4053,8 @@
 - id: rust-tcp-stream-set-ttl
   languages: [rust]
   patterns:
-    - regex: 'set_ttl\\.s*\\.[^)]+\\.''severity: low
+    - regex: 'set_ttl\.s*\.[^)]+\.'
+  severity: low
   description: "set_ttl without error check"
   remediation: "Handle socket option errors"
   cwe: "CWE-754"
@@ -3662,7 +4063,8 @@
 - id: rust-tcp-stream-set-nodelay
   languages: [rust]
   patterns:
-    - regex: 'set_nodelay\\.s*\\.[^)]+\\.''severity: low
+    - regex: 'set_nodelay\.s*\.[^)]+\.'
+  severity: low
   description: "set_nodelay without error check"
   remediation: "Handle socket option errors"
   cwe: "CWE-754"
@@ -3671,7 +4073,8 @@
 - id: rust-tcp-stream-set-keepalive
   languages: [rust]
   patterns:
-    - regex: 'set_keepalive\\.s*\\.[^)]+\\.''severity: low
+    - regex: 'set_keepalive\.s*\.[^)]+\.'
+  severity: low
   description: "set_keepalive without error check"
   remediation: "Handle socket option errors"
   cwe: "CWE-754"
@@ -3680,7 +4083,8 @@
 - id: rust-udp-socket
   languages: [rust]
   patterns:
-    - regex: 'UdpSocket::bind\\.s*\\.\\.s*[\\.\\.27]0\\.0\\.0\\.0''severity: medium
+    - regex: 'UdpSocket::bind\.s*\.\.s*[\.\.27]0\.0\.0\.0'
+  severity: medium
   description: "UDP socket on all interfaces"
   remediation: "Bind to specific interface"
   cwe: "CWE-284"
@@ -3689,7 +4093,8 @@
 - id: rust-udp-recv-from
   languages: [rust]
   patterns:
-    - regex: 'recv_from\\.s*\\.[^)]+\\.''severity: medium
+    - regex: 'recv_from\.s*\.[^)]+\.'
+  severity: medium
   description: "UDP recv_from without error check"
   remediation: "Handle receive errors"
   cwe: "CWE-754"
@@ -3698,7 +4103,8 @@
 - id: rust-udp-send-to
   languages: [rust]
   patterns:
-    - regex: 'send_to\\.s*\\.[^)]+\\.''severity: medium
+    - regex: 'send_to\.s*\.[^)]+\.'
+  severity: medium
   description: "UDP send_to without error check"
   remediation: "Handle send errors"
   cwe: "CWE-754"
@@ -3707,7 +4113,8 @@
 - id: rust-udp-connect
   languages: [rust]
   patterns:
-    - regex: 'connect\\.s*\\.[^)]+\\.''severity: medium
+    - regex: 'connect\.s*\.[^)]+\.'
+  severity: medium
   description: "UDP connect without error check"
   remediation: "Handle connect errors"
   cwe: "CWE-754"
@@ -3716,7 +4123,8 @@
 - id: rust-dns-lookup
   languages: [rust]
   patterns:
-    - regex: 'std::net::ToSocketAddrs''severity: low
+    - regex: 'std::net::ToSocketAddrs'
+  severity: low
   description: "DNS lookup"
   remediation: "Use async DNS or handle resolution errors"
   cwe: "CWE-754"
@@ -3725,7 +4133,8 @@
 - id: rust-dns-lookup-user
   languages: [rust]
   patterns:
-    - regex: 'ToSocketAddrs.*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'ToSocketAddrs.*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "DNS lookup from user input (SSRF risk)"
   remediation: "Validate and restrict hostnames"
   cwe: "CWE-918"
@@ -3734,7 +4143,8 @@
 - id: rust-http-client
   languages: [rust]
   patterns:
-    - regex: 'reqwest::(get|post|Client::new)''severity: low
+    - regex: 'reqwest::(get|post|Client::new)'
+  severity: low
   description: "HTTP client usage"
   remediation: "Configure client with timeouts"
   cwe: "CWE-770"
@@ -3743,7 +4153,8 @@
 - id: rust-http-client-timeout
   languages: [rust]
   patterns:
-    - regex: 'Client::new\\.\\.''severity: high
+    - regex: 'Client::new\.\.'
+  severity: high
   description: "HTTP client without timeout"
   remediation: "Set timeout with timeout() method"
   cwe: "CWE-770"
@@ -3752,7 +4163,8 @@
 - id: rust-http-client-https
   languages: [rust]
   patterns:
-    - regex: 'Client::new\\.\\.''severity: low
+    - regex: 'Client::new\.\.'
+  severity: low
   description: "HTTP client with default TLS"
   remediation: "Ensure TLS verification is enabled"
   cwe: "CWE-295"
@@ -3761,7 +4173,8 @@
 - id: rust-http-client-insecure
   languages: [rust]
   patterns:
-    - regex: 'danger_accept_invalid_certs\\.true\\.''severity: critical
+    - regex: 'danger_accept_invalid_certs\.true\.'
+  severity: critical
   description: "TLS certificate validation disabled"
   remediation: "Never disable in production"
   cwe: "CWE-295"
@@ -3770,7 +4183,8 @@
 - id: rust-http-client-proxy
   languages: [rust]
   patterns:
-    - regex: 'proxy\\.reqwest::Proxy::https\\.''severity: low
+    - regex: 'proxy\.reqwest::Proxy::https\.'
+  severity: low
   description: "HTTP client with proxy"
   remediation: "Ensure proxy is trusted"
   cwe: "CWE-284"
@@ -3779,7 +4193,8 @@
 - id: rust-http-client-redirect
   languages: [rust]
   patterns:
-    - regex: 'redirect\\.[^)]*Policy::(?:none|limited)''severity: low
+    - regex: 'redirect\.[^)]*Policy::(?:none|limited)'
+  severity: low
   description: "HTTP client with redirect policy"
   remediation: "Configure redirect policy"
   cwe: "CWE-601"
@@ -3788,7 +4203,8 @@
 - id: rust-http-client-redirect-loop
   languages: [rust]
   patterns:
-    - regex: 'redirect\\.[^)]*Policy::default\\.\\.\\.''severity: medium
+    - regex: 'redirect\.[^)]*Policy::default\.\.\.'
+  severity: medium
   description: "HTTP client default redirect policy (may follow all redirects)"
   remediation: "Limit redirects with limited() or custom policy"
   cwe: "CWE-601"
@@ -3797,7 +4213,8 @@
 - id: rust-http-client-cookie-store
   languages: [rust]
   patterns:
-    - regex: 'cookie_store\\.true\\.''severity: low
+    - regex: 'cookie_store\.true\.'
+  severity: low
   description: "HTTP client with cookie store"
   remediation: "Be careful with cookie persistence across requests"
   cwe: "CWE-539"
@@ -3806,7 +4223,8 @@
 - id: rust-http-client-gzip
   languages: [rust]
   patterns:
-    - regex: 'gzip\\.true\\.|deflate\\.true\\.|brotli\\.true\\.''severity: low
+    - regex: 'gzip\.true\.|deflate\.true\.|brotli\.true\.'
+  severity: low
   description: "HTTP client with compression"
   remediation: "Be aware of BREACH attack if using compression with secrets"
   cwe: "CWE-311"
@@ -3815,7 +4233,8 @@
 - id: rust-http-client-referer
   languages: [rust]
   patterns:
-    - regex: 'referer\\.true\\.''severity: low
+    - regex: 'referer\.true\.'
+  severity: low
   description: "HTTP client sending referer header"
   remediation: "Consider privacy implications"
   cwe: "CWE-200"
@@ -3824,7 +4243,8 @@
 - id: rust-http-client-user-agent
   languages: [rust]
   patterns:
-    - regex: 'user_agent\\.[^)]+\\.''severity: low
+    - regex: 'user_agent\.[^)]+\.'
+  severity: low
   description: "Custom User-Agent set"
   remediation: "Use standard User-Agent or set appropriately"
   cwe: "CWE-200"
@@ -3833,7 +4253,8 @@
 - id: rust-http-client-headers
   languages: [rust]
   patterns:
-    - regex: 'header\\.[^,]+,\\.s*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'header\.[^,]+,\.s*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "HTTP header from user input (header injection risk)"
   remediation: "Validate and encode header values"
   cwe: "CWE-113"
@@ -3842,7 +4263,8 @@
 - id: rust-http-client-body
   languages: [rust]
   patterns:
-    - regex: 'body\\.[^)]*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'body\.[^)]*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "HTTP body from user input"
   remediation: "Validate or encode request body"
   cwe: "CWE-20"
@@ -3851,7 +4273,8 @@
 - id: rust-http-client-json
   languages: [rust]
   patterns:
-    - regex: 'json\\.[^)]*r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: 'json\.[^)]*r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "JSON body from user input"
   remediation: "Validate data structure before sending"
   cwe: "CWE-20"
@@ -3860,7 +4283,8 @@
 - id: rust-http-client-form
   languages: [rust]
   patterns:
-    - regex: 'form\\.[^)]*r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: 'form\.[^)]*r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "Form data from user input"
   remediation: "Validate form fields"
   cwe: "CWE-20"
@@ -3869,7 +4293,8 @@
 - id: rust-http-client-multipart
   languages: [rust]
   patterns:
-    - regex: 'multipart::Form::new\\.\\.\\.part''severity: high
+    - regex: 'multipart::Form::new\.\.\.part'
+  severity: high
   description: "Multipart form upload"
   remediation: "Validate file content and size"
   cwe: "CWE-434"
@@ -3878,7 +4303,8 @@
 - id: rust-hyper-server
   languages: [rust]
   patterns:
-    - regex: 'hyper::Server::bind''severity: low
+    - regex: 'hyper::Server::bind'
+  severity: low
   description: "Hyper server binding"
   remediation: "Configure server with timeouts"
   cwe: "CWE-770"
@@ -3887,7 +4313,8 @@
 - id: rust-hyper-server-http1
   languages: [rust]
   patterns:
-    - regex: 'http1_(?:only|keep_alive|title_case_headers)''severity: low
+    - regex: 'http1_(?:only|keep_alive|title_case_headers)'
+  severity: low
   description: "HTTP/1 server configuration"
   remediation: "Configure appropriately for security"
   cwe: "CWE-693"
@@ -3896,7 +4323,8 @@
 - id: rust-hyper-server-http2
   languages: [rust]
   patterns:
-    - regex: 'http2_(?:keep_alive_interval|keep_alive_timeout|adaptive_window)''severity: low
+    - regex: 'http2_(?:keep_alive_interval|keep_alive_timeout|adaptive_window)'
+  severity: low
   description: "HTTP/2 server configuration"
   remediation: "Set reasonable timeouts for HTTP/2"
   cwe: "CWE-770"
@@ -3905,7 +4333,8 @@
 - id: rust-hyper-server-tcp
   languages: [rust]
   patterns:
-    - regex: 'tcp_(?:nodelay|keepalive|sleep_on_accept_errors)''severity: low
+    - regex: 'tcp_(?:nodelay|keepalive|sleep_on_accept_errors)'
+  severity: low
   description: "TCP server configuration"
   remediation: "Configure TCP options appropriately"
   cwe: "CWE-693"
@@ -3914,7 +4343,8 @@
 - id: rust-hyper-server-conn
   languages: [rust]
   patterns:
-    - regex: 'serve_connection''severity: low
+    - regex: 'serve_connection'
+  severity: low
   description: "Hyper connection serving"
   remediation: "Handle connection errors"
   cwe: "CWE-754"
@@ -3925,7 +4355,8 @@
 - id: rust-crypto-md5
   languages: [rust]
   patterns:
-    - regex: 'md5::(Md5|compute)''severity: high
+    - regex: 'md5::(Md5|compute)'
+  severity: high
   description: "MD5 hash used (cryptographically broken)"
   remediation: "Use SHA-256 or SHA-512"
   cwe: "CWE-327"
@@ -3934,7 +4365,8 @@
 - id: rust-crypto-sha1
   languages: [rust]
   patterns:
-    - regex: 'sha1::(Sha1|hash)''severity: high
+    - regex: 'sha1::(Sha1|hash)'
+  severity: high
   description: "SHA-1 hash used (cryptographically weak)"
   remediation: "Use SHA-256 or SHA-512"
   cwe: "CWE-327"
@@ -3943,7 +4375,8 @@
 - id: rust-crypto-sha256
   languages: [rust]
   patterns:
-    - regex: 'sha2::Sha256''severity: low
+    - regex: 'sha2::Sha256'
+  severity: low
   description: "SHA-256 usage (good for general hashing)"
   remediation: "Good choice for hashing"
   cwe: "CWE-327"
@@ -3952,7 +4385,8 @@
 - id: rust-crypto-sha512
   languages: [rust]
   patterns:
-    - regex: 'sha2::Sha512''severity: low
+    - regex: 'sha2::Sha512'
+  severity: low
   description: "SHA-512 usage (strong hashing)"
   remediation: "Good for high-security hashing"
   cwe: "CWE-327"
@@ -3961,7 +4395,8 @@
 - id: rust-crypto-aes
   languages: [rust]
   patterns:
-    - regex: 'aes::(Aes128|Aes192|Aes256)''severity: low
+    - regex: 'aes::(Aes128|Aes192|Aes256)'
+  severity: low
   description: "AES encryption usage"
   remediation: "Use AES-GCM for authenticated encryption"
   cwe: "CWE-327"
@@ -3970,7 +4405,8 @@
 - id: rust-crypto-aes-ecb
   languages: [rust]
   patterns:
-    - regex: 'aes::(?:Aes\\.w+)::new.*ecb::(?:Encrypt|Decrypt)''severity: critical
+    - regex: 'aes::(?:Aes\.w+)::new.*ecb::(?:Encrypt|Decrypt)'
+  severity: critical
   description: "AES-ECB mode (insecure, not semantically secure)"
   remediation: "Use AES-GCM or AES-CBC with HMAC"
   cwe: "CWE-327"
@@ -3979,7 +4415,8 @@
 - id: rust-crypto-aes-cbc
   languages: [rust]
   patterns:
-    - regex: 'aes::(?:Aes\\.w+)::new.*cbc::(?:Encrypt|Decrypt)''severity: high
+    - regex: 'aes::(?:Aes\.w+)::new.*cbc::(?:Encrypt|Decrypt)'
+  severity: high
   description: "AES-CBC mode without authentication (padding oracle risk)"
   remediation: "Use AES-GCM for authenticated encryption"
   cwe: "CWE-327"
@@ -3988,7 +4425,8 @@
 - id: rust-crypto-aes-gcm
   languages: [rust]
   patterns:
-    - regex: 'aes_gcm::(?:Aes128Gcm|Aes256Gcm)''severity: low
+    - regex: 'aes_gcm::(?:Aes128Gcm|Aes256Gcm)'
+  severity: low
   description: "AES-GCM (authenticated encryption)"
   remediation: "Good choice, ensure nonces are unique"
   cwe: "CWE-327"
@@ -3997,7 +4435,8 @@
 - id: rust-crypto-chacha20
   languages: [rust]
   patterns:
-    - regex: 'chacha20::ChaCha20''severity: medium
+    - regex: 'chacha20::ChaCha20'
+  severity: medium
   description: "ChaCha20 stream cipher (without authentication)"
   remediation: "Use ChaCha20Poly1305 for authenticated encryption"
   cwe: "CWE-327"
@@ -4006,7 +4445,8 @@
 - id: rust-crypto-chacha20poly1305
   languages: [rust]
   patterns:
-    - regex: 'chacha20poly1305::ChaCha20Poly1305''severity: low
+    - regex: 'chacha20poly1305::ChaCha20Poly1305'
+  severity: low
   description: "ChaCha20-Poly1305 (authenticated encryption)"
   remediation: "Good choice, ensure nonces are unique"
   cwe: "CWE-327"
@@ -4015,7 +4455,8 @@
 - id: rust-crypto-rsa
   languages: [rust]
   patterns:
-    - regex: 'rsa::(RsaPrivateKey|RsaPublicKey)''severity: low
+    - regex: 'rsa::(RsaPrivateKey|RsaPublicKey)'
+  severity: low
   description: "RSA encryption/signing"
   remediation: "Use OAEP padding for encryption, PSS for signing"
   cwe: "CWE-327"
@@ -4024,7 +4465,8 @@
 - id: rust-crypto-rsa-small-key
   languages: [rust]
   patterns:
-    - regex: 'rsa::RsaPrivateKey::new.*[0-9]{1,3}\\.s*\\.''severity: high
+    - regex: 'rsa::RsaPrivateKey::new.*[0-9]{1,3}\.s*\.'
+  severity: high
   description: "RSA key size too small (<2048 bits)"
   remediation: "Use 2048-bit or larger keys"
   cwe: "CWE-326"
@@ -4033,7 +4475,8 @@
 - id: rust-crypto-rsa-pkcs1
   languages: [rust]
   patterns:
-    - regex: 'rsa::pkcs1''severity: medium
+    - regex: 'rsa::pkcs1'
+  severity: medium
   description: "RSA PKCS#1 v1.5 padding (vulnerable to attacks)"
   remediation: "Use OAEP for encryption, PSS for signing"
   cwe: "CWE-327"
@@ -4042,7 +4485,8 @@
 - id: rust-crypto-rsa-oaep
   languages: [rust]
   patterns:
-    - regex: 'rsa::oaep''severity: low
+    - regex: 'rsa::oaep'
+  severity: low
   description: "RSA-OAEP (secure padding for encryption)"
   remediation: "Good choice for RSA encryption"
   cwe: "CWE-327"
@@ -4051,7 +4495,8 @@
 - id: rust-crypto-rsa-pss
   languages: [rust]
   patterns:
-    - regex: 'rsa::pss''severity: low
+    - regex: 'rsa::pss'
+  severity: low
   description: "RSA-PSS (secure padding for signatures)"
   remediation: "Good choice for RSA signatures"
   cwe: "CWE-327"
@@ -4060,7 +4505,8 @@
 - id: rust-crypto-ecdsa
   languages: [rust]
   patterns:
-    - regex: 'ecdsa::(SigningKey|VerifyingKey)''severity: low
+    - regex: 'ecdsa::(SigningKey|VerifyingKey)'
+  severity: low
   description: "ECDSA signatures"
   remediation: "Use with NIST P-256 or secp256k1"
   cwe: "CWE-327"
@@ -4069,7 +4515,8 @@
 - id: rust-crypto-ecdsa-curve
   languages: [rust]
   patterns:
-    - regex: 'p256::NistP256|k256::Secp256k1|p384::NistP384''severity: low
+    - regex: 'p256::NistP256|k256::Secp256k1|p384::NistP384'
+  severity: low
   description: "ECDSA curve selection"
   remediation: "P-256 and secp256k1 are good choices"
   cwe: "CWE-326"
@@ -4078,7 +4525,8 @@
 - id: rust-crypto-ed25519
   languages: [rust]
   patterns:
-    - regex: 'ed25519_dalek::(SigningKey|VerifyingKey)''severity: low
+    - regex: 'ed25519_dalek::(SigningKey|VerifyingKey)'
+  severity: low
   description: "Ed25519 signatures"
   remediation: "Good choice for signatures"
   cwe: "CWE-327"
@@ -4087,7 +4535,8 @@
 - id: rust-crypto-hmac
   languages: [rust]
   patterns:
-    - regex: 'hmac::(Hmac|Mac)''severity: low
+    - regex: 'hmac::(Hmac|Mac)'
+  severity: low
   description: "HMAC for message authentication"
   remediation: "Good for authentication, use with SHA-256"
   cwe: "CWE-327"
@@ -4096,7 +4545,8 @@
 - id: rust-crypto-hmac-static-key
   languages: [rust]
   patterns:
-    - regex: 'hmac::Mac::new_from_slice\\.s*\\.\\.s*&?b?[\\.\\.27][^\\.\\.27]+[\\.\\.27]''severity: high
+    - regex: 'hmac::Mac::new_from_slice\.s*\.\.s*&?b?[\.\.27][^\.\.27]+[\.\.27]'
+  severity: high
   description: "HMAC with static key (hardcoded)"
   remediation: "Use random keys or derive from password"
   cwe: "CWE-321"
@@ -4105,7 +4555,8 @@
 - id: rust-crypto-pbkdf2
   languages: [rust]
   patterns:
-    - regex: 'pbkdf2::pbkdf2''severity: low
+    - regex: 'pbkdf2::pbkdf2'
+  severity: low
   description: "PBKDF2 key derivation"
   remediation: "Use sufficient iterations (100,000+)"
   cwe: "CWE-916"
@@ -4114,7 +4565,8 @@
 - id: rust-crypto-pbkdf2-iterations
   languages: [rust]
   patterns:
-    - regex: 'pbkdf2::pbkdf2.*[0-9]{1,4}\\.s*\\.''severity: high
+    - regex: 'pbkdf2::pbkdf2.*[0-9]{1,4}\.s*\.'
+  severity: high
   description: "PBKDF2 iterations too low (<100,000)"
   remediation: "Use at least 100,000 iterations"
   cwe: "CWE-916"
@@ -4123,7 +4575,8 @@
 - id: rust-crypto-scrypt
   languages: [rust]
   patterns:
-    - regex: 'scrypt::scrypt''severity: low
+    - regex: 'scrypt::scrypt'
+  severity: low
   description: "scrypt key derivation"
   remediation: "Use appropriate memory parameters"
   cwe: "CWE-916"
@@ -4132,7 +4585,8 @@
 - id: rust-crypto-scrypt-params
   languages: [rust]
   patterns:
-    - regex: 'scrypt::ScryptParams::new\\.s*\\.\\.s*[0-9]{1,2}''severity: high
+    - regex: 'scrypt::ScryptParams::new\.s*\.\.s*[0-9]{1,2}'
+  severity: high
   description: "scrypt parameters too weak"
   remediation: "Use log_n=15 (32768), r=8, p=1 as minimum"
   cwe: "CWE-916"
@@ -4141,7 +4595,8 @@
 - id: rust-crypto-argon2
   languages: [rust]
   patterns:
-    - regex: 'argon2::Argon2''severity: low
+    - regex: 'argon2::Argon2'
+  severity: low
   description: "Argon2 password hashing"
   remediation: "Good choice for password hashing"
   cwe: "CWE-916"
@@ -4150,7 +4605,8 @@
 - id: rust-crypto-argon2-params
   languages: [rust]
   patterns:
-    - regex: 'Argon2::new\\.[^,]+,\\.s*[0-9]{1,2},\\.s*[0-9]{1,3},\\.s*[0-9]{1,3}''severity: medium
+    - regex: 'Argon2::new\.[^,]+,\.s*[0-9]{1,2},\.s*[0-9]{1,3},\.s*[0-9]{1,3}'
+  severity: medium
   description: "Argon2 parameters may be weak"
   remediation: "Use m=19456 (19MB), t=2, p=1 as minimum"
   cwe: "CWE-916"
@@ -4159,7 +4615,8 @@
 - id: rust-crypto-bcrypt
   languages: [rust]
   patterns:
-    - regex: 'bcrypt::(hash|verify)''severity: low
+    - regex: 'bcrypt::(hash|verify)'
+  severity: low
   description: "bcrypt password hashing"
   remediation: "Use cost factor 10-12"
   cwe: "CWE-916"
@@ -4168,7 +4625,8 @@
 - id: rust-crypto-bcrypt-cost
   languages: [rust]
   patterns:
-    - regex: 'bcrypt::DEFAULT_COST|bcrypt::MIN_COST''severity: medium
+    - regex: 'bcrypt::DEFAULT_COST|bcrypt::MIN_COST'
+  severity: medium
   description: "bcrypt default cost may be too low"
   remediation: "Use explicit cost 10-12"
   cwe: "CWE-916"
@@ -4177,7 +4635,8 @@
 - id: rust-crypto-rand
   languages: [rust]
   patterns:
-    - regex: 'rand::(?:random|Rng)''severity: high
+    - regex: 'rand::(?:random|Rng)'
+  severity: high
   description: "Non-cryptographic random for security"
   remediation: "Use rand::rngs::OsRng or getrandom crate"
   cwe: "CWE-330"
@@ -4186,7 +4645,8 @@
 - id: rust-crypto-rand-os
   languages: [rust]
   patterns:
-    - regex: 'rand::rngs::OsRng|getrandom''severity: low
+    - regex: 'rand::rngs::OsRng|getrandom'
+  severity: low
   description: "Cryptographically secure random"
   remediation: "Good for security-sensitive randomness"
   cwe: "CWE-330"
@@ -4195,7 +4655,8 @@
 - id: rust-crypto-rand-thread
   languages: [rust]
   patterns:
-    - regex: 'rand::thread_rng\\.\\.''severity: high
+    - regex: 'rand::thread_rng\.\.'
+  severity: high
   description: "Thread-local random (not cryptographically secure)"
   remediation: "Use OsRng for security"
   cwe: "CWE-330"
@@ -4206,7 +4667,8 @@
 - id: rust-serde-derive
   languages: [rust]
   patterns:
-    - regex: '#\\.derive\\.[^)]*(?:Deserialize|Serialize)[^)]*\\.]''severity: low
+    - regex: '#\.derive\.[^)]*(?:Deserialize|Serialize)[^)]*\.'
+  severity: low
   description: "Serde derive macros"
   remediation: "Be careful with untrusted deserialization"
   cwe: "CWE-502"
@@ -4215,7 +4677,8 @@
 - id: rust-serde-deserialize-untrusted
   languages: [rust]
   patterns:
-    - regex: 'Deserialize.*(?:from_reader|from_slice|from_str).*r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'Deserialize.*(?:from_reader|from_slice|from_str).*r\.(FormValue|URL\.Query)'
+  severity: high
   description: "Deserializing untrusted user input"
   remediation: "Validate after deserialization"
   cwe: "CWE-502"
@@ -4224,7 +4687,8 @@
 - id: rust-serde-json
   languages: [rust]
   patterns:
-    - regex: 'serde_json::(?:from_reader|from_slice|from_str|to_string)''severity: low
+    - regex: 'serde_json::(?:from_reader|from_slice|from_str|to_string)'
+  severity: low
   description: "JSON serialization/deserialization"
   remediation: "Validate JSON structure before parsing"
   cwe: "CWE-502"
@@ -4233,7 +4697,8 @@
 - id: rust-serde-json-untrusted
   languages: [rust]
   patterns:
-    - regex: 'serde_json::(?:from_reader|from_slice|from_str)\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'serde_json::(?:from_reader|from_slice|from_str)\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "JSON deserialization from user input"
   remediation: "Validate JSON and use safe types"
   cwe: "CWE-502"
@@ -4242,7 +4707,8 @@
 - id: rust-serde-json-value
   languages: [rust]
   patterns:
-    - regex: 'serde_json::Value''severity: medium
+    - regex: 'serde_json::Value'
+  severity: medium
   description: "Untyped JSON value (may hide structure)"
   remediation: "Deserialize into concrete types"
   cwe: "CWE-20"
@@ -4251,7 +4717,8 @@
 - id: rust-serde-yaml
   languages: [rust]
   patterns:
-    - regex: 'serde_yaml::(?:from_reader|from_slice|from_str)''severity: high
+    - regex: 'serde_yaml::(?:from_reader|from_slice|from_str)'
+  severity: high
   description: "YAML deserialization (may be unsafe)"
   remediation: "Use safe YAML parser; avoid arbitrary YAML"
   cwe: "CWE-502"
@@ -4260,7 +4727,8 @@
 - id: rust-serde-yaml-untrusted
   languages: [rust]
   patterns:
-    - regex: 'serde_yaml::(?:from_reader|from_slice|from_str)\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'serde_yaml::(?:from_reader|from_slice|from_str)\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "YAML deserialization from user input (code execution risk)"
   remediation: "Never deserialize YAML from untrusted sources"
   cwe: "CWE-502"
@@ -4269,7 +4737,8 @@
 - id: rust-serde-yaml-value
   languages: [rust]
   patterns:
-    - regex: 'serde_yaml::Value''severity: high
+    - regex: 'serde_yaml::Value'
+  severity: high
   description: "Untyped YAML value (dangerous with untrusted input)"
   remediation: "Use concrete types only"
   cwe: "CWE-20"
@@ -4278,7 +4747,8 @@
 - id: rust-serde-toml
   languages: [rust]
   patterns:
-    - regex: 'toml::(?:from_str|from_slice|Value)''severity: low
+    - regex: 'toml::(?:from_str|from_slice|Value)'
+  severity: low
   description: "TOML deserialization (generally safe)"
   remediation: "Use for configuration only"
   cwe: "CWE-502"
@@ -4287,7 +4757,8 @@
 - id: rust-serde-toml-untrusted
   languages: [rust]
   patterns:
-    - regex: 'toml::from_str\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: medium
+    - regex: 'toml::from_str\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: medium
   description: "TOML from user input (potential DoS)"
   remediation: "Limit input size and depth"
   cwe: "CWE-770"
@@ -4296,7 +4767,8 @@
 - id: rust-serde-bincode
   languages: [rust]
   patterns:
-    - regex: 'bincode::(?:deserialize|serialize)''severity: high
+    - regex: 'bincode::(?:deserialize|serialize)'
+  severity: high
   description: "Bincode binary serialization (not self-describing)"
   remediation: "Never deserialize untrusted bincode"
   cwe: "CWE-502"
@@ -4305,7 +4777,8 @@
 - id: rust-serde-bincode-untrusted
   languages: [rust]
   patterns:
-    - regex: 'bincode::deserialize.*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'bincode::deserialize.*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Bincode deserialization from user input (memory corruption risk)"
   remediation: "Never deserialize bincode from untrusted sources"
   cwe: "CWE-502"
@@ -4314,7 +4787,8 @@
 - id: rust-serde-cbor
   languages: [rust]
   patterns:
-    - regex: 'serde_cbor::(?:from_reader|from_slice|from_str)''severity: medium
+    - regex: 'serde_cbor::(?:from_reader|from_slice|from_str)'
+  severity: medium
   description: "CBOR deserialization"
   remediation: "Validate CBOR structure"
   cwe: "CWE-502"
@@ -4323,7 +4797,8 @@
 - id: rust-serde-msgpack
   languages: [rust]
   patterns:
-    - regex: 'rmp_serde::(?:from_slice|from_read)''severity: medium
+    - regex: 'rmp_serde::(?:from_slice|from_read)'
+  severity: medium
   description: "MessagePack deserialization"
   remediation: "Validate MessagePack structure"
   cwe: "CWE-502"
@@ -4332,7 +4807,8 @@
 - id: rust-serde-avro
   languages: [rust]
   patterns:
-    - regex: 'avro_rs::(?:from_value|from_avro_datum)''severity: low
+    - regex: 'avro_rs::(?:from_value|from_avro_datum)'
+  severity: low
   description: "Avro deserialization (schema-based)"
   remediation: "Use schema validation"
   cwe: "CWE-502"
@@ -4341,7 +4817,8 @@
 - id: rust-pickle
   languages: [rust]
   patterns:
-    - regex: 'pickle::(?:from_reader|from_slice)''severity: critical
+    - regex: 'pickle::(?:from_reader|from_slice)'
+  severity: critical
   description: "Python pickle deserialization (extremely dangerous)"
   remediation: "Never use pickle with untrusted data"
   cwe: "CWE-502"
@@ -4350,7 +4827,8 @@
 - id: rust-ron
   languages: [rust]
   patterns:
-    - regex: 'ron::(?:from_str|de::from_reader)''severity: medium
+    - regex: 'ron::(?:from_str|de::from_reader)'
+  severity: medium
   description: "RON deserialization (Rust Object Notation)"
   remediation: "Limit recursion depth"
   cwe: "CWE-502"
@@ -4359,7 +4837,8 @@
 - id: rust-ron-untrusted
   languages: [rust]
   patterns:
-    - regex: 'ron::from_str\\.s*\\.\\.s*&?r\\.(FormValue|URL\\.Query)''severity: high
+    - regex: 'ron::from_str\.s*\.\.s*&?r\.(FormValue|URL\.Query)'
+  severity: high
   description: "RON from user input (potential code execution)"
   remediation: "Avoid RON with untrusted input"
   cwe: "CWE-502"
@@ -4368,7 +4847,8 @@
 - id: rust-xml
   languages: [rust]
   patterns:
-    - regex: 'xml::reader::EventReader|roxmltree::Document''severity: medium
+    - regex: 'xml::reader::EventReader|roxmltree::Document'
+  severity: medium
   description: "XML parsing (XXE risk)"
   remediation: "Disable external entities"
   cwe: "CWE-611"
@@ -4377,7 +4857,8 @@
 - id: rust-xml-external-entities
   languages: [rust]
   patterns:
-    - regex: 'xml::reader::ParserConfig::new\\.\\.\\.expand_entities\\.true\\.''severity: critical
+    - regex: 'xml::reader::ParserConfig::new\.\.\.expand_entities\.true\.'
+  severity: critical
   description: "XML parser expanding external entities (XXE)"
   remediation: "Set expand_entities(false)"
   cwe: "CWE-611"
@@ -4386,7 +4867,8 @@
 - id: rust-xml-dtd
   languages: [rust]
   patterns:
-    - regex: 'xml::reader::ParserConfig::new\\.\\.\\.ignore_comments\\.false\\.''severity: low
+    - regex: 'xml::reader::ParserConfig::new\.\.\.ignore_comments\.false\.'
+  severity: low
   description: "XML parser may process DTDs"
   remediation: "Consider disabling DTD processing"
   cwe: "CWE-611"
@@ -4395,7 +4877,8 @@
 - id: rust-html
   languages: [rust]
   patterns:
-    - regex: 'html5ever|kuchiki|scraper''severity: medium
+    - regex: 'html5ever|kuchiki|scraper'
+  severity: medium
   description: "HTML parsing (XSS risk if not sanitized)"
   remediation: "Sanitize HTML output"
   cwe: "CWE-79"
@@ -4404,7 +4887,8 @@
 - id: rust-askama
   languages: [rust]
   patterns:
-    - regex: '#\\.derive\\.Template\\.\\.''severity: low
+    - regex: '#\.derive\.Template\.\.'
+  severity: low
   description: "Askama template"
   remediation: "Ensure templates escape by default"
   cwe: "CWE-79"
@@ -4413,7 +4897,8 @@
 - id: rust-tera
   languages: [rust]
   patterns:
-    - regex: 'Tera::(?:new|parse)''severity: low
+    - regex: 'Tera::(?:new|parse)'
+  severity: low
   description: "Tera template engine"
   remediation: "Enable autoescaping for HTML"
   cwe: "CWE-79"
@@ -4422,7 +4907,8 @@
 - id: rust-tera-autoescape
   languages: [rust]
   patterns:
-    - regex: 'Tera::new.*?''severity: medium
+    - regex: 'Tera::new.*?'
+  severity: medium
   description: "Tera without autoescaping (XSS risk)"
   remediation: "Configure autoescape for HTML templates"
   cwe: "CWE-79"
@@ -4431,7 +4917,8 @@
 - id: rust-handlebars
   languages: [rust]
   patterns:
-    - regex: 'handlebars::Handlebars''severity: low
+    - regex: 'handlebars::Handlebars'
+  severity: low
   description: "Handlebars template engine"
   remediation: "Enable HTML escaping"
   cwe: "CWE-79"
@@ -4442,7 +4929,8 @@
 - id: rust-unwrap
   languages: [rust]
   patterns:
-    - regex: '\\.unwrap\\.\\.''severity: medium
+    - regex: '\.unwrap\.\.'
+  severity: medium
   description: "unwrap() called (may panic on error)"
   remediation: "Use proper error handling with ? or match"
   cwe: "CWE-754"
@@ -4451,7 +4939,8 @@
 - id: rust-expect
   languages: [rust]
   patterns:
-    - regex: '\\.expect\\.[^)]+\\.''severity: medium
+    - regex: '\.expect\.[^)]+\.'
+  severity: medium
   description: "expect() called with message (still panics)"
   remediation: "Use proper error handling"
   cwe: "CWE-754"
@@ -4460,7 +4949,8 @@
 - id: rust-unwrap-or
   languages: [rust]
   patterns:
-    - regex: '\\.unwrap_or\\.[^)]+\\.''severity: low
+    - regex: '\.unwrap_or\.[^)]+\.'
+  severity: low
   description: "unwrap_or (may hide errors)"
   remediation: "Consider if default value is appropriate"
   cwe: "CWE-754"
@@ -4469,7 +4959,8 @@
 - id: rust-unwrap-or-else
   languages: [rust]
   patterns:
-    - regex: '\\.unwrap_or_else\\.[^)]+\\.''severity: low
+    - regex: '\.unwrap_or_else\.[^)]+\.'
+  severity: low
   description: "unwrap_or_else (may hide errors)"
   remediation: "Consider logging error in closure"
   cwe: "CWE-754"
@@ -4478,7 +4969,8 @@
 - id: rust-unwrap-default
   languages: [rust]
   patterns:
-    - regex: '\\.unwrap_or_default\\.\\.''severity: low
+    - regex: '\.unwrap_or_default\.\.'
+  severity: low
   description: "unwrap_or_default (may hide errors)"
   remediation: "Consider if default makes sense"
   cwe: "CWE-754"
@@ -4487,7 +4979,8 @@
 - id: rust-expect-msg-sensitive
   languages: [rust]
   patterns:
-    - regex: '\\.expect\\.[\\.\\.][^\\.\\.]*(?:password|token|key|secret)[^\\.\\.]*[\\.\\.]\\.''severity: high
+    - regex: '\.expect\.[\.\.][^\.\.]*(?:password|token|key|secret)[^\.\.]*[\.\.]\.'
+  severity: high
   description: "expect() message may leak sensitive info in panic"
   remediation: "Avoid including secrets in panic messages"
   cwe: "CWE-200"
@@ -4496,7 +4989,8 @@
 - id: rust-panic
   languages: [rust]
   patterns:
-    - regex: 'panic!\\.''severity: high
+    - regex: 'panic!\.'
+  severity: high
   description: "panic! in library or production code"
   remediation: "Return Result instead of panicking"
   cwe: "CWE-754"
@@ -4505,7 +4999,8 @@
 - id: rust-panic-msg-sensitive
   languages: [rust]
   patterns:
-    - regex: 'panic!\\.[\\.\\.][^\\.\\.]*(?:password|token|key|secret)[^\\.\\.]*[\\.\\.]\\.''severity: critical
+    - regex: 'panic!\.[\.\.][^\.\.]*(?:password|token|key|secret)[^\.\.]*[\.\.]\.'
+  severity: critical
   description: "panic! with sensitive information"
   remediation: "Remove sensitive data from panic messages"
   cwe: "CWE-200"
@@ -4514,7 +5009,8 @@
 - id: rust-todo
   languages: [rust]
   patterns:
-    - regex: 'todo!\\.\\.''severity: low
+    - regex: 'todo!\.\.'
+  severity: low
   description: "todo!() in code (will panic)"
   remediation: "Implement the functionality"
   cwe: "CWE-754"
@@ -4523,7 +5019,8 @@
 - id: rust-unimplemented
   languages: [rust]
   patterns:
-    - regex: 'unimplemented!\\.\\.''severity: low
+    - regex: 'unimplemented!\.\.'
+  severity: low
   description: "unimplemented!() in code (will panic)"
   remediation: "Implement the trait/method"
   cwe: "CWE-754"
@@ -4532,7 +5029,8 @@
 - id: rust-unreachable
   languages: [rust]
   patterns:
-    - regex: 'unreachable!\\.\\.''severity: medium
+    - regex: 'unreachable!\.\.'
+  severity: medium
   description: "unreachable!() called (assumes code path impossible)"
   remediation: "Verify assumption holds or handle gracefully"
   cwe: "CWE-754"
@@ -4541,7 +5039,8 @@
 - id: rust-result-ignore
   languages: [rust]
   patterns:
-    - regex: 'let _ = [^;]+(?:\\.unwrap\\.\\.)?;''severity: medium
+    - regex: 'let _ = [^;]+(?:\.unwrap\.\.)?;'
+  severity: medium
   description: "Result ignored with let _ (silent failure)"
   remediation: "Handle errors properly"
   cwe: "CWE-754"
@@ -4550,7 +5049,8 @@
 - id: rust-result-ok-or
   languages: [rust]
   patterns:
-    - regex: '\\.ok_or\\.[^)]+\\.''severity: low
+    - regex: '\.ok_or\.[^)]+\.'
+  severity: low
   description: "Converting Result to Result with custom error"
   remediation: "Good practice, ensure error messages are safe"
   cwe: "CWE-754"
@@ -4559,7 +5059,8 @@
 - id: rust-result-map-err
   languages: [rust]
   patterns:
-    - regex: '\\.map_err\\.[^)]+\\.''severity: low
+    - regex: '\.map_err\.[^)]+\.'
+  severity: low
   description: "Mapping error types"
   remediation: "Preserve error context"
   cwe: "CWE-754"
@@ -4568,7 +5069,8 @@
 - id: rust-anyhow-context
   languages: [rust]
   patterns:
-    - regex: '\\.context\\.[^)]+\\.''severity: low
+    - regex: '\.context\.[^)]+\.'
+  severity: low
   description: "Adding context to errors (good practice)"
   remediation: "Add meaningful context"
   cwe: "CWE-754"
@@ -4577,7 +5079,8 @@
 - id: rust-anyhow-bail
   languages: [rust]
   patterns:
-    - regex: 'bail!\\.''severity: low
+    - regex: 'bail!\.'
+  severity: low
   description: "Early error return with anyhow"
   remediation: "Good for error handling"
   cwe: "CWE-754"
@@ -4586,7 +5089,8 @@
 - id: rust-thiserror
   languages: [rust]
   patterns:
-    - regex: '#\\.derive\\.Error\\.\\.''severity: low
+    - regex: '#\.derive\.Error\.\.'
+  severity: low
   description: "Custom error type with thiserror"
   remediation: "Good for library error types"
   cwe: "CWE-754"
@@ -4595,7 +5099,8 @@
 - id: rust-option-ok-or
   languages: [rust]
   patterns:
-    - regex: '\\.ok_or\\.[^)]+\\.''severity: low
+    - regex: '\.ok_or\.[^)]+\.'
+  severity: low
   description: "Converting Option to Result"
   remediation: "Good practice, provides error context"
   cwe: "CWE-754"
@@ -4604,7 +5109,8 @@
 - id: rust-option-expect
   languages: [rust]
   patterns:
-    - regex: '\\.expect\\.[^)]+\\.''severity: medium
+    - regex: '\.expect\.[^)]+\.'
+  severity: medium
   description: "Option.expect (panics if None)"
   remediation: "Use ok_or? to convert to Result"
   cwe: "CWE-754"
@@ -4613,7 +5119,8 @@
 - id: rust-log-error
   languages: [rust]
   patterns:
-    - regex: 'log::error''severity: low
+    - regex: 'log::error'
+  severity: low
   description: "Error logging"
   remediation: "Don't log sensitive data"
   cwe: "CWE-532"
@@ -4624,7 +5131,8 @@
 - id: rust-env-var
   languages: [rust]
   patterns:
-    - regex: 'std::env::var\\.s*\\.\\.s*[\\.\\.][^\\.\\.]+[\\.\\.]\\.''severity: low
+    - regex: 'std::env::var\.s*\.\.s*[\.\.][^\.\.]+[\.\.]\.'
+  severity: low
   description: "Reading environment variable"
   remediation: "Handle missing env vars gracefully"
   cwe: "CWE-20"
@@ -4633,7 +5141,8 @@
 - id: rust-env-var-unchecked
   languages: [rust]
   patterns:
-    - regex: 'std::env::var\\.s*\\.\\.s*[\\.\\.][^\\.\\.]+[\\.\\.]\\.''severity: medium
+    - regex: 'std::env::var\.s*\.\.s*[\.\.][^\.\.]+[\.\.]\.'
+  severity: medium
   description: "env::var without error handling (returns Result)"
   remediation: "Handle missing env vars with unwrap_or or match"
   cwe: "CWE-754"
@@ -4642,7 +5151,8 @@
 - id: rust-env-var-os
   languages: [rust]
   patterns:
-    - regex: 'std::env::var_os''severity: low
+    - regex: 'std::env::var_os'
+  severity: low
   description: "Reading OS environment variable"
   remediation: "Handle non-Unicode values"
   cwe: "CWE-20"
@@ -4651,7 +5161,8 @@
 - id: rust-env-args
   languages: [rust]
   patterns:
-    - regex: 'std::env::args\\.\\.''severity: low
+    - regex: 'std::env::args\.\.'
+  severity: low
   description: "Reading command line arguments"
   remediation: "Validate all arguments"
   cwe: "CWE-20"
@@ -4660,7 +5171,8 @@
 - id: rust-env-args-os
   languages: [rust]
   patterns:
-    - regex: 'std::env::args_os\\.\\.''severity: low
+    - regex: 'std::env::args_os\.\.'
+  severity: low
   description: "Reading OS command line arguments"
   remediation: "Handle non-Unicode arguments"
   cwe: "CWE-20"
@@ -4669,7 +5181,8 @@
 - id: rust-env-current-dir
   languages: [rust]
   patterns:
-    - regex: 'std::env::current_dir\\.\\.''severity: low
+    - regex: 'std::env::current_dir\.\.'
+  severity: low
   description: "Getting current directory"
   remediation: "Handle permissions errors"
   cwe: "CWE-754"
@@ -4678,7 +5191,8 @@
 - id: rust-env-set-var
   languages: [rust]
   patterns:
-    - regex: 'std::env::set_var\\.s*\\.\\.s*[\\.\\.][^\\.\\.]+[\\.\\.]''severity: high
+    - regex: 'std::env::set_var\.s*\.\.s*[\.\.][^\.\.]+[\.\.]'
+  severity: high
   description: "Setting environment variable"
   remediation: "Be careful modifying environment"
   cwe: "CWE-20"
@@ -4687,7 +5201,8 @@
 - id: rust-env-set-var-user
   languages: [rust]
   patterns:
-    - regex: 'std::env::set_var\\.s*\\.\\.s*[\\.\\.][^\\.\\.]+[\\.\\.],\\.s*r\\.(FormValue|URL\\.Query)''severity: critical
+    - regex: 'std::env::set_var\.s*\.\.s*[\.\.][^\.\.]+[\.\.],\.s*r\.(FormValue|URL\.Query)'
+  severity: critical
   description: "Setting env var from user input (env injection)"
   remediation: "Never set env vars from user input"
   cwe: "CWE-20"
@@ -4696,7 +5211,8 @@
 - id: rust-env-remove-var
   languages: [rust]
   patterns:
-    - regex: 'std::env::remove_var''severity: medium
+    - regex: 'std::env::remove_var'
+  severity: medium
   description: "Removing environment variable"
   remediation: "Consider impact on child processes"
   cwe: "CWE-20"
@@ -4705,7 +5221,8 @@
 - id: rust-env-join-paths
   languages: [rust]
   patterns:
-    - regex: 'std::env::join_paths''severity: low
+    - regex: 'std::env::join_paths'
+  severity: low
   description: "Joining paths for PATH variable"
   remediation: "Handle errors properly"
   cwe: "CWE-754"
@@ -4714,7 +5231,8 @@
 - id: rust-env-split-paths
   languages: [rust]
   patterns:
-    - regex: 'std::env::split_paths''severity: low
+    - regex: 'std::env::split_paths'
+  severity: low
   description: "Splitting PATH variable"
   remediation: "Validate each path"
   cwe: "CWE-20"
@@ -4723,7 +5241,8 @@
 - id: rust-env-temp-dir
   languages: [rust]
   patterns:
-    - regex: 'std::env::temp_dir\\.\\.''severity: low
+    - regex: 'std::env::temp_dir\.\.'
+  severity: low
   description: "Getting temp directory"
   remediation: "Ensure directory exists and is writable"
   cwe: "CWE-377"
@@ -4732,7 +5251,8 @@
 - id: rust-env-home-dir
   languages: [rust]
   patterns:
-    - regex: 'std::env::home_dir\\.\\.''severity: low
+    - regex: 'std::env::home_dir\.\.'
+  severity: low
   description: "Getting home directory (deprecated)"
   remediation: "Use dirs::home_dir() crate"
   cwe: "CWE-20"
@@ -4741,7 +5261,8 @@
 - id: rust-dotenv
   languages: [rust]
   patterns:
-    - regex: 'dotenv::dotenv\\.\\.|dotenv::from_filename''severity: low
+    - regex: 'dotenv::dotenv\.\.|dotenv::from_filename'
+  severity: low
   description: "Loading .env file"
   remediation: "Don't commit .env files to version control"
   cwe: "CWE-798"
@@ -4750,7 +5271,8 @@
 - id: rust-dotenv-var
   languages: [rust]
   patterns:
-    - regex: 'dotenv::var''severity: low
+    - regex: 'dotenv::var'
+  severity: low
   description: "Reading from .env file"
   remediation: "Handle missing variables"
   cwe: "CWE-754"
@@ -4759,7 +5281,8 @@
 - id: rust-config-env
   languages: [rust]
   patterns:
-    - regex: 'config::Config::new\\.\\.\\.set''severity: low
+    - regex: 'config::Config::new\.\.\.set'
+  severity: low
   description: "Config crate usage"
   remediation: "Use environment variables for secrets"
   cwe: "CWE-693"
@@ -4768,7 +5291,8 @@
 - id: rust-config-file
   languages: [rust]
   patterns:
-    - regex: 'config::Config::new\\.\\.\\.add_source\\.config::File::with_name''severity: low
+    - regex: 'config::Config::new\.\.\.add_source\.config::File::with_name'
+  severity: low
   description: "Loading config file"
   remediation: "Validate config file permissions"
   cwe: "CWE-732"
@@ -4777,7 +5301,8 @@
 - id: rust-config-env-prefix
   languages: [rust]
   patterns:
-    - regex: 'config::Config::new\\.\\.\\.add_source\\.config::Environment::with_prefix''severity: low
+    - regex: 'config::Config::new\.\.\.add_source\.config::Environment::with_prefix'
+  severity: low
   description: "Environment config with prefix"
   remediation: "Good for separating config sources"
   cwe: "CWE-693"
@@ -4786,7 +5311,8 @@
 - id: rust-clap
   languages: [rust]
   patterns:
-    - regex: 'clap::(Command|App)::new''severity: low
+    - regex: 'clap::(Command|App)::new'
+  severity: low
   description: "CLI argument parsing with clap"
   remediation: "Validate all inputs"
   cwe: "CWE-20"
@@ -4795,7 +5321,8 @@
 - id: rust-clap-arg-sensitive
   languages: [rust]
   patterns:
-    - regex: 'arg\\.[^)]*\\.env\\.[^)]*\\.\\.''severity: medium
+    - regex: 'arg\.[^)]*\.env\.[^)]*\.\.'
+  severity: medium
   description: "CLI argument with fallback to env var (may expose secrets in process list)"
   remediation: "Avoid exposing secrets in command line"
   cwe: "CWE-200"
@@ -4806,7 +5333,8 @@
 - id: rust-test-hardcoded-creds
   languages: [rust]
   patterns:
-    - regex: '#\\.test\\..*?[\\.\\.][^\\.\\.]*(?:password|secret|token)[\\.\\.]''severity: medium
+    - regex: '#\.test\..*?[\.\.][^\.\.]*(?:password|secret|token)[\.\.]'
+  severity: medium
   description: "Hardcoded credentials in test"
   remediation: "Use test fixtures or env vars for test credentials"
   cwe: "CWE-798"
@@ -4815,7 +5343,8 @@
 - id: rust-test-thread-leak
   languages: [rust]
   patterns:
-    - regex: 'thread::spawn.*#\\.test\\.''severity: medium
+    - regex: 'thread::spawn.*#\.test\.'
+  severity: medium
   description: "Thread spawned in test without joining"
   remediation: "Join threads or use scoped threads"
   cwe: "CWE-401"
@@ -4824,7 +5353,8 @@
 - id: rust-test-env-set
   languages: [rust]
   patterns:
-    - regex: 'env::set_var.*#\\.test\\.''severity: medium
+    - regex: 'env::set_var.*#\.test\.'
+  severity: medium
   description: "Setting env var in test (may affect other tests)"
   remediation: "Use scoped env var modifications"
   cwe: "CWE-20"
@@ -4833,7 +5363,8 @@
 - id: rust-test-fs-write
   languages: [rust]
   patterns:
-    - regex: 'fs::(write|create|remove).*#\\.test\\.''severity: low
+    - regex: 'fs::(write|create|remove).*#\.test\.'
+  severity: low
   description: "Filesystem operations in test"
   remediation: "Use tempfile crate for test files"
   cwe: "CWE-377"
@@ -4842,7 +5373,8 @@
 - id: rust-test-network
   languages: [rust]
   patterns:
-    - regex: 'std::net::TcpListener::bind.*#\\.test\\.''severity: low
+    - regex: 'std::net::TcpListener::bind.*#\.test\.'
+  severity: low
   description: "Network binding in test"
   remediation: "Use port 0 to let OS assign"
   cwe: "CWE-693"
@@ -4851,7 +5383,8 @@
 - id: rust-test-time
   languages: [rust]
   patterns:
-    - regex: 'std::time::(Instant|SystemTime).*#\\.test\\.''severity: low
+    - regex: 'std::time::(Instant|SystemTime).*#\.test\.'
+  severity: low
   description: "Time-based test (may be flaky)"
   remediation: "Use mock time for deterministic tests"
   cwe: "CWE-693"
@@ -4860,7 +5393,8 @@
 - id: rust-test-random
   languages: [rust]
   patterns:
-    - regex: 'rand::.*#\\.test\\.''severity: low
+    - regex: 'rand::.*#\.test\.'
+  severity: low
   description: "Random values in test (may be flaky)"
   remediation: "Use seeded RNG for deterministic tests"
   cwe: "CWE-693"

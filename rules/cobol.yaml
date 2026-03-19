@@ -1,7 +1,8 @@
 - id: cobol-exec-sql-string
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC\\s+SQL.*STRING''severity: critical
+    - regex: '(?i)EXEC\s+SQL.*STRING'
+  severity: critical
   description: "Dynamic SQL via STRING concatenation"
   remediation: "Use host variables with prepared statements"
   cwe: "CWE-89"
@@ -11,7 +12,8 @@
 - id: cobol-exec-cics-link
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC\\s+CICS\\s+LINK''severity: medium
+    - regex: '(?i)EXEC\s+CICS\s+LINK'
+  severity: medium
   description: "CICS program invocation"
   remediation: "Validate program name and parameters"
   cwe: "CWE-78"
@@ -21,7 +23,7 @@
 - id: cobol-hardcoded-password
   languages: [cobol]
   patterns:
-    - regex: '(?i)(?:PASSWORD|PASSWD|SECRET)\\s+VALUE\\s+['''"]'
+    - regex: '(?i)(?:PASSWORD|PASSWD|SECRET)\s+VALUE\s+[''"]'
   severity: high
   description: "Hardcoded password in VALUE clause"
   remediation: "Use environment variables or secure config"
@@ -32,7 +34,8 @@
 - id: cobol-accept-from-console
   languages: [cobol]
   patterns:
-    - regex: '(?i)ACCEPT\\s+\\w+\\s+FROM\\s+CONSOLE''severity: medium
+    - regex: '(?i)ACCEPT\s+\w+\s+FROM\s+CONSOLE'
+  severity: medium
   description: "Unvalidated console input"
   remediation: "Validate input length and content after ACCEPT"
   cwe: "CWE-20"
@@ -42,7 +45,8 @@
 - id: cobol-display-sensitive
   languages: [cobol]
   patterns:
-    - regex: '(?i)DISPLAY\\s+(?:PASSWORD|SECRET|TOKEN|SSN|CREDIT)''severity: medium
+    - regex: '(?i)DISPLAY\s+(?:PASSWORD|SECRET|TOKEN|SSN|CREDIT)'
+  severity: medium
   description: "Sensitive data displayed to console"
   remediation: "Remove sensitive data from DISPLAY statements"
   cwe: "CWE-532"
@@ -52,7 +56,8 @@
 - id: cobol-move-overflow
   languages: [cobol]
   patterns:
-    - regex: '(?i)MOVE\\s+\\w+\\s+TO\\s+\\w+''severity: low
+    - regex: '(?i)MOVE\s+\w+\s+TO\s+\w+'
+  severity: low
   description: "Potential data truncation on MOVE"
   remediation: "Use REFERENCE MODIFICATION for size validation"
   cwe: "CWE-120"
@@ -62,7 +67,8 @@
 - id: cobol-string-overflow
   languages: [cobol]
   patterns:
-    - regex: '(?i)STRING\\s+.*DELIMITED\\s+BY\\s+SPACE.*INTO''severity: high
+    - regex: '(?i)STRING\s+.*DELIMITED\s+BY\s+SPACE.*INTO'
+  severity: high
   description: "STRING without overflow handling"
   remediation: "Add ON OVERFLOW clause to STRING statements"
   cwe: "CWE-120"
@@ -72,7 +78,8 @@
 - id: cobol-unstring-overflow
   languages: [cobol]
   patterns:
-    - regex: '(?i)UNSTRING\\s+.*INTO''severity: high
+    - regex: '(?i)UNSTRING\s+.*INTO'
+  severity: high
   description: "UNSTRING without overflow handling"
   remediation: "Add ON OVERFLOW clause"
   cwe: "CWE-120"
@@ -82,7 +89,8 @@
 - id: cobol-file-open-io
   languages: [cobol]
   patterns:
-    - regex: '(?i)OPEN\\s+I-O\\s+''severity: medium
+    - regex: '(?i)OPEN\s+I-O\s+'
+  severity: medium
   description: "File opened for read-write"
   remediation: "Use INPUT or OUTPUT mode where possible"
   cwe: "CWE-732"
@@ -92,7 +100,8 @@
 - id: cobol-call-using-pointer
   languages: [cobol]
   patterns:
-    - regex: '(?i)CALL\\s+\\w+\\s+USING\\s+.*POINTER''severity: high
+    - regex: '(?i)CALL\s+\w+\s+USING\s+.*POINTER'
+  severity: high
   description: "CALL USING POINTER without validation"
   remediation: "Validate pointer values before dereferencing"
   cwe: "CWE-822"
@@ -102,7 +111,8 @@
 - id: cobol-path-traversal
   languages: [cobol]
   patterns:
-    - regex: '(?i)SELECT\\s+\\w+\\s+ASSIGN\\s+TO.*\\+|ACCEPT.*FROM\\s+\\w+.*\\+''severity: high
+    - regex: '(?i)SELECT\s+\w+\s+ASSIGN\s+TO.*\+|ACCEPT.*FROM\s+\w+.*\+'
+  severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -112,7 +122,8 @@
 - id: cobol-sql-immediate
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC\\s+SQL.*EXECUTE\\s+IMMEDIATE''severity: critical
+    - regex: '(?i)EXEC\s+SQL.*EXECUTE\s+IMMEDIATE'
+  severity: critical
   description: "Dynamic SQL execution without parameters"
   remediation: "Use prepared statements with parameters"
   cwe: "CWE-89"
@@ -122,7 +133,8 @@
 - id: cobol-buffer-overflow
   languages: [cobol]
   patterns:
-    - regex: '(?i)MOVE\\s+\\w+TO\\s+\\w+\\s+ON\\s+OVERFLOW''severity: medium
+    - regex: '(?i)MOVE\s+\w+TO\s+\w+\s+ON\s+OVERFLOW'
+  severity: medium
   description: "Buffer overflow potential"
   remediation: "Check for overflow conditions"
   cwe: "CWE-120"
@@ -132,7 +144,8 @@
 - id: cobol-exec-sql-no-sqlcode
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC\\s+SQL''severity: medium
+    - regex: '(?i)EXEC\s+SQL'
+  severity: medium
   description: "SQL execution without SQLCODE check"
   remediation: "Always check SQLCODE after EXEC SQL"
   cwe: "CWE-252"
@@ -142,7 +155,8 @@
 - id: cobol-perform-varying
   languages: [cobol]
   patterns:
-    - regex: '(?i)PERFORM\\s+.*VARYING.*UNTIL''severity: low
+    - regex: '(?i)PERFORM\s+.*VARYING.*UNTIL'
+  severity: low
   description: "Loop without explicit bounds check"
   remediation: "Add explicit bounds checking in UNTIL clause"
   cwe: "CWE-120"
@@ -152,7 +166,8 @@
 - id: cobol-compute-overflow
   languages: [cobol]
   patterns:
-    - regex: '(?i)COMPUTE\\s+.*''severity: low
+    - regex: '(?i)COMPUTE\s+.*'
+  severity: low
   description: "COMPUTE without SIZE ERROR handling"
   remediation: "Add ON SIZE ERROR clause"
   cwe: "CWE-190"
@@ -162,7 +177,8 @@
 - id: cobol-divide-zero
   languages: [cobol]
   patterns:
-    - regex: '(?i)DIVIDE\\s+.*BY\\s+''severity: medium
+    - regex: '(?i)DIVIDE\s+.*BY\s+'
+  severity: medium
   description: "DIVIDE without zero-check handling"
   remediation: "Add ON SIZE ERROR clause for divide-by-zero"
   cwe: "CWE-369"
@@ -172,7 +188,8 @@
 - id: cobol-copybook-sensitive
   languages: [cobol]
   patterns:
-    - regex: '(?i)COPY\\s+.*(?:PASSWORD|CREDENTIAL|SECRET)''severity: medium
+    - regex: '(?i)COPY\s+.*(?:PASSWORD|CREDENTIAL|SECRET)'
+  severity: medium
   description: "Sensitive data in COPYBOOK"
   remediation: "Remove secrets from copybooks, use external config"
   cwe: "CWE-798"
@@ -182,7 +199,8 @@
 - id: cobol-evaluate-no-other
   languages: [cobol]
   patterns:
-    - regex: '(?i)EVALUATE\\s+''severity: low
+    - regex: '(?i)EVALUATE\s+'
+  severity: low
   description: "EVALUATE without WHEN OTHER clause"
   remediation: "Add WHEN OTHER for unexpected values"
   cwe: "CWE-478"
@@ -192,7 +210,8 @@
 - id: cobol-file-status-not-checked
   languages: [cobol]
   patterns:
-    - regex: '(?i)(?:READ|WRITE|REWRITE|DELETE)\\s+\\w+''severity: medium
+    - regex: '(?i)(?:READ|WRITE|REWRITE|DELETE)\s+\w+'
+  severity: medium
   description: "File operation without status check"
   remediation: "Check FILE STATUS after each file operation"
   cwe: "CWE-252"
@@ -202,7 +221,8 @@
 - id: cobol-cics-receive
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC\\s+CICS\\s+RECEIVE\\s+INTO''severity: medium
+    - regex: '(?i)EXEC\s+CICS\s+RECEIVE\s+INTO'
+  severity: medium
   description: "CICS data receive - validate input length"
   remediation: "Add MAXLENGTH and LENGTH checks"
   cwe: "CWE-20"
@@ -212,7 +232,8 @@
 - id: cobol-cics-send
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC\\s+CICS\\s+SEND\\s+.*(?:PASSWORD|SECRET|TOKEN)''severity: medium
+    - regex: '(?i)EXEC\s+CICS\s+SEND\s+.*(?:PASSWORD|SECRET|TOKEN)'
+  severity: medium
   description: "Sending sensitive data via CICS"
   remediation: "Remove sensitive data from CICS SEND"
   cwe: "CWE-200"
@@ -222,7 +243,8 @@
 - id: cobol-jcl-password
   languages: [cobol]
   patterns:
-    - regex: '(?i)//.*DSN=.*PASSWORD=''severity: high
+    - regex: '(?i)//.*DSN=.*PASSWORD='
+  severity: high
   description: "JCL with embedded password"
   remediation: "Use RACF or external security manager"
   cwe: "CWE-798"
@@ -232,7 +254,8 @@
 - id: cobol-webservice-injection
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC CICS WEB\s+|EXEC CICS START''severity: high
+    - regex: '(?i)EXEC CICS WEB\s+|EXEC CICS START'
+  severity: high
   description: "CICS Web service without validation"
   remediation: "Validate all input in CICS programs"
   cwe: "CWE-20"
@@ -242,7 +265,8 @@
 - id: cobol-file-permission
   languages: [cobol]
   patterns:
-    - regex: '(?i)SELECT.*ORGANIZATION IS|ACCESS MODE IS RANDOM''severity: medium
+    - regex: '(?i)SELECT.*ORGANIZATION IS|ACCESS MODE IS RANDOM'
+  severity: medium
   description: "Insecure file access mode"
   remediation: "Use appropriate file permissions"
   cwe: "CWE-732"
@@ -252,7 +276,8 @@
 - id: cobol-dynamic-sql
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC SQL.*PREPARE.*FROM''severity: high
+    - regex: '(?i)EXEC SQL.*PREPARE.*FROM'
+  severity: high
   description: "Dynamic SQL preparation"
   remediation: "Use static SQL when possible"
   cwe: "CWE-89"
@@ -262,7 +287,8 @@
 - id: cobol-copybook-overflow
   languages: [cobol]
   patterns:
-    - regex: '(?i)01\\s+\\w+-REC\\s+PIC\\s+X\\(9999\\)''severity: medium
+    - regex: '(?i)01\s+\w+-REC\s+PIC\s+X\(9999\)'
+  severity: medium
   description: "Large fixed-length record - overflow risk"
   remediation: "Use appropriate field sizing"
   cwe: "CWE-120"
@@ -272,7 +298,8 @@
 - id: cobol-debug-enabled
   languages: [cobol]
   patterns:
-    - regex: '(?i)WITH DEBUGGING MODE|NO Debug''severity: low
+    - regex: '(?i)WITH DEBUGGING MODE|NO Debug'
+  severity: low
   description: "Debug mode in production code"
   remediation: "Disable debug in production"
   cwe: "CWE-489"
@@ -282,7 +309,8 @@
 - id: cobol-privileged-program
   languages: [cobol]
   patterns:
-    - regex: '(?i)EXEC.*SET.*PROTECT|ALTER.*AUTHORITY''severity: high
+    - regex: '(?i)EXEC.*SET.*PROTECT|ALTER.*AUTHORITY'
+  severity: high
   description: "Privileged program execution"
   remediation: "Limit privileged program usage"
   cwe: "CWE-250"

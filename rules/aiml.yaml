@@ -6,7 +6,8 @@
 - id: aiml-pickle-deserialization
   languages: [python]
   patterns:
-  - regex: '(?i)(pickle\.(load|loads|Unpickler)|torch\.load|joblib\.load)\s*\(''severity: critical
+  - regex: '(?i)(pickle\.(load|loads|Unpickler)|torch\.load|joblib\.load)\s*\('
+  severity: critical
   description: "Unsafe pickle deserialization can lead to remote code execution"
   remediation: "Use safer alternatives like pickle.Unpickler with restricted imports, or JSON/MessagePack for serialization"
   cwe: "CWE-502"
@@ -15,7 +16,8 @@
 - id: aiml-torch-load
   languages: [python]
   patterns:
-  - regex: 'torch\.load\s*\(\s*[^,\)]+''severity: critical
+  - regex: 'torch\.load\s*\(\s*[^,\)]+'
+  severity: critical
   description: "torch.load with untrusted data can execute arbitrary code"
   remediation: "Use weights_only=True parameter and verify model checksums before loading"
   cwe: "CWE-502"
@@ -24,7 +26,8 @@
 - id: aiml-joblib-load
   languages: [python]
   patterns:
-  - regex: 'joblib\.load\s*\(''severity: critical
+  - regex: 'joblib\.load\s*\('
+  severity: critical
   description: "joblib.load can deserialize untrusted data leading to RCE"
   remediation: "Validate source and use joblib with custom unpickler that restricts imports"
   cwe: "CWE-502"
@@ -33,7 +36,8 @@
 - id: aiml-sklearn-model-load
   languages: [python]
   patterns:
-  - regex: '(?i)(sklearn\..*load|from sklearn.*import.*load)''severity: critical
+  - regex: '(?i)(sklearn\..*load|from sklearn.*import.*load)'
+  severity: critical
   description: "Insecure deserialization of sklearn models from untrusted sources"
   remediation: "Validate model source, use joblib with restricted unpickler, verify model integrity"
   cwe: "CWE-502"
@@ -44,7 +48,8 @@
 - id: aiml-yaml-unsafe-load
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)yaml\.(unsafe_load|load)\s*\(''severity: critical
+  - regex: '(?i)yaml\.(unsafe_load|load)\s*\('
+  severity: critical
   description: "Unsafe YAML loading allows arbitrary code execution"
   remediation: "Use yaml.safe_load() or yaml.safe_load_all() instead"
   cwe: "CWE-502"
@@ -53,7 +58,8 @@
 - id: aiml-yaml-arbitrary-code
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)(yaml\.(full_load|unsafe_load_all)|js-yaml\.load)\s*\([^,\)]*[^,\)]+''severity: critical
+  - regex: '(?i)(yaml\.(full_load|unsafe_load_all)|js-yaml\.load)\s*\([^,\)]*[^,\)]+'
+  severity: critical
   description: "YAML deserialization attack - can execute arbitrary code"
   remediation: "Use safe_load() or SafeLoader, never load untrusted YAML"
   cwe: "CWE-502"
@@ -62,7 +68,8 @@
 - id: aiml-yaml-construct
   languages: [python]
   patterns:
-  - regex: 'yaml\.(unsafe_)?construct_(object|python|unicode)''severity: critical
+  - regex: 'yaml\.(unsafe_)?construct_(object|python|unicode)'
+  severity: critical
   description: "YAML unsafe object construction allows code execution"
   remediation: "Use SafeConstructor and restrict object construction"
   cwe: "CWE-502"
@@ -73,7 +80,8 @@
 - id: aiml-llm-prompt-injection
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)(prompt\s*\+=|f["\x27]prompt|concat.*prompt|String\.format.*prompt)''severity: high
+  - regex: '(?i)(prompt\s*\+=|f["\x27]prompt|concat.*prompt|String\.format.*prompt)'
+  severity: high
   description: "Potential LLM prompt injection via string concatenation"
   remediation: "Use prompt templates with strict input validation, isolate user input from system prompts"
   cwe: "CWE-96"
@@ -82,7 +90,8 @@
 - id: aiml-prompt-template-unsafe
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)(system\s*=\s*f["\x27]|system_prompt\s*=\s*.*\+.*user)''severity: high
+  - regex: '(?i)(system\s*=\s*f["\x27]|system_prompt\s*=\s*.*\+.*user)'
+  severity: high
   description: "Unsafe prompt template allows user input to override system instructions"
   remediation: "Separate system and user prompts, use role-based prompt engineering"
   cwe: "CWE-96"
@@ -91,7 +100,8 @@
 - id: aiml-langchain-prompt-injection
   languages: [python, javascript]
   patterns:
-  - regex: '(?i)(PromptTemplate\.from_template.*\{|ChatPromptTemplate\.from_messages.*format_messages)''severity: medium
+  - regex: '(?i)(PromptTemplate\.from_template.*\{|ChatPromptTemplate\.from_messages.*format_messages)'
+  severity: medium
   description: "Potential prompt injection in LangChain templates"
   remediation: "Validate and sanitize all user inputs before inserting into prompts"
   cwe: "CWE-96"
@@ -102,7 +112,8 @@
 - id: aiml-model-from-untrusted-source
   languages: [python]
   patterns:
-  - regex: '(?i)(torch\.hub\.|tensorflow\.keras\.models\.load_model|tf\.keras\.models\.load_model)\s*\(\s*["\x27]http''severity: critical
+  - regex: '(?i)(torch\.hub\.|tensorflow\.keras\.models\.load_model|tf\.keras\.models\.load_model)\s*\(\s*["\x27]http'
+  severity: critical
   description: "Loading models from untrusted HTTP sources can lead to code execution"
   remediation: "Download models from trusted sources, verify checksums, use model registries"
   cwe: "CWE-494"
@@ -111,7 +122,8 @@
 - id: aiml-torch-hub-load
   languages: [python]
   patterns:
-  - regex: 'torch\.hub\.load\([^,\)]+''severity: critical
+  - regex: 'torch\.hub\.load\([^,\)]+'
+  severity: critical
   description: "torch.hub loads models from untrusted repositories"
   remediation: "Use pinned versions, verify repository integrity, prefer local model files"
   cwe: "CWE-494"
@@ -120,7 +132,8 @@
 - id: aiml-path-traversal-model
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)(open|read|load_model)\s*\(\s*["\x27][^"\x27]*\.\.(\/|\\)''severity: high
+  - regex: '(?i)(open|read|load_model)\s*\(\s*["\x27][^"\x27]*\.\.(\\/|\))'
+  severity: high
   description: "Path traversal vulnerability in model loading"
   remediation: "Validate and sanitize file paths, use basename() to prevent directory traversal"
   cwe: "CWE-22"
@@ -129,7 +142,8 @@
 - id: aiml-arbitrary-model-file
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)(model_path|model_file|weights_path)\s*=.*request\.(files|params|query)''severity: critical
+  - regex: '(?i)(model_path|model_file|weights_path)\s*=.*request\.(files|params|query)'
+  severity: critical
   description: "Unsafe model file upload allows arbitrary file write"
   remediation: "Validate file extension, use secure temp directories, verify file contents"
   cwe: "CWE-22"
@@ -140,7 +154,8 @@
 - id: aiml-missing-input-validation
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)def\s+(predict|inference|forward)\s*\([^]*\:[^}]*return\s+self\.model''severity: medium
+  - regex: '(?i)def\s+(predict|inference|forward)\s*\([^]*\\:[^}]*return\s+self\.model'
+  severity: medium
   description: "ML model inference without input validation"
   remediation: "Add input validation, shape checking, type checking before model inference"
   cwe: "CWE-20"
@@ -149,7 +164,8 @@
 - id: aiml-no-input-shape-check
   languages: [python]
   patterns:
-  - regex: 'model\.predict\s*\([^)]+\)''severity: medium
+  - regex: 'model\.predict\s*\([^)]+\]'
+  severity: medium
   description: "Missing shape validation on model input"
   remediation: "Validate input tensor/shape before passing to model.predict()"
   cwe: "CWE-20"
@@ -158,7 +174,8 @@
 - id: aiml-adversarial-input
   languages: [python]
   patterns:
-  - regex: '(?i)(np\.array|tensor\.|torch\.tensor)\s*\([^)]*request''severity: high
+  - regex: '(?i)(np\.array|tensor\.|torch\.tensor)\s*\([^)]*request'
+  severity: high
   description: "Direct conversion of user input to tensors without validation"
   remediation: "Validate input range, shape, type; implement input preprocessing and adversarial defenses"
   cwe: "CWE-20"
@@ -169,7 +186,8 @@
 - id: aiml-hardcoded-api-key
   languages: [python, javascript, typescript, java, go, ruby, r]
   patterns:
-  - regex: '(?i)(openai|anthropic|cohere|huggingface|azure-openai|google-ai)\s*[-_]?(api[_-]?key|token)\s*=\s*["\x27][a-zA-Z0-9]{20,}["\x27]''severity: critical
+  - regex: '(?i)(openai|anthropic|cohere|huggingface|azure-openai|google-ai)\s*[-_]?(api[_-]?key|token)\s*=\s*["\x27][a-zA-Z0-9]{20,}["\x27]'
+  severity: critical
   description: "Hardcoded AI service API key detected"
   remediation: "Store API keys in environment variables or secrets manager"
   cwe: "CWE-798"
@@ -178,7 +196,8 @@
 - id: aiml-huggingface-token
   languages: [python, javascript]
   patterns:
-  - regex: '(?i)(HF_TOKEN|HUGGING_FACE|huggingface_token)\s*=\s*["\x27][a-zA-Z0-9_-]{20,}["\x27]''severity: critical
+  - regex: '(?i)(HF_TOKEN|HUGGING_FACE|huggingface_token)\s*=\s*["\x27][a-zA-Z0-9_-]{20,}["\x27]'
+  severity: critical
   description: "Hardcoded HuggingFace token detected"
   remediation: "Use environment variables, never commit tokens to source control"
   cwe: "CWE-798"
@@ -187,7 +206,8 @@
 - id: aiml-aws-bedrock-credentials
   languages: [python, javascript]
   patterns:
-  - regex: '(?i)(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|bedrock.*credentials)\s*=\s*["\x27][^"\x27]{16,}["\x27]''severity: critical
+  - regex: '(?i)(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|bedrock.*credentials)\s*=\s*["\x27][^"\x27]{16,}["\x27]'
+  severity: critical
   description: "Hardcoded AWS credentials for Bedrock access"
   remediation: "Use IAM roles, AWS credentials file, or environment variables"
   cwe: "CWE-798"
@@ -196,7 +216,8 @@
 - id: aiml-hardcoded-model-weights
   languages: [python, r]
   patterns:
-  - regex: '(?i)(weights|parameters|biases)\s*=\s*\[.*\d{4,}''severity: medium
+  - regex: '(?i)(weights|parameters|biases)\s*=\s*\[.*\d{4,}'
+  severity: medium
   description: "Hardcoded model weights detected in source code"
   remediation: "Load model weights from external files, use model registries"
   cwe: "CWE-798"
@@ -207,7 +228,8 @@
 - id: aiml-insecure-eval
   languages: [python, r]
   patterns:
-  - regex: '(?i)\beval\s*\([^)]*(model|predict|data|input|user)''severity: critical
+  - regex: '(?i)\beval\s*\([^)]*(model|predict|data|input|user)'
+  severity: critical
   description: "Use of eval() with ML-related input can execute arbitrary code"
   remediation: "Avoid eval(), use ast.literal_eval() or safe expression parsers"
   cwe: "CWE-94"
@@ -216,7 +238,8 @@
 - id: aiml-exec-in-ml
   languages: [python]
   patterns:
-  - regex: '(?i)\bexec\s*\([^)]*(config|yaml|json|model)''severity: critical
+  - regex: '(?i)\bexec\s*\([^)]*(config|yaml|json|model)'
+  severity: critical
   description: "exec() used with ML configuration allows arbitrary code execution"
   remediation: "Use safe configuration parsing, avoid exec for config files"
   cwe: "CWE-94"
@@ -225,7 +248,8 @@
 - id: aiml-eval-in-training
   languages: [python]
   patterns:
-  - regex: '(?i)(train|fit|learn)\s*\([^)]*eval\s*\(''severity: high
+  - regex: '(?i)(train|fit|learn)\s*\([^)]*eval\s*\('
+  severity: high
   description: "eval() used in training loop can lead to code execution"
   remediation: "Remove eval from training code, use safe metric computation"
   cwe: "CWE-94"
@@ -236,7 +260,8 @@
 - id: aiml-shell-injection-pipeline
   languages: [python, r]
   patterns:
-  - regex: '(?i)(subprocess|os\.system|os\.popen|shell=True).*(data|model|checkpoint|export|convert)''severity: critical
+  - regex: '(?i)(subprocess|os\.system|os\.popen|shell=True).*(data|model|checkpoint|export|convert)'
+  severity: critical
   description: "Shell injection in ML pipeline execution"
   remediation: "Use shell=False, pass arguments as lists, sanitize all inputs"
   cwe: "CWE-78"
@@ -245,7 +270,8 @@
 - id: aiml-training-script-injection
   languages: [python]
   patterns:
-  - regex: '(?i)(python|sh)\s+.*\$\(| subprocess.*f["\x27]|os\.system\s*\(f["\x27]''severity: critical
+  - regex: '(?i)(python|sh)\s+.*\$\(| subprocess.*f["\x27]|os\.system\s*\(f["\x27]'
+  severity: critical
   description: "Command injection in ML training script execution"
   remediation: "Never pass user input to shell commands, use subprocess with argument lists"
   cwe: "CWE-78"
@@ -254,7 +280,8 @@
 - id: aiml-git-pull-model
   languages: [python, bash]
   patterns:
-  - regex: '(?i)(git\s+clone|git\s+pull).*\$\(|git\s+(clone|pull)\s+\$\{?.*\}?''severity: critical
+  - regex: '(?i)(git\s+clone|git\s+pull).*\$\(|git\s+(clone|pull)\s+\$\{?.*\}?'
+  severity: critical
   description: "Shell injection via git operations for model retrieval"
   remediation: "Use validated URLs, never interpolate user input into git commands"
   cwe: "CWE-78"
@@ -265,7 +292,8 @@
 - id: aiml-marshal-load
   languages: [python]
   patterns:
-  - regex: 'marshal\.load\s*\(''severity: critical
+  - regex: 'marshal\.load\s*\('
+  severity: critical
   description: "marshal module deserialization is unsafe and can lead to RCE"
   remediation: "Never use marshal with untrusted data, use JSON instead"
   cwe: "CWE-502"
@@ -274,7 +302,8 @@
 - id: aiml-unsafe-dataframe-load
   languages: [python, r]
   patterns:
-  - regex: '(?i)(pandas\.read_pickle|readRDS|feather\.read_feather|parquet\.read_table)\s*\(''severity: high
+  - regex: '(?i)(pandas\.read_pickle|readRDS|feather\.read_feather|parquet\.read_table)\s*\('
+  severity: high
   description: "Unsafe deserialization of pandas/R dataframes"
   remediation: "Validate data sources, use CSV/JSON instead of pickle for dataframes"
   cwe: "CWE-502"
@@ -283,7 +312,8 @@
 - id: aiml-onnx-unsafe-load
   languages: [python]
   patterns:
-  - regex: 'onnx\.load\s*\(\s*[^,\)]+''severity: high
+  - regex: 'onnx\.load\s*\(\s*[^,\)]+'
+  severity: high
   description: "ONNX model loading from untrusted sources"
   remediation: "Validate ONNX model source, use onnx checker before inference"
   cwe: "CWE-502"
@@ -294,7 +324,8 @@
 - id: aiml-flask-model-endpoint
   languages: [python]
   patterns:
-  - regex: '(?i)(@app\.route.*predict|@app\.route.*inference).*(request\.json|request\.data)''severity: high
+  - regex: '(?i)(@app\.route.*predict|@app\.route.*inference).*(request\.json|request\.data)'
+  severity: high
   description: "ML model serving endpoint without input validation"
   remediation: "Add input validation, rate limiting, and authentication to ML endpoints"
   cwe: "CWE-20"
@@ -303,7 +334,8 @@
 - id: aiml-fastapi-model-injection
   languages: [python]
   patterns:
-  - regex: '@app\.(post|get)\(["\x27][^"\x27]*model["\x27]\).*(Body|Form|File).*:''severity: high
+  - regex: '@app\.(post|get)\(["\x27][^"\x27]*model["\x27]\).*(Body|Form|File).*:'
+  severity: high
   description: "FastAPI endpoint accepts model input without proper validation"
   remediation: "Use Pydantic models for validation, add response_model for output validation"
   cwe: "CWE-20"
@@ -312,7 +344,8 @@
 - id: aiml-tensorboard-security
   languages: [python]
   patterns:
-  - regex: '(?i)(tensorboard|summary|logdir)\s*=.*\$\(|tensorboard.*port\s*=\s*\d{4}''severity: medium
+  - regex: '(?i)(tensorboard|summary|logdir)\s*=.*\$\(|tensorboard.*port\s*=\s*\d{4}'
+  severity: medium
   description: "TensorBoard exposed without authentication or with dynamic port"
   remediation: "Use --bind_all cautiously, enable authentication, restrict network access"
   cwe: "CWE-200"
@@ -323,7 +356,8 @@
 - id: aiml-sensitive-data-training
   languages: [python, r]
   patterns:
-  - regex: '(?i)(pd\.read_csv|open).*password|social.*security|credit.*card|pii''severity: critical
+  - regex: '(?i)(pd\.read_csv|open).*password|social.*security|credit.*card|pii'
+  severity: critical
   description: "Loading data containing sensitive information into ML pipeline"
   remediation: "Implement data anonymization, use differential privacy, remove PII before training"
   cwe: "CWE-200"
@@ -332,7 +366,8 @@
 - id: aiml-model-inversion
   languages: [python]
   patterns:
-  - regex: '(?i)(model\.predict|model\.forward).*return.*gradients''severity: high
+  - regex: '(?i)(model\.predict|model\.forward).*return.*gradients'
+  severity: high
   description: "Model exposes gradients that can leak training data"
   remediation: "Disable gradient computation in production, implement gradient masking"
   cwe: "CWE-200"
@@ -343,7 +378,8 @@
 - id: aiml-js-tfjs-unsafe-load
   languages: [javascript, typescript]
   patterns:
-  - regex: 'tf\.loadLayersModel\s*\(\s*[^,\)]+''severity: critical
+  - regex: 'tf\.loadLayersModel\s*\(\s*[^,\)]+'
+  severity: critical
   description: "TensorFlow.js loading model from untrusted URL"
   remediation: "Validate model URL, use same-origin models, verify model integrity"
   cwe: "CWE-494"
@@ -352,7 +388,8 @@
 - id: aiml-js-unsafe-deserialize
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)(JSON\.parse|eval|new Function).*(model|weights|config).*user''severity: critical
+  - regex: '(?i)(JSON\.parse|eval|new Function).*(model|weights|config).*user'
+  severity: critical
   description: "Unsafe deserialization of ML model data from user input"
   remediation: "Never parse user input as code, validate all model data before use"
   cwe: "CWE-502"
@@ -361,7 +398,8 @@
 - id: aiml-node-ml-model-upload
   languages: [javascript, typescript]
   patterns:
-  - regex: '(?i)(multer|express-fileupload|formidable).*\.save.*model|\.writeFile.*model.*req''severity: critical
+  - regex: '(?i)(multer|express-fileupload|formidable).*\.save.*model|\.writeFile.*model.*req'
+  severity: critical
   description: "Insecure model file upload endpoint in Node.js"
   remediation: "Validate file type, size, scan for malware, store in isolated directory"
   cwe: "CWE-22"
@@ -372,7 +410,8 @@
 - id: aiml-java-object-deserialization
   languages: [java]
   patterns:
-  - regex: '(?i)(ObjectInputStream|XMLDecoder|yaml\.load|readObject)\s*\([^,\)]*(model|config|data)''severity: critical
+  - regex: '(?i)(ObjectInputStream|XMLDecoder|yaml\.load|readObject)\s*\([^,\)]*(model|config|data)'
+  severity: critical
   description: "Unsafe object deserialization in Java ML code"
   remediation: "Use safe serializers, implement readObject validation, use JSON instead"
   cwe: "CWE-502"
@@ -381,7 +420,8 @@
 - id: aiml-java-model-loading
   languages: [java]
   patterns:
-  - regex: '(?i)(Model\.load|ModelReader|Weka\..*load).*new\s+File\s*\(''severity: high
+  - regex: '(?i)(Model\.load|ModelReader|Weka\..*load).*new\s+File\s*\('
+  severity: high
   description: "Java ML model loading without validation"
   remediation: "Validate model files, verify signatures, use model registries"
   cwe: "CWE-494"
@@ -392,7 +432,8 @@
 - id: aiml-go-unsafe-eval
   languages: [go]
   patterns:
-  - regex: '(?i)(eval|exec\.Command).*os\.Args|exec\.Command\s*\(.*request\.''severity: critical
+  - regex: '(?i)(eval|exec\.Command).*os\.Args|exec\.Command\s*\(.*request\.'
+  severity: critical
   description: "Command injection in Go ML serving code"
   remediation: "Never pass user input to command execution, use proper argument escaping"
   cwe: "CWE-78"
@@ -401,7 +442,8 @@
 - id: aiml-go-yaml-unsafe
   languages: [go]
   patterns:
-  - regex: '(?i)yaml\.Unmarshal.*\[\]byte.*request''severity: high
+  - regex: '(?i)yaml\.Unmarshal.*\[\]byte.*request'
+  severity: high
   description: "YAML unmarshaling of untrusted data in Go"
   remediation: "Use yaml.v3 with disallowUnknownFields, validate struct tags"
   cwe: "CWE-502"
@@ -412,7 +454,8 @@
 - id: aiml-r-readrce
   languages: [ruby, r]
   patterns:
-  - regex: '(?i)(readRDS|load|unserialize|yaml::load)\s*\([^,\)]+''severity: critical
+  - regex: '(?i)(readRDS|load|unserialize|yaml::load)\s*\([^,\)]+'
+  severity: critical
   description: "Unsafe deserialization in R/Ruby ML code"
   remediation: "Validate data sources, never unserialize untrusted data"
   cwe: "CWE-502"
@@ -421,7 +464,8 @@
 - id: aiml-r-model-injection
   languages: [r]
   patterns:
-  - regex: '(?i)(glm|glm\.net|lm)\s*\([^)]*data\s*=.*request''severity: high
+  - regex: '(?i)(glm|glm\.net|lm)\s*\([^)]*data\s*=.*request'
+  severity: high
   description: "R model training with unvalidated user data"
   remediation: "Validate and sanitize all data before training, implement input bounds checking"
   cwe: "CWE-20"
@@ -430,7 +474,8 @@
 - id: aiml-r-shell-injection
   languages: [r]
   patterns:
-  - regex: '(?i)(system|system2|shell\.exec|pipe)\s*\([^)]*(model|data|train)''severity: critical
+  - regex: '(?i)(system|system2|shell\.exec|pipe)\s*\([^)]*(model|data|train)'
+  severity: critical
   description: "Shell injection in R ML pipeline"
   remediation: "Use internal R functions, sanitize all shell inputs, avoid system() calls"
   cwe: "CWE-78"
@@ -441,7 +486,8 @@
 - id: aiml-unauthenticated-endpoint
   languages: [python, javascript, typescript, java]
   patterns:
-  - regex: '(?i)(@app\.route|@router\.|@PostMapping|app\.post)\s*\([^)]*predict[^)]*\)''severity: high
+  - regex: '(?i)(@app\.route|@router\.|@PostMapping|app\.post)\s*\([^)]*predict[^)]*\]'
+  severity: high
   description: "ML inference endpoint without authentication"
   remediation: "Implement authentication, authorization, and rate limiting on ML endpoints"
   cwe: "CWE-306"
@@ -450,7 +496,8 @@
 - id: aiml-no-rate-limit-ml
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)(@app\.route.*inference|route.*predict).*''severity: medium
+  - regex: '(?i)(@app\.route.*inference|route.*predict).*'
+  severity: medium
   description: "ML inference endpoint without rate limiting"
   remediation: "Implement rate limiting to prevent abuse and DoS attacks"
   cwe: "CWE-770"
@@ -459,7 +506,8 @@
 - id: aiml-output-exposure
   languages: [python, javascript, typescript]
   patterns:
-  - regex: '(?i)return.*model\.predict.*raw|response\.json.*raw.*probabilities''severity: medium
+  - regex: '(?i)return.*model\.predict.*raw|response\.json.*raw.*probabilities'
+  severity: medium
   description: "ML model outputs raw predictions without sanitization"
   remediation: "Implement output validation, sanitize probabilities, add response transformation"
   cwe: "CWE-200"

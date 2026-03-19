@@ -1,7 +1,8 @@
 - id: julia-eval
   languages: [julia]
   patterns:
-    - regex: '(?i)\\beval\\s*\\(''severity: critical
+    - regex: '(?i)\beval\s*\('
+  severity: critical
   description: "Dynamic code execution"
   remediation: "Avoid eval with user input"
   cwe: "CWE-94"
@@ -11,7 +12,8 @@
 - id: julia-run-cmd
   languages: [julia]
   patterns:
-    - regex: '(?i)\\brun\\s*\\(\\s*`.*\\$''severity: critical
+    - regex: '(?i)\brun\s*\(\s*`.*\$'
+  severity: critical
   description: "OS command execution via interpolation"
   remediation: "Sanitize arguments to run"
   cwe: "CWE-78"
@@ -21,7 +23,8 @@
 - id: julia-read-cmd
   languages: [julia]
   patterns:
-    - regex: '(?i)read\\s*\\(\\s*`.*\\$''severity: critical
+    - regex: '(?i)read\s*\(\s*`.*\$'
+  severity: critical
   description: "OS command execution via interpolation"
   remediation: "Sanitize arguments"
   cwe: "CWE-78"
@@ -31,7 +34,8 @@
 - id: julia-ccall
   languages: [julia]
   patterns:
-    - regex: '(?i)\\bccall\\s*\\(''severity: medium
+    - regex: '(?i)\bccall\s*\('
+  severity: medium
   description: "Unsafe C FFI"
   remediation: "Validate inputs passed to C functions"
   cwe: "CWE-676"
@@ -41,7 +45,8 @@
 - id: julia-unsafe-load
   languages: [julia]
   patterns:
-    - regex: '(?i)unsafe_load\\s*\\(''severity: high
+    - regex: '(?i)unsafe_load\s*\('
+  severity: high
   description: "Unsafe pointer load"
   remediation: "Ensure pointers are valid"
   cwe: "CWE-822"
@@ -51,7 +56,8 @@
 - id: julia-hardcoded-secret
   languages: [julia]
   patterns:
-    - regex: '(?i)(?:secret|password|key)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
+    - regex: '(?i)(?:secret|password|key)\s*=\s*\\"[a-zA-Z0-9_-]{12,}\\"'
+  severity: high
   description: "Hardcoded secret"
   remediation: "Use ENV"
   cwe: "CWE-798"
@@ -61,7 +67,8 @@
 - id: julia-sql-concat
   languages: [julia]
   patterns:
-    - regex: '(?i)execute\\s*\\(.*\\$''severity: critical
+    - regex: '(?i)execute\s*\(.*\$'
+  severity: critical
   description: "SQL injection via interpolation"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -71,7 +78,8 @@
 - id: julia-serialize-deserialize
   languages: [julia]
   patterns:
-    - regex: '(?i)deserialize\\s*\\(''severity: high
+    - regex: '(?i)deserialize\s*\('
+  severity: high
   description: "Unsafe deserialization"
   remediation: "Validate data before deserialize"
   cwe: "CWE-502"
@@ -81,7 +89,8 @@
 - id: julia-http-no-tls
   languages: [julia]
   patterns:
-    - regex: '(?i)HTTP\\.get\\s*\\(\\s*\"http://''severity: medium
+    - regex: '(?i)HTTP\.get\s*\(\s*\\\"http://'
+  severity: medium
   description: "Insecure HTTP"
   remediation: "Use HTTPS"
   cwe: "CWE-319"
@@ -91,7 +100,8 @@
 - id: julia-file-read
   languages: [julia]
   patterns:
-    - regex: '(?i)read\\s*\\(.*,.*String''severity: medium
+    - regex: '(?i)read\s*\(.*,.*String'
+  severity: medium
   description: "File read"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -101,7 +111,8 @@
 - id: julia-yaml-unsafe
   languages: [julia]
   patterns:
-    - regex: '(?i)YAML\\.load\\s*\\([^)]*''severity: high
+    - regex: '(?i)YAML\.load\s*\([^)]*'
+  severity: high
   description: "Unsafe YAML deserialization"
   remediation: "Use YAML.load with typed constructors"
   cwe: "CWE-502"
@@ -111,7 +122,8 @@
 - id: julia-http-verify-disabled
   languages: [julia]
   patterns:
-    - regex: '(?i)HTTP\\.request\\s*\\([^)]*verify\\s*=\\s*false''severity: critical
+    - regex: '(?i)HTTP\.request\s*\([^)]*verify\s*=\s*false'
+  severity: critical
   description: "TLS verification disabled"
   remediation: "Enable TLS verification"
   cwe: "CWE-295"
@@ -121,7 +133,7 @@
 - id: julia-regex-dos
   languages: [julia]
   patterns:
-    - regex: '(?i)Regex\\s*\\(\\s*["'''].*(\\*|\\+|\\{.*,\\})'
+    - regex: '(?i)Regex\s*\(\s*["''].*(\*|\+|\{.*,\})'
   severity: medium
   description: "Potential catastrophic backtracking"
   remediation: "Use possessive quantifiers or atomic groups"
@@ -132,7 +144,8 @@
 - id: julia-deserialize
   languages: [julia]
   patterns:
-    - regex: '(?i)Serialization\\.deserialize''severity: high
+    - regex: '(?i)Serialization\.deserialize'
+  severity: high
   description: "Unsafe deserialization"
   remediation: "Use JSON instead of Julia Serialization for untrusted data"
   cwe: "CWE-502"
@@ -142,7 +155,8 @@
 - id: julia-command-injection
   languages: [julia]
   patterns:
-    - regex: '(?i)run\\s*\\(\\s*`.*\\$\\*''severity: critical
+    - regex: '(?i)run\s*\(\s*`.*\$\*'
+  severity: critical
   description: "Command injection via string interpolation"
   remediation: "Avoid interpolation in command execution"
   cwe: "CWE-78"
@@ -152,7 +166,8 @@
 - id: julia-ldap-injection
   languages: [julia]
   patterns:
-    - regex: '(?i)ldap\\s*\\(.*\\$\\|search\\s*\\(.*\\$\\*''severity: critical
+    - regex: '(?i)ldap\s*\(.*\$\|search\s*\(.*\$\*'
+  severity: critical
   description: "LDAP injection vulnerability"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -162,7 +177,8 @@
 - id: julia-ssrf
   languages: [julia]
   patterns:
-    - regex: '(?i)HTTP\\.get\\s*\\(.*\\$|HTTP\\.post\\s*\\(.*\\$''severity: high
+    - regex: '(?i)HTTP\.get\s*\(.*\$|HTTP\.post\s*\(.*\$'
+  severity: high
   description: "Potential SSRF via HTTP request"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -172,7 +188,8 @@
 - id: julia-path-traversal
   languages: [julia]
   patterns:
-    - regex: '(?i)open\\s*\\(.*\\$|read\\s*\\(.*\\$\\|write\\s*\\(.*\\$''severity: high
+    - regex: '(?i)open\s*\(.*\$|read\s*\(.*\$\|write\s*\(.*\$'
+  severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -182,7 +199,8 @@
 - id: julia-xss
   languages: [julia]
   patterns:
-    - regex: '(?i)html\\s*\\(.*\\$|Markdown\\.parse.*\\$''severity: high
+    - regex: '(?i)html\s*\(.*\$|Markdown\.parse.*\$'
+  severity: high
   description: "Potential XSS via HTML rendering"
   remediation: "Sanitize HTML output"
   cwe: "CWE-79"
@@ -192,7 +210,8 @@
 - id: julia-toml-unsafe
   languages: [julia]
   patterns:
-    - regex: '(?i)TOML\\.parsefile\\s*\\(|joinpath\\s*\\(.*download''severity: high
+    - regex: '(?i)TOML\.parsefile\s*\(|joinpath\s*\(.*download'
+  severity: high
   description: "Unsafe TOML parsing or file download"
   remediation: "Validate TOML sources"
   cwe: "CWE-502"
@@ -202,7 +221,8 @@
 - id: julia-hardcoded-credentials
   languages: [julia]
   patterns:
-    - regex: '(?i)(?:password|passwd|secret)\\s*=\\s*\\"[^"]{4,}\\"''severity: high
+    - regex: '(?i)(?:password|passwd|secret)\s*=\s*\\"[^"]{4,}\\"'
+  severity: high
   description: "Hardcoded credentials in Julia"
   remediation: "Use environment variables"
   cwe: "CWE-798"

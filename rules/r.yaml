@@ -1,7 +1,8 @@
 - id: r-system-call
   languages: [r]
   patterns:
-    - regex: '(?i)\\bsystem\\s*\\(''severity: critical
+    - regex: '(?i)\bsystem\s*\('
+  severity: critical
   description: "OS command execution via system()"
   remediation: "Use system2() with validated arguments"
   cwe: "CWE-78"
@@ -11,7 +12,8 @@
 - id: r-system2-call
   languages: [r]
   patterns:
-    - regex: '(?i)\\bsystem2\\s*\\(.*paste''severity: high
+    - regex: '(?i)\bsystem2\s*\(.*paste'
+  severity: high
   description: "OS command with string concatenation"
   remediation: "Validate and sanitize all arguments"
   cwe: "CWE-78"
@@ -21,7 +23,8 @@
 - id: r-shell-call
   languages: [r]
   patterns:
-    - regex: '(?i)\\bshell\\s*\\(''severity: critical
+    - regex: '(?i)\bshell\s*\('
+  severity: critical
   description: "OS command via shell()"
   remediation: "Avoid shell commands, use R native functions"
   cwe: "CWE-78"
@@ -31,7 +34,8 @@
 - id: r-eval-parse
   languages: [r]
   patterns:
-    - regex: '(?i)\\beval\\s*\\(\\s*parse\\s*\\(''severity: critical
+    - regex: '(?i)\beval\s*\(\s*parse\s*\('
+  severity: critical
   description: "Code injection via eval(parse())"
   remediation: "Avoid eval/parse with dynamic input"
   cwe: "CWE-94"
@@ -41,7 +45,8 @@
 - id: r-eval-call
   languages: [r]
   patterns:
-    - regex: '(?i)\\beval\\s*\\(''severity: high
+    - regex: '(?i)\beval\s*\('
+  severity: high
   description: "Dynamic code execution via eval()"
   remediation: "Avoid eval with user-controlled input"
   cwe: "CWE-94"
@@ -51,7 +56,8 @@
 - id: r-source-url
   languages: [r]
   patterns:
-    - regex: '(?i)\\bsource\\s*\\(.*http''severity: high
+    - regex: '(?i)\bsource\s*\(.*http'
+  severity: high
   description: "Sourcing R code from URL - supply chain risk"
   remediation: "Download and verify scripts before sourcing"
   cwe: "CWE-829"
@@ -61,7 +67,8 @@
 - id: r-install-packages
   languages: [r]
   patterns:
-    - regex: '(?i)install\\.packages\\s*\\(.*repos\\s*=''severity: medium
+    - regex: '(?i)install\.packages\s*\(.*repos\s*='
+  severity: medium
   description: "Package installation from custom repository"
   remediation: "Verify package integrity and use trusted repos only"
   cwe: "CWE-829"
@@ -71,7 +78,8 @@
 - id: r-sql-paste
   languages: [r]
   patterns:
-    - regex: '(?i)(?:dbGetQuery|dbSendQuery|sqlQuery)\\s*\\(.*paste''severity: critical
+    - regex: '(?i)(?:dbGetQuery|dbSendQuery|sqlQuery)\s*\(.*paste'
+  severity: critical
   description: "SQL injection via string concatenation"
   remediation: "Use parameterized queries with dbBind"
   cwe: "CWE-89"
@@ -81,7 +89,8 @@
 - id: r-sql-sprintf
   languages: [r]
   patterns:
-    - regex: '(?i)(?:dbGetQuery|dbSendQuery)\\s*\\(.*sprintf''severity: critical
+    - regex: '(?i)(?:dbGetQuery|dbSendQuery)\s*\(.*sprintf'
+  severity: critical
   description: "SQL injection via sprintf"
   remediation: "Use parameterized queries with dbBind"
   cwe: "CWE-89"
@@ -91,7 +100,8 @@
 - id: r-sql-glue
   languages: [r]
   patterns:
-    - regex: '(?i)(?:dbGetQuery|dbSendQuery)\\s*\\(.*glue\\s*\\(''severity: high
+    - regex: '(?i)(?:dbGetQuery|dbSendQuery)\s*\(.*glue\s*\('
+  severity: high
   description: "SQL injection via glue interpolation"
   remediation: "Use glue_sql() with .con parameter"
   cwe: "CWE-89"
@@ -101,7 +111,7 @@
 - id: r-hardcoded-password
   languages: [r]
   patterns:
-    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\\s*(?:<-|=)\\s*['''\"][^''\"]{4,}[''\"]'
+    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\s*(?:<-|=)\s*[''\\"][^''\\"]{4,}[''\\"]'
   severity: high
   description: "Hardcoded credential detected"
   remediation: "Use environment variables via Sys.getenv()"
@@ -112,7 +122,8 @@
 - id: r-readrds-untrusted
   languages: [r]
   patterns:
-    - regex: '(?i)readRDS\\s*\\(.*http|readRDS\\s*\\(.*tempfile''severity: high
+    - regex: '(?i)readRDS\s*\(.*http|readRDS\s*\(.*tempfile'
+  severity: high
   description: "Reading RDS from untrusted source - deserialization risk"
   remediation: "Validate source before reading RDS files"
   cwe: "CWE-502"
@@ -122,7 +133,8 @@
 - id: r-unserialize
   languages: [r]
   patterns:
-    - regex: '(?i)\\bunserialize\\s*\\(''severity: high
+    - regex: '(?i)\bunserialize\s*\('
+  severity: high
   description: "Unsafe deserialization"
   remediation: "Validate data source before unserializing"
   cwe: "CWE-502"
@@ -132,7 +144,8 @@
 - id: r-save-workspace
   languages: [r]
   patterns:
-    - regex: '(?i)save\\.image\\s*\\(|save\\s*\\(.*\\.RData''severity: medium
+    - regex: '(?i)save\.image\s*\(|save\s*\(.*\.RData'
+  severity: medium
   description: "Workspace saved - may contain sensitive data"
   remediation: "Exclude sensitive variables before saving"
   cwe: "CWE-312"
@@ -142,7 +155,8 @@
 - id: r-write-csv-sensitive
   languages: [r]
   patterns:
-    - regex: '(?i)write\\.csv\\s*\\(.*(?:password|secret|ssn|credit)''severity: medium
+    - regex: '(?i)write\.csv\s*\(.*(?:password|secret|ssn|credit)'
+  severity: medium
   description: "Writing sensitive data to CSV"
   remediation: "Ensure CSV files are properly secured"
   cwe: "CWE-312"
@@ -152,7 +166,8 @@
 - id: r-tempfile-insecure
   languages: [r]
   patterns:
-    - regex: '(?i)\\btempfile\\s*\\(\\s*\\)''severity: low
+    - regex: '(?i)\btempfile\s*\(\s*\)'
+  severity: low
   description: "Temporary file without secure naming"
   remediation: "Use tempfile with proper directory permissions"
   cwe: "CWE-377"
@@ -162,7 +177,7 @@
 - id: r-download-no-verify
   languages: [r]
   patterns:
-    - regex: '(?i)download\\.file\\s*\\(.*method.*=.*'''?(?:curl|wget)'
+    - regex: '(?i)download\.file\s*\(.*method.*=.*''?(?:curl|wget)'
   severity: medium
   description: "File download without integrity verification"
   remediation: "Verify checksums after downloading"
@@ -173,7 +188,8 @@
 - id: r-yaml-load
   languages: [r]
   patterns:
-    - regex: '(?i)yaml::yaml\\.load\\s*\\(''severity: high
+    - regex: '(?i)yaml::yaml\.load\s*\('
+  severity: high
   description: "YAML deserialization - potential code execution"
   remediation: "Use yaml.load with safe handlers"
   cwe: "CWE-502"
@@ -183,7 +199,8 @@
 - id: r-httr-no-verify
   languages: [r]
   patterns:
-    - regex: '(?i)httr::GET\\s*\\(.*config.*ssl_verifypeer.*FALSE|set_config.*ssl_verifypeer.*0''severity: high
+    - regex: '(?i)httr::GET\s*\(.*config.*ssl_verifypeer.*FALSE|set_config.*ssl_verifypeer.*0'
+  severity: high
   description: "SSL verification disabled in HTTP requests"
   remediation: "Enable SSL verification"
   cwe: "CWE-295"
@@ -193,7 +210,7 @@
 - id: r-dbi-cleartext
   languages: [r]
   patterns:
-    - regex: '(?i)dbConnect\\s*\\(.*password\\s*=\\s*['''\"]'
+    - regex: '(?i)dbConnect\s*\(.*password\s*=\s*[''\\\"]'
   severity: high
   description: "Database password in cleartext"
   remediation: "Use .Renviron or keyring package for credentials"
@@ -204,7 +221,8 @@
 - id: r-log-sensitive
   languages: [r]
   patterns:
-    - regex: '(?i)(?:print|cat|message|warning)\\s*\\(.*(?:password|token|secret|api_?key)''severity: medium
+    - regex: '(?i)(?:print|cat|message|warning)\s*\(.*(?:password|token|secret|api_?key)'
+  severity: medium
   description: "Sensitive data may be logged"
   remediation: "Remove sensitive data from output"
   cwe: "CWE-532"
@@ -214,7 +232,7 @@
 - id: r-md5
   languages: [r]
   patterns:
-    - regex: '(?i)digest::digest\\s*\\(.*algo\\s*=\\s*['''\"]md5'
+    - regex: '(?i)digest::digest\s*\(.*algo\s*=\s*[''\\\"]md5'
   severity: medium
   description: "Weak MD5 hash algorithm"
   remediation: "Use SHA-256 or SHA-512"
@@ -225,7 +243,7 @@
 - id: r-file-permissions
   languages: [r]
   patterns:
-    - regex: '(?i)Sys\\.chmod\\s*\\(.*['''\"]0?777'
+    - regex: '(?i)Sys\.chmod\s*\(.*[''\\\"]0?777'
   severity: high
   description: "World-writable file permissions"
   remediation: "Use restrictive permissions"
@@ -236,7 +254,8 @@
 - id: r-rserve-insecure
   languages: [r]
   patterns:
-    - regex: '(?i)Rserve\\s*\\(.*args.*--no-auth''severity: high
+    - regex: '(?i)Rserve\s*\(.*args.*--no-auth'
+  severity: high
   description: "Rserve running without authentication"
   remediation: "Enable authentication for Rserve"
   cwe: "CWE-306"
@@ -246,7 +265,8 @@
 - id: r-shiny-no-auth
   languages: [r]
   patterns:
-    - regex: '(?i)shinyApp\\s*\\(''severity: low
+    - regex: '(?i)shinyApp\s*\('
+  severity: low
   description: "Shiny app without authentication"
   remediation: "Add authentication using shinymanager or similar"
   cwe: "CWE-306"
@@ -256,7 +276,8 @@
 - id: r-xxe
   languages: [r]
   patterns:
-    - regex: '(?i)xmlTreeParse\\s*\\([^)]*dtd\\s*=\\s*TRUE''severity: high
+    - regex: '(?i)xmlTreeParse\s*\([^)]*dtd\s*=\s*TRUE'
+  severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing in XML parser"
   cwe: "CWE-611"
@@ -266,7 +287,8 @@
 - id: r-path-traversal
   languages: [r]
   patterns:
-    - regex: '(?i)read\\.table\\s*\\([^)]*file\\s*=\\s*paste''severity: high
+    - regex: '(?i)read\.table\s*\([^)]*file\s*=\s*paste'
+  severity: high
   description: "Path traversal in file read"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -276,7 +298,8 @@
 - id: r-eval-user-input
   languages: [r]
   patterns:
-    - regex: '(?i)eval\\s*\\(.*req\\s*\\(|eval\\s*\\(.*input\\s*\\(''severity: critical
+    - regex: '(?i)eval\s*\(.*req\s*\(|eval\s*\(.*input\s*\('
+  severity: critical
   description: "Eval with user input"
   remediation: "Never eval user-controlled input"
   cwe: "CWE-94"
@@ -286,7 +309,8 @@
 - id: r-shell-injection
   languages: [r]
   patterns:
-    - regex: '(?i)system\\s*\\(.*paste0|system2\\s*\\(.*paste0''severity: critical
+    - regex: '(?i)system\s*\(.*paste0|system2\s*\(.*paste0'
+  severity: critical
   description: "Shell command injection"
   remediation: "Use validated arguments, not string concatenation"
   cwe: "CWE-78"
@@ -296,7 +320,8 @@
 - id: r-xxe
   languages: [r]
   patterns:
-    - regex: '(?i)xmlParse\\s*\\(.*dtd|CWzmlTreeParse\\s*\\(.*dtd''severity: high
+    - regex: '(?i)xmlParse\s*\(.*dtd|CWzmlTreeParse\s*\(.*dtd'
+  severity: high
   description: "XXE vulnerability in XML parsing"
   remediation: "Disable DTD processing"
   cwe: "CWE-611"
@@ -306,7 +331,8 @@
 - id: r-url-parse
   languages: [r]
   patterns:
-    - regex: '(?i)url\\.parse\\s*\\(.*\\$\\|urlencode\\s*\\(.*\\$''severity: medium
+    - regex: '(?i)url\.parse\s*\(.*\$\|urlencode\s*\(.*\$'
+  severity: medium
   description: "URL parsing with user input"
   remediation: "Validate URL components"
   cwe: "CWE-20"
@@ -316,7 +342,8 @@
 - id: r-s3-upload
   languages: [r]
   patterns:
-    - regex: '(?i)put_object\\s*\\(.*acl\\s*=|upload_file\\s*\\(.*acl''severity: medium
+    - regex: '(?i)put_object\s*\(.*acl\s*=|upload_file\s*\(.*acl'
+  severity: medium
   description: "S3 bucket with insecure ACL"
   remediation: "Use bucket policies, not ACLs"
   cwe: "CWE-732"
@@ -326,7 +353,7 @@
 - id: r-crypto-weak
   languages: [r]
   patterns:
-    - regex: '(?i)digest\\s*\\(.*algo\\s*=\\s*['''\\\"]md5'
+    - regex: '(?i)digest\s*\(.*algo\s*=\s*[''\\\"]md5'
   severity: medium
   description: "Weak cryptographic hash"
   remediation: "Use SHA-256 or better"
@@ -337,7 +364,8 @@
 - id: r-function-injection
   languages: [r]
   patterns:
-    - regex: '(?i)do\\.call\\s*\\(.*\\$|match\\.fun\\.arg\\s*\\(.*\\$''severity: high
+    - regex: '(?i)do\.call\s*\(.*\$|match\.fun\.arg\s*\(.*\$'
+  severity: high
   description: "Function call with user input"
   remediation: "Validate function names"
   cwe: "CWE-94"
@@ -347,7 +375,8 @@
 - id: r-sqlinjection-rmysql
   languages: [r]
   patterns:
-    - regex: '(?i)dbSendQuery\\s*\\(.*paste|dbGetQuery\\s*\\(.*sprintf''severity: critical
+    - regex: '(?i)dbSendQuery\s*\(.*paste|dbGetQuery\s*\(.*sprintf'
+  severity: critical
   description: "SQL injection in RMySQL"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"

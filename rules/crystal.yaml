@@ -1,7 +1,8 @@
 - id: crystal-system-cmd
   languages: [crystal]
   patterns:
-    - regex: '(?i)\\bsystem\\s*\\(''severity: critical
+    - regex: '(?i)\bsystem\s*\('
+  severity: critical
   description: "OS command execution"
   remediation: "Use Process.run with array of arguments"
   cwe: "CWE-78"
@@ -11,7 +12,8 @@
 - id: crystal-backticks
   languages: [crystal]
   patterns:
-    - regex: '(?i)`[^`]*#\\{[^}]+}[^`]*`''severity: critical
+    - regex: '(?i)`[^`]*#\{[^}]+}[^`]*`'
+  severity: critical
   description: "OS command execution via backticks"
   remediation: "Use Process.run"
   cwe: "CWE-78"
@@ -21,7 +23,8 @@
 - id: crystal-sql-concat
   languages: [crystal]
   patterns:
-    - regex: '(?i)db\\.query\\s*\\(.*#\\{''severity: critical
+    - regex: '(?i)db\.query\s*\(.*#\{'
+  severity: critical
   description: "SQL injection via interpolation"
   remediation: "Use generic DB bound arguments ?"
   cwe: "CWE-89"
@@ -31,7 +34,8 @@
 - id: crystal-sql-exec-concat
   languages: [crystal]
   patterns:
-    - regex: '(?i)db\\.exec\\s*\\(.*#\\{''severity: critical
+    - regex: '(?i)db\.exec\s*\(.*#\{'
+  severity: critical
   description: "SQL injection via interpolation"
   remediation: "Use generic DB bound arguments ?"
   cwe: "CWE-89"
@@ -41,7 +45,8 @@
 - id: crystal-hardcoded-secret
   languages: [crystal]
   patterns:
-    - regex: '(?i)(?:secret|password|key)\\s*=\\s*\"[a-zA-Z0-9_-]{12,}\"''severity: high
+    - regex: '(?i)(?:secret|password|key)\s*=\s*\\"[a-zA-Z0-9_-]{12,}\\"'
+  severity: high
   description: "Hardcoded secret"
   remediation: "Use ENV"
   cwe: "CWE-798"
@@ -51,7 +56,8 @@
 - id: crystal-http-no-tls
   languages: [crystal]
   patterns:
-    - regex: '(?i)HTTP::Client\\.new\\s*\\(.*tls:\\s*false''severity: medium
+    - regex: '(?i)HTTP::Client\.new\s*\(.*tls:\s*false'
+  severity: medium
   description: "HTTP client without TLS"
   remediation: "Enable TLS"
   cwe: "CWE-319"
@@ -61,7 +67,8 @@
 - id: crystal-md5
   languages: [crystal]
   patterns:
-    - regex: '(?i)Digest::MD5\\.hexdigest''severity: medium
+    - regex: '(?i)Digest::MD5\.hexdigest'
+  severity: medium
   description: "Weak MD5 hash"
   remediation: "Use Digest::SHA256"
   cwe: "CWE-328"
@@ -71,7 +78,8 @@
 - id: crystal-file-read
   languages: [crystal]
   patterns:
-    - regex: '(?i)File\\.read\\s*\\(''severity: medium
+    - regex: '(?i)File\.read\s*\('
+  severity: medium
   description: "File read"
   remediation: "Validate file paths"
   cwe: "CWE-22"
@@ -81,7 +89,8 @@
 - id: crystal-insecure-random
   languages: [crystal]
   patterns:
-    - regex: '(?i)Random\\.rand''severity: low
+    - regex: '(?i)Random\.rand'
+  severity: low
   description: "Weak PRNG"
   remediation: "Use Random::Secure"
   cwe: "CWE-330"
@@ -91,7 +100,8 @@
 - id: crystal-ssrf
   languages: [crystal]
   patterns:
-    - regex: '(?i)HTTP::Client\\.get\\s*\\(.*#\\{''severity: high
+    - regex: '(?i)HTTP::Client\.get\s*\(.*#\{'
+  severity: high
   description: "Potential SSRF via interpolation"
   remediation: "Validate URLs"
   cwe: "CWE-918"
@@ -101,7 +111,8 @@
 - id: crystal-yaml-unsafe
   languages: [crystal]
   patterns:
-    - regex: '(?i)YAML\\.load\\s*\\(''severity: high
+    - regex: '(?i)YAML\.load\s*\('
+  severity: high
   description: "Unsafe YAML deserialization"
   remediation: "Use YAML.safe_load"
   cwe: "CWE-502"
@@ -111,7 +122,8 @@
 - id: crystal-eval
   languages: [crystal]
   patterns:
-    - regex: '(?i)eval\\s*\\(''severity: critical
+    - regex: '(?i)eval\s*\('
+  severity: critical
   description: "Dynamic code execution"
   remediation: "Avoid eval with untrusted input"
   cwe: "CWE-94"
@@ -121,7 +133,8 @@
 - id: crystal-weak-random
   languages: [crystal]
   patterns:
-    - regex: '(?i)Random\\.new\\s*\\(''severity: medium
+    - regex: '(?i)Random\.new\s*\('
+  severity: medium
   description: "Insecure random for cryptographic use"
   remediation: "Use Random::Secure"
   cwe: "CWE-338"
@@ -131,7 +144,8 @@
 - id: crystal-xxe
   languages: [crystal]
   patterns:
-    - regex: '(?i)XML\\.parse\\s*\\(.*http''severity: high
+    - regex: '(?i)XML\.parse\s*\(.*http'
+  severity: high
   description: "XXE vulnerability via XML parsing"
   remediation: "Disable external entity processing"
   cwe: "CWE-611"
@@ -141,7 +155,8 @@
 - id: crystal-path-traversal
   languages: [crystal]
   patterns:
-    - regex: '(?i)File\\.read\\s*\\(.*\\$|File\\.write\\s*\\(.*\\$''severity: high
+    - regex: '(?i)File\.read\s*\(.*\$|File\.write\s*\(.*\$'
+  severity: high
   description: "Path traversal in file operations"
   remediation: "Validate and sanitize file paths"
   cwe: "CWE-22"
@@ -151,7 +166,8 @@
 - id: crystal-weak-cipher
   languages: [crystal]
   patterns:
-    - regex: '(?i)Digest::MD5|Digest::SHA1''severity: medium
+    - regex: '(?i)Digest::MD5|Digest::SHA1'
+  severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
   cwe: "CWE-327"
@@ -161,7 +177,8 @@
 - id: crystal-serialization
   languages: [crystal]
   patterns:
-    - regex: '(?i)Marshal\\.load|FromPickle''severity: high
+    - regex: '(?i)Marshal\.load|FromPickle'
+  severity: high
   description: "Unsafe deserialization"
   remediation: "Use JSON instead"
   cwe: "CWE-502"
@@ -171,7 +188,8 @@
 - id: crystal-ldap
   languages: [crystal]
   patterns:
-    - regex: '(?i)ldap\\s*\\(.*\\$\\|search\\s*\\(.*\\$\\*''severity: high
+    - regex: '(?i)ldap\s*\(.*\$\|search\s*\(.*\$\*'
+  severity: high
   description: "LDAP injection vulnerability"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -181,7 +199,8 @@
 - id: crystal-hardcoded-creds
   languages: [crystal]
   patterns:
-    - regex: '(?i)(?:db|password|secret|key)\\s*=\\s*\\"[^"]{4,}\\"''severity: high
+    - regex: '(?i)(?:db|password|secret|key)\s*=\s*\\"[^"]{4,}\\"'
+  severity: high
   description: "Hardcoded credentials"
   remediation: "Use environment variables"
   cwe: "CWE-798"
@@ -191,7 +210,8 @@
 - id: crystal-ssrf
   languages: [crystal]
   patterns:
-    - regex: '(?i)HTTP::Client\\.get.*\\$|HTTP::Client\\.post.*\\$''severity: high
+    - regex: '(?i)HTTP::Client\.get.*\$|HTTP::Client\.post.*\$'
+  severity: high
   description: "Potential SSRF via HTTP client"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -201,7 +221,8 @@
 - id: crystal-regex-dos
   languages: [crystal]
   patterns:
-    - regex: '(?i)Regex\\.new.*\\*|Regex\\.match.*\\*''severity: medium
+    - regex: '(?i)Regex\.new.*\*|Regex\.match.*\*'
+  severity: medium
   description: "Potential ReDoS vulnerability"
   remediation: "Avoid nested quantifiers"
   cwe: "CWE-1333"
@@ -211,7 +232,8 @@
 - id: crystal-template-injection
   languages: [crystal]
   patterns:
-    - regex: '(?i)SL Template\\.render.*\\$|Kemal\\.render.*\\$''severity: high
+    - regex: '(?i)SL Template\.render.*\$|Kemal\.render.*\$'
+  severity: high
   description: "Template injection vulnerability"
   remediation: "Sanitize template inputs"
   cwe: "CWE-1336"

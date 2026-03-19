@@ -1,7 +1,8 @@
 - id: matlab-eval
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\beval\\s*\\(''severity: critical
+    - regex: '(?i)\beval\s*\('
+  severity: critical
   description: "Code injection via eval()"
   remediation: "Use function handles or feval with validated input"
   cwe: "CWE-94"
@@ -11,7 +12,8 @@
 - id: matlab-evalc
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bevalc\\s*\\(''severity: critical
+    - regex: '(?i)\bevalc\s*\('
+  severity: critical
   description: "Code injection via evalc()"
   remediation: "Avoid evalc with dynamic input"
   cwe: "CWE-94"
@@ -21,7 +23,7 @@
 - id: matlab-feval-string
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bfeval\\s*\\(\\s*['''\"]'
+    - regex: '(?i)\bfeval\s*\(\s*[''\\\"]'
   severity: high
   description: "Dynamic function execution via feval()"
   remediation: "Use function handles instead of string-based feval"
@@ -32,7 +34,8 @@
 - id: matlab-system
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bsystem\\s*\\(''severity: critical
+    - regex: '(?i)\bsystem\s*\('
+  severity: critical
   description: "OS command execution via system()"
   remediation: "Validate and sanitize all system command arguments"
   cwe: "CWE-78"
@@ -42,7 +45,8 @@
 - id: matlab-unix
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bunix\\s*\\(''severity: critical
+    - regex: '(?i)\bunix\s*\('
+  severity: critical
   description: "OS command execution via unix()"
   remediation: "Use validated inputs for OS commands"
   cwe: "CWE-78"
@@ -52,7 +56,8 @@
 - id: matlab-dos
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bdos\\s*\\(''severity: critical
+    - regex: '(?i)\bdos\s*\('
+  severity: critical
   description: "OS command execution via dos()"
   remediation: "Use validated inputs for OS commands"
   cwe: "CWE-78"
@@ -62,7 +67,8 @@
 - id: matlab-perl-call
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bperl\\s*\\(''severity: high
+    - regex: '(?i)\bperl\s*\('
+  severity: high
   description: "External Perl script execution"
   remediation: "Validate script path and arguments"
   cwe: "CWE-78"
@@ -72,7 +78,7 @@
 - id: matlab-hardcoded-password
   languages: [matlab]
   patterns:
-    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\\s*=\\s*'''[^'']{4,}'''
+    - regex: '(?i)(?:password|passwd|pwd|secret|api_?key)\s*=\s*''[^'']{4,}'''
   severity: high
   description: "Hardcoded credential"
   remediation: "Use environment variables or secure config"
@@ -83,7 +89,8 @@
 - id: matlab-sql-concat
   languages: [matlab]
   patterns:
-    - regex: '(?i)(?:exec|fetch|execute)\\s*\\(.*\\[.*strcat''severity: critical
+    - regex: '(?i)(?:exec|fetch|execute)\s*\(.*\[.*strcat'
+  severity: critical
   description: "SQL injection via string concatenation"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -93,7 +100,7 @@
 - id: matlab-websave-http
   languages: [matlab]
   patterns:
-    - regex: '(?i)websave\\s*\\(.*'''http://'
+    - regex: '(?i)websave\s*\(.*''http://'
   severity: medium
   description: "Insecure HTTP download"
   remediation: "Use HTTPS"
@@ -104,7 +111,7 @@
 - id: matlab-webread-http
   languages: [matlab]
   patterns:
-    - regex: '(?i)webread\\s*\\(.*'''http://'
+    - regex: '(?i)webread\s*\(.*''http://'
   severity: medium
   description: "Insecure HTTP request"
   remediation: "Use HTTPS"
@@ -115,7 +122,8 @@
 - id: matlab-load-untrusted
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bload\\s*\\(.*http|\\bload\\s*\\(.*tempdir''severity: high
+    - regex: '(?i)\bload\s*\(.*http|\bload\s*\(.*tempdir'
+  severity: high
   description: "Loading MAT file from untrusted source"
   remediation: "Validate source before loading"
   cwe: "CWE-502"
@@ -125,7 +133,8 @@
 - id: matlab-tempname
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\btempname\\s*\\(\\s*\\)''severity: low
+    - regex: '(?i)\btempname\s*\(\s*\)'
+  severity: low
   description: "Temp file without secure path"
   remediation: "Use tempdir with restricted permissions"
   cwe: "CWE-377"
@@ -135,7 +144,7 @@
 - id: matlab-fileread-userinput
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bfileread\\s*\\(\\s*''')'
+    - regex: '(?i)\bfileread\s*\(\s*'''
   severity: medium
   description: "File read with potential user-controlled path"
   remediation: "Validate and sanitize file paths"
@@ -146,7 +155,7 @@
 - id: matlab-md5
   languages: [matlab]
   patterns:
-    - regex: '(?i)DataHash.*'''MD5''|md5\\s*\\('
+    - regex: '(?i)DataHash.*''MD5''|md5\s*\('
   severity: medium
   description: "Weak MD5 hash"
   remediation: "Use SHA-256 or SHA-512"
@@ -157,7 +166,8 @@
 - id: matlab-rand-crypto
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\brand\\s*\\(.*(?:key|token|password|nonce)''severity: medium
+    - regex: '(?i)\brand\s*\(.*(?:key|token|password|nonce)'
+  severity: medium
   description: "Insecure random for cryptographic use"
   remediation: "Use RandStream with proper seeding"
   cwe: "CWE-330"
@@ -167,7 +177,7 @@
 - id: matlab-chmod-777
   languages: [matlab]
   patterns:
-    - regex: '(?i)fileattrib\\s*\\(.*'''\\+w''.*''a'''
+    - regex: '(?i)fileattrib\s*\(.*''\+w''.*''a'''
   severity: medium
   description: "World-writable file permissions"
   remediation: "Use restrictive permissions"
@@ -178,7 +188,8 @@
 - id: matlab-jsondecode-unvalidated
   languages: [matlab]
   patterns:
-    - regex: '(?i)jsondecode\\s*\\(\\s*webread''severity: medium
+    - regex: '(?i)jsondecode\s*\(\s*webread'
+  severity: medium
   description: "JSON decoding from untrusted source"
   remediation: "Validate JSON structure before use"
   cwe: "CWE-502"
@@ -188,7 +199,8 @@
 - id: matlab-mex-unsafe
   languages: [matlab]
   patterns:
-    - regex: '(?i)mex\\s*\\(.*-compatibleArrayDims''severity: medium
+    - regex: '(?i)mex\s*\(.*-compatibleArrayDims'
+  severity: medium
   description: "MEX compilation with legacy array dimensions"
   remediation: "Use -largeArrayDims for memory safety"
   cwe: "CWE-120"
@@ -198,7 +210,8 @@
 - id: matlab-diary
   languages: [matlab]
   patterns:
-    - regex: '(?i)\\bdiary\\s*\\(|\\bdiary\\s+on''severity: low
+    - regex: '(?i)\bdiary\s*\(|\bdiary\s+on'
+  severity: low
   description: "Command history logging enabled"
   remediation: "Ensure diary files dont capture sensitive data"
   cwe: "CWE-532"
@@ -208,7 +221,7 @@
 - id: matlab-ssrf
   languages: [matlab]
   patterns:
-    - regex: '(?i)webread\\s*\\(.*url\\s*=\\s*''')'
+    - regex: '(?i)webread\s*\(.*url\s*=\s*'''
   severity: high
   description: "Potential SSRF via web request"
   remediation: "Validate URLs against allowlist"
@@ -219,7 +232,8 @@
 - id: matlab-xpath
   languages: [matlab]
   patterns:
-    - regex: '(?i)xpath\\s*\\(.*strcat''severity: high
+    - regex: '(?i)xpath\s*\(.*strcat'
+  severity: high
   description: "XPath injection via string concatenation"
   remediation: "Use parameterized XPath queries"
   cwe: "CWE-643"
@@ -229,7 +243,7 @@
 - id: matlab-weak-crypto
   languages: [matlab]
   patterns:
-    - regex: '(?i)DataHash.*'''MD5''|md5\\s*\\(|hash\\s*\\(.*''md5'''
+    - regex: '(?i)DataHash.*''MD5''|md5\s*\(|hash\s*\(.*''md5'''
   severity: medium
   description: "Weak hash algorithm"
   remediation: "Use SHA-256 or better"
@@ -240,7 +254,7 @@
 - id: matlab-serialized
   languages: [matlab]
   patterns:
-    - regex: '(?i)load\\s*\\(.*'''-mat''|save\\s*\\(.*''-mat'''
+    - regex: '(?i)load\s*\(.*''-mat''|save\s*\(.*''-mat'''
   severity: high
   description: "MAT-file serialization - potential code execution"
   remediation: "Validate MAT file sources"
@@ -251,7 +265,7 @@
 - id: matlab-urlread
   languages: [matlab]
   patterns:
-    - regex: '(?i)urlread\\s*\\(.*url\\s*=\\s*''')'
+    - regex: '(?i)urlread\s*\(.*url\s*=\s*'''
   severity: high
   description: "Potential SSRF via urlread"
   remediation: "Validate URLs against allowlist"
@@ -262,7 +276,8 @@
 - id: matlab-eval-user
   languages: [matlab]
   patterns:
-    - regex: '(?i)eval\\s*\\(.*input\\s*\\(|eval\\s*\\(.*prompt''severity: critical
+    - regex: '(?i)eval\s*\(.*input\s*\(|eval\s*\(.*prompt'
+  severity: critical
   description: "Eval with user input"
   remediation: "Never eval user-controlled input"
   cwe: "CWE-94"
@@ -272,7 +287,8 @@
 - id: matlab-regex-dos
   languages: [matlab]
   patterns:
-    - regex: '(?i)regexp\\s*\\(.*\\*\\+|regexpi\\s*\\(.*\\+''severity: medium
+    - regex: '(?i)regexp\s*\(.*\*\+|regexpi\s*\(.*\+'
+  severity: medium
   description: "Potential ReDoS in regex"
   remediation: "Avoid nested quantifiers in regex"
   cwe: "CWE-1333"
@@ -282,7 +298,8 @@
 - id: matlab-sql-odbc
   languages: [matlab]
   patterns:
-    - regex: '(?i)exec\\s*\\(.*strcat|queryexec\\s*\\(.*strcat''severity: critical
+    - regex: '(?i)exec\s*\(.*strcat|queryexec\s*\(.*strcat'
+  severity: critical
   description: "SQL injection via ODBC"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
@@ -292,7 +309,8 @@
 - id: matlab-ldap-injection
   languages: [matlab]
   patterns:
-    - regex: '(?i)ldap\\s*\\(.*strcat|ldapsearch\\s*\\(.*\\+''severity: critical
+    - regex: '(?i)ldap\s*\(.*strcat|ldapsearch\s*\(.*\+'
+  severity: critical
   description: "LDAP injection"
   remediation: "Sanitize LDAP inputs"
   cwe: "CWE-90"
@@ -302,7 +320,8 @@
 - id: matlab-xss
   languages: [matlab]
   patterns:
-    - regex: '(?i)regexprep\\s*\\(.*<|replace\\s*\\(.*<''severity: high
+    - regex: '(?i)regexprep\s*\(.*<|replace\s*\(.*<'
+  severity: high
   description: "Potential XSS via regex replacement"
   remediation: "Encode HTML output"
   cwe: "CWE-79"
@@ -312,7 +331,8 @@
 - id: matlab-ssrf-urlfetch
   languages: [matlab]
   patterns:
-    - regex: '(?i)urlfetch\\s*\\(.*url\\s*=|matlab\\.ws\\.GetWeb''severity: high
+    - regex: '(?i)urlfetch\s*\(.*url\s*=|matlab\.ws\.GetWeb'
+  severity: high
   description: "Potential SSRF via URL fetch"
   remediation: "Validate URLs against allowlist"
   cwe: "CWE-918"
@@ -322,7 +342,7 @@
 - id: matlab-insecure-tls
   languages: [matlab]
   patterns:
-    - regex: '(?i)weboptions\\s*\\(.*'''CertificateFilename''|matlab\\.net\\.HttpOptions.*Skip'
+    - regex: '(?i)weboptions\s*\(.*''CertificateFilename''|matlab\.net\.HttpOptions.*Skip'
   severity: high
   description: "SSL certificate validation disabled"
   remediation: "Enable certificate validation"
