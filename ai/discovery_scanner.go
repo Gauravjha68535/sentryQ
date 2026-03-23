@@ -5,13 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"QWEN_SCR_24_FEB_2026/reporter"
@@ -19,11 +18,6 @@ import (
 
 	"github.com/fatih/color"
 )
-
-// Interrupt flag for graceful shutdown
-var interruptFlag int32
-var globalCtx context.Context
-var globalCancel context.CancelFunc
 
 var aiHTTPClient = &http.Client{
 	Timeout: 35 * time.Minute, // Must exceed the per-request context timeout (30m)
@@ -35,24 +29,6 @@ var aiHTTPClient = &http.Client{
 }
 
 func init() {
-	globalCtx, globalCancel = context.WithCancel(context.Background())
-}
-
-// SetInterrupted sets the interrupt flag and cancels all running operations
-func SetInterrupted(val bool) {
-	if val {
-		atomic.StoreInt32(&interruptFlag, 1)
-		if globalCancel != nil {
-			globalCancel()
-		}
-	} else {
-		atomic.StoreInt32(&interruptFlag, 0)
-	}
-}
-
-// IsInterrupted returns true if the scan has been interrupted
-func IsInterrupted() bool {
-	return atomic.LoadInt32(&interruptFlag) == 1
 }
 
 // FlexInt handles AI models returning line_number as either int (42) or array ([14, 20, 26]).
@@ -105,6 +81,73 @@ var supportedDiscoveryExtensions = map[string]bool{
 	".env": true, ".config": true, ".properties": true,
 }
 
+// buildProjectContext generates a compact project tree + extracted imports for multi-vector AI context.
+// This helps the AI understand the project architecture, not just the isolated file.
+func buildProjectContext(targetDir string, filesToScan []string) string {
+	var sb strings.Builder
+	sb.WriteString("PROJECT CONTEXT (for architectural awareness):\n")
+
+	// 1. Build compact directory tree (max 80 entries)
+	sb.WriteString("\n--- Directory Structure ---\n")
+	dirs := map[string]int{}
+	for _, f := range filesToScan {
+		rel, _ := filepath.Rel(targetDir, f)
+		if rel == "" {
+			rel = filepath.Base(f)
+		}
+		dir := filepath.Dir(rel)
+		dirs[dir]++
+	}
+	count := 0
+	for dir, n := range dirs {
+		if count >= 80 {
+			sb.WriteString("  ... (truncated)\n")
+			break
+		}
+		sb.WriteString(fmt.Sprintf("  %s/ (%d files)\n", dir, n))
+		count++
+	}
+
+	// 2. Extract imports / includes from the first 30 lines of nearby files (max 10 files)
+	sb.WriteString("\n--- Key Imports (sampled) ---\n")
+	sampled := 0
+	for _, f := range filesToScan {
+		if sampled >= 10 {
+			break
+		}
+		content, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+		lines := strings.Split(string(content), "\n")
+		maxLines := 30
+		if len(lines) < maxLines {
+			maxLines = len(lines)
+		}
+		rel, _ := filepath.Rel(targetDir, f)
+		importLines := []string{}
+		for _, line := range lines[:maxLines] {
+			trimmed := strings.TrimSpace(line)
+			if strings.HasPrefix(trimmed, "import ") || strings.HasPrefix(trimmed, "from ") ||
+				strings.HasPrefix(trimmed, "require(") || strings.HasPrefix(trimmed, "#include") ||
+				strings.HasPrefix(trimmed, "using ") || strings.HasPrefix(trimmed, "package ") {
+				importLines = append(importLines, trimmed)
+			}
+		}
+		if len(importLines) > 0 {
+			sb.WriteString(fmt.Sprintf("  [%s] %s\n", rel, strings.Join(importLines, " | ")))
+			sampled++
+		}
+	}
+
+	result := sb.String()
+	// Cap context to prevent prompt bloat (max 3000 chars)
+	if len(result) > 3000 {
+		result = result[:3000] + "\n  ... (context truncated)\n"
+	}
+	return result
+}
+
 // maxFileSize is the maximum file size (in bytes) to send to AI (avoid overloading context)
 const maxFileSize = 150000
 
@@ -143,11 +186,47 @@ type OllamaAPIResponse struct {
 	Done     bool   `json:"done"`
 }
 
+// readOllamaResponse reads an Ollama API response body, handling BOTH:
+// 1. Non-streaming: a single JSON object with the full response
+// 2. Streaming: line-delimited JSON objects with individual tokens (some servers ignore stream:false)
+// It concatenates all .Response fields and returns the full text.
+func readOllamaResponse(body io.Reader) (string, error) {
+	decoder := json.NewDecoder(body)
+	var fullResponse strings.Builder
+	decoded := false
+
+	for {
+		var chunk OllamaAPIResponse
+		if err := decoder.Decode(&chunk); err != nil {
+			if err == io.EOF {
+				break
+			}
+			// If we already got some content, return what we have
+			if decoded {
+				break
+			}
+			return "", fmt.Errorf("failed to decode Ollama response: %w", err)
+		}
+		decoded = true
+		fullResponse.WriteString(chunk.Response)
+		if chunk.Done {
+			break
+		}
+	}
+
+	if !decoded {
+		return "", fmt.Errorf("empty response from Ollama")
+	}
+
+	return fullResponse.String(), nil
+}
+
 const maxChunkLines = 2000
 const chunkOverlap = 50
 
-// DiscoverVulnerabilities scans a single file using AI to find vulnerabilities via sliding window chunking
-func DiscoverVulnerabilities(modelName string, filePath string, content string) ([]DiscoveryFinding, error) {
+// DiscoverVulnerabilities scans a single file using AI to find vulnerabilities via sliding window chunking.
+// projectContext is an optional string containing the project tree and imports for multi-vector context.
+func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath string, content string, projectContext ...string) ([]DiscoveryFinding, error) {
 	lines := strings.Split(utils.NormalizeNewlines(content), "\n")
 	totalLines := len(lines)
 
@@ -189,139 +268,181 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 			langSpecific = "PHP-SPECIFIC: Look for unserialize() vulnerabilities, local file inclusion (LFI) via 'include/require', and SQLi in legacy 'mysql_' functions."
 		}
 
-		prompt := fmt.Sprintf("You are an elite Red-Team Security Engineer and Exploit Developer.\n"+
-			"Your mission: Perform a deep-dive security audit of the provided code. Do NOT be superficial.\n\n"+
+		prompt := fmt.Sprintf("You are an Expert Security Auditor and Code Analysis System.\n"+
+			"Your mission: Perform a comprehensive security review of the provided code to identify vulnerabilities and suggest defensive improvements. Be thorough and analytical.\n\n"+
 			"File Context: %s\n"+
-			"%s\n\n"+
-			"MASTER AUDIT SCOPE (Elite Level):\n"+
-			"1.  BROKEN ACCESS CONTROL: IDOR, missing RBAC/ABAC checks, horizontal/vertical privilege escalation, and bypasses in JWT/OAuth implementations.\n"+
-			"2.  INJECTION GALAXY: SSTI, NoSQLi, OS Command Injection, Log Poisoning, and LDAP/XPath/Template injections.\n"+
-			"3.  DATA INTEGRITY & LOGIC: Insecure Deserialization (Pickle/Marshal), Prototype Pollution, XXE, and complex Business Logic Bypasses (e.g. state machine manipulation).\n"+
-			"4.  SERVER-SIDE REQUEST FORGERY (SSRF): Metadata service exploitation, DNS rebinding potential, and internal network pivot points.\n\n"+
-			"IMPORTANT CONSTRAINT: Do NOT flag missing infrastructure controls (e.g. missing security headers, rate limiting, CSRF tokens) as code vulnerabilities. Focus ONLY on exploitable code-level bugs with a clear Source-to-Sink taint flow.\n\n"+
-			"ULTRA-DEEP SCAN INSTRUCTIONS:\n"+
-			"- TAINT-FLOW SIMULATION: For every variable that comes from a request (Source), trace its path through the code until it hits a sensitive function (Sink). If there is no sanitization in between, it is a CRITICAL finding.\n"+
-			"- ATTACKER'S PERSPECTIVE: How would I bypass the existing regex or filters? Look for encoding tricks, null bytes, or multi-step logical flaws.\n"+
+			"%s\n\n", filePath, codeBlock)
+
+		// Inject project context if available (Multi-Vector Context Injection)
+		if len(projectContext) > 0 && projectContext[0] != "" {
+			prompt += fmt.Sprintf("%s\n\n", projectContext[0])
+		}
+
+		prompt += fmt.Sprintf("SECURITY ANALYSIS SCOPE:\n"+
+			"1.  ACCESS CONTROL VULNERABILITIES: IDOR, missing authorization checks, horizontal/vertical privilege escalation, and flaws in session management.\n"+
+			"2.  INJECTION RISKS: SQL Injection, OS Command Injection, Template Injection (SSTI), NoSQL Injection, and LDAP/XPath Injection.\n"+
+			"3.  DATA PROCESSING & LOGIC: Insecure Deserialization, Prototype Pollution, XXE, and Business Logic flaws.\n"+
+			"4.  SERVER-SIDE REQUEST FORGERY (SSRF): Vulnerabilities that allow internal network access or metadata service exploitation.\n\n"+
+			"IMPORTANT: Focus ONLY on exploitable code-level bugs with clear impact. Do NOT flag missing infrastructure controls (e.g. rate limiting, security headers) as vulnerabilities.\n\n"+
+			"FALSE POSITIVE AVOIDANCE:\n"+
+			"- Do NOT flag parameterized queries (e.g., using `?` or `$1`) as SQL Injection.\n"+
+			"- Do NOT flag secure RNGs (`crypto.randomBytes`, `secrets.token_hex`, `os.urandom`) as Weak Randomness. Only flag predictable math libraries (`Math.random()`, `rand()`).\n"+
+			"- Do NOT flag `textContent` or `innerText` as XSS. Only flag `innerHTML`, `dangerouslySetInnerHTML`, or raw unescaped template outputs.\n"+
+			"- Do NOT flag environment variables (`process.env.SECRET`) as Hardcoded Secrets. Only flag literal string secrets.\n\n"+
+			"ANALYSIS METHODOLOGY:\n"+
+			"- TAINT-FLOW TRACKING: Trace untrusted user input from entry points (Sources) to sensitive operations (Sinks). Flag if no proper validation or sanitization is present.\n"+
+			"- VULNERABILITY ASSESSMENT: Evaluate how inputs could be manipulated to cause unintended behavior.\n"+
 			"- LANGUAGE-SPECIFIC ARCHETYPES: %s\n\n"+
-			"CRITICAL TAXONOMY RULES:\n"+
-			"- DO NOT misclassify vulnerabilities. You must use accurate CWE IDs based on the root cause and execution context.\n"+
-			"- Client-side issues (like DOM XSS, postMessage vulnerabilities, javascript: URIs) MUST be classified as CWE-79 (Cross-Site Scripting), NOT OS Command Injection (CWE-78) or Eval Injection.\n"+
-			"- Code injection via eval() or Function() on the server backend is CWE-94/CWE-95, NOT OS Command Injection.\n"+
-			"- Apply strict contextual awareness (backend vs frontend).\n\n"+
-			"FORMATTING RULES:\n"+
-			"- In the 'remediation' field, explain the fix in pure english text. DO NOT generate git diffs (e.g., + and - lines) or unformatted code blocks.\n"+
-			"- The 'code_snippet' field should ONLY contain the lines of vulnerable code, no extra commentary.\n\n"+
-			"OUTPUT PROTOCOL:\n"+
-			"1. Start with a <thinking> tag. Perform a step-by-step Taint-Flow analysis. If you find a 'Missing' control, explain why the omission is dangerous.\n"+
-			"2. End with the final results in the requested JSON format.\n\n"+
-			"Respond ONLY with valid JSON inside the final results portion:\n"+
+			"TAXONOMY & ACCURACY:\n"+
+			"- Assign correct CWE IDs based on the root cause.\n"+
+			"- Classify client-side issues (DOM XSS, etc.) as CWE-79 (Cross-Site Scripting).\n"+
+			"- Classify server-side code execution via eval() as CWE-94/CWE-95.\n\n", langSpecific) +
+			"FORMATTING & OUTPUT:\n"+
+			"- Start with a <thinking> tag for step-by-step analysis.\n"+
+			"- Provide the final result ONLY in valid JSON format.\n"+
+			"- If no vulnerabilities are found, return '{\"vulnerabilities\": []}' in the JSON section.\n"+
+			"- Remediation must be plain text explanation, NO code diffs.\n\n"+
+			"JSON STRUCTURE:\n"+
 			"{\n"+
 			"  \"vulnerabilities\": [\n"+
 			"    {\n"+
-			"      \"issue_name\": \"[CWE-XXX] Clear descriptive name\",\n"+
-			"      \"severity\": \"critical|high|medium|low|info\",\n"+
+			"      \"issue_name\": \"Brief title of vulnerability\",\n"+
+			"      \"severity\": \"critical/high/medium/low/info\",\n"+
 			"      \"line_number\": 42,\n"+
-			"      \"description\": \"Detailed chain-of-thought analysis of the vulnerability. DO NOT include code diffs.\",\n"+
-			"      \"remediation\": \"Specific, text-based explanation of the fix. DO NOT output code diffs/patches.\",\n"+
-			"      \"exploit_poc\": \"Step-by-step exploitation guide or payload (curl/python/js).\",\n"+
-			"      \"fixed_code_snippet\": \"Complete secure implementation of the affected logic.\",\n"+
-			"      \"cwe\": \"CWE-XXX\",\n"+
-			"      \"owasp\": \"A0X:2021\",\n"+
+			"      \"description\": \"Detailed explanation of the vulnerability\",\n"+
+			"      \"remediation\": \"How to fix the vulnerability\",\n"+
+			"      \"exploit_poc\": \"Example exploit payload or N/A\",\n"+
+			"      \"cwe\": \"CWE-XX\",\n"+
+			"      \"owasp\": \"AXX:2021\",\n"+
 			"      \"confidence\": 0.95\n"+
 			"    }\n"+
-			"  ]\n"+
-			"}", filePath, codeBlock, langSpecific)
+			"  ],\n"+
+			"  \"needs_context\": [\"optional/path/to/related_file.go\"]\n"+
+			"}"
 
-		reqBody := OllamaAPIRequest{
-			Model:  modelName,
-			Prompt: prompt,
-			Stream: false,
-			Options: map[string]interface{}{
-				"num_ctx":     16384,
-				"num_predict": 4096,
-				"temperature": 0.0,
-			},
-			KeepAlive: "15m",
-		}
+		// --- Agentic Iterative Search Loop ---
+		// Allow the AI to request related files (up to 1 deeper iteration)
+		maxAgenticLoops := 2
+		var aiError error
+		var reqCtx context.Context
+		var reqCancel context.CancelFunc
 
-		reqJSON, err := json.Marshal(reqBody)
-		if err != nil {
-			return nil, err
-		}
+		var jsonContent string
+		var outputStr string
 
-		// Create a fresh context for each API call — large models (32b+) need up to 30 min for massive files
-		reqCtx, reqCancel := context.WithTimeout(globalCtx, 30*time.Minute)
-		defer reqCancel()
-
-		req, err := http.NewRequestWithContext(reqCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
-		if err != nil {
-			return nil, err
-		}
-		req.Header.Set("Content-Type", "application/json")
-
-		resp, err := aiHTTPClient.Do(req)
-		if err != nil {
-			if strings.Contains(err.Error(), "context canceled") {
-				return nil, fmt.Errorf("scan interrupted")
+		for loopIdx := 0; loopIdx < maxAgenticLoops; loopIdx++ {
+			reqBody := OllamaAPIRequest{
+				Model:  modelName,
+				Prompt: prompt,
+				Stream: false,
+				Options: map[string]interface{}{
+					"num_ctx":     16384,
+					"num_predict": 4096,
+					"temperature": 0.0,
+				},
+				KeepAlive: "15m",
 			}
-			if strings.Contains(err.Error(), "context deadline exceeded") {
-				return nil, fmt.Errorf("AI model timeout - try a faster model or increase timeout settings")
+
+			reqJSON, err := json.Marshal(reqBody)
+			if err != nil {
+				return nil, err
 			}
-			// Retry on EOF (remote server dropped connection) — up to 2 retries
-			if strings.Contains(err.Error(), "EOF") {
-				for retryNum := 1; retryNum <= 2; retryNum++ {
-					func() {
-						waitSec := retryNum * 5
-						utils.LogWarn(fmt.Sprintf("Connection dropped (EOF) for %s, retry %d/2 in %ds...", filePath, retryNum, waitSec))
-						time.Sleep(time.Duration(waitSec) * time.Second)
-						
-						reqCtx2, reqCancel2 := context.WithTimeout(globalCtx, 30*time.Minute)
-						defer reqCancel2()
-						
-						req2, _ := http.NewRequestWithContext(reqCtx2, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
-						req2.Header.Set("Content-Type", "application/json")
-						resp, err = aiHTTPClient.Do(req2)
-					}()
-					if err == nil {
-						break // success
-					}
-					if !strings.Contains(err.Error(), "EOF") {
-						break // different error, stop retrying
-					}
+
+			reqCtx, reqCancel = context.WithTimeout(ctx, 30*time.Minute)
+			req, err := http.NewRequestWithContext(reqCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
+			if err != nil {
+				reqCancel()
+				return nil, err
+			}
+			req.Header.Set("Content-Type", "application/json")
+
+			resp, err := aiHTTPClient.Do(req)
+			if err != nil {
+				reqCancel()
+				if strings.Contains(err.Error(), "context canceled") {
+					return nil, fmt.Errorf("scan interrupted")
 				}
-				if err != nil {
-					return nil, fmt.Errorf("API request failed after retries: %w", err)
-				}
-			} else {
 				return nil, fmt.Errorf("API request failed: %w", err)
 			}
-		}
 
-		if resp.StatusCode != http.StatusOK {
-			body, _ := ioutil.ReadAll(resp.Body)
+			if resp.StatusCode != http.StatusOK {
+				body, _ := io.ReadAll(resp.Body)
+				resp.Body.Close()
+				reqCancel()
+				return nil, fmt.Errorf("Ollama API error (Status %d): %s", resp.StatusCode, string(body))
+			}
+
+			fullText, readErr := readOllamaResponse(resp.Body)
 			resp.Body.Close()
-			return nil, fmt.Errorf("Ollama API error (Status %d): %s", resp.StatusCode, string(body))
+			reqCancel() // Cleanup immediately after parsing
+
+			if readErr != nil {
+				return nil, fmt.Errorf("Ollama response read error: %w", readErr)
+			}
+
+			outputStr = fullText
+			jsonContent = utils.ExtractJSON(outputStr)
+			if jsonContent == "" {
+				aiError = fmt.Errorf("No JSON found")
+				break
+			}
+
+			// Check if the AI wants more context
+			type AgenticResponse struct {
+				NeedsContext []string `json:"needs_context"`
+			}
+			var agenticResp AgenticResponse
+			err = json.Unmarshal([]byte(jsonContent), &agenticResp)
+
+			// If no context needed OR we're on the last loop, break and parse findings
+			if err != nil || len(agenticResp.NeedsContext) == 0 || loopIdx == maxAgenticLoops-1 {
+				break
+			}
+
+			// Agentic Search: Fetch requested files
+			var contextAdditions strings.Builder
+			contextAdditions.WriteString("\n\n--- AGENTIC SEARCH RESULTS ---\nYou requested additional context. Here are the contents:\n")
+			for _, reqFile := range agenticResp.NeedsContext {
+				// Prevent traversal above project root (rough heuristic)
+				cleanPath := filepath.Clean(reqFile)
+				if !strings.Contains(cleanPath, "..") {
+					// Use filepath.Dir(filePath) or just try blindly since we don't know the exact project root here
+					// Better: search relative to the file being scanned
+					dir := filepath.Dir(filePath)
+					targetPath := filepath.Join(dir, cleanPath)
+					content, err := os.ReadFile(targetPath)
+					if err == nil {
+						snippet := string(content)
+						if len(snippet) > 8000 {
+							snippet = snippet[:8000] + "\n... (truncated)"
+						}
+						contextAdditions.WriteString(fmt.Sprintf("\n// File: %s\n```\n%s\n```\n", reqFile, snippet))
+					} else {
+						contextAdditions.WriteString(fmt.Sprintf("\n// File: %s (NOT FOUND)\n", reqFile))
+					}
+				}
+			}
+			prompt += contextAdditions.String()
+			prompt += "\nNow, provide your FINAL analysis of the original file vulnerabilities:\n"
+		}
+		
+		if aiError != nil {
+			utils.LogWarn(fmt.Sprintf("AI parsing error for %s: %v", filePath, aiError))
+			continue
 		}
 
-		var ollamaResp OllamaAPIResponse
-		if err := json.NewDecoder(resp.Body).Decode(&ollamaResp); err != nil {
-			resp.Body.Close()
-			return nil, fmt.Errorf("JSON decode error: %w", err)
-		}
-		resp.Body.Close()
-
-		// DEBUG: Log full raw response as requested by user
-		if len(ollamaResp.Response) > 0 {
-			utils.LogInfo(fmt.Sprintf("Full AI Response for %s:\n\n%s\n\n", filePath, ollamaResp.Response))
+		// DEBUG: Log full raw response (truncated for readability)
+		if len(outputStr) > 0 {
+			logSnippet := outputStr
+			if len(logSnippet) > 500 {
+				logSnippet = logSnippet[:500] + "... (truncated)"
+			}
+			utils.LogInfo(fmt.Sprintf("Full AI Response for %s:\n\n%s\n\n", filePath, logSnippet))
 		} else {
 			utils.LogWarn(fmt.Sprintf("AI returned empty response for %s", filePath))
 		}
 
 		var response DiscoveryResponse
-		outputStr := ollamaResp.Response
-		
-		// Robust JSON Extraction using common utility
-		jsonContent := utils.ExtractJSON(outputStr)
 
 		if os.Getenv("AI_DEBUG") == "true" {
 			fmt.Printf("\n[DEBUG] Raw AI output for %s:\n%s\n", filePath, outputStr)
@@ -379,7 +500,15 @@ func DiscoverVulnerabilities(modelName string, filePath string, content string) 
 }
 
 // RunAIDiscovery scans all supported files in a directory using AI-powered discovery concurrently.
-func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
+func RunAIDiscovery(ctx context.Context, modelName string, targetDir string, logCallback ...func(msg string, level string)) []reporter.Finding {
+
+	// Helper to send logs to UI if a callback was provided
+	uiLog := func(msg, level string) {
+		if len(logCallback) > 0 && logCallback[0] != nil {
+			logCallback[0](msg, level)
+		}
+	}
+
 	var allFindings []reporter.Finding
 	var filesToScan []string
 
@@ -431,11 +560,7 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 	color.Cyan("╚═══════════════════════════════════════════════════════════╝\n")
 	fmt.Println()
 
-	SetInterrupted(false)
-	if globalCancel != nil {
-		globalCancel()
-	}
-	globalCtx, globalCancel = context.WithCancel(context.Background())
+	uiLog(fmt.Sprintf("Prepared %d files for AI Discovery", totalFiles), "info")
 
 	startTime := time.Now()
 
@@ -461,6 +586,9 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 		index    int
 	}
 
+	// Build context once for all files
+	projectContext := buildProjectContext(targetDir, filesToScan)
+
 	jobs := make(chan scanJob, totalFiles)
 	results := make(chan []reporter.Finding, totalFiles)
 	var wg sync.WaitGroup
@@ -468,7 +596,7 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 	worker := func() {
 		defer wg.Done()
 		for job := range jobs {
-			if IsInterrupted() {
+			if ctx.Err() != nil {
 				results <- nil
 				continue
 			}
@@ -492,8 +620,8 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 				continue
 			}
 
-			// Perform Discovery
-			vulns, scanErr := DiscoverVulnerabilities(modelName, job.filePath, string(content))
+			// Perform Discovery using the shared project context
+			vulns, scanErr := DiscoverVulnerabilities(ctx, modelName, job.filePath, string(content), projectContext)
 
 			// UI Updates
 			mu.Lock()
@@ -580,7 +708,8 @@ func RunAIDiscovery(modelName string, targetDir string) []reporter.Finding {
 		}
 	}
 
-	if IsInterrupted() {
+	// Final check
+	if ctx.Err() != nil {
 		color.Yellow("\n  ⚠ Scan interrupted by user")
 	}
 

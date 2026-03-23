@@ -44,7 +44,7 @@ const maxJudgeBatchSize = 10 // Small batches prevent remote LLM timeouts with r
 
 // JudgeFindings takes two independent reports (static and AI) and uses a Judge LLM
 // to deduplicate, remove false positives, and merge them into one master report.
-func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Finding, judgeModel string, judgeOllamaHost string) ([]reporter.Finding, error) {
+func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFindings []reporter.Finding, judgeModel string, judgeOllamaHost string) ([]reporter.Finding, error) {
 	if len(staticFindings) == 0 && len(aiFindings) == 0 {
 		return []reporter.Finding{}, nil
 	}
@@ -118,7 +118,7 @@ func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Find
 	for batchIdx, batch := range batches {
 		utils.LogInfo(fmt.Sprintf("⚖️  Judge batch %d/%d (%d findings)...", batchIdx+1, len(batches), len(batch)))
 
-		verdicts, err := runJudgeBatch(batch, judgeModel)
+		verdicts, err := runJudgeBatch(ctx, batch, judgeModel)
 		if err != nil {
 			utils.LogWarn(fmt.Sprintf("Judge batch %d failed: %v — keeping all findings in batch", batchIdx+1, err))
 			// On failure, keep all findings from this batch as-is
@@ -201,12 +201,13 @@ func JudgeFindings(staticFindings []reporter.Finding, aiFindings []reporter.Find
 }
 
 // runJudgeBatch sends a single batch of findings to the Judge LLM
-func runJudgeBatch(findings []JudgeFinding, modelName string) ([]JudgeVerdictItem, error) {
+func runJudgeBatch(ctx context.Context, findings []JudgeFinding, modelName string) ([]JudgeVerdictItem, error) {
 	findingsJSON, _ := json.MarshalIndent(findings, "", "  ")
 
-	// Create a fresh context for this judge request - don't reuse potentially cancelled context
-	judgeCtx, judgeCancel := context.WithTimeout(context.Background(), 20*time.Minute)
-	defer judgeCancel()
+	// Create a fresh context for this judge request
+	// 15 minutes max for full batch response (large models + long batches)
+	judgeCtx, cancel := context.WithTimeout(ctx, 15*time.Minute)
+	defer cancel()
 
 	prompt := fmt.Sprintf(`You are a Supreme Security Auditor and Judge. You have received findings from TWO independent security scanners that analyzed the same codebase:
 
@@ -218,10 +219,11 @@ Your job is to produce a FINAL, deduplicated, high-precision verdict.
 ## RULES:
 1. **DUPLICATES**: If both scanners found the same vulnerability type in the same file on the same or adjacent lines (±5 lines), they are DUPLICATES. Pick the one with the richer description as "master_id" and list the other as "duplicate_ids".
 2. **FALSE POSITIVES**: If a finding is clearly a false positive (e.g., a test file, a comment, dead code, or a safe usage pattern), mark its verdict as "drop".
-3. **UNIQUE FINDINGS**: If a finding is unique to one scanner and appears valid, keep it. Verdict: "keep".
-4. **SEVERITY ADJUSTMENT**: If the combined evidence from both scanners suggests the severity should change, set "final_severity".
-5. **SIMPLIFIED NAME**: For ALL kept findings, you MUST provide a "simplified_name". Convert raw or technical rule IDs (like "java-dangerous-runtime-exec", "js-json-escape") into human-readable, standard vulnerability categories (e.g., "Command Injection", "SQL Injection", "Cross-Site Scripting (XSS)", "Hardcoded Secret", "Path Traversal").
-6. **PRIORITIZE AI DESCRIPTIONS**: When merging, prefer the AI scanner's description since it provides deeper context.
+3. **FALSE POSITIVE AVOIDANCE**: Do NOT keep findings that flag safe parameterized queries ('?', '$1'), secure RNGs ('crypto.randomBytes'), or safe document properties ('textContent') as vulnerable. Mark them as "drop".
+4. **UNIQUE FINDINGS**: If a finding is unique to one scanner and appears valid, keep it. Verdict: "keep".
+5. **SEVERITY ADJUSTMENT**: If the combined evidence from both scanners suggests the severity should change, set "final_severity".
+6. **SIMPLIFIED NAME**: For ALL kept findings, you MUST provide a "simplified_name". Convert raw or technical rule IDs into human-readable, standard vulnerability categories (e.g., "Command Injection", "SQL Injection", "XSS", "Hardcoded Secret").
+7. **PRIORITIZE AI DESCRIPTIONS**: When merging, prefer the AI scanner's description since it provides deeper context.
 
 ## INPUT FINDINGS:
 %s
@@ -279,12 +281,12 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 	}
 	defer resp.Body.Close()
 
-	var apiResp OllamaAPIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode judge response: %v", err)
+	fullText, readErr := readOllamaResponse(resp.Body)
+	if readErr != nil {
+		return nil, fmt.Errorf("failed to read judge response: %v", readErr)
 	}
 
-	outputStr := strings.TrimSpace(apiResp.Response)
+	outputStr := strings.TrimSpace(fullText)
 
 	// Extract JSON block using common utility
 	jsonStr := utils.ExtractJSON(outputStr)

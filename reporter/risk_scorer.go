@@ -1,7 +1,6 @@
 package reporter
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -139,25 +138,7 @@ func GetPriorityMatrix(findings []Finding) PriorityMatrix {
 	return matrix
 }
 
-// GetPrioritySummary returns a human-readable priority summary
-func GetPrioritySummary(matrix PriorityMatrix) string {
-	summary := ""
 
-	if len(matrix.P0) > 0 {
-		summary += fmt.Sprintf("🔴 P0 (Fix Immediately): %d findings\n", len(matrix.P0))
-	}
-	if len(matrix.P1) > 0 {
-		summary += fmt.Sprintf("🟠 P1 (Fix This Sprint): %d findings\n", len(matrix.P1))
-	}
-	if len(matrix.P2) > 0 {
-		summary += fmt.Sprintf("🟡 P2 (Fix Next Sprint): %d findings\n", len(matrix.P2))
-	}
-	if len(matrix.P3) > 0 {
-		summary += fmt.Sprintf("🟢 P3 (Fix When Possible): %d findings\n", len(matrix.P3))
-	}
-
-	return summary
-}
 
 // GenerateReportSummary creates summary statistics from findings
 func GenerateReportSummary(findings []Finding, targetDir string) ReportSummary {

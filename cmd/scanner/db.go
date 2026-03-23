@@ -206,12 +206,12 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 
 	if phase == "" || phase == "final" {
 		// Default: return final findings, or all findings if no final phase exists
-		rows, err = db.Query("SELECT data FROM findings WHERE scan_id = ? AND phase = 'final'", scanID)
+		rows, err = db.Query("SELECT id, data FROM findings WHERE scan_id = ? AND phase = 'final'", scanID)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		rows, err = db.Query("SELECT data FROM findings WHERE scan_id = ? AND phase = ?", scanID, phase)
+		rows, err = db.Query("SELECT id, data FROM findings WHERE scan_id = ? AND phase = ?", scanID, phase)
 		if err != nil {
 			return nil, err
 		}
@@ -220,14 +220,16 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 
 	var findings []reporter.Finding
 	for rows.Next() {
+		var id int
 		var data string
-		if err := rows.Scan(&data); err != nil {
+		if err := rows.Scan(&id, &data); err != nil {
 			continue
 		}
 		var f reporter.Finding
 		if err := json.Unmarshal([]byte(data), &f); err != nil {
 			continue
 		}
+		f.ID = id
 		findings = append(findings, f)
 	}
 
@@ -241,7 +243,7 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 
 // getAllFindingsForScan retrieves ALL findings regardless of phase
 func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
-	rows, err := db.Query("SELECT data FROM findings WHERE scan_id = ?", scanID)
+	rows, err := db.Query("SELECT id, data FROM findings WHERE scan_id = ?", scanID)
 	if err != nil {
 		return nil, err
 	}
@@ -249,17 +251,46 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 
 	var findings []reporter.Finding
 	for rows.Next() {
+		var id int
 		var data string
-		if err := rows.Scan(&data); err != nil {
+		if err := rows.Scan(&id, &data); err != nil {
 			continue
 		}
 		var f reporter.Finding
 		if err := json.Unmarshal([]byte(data), &f); err != nil {
 			continue
 		}
+		f.ID = id
 		findings = append(findings, f)
 	}
 	return findings, nil
+}
+
+// UpdateFindingStatus updates the triage status of a specific finding
+func UpdateFindingStatus(scanID string, id int, status string) error {
+	// 1. Get current finding data
+	row := db.QueryRow("SELECT data FROM findings WHERE id = ? AND scan_id = ?", id, scanID)
+	var data string
+	err := row.Scan(&data)
+	if err != nil {
+		return err
+	}
+
+	// 2. Unmarshal, update status, marshal back
+	var f reporter.Finding
+	if err := json.Unmarshal([]byte(data), &f); err != nil {
+		return err
+	}
+	f.Status = status
+
+	newData, err := json.Marshal(f)
+	if err != nil {
+		return err
+	}
+
+	// 3. Update in DB
+	_, err = db.Exec("UPDATE findings SET data = ? WHERE id = ? AND scan_id = ?", string(newData), id, scanID)
+	return err
 }
 
 // DeleteScan removes a scan and its findings

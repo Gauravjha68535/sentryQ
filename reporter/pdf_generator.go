@@ -1,10 +1,13 @@
 package reporter
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
 	"github.com/jung-kurt/gofpdf"
+	"github.com/wcharczuk/go-chart/v2"
+	"github.com/wcharczuk/go-chart/v2/drawing"
 )
 
 // GeneratePDF generates a professional PDF report with cover page, colors, and all findings
@@ -90,10 +93,20 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 	}
 	pdf.Ln(20)
 
+	// Severity Chart
+	chartBytes, err := generateSeverityChart(summary)
+	if err == nil {
+		chartName := fmt.Sprintf("chart_%d", summary.TotalFindings)
+		rs := bytes.NewReader(chartBytes)
+		pdf.RegisterImageOptionsReader(chartName, gofpdf.ImageOptions{ImageType: "PNG"}, rs)
+		pdf.ImageOptions(chartName, 170, pdf.GetY(), 100, 0, false, gofpdf.ImageOptions{ImageType: "PNG"}, 0, "")
+	}
+
 	// AI Summary
 	pdf.SetTextColor(30, 30, 60)
 	pdf.SetFont("Helvetica", "", 11)
-	pdf.MultiCell(0, 6, fmt.Sprintf(
+	pdf.SetX(15) // Indent text to leave room for chart
+	pdf.MultiCell(140, 6, fmt.Sprintf(
 		"This scan analyzed the directory '%s' and discovered %d potential security issues. "+
 			"Of these, %d are classified as Critical and require immediate attention, "+
 			"%d are High severity, %d are Medium, and %d are Low priority. "+
@@ -101,6 +114,7 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 		summary.TargetDirectory, summary.TotalFindings,
 		summary.CriticalCount, summary.HighCount, summary.MediumCount, summary.LowCount,
 		summary.AIValidatedCount), "", "L", false)
+	pdf.Ln(10)
 
 	// ——— Findings Table ———
 	reachable, _, falsePositives := SplitFindingsThreeWay(findings)
@@ -239,6 +253,45 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 	}
 
 	return pdf.OutputFileAndClose(filename)
+}
+
+func generateSeverityChart(summary ReportSummary) ([]byte, error) {
+	values := []chart.Value{}
+
+	if summary.CriticalCount > 0 {
+		values = append(values, chart.Value{Value: float64(summary.CriticalCount), Label: "Critical", Style: chart.Style{FillColor: drawing.ColorFromHex("dc2626")}})
+	}
+	if summary.HighCount > 0 {
+		values = append(values, chart.Value{Value: float64(summary.HighCount), Label: "High", Style: chart.Style{FillColor: drawing.ColorFromHex("ea580c")}})
+	}
+	if summary.MediumCount > 0 {
+		values = append(values, chart.Value{Value: float64(summary.MediumCount), Label: "Medium", Style: chart.Style{FillColor: drawing.ColorFromHex("ca8a04")}})
+	}
+	if summary.LowCount > 0 {
+		values = append(values, chart.Value{Value: float64(summary.LowCount), Label: "Low", Style: chart.Style{FillColor: drawing.ColorFromHex("16a34a")}})
+	}
+
+	infoCount := summary.TotalFindings - summary.CriticalCount - summary.HighCount - summary.MediumCount - summary.LowCount
+	if infoCount > 0 {
+		values = append(values, chart.Value{Value: float64(infoCount), Label: "Info", Style: chart.Style{FillColor: drawing.ColorFromHex("4b5563")}})
+	}
+
+	if len(values) == 0 {
+		return nil, fmt.Errorf("no findings to chart")
+	}
+
+	pie := chart.PieChart{
+		Width:  400,
+		Height: 400,
+		Values: values,
+	}
+
+	buffer := bytes.NewBuffer([]byte{})
+	err := pie.Render(chart.PNG, buffer)
+	if err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
 }
 
 func truncateString(s string, maxLen int) string {

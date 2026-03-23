@@ -12,7 +12,9 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -22,6 +24,8 @@ import (
 	"QWEN_SCR_24_FEB_2026/internal/ui"
 	"QWEN_SCR_24_FEB_2026/reporter"
 	"QWEN_SCR_24_FEB_2026/utils"
+
+	"gopkg.in/yaml.v3"
 )
 
 // staticFS is the embedded React build output (lazy initialized)
@@ -31,6 +35,7 @@ var staticFSError error
 
 var (
 	startTime   time.Time
+	settingsPath = ".qwen-settings.json"
 	appSettings = struct {
 		sync.RWMutex
 		OllamaHost   string `json:"ollama_host"`
@@ -40,6 +45,36 @@ var (
 		DefaultModel: "qwen2.5-coder:7b",
 	}
 )
+
+func loadSettings() {
+	data, err := os.ReadFile(settingsPath)
+	if err == nil {
+		var s struct {
+			OllamaHost   string `json:"ollama_host"`
+			DefaultModel string `json:"default_model"`
+		}
+		if err := json.Unmarshal(data, &s); err == nil {
+			appSettings.Lock()
+			appSettings.OllamaHost = s.OllamaHost
+			appSettings.DefaultModel = s.DefaultModel
+			appSettings.Unlock()
+		}
+	}
+}
+
+func saveSettings() {
+	appSettings.RLock()
+	s := struct {
+		OllamaHost   string `json:"ollama_host"`
+		DefaultModel string `json:"default_model"`
+	}{
+		OllamaHost:   appSettings.OllamaHost,
+		DefaultModel: appSettings.DefaultModel,
+	}
+	appSettings.RUnlock()
+	data, _ := json.MarshalIndent(s, "", "  ")
+	os.WriteFile(settingsPath, data, 0644)
+}
 
 // ──────────────────────────────────────────────────────────
 
@@ -69,6 +104,9 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/system/status", handleSystemStatus)
 	mux.HandleFunc("/api/models", handleModels)
 	mux.HandleFunc("/api/chat", handleChat)
+	mux.HandleFunc("/api/rules", handleRulesList)
+	mux.HandleFunc("/api/rules/test", handleRulesTest)
+	mux.HandleFunc("/api/rules/", handleRulesFile)
 
 	// Dynamic scan routes (manual routing for path params)
 	mux.HandleFunc("/api/scan/", handleScanRoutes)
@@ -157,7 +195,6 @@ func StartWebServer(port int) {
 // ──────────────────────────────────────────────────────────
 
 func handleListScans(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
 	scans, err := GetAllScans()
 	if err != nil {
 		httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -170,15 +207,13 @@ func handleListScans(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUploadScan(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	// Limit upload size to 500MB to prevent DoS
+	r.Body = http.MaxBytesReader(w, r.Body, 500<<20)
 
 	// Parse multipart (max 500MB)
 	r.ParseMultipartForm(500 << 20)
@@ -230,7 +265,6 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGitScan(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -256,7 +290,6 @@ func handleGitScan(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
 	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")
 	parts := strings.Split(path, "/")
 
@@ -274,6 +307,24 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		httpJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+		return
+	}
+
+	// PATCH /api/scan/:id/finding/:findingId/status
+	if len(parts) >= 4 && parts[1] == "finding" && parts[3] == "status" && r.Method == http.MethodPatch {
+		findingID, _ := strconv.Atoi(parts[2])
+		var req struct {
+			Status string `json:"status"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		if err := UpdateFindingStatus(scanID, findingID, req.Status); err != nil {
+			httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		httpJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 		return
 	}
 
@@ -412,7 +463,6 @@ func handleWebSocketRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSettings(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
 	if r.Method == http.MethodPut {
 		var s struct {
 			OllamaHost   string `json:"ollama_host"`
@@ -430,6 +480,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 			appSettings.DefaultModel = s.DefaultModel
 		}
 		appSettings.Unlock()
+		saveSettings()
 		httpJSON(w, http.StatusOK, map[string]string{"status": "saved"})
 		return
 	}
@@ -443,7 +494,6 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
 
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
@@ -483,7 +533,6 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleModels(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
 
 	// Allow optional host parameter to fetch models from a different Ollama instance
 	host := r.URL.Query().Get("host")
@@ -520,11 +569,6 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func setCORS(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-}
 
 func httpJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
@@ -551,11 +595,6 @@ func openBrowser(url string) {
 }
 
 func handleChat(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -618,7 +657,6 @@ Assume the user is a developer or security engineer.`,
 }
 
 func handleStopScan(w http.ResponseWriter, r *http.Request) {
-	setCORS(w)
 	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")
 	parts := strings.Split(path, "/")
 	if len(parts) == 0 {
@@ -636,5 +674,158 @@ func handleStopScan(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
+	loadSettings()
 	startTime = time.Now()
+}
+
+// ──────────────────────────────────────────────────────────
+//  Rules API Handlers
+// ──────────────────────────────────────────────────────────
+
+type YAMLRule struct {
+	ID          string   `json:"id" yaml:"id"`
+	Languages   []string `json:"languages" yaml:"languages"`
+	Patterns    []struct {
+		Regex string `json:"regex" yaml:"regex"`
+	} `json:"patterns" yaml:"patterns"`
+	Severity    string `json:"severity" yaml:"severity"`
+	Description string `json:"description" yaml:"description"`
+	Remediation string `json:"remediation" yaml:"remediation"`
+	CWE         string `json:"cwe" yaml:"cwe"`
+	OWASP       string `json:"owasp" yaml:"owasp"`
+}
+
+func handleRulesList(w http.ResponseWriter, r *http.Request) {
+	rulesDir := "rules"
+	entries, err := os.ReadDir(rulesDir)
+	if err != nil {
+		httpJSON(w, http.StatusInternalServerError, map[string]string{"error": "Cannot read rules directory"})
+		return
+	}
+	type RuleFileSummary struct {
+		Filename  string `json:"filename"`
+		RuleCount int    `json:"rule_count"`
+	}
+	var files []RuleFileSummary
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".yaml") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(rulesDir, e.Name()))
+		if err != nil {
+			continue
+		}
+		var rules []YAMLRule
+		yaml3Unmarshal(data, &rules)
+		files = append(files, RuleFileSummary{Filename: e.Name(), RuleCount: len(rules)})
+	}
+	if files == nil {
+		files = []RuleFileSummary{}
+	}
+	httpJSON(w, http.StatusOK, files)
+}
+
+func handleRulesFile(w http.ResponseWriter, r *http.Request) {
+	filename := strings.TrimPrefix(r.URL.Path, "/api/rules/")
+	if filename == "" || strings.Contains(filename, "..") {
+		http.Error(w, "Invalid filename", http.StatusBadRequest)
+		return
+	}
+	rulesPath := filepath.Join("rules", filename)
+
+	switch r.Method {
+	case http.MethodGet:
+		data, err := os.ReadFile(rulesPath)
+		if err != nil {
+			httpJSON(w, http.StatusNotFound, map[string]string{"error": "Rule file not found"})
+			return
+		}
+		var rules []YAMLRule
+		yaml3Unmarshal(data, &rules)
+		if rules == nil {
+			rules = []YAMLRule{}
+		}
+		httpJSON(w, http.StatusOK, rules)
+
+	case http.MethodPost:
+		var newRule YAMLRule
+		if err := json.NewDecoder(r.Body).Decode(&newRule); err != nil {
+			http.Error(w, "Invalid rule JSON", http.StatusBadRequest)
+			return
+		}
+		// Validate required fields
+		if newRule.ID == "" || newRule.Severity == "" || len(newRule.Patterns) == 0 {
+			http.Error(w, "id, severity, and patterns are required", http.StatusBadRequest)
+			return
+		}
+		// Load existing
+		var rules []YAMLRule
+		data, err := os.ReadFile(rulesPath)
+		if err == nil {
+			yaml3Unmarshal(data, &rules)
+		}
+		rules = append(rules, newRule)
+		out, _ := yaml3Marshal(rules)
+		os.WriteFile(rulesPath, out, 0644)
+		httpJSON(w, http.StatusOK, map[string]string{"status": "added", "id": newRule.ID})
+
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handleRulesTest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Pattern string `json:"pattern"`
+		Code    string `json:"code"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	type MatchResult struct {
+		Line    int    `json:"line"`
+		Content string `json:"content"`
+		Match   string `json:"match"`
+	}
+
+	re, err := regexp.Compile(req.Pattern)
+	if err != nil {
+		httpJSON(w, http.StatusOK, map[string]interface{}{
+			"valid":   false,
+			"error":   err.Error(),
+			"matches": []MatchResult{},
+		})
+		return
+	}
+
+	lines := strings.Split(req.Code, "\n")
+	var matches []MatchResult
+	for i, line := range lines {
+		loc := re.FindString(line)
+		if loc != "" {
+			matches = append(matches, MatchResult{Line: i + 1, Content: line, Match: loc})
+		}
+	}
+	if matches == nil {
+		matches = []MatchResult{}
+	}
+	httpJSON(w, http.StatusOK, map[string]interface{}{
+		"valid":   true,
+		"matches": matches,
+	})
+}
+
+// yaml3Unmarshal is a thin wrapper around gopkg.in/yaml.v3
+func yaml3Unmarshal(data []byte, v interface{}) {
+	yaml.Unmarshal(data, v)
+}
+
+func yaml3Marshal(v interface{}) ([]byte, error) {
+	return yaml.Marshal(v)
 }

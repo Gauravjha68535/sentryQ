@@ -16,6 +16,7 @@ export default function ReportViewer() {
     const [loading, setLoading] = useState(true)
     const [reportPhase, setReportPhase] = useState('final') // 'final', 'static', 'ai'
     const [isEnsemble, setIsEnsemble] = useState(false)
+    const [statusFilter, setStatusFilter] = useState('all') // 'all', 'open', 'resolved', 'ignored', 'false_positive'
 
     useEffect(() => {
         fetchReport()
@@ -45,7 +46,25 @@ export default function ReportViewer() {
         }
     }
 
-    const filtered = filter === 'all' ? findings : findings.filter(f => (f.severity || '').toLowerCase() === filter)
+    const updateFindingStatus = async (dbId, newStatus) => {
+        try {
+            const res = await fetch(`/api/scan/${id}/finding/${dbId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            if (res.ok) {
+                // Update local state
+                setFindings(prev => prev.map(f => f.db_id === dbId ? { ...f, status: newStatus } : f))
+            }
+        } catch (e) { console.error('Failed to update status:', e) }
+    }
+
+    const filtered = findings.filter(f => {
+        const matchesSeverity = filter === 'all' || (f.severity || '').toLowerCase() === filter
+        const matchesStatus = statusFilter === 'all' || (f.status || 'open') === statusFilter
+        return matchesSeverity && matchesStatus
+    })
 
     // Calculate stats
     const stats = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }
@@ -217,12 +236,28 @@ export default function ReportViewer() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="tabs" style={{ maxWidth: '500px', marginBottom: '16px' }}>
-                {['all', 'critical', 'high', 'medium', 'low', 'info'].map(f => (
-                    <button key={f} className={`tab ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
-                        {f === 'all' ? `All (${findings.length})` : `${f} (${stats[f]})`}
-                    </button>
-                ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div className="tabs" style={{ maxWidth: '500px', margin: 0 }}>
+                    {['all', 'critical', 'high', 'medium', 'low', 'info'].map(f => (
+                        <button key={f} className={`tab ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
+                            {f === 'all' ? `All (${findings.length})` : `${f} (${stats[f]})`}
+                        </button>
+                    ))}
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>STATUS:</span>
+                    <select 
+                        value={statusFilter} 
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-primary)', borderRadius: '6px', padding: '4px 8px', fontSize: '0.75rem', outline: 'none' }}
+                    >
+                        <option value="all">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="ignored">Ignored</option>
+                        <option value="false_positive">False Positive</option>
+                    </select>
+                </div>
             </div>
 
             {/* Findings Table */}
@@ -237,6 +272,7 @@ export default function ReportViewer() {
                             <th>Line</th>
                             <th>Trust Score</th>
                             <th>AI</th>
+                            <th>Status</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -262,6 +298,27 @@ export default function ReportViewer() {
                                             : f.ai_validated?.includes('False') ? <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>✗ FP</span>
                                                 : <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>—</span>}
                                     </td>
+                                    <td>
+                                        <select 
+                                            value={f.status || 'open'} 
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(e) => updateFindingStatus(f.db_id, e.target.value)}
+                                            style={{ 
+                                                background: f.status === 'resolved' ? 'rgba(34, 197, 94, 0.1)' : f.status === 'false_positive' ? 'rgba(148, 163, 184, 0.1)' : 'transparent',
+                                                color: f.status === 'resolved' ? '#22c55e' : f.status === 'false_positive' ? '#94a3b8' : 'var(--text-primary)',
+                                                border: '1px solid var(--border-primary)',
+                                                borderRadius: '4px',
+                                                fontSize: '0.7rem',
+                                                padding: '2px 4px',
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            <option value="open">OPEN</option>
+                                            <option value="resolved">FIXED</option>
+                                            <option value="ignored">IGNORE</option>
+                                            <option value="false_positive">FP</option>
+                                        </select>
+                                    </td>
                                     <td>{expandedRow === i ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</td>
                                 </tr>
                                 {expandedRow === i && (
@@ -285,7 +342,39 @@ export default function ReportViewer() {
                                                                 window.dispatchEvent(event);
                                                             }}
                                                         >
-                                                            <Sparkles size={12} /> Explain with AI
+                                                            <Sparkles size={12} /> Explain
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm"
+                                                            style={{ padding: '4px 10px', fontSize: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const event = new CustomEvent('qwen-chat-open', {
+                                                                    detail: {
+                                                                        content: `Generate a proof-of-concept exploit for this vulnerability:\nIssue: ${f.issue_name}\nFile: ${f.file_path}:${f.line_number}\nSeverity: ${f.severity}\nDescription: ${f.description}\nCWE: ${f.cwe}\n\nProvide a safe, educational PoC that demonstrates the vulnerability is exploitable.`,
+                                                                        autoSend: true
+                                                                    }
+                                                                });
+                                                                window.dispatchEvent(event);
+                                                            }}
+                                                        >
+                                                            ⚡ PoC
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm"
+                                                            style={{ padding: '4px 10px', fontSize: '0.7rem', background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.2)' }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const event = new CustomEvent('qwen-chat-open', {
+                                                                    detail: {
+                                                                        content: `Provide secure code to fix this vulnerability:\nIssue: ${f.issue_name}\nFile: ${f.file_path}:${f.line_number}\nCWE: ${f.cwe}\nCurrent code context: ${f.code_snippet || 'not available'}\n\nShow BEFORE and AFTER code with explanation.`,
+                                                                        autoSend: true
+                                                                    }
+                                                                });
+                                                                window.dispatchEvent(event);
+                                                            }}
+                                                        >
+                                                            🛡️ Fix
                                                         </button>
                                                     </h4>
                                                     <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>{f.description}</p>
@@ -304,20 +393,78 @@ export default function ReportViewer() {
                                                     <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>{f.remediation || 'No remediation provided.'}</p>
 
                                                     {f.exploit_path && f.exploit_path.length > 0 && (
-                                                        <div style={{ marginTop: '16px' }}>
-                                                            <h4 style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '10px', fontWeight: 700 }}>Exploit Path Detection</h4>
-                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                                                                {f.exploit_path.map((step, idx) => (
-                                                                    <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '12px' }}>
-                                                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: idx === 0 ? '#ef4444' : idx === f.exploit_path.length - 1 ? '#ef4444' : 'var(--text-muted)', zIndex: 1, marginTop: '4px' }} />
-                                                                            {idx < f.exploit_path.length - 1 && <div style={{ width: '2px', height: '24px', background: 'var(--border-primary)', margin: '-2px 0' }} />}
+                                                        <div style={{ marginTop: '20px' }}>
+                                                            <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '14px', fontWeight: 700, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                <Activity size={14} color="#ef4444" /> Taint Flow Analysis
+                                                            </h4>
+                                                            <div style={{ padding: '4px 8px' }}>
+                                                                {f.exploit_path.map((step, idx) => {
+                                                                    const isSource = idx === 0;
+                                                                    const isSink = idx === f.exploit_path.length - 1;
+                                                                    return (
+                                                                        <div key={idx} style={{ display: 'flex', gap: '16px', position: 'relative' }}>
+                                                                            {/* Vertical Line Connector */}
+                                                                            {idx < f.exploit_path.length - 1 && (
+                                                                                <div style={{ 
+                                                                                    position: 'absolute', 
+                                                                                    left: '7px', 
+                                                                                    top: '24px', 
+                                                                                    bottom: '-8px', 
+                                                                                    width: '2px', 
+                                                                                    background: 'linear-gradient(to bottom, #ef4444, #475569)',
+                                                                                    opacity: 0.4
+                                                                                }} />
+                                                                            )}
+                                                                            
+                                                                            {/* Node Icon */}
+                                                                            <div style={{ 
+                                                                                width: '16px', 
+                                                                                height: '16px', 
+                                                                                borderRadius: '50%', 
+                                                                                background: isSource ? '#ef4444' : isSink ? '#991b1b' : '#334155',
+                                                                                border: `3px solid ${isSource || isSink ? 'rgba(239, 68, 68, 0.2)' : 'rgba(71, 85, 105, 0.1)'}`,
+                                                                                zIndex: 2,
+                                                                                marginTop: '4px',
+                                                                                boxShadow: isSource ? '0 0 10px rgba(239, 68, 68, 0.4)' : 'none',
+                                                                                display: 'flex',
+                                                                                alignItems: 'center',
+                                                                                justifyContent: 'center'
+                                                                            }}>
+                                                                                {isSink && <div style={{ width: '4px', height: '4px', background: '#fff', borderRadius: '50%' }} />}
+                                                                            </div>
+
+                                                                            {/* Step Content */}
+                                                                            <div style={{ 
+                                                                                paddingBottom: idx === f.exploit_path.length - 1 ? '0' : '20px',
+                                                                                flex: 1
+                                                                            }}>
+                                                                                <div style={{ 
+                                                                                    display: 'flex', 
+                                                                                    alignItems: 'center', 
+                                                                                    gap: '8px',
+                                                                                    marginBottom: '4px'
+                                                                                }}>
+                                                                                    <span style={{ 
+                                                                                        fontSize: '0.7rem', 
+                                                                                        fontWeight: 700, 
+                                                                                        color: isSource ? '#ef4444' : isSink ? '#f87171' : 'var(--text-muted)',
+                                                                                        textTransform: 'uppercase'
+                                                                                    }}>
+                                                                                        {isSource ? 'Source' : isSink ? 'Sink' : `Hop ${idx}`}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div style={{ 
+                                                                                    fontSize: '0.82rem', 
+                                                                                    color: isSink ? '#fca5a5' : 'var(--text-primary)',
+                                                                                    lineHeight: 1.4,
+                                                                                    fontWeight: isSource || isSink ? 600 : 400
+                                                                                }}>
+                                                                                    {step}
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
-                                                                        <div style={{ fontSize: '0.78rem', color: idx === 0 || idx === f.exploit_path.length - 1 ? 'var(--text-primary)' : 'var(--text-muted)', paddingBottom: '12px' }}>
-                                                                            {step}
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
+                                                                    );
+                                                                })}
                                                             </div>
                                                         </div>
                                                     )}

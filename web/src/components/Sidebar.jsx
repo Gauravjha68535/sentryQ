@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ScanSearch, Settings, Shield, PlusCircle, History } from 'lucide-react'
+import { LayoutDashboard, ScanSearch, Settings, Shield, PlusCircle, History, Code } from 'lucide-react'
 
 export default function Sidebar() {
     const location = useLocation()
@@ -14,6 +14,7 @@ export default function Sidebar() {
         },
         {
             section: 'Manage', items: [
+                { to: '/rules', icon: <Code />, label: 'Rule Builder' },
                 { to: '/settings', icon: <Settings />, label: 'Settings' },
             ]
         },

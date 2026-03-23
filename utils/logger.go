@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/fatih/color"
-	"github.com/schollz/progressbar/v3"
 )
 
 var Logger *log.Logger
@@ -54,21 +53,7 @@ func LogSubHeader(msg string) {
 	ProgressColor.Println("└────────────────────────────────────────")
 }
 
-func CreateProgressBar(total int, description string) *progressbar.ProgressBar {
-	return progressbar.NewOptions(total,
-		progressbar.OptionSetDescription(description),
-		progressbar.OptionSetWidth(40),
-		progressbar.OptionSetRenderBlankState(true),
-		progressbar.OptionShowElapsedTimeOnFinish(),
-		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "█",
-			SaucerHead:    "█",
-			SaucerPadding: "░",
-			BarStart:      "[",
-			BarEnd:        "]",
-		}),
-	)
-}
+
 
 func PrintBanner() {
 	fmt.Println()
@@ -85,32 +70,4 @@ func PrintBanner() {
 	color.Unset()
 }
 
-func PrintSummary(total, critical, high, medium, low, aiValidated int) {
-	fmt.Println()
-	HeaderColor.Println("📊 SCAN SUMMARY")
-	fmt.Println("┌─────────────────────────────────────────────────────┐")
 
-	fmt.Printf("│  %-20s: %-25s │\n", "Total Findings", color.HiWhiteString("%d", total))
-
-	if critical > 0 {
-		fmt.Printf("│  %-20s: %-25s │\n", "Critical", color.HiRedString("%d", critical))
-	}
-	if high > 0 {
-		fmt.Printf("│  %-20s: %-25s │\n", "High", color.HiYellowString("%d", high))
-	}
-	if medium > 0 {
-		fmt.Printf("│  %-20s: %-25s │\n", "Medium", color.HiBlueString("%d", medium))
-	}
-	if low > 0 {
-		fmt.Printf("│  %-20s: %-25s │\n", "Low", color.HiCyanString("%d", low))
-	}
-
-	if total > 0 {
-		fmt.Printf("│  %-20s: %-25s │\n", "AI Validated", color.HiGreenString("%d (%.1f%%)", aiValidated, float64(aiValidated)/float64(total)*100))
-	} else {
-		fmt.Printf("│  %-20s: %-25s │\n", "AI Validated", color.HiGreenString("%d (0.0%%)", aiValidated))
-	}
-
-	fmt.Println("└─────────────────────────────────────────────────────┘")
-	fmt.Println()
-}

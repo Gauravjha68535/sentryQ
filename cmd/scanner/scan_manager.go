@@ -1,11 +1,9 @@
 package main
 
 import (
-	"archive/zip"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -90,7 +88,9 @@ func StopScan(scanID string) error {
 func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 	scanID := uuid.New().String()[:8]
 	var webCfg WebScanConfig
-	json.Unmarshal([]byte(configJSON), &webCfg)
+	if err := json.Unmarshal([]byte(configJSON), &webCfg); err != nil {
+		return "", fmt.Errorf("failed to parse config JSON: %v", err)
+	}
 
 	displayName := filepath.Base(targetDir)
 
@@ -135,7 +135,9 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 
 	scanID := uuid.New().String()[:8]
 	var webCfg WebScanConfig
-	json.Unmarshal([]byte(configJSON), &webCfg)
+	if err := json.Unmarshal([]byte(configJSON), &webCfg); err != nil {
+		return "", fmt.Errorf("failed to parse config JSON: %v", err)
+	}
 
 	tmpDir, err := os.MkdirTemp("", "qwen-scan-"+scanID+"-")
 	if err != nil {
@@ -411,7 +413,9 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		// AI Discovery
 		wsHub.BroadcastProgress(scanID, "AI Discovery", 70)
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Running AI discovery with model: %s", modelName), "phase")
-		aiFindings := ai.RunAIDiscovery(modelName, targetDir)
+		aiFindings := ai.RunAIDiscovery(ctx, modelName, targetDir, func(msg string, level string) {
+			wsHub.BroadcastLog(scanID, msg, level)
+		})
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("AI discovered %d potential vulnerabilities", len(aiFindings)), "success")
 
 		// ── Combined AI Validation ──────────────────────────────
@@ -432,10 +436,33 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		// Initial rough deduplication to avoid redundant AI calls
 		combinedForValidation := append([]reporter.Finding{}, allFindings...)
 		combinedForValidation = append(combinedForValidation, aiFindings...)
-		uniqueForValidation := webDeduplicateFindings(combinedForValidation)
+
+		// PRE-VALIDATION: Run severity recalibration + FP suppression BEFORE sending to AI
+		// This ensures: (1) upgraded findings (e.g. PHP LFI INFO→HIGH) actually get validated
+		//               (2) obvious FPs (safe patterns) skip expensive AI calls
+		wsHub.BroadcastLog(scanID, "Pre-validation: recalibrating severities...", "info")
+		combinedForValidation = recalibrateSeverities(combinedForValidation, targetDir)
+		wsHub.BroadcastLog(scanID, "Pre-validation: suppressing known safe patterns...", "info")
+		combinedForValidation = scanner.SuppressFalsePositives(combinedForValidation, targetDir)
+
+		// Remove suppressed FPs from validation queue (they're already marked info/FP)
+		var toValidate []reporter.Finding
+		var alreadySuppressed []reporter.Finding
+		for _, f := range combinedForValidation {
+			if strings.Contains(f.AiValidated, "Safe Pattern") {
+				alreadySuppressed = append(alreadySuppressed, f)
+			} else {
+				toValidate = append(toValidate, f)
+			}
+		}
+		wsHub.BroadcastLog(scanID, fmt.Sprintf("Skipped %d pre-suppressed FPs from AI validation queue", len(alreadySuppressed)), "info")
+
+		uniqueForValidation := webDeduplicateFindings(toValidate)
 
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Validating %d unique findings with AI...", len(uniqueForValidation)), "phase")
-		validatedFindings := ai.ValidateFindingsBatch(modelName, uniqueForValidation, fileContents, 4)
+		validatedFindings := ai.ValidateFindingsBatch(ctx, modelName, uniqueForValidation, fileContents, 4, func(msg string, level string) {
+			wsHub.BroadcastLog(scanID, msg, level)
+		})
 
 		// Split back into static and ai findings (merger expects them separate for now)
 		var validatedStatic []reporter.Finding
@@ -448,6 +475,8 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			}
 		}
 		allFindings = validatedStatic
+		// Add back the pre-suppressed findings (they're already marked as FP/info)
+		allFindings = append(allFindings, alreadySuppressed...)
 		aiFindings = validatedAI
 
 		wsHub.BroadcastLog(scanID, "AI validation complete", "success")
@@ -463,7 +492,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			wsHub.BroadcastLog(scanID, fmt.Sprintf("Consolidating static + AI findings using Judge LLM: %s...", consolidationModel), "phase")
 
 			// Use the more robust JudgeFindings engine
-			merged, err := ai.JudgeFindings(allFindings, aiFindings, consolidationModel, cfg.ConsolidationOllamaHost)
+			merged, err := ai.JudgeFindings(ctx, allFindings, aiFindings, consolidationModel, cfg.ConsolidationOllamaHost)
 			if err == nil {
 				allFindings = merged
 				wsHub.BroadcastLog(scanID, "Consolidation complete", "success")
@@ -483,12 +512,33 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		calibrator.SaveStats()
 	}
 
+	// ── ML False Positive Reduction (if enabled) ─────────────
+	if cfg.EnableMLFPReduction {
+		wsHub.BroadcastProgress(scanID, "ML FP Reduction", 87)
+		wsHub.BroadcastLog(scanID, "Applying ML-based False Positive reduction...", "info")
+		reducer := ai.NewMLFPReducer(".qwen-ml-cache")
+		reducer.LoadHistory()
+		allFindings = reducer.FilterFindingsByFPProbability(allFindings, 0.8)
+		reducer.SaveHistory()
+		wsHub.BroadcastLog(scanID, "ML False Positive reduction complete", "info")
+	}
+
 	// ── Finalize ──────────────────────────────────────────────
 
 	// Deduplicate
 	wsHub.BroadcastProgress(scanID, "Deduplication", 88)
 	wsHub.BroadcastLog(scanID, "Deduplicating findings...", "phase")
 	allFindings = webDeduplicateFindings(allFindings)
+
+	// FP Suppression: check code context for safe patterns
+	wsHub.BroadcastProgress(scanID, "False Positive Suppression", 90)
+	wsHub.BroadcastLog(scanID, "Suppressing false positives on safe patterns...", "phase")
+	allFindings = scanner.SuppressFalsePositives(allFindings, targetDir)
+
+	// Severity Recalibration + UNREACHABLE fix
+	wsHub.BroadcastProgress(scanID, "Severity Calibration", 92)
+	wsHub.BroadcastLog(scanID, "Recalibrating severities...", "phase")
+	allFindings = recalibrateSeverities(allFindings, targetDir)
 
 	// Sort by severity (Critical -> Info)
 	severityOrder := map[string]int{
@@ -634,8 +684,8 @@ func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
 			lastLine := parseStartLine((*lastCluster)[len(*lastCluster)-1].LineNumber)
 			thisLine := parseStartLine(f.LineNumber)
 
-			// Determine proximity threshold (0 for secrets, else 15)
-			prox := 15
+			// Determine proximity threshold (0 for secrets, else 5)
+			prox := 5
 			upperVuln := strings.ToUpper(key.vulnType)
 			if strings.Contains(upperVuln, "SECRET") || strings.Contains(upperVuln, "CREDENTIAL") {
 				prox = 0
@@ -704,40 +754,191 @@ func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
 	return unique
 }
 
-// normalizeVulnType extracts a canonical vulnerability type from a finding for dedup grouping.
-// Uses CWE if available, otherwise extracts keywords from RuleID/IssueName.
+// normalizeVulnType extracts a canonical vulnerability FAMILY from a finding for dedup grouping.
+// Maps related CWEs to the same family so AI/Semgrep/Rules findings merge properly.
 func normalizeVulnType(f reporter.Finding) string {
-	// Use CWE as primary grouping key
+	// CWE family mapping: related CWEs → single canonical type
+	cweFamilies := map[string]string{
+		"CWE-89":  "SQLI", "CWE-564": "SQLI",
+		"CWE-78":  "CMDI", "CWE-77": "CMDI",
+		"CWE-79":  "XSS",
+		"CWE-22":  "PATH_TRAVERSAL", "CWE-23": "PATH_TRAVERSAL", "CWE-36": "PATH_TRAVERSAL",
+		"CWE-502": "DESERIALIZATION",
+		"CWE-798": "HARDCODED_SECRET", "CWE-259": "HARDCODED_SECRET", "CWE-321": "HARDCODED_SECRET",
+		"CWE-330": "WEAK_RANDOM", "CWE-331": "WEAK_RANDOM", "CWE-338": "WEAK_RANDOM",
+		"CWE-918": "SSRF",
+		"CWE-1336": "TEMPLATE_INJECTION", "CWE-94": "TEMPLATE_INJECTION", "CWE-95": "TEMPLATE_INJECTION",
+		"CWE-943": "NOSQL_INJECTION",
+		"CWE-915": "MASS_ASSIGNMENT",
+		"CWE-611": "XXE",
+		"CWE-352": "CSRF",
+		"CWE-98":  "FILE_INCLUSION",
+		"CWE-770": "RESOURCE_LIMIT",
+		"CWE-1321": "PROTOTYPE_POLLUTION",
+		"CWE-20":  "INPUT_VALIDATION",
+	}
+
+	// Try CWE family lookup first
 	cwe := strings.ToUpper(strings.TrimSpace(f.CWE))
-	if cwe != "" && strings.HasPrefix(cwe, "CWE-") {
-		return cwe
-	}
-
-	// Fallback: extract keywords from RuleID or IssueName
-	combined := strings.ReplaceAll(strings.ToLower(f.RuleID+" "+f.IssueName), "-", " ")
-	combined = strings.ReplaceAll(combined, "_", " ")
-
-	keywords := []string{
-		"sql injection", "sqli", "command injection", "cmdi",
-		"xss", "cross site", "path traversal", "directory traversal",
-		"ssrf", "deserialization", "hardcoded", "secret", "credential",
-		"weak hash", "weak random", "prototype pollution", "nosql",
-		"ssti", "template injection", "file inclusion", "lfi",
-		"typosquatting", "clipboard", "redos", "xxe", "csrf", "idor",
-		"pickle", "unserialize",
-	}
-
-	for _, kw := range keywords {
-		if strings.Contains(combined, kw) {
-			return "KW:" + kw
+	if cwe != "" {
+		// Handle formats like "CWE-79", "CWE 79", or just "79"
+		if !strings.HasPrefix(cwe, "CWE-") {
+			cwe = "CWE-" + strings.TrimPrefix(cwe, "CWE ")
+		}
+		if family, ok := cweFamilies[cwe]; ok {
+			return family
+		}
+		// Unknown CWE — use it directly
+		if strings.HasPrefix(cwe, "CWE-") {
+			return cwe
 		}
 	}
 
-	// Last resort: use ruleID itself
+	// Keyword-based grouping from RuleID and IssueName
+	combined := strings.ToLower(f.RuleID + " " + f.IssueName + " " + f.Description)
+	combined = strings.ReplaceAll(combined, "-", " ")
+	combined = strings.ReplaceAll(combined, "_", " ")
+
+	// Ordered by specificity (more specific matches first)
+	keywordFamilies := []struct {
+		keywords []string
+		family   string
+	}{
+		{[]string{"nosql injection", "nosql"}, "NOSQL_INJECTION"},
+		{[]string{"sql injection", "sqli", "sql query"}, "SQLI"},
+		{[]string{"command injection", "cmdi", "os.system", "runtime.exec", "subprocess"}, "CMDI"},
+		{[]string{"ssti", "server side template", "template injection", "render_template_string"}, "TEMPLATE_INJECTION"},
+		{[]string{"xss", "cross site scripting", "reflected xss", "stored xss"}, "XSS"},
+		{[]string{"path traversal", "directory traversal", "sendfile", "path join"}, "PATH_TRAVERSAL"},
+		{[]string{"ssrf", "server side request"}, "SSRF"},
+		{[]string{"deserialization", "pickle", "unserialize", "readobject", "objectinputstream"}, "DESERIALIZATION"},
+		{[]string{"hardcoded secret", "hardcoded password", "hardcoded credential", "secret detected", "api key detected"}, "HARDCODED_SECRET"},
+		{[]string{"weak random", "math.random", "predictable random", "insufficient entropy", "token generation"}, "WEAK_RANDOM"},
+		{[]string{"prototype pollution"}, "PROTOTYPE_POLLUTION"},
+		{[]string{"file inclusion", "lfi", "rfi"}, "FILE_INCLUSION"},
+		{[]string{"xxe", "xml external"}, "XXE"},
+		{[]string{"csrf", "cross site request"}, "CSRF"},
+		{[]string{"idor", "insecure direct object"}, "IDOR"},
+		{[]string{"mass assignment"}, "MASS_ASSIGNMENT"},
+	}
+
+	for _, kf := range keywordFamilies {
+		for _, kw := range kf.keywords {
+			if strings.Contains(combined, kw) {
+				return kf.family
+			}
+		}
+	}
+
+	// Last resort: use ruleID or issue name
 	if f.RuleID != "" {
 		return "RULE:" + f.RuleID
 	}
-	return "GENERIC:" + f.IssueName
+	return "GENERIC:" + strings.ToLower(f.IssueName)
+}
+
+// recalibrateSeverities adjusts over-inflated and under-rated severities, and
+// removes the [UNREACHABLE] tag from web framework route handlers.
+func recalibrateSeverities(findings []reporter.Finding, targetDir string) []reporter.Finding {
+	// Cache file contents
+	fileCache := make(map[string]string)
+	readFile := func(filePath string) string {
+		if content, ok := fileCache[filePath]; ok {
+			return content
+		}
+		absPath := filePath
+		if !filepath.IsAbs(absPath) {
+			absPath = filepath.Join(targetDir, filePath)
+		}
+		data, err := os.ReadFile(absPath)
+		if err != nil {
+			return ""
+		}
+		content := string(data)
+		fileCache[filePath] = content
+		return content
+	}
+
+	// Web framework entry point markers (if these exist in the file, routes are reachable)
+	webMarkers := []string{
+		"$_get", "$_post", "$_request", "$_cookie", "$_server",          // PHP
+		"@app.route", "flask", "def index", "@app.get", "@app.post",    // Python Flask
+		"app.get(", "app.post(", "express()", "router.",                   // Node.js Express
+		"@requestmapping", "@getmapping", "@postmapping", "httpservlet", // Java Spring/Servlet
+	}
+
+	for i := range findings {
+		f := &findings[i]
+		cwe := strings.ToUpper(strings.TrimSpace(f.CWE))
+		lower := strings.ToLower(f.IssueName + " " + f.Description + " " + f.RuleID)
+
+		// ── DOWNGRADE RULES ──
+
+		// Math.random / weak random: Critical → High
+		if (cwe == "CWE-338" || cwe == "CWE-330" || cwe == "CWE-331" ||
+			strings.Contains(lower, "math.random") || strings.Contains(lower, "predictable random")) &&
+			f.Severity == "critical" {
+			f.Severity = "high"
+		}
+
+		// Reflected XSS (non-stored): Critical → High
+		if cwe == "CWE-79" && f.Severity == "critical" &&
+			!strings.Contains(lower, "stored") {
+			f.Severity = "high"
+		}
+
+		// Missing body size limit / CWE-770: Medium → Low
+		if cwe == "CWE-770" && (f.Severity == "medium" || f.Severity == "high") {
+			f.Severity = "low"
+		}
+
+		// Generic input validation CWE-20: cap at Medium
+		if cwe == "CWE-20" && f.Severity == "critical" {
+			f.Severity = "medium"
+		}
+
+		// ── UPGRADE RULES ──
+
+		// NoSQL Injection with req.body: High → Critical (auth bypass)
+		if (cwe == "CWE-943" || strings.Contains(lower, "nosql")) &&
+			f.Severity == "high" &&
+			strings.Contains(lower, "req.body") {
+			f.Severity = "critical"
+		}
+
+		// SSTI / Template Injection: anything below Critical → Critical (RCE)
+		if (cwe == "CWE-1336" || cwe == "CWE-94" ||
+			strings.Contains(lower, "template injection") || strings.Contains(lower, "ssti")) &&
+			(f.Severity == "medium" || f.Severity == "high") {
+			f.Severity = "critical"
+		}
+
+		// File Inclusion: INFO → High minimum
+		if (cwe == "CWE-98" || strings.Contains(lower, "file inclusion") || strings.Contains(lower, "lfi")) &&
+			(f.Severity == "info" || f.Severity == "low") {
+			f.Severity = "high"
+		}
+
+		// ── FIX [UNREACHABLE] FOR WEB CODE ──
+		if strings.Contains(f.Description, "[UNREACHABLE]") {
+			content := strings.ToLower(readFile(f.FilePath))
+			if content != "" {
+				for _, marker := range webMarkers {
+					if strings.Contains(content, marker) {
+						// Remove [UNREACHABLE] tag — this IS reachable via HTTP
+						f.Description = strings.Replace(f.Description, "[UNREACHABLE] ", "", 1)
+						// Restore severity if downgraded
+						if f.Severity == "info" || f.Severity == "low" {
+							f.Severity = "high"
+						}
+						break
+					}
+				}
+			}
+		}
+	}
+
+	return findings
 }
 
 // parseStartLine extracts the first (start) line number from a line reference like "12" or "12-18"
@@ -802,50 +1003,6 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 	}
 }
 
-// ExtractUploadedZip extracts a zip file to a temp directory
-func ExtractUploadedZip(zipPath string) (string, error) {
-	destDir, err := os.MkdirTemp("", "qwen-upload-")
-	if err != nil {
-		return "", err
-	}
-
-	r, err := zip.OpenReader(zipPath)
-	if err != nil {
-		return "", err
-	}
-	defer r.Close()
-
-	for _, f := range r.File {
-		fpath := filepath.Join(destDir, f.Name)
-
-		if !strings.HasPrefix(filepath.Clean(fpath), filepath.Clean(destDir)+string(os.PathSeparator)) {
-			continue
-		}
-
-		if f.FileInfo().IsDir() {
-			os.MkdirAll(fpath, os.ModePerm)
-			continue
-		}
-
-		os.MkdirAll(filepath.Dir(fpath), os.ModePerm)
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			continue
-		}
-
-		rc, err := f.Open()
-		if err != nil {
-			outFile.Close()
-			continue
-		}
-
-		io.Copy(outFile, rc)
-		outFile.Close()
-		rc.Close()
-	}
-
-	return destDir, nil
-}
 
 // ════════════════════════════════════════════════════════════
 //  ENSEMBLE AUDIT MODE — 3-Phase Pipeline
@@ -1043,7 +1200,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	wsHub.BroadcastProgress(scanID, "Phase 2: AI Discovery", 45)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("Running AI Discovery with model: %s", modelName), "info")
 	wsHub.BroadcastLog(scanID, "AI is independently scanning all supported files...", "info")
-	aiFindings := ai.RunAIDiscovery(modelName, targetDir)
+	aiFindings := ai.RunAIDiscovery(ctx, modelName, targetDir)
 
 	// AI self-validation of its own findings
 	if len(aiFindings) > 0 {
@@ -1058,7 +1215,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 				}
 			}
 		}
-		aiFindings = ai.ValidateFindingsBatch(modelName, aiFindings, fileContents, 4)
+		aiFindings = ai.ValidateFindingsBatch(ctx, modelName, aiFindings, fileContents, 4)
 	}
 
 	// Deduplicate Phase 2
@@ -1097,7 +1254,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 
 	var allFindings []reporter.Finding
 
-	masterFindings, judgeErr := ai.JudgeFindings(staticFindings, aiFindings, judgeModel, cfg.JudgeOllamaHost)
+	masterFindings, judgeErr := ai.JudgeFindings(ctx, staticFindings, aiFindings, judgeModel, cfg.JudgeOllamaHost)
 	if judgeErr != nil {
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Judge failed: %v — falling back to simple merge", judgeErr), "warning")
 		// Fallback: combine both reports and deduplicate
@@ -1110,7 +1267,25 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 
 	wsHub.BroadcastProgress(scanID, "Phase 3: Finalizing", 90)
 
+	// ── ML False Positive Reduction (if enabled) ─────────────
+	if cfg.EnableMLFPReduction {
+		wsHub.BroadcastLog(scanID, "Applying ML-based False Positive reduction...", "info")
+		reducer := ai.NewMLFPReducer(".qwen-ml-cache")
+		reducer.LoadHistory()
+		allFindings = reducer.FilterFindingsByFPProbability(allFindings, 0.8)
+		reducer.SaveHistory()
+		wsHub.BroadcastLog(scanID, "ML False Positive reduction complete", "info")
+	}
+
 	// ── Finalize ──────────────────────────────────────────────
+
+	// FP Suppression: check code context for safe patterns
+	wsHub.BroadcastLog(scanID, "Suppressing false positives on safe patterns...", "phase")
+	allFindings = scanner.SuppressFalsePositives(allFindings, targetDir)
+
+	// Severity Recalibration + UNREACHABLE fix
+	wsHub.BroadcastLog(scanID, "Recalibrating severities...", "phase")
+	allFindings = recalibrateSeverities(allFindings, targetDir)
 
 	// Sort by severity
 	severityOrder := map[string]int{

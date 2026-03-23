@@ -43,11 +43,35 @@ QWEN is a hybrid security analysis tool that combines **Static Analysis (SAST)**
 | Feature | Description |
 | :--- | :--- |
 | **🔍 Pattern Engine** | 12,400+ rules across 60+ languages. Auto-rescues broken YAML rules. |
-| **🧠 Security Guru** | AI reasoning using Chain-of-Thought (CoT) to validate findings. |
-| **🔄 Orchestration** | Sequentially runs Static -> AI Discovery -> AI Validation -> Merging. |
-| **🌊 Deep Flow Analysis** | Tracks data flow and detects absence of headers (CSRF, HSTS, CSP). |
+| **🧠 Intelligence Overhaul** | **Deduplication v2**: CWE family grouping + proximity clustering (±5 lines). |
+| **🛡️ Mitigation Awareness** | AI-driven FP suppression for safe APIs (`crypto.randomBytes`, `textContent`, etc.). |
+| **🌊 Context Injection** | Full-file context + Cross-file dependency tracking for deep taint validation. |
+| **⚖️ Security Judge** | Multi-engine consolidation with Chain-of-Thought (CoT) reasoning. |
 | **📦 Supply Chain** | Google OSV-Scanner integration with local fallback. |
 | **🌍 Cross-Platform** | Native execution on Windows, macOS, and Linux. |
+
+---
+
+## 🔬 Recent Intelligence Overhaul (Phase 3 & 4)
+
+We recently performed a massive architectural upgrade to solve the "Noise & Duplication" problem common in AI scanners:
+
+### 1. High-Precision Deduplication
+- **CWE Family Grouping**: Instead of exact matches, the scanner now groups 22+ related CWEs into 16 canonical families (e.g., all Weak Randomness or SQLi variants merge into one).
+- **Proximity Clustering**: Merges findings from different engines (Static, AI, Rules) that occur within ±5 lines of each other.
+
+### 2. False Positive Suppression (Safe Pattern Recognition)
+The scanner now performs a post-scan analysis pass that recognizes secure coding patterns and automatically suppresses them:
+- **Crypto**: Recognizes `crypto.randomBytes` and `secrets.token_hex` as safe (not "Weak Random").
+- **DOM**: Recognizes `textContent` usage as safe (not "XSS").
+- **SQL**: Detects parameterized queries (`?`, `$1`) as safe.
+- **Paths**: Identifies `path.resolve` + `startsWith` guards as valid path traversal mitigations.
+
+### 3. Deep Context Validation
+- **Full-File Context**: The AI Validator now analyzes the entire file (up to 500 lines) to find sanitizers and guards that might be far from the vulnerability sink.
+- **Cross-File Dependency Tracking**: If a vulnerability is traced across files, the scanner automatically injects the related dependency code into the AI prompt for validation.
+- **Chain-of-Thought JSON**: The Validator must now explicitly state logical steps (Taint Source found? Sanitizer found? Sink reachable?) before giving a final verdict.
+
 
 ---
 

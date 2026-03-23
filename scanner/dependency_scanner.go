@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -139,7 +140,6 @@ func scanDependenciesFallback(ctx context.Context, targetDir string) ([]reporter
 	return findings, nil
 }
 
-// collectDependencies collects dependencies from various package managers
 func collectDependencies(targetDir string) []Dependency {
 	var deps []Dependency
 
@@ -158,14 +158,34 @@ func collectDependencies(targetDir string) []Dependency {
 		deps = append(deps, parseGoMod(data, filepath.Join(targetDir, "go.mod"))...)
 	}
 
-	// pom.xml (Java/Maven) - simplified parsing
+	// pom.xml (Java/Maven)
 	if data, err := os.ReadFile(filepath.Join(targetDir, "pom.xml")); err == nil {
 		deps = append(deps, parsePomXML(data, filepath.Join(targetDir, "pom.xml"))...)
+	}
+
+	// build.gradle (Java/Gradle)
+	if data, err := os.ReadFile(filepath.Join(targetDir, "build.gradle")); err == nil {
+		deps = append(deps, parseGradle(data, filepath.Join(targetDir, "build.gradle"))...)
+	}
+
+	// composer.json (PHP/Packagist)
+	if data, err := os.ReadFile(filepath.Join(targetDir, "composer.json")); err == nil {
+		deps = append(deps, parseComposerJSON(data, filepath.Join(targetDir, "composer.json"))...)
 	}
 
 	// Gemfile.lock (Ruby)
 	if data, err := os.ReadFile(filepath.Join(targetDir, "Gemfile.lock")); err == nil {
 		deps = append(deps, parseGemfileLock(data, filepath.Join(targetDir, "Gemfile.lock"))...)
+	}
+
+	// yarn.lock (Node.js/Yarn)
+	if data, err := os.ReadFile(filepath.Join(targetDir, "yarn.lock")); err == nil {
+		deps = append(deps, parseYarnLock(data, filepath.Join(targetDir, "yarn.lock"))...)
+	}
+
+	// pnpm-lock.yaml (Node.js/PNPM)
+	if data, err := os.ReadFile(filepath.Join(targetDir, "pnpm-lock.yaml")); err == nil {
+		deps = append(deps, parsePNPMLock(data, filepath.Join(targetDir, "pnpm-lock.yaml"))...)
 	}
 
 	return deps
@@ -323,28 +343,152 @@ func parseGoMod(data []byte, sourceFile string) []Dependency {
 	return deps
 }
 
-// parsePomXML parses Java pom.xml (simplified)
+// parsePomXML parses Java pom.xml using a more robust regex-based extraction
 func parsePomXML(data []byte, sourceFile string) []Dependency {
 	var deps []Dependency
 	content := string(data)
 
-	// Simple regex-based parsing for dependencies
-	// In production, use a proper XML parser
-	lines := strings.Split(utils.NormalizeNewlines(content), "\n")
-	for lineNum, line := range lines {
-		if strings.Contains(line, "<dependency>") {
-			// Extract groupId, artifactId, version from next few lines
-			// This is a simplified implementation
+	// Pattern for <dependency> blocks
+	depBlockRe := regexp.MustCompile(`(?s)<dependency>(.*?)</dependency>`)
+	groupRe := regexp.MustCompile(`<groupId>(.*?)</groupId>`)
+	artifactRe := regexp.MustCompile(`<artifactId>(.*?)</artifactId>`)
+	versionRe := regexp.MustCompile(`<version>(.*?)</version>`)
+
+	blocks := depBlockRe.FindAllStringSubmatch(content, -1)
+	for _, block := range blocks {
+		inner := block[1]
+		g := groupRe.FindStringSubmatch(inner)
+		a := artifactRe.FindStringSubmatch(inner)
+		v := versionRe.FindStringSubmatch(inner)
+
+		if len(g) > 1 && len(a) > 1 {
+			version := "latest"
+			if len(v) > 1 {
+				version = v[1]
+			}
 			deps = append(deps, Dependency{
-				Name:       "maven-dependency",
-				Version:    "unknown",
+				Name:       g[1] + ":" + a[1],
+				Version:    cleanVersion(version),
 				Ecosystem:  "Maven",
+				SourceFile: sourceFile,
+				LineNumber: 1, // Line number detection for XML is complex, defaulting to 1
+			})
+		}
+	}
+
+	return deps
+}
+
+// parseGradle parses build.gradle files
+func parseGradle(data []byte, sourceFile string) []Dependency {
+	var deps []Dependency
+	lines := strings.Split(utils.NormalizeNewlines(string(data)), "\n")
+	
+	// Implementation of gradle dependency parsing: implementation 'group:artifact:version'
+	re := regexp.MustCompile(`(?i)(?:implementation|runtimeOnly|compileOnly|api|testImplementation)\s+['"]([^'"]+:[^'"]+:[^'"]+)['"]`)
+	
+	for lineNum, line := range lines {
+		match := re.FindStringSubmatch(line)
+		if len(match) > 1 {
+			parts := strings.Split(match[1], ":")
+			if len(parts) >= 3 {
+				deps = append(deps, Dependency{
+					Name:       parts[0] + ":" + parts[1],
+					Version:    cleanVersion(parts[2]),
+					Ecosystem:  "Maven", // Gradle usually pulls from Maven Central
+					SourceFile: sourceFile,
+					LineNumber: lineNum + 1,
+				})
+			}
+		}
+	}
+	return deps
+}
+
+// parseComposerJSON parses PHP composer.json
+func parseComposerJSON(data []byte, sourceFile string) []Dependency {
+	var pkg struct {
+		Require    map[string]string `json:"require"`
+		RequireDev map[string]string `json:"require-dev"`
+	}
+	if err := json.Unmarshal(data, &pkg); err != nil {
+		return nil
+	}
+
+	var deps []Dependency
+	for name, version := range pkg.Require {
+		if name == "php" { continue }
+		deps = append(deps, Dependency{
+			Name:       name,
+			Version:    cleanVersion(version),
+			Ecosystem:  "Packagist",
+			SourceFile: sourceFile,
+			LineNumber: 1,
+		})
+	}
+	for name, version := range pkg.RequireDev {
+		deps = append(deps, Dependency{
+			Name:       name,
+			Version:    cleanVersion(version),
+			Ecosystem:  "Packagist",
+			SourceFile: sourceFile,
+			LineNumber: 1,
+		})
+	}
+	return deps
+}
+
+// parseYarnLock parses v1 yarn.lock files (simplified)
+func parseYarnLock(data []byte, sourceFile string) []Dependency {
+	var deps []Dependency
+	lines := strings.Split(utils.NormalizeNewlines(string(data)), "\n")
+	
+	currentPkg := ""
+	for lineNum, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") { continue }
+		
+		if !strings.HasPrefix(line, " ") && strings.Contains(line, "@") {
+			// Package definition: "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
+			currentPkg = strings.Split(trimmed, "@")[0]
+			if strings.HasPrefix(currentPkg, "\"") {
+				currentPkg = strings.Trim(currentPkg, "\"")
+			}
+		} else if strings.HasPrefix(trimmed, "version \"") && currentPkg != "" {
+			version := strings.Trim(strings.TrimPrefix(trimmed, "version "), "\"")
+			deps = append(deps, Dependency{
+				Name:       currentPkg,
+				Version:    version,
+				Ecosystem:  "npm",
+				SourceFile: sourceFile,
+				LineNumber: lineNum + 1,
+			})
+			currentPkg = ""
+		}
+	}
+	return deps
+}
+
+// parsePNPMLock parses pnpm-lock.yaml (simplified)
+func parsePNPMLock(data []byte, sourceFile string) []Dependency {
+	var deps []Dependency
+	lines := strings.Split(utils.NormalizeNewlines(string(data)), "\n")
+	
+	// Simplified detection of: /package-name/version:
+	re := regexp.MustCompile(`^\s+\/([^/]+)\/([^:]+):`)
+	
+	for lineNum, line := range lines {
+		match := re.FindStringSubmatch(line)
+		if len(match) > 2 {
+			deps = append(deps, Dependency{
+				Name:       match[1],
+				Version:    match[2],
+				Ecosystem:  "npm",
 				SourceFile: sourceFile,
 				LineNumber: lineNum + 1,
 			})
 		}
 	}
-
 	return deps
 }
 

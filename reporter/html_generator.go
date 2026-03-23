@@ -307,6 +307,11 @@ const htmlTemplate = `<!DOCTYPE html>
         .copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 10px; border-radius: 4px; border: 1px solid #30363d; background: #161b22; color: #8b949e; cursor: pointer; font-family: var(--mono); font-size: 0.7rem; transition: all 0.15s; z-index: 2; }
         .copy-btn:hover { background: #21262d; color: #c9d1d9; border-color: #484f58; }
         .copy-btn.copied { background: rgba(34,197,94,0.2); color: #4ade80; border-color: rgba(34,197,94,0.4); }
+310: 
+311:         /* Diff view */
+312:         .diff-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+313:         .diff-header { font-size: 0.75rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+314:         @media (max-width: 900px) { .diff-container { grid-template-columns: 1fr; } }
 
         /* False positives */
         .fp-section { margin-top: 32px; padding: 24px; background: var(--bg-card); border: 1px solid rgba(234,179,8,0.25); border-radius: var(--radius); box-shadow: var(--shadow); }
@@ -523,26 +528,45 @@ const htmlTemplate = `<!DOCTYPE html>
                                     </div>
                                     {{end}}
 
-                                    {{if .FixedCode}}
+                                    {{if and .CodeSnippet .FixedCode}}
                                     <div class="detail-section">
-                                        <h4>AI-Suggested Secure Code</h4>
-                                        <div class="code-wrapper">
-                                            <button class="copy-btn" onclick="copyCode(this, event)">Copy</button>
-                                            <div class="code-block secure">{{stripFences .FixedCode}}</div>
+                                        <h4>Comparison: Vulnerable vs Secure Reference</h4>
+                                        <div class="diff-container">
+                                            <div>
+                                                <div class="diff-header" style="color: var(--critical)">Vulnerable Code Source</div>
+                                                <div class="code-wrapper">
+                                                    <div class="code-block snippet" style="min-height: 120px; font-size: 0.75rem;">{{replaceNewline .CodeSnippet}}</div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="diff-header" style="color: var(--success)">AI-Suggested Secure Implementation</div>
+                                                <div class="code-wrapper">
+                                                    <button class="copy-btn" onclick="copyCode(this, event)">Copy</button>
+                                                    <div class="code-block secure" style="min-height: 120px; font-size: 0.75rem;">{{stripFences .FixedCode}}</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    {{end}}
-                                </div>
+                                    {{else}}
+                                        {{if .CodeSnippet}}
+                                        <div class="detail-section">
+                                            <h4>Vulnerable Code Snippet</h4>
+                                            <div class="code-wrapper">
+                                                <button class="copy-btn" onclick="copyCode(this, event)">Copy</button>
+                                                <div class="code-block snippet">{{replaceNewline .CodeSnippet}}</div>
+                                            </div>
+                                        </div>
+                                        {{end}}
 
-                                <div>
-                                    {{if .CodeSnippet}}
-                                    <div class="detail-section">
-                                        <h4>Vulnerable Code Snippet</h4>
-                                        <div class="code-wrapper">
-                                            <button class="copy-btn" onclick="copyCode(this, event)">Copy</button>
-                                            <div class="code-block snippet">{{replaceNewline .CodeSnippet}}</div>
+                                        {{if .FixedCode}}
+                                        <div class="detail-section">
+                                            <h4>AI-Suggested Secure Code</h4>
+                                            <div class="code-wrapper">
+                                                <button class="copy-btn" onclick="copyCode(this, event)">Copy</button>
+                                                <div class="code-block secure">{{stripFences .FixedCode}}</div>
+                                            </div>
                                         </div>
-                                    </div>
+                                        {{end}}
                                     {{end}}
 
                                     {{if .AiReasoning}}

@@ -4,18 +4,25 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
 
 	"github.com/fatih/color"
 )
 
 // ValidateFindingsBatch validates multiple findings concurrently using a worker pool.
-func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileContents map[string]string, batchSize int) []reporter.Finding {
+func ValidateFindingsBatch(ctx context.Context, modelName string, findings []reporter.Finding, fileContents map[string]string, batchSize int, logCallback ...func(msg string, level string)) []reporter.Finding {
 	totalToValidate := countCriticalHighMedium(findings)
+
+	// Helper to send logs to UI if a callback was provided
+	uiLog := func(msg, level string) {
+		if len(logCallback) > 0 && logCallback[0] != nil {
+			logCallback[0](msg, level)
+		}
+	}
 	calibrator := NewConfidenceCalibrator()
 
 	// Styled header
@@ -24,7 +31,7 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 	headerColor.Println("└────────────────────────────────────────")
 	fmt.Println()
 
-	numWorkers := 2 // Default concurrency
+	numWorkers := 1 // Default concurrency (Sequential preferred to avoid GPU VRAM thrashing on consumer hardware)
 	if len(findings) < numWorkers {
 		numWorkers = len(findings)
 	}
@@ -32,16 +39,12 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 		return findings
 	}
 
-	utils.LogInfo(fmt.Sprintf("Starting BATCH AI validation with model: %s", modelName))
-	utils.LogInfo(fmt.Sprintf("Concurrency: %d parallel workers", numWorkers))
-	utils.LogInfo(fmt.Sprintf("Validating %d findings (Critical/High/Medium only)", totalToValidate))
+	uiLog(fmt.Sprintf("Starting BATCH AI validation with model: %s", modelName), "info")
+	uiLog(fmt.Sprintf("Concurrency: %d parallel workers", numWorkers), "info")
+	uiLog(fmt.Sprintf("Validating %d findings (Critical/High/Medium only)", totalToValidate), "info")
 	fmt.Println()
 
-	SetInterrupted(false)
-	if globalCancel != nil {
-		globalCancel()
-	}
-	globalCtx, globalCancel = context.WithCancel(context.Background())
+
 
 	startTime := time.Now()
 
@@ -127,13 +130,15 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 
 			// We wrap terminal output in a mutex to prevent lines from clobbering each other
 			mu.Lock()
-			fmt.Printf("\r\033[K")
-			color.New(color.FgHiBlue).Printf("  [%s elapsed", formatDuration(elapsed))
+			etaStr := ""
 			if currValidated > 1 && eta > 0 {
-				color.New(color.FgHiBlue).Printf(" | ~%s remaining", formatDuration(eta))
+				etaStr = fmt.Sprintf("ETA %s", formatDuration(eta))
+			} else {
+				etaStr = "calculating..."
 			}
-			color.New(color.FgHiBlue).Printf("] ")
-			fmt.Printf("(%d/%d) ", currValidated, totalToValidate)
+			uiLog(fmt.Sprintf("Validating [%d/%d] %s => %s (%s)", currValidated, totalToValidate, displayPath, job.finding.IssueName, etaStr), "info")
+			fmt.Printf("\r\033[K")
+			color.New(color.FgHiBlue).Printf("  [%s elapsed | %s] (%d/%d) ", formatDuration(elapsed), etaStr, currValidated, totalToValidate)
 			color.New(color.FgHiCyan).Printf("📄 %s ", displayPath)
 			fmt.Printf("L%s ", job.finding.LineNumber)
 
@@ -148,13 +153,41 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 			fmt.Printf("%s\n", issueName)
 			mu.Unlock()
 
+			// Extract context for cross-file validation
+			relatedFilesContext := ""
+			relatedCount := 0
+			// Look for file paths mentioned in ExploitPath or Description that aren't the main file
+			for p, content := range fileContents {
+				if p != job.finding.FilePath {
+					shortPath := filepath.Base(p)
+					mentioned := false
+					for _, step := range job.finding.ExploitPath {
+						if strings.Contains(step, shortPath) {
+							mentioned = true
+							break
+						}
+					}
+					if !mentioned && strings.Contains(job.finding.Description, shortPath) {
+						mentioned = true
+					}
+					
+					if mentioned {
+						relatedFilesContext += fmt.Sprintf("=== Related Context: %s ===\n%s\n\n", shortPath, content)
+						relatedCount++
+					}
+				}
+				if relatedCount >= 2 { // Limit to 2 related files to protect context window
+					break
+				}
+			}
+
 			// Perform actual AI Validation (Heavy lifting, no mutex)
 			codeSnippet := getCodeSnippet(fileContents, job.finding.FilePath, job.finding.LineNumber)
-			result, err := ValidateFinding(modelName, job.finding, codeSnippet)
+			result, err := ValidateFinding(ctx, modelName, job.finding, codeSnippet, relatedFilesContext)
 
 			mu.Lock()
 			if err != nil {
-				utils.LogError(fmt.Sprintf("AI validation failed for finding %s", job.finding.IssueName), err)
+				uiLog(fmt.Sprintf("AI validation failed for finding %s: %v", job.finding.IssueName, err), "error")
 				job.finding.AiValidated = "Error"
 				errorsCount++
 				consecutiveErrors++
@@ -181,6 +214,7 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 					}
 					job.finding.Confidence = result.Confidence
 					truePositives++
+					uiLog(fmt.Sprintf("  ✓ Confirmed (%s) %.0f%% confidence", job.finding.IssueName, result.Confidence*100), "success")
 					color.New(color.FgGreen).Printf("         ✓ Confirmed (%.0f%% confidence)\n", result.Confidence*100)
 				} else {
 					job.finding.AiValidated = "No (False Positive)"
@@ -189,6 +223,7 @@ func ValidateFindingsBatch(modelName string, findings []reporter.Finding, fileCo
 					job.finding.CWE = ""
 					job.finding.OWASP = ""
 					falsePositives++
+					uiLog(fmt.Sprintf("  ○ Filtered FP (%s) %.0f%% confidence", job.finding.IssueName, result.Confidence*100), "warning")
 					color.New(color.FgHiBlack).Printf("         ○ Filtered (False Positive) [%.0f%% confidence]\n", result.Confidence*100)
 				}
 

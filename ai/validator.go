@@ -13,15 +13,19 @@ import (
 )
 
 type ValidationResult struct {
-	IsTruePositive     bool    `json:"is_true_positive"`
-	Confidence         float64 `json:"confidence"`
-	Explanation        string  `json:"explanation"`
-	SuggestedFix       string  `json:"suggested_fix"`
-	SeverityAdjustment string  `json:"severity_adjustment"`
-	ExploitPoC         string  `json:"exploit_poc"`
+	TaintSourceIdentified      bool    `json:"taint_source_identified"`
+	SanitizerOrMitigationFound bool    `json:"sanitizer_or_mitigation_found"`
+	SinkIsReachable            bool    `json:"sink_is_reachable"`
+	IsTruePositive             bool    `json:"is_true_positive"`
+	Confidence                 float64 `json:"confidence"`
+	Explanation                string  `json:"explanation"`
+	SuggestedFix               string  `json:"suggested_fix"`
+	SeverityAdjustment         string  `json:"severity_adjustment"`
+	ExploitPoC                 string  `json:"exploit_poc"`
 }
 
-func ValidateFinding(modelName string, finding reporter.Finding, codeSnippet string) (*ValidationResult, error) {
+// ValidateFinding sends a single finding to the AI model for validation
+func ValidateFinding(ctx context.Context, modelName string, finding reporter.Finding, fileContent string, relatedFilesContext string) (*ValidationResult, error) {
 	// Detect if this is a test file
 	isTestFile := false
 	testIndicators := []string{"_test.", ".test.", ".spec.", "/test/", "/tests/", "/__tests__/", "/mock/", "/fixture/"}
@@ -38,9 +42,14 @@ func ValidateFinding(modelName string, finding reporter.Finding, codeSnippet str
 		testFileNote = "\n⚠️ NOTE: This file is a TEST file. Test files commonly contain hardcoded credentials, insecure configurations, and mock data for testing purposes. These are almost always FALSE POSITIVES unless the test itself is deployed to production.\n"
 	}
 
-	prompt := fmt.Sprintf(`You are an elite Lead Security Auditor and Penetration Tester.
+	crossFileNote := ""
+	if relatedFilesContext != "" {
+		crossFileNote = "\nRELATED CROSS-FILE CONTEXT (Dependencies, imports, or callers):\n" + relatedFilesContext + "\n"
+	}
+
+	prompt := fmt.Sprintf(`You are a Senior Security Code Reviewer.
 Your task is to validate a potential vulnerability found by an automated scanner.
-DETERMINE if this is a TRUE POSITIVE (exploitable) or a FALSE POSITIVE (noisy/non-exploitable).
+DETERMINE if this is a TRUE POSITIVE (real, exploitable issue) or a FALSE POSITIVE (non-issue / noise).
 
 VULNERABILITY DETAILS:
 - Issue: %s
@@ -51,35 +60,38 @@ VULNERABILITY DETAILS:
 - Initial Remediation: %s
 %s
 
-CODE CONTEXT (50 lines around the issue):
+CODE CONTEXT (Full File or Primary Snippet):
 %s
-
-ULTRA-DEEP VALIDATION PROTOCOL:
+%s
+VALIDATION STEPS:
 1.  TAINT ANALYSIS: Map the flow from Source (user-input) to Sink (dangerous function). Is there a clear, unvalidated path?
-2.  CONFIGURATION & SECRETS: Note that Hardcoded Secrets, Missing Security Headers, CORS misconfigurations, and Weak/Default passwords DO NOT require user input to be exploitable. Flag them as True Positives if present.
-3.  BYPASS SIMULATION: Does the code have sanitization (e.g., regex, escaping)? If YES, can an attacker BYPASS it using encoding (URL, base64, unicode), null bytes, or logical flaws? 
-4.  ENVIRONMENT CHECK: Is this a dev-only tool (e.g. apt, npm) or a real production vulnerability?
-5.  IMPACT ESTIMATION: What is the worst-case scenario (RCE, Data Theft, Account Takeover)?
+2.  CONFIGURATION & SECRETS: Note that Hardcoded Secrets, Missing Security Headers, CORS misconfigurations, and Weak/Default passwords DO NOT require user input to be dangerous. Flag them as True Positives if present.
+3.  FILTER ANALYSIS: Does the code have sanitization (e.g., regex, escaping)? If YES, could it be insufficient?
+4.  ENVIRONMENT CHECK: Is this a dev-only tool or a real production vulnerability?
+5.  IMPACT ESTIMATION: What is the worst-case scenario?
 
-OUTPUT PROTOCOL:
-- Start with a <thinking> tag. Perform an adversarial simulation. Try to 'break' the code even if it looks secure at first glance.
+OUTPUT:
+- Start with a <thinking> tag for step-by-step analysis.
 - End with a JSON object.
+- If no vulnerability is present, set is_true_positive to false.
 
-CRITICAL INSTRUCTIONS:
-- Be AGGRESSIVE in finding bypasses, but be FAIR if the code is truly secure.
-- Do NOT dismiss Configuration/Header/Secret vulnerabilities just because there is "no user input".
-- Do NOT log unified diffs (+/-) or git diff formats in the suggested_fix or explanation. Describe the fix conceptually or just provide the final snippet.
+INSTRUCTIONS:
+- Be thorough but fair. Do NOT dismiss Configuration/Secret vulnerabilities just because there is "no user input".
+- Do NOT generate git diffs or code blocks in suggested_fix. Describe the fix in plain text.
 - Do NOT flag standard DevOps/Infra commands as vulnerabilities.
-- You MUST provide a clear, exact step-by-step 'exploit_poc'. Provide the HTTP request, curl command, or payload. If this is mathematically impossible to exploit, you MUST return "N/A" for the 'exploit_poc' field. Do NOT leave it blank or omit the field.
+- Provide a clear 'exploit_poc' field with the HTTP request, curl command, or payload. Use 'N/A' if the issue is not externally triggerable.
 
 Return ONLY a valid JSON object in the final part of your response:
 {
+  "taint_source_identified": true/false,
+  "sanitizer_or_mitigation_found": true/false,
+  "sink_is_reachable": true/false,
   "is_true_positive": true/false,
   "confidence": 0.0-1.0,
-  "explanation": "Summarize your adversarial analysis and why a bypass is or is not possible.",
-  "suggested_fix": "Provide a fix conceptually. DO NOT USE DIFF FORMAT (+/-).",
+  "explanation": "Your analysis summary.",
+  "suggested_fix": "Describe the fix in plain text.",
   "severity_adjustment": "critical/high/medium/low/info or same",
-  "exploit_poc": "Provide a high-quality exploit payload, curl command, or HTTP request. Use 'N/A' if unexploitable."
+  "exploit_poc": "Proof of concept or N/A."
 }`,
 		finding.IssueName,
 		finding.FilePath,
@@ -88,7 +100,8 @@ Return ONLY a valid JSON object in the final part of your response:
 		finding.Description,
 		finding.Remediation,
 		testFileNote,
-		codeSnippet)
+		fileContent,
+		crossFileNote)
 
 	// Use Ollama HTTP API instead of CLI subprocess
 	reqBody := OllamaAPIRequest{
@@ -96,8 +109,8 @@ Return ONLY a valid JSON object in the final part of your response:
 		Prompt: prompt,
 		Stream: false,
 		Options: map[string]interface{}{
-			"num_ctx":     16384,
-			"num_predict": 2048, // Validation responses are usually shorter
+			"num_ctx":     4096, // Reduced from 16384 to prevent VRAM swapping on consumer GPUs
+			"num_predict": 1024, // Validation responses are shorter
 			"temperature": 0.0,
 		},
 		KeepAlive: "15m",
@@ -109,7 +122,7 @@ Return ONLY a valid JSON object in the final part of your response:
 	}
 
 	// Create a fresh context for validation requests
-	valCtx, valCancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer valCancel()
 
 	httpReq, err := http.NewRequestWithContext(valCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
@@ -132,12 +145,12 @@ Return ONLY a valid JSON object in the final part of your response:
 		return nil, fmt.Errorf("ollama API returned status %d", resp.StatusCode)
 	}
 
-	var apiResp OllamaAPIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode API response: %v", err)
+	fullText, readErr := readOllamaResponse(resp.Body)
+	if readErr != nil {
+		return nil, fmt.Errorf("failed to read Ollama response: %v", readErr)
 	}
 
-	outputStr := strings.TrimSpace(apiResp.Response)
+	outputStr := strings.TrimSpace(fullText)
 	outputStr = strings.TrimPrefix(outputStr, "```json")
 	outputStr = strings.TrimPrefix(outputStr, "```")
 	outputStr = strings.TrimSuffix(outputStr, "```")
@@ -148,11 +161,11 @@ Return ONLY a valid JSON object in the final part of your response:
 	jsonStr := utils.ExtractJSON(outputStr)
 	
 	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
-		// Fallback for unparseable responses
+		// Fallback: mark as uncertain instead of fabricating a strong result
 		result = ValidationResult{
 			IsTruePositive:     true,
-			Confidence:         0.8,
-			Explanation:        "AI validation completed (results may have minor formatting issues)",
+			Confidence:         0.5,
+			Explanation:        "AI validation response could not be parsed. Keeping finding as precaution.",
 			SuggestedFix:       finding.Remediation,
 			SeverityAdjustment: "same",
 			ExploitPoC:         "N/A",
@@ -165,7 +178,8 @@ Return ONLY a valid JSON object in the final part of your response:
 func countCriticalHighMedium(findings []reporter.Finding) int {
 	count := 0
 	for _, f := range findings {
-		if f.Severity == "critical" || f.Severity == "high" || f.Severity == "medium" {
+		// Count anything that IS NOT explicitly low/info (this catches missing/empty severities too)
+		if f.Severity != "low" && f.Severity != "info" {
 			count++
 		}
 	}
@@ -179,6 +193,17 @@ func getCodeSnippet(fileContents map[string]string, filePath string, lineNumber 
 	}
 
 	lines := strings.Split(utils.NormalizeNewlines(content), "\n")
+
+	// For small files (≤500 lines), send the entire file for maximum context
+	if len(lines) <= 500 {
+		snippet := ""
+		for i, line := range lines {
+			snippet += fmt.Sprintf("%d: %s\n", i+1, line)
+		}
+		return snippet
+	}
+
+	// For larger files, use ±150 lines around the finding (300 lines total)
 	var start, end int
 	fmt.Sscanf(lineNumber, "%d", &start)
 	end = start
@@ -190,8 +215,8 @@ func getCodeSnippet(fileContents map[string]string, filePath string, lineNumber 
 		}
 	}
 
-	contextStart := max(0, start-50)
-	contextEnd := min(len(lines), end+50)
+	contextStart := max(0, start-150)
+	contextEnd := min(len(lines), end+150)
 
 	snippet := ""
 	for i := contextStart; i < contextEnd && i < len(lines); i++ {

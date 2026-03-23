@@ -7,6 +7,7 @@ import NewScan from './pages/NewScan'
 import ScanProgress from './pages/ScanProgress'
 import ReportViewer from './pages/ReportViewer'
 import Settings from './pages/Settings'
+import RuleBuilder from './pages/RuleBuilder'
 import { AnimatePresence } from 'framer-motion'
 import ChatBot from './components/ChatBot'
 import './index.css'
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="/scan/new" element={<PageTransition><NewScan /></PageTransition>} />
               <Route path="/scan/:id" element={<PageTransition><ScanProgress /></PageTransition>} />
               <Route path="/scan/:id/report" element={<PageTransition><ReportViewer /></PageTransition>} />
+              <Route path="/rules" element={<PageTransition><RuleBuilder /></PageTransition>} />
               <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
             </Routes>
           </AnimatePresence>

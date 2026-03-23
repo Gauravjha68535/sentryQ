@@ -4,6 +4,7 @@ import "strings"
 
 // Finding represents a detected vulnerability
 type Finding struct {
+	ID          int      `json:"db_id"` // Internal database ID
 	SrNo        int      `json:"sr_no"`
 	IssueName   string   `json:"issue_name"`
 	FilePath    string   `json:"file_path"`
@@ -23,6 +24,7 @@ type Finding struct {
 	TrustScore  float64  `json:"trust_score"`  // Multi-engine confidence score (0-100)
 	ExploitPoC  string   `json:"exploit_poc"`  // AI-generated proof of concept exploit
 	FixedCode   string   `json:"fixed_code"`   // AI-generated fixed code snippet
+	Status      string   `json:"status"`       // Triage status: "open", "resolved", "ignored", "false_positive"
 }
 
 // IsFalsePositive returns true if the AI validator marked this finding as a false positive

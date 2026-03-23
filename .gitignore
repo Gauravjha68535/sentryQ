@@ -43,3 +43,6 @@ db/
 # Web Frontend
 web/node_modules/
 web/.vite/
+claude_report.html
+feedback_report.html
+*.log
