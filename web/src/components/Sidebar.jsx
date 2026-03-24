@@ -27,7 +27,7 @@ export default function Sidebar() {
                     <Shield size={20} color="white" />
                 </div>
                 <div>
-                    <h1>JD Scanner</h1>
+                    <h1>SentryQ</h1>
                     <span>AI Security Scanner</span>
                 </div>
             </div>

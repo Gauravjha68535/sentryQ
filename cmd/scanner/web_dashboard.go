@@ -20,10 +20,10 @@ import (
 	"syscall"
 	"time"
 
-	"QWEN_SCR_24_FEB_2026/ai"
-	"QWEN_SCR_24_FEB_2026/internal/ui"
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/ai"
+	"SentryQ/internal/ui"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 
 	"gopkg.in/yaml.v3"
 )
@@ -149,7 +149,7 @@ func StartWebServer(port int) {
 		if staticFS == nil {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusServiceUnavailable)
-			fmt.Fprintf(w, "QWEN Scanner API Only Mode\n\nWeb UI not embedded.\nRun './build.sh' to embed the web UI.")
+			fmt.Fprintf(w, "SentryQ API Only Mode\n\nWeb UI not embedded.\nRun './build.sh' to embed the web UI.")
 			return
 		}
 
@@ -182,7 +182,7 @@ func StartWebServer(port int) {
 		Handler: corsMiddleware(mux),
 	}
 
-	utils.LogInfo(fmt.Sprintf("🌐 QWEN Scanner Web UI starting on http://%s", addr))
+	utils.LogInfo(fmt.Sprintf("🌐 SentryQ Web UI starting on http://%s", addr))
 
 	// Auto-open browser
 	go openBrowser("http://" + addr)
@@ -194,7 +194,7 @@ func StartWebServer(port int) {
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			if strings.Contains(err.Error(), "address already in use") {
-				utils.LogError(fmt.Sprintf("Port %d is already in use. Please stop the other process or use a different port with: ./qwen-scanner --port <new-port>", port), err)
+				utils.LogError(fmt.Sprintf("Port %d is already in use. Please stop the other process or use a different port with: ./sentryq --port <new-port>", port), err)
 			} else {
 				utils.LogError("Web server failed", err)
 			}
@@ -218,7 +218,7 @@ func StartWebServer(port int) {
 	// We'll call CloseDB() - let's add it to db.go next if missing.
 	CloseDB()
 
-	utils.LogInfo("QWEN Scanner stopped.")
+	utils.LogInfo("SentryQ stopped.")
 }
 
 // ──────────────────────────────────────────────────────────
@@ -680,8 +680,8 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	if !hasSystem {
 		systemMsg := ai.ChatMessage{
 			Role: "system",
-			Content: `You are the QWEN Security Assistant, an elite cybersecurity expert. 
-You are integrated into the QWEN Security Scanner. 
+			Content: `You are the SentryQ Security Assistant, an elite cybersecurity expert. 
+You are integrated into the SentryQ. 
 Your goal is to help the user understand security vulnerabilities, explain scan reports, and provide high-quality remediation advice.
 When explaining a specific finding, be technical, precise, and provide clear code examples for fixes.
 Assume the user is a developer or security engineer.`,

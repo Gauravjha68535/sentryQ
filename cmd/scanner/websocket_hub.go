@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/utils"
 
 	"github.com/gorilla/websocket"
 )

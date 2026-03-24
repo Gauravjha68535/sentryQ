@@ -1,7 +1,7 @@
 package config
 
 import (
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/utils"
 	"bufio"
 	"fmt"
 	"os"

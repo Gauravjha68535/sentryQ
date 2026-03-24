@@ -12,11 +12,11 @@ import (
 	"sync"
 	"time"
 
-	"QWEN_SCR_24_FEB_2026/ai"
-	"QWEN_SCR_24_FEB_2026/config"
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/scanner"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/ai"
+	"SentryQ/config"
+	"SentryQ/reporter"
+	"SentryQ/scanner"
+	"SentryQ/utils"
 
 	"github.com/google/uuid"
 )

@@ -1,8 +1,8 @@
 package scanner
 
 import (
-	"QWEN_SCR_24_FEB_2026/config"
-	"QWEN_SCR_24_FEB_2026/reporter"
+	"SentryQ/config"
+	"SentryQ/reporter"
 	"os"
 	"path/filepath"
 	"regexp"

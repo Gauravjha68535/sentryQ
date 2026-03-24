@@ -1,4 +1,4 @@
-# QWEN Scanner Fix Plan - Progress Tracker
+# SentryQ Fix Plan - Progress Tracker
 
 ## Current Status: [IN PROGRESS]
 
@@ -13,7 +13,7 @@
   | Missing `)` | 500+ | Balance parens |
   | Missing `]` | 100+ | Balance brackets |
   | YAML quotes | 200+ | Double single quotes |
-- [ ] Step 1.4: Test: `./qwen-scanner` → Expect 5000+ rules loaded
+- [ ] Step 1.4: Test: `./sentryq` → Expect 5000+ rules loaded
 - [ ] Step 1.5: Validate AI finds real issues
 
 ### Phase 2: Fix Ollama Remote Host

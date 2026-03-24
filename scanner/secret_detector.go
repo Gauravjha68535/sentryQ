@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strings"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 )
 
 // SecretDetector detects hardcoded secrets using pattern matching + entropy analysis

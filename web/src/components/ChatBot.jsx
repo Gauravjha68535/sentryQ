@@ -64,7 +64,7 @@ const ChatBot = ({ scanId }) => {
         } catch (error) {
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: "⚠️ **Connection Error**: I'm having trouble reaching my local intelligence engine. Please ensure the QWEN backend and Ollama are active."
+                content: "⚠️ **Connection Error**: I'm having trouble reaching my local intelligence engine. Please ensure the SentryQ backend and Ollama are active."
             }]);
         } finally {
             setIsLoading(false);

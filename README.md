@@ -1,15 +1,15 @@
-# 🛡️ QWEN Security Scanner
+# 🛡️ SentryQ
 
 > **Modern SAST, Supply Chain, & AI-Orchestrated Security Platform**
 > A high-performance, local-first security tool designed for elite engineering teams. Powered by Go and Local AI (Ollama).
 
-QWEN Security Scanner transforms security scanning from simple pattern matching into **Intelligent Orchestration**. It runs your codebase through **12,400+ static rules** across 60+ languages, performs AI-driven vulnerability discovery, and uses a "Security Guru" LLM to deduplicate and validate findings—all running 100% locally on your machine.
+SentryQ transforms security scanning from simple pattern matching into **Intelligent Orchestration**. It runs your codebase through **12,400+ static rules** across 60+ languages, performs AI-driven vulnerability discovery, and uses a "Security Guru" LLM to deduplicate and validate findings—all running 100% locally on your machine.
 
 ---
 
 ## 🏗️ Project Architecture & Technical Overview
 
-QWEN is a hybrid security analysis tool that combines **Static Analysis (SAST)**, **Software Composition Analysis (SCA)**, and **AI-powered reasoning**.
+SentryQ is a hybrid security analysis tool that combines **Static Analysis (SAST)**, **Software Composition Analysis (SCA)**, and **AI-powered reasoning**.
 
 ### Tech Stack
 - **Backend**: Go (Golang) for high-performance orchestration.
@@ -19,22 +19,22 @@ QWEN is a hybrid security analysis tool that combines **Static Analysis (SAST)**
 
 ### Documentation & Core Components
 
-#### 📂 [Backend Orchestration](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/cmd/scanner/)
-- **[Main Entrypoint](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/cmd/scanner/main.go)**: Initializes the system and starts the web dashboard.
-- **[Scan Manager](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/cmd/scanner/scan_manager.go)**: The "Brain" coordinates between Semgrep, SCA, and AI engines.
-- **[Web Dashboard API](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/cmd/scanner/web_dashboard.go)**: Handles HTTP requests, API security, and serves the UI via `go:embed`.
-- **[WebSocket Hub](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/cmd/scanner/websocket_hub.go)**: Real-time progress and log broadcasting.
+#### 📂 [Backend Orchestration](file:///home/justdial/Desktop/SentryQ/cmd/scanner/)
+- **[Main Entrypoint](file:///home/justdial/Desktop/SentryQ/cmd/scanner/main.go)**: Initializes the system and starts the web dashboard.
+- **[Scan Manager](file:///home/justdial/Desktop/SentryQ/cmd/scanner/scan_manager.go)**: The "Brain" coordinates between Semgrep, SCA, and AI engines.
+- **[Web Dashboard API](file:///home/justdial/Desktop/SentryQ/cmd/scanner/web_dashboard.go)**: Handles HTTP requests, API security, and serves the UI via `go:embed`.
+- **[WebSocket Hub](file:///home/justdial/Desktop/SentryQ/cmd/scanner/websocket_hub.go)**: Real-time progress and log broadcasting.
 
-#### 🔍 [Security Engines](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/)
-- **[SAST](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/semgrep_runner.go)**: Wraps Semgrep for deep pattern matching across frameworks.
-- **[SCA](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/dependency_scanner.go)**: Identifies vulnerable packages using Google's **[OSV](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/osv_cli.go)** database.
-- **[Secrets](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/secret_detector.go)**: Entropy-based detection for AWS keys, tokens, and private keys.
-- **[AST & Taint](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/ast-analyzer.go)**: Tracks data flow from **[Source to Sink](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/taint-analyzer.go)**.
+#### 🔍 [Security Engines](file:///home/justdial/Desktop/SentryQ/scanner/)
+- **[SAST](file:///home/justdial/Desktop/SentryQ/scanner/semgrep_runner.go)**: Wraps Semgrep for deep pattern matching across frameworks.
+- **[SCA](file:///home/justdial/Desktop/SentryQ/scanner/dependency_scanner.go)**: Identifies vulnerable packages using Google's **[OSV](file:///home/justdial/Desktop/SentryQ/scanner/osv_cli.go)** database.
+- **[Secrets](file:///home/justdial/Desktop/SentryQ/scanner/secret_detector.go)**: Entropy-based detection for AWS keys, tokens, and private keys.
+- **[AST & Taint](file:///home/justdial/Desktop/SentryQ/scanner/ast-analyzer.go)**: Tracks data flow from **[Source to Sink](file:///home/justdial/Desktop/SentryQ/scanner/taint-analyzer.go)**.
 
-#### 🤖 [AI Layer](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/)
-- **[Validator](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/validator.go)**: Adversarial simulation to eliminate false positives.
-- **[Discovery](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/discovery_scanner.go)**: AI-driven hunt for zero-days and logic flaws.
-- **[Judge Engine](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/judge_engine.go)**: Consolidates findings from all engines into a single master report.
+#### 🤖 [AI Layer](file:///home/justdial/Desktop/SentryQ/ai/)
+- **[Validator](file:///home/justdial/Desktop/SentryQ/ai/validator.go)**: Adversarial simulation to eliminate false positives.
+- **[Discovery](file:///home/justdial/Desktop/SentryQ/ai/discovery_scanner.go)**: AI-driven hunt for zero-days and logic flaws.
+- **[Judge Engine](file:///home/justdial/Desktop/SentryQ/ai/judge_engine.go)**: Consolidates findings from all engines into a single master report.
 
 ---
 
@@ -110,7 +110,7 @@ pip install --upgrade semgrep
 ```bash
 chmod +x build.sh
 ./build.sh
-./qwen-scanner
+./sentryq
 ```
 *Access the dashboard at `http://localhost:5336`*
 
@@ -167,4 +167,4 @@ Our test suite protects cross-platform compatibility. Run `go test ./... -v` to 
 ## 📄 License
 
 This project is provided as-is for internal security research and development.
-© 2026 QWEN Security Team.
+© 2026 SentryQ Security Team.

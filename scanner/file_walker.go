@@ -1,7 +1,7 @@
 package scanner
 
 import (
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/utils"
 	"fmt"
 	"os"
 	"path/filepath"

@@ -5,8 +5,8 @@ import (
 	"flag"
 	"fmt"
 
-	"QWEN_SCR_24_FEB_2026/ai"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/ai"
+	"SentryQ/utils"
 
 	"github.com/google/uuid"
 )

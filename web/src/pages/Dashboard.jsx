@@ -59,7 +59,7 @@ export default function Dashboard() {
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                     <h1>Dashboard</h1>
-                    <p>Welcome to QWEN Security Scanner — your AI-powered code analysis platform</p>
+                    <p>Welcome to SentryQ — your AI-powered code analysis platform</p>
                 </div>
                 <button className="btn btn-primary" onClick={() => navigate('/scan/new')}>
                     <PlusCircle size={18} /> New Scan

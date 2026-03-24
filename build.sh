@@ -3,7 +3,7 @@
 # Exit on error
 set -e
 
-echo "🚀 Starting QWEN Security Scanner Build Process..."
+echo "🚀 Starting SentryQ Build Process..."
 
 # 1. Build the Frontend
 echo "📦 Building React Frontend..."
@@ -40,6 +40,6 @@ fi
 
 # 3. Build the Go Application
 echo "🐹 Building Go application..."
-go build -o qwen-scanner ./cmd/scanner
+go build -o sentryq ./cmd/scanner
 
-echo "✅ Build Complete! You can now run the scanner with: ./qwen-scanner"
+echo "✅ Build Complete! You can now run the scanner with: ./sentryq"

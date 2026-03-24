@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 )
 
 // JudgeFinding is a lightweight representation of a finding for feeding to the Judge LLM

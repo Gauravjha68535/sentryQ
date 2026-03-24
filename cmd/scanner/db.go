@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -42,7 +42,7 @@ func InitDB() error {
 		if err != nil {
 			homeDir = "."
 		}
-		dbDir := filepath.Join(homeDir, ".qwen-scanner")
+		dbDir := filepath.Join(homeDir, ".sentryq")
 		os.MkdirAll(dbDir, 0755)
 		dbPath := filepath.Join(dbDir, "scans.db")
 

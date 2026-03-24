@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 )
 
 // ThreatIntelScanner performs threat intelligence integration

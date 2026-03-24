@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 )
 
 // TaintAnalyzer tracks user input through code to detect injection vulnerabilities

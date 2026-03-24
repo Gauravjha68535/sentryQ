@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 )
 
 // OSVResponse represents the OSV API response

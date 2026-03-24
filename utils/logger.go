@@ -61,7 +61,7 @@ func PrintBanner() {
 	fmt.Print(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║   🔒  AI-POWERED SOURCE CODE SECURITY SCANNER  			║
+║   🔒  SENTRYQ: AI-POWERED SECURITY SCANNER  			║
 ║                                                           ║
 ║   Version 2.0 | Built with Go + Ollama AI  				║
 ║                                                           ║

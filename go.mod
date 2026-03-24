@@ -1,4 +1,4 @@
-module QWEN_SCR_24_FEB_2026
+module SentryQ
 
 go 1.24.0
 

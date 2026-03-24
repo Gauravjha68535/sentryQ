@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 
 	treeSitter "github.com/smacker/go-tree-sitter"
 	java "github.com/smacker/go-tree-sitter/java"

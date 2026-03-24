@@ -1,9 +1,9 @@
 #!/bin/bash
-# QWEN Scanner Rule Audit & Fix Script
+# SentryQ Rule Audit & Fix Script
 
 set -euo pipefail
 
-RULES_DIR="/home/justdial/Desktop/QWEN_SCR_24_FEB_2026/rules"
+RULES_DIR="/home/justdial/Desktop/SentryQ_SCR_24_FEB_2026/rules"
 REPORT="rule-audit-report.txt"
 FIXED=0
 SKIPPED=0
@@ -82,7 +82,7 @@ done
 # Auto-fix top offenders (first 10)
 echo "" >> "$REPORT"
 echo "=== AUTO-FIXING TOP OFFENDERS ===" | tee -a "$REPORT"
-grep -l "rescued.*rules" /home/justdial/.qwen-scanner/*.log 2>/dev/null | head -10 | while read file; do
+grep -l "rescued.*rules" /home/justdial/.sentryq/*.log 2>/dev/null | head -10 | while read file; do
     fix_common_patterns "$file"
 done
 
@@ -92,6 +92,6 @@ echo "Total Errors Found: $ERRORS" | tee -a "$REPORT"
 echo "Files Auto-Fixed: $FIXED" | tee -a "$REPORT"
 
 echo "✅ Audit complete. Review $REPORT"
-echo "Run: ./qwen-scanner to test fixes"
+echo "Run: ./sentryq to test fixes"
 chmod +x "$0"
 

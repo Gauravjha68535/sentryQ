@@ -1,8 +1,8 @@
 package ai
 
 import (
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -31,7 +31,7 @@ func NewConfidenceCalibrator() *ConfidenceCalibrator {
 	if err != nil {
 		homeDir = "."
 	}
-	dbDir := filepath.Join(homeDir, ".qwen-scanner")
+	dbDir := filepath.Join(homeDir, ".sentryq")
 	os.MkdirAll(dbDir, 0755)
 	statsFile := filepath.Join(dbDir, ".scanner-ai-stats.json")
 

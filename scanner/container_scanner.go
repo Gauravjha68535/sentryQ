@@ -1,8 +1,8 @@
 package scanner
 
 import (
-	"QWEN_SCR_24_FEB_2026/reporter"
-	"QWEN_SCR_24_FEB_2026/utils"
+	"SentryQ/reporter"
+	"SentryQ/utils"
 	"bufio"
 	"bytes"
 	"encoding/json"

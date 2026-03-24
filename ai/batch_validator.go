@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"QWEN_SCR_24_FEB_2026/reporter"
+	"SentryQ/reporter"
 
 	"github.com/fatih/color"
 )
