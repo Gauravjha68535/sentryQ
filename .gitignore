@@ -46,3 +46,4 @@ web/.vite/
 claude_report.html
 feedback_report.html
 *.log
+sentryq
