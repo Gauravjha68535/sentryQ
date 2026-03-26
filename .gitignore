@@ -48,4 +48,3 @@ feedback_report.html
 *.log
 sentryq
 .qwen-settings.json
-sentryq

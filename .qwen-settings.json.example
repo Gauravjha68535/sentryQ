@@ -1,8 +1,8 @@
 {
   "ollama_host": "localhost:11434",
   "default_model": "qwen2.5-coder:7b",
-  "ai_provider": "openai",
-  "custom_api_url": "http://195.32.7.85:11434",
-  "custom_api_key": "",
+  "ai_provider": "ollama",
+  "custom_api_url": "http://localhost:5005",
+  "custom_api_key": "YOUR_API_KEY_HERE",
   "custom_model": "gpt-oss:120b-cloud"
 }
