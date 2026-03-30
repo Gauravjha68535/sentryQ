@@ -1,170 +1,135 @@
 # 🛡️ SentryQ
 
-> **Modern SAST, Supply Chain, & AI-Orchestrated Security Platform**
+> **Next-Gen AI-Orchestrated Security Analysis Platform**
 > A high-performance, local-first security tool designed for elite engineering teams. Powered by Go and Local AI (Ollama).
 
-SentryQ transforms security scanning from simple pattern matching into **Intelligent Orchestration**. It runs your codebase through **12,400+ static rules** across 60+ languages, performs AI-driven vulnerability discovery, and uses a "Security Guru" LLM to deduplicate and validate findings—all running 100% locally on your machine.
+SentryQ transforms security scanning from simple pattern matching into **Intelligent Orchestration**. It runs your codebase through **12,400+ static rules** across 60+ languages, performs **AI-driven vulnerability discovery**, and uses a **"Security Judge" LLM** to deduplicate and validate findings—all running 100% locally on your machine.
 
 ---
 
-## 🏗️ Project Architecture & Technical Overview
+## 🏗️ System Architecture
 
-SentryQ is a hybrid security analysis tool that combines **Static Analysis (SAST)**, **Software Composition Analysis (SCA)**, and **AI-powered reasoning**.
+SentryQ follows a multi-tier analysis pipeline that prioritizes precision and context.
 
-### Tech Stack
-- **Backend**: Go (Golang) for high-performance orchestration.
-- **Frontend**: React.js with Tailwind CSS & Framer Motion.
-- **Database**: BadgerDB (embedded Key-Value store).
-- **AI Engine**: Ollama (local LLM) for validation and discovery.
+```mermaid
+graph TD
+    A[Source Code] --> B{Discovery Phase}
+    B --> C[Static Analysis Engine]
+    B --> D[AI Discovery Engine]
+    
+    subgraph "Static Analysis Engine"
+        C1[AST Analyzer]
+        C2[Taint Flow Tracker]
+        C3[Pattern Matching]
+        C4[Secret Detector]
+    end
+    
+    subgraph "Supply Chain"
+        S1[OSV Scanner]
+        S2[Semgrep Runner]
+        S3[Container Scan]
+    end
 
-### Documentation & Core Components
-
-#### 📂 [Backend Orchestration](file:///home/justdial/Desktop/SentryQ/cmd/scanner/)
-- **[Main Entrypoint](file:///home/justdial/Desktop/SentryQ/cmd/scanner/main.go)**: Initializes the system and starts the web dashboard.
-- **[Scan Manager](file:///home/justdial/Desktop/SentryQ/cmd/scanner/scan_manager.go)**: The "Brain" coordinates between Semgrep, SCA, and AI engines.
-- **[Web Dashboard API](file:///home/justdial/Desktop/SentryQ/cmd/scanner/web_dashboard.go)**: Handles HTTP requests, API security, and serves the UI via `go:embed`.
-- **[WebSocket Hub](file:///home/justdial/Desktop/SentryQ/cmd/scanner/websocket_hub.go)**: Real-time progress and log broadcasting.
-
-#### 🔍 [Security Engines](file:///home/justdial/Desktop/SentryQ/scanner/)
-- **[SAST](file:///home/justdial/Desktop/SentryQ/scanner/semgrep_runner.go)**: Wraps Semgrep for deep pattern matching across frameworks.
-- **[SCA](file:///home/justdial/Desktop/SentryQ/scanner/dependency_scanner.go)**: Identifies vulnerable packages using Google's **[OSV](file:///home/justdial/Desktop/SentryQ/scanner/osv_cli.go)** database.
-- **[Secrets](file:///home/justdial/Desktop/SentryQ/scanner/secret_detector.go)**: Entropy-based detection for AWS keys, tokens, and private keys.
-- **[AST & Taint](file:///home/justdial/Desktop/SentryQ/scanner/ast-analyzer.go)**: Tracks data flow from **[Source to Sink](file:///home/justdial/Desktop/SentryQ/scanner/taint-analyzer.go)**.
-
-#### 🤖 [AI Layer](file:///home/justdial/Desktop/SentryQ/ai/)
-- **[Validator](file:///home/justdial/Desktop/SentryQ/ai/validator.go)**: Adversarial simulation to eliminate false positives.
-- **[Discovery](file:///home/justdial/Desktop/SentryQ/ai/discovery_scanner.go)**: AI-driven hunt for zero-days and logic flaws.
-- **[Judge Engine](file:///home/justdial/Desktop/SentryQ/ai/judge_engine.go)**: Consolidates findings from all engines into a single master report.
+    C --> E[Aggregator]
+    D --> E
+    S1 --> E
+    
+    E --> F[AI Validation Triage]
+    F --> G[Judge LLM Merger]
+    G --> H[Consolidated Security Report]
+    
+    H --> I[Web UI / Dashboard]
+    H --> J[PDF/JSON/CSV Export]
+```
 
 ---
 
 ## 🌟 Core Features
 
-| Feature | Description |
+| Feature | Technical Breakdown |
 | :--- | :--- |
-| **🔍 Pattern Engine** | 12,400+ rules across 60+ languages. Auto-rescues broken YAML rules. |
-| **🧠 Intelligence Overhaul** | **Deduplication v2**: CWE family grouping + proximity clustering (±5 lines). |
-| **🛡️ Mitigation Awareness** | AI-driven FP suppression for safe APIs (`crypto.randomBytes`, `textContent`, etc.). |
-| **🌊 Context Injection** | Full-file context + Cross-file dependency tracking for deep taint validation. |
-| **⚖️ Security Judge** | Multi-engine consolidation with Chain-of-Thought (CoT) reasoning. |
-| **📦 Supply Chain** | Google OSV-Scanner integration with local fallback. |
-| **🌍 Cross-Platform** | Native execution on Windows, macOS, and Linux. |
+| **🔍 Multi-Engine SAST** | Combines AST-based logic, Taint-flow analysis, and 12,000+ regex-based patterns. |
+| **🧠 AI-Orchestrated Triage** | Uses local LLMs (Qwen2.5-Coder) to validate findings (Chain-of-Thought) and suppress FPs. |
+| **🌊 Deep Taint Tracking** | Analyzes data flow from user-controlled sources to dangerous sinks across variables and functions. |
+| **🛡️ Mitigation Awareness** | AI recognizes secure coding patterns (e.g., `nonce` checks, `path.resolve` guards) to reduce noise. |
+| **📦 Supply Chain & SCA** | Integrates Google **OSV-Scanner** and **Semgrep** for dependency and framework-specific audits. |
+| **⚖️ Decision Judge** | A specialized "Judge LLM" compares static and AI results to produce a unified, trusted report. |
+| **🏢 Triage Dashboard** | Real-time scan updates, finding drill-downs, and a built-in AI Security Chatbot. |
 
 ---
 
-## 🔬 Recent Intelligence Overhaul (Phase 3 & 4)
+## 🔍 Security Engine Deep-Dive
 
-We recently performed a massive architectural upgrade to solve the "Noise & Duplication" problem common in AI scanners:
+### 1. Taint Analysis & Reachability
+SentryQ doesn't just look for "dangerous functions." Our **[Taint Analyzer](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/taint-analyzer.go)** builds a variable flow graph to see if untrusted input (e.g., `req.body`) can actually reach a sink (e.g., `sql.Execute`) without being sanitized or escaped. This is augmented by **[Reachability Analysis](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/reachability.go)** which verifies that the vulnerable code path is actually traversable in the application's call graph.
 
-### 1. High-Precision Deduplication
-- **CWE Family Grouping**: Instead of exact matches, the scanner now groups 22+ related CWEs into 16 canonical families (e.g., all Weak Randomness or SQLi variants merge into one).
-- **Proximity Clustering**: Merges findings from different engines (Static, AI, Rules) that occur within ±5 lines of each other.
+### 2. AI Intelligence Layer
+The **[AI Layer](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/)** operates in three phases:
+- **Discovery**: The LLM scans files for logic flaws that static tools miss (e.g., broken access control, IDOR).
+- **Validation**: Every finding is passed to the **[Validator](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/validator.go)** with full-file context to confirm exploitability.
+- **Judge Merger**: The **[Judge Engine](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/judge_engine.go)** uses a larger model to semantically deduplicate findings that overlap (e.g., a static rule and AI discovery hitting the same line).
 
-### 2. False Positive Suppression (Safe Pattern Recognition)
-The scanner now performs a post-scan analysis pass that recognizes secure coding patterns and automatically suppresses them:
-- **Crypto**: Recognizes `crypto.randomBytes` and `secrets.token_hex` as safe (not "Weak Random").
-- **DOM**: Recognizes `textContent` usage as safe (not "XSS").
-- **SQL**: Detects parameterized queries (`?`, `$1`) as safe.
-- **Paths**: Identifies `path.resolve` + `startsWith` guards as valid path traversal mitigations.
-
-### 3. Deep Context Validation
-- **Full-File Context**: The AI Validator now analyzes the entire file (up to 500 lines) to find sanitizers and guards that might be far from the vulnerability sink.
-- **Cross-File Dependency Tracking**: If a vulnerability is traced across files, the scanner automatically injects the related dependency code into the AI prompt for validation.
-- **Chain-of-Thought JSON**: The Validator must now explicitly state logical steps (Taint Source found? Sanitizer found? Sink reachable?) before giving a final verdict.
-
+### 3. Threat Intelligence Enrichment
+Findings are enriched via the **[Threat Intel Scanner](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/threat_intel.go)** using:
+- **MITRE ATT&CK** Mapping
+- **CISA KEV** (Known Exploited Vulnerabilities)
+- **EPSS** (Exploit Prediction Scoring System)
 
 ---
 
 ## 🏁 Quick Start
 
-### 1. Install Prerequisites
+### 1. Prerequisites (One-Liner Install)
 
-#### 🐧 Linux (Ubuntu/Debian)
+#### 🐧 Linux / 🍏 macOS
 ```bash
-sudo apt install golang-go
-curl -fsSL https://ollama.com/install.sh | sh
-ollama run qwen2.5-coder:7b
-go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2
-sudo apt install python3-pip && pip3 install semgrep
-```
+# Install Go, Ollama, and dependencies
+curl -sSL https://raw.githubusercontent.com/SentryQ/setup/main/install.sh | bash
 
-#### 🍏 macOS
-```bash
-brew install go
-brew install --cask ollama
+# Ensure you have the AI model running
 ollama run qwen2.5-coder:7b
-brew install semgrep
-go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2
 ```
 
 #### 🪟 Windows
-```powershell
-winget install GoLang.Go
-# Install Ollama from https://ollama.com/download/windows
-ollama run qwen2.5-coder:7b
-go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2
-pip install --upgrade semgrep
-```
+1. Install **Go** from [golang.org](https://golang.org/dl/).
+2. Install **Ollama** and run `ollama run qwen2.5-coder:7b`.
+3. Install **Semgrep** (`pip install semgrep`).
 
-### 2. Build & Run
+### 2. Build & Deploy
 ```bash
-chmod +x build.sh
+# Build the embedded Frontend & Backend
 ./build.sh
+
+# Start SentryQ
 ./sentryq
 ```
 *Access the dashboard at `http://localhost:5336`*
 
 ---
 
-## ⚙️ Scanning Modes
-1. **AI Validation only**: Confirm static findings. 
-2. **AI Discovery only**: Find new issues.
-3. **AI Discovery + Validate**: Find & verify new issues.
-4. **Static + AI + Validate**: Thorough sequential scan.
-5. **Consolidated (Recommended)**: Runs all engines and semantically merges results.
-6. **Disable AI**: Standard static scanning only.
-
----
-
-## ⌨️ CLI Flags
+## ⌨️ CLI & Configuration
 
 | Flag | Description |
 | :--- | :--- |
-| `-d` | Target directory to scan. |
-| `-ai` | Enable AI validation. |
-| `-semgrep` | Enable Semgrep community rules. |
-| `-consolidated` | Enable consolidated intelligence mode. |
-| `-model` | Specify Ollama model (default: `qwen2.5-coder:7b`). |
-| `-port` | Web Dashboard port (default: `5336`). |
+| `-port` | Web Dashboard port (default: `5336`) |
+| `-ollama-host` | Remote Ollama instance (default: `localhost:11434`) |
+| `[target]` | Optional: Path to a directory for an immediate CLI scan |
 
----
-
-## 📊 Reports & Analysis
-- **HTML**: Interactive charts and data filtering.
-- **PDF/CSV**: Export findings for stakeholders or Jira.
-- **ChatBot**: Ask questions about findings directly in the UI.
-- **Taint-Flow Simulation**: Visualizes data paths from source to sink.
+**Configuration**: Edit **[`.qwen-settings.json`](./.qwen-settings.json.example)** to configure AI providers (OpenAI/Ollama), custom API endpoints, and model preferences.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! To get started:
+We welcome contributions to the SentryQ core!
+- **Core Engine**: See **[`cmd/scanner/`](./cmd/scanner/)** and **[`scanner/`](./scanner/)**.
+- **Rules**: Add custom YAML rules to **[`rules/`](./rules/)**.
+- **Frontend**: Built with React in **[`web/`](./web/)**.
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Make your changes and ensure tests pass: `go test ./... && go build ./...`
-4. Submit a Pull Request
-
-**Adding New Security Rules:**
-Adding rules is simple! Place any `.yaml` file in the **[`rules/`](./rules)** directory (or a subdirectory). The engine auto-loads them on the next scan. Follow the existing format with `id`, `languages`, `patterns`, `severity`, `description`, `remediation`, `cwe`, and `owasp` fields.
-
-**Tests:**
-Our test suite protects cross-platform compatibility. Run `go test ./... -v` to verify core logic. Tests cover: newline normalization, test-file detection (Windows + Unix paths), CLI binary resolution, severity mapping, and language detection.
+Run tests via: `go test ./...`
 
 ---
 
 ## 📄 License
 
-This project is provided as-is for internal security research and development.
 © 2026 SentryQ Security Team.
