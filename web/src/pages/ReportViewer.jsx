@@ -331,7 +331,7 @@ export default function ReportViewer() {
                                                     style={{ padding: '4px 10px', fontSize: '0.7rem' }}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        const event = new CustomEvent('qwen-chat-open', {
+                                                        const event = new CustomEvent('sentryq-chat-open', {
                                                             detail: {
                                                                 content: `Explain this finding in detail:\nIssue: ${f.issue_name}\nFile: ${f.file_path}\nDescription: ${f.description}\nCWE: ${f.cwe}`,
                                                                 autoSend: true
@@ -347,7 +347,7 @@ export default function ReportViewer() {
                                                     style={{ padding: '4px 10px', fontSize: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        const event = new CustomEvent('qwen-chat-open', {
+                                                        const event = new CustomEvent('sentryq-chat-open', {
                                                             detail: {
                                                                 content: `Generate a proof-of-concept exploit for this vulnerability:\nIssue: ${f.issue_name}\nFile: ${f.file_path}:${f.line_number}\nSeverity: ${f.severity}\nDescription: ${f.description}\nCWE: ${f.cwe}\n\nProvide a safe, educational PoC that demonstrates the vulnerability is exploitable.`,
                                                                 autoSend: true
@@ -363,7 +363,7 @@ export default function ReportViewer() {
                                                     style={{ padding: '4px 10px', fontSize: '0.7rem', background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.2)' }}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        const event = new CustomEvent('qwen-chat-open', {
+                                                        const event = new CustomEvent('sentryq-chat-open', {
                                                             detail: {
                                                                 content: `Provide secure code to fix this vulnerability:\nIssue: ${f.issue_name}\nFile: ${f.file_path}:${f.line_number}\nCWE: ${f.cwe}\nCurrent code context: ${f.code_snippet || 'not available'}\n\nShow BEFORE and AFTER code with explanation.`,
                                                                 autoSend: true

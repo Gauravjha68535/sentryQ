@@ -139,7 +139,7 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		return "", fmt.Errorf("failed to parse config JSON: %v", err)
 	}
 
-	tmpDir, err := os.MkdirTemp("", "qwen-scan-"+scanID+"-")
+	tmpDir, err := os.MkdirTemp("", "sentryq-scan-"+scanID+"-")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp dir: %v", err)
 	}
@@ -539,7 +539,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	if cfg.EnableMLFPReduction {
 		wsHub.BroadcastProgress(scanID, "ML FP Reduction", 87)
 		wsHub.BroadcastLog(scanID, "Applying ML-based False Positive reduction...", "info")
-		reducer := ai.NewMLFPReducer(".qwen-ml-cache")
+		reducer := ai.NewMLFPReducer(".sentryq-ml-cache")
 		reducer.LoadHistory()
 		allFindings = reducer.FilterFindingsByFPProbability(allFindings, 0.8)
 		reducer.SaveHistory()

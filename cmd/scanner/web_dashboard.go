@@ -35,7 +35,7 @@ var staticFSError error
 
 var (
 	startTime    time.Time
-	settingsPath = ".qwen-settings.json"
+	settingsPath = ".sentryq-settings.json"
 	appSettings  = struct {
 		sync.RWMutex
 		OllamaHost   string `json:"ollama_host"`
@@ -259,7 +259,7 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save uploaded files to a temp directory
-	tmpDir, err := os.MkdirTemp("", "qwen-upload-")
+	tmpDir, err := os.MkdirTemp("", "sentryq-upload-")
 	if err != nil {
 		http.Error(w, "Failed to create temp directory", http.StatusInternalServerError)
 		return
@@ -478,7 +478,7 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"qwen_scan_%s.zip\"", scanID))
+			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"sentryq_scan_%s.zip\"", scanID))
 			w.Header().Set("Content-Type", "application/zip")
 			http.ServeFile(w, r, zipPath)
 			return

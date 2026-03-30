@@ -1,0 +1,8 @@
+{
+  "ollama_host": "localhost:11434",
+  "default_model": "qwen2.5-coder:7b",
+  "ai_provider": "openai",
+  "custom_api_url": "http://10.10.0.11:5005/",
+  "custom_api_key": "",
+  "custom_model": "Qwen/Qwen3.5-35B-A3B-FP8"
+}

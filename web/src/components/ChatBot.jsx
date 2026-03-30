@@ -35,8 +35,8 @@ const ChatBot = ({ scanId }) => {
             }
         };
 
-        window.addEventListener('qwen-chat-open', handleOpenChat);
-        return () => window.removeEventListener('qwen-chat-open', handleOpenChat);
+        window.addEventListener('sentryq-chat-open', handleOpenChat);
+        return () => window.removeEventListener('sentryq-chat-open', handleOpenChat);
     }, [messages]);
 
     const handleSend = async () => {

@@ -61,13 +61,13 @@ graph TD
 ## 🔍 Security Engine Deep-Dive
 
 ### 1. Taint Analysis & Reachability
-Our **[Taint Analyzer](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/taint-analyzer.go)** builds a variable flow graph to see if untrusted input can reach a sink without being sanitized. This is augmented by **[Reachability Analysis](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/reachability.go)** which verifies that the vulnerable code path is traversable in the application's call graph.
+Our **[Taint Analyzer](./scanner/taint-analyzer.go)** builds a variable flow graph to see if untrusted input can reach a sink without being sanitized. This is augmented by **[Reachability Analysis](./scanner/reachability.go)** which verifies that the vulnerable code path is traversable in the application's call graph.
 
 ### 2. AI Intelligence Layer
-The **[AI Layer](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/)** operates in three phases: Discovery, Validation (via **[Validator](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/validator.go)**), and the **[Judge Engine](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/ai/judge_engine.go)** merger.
+The **[AI Layer](./ai/)** operates in three phases: Discovery, Validation (via **[Validator](./ai/validator.go)**), and the **[Judge Engine](./ai/judge_engine.go)** merger.
 
 ### 3. Threat Intelligence Enrichment
-Findings are enriched via the **[Threat Intel Scanner](file:///home/justdial/Desktop/QWEN_SCR_24_FEB_2026/scanner/threat_intel.go)** using MITRE ATT&CK, CISA KEV, and EPSS mapping.
+Findings are enriched via the **[Threat Intel Scanner](./scanner/threat_intel.go)** using MITRE ATT&CK, CISA KEV, and EPSS mapping.
 
 ---
 
@@ -121,7 +121,7 @@ sentryq.exe
 | `-ollama-host` | Remote Ollama instance (default: `localhost:11434`) |
 | `[target]` | Optional: Path to a directory for an immediate CLI scan |
 
-**Configuration**: Edit **[`.qwen-settings.json`](./.qwen-settings.json.example)** to configure AI providers (OpenAI/Ollama) and model preferences.
+**Configuration**: Edit **[`.sentryq-settings.json`](./.sentryq-settings.json.example)** to configure AI providers (OpenAI/Ollama) and model preferences.
 
 ---
 

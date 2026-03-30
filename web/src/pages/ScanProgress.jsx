@@ -121,7 +121,7 @@ export default function ScanProgress() {
                                     try {
                                         const res = await fetch(`/api/scan/${id}/stop`, {
                                             method: 'POST',
-                                            headers: { 'X-API-Key': localStorage.getItem('qwen_api_key') || '' }
+                                            headers: { 'X-API-Key': localStorage.getItem('sentryq_api_key') || '' }
                                         })
                                         if (res.ok) setStatus('stopping')
                                     } catch (e) {
