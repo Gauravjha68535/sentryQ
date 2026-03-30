@@ -173,6 +173,7 @@ pre {
 .main-content {
   flex: 1;
   margin-left: 260px;
+  width: calc(100vw - 260px);
   padding: 32px 40px;
   min-height: 100vh;
   position: relative;
@@ -787,6 +788,7 @@ tbody tr:last-child td {
 
   .main-content {
     margin-left: 70px;
+    width: calc(100vw - 70px);
     padding: 24px;
   }
 }

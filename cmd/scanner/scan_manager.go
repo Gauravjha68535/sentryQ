@@ -643,7 +643,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 
 // webGenerateReportFiles creates HTML, CSV, and PDF reports
 func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDir string) {
-	reportsDir := filepath.Join(os.TempDir(), "qwen-reports", scanID)
+	reportsDir := filepath.Join(os.TempDir(), "sentryQ", scanID)
 	os.MkdirAll(reportsDir, 0755)
 
 	summary := reporter.GenerateReportSummary(findings, targetDir)
@@ -782,23 +782,23 @@ func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
 func normalizeVulnType(f reporter.Finding) string {
 	// CWE family mapping: related CWEs → single canonical type
 	cweFamilies := map[string]string{
-		"CWE-89":  "SQLI", "CWE-564": "SQLI",
-		"CWE-78":  "CMDI", "CWE-77": "CMDI",
-		"CWE-79":  "XSS",
-		"CWE-22":  "PATH_TRAVERSAL", "CWE-23": "PATH_TRAVERSAL", "CWE-36": "PATH_TRAVERSAL",
+		"CWE-89": "SQLI", "CWE-564": "SQLI",
+		"CWE-78": "CMDI", "CWE-77": "CMDI",
+		"CWE-79": "XSS",
+		"CWE-22": "PATH_TRAVERSAL", "CWE-23": "PATH_TRAVERSAL", "CWE-36": "PATH_TRAVERSAL",
 		"CWE-502": "DESERIALIZATION",
 		"CWE-798": "HARDCODED_SECRET", "CWE-259": "HARDCODED_SECRET", "CWE-321": "HARDCODED_SECRET",
 		"CWE-330": "WEAK_RANDOM", "CWE-331": "WEAK_RANDOM", "CWE-338": "WEAK_RANDOM",
-		"CWE-918": "SSRF",
+		"CWE-918":  "SSRF",
 		"CWE-1336": "TEMPLATE_INJECTION", "CWE-94": "TEMPLATE_INJECTION", "CWE-95": "TEMPLATE_INJECTION",
-		"CWE-943": "NOSQL_INJECTION",
-		"CWE-915": "MASS_ASSIGNMENT",
-		"CWE-611": "XXE",
-		"CWE-352": "CSRF",
-		"CWE-98":  "FILE_INCLUSION",
-		"CWE-770": "RESOURCE_LIMIT",
+		"CWE-943":  "NOSQL_INJECTION",
+		"CWE-915":  "MASS_ASSIGNMENT",
+		"CWE-611":  "XXE",
+		"CWE-352":  "CSRF",
+		"CWE-98":   "FILE_INCLUSION",
+		"CWE-770":  "RESOURCE_LIMIT",
 		"CWE-1321": "PROTOTYPE_POLLUTION",
-		"CWE-20":  "INPUT_VALIDATION",
+		"CWE-20":   "INPUT_VALIDATION",
 	}
 
 	// Try CWE family lookup first
@@ -884,9 +884,9 @@ func recalibrateSeverities(findings []reporter.Finding, targetDir string) []repo
 
 	// Web framework entry point markers (if these exist in the file, routes are reachable)
 	webMarkers := []string{
-		"$_get", "$_post", "$_request", "$_cookie", "$_server",          // PHP
-		"@app.route", "flask", "def index", "@app.get", "@app.post",    // Python Flask
-		"app.get(", "app.post(", "express()", "router.",                   // Node.js Express
+		"$_get", "$_post", "$_request", "$_cookie", "$_server", // PHP
+		"@app.route", "flask", "def index", "@app.get", "@app.post", // Python Flask
+		"app.get(", "app.post(", "express()", "router.", // Node.js Express
 		"@requestmapping", "@getmapping", "@postmapping", "httpservlet", // Java Spring/Servlet
 	}
 
@@ -1025,7 +1025,6 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 		// Memory for `content` and `lines` will be garbage collected after this loop iteration
 	}
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  ENSEMBLE AUDIT MODE — 3-Phase Pipeline

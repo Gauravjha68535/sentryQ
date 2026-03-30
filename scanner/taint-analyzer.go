@@ -3,7 +3,6 @@ package scanner
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -616,55 +615,4 @@ func getInjectionOWASP(sinkPattern string) string {
 	}
 }
 
-// isTestFilePath returns true if the file path looks like a test/mock/fixture file
-func isTestFilePath(path string) bool {
-	// Normalize to forward slashes so checks work on Windows too
-	lowerPath := strings.ToLower(strings.ReplaceAll(path, "\\", "/"))
-	testIndicators := []string{
-		"_test.go", "_test.py", "_test.js", "_test.ts", ".test.js", ".test.ts",
-		".spec.js", ".spec.ts", "test_", "/test/", "/tests/", "/__tests__/",
-		"/mock/", "/mocks/", "/fixture/", "/fixtures/", "/__mocks__/",
-		"/testdata/", "/spec/", "/specs/",
-	}
-	for _, indicator := range testIndicators {
-		if strings.Contains(lowerPath, indicator) {
-			return true
-		}
-	}
-	return false
-}
 
-// ScanTaintFlows runs taint analysis on a directory
-func ScanTaintFlows(targetDir string) ([]reporter.Finding, error) {
-	var findings []reporter.Finding
-	analyzer := NewTaintAnalyzer()
-
-	err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			// Skip common non-source directories
-			baseName := filepath.Base(path)
-			if baseName == "node_modules" || baseName == "vendor" || baseName == ".git" || baseName == "__pycache__" {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-
-		// Skip test and mock files to reduce false positives
-		if isTestFilePath(path) {
-			return nil
-		}
-
-		fileFindings, err := analyzer.AnalyzeTaintFlow(path)
-		if err != nil {
-			utils.LogWarn(fmt.Sprintf("Taint analysis failed for %s: %v", path, err))
-			return nil
-		}
-		findings = append(findings, fileFindings...)
-		return nil
-	})
-
-	return findings, err
-}

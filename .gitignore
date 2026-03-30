@@ -41,6 +41,7 @@ db/
 .threat-intel-cache.json
 
 # Web Frontend
+web/dist/
 web/node_modules/
 web/.vite/
 claude_report.html

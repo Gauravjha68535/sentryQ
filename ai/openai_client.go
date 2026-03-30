@@ -122,7 +122,7 @@ type OpenAIModelsResponse struct {
 // ──────────────────────────────────────────────────────────
 
 // GenerateViaOpenAI sends a prompt to an OpenAI-compatible /v1/chat/completions endpoint
-// and returns the assistant response text.
+// and returns the assistant response text. Includes retry logic with exponential backoff.
 func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt string, options map[string]interface{}) (string, error) {
 	url := strings.TrimRight(baseURL, "/") + "/v1/chat/completions"
 
@@ -158,48 +158,92 @@ func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt strin
 		return "", fmt.Errorf("failed to marshal OpenAI request: %v", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqJSON))
-	if err != nil {
-		return "", fmt.Errorf("failed to create OpenAI request: %v", err)
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-	if apiKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+apiKey)
-	}
-
+	const maxRetries = 3
 	client := &http.Client{Timeout: 35 * time.Minute}
-	resp, err := client.Do(httpReq)
-	if err != nil {
-		if strings.Contains(err.Error(), "context canceled") {
+
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if ctx.Err() != nil {
 			return "", fmt.Errorf("scan interrupted")
 		}
-		return "", fmt.Errorf("OpenAI API request failed: %v", err)
-	}
-	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read OpenAI response body: %v", err)
+		httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqJSON))
+		if err != nil {
+			return "", fmt.Errorf("failed to create OpenAI request: %v", err)
+		}
+		httpReq.Header.Set("Content-Type", "application/json")
+		if apiKey != "" {
+			httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+		}
+
+		resp, err := client.Do(httpReq)
+		if err != nil {
+			if strings.Contains(err.Error(), "context canceled") {
+				return "", fmt.Errorf("scan interrupted")
+			}
+			// Retry on transient network errors (connection reset, timeout, EOF)
+			if attempt < maxRetries && isRetryableError(err) {
+				backoff := time.Duration(1<<uint(attempt+1)) * time.Second // 2s, 4s, 8s
+				time.Sleep(backoff)
+				continue
+			}
+			return "", fmt.Errorf("OpenAI API request failed: %v", err)
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			return "", fmt.Errorf("failed to read OpenAI response body: %v", err)
+		}
+
+		// Retry on server-side transient errors (502, 503, 429)
+		if attempt < maxRetries && (resp.StatusCode == 502 || resp.StatusCode == 503 || resp.StatusCode == 429) {
+			backoff := time.Duration(1<<uint(attempt+1)) * time.Second
+			time.Sleep(backoff)
+			continue
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			return "", fmt.Errorf("OpenAI API error (status %d): %s", resp.StatusCode, string(body))
+		}
+
+		var completionResp OpenAICompletionResponse
+		if err := json.Unmarshal(body, &completionResp); err != nil {
+			return "", fmt.Errorf("failed to parse OpenAI response: %v", err)
+		}
+
+		if completionResp.Error != nil {
+			return "", fmt.Errorf("OpenAI API error: %s", completionResp.Error.Message)
+		}
+
+		if len(completionResp.Choices) == 0 {
+			return "", fmt.Errorf("OpenAI API returned no choices")
+		}
+
+		return completionResp.Choices[0].Message.Content, nil
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("OpenAI API error (status %d): %s", resp.StatusCode, string(body))
-	}
+	return "", fmt.Errorf("OpenAI API request failed after %d retries", maxRetries+1)
+}
 
-	var completionResp OpenAICompletionResponse
-	if err := json.Unmarshal(body, &completionResp); err != nil {
-		return "", fmt.Errorf("failed to parse OpenAI response: %v", err)
+// isRetryableError checks if a network error is transient and worth retrying.
+func isRetryableError(err error) bool {
+	errMsg := err.Error()
+	retryablePatterns := []string{
+		"connection reset by peer",
+		"connection refused",
+		"EOF",
+		"context deadline exceeded",
+		"i/o timeout",
+		"broken pipe",
+		"no such host",
+		"TLS handshake timeout",
 	}
-
-	if completionResp.Error != nil {
-		return "", fmt.Errorf("OpenAI API error: %s", completionResp.Error.Message)
+	for _, pattern := range retryablePatterns {
+		if strings.Contains(errMsg, pattern) {
+			return true
+		}
 	}
-
-	if len(completionResp.Choices) == 0 {
-		return "", fmt.Errorf("OpenAI API returned no choices")
-	}
-
-	return completionResp.Choices[0].Message.Content, nil
+	return false
 }
 
 // GenerateChatViaOpenAI sends a multi-turn chat conversation to an OpenAI-compatible endpoint.

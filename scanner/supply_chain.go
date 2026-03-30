@@ -3,7 +3,6 @@ package scanner
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -70,18 +69,7 @@ func (scs *SupplyChainScanner) ScanSupplyChain(ctx context.Context, targetDir st
 	return findings, nil
 }
 
-// GenerateSBOMFile exports SBOM to file
-func (scs *SupplyChainScanner) GenerateSBOMFile(outputPath string) error {
-	file, err := os.Create(outputPath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
 
-	encoder := cdx.NewBOMEncoder(file, cdx.BOMFileFormatJSON)
-	encoder.SetPretty(true)
-	return encoder.Encode(scs.sbom)
-}
 
 func (scs *SupplyChainScanner) collectAllDependencies(targetDir string) []Dependency {
 	// Re-enable manual parsing to feed our Typosquatting engine

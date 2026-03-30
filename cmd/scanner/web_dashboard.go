@@ -34,9 +34,9 @@ var staticFSOnce sync.Once
 var staticFSError error
 
 var (
-	startTime   time.Time
+	startTime    time.Time
 	settingsPath = ".qwen-settings.json"
-	appSettings = struct {
+	appSettings  = struct {
 		sync.RWMutex
 		OllamaHost   string `json:"ollama_host"`
 		DefaultModel string `json:"default_model"`
@@ -183,6 +183,12 @@ func StartWebServer(port int) {
 	}
 
 	utils.LogInfo(fmt.Sprintf("🌐 SentryQ Web UI starting on http://%s", addr))
+
+	// ── Startup Dependency Checks ──
+	checkStartupDependencies()
+
+	// ── Background Report Cleanup (every 6 hours, delete reports older than 48h) ──
+	go startReportCleanup()
 
 	// Auto-open browser
 	go openBrowser("http://" + addr)
@@ -421,7 +427,7 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 	// GET /api/scan/:id/report/html|csv|pdf
 	if len(parts) >= 3 && parts[1] == "report" {
 		format := parts[2]
-		reportsDir := filepath.Join(os.TempDir(), "qwen-reports", scanID)
+		reportsDir := filepath.Join(os.TempDir(), "sentryQ", scanID)
 		var filePath string
 		var contentType string
 
@@ -653,7 +659,6 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-
 func httpJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -831,9 +836,9 @@ func handleCustomEndpointModels(w http.ResponseWriter, r *http.Request) {
 // ──────────────────────────────────────────────────────────
 
 type YAMLRule struct {
-	ID          string   `json:"id" yaml:"id"`
-	Languages   []string `json:"languages" yaml:"languages"`
-	Patterns    []struct {
+	ID        string   `json:"id" yaml:"id"`
+	Languages []string `json:"languages" yaml:"languages"`
+	Patterns  []struct {
 		Regex string `json:"regex" yaml:"regex"`
 	} `json:"patterns" yaml:"patterns"`
 	Severity    string `json:"severity" yaml:"severity"`
@@ -977,3 +982,77 @@ func yaml3Unmarshal(data []byte, v interface{}) {
 func yaml3Marshal(v interface{}) ([]byte, error) {
 	return yaml.Marshal(v)
 }
+
+// ──────────────────────────────────────────────────────────
+//  Report Cleanup & Startup Checks
+// ──────────────────────────────────────────────────────────
+
+// startReportCleanup runs a background loop that deletes report directories older than 48 hours.
+func startReportCleanup() {
+	const maxAge = 48 * time.Hour
+	const interval = 6 * time.Hour
+
+	// Run once immediately on startup
+	cleanOldReports(maxAge)
+
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for range ticker.C {
+		cleanOldReports(maxAge)
+	}
+}
+
+// cleanOldReports deletes scan report directories older than maxAge.
+func cleanOldReports(maxAge time.Duration) {
+	reportsRoot := filepath.Join(os.TempDir(), "sentryQ")
+	entries, err := os.ReadDir(reportsRoot)
+	if err != nil {
+		return // Directory might not exist yet
+	}
+
+	cutoff := time.Now().Add(-maxAge)
+	cleaned := 0
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+		if info.ModTime().Before(cutoff) {
+			dirPath := filepath.Join(reportsRoot, entry.Name())
+			if err := os.RemoveAll(dirPath); err == nil {
+				cleaned++
+			}
+		}
+	}
+
+	if cleaned > 0 {
+		utils.LogInfo(fmt.Sprintf("🧹 Report cleanup: removed %d report directories older than %s", cleaned, maxAge))
+	}
+}
+
+// checkStartupDependencies logs the availability of optional external tools.
+func checkStartupDependencies() {
+	deps := []struct {
+		name    string
+		bin     string
+		purpose string
+	}{
+		{"Git", "git", "Repository cloning"},
+		{"Semgrep", "semgrep", "Advanced static analysis"},
+		{"OSV-Scanner", "osv-scanner", "SCA vulnerability scanning"},
+		{"Trivy", "trivy", "Container image scanning"},
+	}
+
+	for _, dep := range deps {
+		if _, err := exec.LookPath(dep.bin); err != nil {
+			utils.LogWarn(fmt.Sprintf("⚠ %s not found — %s will be skipped", dep.name, dep.purpose))
+		} else {
+			utils.LogInfo(fmt.Sprintf("[✓] %s available (%s)", dep.name, dep.purpose))
+		}
+	}
+}
+

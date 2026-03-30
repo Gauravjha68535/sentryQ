@@ -119,7 +119,7 @@ export default function ReportViewer() {
 
     return (
         <div className="animate-fade-in">
-            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
                     <h1>Security Report</h1>
                     <p>{scanInfo?.target || 'Scan'} — {findings.length} findings</p>
@@ -323,7 +323,7 @@ export default function ReportViewer() {
                                 </tr>
                                 {expandedRow === i && (
                                     <tr>
-                                        <td colSpan={8} style={{ background: 'var(--bg-elevated)', padding: '20px' }}>
+                                        <td colSpan={9} style={{ background: 'var(--bg-elevated)', padding: '20px' }}>
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                                                 <div>
                                                     <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

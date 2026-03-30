@@ -131,46 +131,7 @@ func (tis *ThreatIntelScanner) ScanWithThreatIntel(findings []reporter.Finding) 
 	return enhancedFindings, nil
 }
 
-// GenerateThreatIntelReport generates a threat intelligence report
-func (tis *ThreatIntelScanner) GenerateThreatIntelReport(findings []reporter.Finding) map[string]interface{} {
-	report := map[string]interface{}{
-		"generated_at":        time.Now().Format(time.RFC3339),
-		"total_findings":      len(findings),
-		"cve_findings":        0,
-		"exploitable":         0,
-		"mitre_techniques":    make(map[string]int),
-		"high_priority":       []string{},
-		"recent_related_cves": []CVEInfo{},
-	}
 
-	cveCount := 0
-	mitreMap := make(map[string]int)
-
-	for _, finding := range findings {
-		// Count CVE findings
-		if strings.Contains(strings.ToUpper(finding.RuleID), "CVE") {
-			cveCount++
-		}
-
-		// Map to MITRE
-		technique := tis.mapToMITRE(finding)
-		if technique.ID != "" {
-			mitreMap[technique.ID]++
-		}
-
-		// Identify high priority (critical + known exploits)
-		if finding.Severity == "critical" {
-			highPriority := report["high_priority"].([]string)
-			highPriority = append(highPriority, fmt.Sprintf("%s: %s", finding.RuleID, finding.IssueName))
-			report["high_priority"] = highPriority
-		}
-	}
-
-	report["cve_findings"] = cveCount
-	report["mitre_techniques"] = mitreMap
-
-	return report
-}
 
 // Helper functions
 func (tis *ThreatIntelScanner) loadCVECache() {

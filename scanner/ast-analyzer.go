@@ -724,30 +724,7 @@ func (aa *ASTAnalyzer) checkKotlinPropertyDeclaration(node *treeSitter.Node, con
 	return findings
 }
 
-// ScanWithAST runs AST-based analysis on a directory
-func ScanWithAST(targetDir string) ([]reporter.Finding, error) {
-	var findings []reporter.Finding
-	analyzer := NewASTAnalyzer()
 
-	err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-
-		fileFindings, err := analyzer.AnalyzeFile(path)
-		if err != nil {
-			utils.LogWarn(fmt.Sprintf("AST analysis failed for %s: %v", path, err))
-			return nil
-		}
-		findings = append(findings, fileFindings...)
-		return nil
-	})
-
-	return findings, err
-}
 
 // populateCacheFromNode recursively extracts identifiers and strings into the reachability cache
 func (aa *ASTAnalyzer) populateCacheFromNode(node *treeSitter.Node, content []byte) {
