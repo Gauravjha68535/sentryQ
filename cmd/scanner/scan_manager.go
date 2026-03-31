@@ -162,6 +162,7 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 	}
 
 	if err := CreateScan(scanID, displayName, "git", configJSON); err != nil {
+		os.RemoveAll(tmpDir) // don't leak the temp dir if we never start the goroutine
 		return "", fmt.Errorf("failed to create scan record: %v", err)
 	}
 
@@ -759,6 +760,13 @@ func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
 
 	for _, f := range findings {
 		line := parseStartLine(f.LineNumber)
+		// Findings with no parseable line number (e.g. "N/A (Package Lockfile)" from
+		// OSV/SCA) must never be grouped under line:0, which would incorrectly merge
+		// distinct vulnerabilities from different packages into a single finding.
+		if line <= 0 {
+			pass1 = append(pass1, f)
+			continue
+		}
 		key := exactKey{filePath: f.FilePath, line: line}
 		if existIdx, seen := exactBest[key]; seen {
 			sources := map[string]bool{}

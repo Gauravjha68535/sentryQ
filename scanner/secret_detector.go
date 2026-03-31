@@ -19,43 +19,46 @@ type SecretDetector struct {
 	patterns []*regexp.Regexp
 }
 
+// secretDetectorPatterns is compiled once at startup to avoid the cost of
+// regexp.MustCompile on every NewSecretDetector() call.
+var secretDetectorPatterns = []*regexp.Regexp{
+	// Generic secrets
+	regexp.MustCompile(`(?i)(password|passwd|pwd)\s*[=:]\s*['"][^'"]{8,}['"]`),
+	regexp.MustCompile(`(?i)(api[_-]?key|apikey)\s*[=:]\s*['"][a-zA-Z0-9]{16,}['"]`),
+	regexp.MustCompile(`(?i)(secret|token|auth)\s*[=:]\s*['"][^'"]{16,}['"]`),
+
+	// AWS credentials
+	regexp.MustCompile(`AKIA[0-9A-Z]{16}`),
+	regexp.MustCompile(`(?i)aws[_-]?secret[_-]?access[_-]?key\s*[=:]\s*['"][^'"]{40}['"]`),
+
+	// GitHub tokens
+	regexp.MustCompile(`ghp_[a-zA-Z0-9]{36}`),
+	regexp.MustCompile(`gho_[a-zA-Z0-9]{36}`),
+	regexp.MustCompile(`ghu_[a-zA-Z0-9]{36}`),
+
+	// Stripe keys
+	regexp.MustCompile(`sk_live_[a-zA-Z0-9]{24,}`),
+	regexp.MustCompile(`sk_test_[a-zA-Z0-9]{24,}`),
+
+	// Private keys
+	regexp.MustCompile(`-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`),
+
+	// JWT tokens
+	regexp.MustCompile(`eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*`),
+
+	// Google API keys
+	regexp.MustCompile(`AIza[0-9A-Za-z_-]{35}`),
+
+	// Slack tokens
+	regexp.MustCompile(`xox[baprs]-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*`),
+
+	// Generic high-entropy strings (will be filtered by entropy check)
+	regexp.MustCompile(`['"][a-zA-Z0-9+/=]{32,}['"]`),
+}
+
 // NewSecretDetector creates a new secret detector with enhanced patterns
 func NewSecretDetector() *SecretDetector {
-	patterns := []*regexp.Regexp{
-		// Generic secrets
-		regexp.MustCompile(`(?i)(password|passwd|pwd)\s*[=:]\s*['"][^'"]{8,}['"]`),
-		regexp.MustCompile(`(?i)(api[_-]?key|apikey)\s*[=:]\s*['"][a-zA-Z0-9]{16,}['"]`),
-		regexp.MustCompile(`(?i)(secret|token|auth)\s*[=:]\s*['"][^'"]{16,}['"]`),
-
-		// AWS credentials
-		regexp.MustCompile(`AKIA[0-9A-Z]{16}`),
-		regexp.MustCompile(`(?i)aws[_-]?secret[_-]?access[_-]?key\s*[=:]\s*['"][^'"]{40}['"]`),
-
-		// GitHub tokens
-		regexp.MustCompile(`ghp_[a-zA-Z0-9]{36}`),
-		regexp.MustCompile(`gho_[a-zA-Z0-9]{36}`),
-		regexp.MustCompile(`ghu_[a-zA-Z0-9]{36}`),
-
-		// Stripe keys
-		regexp.MustCompile(`sk_live_[a-zA-Z0-9]{24,}`),
-		regexp.MustCompile(`sk_test_[a-zA-Z0-9]{24,}`),
-
-		// Private keys
-		regexp.MustCompile(`-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`),
-
-		// JWT tokens
-		regexp.MustCompile(`eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*`),
-
-		// Google API keys
-		regexp.MustCompile(`AIza[0-9A-Za-z_-]{35}`),
-
-		// Slack tokens
-		regexp.MustCompile(`xox[baprs]-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*`),
-
-		// Generic high-entropy strings (will be filtered by entropy check)
-		regexp.MustCompile(`['"][a-zA-Z0-9+/=]{32,}['"]`),
-	}
-	return &SecretDetector{patterns: patterns}
+	return &SecretDetector{patterns: secretDetectorPatterns}
 }
 
 // ScanSecrets scans for hardcoded secrets with entropy analysis

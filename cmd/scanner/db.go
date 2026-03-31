@@ -43,7 +43,10 @@ func InitDB() error {
 			homeDir = "."
 		}
 		dbDir := filepath.Join(homeDir, ".sentryq")
-		os.MkdirAll(dbDir, 0755)
+		if err := os.MkdirAll(dbDir, 0755); err != nil {
+			initErr = fmt.Errorf("failed to create database directory %s: %v", dbDir, err)
+			return
+		}
 		dbPath := filepath.Join(dbDir, "scans.db")
 
 		db, err = sql.Open("sqlite3", dbPath+"?_journal_mode=WAL&_busy_timeout=5000")

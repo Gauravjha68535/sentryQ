@@ -35,7 +35,7 @@ var staticFSError error
 
 var (
 	startTime    time.Time
-	settingsPath = ".sentryq-settings.json"
+	settingsPath string // initialized in init() to ~/.sentryq/settings.json
 	appSettings  = struct {
 		sync.RWMutex
 		OllamaHost   string `json:"ollama_host"`
@@ -102,7 +102,15 @@ func saveSettings() {
 	}
 	appSettings.RUnlock()
 	data, _ := json.MarshalIndent(s, "", "  ")
-	os.WriteFile(settingsPath, data, 0644)
+	// Ensure parent directory exists (first run, or settings moved to home dir).
+	if err := os.MkdirAll(filepath.Dir(settingsPath), 0700); err != nil {
+		utils.LogError("Failed to create settings directory", err)
+		return
+	}
+	// 0600: owner read/write only — the file contains API keys.
+	if err := os.WriteFile(settingsPath, data, 0600); err != nil {
+		utils.LogError("Failed to save settings", err)
+	}
 }
 
 // ──────────────────────────────────────────────────────────
@@ -296,12 +304,16 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			// Preserve relative path structure with path traversal protection
+			// Preserve relative path structure with path traversal protection.
+			// Use filepath.Abs for both sides so that cleaning, symlink-resolving
+			// differences, and case-insensitive filesystems cannot bypass the check.
 			relPath := filepath.Clean(filename)
 			destPath := filepath.Join(tmpDir, relPath)
 
-			// Ensure destPath stays within tmpDir (path traversal protection)
-			if !strings.HasPrefix(filepath.Clean(destPath), filepath.Clean(tmpDir)) {
+			absTmpDir, errAbs1 := filepath.Abs(tmpDir)
+			absDestPath, errAbs2 := filepath.Abs(destPath)
+			if errAbs1 != nil || errAbs2 != nil ||
+				!strings.HasPrefix(absDestPath, absTmpDir+string(filepath.Separator)) {
 				utils.LogWarn(fmt.Sprintf("Path traversal attempt blocked: filename=%q from %s", filename, r.RemoteAddr))
 				part.Close()
 				continue
@@ -661,9 +673,25 @@ func handleModels(w http.ResponseWriter, r *http.Request) {
 //  Helpers
 // ──────────────────────────────────────────────────────────
 
+// allowedOrigin returns true for origins that SentryQ (a local tool) should accept.
+// We allow any localhost / 127.0.0.1 port so the built-in browser and dev servers work,
+// but block cross-origin requests from arbitrary websites.
+func allowedOrigin(origin string) bool {
+	if origin == "" {
+		return true // same-origin requests have no Origin header
+	}
+	return strings.HasPrefix(origin, "http://localhost:") ||
+		strings.HasPrefix(origin, "http://127.0.0.1:") ||
+		strings.HasPrefix(origin, "http://localhost") ||
+		strings.HasPrefix(origin, "http://127.0.0.1")
+}
+
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		if allowedOrigin(origin) && origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		if r.Method == http.MethodOptions {
@@ -763,10 +791,6 @@ Assume the user is a developer or security engineer.`,
 func handleStopScan(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")
 	parts := strings.Split(path, "/")
-	if len(parts) == 0 {
-		http.Error(w, "Invalid scan ID", http.StatusBadRequest)
-		return
-	}
 	scanID := parts[0]
 
 	if err := StopScan(scanID); err != nil {
@@ -778,6 +802,14 @@ func handleStopScan(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
+	// Compute settings path in the user's home directory so the file is not
+	// written to whatever the current working directory happens to be, and is
+	// only readable by the current user (0600).
+	if home, err := os.UserHomeDir(); err == nil {
+		settingsPath = filepath.Join(home, ".sentryq", "settings.json")
+	} else {
+		settingsPath = ".sentryq-settings.json" // fallback if home dir unavailable
+	}
 	loadSettings()
 	startTime = time.Now()
 }

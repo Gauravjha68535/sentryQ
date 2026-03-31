@@ -58,11 +58,20 @@ func ExtractJSON(input string) string {
 		startIdx += searchFrom
 		var stack []rune
 		var endIdx int = -1
-		
+		// Limit stack depth to prevent O(N) memory growth on pathologically
+		// nested or malformed LLM output (e.g. millions of unclosed braces).
+		const maxBracketDepth = 10000
+
 		for i, r := range input[startIdx:] {
 			if r == '{' {
+				if len(stack) >= maxBracketDepth {
+					break // treat as truncated
+				}
 				stack = append(stack, '}')
 			} else if r == '[' {
+				if len(stack) >= maxBracketDepth {
+					break
+				}
 				stack = append(stack, ']')
 			} else if r == '}' || r == ']' {
 				if len(stack) > 0 && stack[len(stack)-1] == r {

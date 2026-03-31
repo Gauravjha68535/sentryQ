@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"strings"
 	"sync"
@@ -182,7 +183,9 @@ func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt strin
 			}
 			// Retry on transient network errors (connection reset, timeout, EOF)
 			if attempt < maxRetries && isRetryableError(err) {
-				backoff := time.Duration(1<<uint(attempt+1)) * time.Second // 2s, 4s, 8s
+				// Exponential backoff with ±1 s jitter to avoid thundering herd
+				backoff := time.Duration(1<<uint(attempt+1))*time.Second +
+					time.Duration(rand.Int63n(int64(time.Second)))
 				time.Sleep(backoff)
 				continue
 			}
@@ -197,7 +200,8 @@ func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt strin
 
 		// Retry on server-side transient errors (502, 503, 429)
 		if attempt < maxRetries && (resp.StatusCode == 502 || resp.StatusCode == 503 || resp.StatusCode == 429) {
-			backoff := time.Duration(1<<uint(attempt+1)) * time.Second
+			backoff := time.Duration(1<<uint(attempt+1))*time.Second +
+				time.Duration(rand.Int63n(int64(time.Second)))
 			time.Sleep(backoff)
 			continue
 		}

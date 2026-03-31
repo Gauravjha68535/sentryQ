@@ -91,6 +91,14 @@ func RunSemgrep(ctx context.Context, targetDir string) ([]reporter.Finding, erro
 
 	err = cmd.Run()
 
+	// If the parent context or the semgrep timeout fired, the process was killed
+	// mid-write and stdout may contain truncated JSON. Guard against that before
+	// attempting to unmarshal, which would otherwise panic or return a confusing error.
+	if semCtx.Err() != nil {
+		utils.LogInfo("Semgrep scan timed out or was cancelled — skipping results")
+		return findings, nil
+	}
+
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			if exitError.ExitCode() == 1 {
