@@ -14,6 +14,10 @@ export default function ScanProgress() {
     const wsRef = useRef(null)
 
     useEffect(() => {
+        if (Notification.permission === 'default') Notification.requestPermission()
+    }, [])
+
+    useEffect(() => {
         let reconnectTimer = null
         let reconnectDelay = 1000
         let destroyed = false
@@ -51,6 +55,11 @@ export default function ScanProgress() {
                             setProgress(100)
                             setPhase('Scan Complete')
                             addLog('✅ Scan completed successfully!', 'success')
+                            if (document.visibilityState !== 'visible' || !document.hasFocus()) {
+                                if (Notification.permission === 'granted') {
+                                    new Notification('SentryQ: Scan Complete', { body: `Scan ${id} finished successfully.`, icon: '/favicon.ico' })
+                                }
+                            }
                             break
                         case 'error':
                             setStatus('failed')

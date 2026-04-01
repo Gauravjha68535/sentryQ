@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Download, Filter, ChevronDown, ChevronUp, FileText, Code, ArrowLeft, AlertTriangle, Shield, Sparkles, Layers } from 'lucide-react'
+import { Download, Filter, ChevronDown, ChevronUp, FileText, Code, ArrowLeft, AlertTriangle, Shield, Layers } from 'lucide-react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
 import { Doughnut, Bar } from 'react-chartjs-2'
 import SeverityBadge from '../components/SeverityBadge'
@@ -17,6 +17,8 @@ export default function ReportViewer() {
     const [reportPhase, setReportPhase] = useState('final') // 'final', 'static', 'ai'
     const [isEnsemble, setIsEnsemble] = useState(false)
     const [statusFilter, setStatusFilter] = useState('all') // 'all', 'open', 'resolved', 'ignored', 'false_positive'
+    const [searchQuery, setSearchQuery] = useState('')
+    const [selectedIds, setSelectedIds] = useState(new Set())
 
     useEffect(() => {
         fetchReport()
@@ -60,10 +62,48 @@ export default function ReportViewer() {
         } catch (e) { console.error('Failed to update status:', e) }
     }
 
+    const bulkUpdateStatus = async (newStatus) => {
+        const ids = [...selectedIds]
+        if (ids.length === 0) return
+        try {
+            const res = await fetch(`/api/scan/${id}/findings/bulk-status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids, status: newStatus })
+            })
+            if (res.ok) {
+                setFindings(prev => prev.map(f => selectedIds.has(f.db_id) ? { ...f, status: newStatus } : f))
+                setSelectedIds(new Set())
+            }
+        } catch (e) { console.error('Bulk update failed:', e) }
+    }
+
+    const toggleSelect = (dbId) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev)
+            next.has(dbId) ? next.delete(dbId) : next.add(dbId)
+            return next
+        })
+    }
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === filtered.length) {
+            setSelectedIds(new Set())
+        } else {
+            setSelectedIds(new Set(filtered.map(f => f.db_id)))
+        }
+    }
+
     const filtered = findings.filter(f => {
         const matchesSeverity = filter === 'all' || (f.severity || '').toLowerCase() === filter
         const matchesStatus = statusFilter === 'all' || (f.status || 'open') === statusFilter
-        return matchesSeverity && matchesStatus
+        const q = searchQuery.toLowerCase()
+        const matchesSearch = !q ||
+            (f.issue_name || '').toLowerCase().includes(q) ||
+            (f.file_path || '').toLowerCase().includes(q) ||
+            (f.description || '').toLowerCase().includes(q) ||
+            (f.cwe || '').toLowerCase().includes(q)
+        return matchesSeverity && matchesStatus && matchesSearch
     })
 
     // Calculate stats
@@ -133,6 +173,9 @@ export default function ReportViewer() {
                     </a>
                     <a href={`/api/scan/${id}/report/pdf`} download className="btn btn-secondary btn-sm">
                         <Download size={14} /> PDF
+                    </a>
+                    <a href={`/api/scan/${id}/report/sarif`} download className="btn btn-secondary btn-sm">
+                        <Download size={14} /> SARIF
                     </a>
                 </div>
             </div>
@@ -245,9 +288,16 @@ export default function ReportViewer() {
                     ))}
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                        type="text"
+                        placeholder="Search issues, files, CWEs..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-primary)', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', outline: 'none', width: '200px' }}
+                    />
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>STATUS:</span>
-                    <select 
-                        value={statusFilter} 
+                    <select
+                        value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-primary)', borderRadius: '6px', padding: '4px 8px', fontSize: '0.75rem', outline: 'none' }}
                     >
@@ -260,11 +310,32 @@ export default function ReportViewer() {
                 </div>
             </div>
 
+            {/* Bulk Action Bar */}
+            {selectedIds.size > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', padding: '8px 14px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#818cf8', fontWeight: 600 }}>{selectedIds.size} selected</span>
+                    {[['Open', 'open', '#6366f1'], ['Resolved', 'resolved', '#22c55e'], ['Ignored', 'ignored', '#94a3b8'], ['False Positive', 'false_positive', '#f59e0b']].map(([label, val, color]) => (
+                        <button key={val} onClick={() => bulkUpdateStatus(val)}
+                            style={{ padding: '3px 10px', fontSize: '0.75rem', borderRadius: '5px', border: `1px solid ${color}40`, background: `${color}18`, color, cursor: 'pointer', fontWeight: 600 }}>
+                            Mark {label}
+                        </button>
+                    ))}
+                    <button onClick={() => setSelectedIds(new Set())} style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>
+                </div>
+            )}
+
             {/* Findings Table */}
             <div className="table-container">
                 <table>
                     <thead>
                         <tr>
+                            <th style={{ width: '32px' }}>
+                                <input type="checkbox"
+                                    checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                                    onChange={toggleSelectAll}
+                                    onClick={e => e.stopPropagation()}
+                                />
+                            </th>
                             <th>#</th>
                             <th>Severity</th>
                             <th>Issue</th>
@@ -280,6 +351,12 @@ export default function ReportViewer() {
                         {filtered.map((f, i) => (
                             <React.Fragment key={i}>
                                 <tr style={{ cursor: 'pointer' }} onClick={() => setExpandedRow(expandedRow === i ? null : i)}>
+                                    <td onClick={e => e.stopPropagation()}>
+                                        <input type="checkbox"
+                                            checked={selectedIds.has(f.db_id)}
+                                            onChange={() => toggleSelect(f.db_id)}
+                                        />
+                                    </td>
                                     <td style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{f.sr_no || i + 1}</td>
                                     <td><SeverityBadge severity={f.severity} /></td>
                                     <td style={{ fontWeight: 600, maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.issue_name}</td>
@@ -324,57 +401,6 @@ export default function ReportViewer() {
                                 {expandedRow === i && (
                                     <tr>
                                         <td colSpan={9} style={{ background: 'var(--bg-elevated)', padding: '20px' }}>
-                                            {/* Action Buttons */}
-                                            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                                                <button
-                                                    className="btn btn-primary btn-sm"
-                                                    style={{ padding: '4px 10px', fontSize: '0.7rem' }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        const event = new CustomEvent('sentryq-chat-open', {
-                                                            detail: {
-                                                                content: `Explain this finding in detail:\nIssue: ${f.issue_name}\nFile: ${f.file_path}\nDescription: ${f.description}\nCWE: ${f.cwe}`,
-                                                                autoSend: true
-                                                            }
-                                                        });
-                                                        window.dispatchEvent(event);
-                                                    }}
-                                                >
-                                                    <Sparkles size={12} /> Explain
-                                                </button>
-                                                <button
-                                                    className="btn btn-sm"
-                                                    style={{ padding: '4px 10px', fontSize: '0.7rem', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        const event = new CustomEvent('sentryq-chat-open', {
-                                                            detail: {
-                                                                content: `Generate a proof-of-concept exploit for this vulnerability:\nIssue: ${f.issue_name}\nFile: ${f.file_path}:${f.line_number}\nSeverity: ${f.severity}\nDescription: ${f.description}\nCWE: ${f.cwe}\n\nProvide a safe, educational PoC that demonstrates the vulnerability is exploitable.`,
-                                                                autoSend: true
-                                                            }
-                                                        });
-                                                        window.dispatchEvent(event);
-                                                    }}
-                                                >
-                                                    ⚡ PoC
-                                                </button>
-                                                <button
-                                                    className="btn btn-sm"
-                                                    style={{ padding: '4px 10px', fontSize: '0.7rem', background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.2)' }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        const event = new CustomEvent('sentryq-chat-open', {
-                                                            detail: {
-                                                                content: `Provide secure code to fix this vulnerability:\nIssue: ${f.issue_name}\nFile: ${f.file_path}:${f.line_number}\nCWE: ${f.cwe}\nCurrent code context: ${f.code_snippet || 'not available'}\n\nShow BEFORE and AFTER code with explanation.`,
-                                                                autoSend: true
-                                                            }
-                                                        });
-                                                        window.dispatchEvent(event);
-                                                    }}
-                                                >
-                                                    🛡️ Fix
-                                                </button>
-                                            </div>
 
                                             {/* Description */}
                                             <div style={{ marginBottom: '16px' }}>
@@ -398,7 +424,7 @@ export default function ReportViewer() {
 
                                             {/* Secure Fix Code */}
                                             {f.fixed_code && (
-                                                <div style={{ marginBottom: '16px' }}>
+                                                <div id={`fix-section-${i}`} style={{ marginBottom: '16px' }}>
                                                     <h4 style={{ fontSize: '0.78rem', color: '#4ade80', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                         🛡️ Secure Fix
                                                     </h4>
@@ -426,7 +452,7 @@ export default function ReportViewer() {
 
                                             {/* Exploit PoC */}
                                             {f.exploit_poc && f.exploit_poc !== "N/A" && (
-                                                <div style={{ marginBottom: '16px' }}>
+                                                <div id={`poc-section-${i}`} style={{ marginBottom: '16px' }}>
                                                     <h4 style={{ fontSize: '0.78rem', color: '#f87171', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>AI-Generated Concept Exploit (PoC)</h4>
                                                     <pre style={{ background: '#1a1010', padding: '14px', borderRadius: '8px', fontSize: '0.78rem', border: '1px solid #450a0a', color: '#fca5a5', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', overflowX: 'auto', maxWidth: '100%', margin: 0 }}>
                                                         <code>{f.exploit_poc}</code>

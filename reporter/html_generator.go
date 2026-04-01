@@ -191,6 +191,8 @@ const htmlTemplate = `<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
     <style>
         :root {
             --primary: #3b82f6; --primary-dark: #2563eb; --primary-glow: rgba(59,130,246,0.12);
@@ -695,7 +697,10 @@ const htmlTemplate = `<!DOCTYPE html>
                                         {{if .CodeSnippet}}
                                         <div class="detail-section">
                                             <h4>Code Snippet</h4>
-                                            <div class="code-block snippet">{{replaceNewline .CodeSnippet}}</div>
+                                            <div class="code-block-wrap">
+                                                <button class="copy-btn" onclick="copyCode(this, event)">Copy</button>
+                                                <div class="code-block snippet">{{replaceNewline .CodeSnippet}}</div>
+                                            </div>
                                         </div>
                                         {{end}}
                                     </div>
@@ -917,7 +922,12 @@ const htmlTemplate = `<!DOCTYPE html>
     }
 
     // Init
-    document.addEventListener('DOMContentLoaded', () => { filterAndPaginate(); });
+    document.addEventListener('DOMContentLoaded', () => {
+        filterAndPaginate();
+        document.querySelectorAll('.code-block').forEach(block => {
+            hljs.highlightElement(block);
+        });
+    });
 
     // Risk ring animation
     setTimeout(() => {

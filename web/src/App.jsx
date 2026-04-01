@@ -9,7 +9,6 @@ import ReportViewer from './pages/ReportViewer'
 import Settings from './pages/Settings'
 import RuleBuilder from './pages/RuleBuilder'
 import { AnimatePresence } from 'framer-motion'
-import ChatBot from './components/ChatBot'
 import './index.css'
 
 class ErrorBoundary extends React.Component {
@@ -64,7 +63,6 @@ export default function App() {
             </ErrorBoundary>
           </AnimatePresence>
         </main>
-        <ChatBot />
       </div>
     </BrowserRouter>
   )

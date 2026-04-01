@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // WriteCSV generates the CSV report with required columns
@@ -21,9 +22,9 @@ func WriteCSV(filename string, findings []Finding) error {
 	header := []string{
 		"Sr. No.", "Issue name", "File name / file path",
 		"Description of the issue", "Severity", "Line number",
-		"CWE", "OWASP", "Confidence", "Source",
-		"AI validated (yes/no)", "Remediation",
-		"Code Snippet", "Exploit PoC",
+		"CWE", "OWASP", "Confidence", "Trust Score", "Source",
+		"AI validated (yes/no)", "AI Reasoning", "Remediation",
+		"Code Snippet", "Secure Fix", "Exploit PoC", "Taint Flow",
 	}
 
 	if err := writer.Write(header); err != nil {
@@ -79,6 +80,7 @@ func findingToRow(f Finding) []string {
 	if confidence <= 0 {
 		confidence = 1.0
 	}
+	taintFlow := strings.Join(f.ExploitPath, " → ")
 	return []string{
 		strconv.Itoa(f.SrNo),
 		f.IssueName,
@@ -89,10 +91,14 @@ func findingToRow(f Finding) []string {
 		f.CWE,
 		f.OWASP,
 		fmt.Sprintf("%.0f%%", confidence*100),
+		fmt.Sprintf("%.0f", f.TrustScore),
 		f.Source,
 		f.AiValidated,
+		f.AiReasoning,
 		f.Remediation,
 		f.CodeSnippet,
+		f.FixedCode,
 		f.ExploitPoC,
+		taintFlow,
 	}
 }

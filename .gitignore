@@ -49,3 +49,4 @@ feedback_report.html
 *.log
 sentryq
 .sentryq-settings.json
+backend_logs.txt

@@ -122,9 +122,46 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 		summary.AIValidatedCount)), "", "L", false)
 	pdf.Ln(10)
 
-	// ——— Detailed Findings ———
+	// ——— Table of Contents ———
 	reachable, _, falsePositives := SplitFindingsThreeWay(findings)
 
+	pdf.AddPage()
+	addPortraitHeader(pdf, "Table of Contents")
+	pdf.SetFont("Helvetica", "", 10)
+	pdf.SetTextColor(30, 30, 60)
+	tocEntries := []struct{ label string; count int }{
+		{"Executive Summary", 0},
+		{"Detailed Findings", len(reachable)},
+	}
+	if len(falsePositives) > 0 {
+		tocEntries = append(tocEntries, struct{ label string; count int }{"Manual Review — Potential False Positives", len(falsePositives)})
+	}
+	// Severity breakdown in TOC
+	sevGroups := map[string]int{}
+	for _, f := range reachable {
+		sevGroups[strings.ToLower(f.Severity)]++
+	}
+	for _, sev := range []string{"critical", "high", "medium", "low", "info"} {
+		if n := sevGroups[sev]; n > 0 {
+			tocEntries = append(tocEntries, struct{ label string; count int }{
+				fmt.Sprintf("  — %s findings", strings.Title(sev)), n,
+			})
+		}
+	}
+	for _, e := range tocEntries {
+		pdf.SetX(20)
+		if e.count > 0 {
+			pdf.CellFormat(150, 7, sanitizePDFText(e.label), "", 0, "L", false, 0, "")
+			pdf.SetFont("Helvetica", "B", 10)
+			pdf.CellFormat(25, 7, fmt.Sprintf("%d", e.count), "", 1, "R", false, 0, "")
+			pdf.SetFont("Helvetica", "", 10)
+		} else {
+			pdf.CellFormat(175, 7, sanitizePDFText(e.label), "", 1, "L", false, 0, "")
+		}
+	}
+	pdf.Ln(5)
+
+	// ——— Detailed Findings ———
 	pdf.AddPage()
 	addPortraitHeader(pdf, "Detailed Findings")
 
@@ -204,7 +241,7 @@ func drawFindingDetail(pdf *gofpdf.Fpdf, f Finding) {
 	pdf.SetFont("Helvetica", "", 8)
 	pdf.SetTextColor(30, 30, 60)
 	pdf.SetX(leftMargin)
-	descText := sanitizePDFText(truncateString(f.Description, 500))
+	descText := sanitizePDFText(truncateString(f.Description, 1000))
 	pdf.MultiCell(contentWidth, 4.2, descText, "", "L", false)
 	pdf.Ln(2)
 
@@ -254,7 +291,7 @@ func drawFindingDetail(pdf *gofpdf.Fpdf, f Finding) {
 		pdf.SetFont("Helvetica", "", 8)
 		pdf.SetTextColor(30, 30, 60)
 		pdf.SetX(leftMargin)
-		remText := sanitizePDFText(truncateString(f.Remediation, 500))
+		remText := sanitizePDFText(truncateString(f.Remediation, 1000))
 		pdf.MultiCell(contentWidth, 4.2, remText, "", "L", false)
 		pdf.Ln(2)
 	}
@@ -304,8 +341,38 @@ func drawFindingDetail(pdf *gofpdf.Fpdf, f Finding) {
 		pdf.SetFont("Courier", "", 7)
 		pdf.SetTextColor(80, 80, 80)
 		pdf.SetX(leftMargin)
-		pocText := sanitizePDFText(truncateString(f.ExploitPoC, 300))
+		pocText := sanitizePDFText(truncateString(f.ExploitPoC, 800))
 		pdf.MultiCell(contentWidth, 3.5, pocText, "", "L", false)
+		pdf.Ln(2)
+	}
+
+	// ── Taint Flow ──
+	if len(f.ExploitPath) > 0 {
+		if pdf.GetY() > 240 {
+			pdf.AddPage()
+			addPortraitHeader(pdf, "Detailed Findings (continued)")
+		}
+		pdf.SetFont("Helvetica", "B", 8)
+		pdf.SetTextColor(99, 102, 241)
+		pdf.SetX(leftMargin)
+		pdf.CellFormat(contentWidth, 6, "Taint Flow Analysis", "", 1, "L", false, 0, "")
+		pdf.SetFont("Helvetica", "", 7.5)
+		for i, step := range f.ExploitPath {
+			label := fmt.Sprintf("Hop %d", i)
+			if i == 0 {
+				label = "Source"
+				pdf.SetTextColor(220, 38, 38)
+			} else if i == len(f.ExploitPath)-1 {
+				label = "Sink"
+				pdf.SetTextColor(185, 28, 28)
+			} else {
+				pdf.SetTextColor(80, 80, 120)
+			}
+			pdf.SetX(leftMargin + 2)
+			pdf.CellFormat(18, 4.5, label+":", "", 0, "L", false, 0, "")
+			pdf.SetTextColor(30, 30, 60)
+			pdf.MultiCell(contentWidth-20, 4.5, sanitizePDFText(truncateString(step, 120)), "", "L", false)
+		}
 		pdf.Ln(2)
 	}
 

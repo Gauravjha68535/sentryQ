@@ -140,7 +140,6 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/settings", handleSettings)
 	mux.HandleFunc("/api/system/status", handleSystemStatus)
 	mux.HandleFunc("/api/models", handleModels)
-	mux.HandleFunc("/api/chat", handleChat)
 	mux.HandleFunc("/api/rules", handleRulesList)
 	mux.HandleFunc("/api/rules/test", handleRulesTest)
 	mux.HandleFunc("/api/rules/", handleRulesFile)
@@ -417,6 +416,23 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// PATCH /api/scan/:id/findings/bulk-status
+	if len(parts) >= 3 && parts[1] == "findings" && parts[2] == "bulk-status" && r.Method == http.MethodPatch {
+		var req struct {
+			IDs    []int  `json:"ids"`
+			Status string `json:"status"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		for _, dbID := range req.IDs {
+			_ = UpdateFindingStatus(scanID, dbID, req.Status)
+		}
+		httpJSON(w, http.StatusOK, map[string]string{"status": "updated"})
+		return
+	}
+
 	// POST /api/scan/:id/stop
 	if len(parts) >= 2 && parts[1] == "stop" && r.Method == http.MethodPost {
 		handleStopScan(w, r)
@@ -469,7 +485,7 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 					archive := zip.NewWriter(zipFile)
 					defer archive.Close()
 
-					filesToZip := []string{"report.html", "report.csv", "report.pdf"}
+					filesToZip := []string{"report.html", "report.csv", "report.pdf", "report.sarif"}
 					for _, fileName := range filesToZip {
 						filePathToZip := filepath.Join(reportsDir, fileName)
 						if _, err := os.Stat(filePathToZip); os.IsNotExist(err) {
@@ -515,6 +531,9 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		case "pdf":
 			filePath = filepath.Join(reportsDir, "report.pdf")
 			contentType = "application/pdf"
+		case "sarif":
+			filePath = filepath.Join(reportsDir, "report.sarif")
+			contentType = "application/json"
 		default:
 			http.NotFound(w, r)
 			return
@@ -726,67 +745,6 @@ func openBrowser(url string) {
 	}
 }
 
-func handleChat(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var req struct {
-		Messages []ai.ChatMessage `json:"messages"`
-		ScanID   string           `json:"scan_id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	appSettings.RLock()
-	model := appSettings.DefaultModel
-	host := appSettings.OllamaHost
-	appSettings.RUnlock()
-
-	ai.SetOllamaHost(host)
-
-	// Add system context if this is the first message or if context is missing
-	hasSystem := false
-	for _, msg := range req.Messages {
-		if msg.Role == "system" {
-			hasSystem = true
-			break
-		}
-	}
-
-	if !hasSystem {
-		systemMsg := ai.ChatMessage{
-			Role: "system",
-			Content: `You are the SentryQ Security Assistant, an elite cybersecurity expert. 
-You are integrated into the SentryQ. 
-Your goal is to help the user understand security vulnerabilities, explain scan reports, and provide high-quality remediation advice.
-When explaining a specific finding, be technical, precise, and provide clear code examples for fixes.
-Assume the user is a developer or security engineer.`,
-		}
-
-		// Inject scan context if scanID is provided
-		if req.ScanID != "" {
-			findings, _ := GetFindingsForScan(req.ScanID)
-			if len(findings) > 0 {
-				contextPrefix := fmt.Sprintf("\nCONTEXT: The current scan (ID: %s) has found %d issues.", req.ScanID, len(findings))
-				systemMsg.Content += contextPrefix
-			}
-		}
-
-		req.Messages = append([]ai.ChatMessage{systemMsg}, req.Messages...)
-	}
-
-	resp, err := ai.GenerateChatResponse(model, req.Messages)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("AI error: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	httpJSON(w, http.StatusOK, resp)
-}
 
 func handleStopScan(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")

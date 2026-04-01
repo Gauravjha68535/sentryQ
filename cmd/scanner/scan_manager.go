@@ -693,6 +693,10 @@ func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDi
 	riskScore := reporter.CalculateRiskScore(findings)
 	reporter.GeneratePDF(pdfPath, findings, summary, riskScore)
 
+	// SARIF
+	sarifPath := filepath.Join(reportsDir, "report.sarif")
+	reporter.GenerateSARIF(sarifPath, findings)
+
 	utils.LogInfo(fmt.Sprintf("Reports saved for scan %s at %s", scanID, reportsDir))
 }
 
