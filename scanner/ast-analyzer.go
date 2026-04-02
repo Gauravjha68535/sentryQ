@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -61,7 +62,10 @@ func (aa *ASTAnalyzer) AnalyzeFile(filePath string) ([]reporter.Finding, error) 
 	}
 
 	parser := aa.parsers[lang]
-	tree := parser.Parse(nil, content)
+	tree, err := parser.ParseCtx(context.Background(), nil, content)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse AST: %w", err)
+	}
 	if tree == nil {
 		return nil, fmt.Errorf("failed to parse AST: parser returned nil")
 	}
@@ -724,8 +728,6 @@ func (aa *ASTAnalyzer) checkKotlinPropertyDeclaration(node *treeSitter.Node, con
 	return findings
 }
 
-
-
 // populateCacheFromNode recursively extracts identifiers and strings into the reachability cache
 func (aa *ASTAnalyzer) populateCacheFromNode(node *treeSitter.Node, content []byte) {
 	nodeType := node.Type()
@@ -769,8 +771,8 @@ func (aa *ASTAnalyzer) BuildReachabilityCache(targetDir string) {
 		}
 
 		parser := aa.parsers[lang]
-		tree := parser.Parse(nil, content)
-		if tree == nil {
+		tree, err := parser.ParseCtx(context.Background(), nil, content)
+		if err != nil || tree == nil {
 			return nil
 		}
 		defer tree.Close()

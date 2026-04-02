@@ -403,7 +403,7 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 					body, _ := io.ReadAll(resp.Body)
 					resp.Body.Close()
 					reqCancel()
-					return nil, fmt.Errorf("Ollama API error (Status %d): %s", resp.StatusCode, string(body))
+					return nil, fmt.Errorf("ollama API error (status %d): %s", resp.StatusCode, string(body))
 				}
 
 				fullText, readErr = readOllamaResponse(resp.Body)
@@ -418,7 +418,7 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 			outputStr = fullText
 			jsonContent = utils.ExtractJSON(outputStr)
 			if jsonContent == "" {
-				aiError = fmt.Errorf("No JSON found")
+				aiError = fmt.Errorf("no JSON found in AI response")
 				break
 			}
 

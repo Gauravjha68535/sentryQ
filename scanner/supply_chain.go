@@ -28,8 +28,9 @@ func NewSupplyChainScanner() *SupplyChainScanner {
 			Metadata: &cdx.Metadata{
 				Timestamp: time.Now().Format(time.RFC3339),
 				Tools: &cdx.ToolsChoice{
-					Tools: &[]cdx.Tool{
+					Components: &[]cdx.Component{
 						{
+							Type:    cdx.ComponentTypeApplication,
 							Name:    "AI Security Scanner",
 							Version: "2.0.0",
 						},

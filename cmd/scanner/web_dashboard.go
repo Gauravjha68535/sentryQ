@@ -318,7 +318,7 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 			absTmpDir, errAbs1 := filepath.Abs(tmpDir)
 			absDestPath, errAbs2 := filepath.Abs(destPath)
 			if errAbs1 != nil || errAbs2 != nil ||
-				!strings.HasPrefix(absDestPath, absTmpDir+string(filepath.Separator)) {
+				!strings.HasPrefix(strings.ToLower(absDestPath), strings.ToLower(absTmpDir)+string(filepath.Separator)) {
 				utils.LogWarn(fmt.Sprintf("Path traversal attempt blocked: filename=%q from %s", filename, r.RemoteAddr))
 				part.Close()
 				continue

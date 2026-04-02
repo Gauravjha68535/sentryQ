@@ -286,7 +286,10 @@ func TestOpenAIEndpoint(baseURL, apiKey, model string) (bool, string) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return false, fmt.Sprintf("failed to read API response: %v", readErr)
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return false, fmt.Sprintf("API returned status %d: %s", resp.StatusCode, truncateForUI(string(body), 200))
