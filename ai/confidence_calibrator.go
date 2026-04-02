@@ -60,8 +60,12 @@ func (c *ConfidenceCalibrator) SaveStats() {
 	defer c.mu.RUnlock()
 
 	data, err := json.MarshalIndent(c.Stats, "", "  ")
-	if err == nil {
-		os.WriteFile(c.StatsFile, data, 0644)
+	if err != nil {
+		utils.LogError("Failed to serialize calibrator stats", err)
+		return
+	}
+	if err := os.WriteFile(c.StatsFile, data, 0644); err != nil {
+		utils.LogError(fmt.Sprintf("Failed to write calibrator stats to %s", c.StatsFile), err)
 	}
 }
 

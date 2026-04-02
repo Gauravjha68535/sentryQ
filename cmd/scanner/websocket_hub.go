@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,27 +23,37 @@ type WSMessage struct {
 }
 
 // WSClient wraps a websocket connection with a mutex for thread-safe writes
+// WSClient wraps a websocket connection with separate mutexes for thread-safe
+// reads and writes. gorilla/websocket allows one concurrent reader + one
+// concurrent writer, but not two of the same kind. Keeping write and close
+// under writeMu, and reads under readMu, prevents any concurrent access of
+// the same kind from racing.
 type WSClient struct {
-	conn *websocket.Conn
-	mu   sync.Mutex
+	conn    *websocket.Conn
+	writeMu sync.Mutex // guards WriteMessage and Close
+	readMu  sync.Mutex // guards ReadMessage (only one goroutine reads, but mutex keeps SetReadDeadline safe)
 }
 
 // WriteMessage is a thread-safe wrapper for writing text messages
 func (c *WSClient) WriteMessage(messageType int, data []byte) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
 	return c.conn.WriteMessage(messageType, data)
 }
 
 // Close gracefully closes the connection
 func (c *WSClient) Close() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
 	return c.conn.Close()
 }
 
-// ReadMessage reads from the connection
+// ReadMessage reads from the connection under the read mutex so that
+// SetReadDeadline (called in the same goroutine) cannot race with a
+// concurrent Close from the write side.
 func (c *WSClient) ReadMessage() (messageType int, p []byte, err error) {
+	c.readMu.Lock()
+	defer c.readMu.Unlock()
 	return c.conn.ReadMessage()
 }
 
@@ -55,7 +66,17 @@ type WebSocketHub struct {
 var (
 	wsHub    *WebSocketHub
 	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool { return true },
+		// Only accept WebSocket connections from localhost — same policy as corsMiddleware.
+		CheckOrigin: func(r *http.Request) bool {
+			origin := r.Header.Get("Origin")
+			if origin == "" {
+				return true // same-origin / direct connection
+			}
+			return strings.HasPrefix(origin, "http://localhost:") ||
+				strings.HasPrefix(origin, "http://127.0.0.1:") ||
+				strings.HasPrefix(origin, "http://localhost") ||
+				strings.HasPrefix(origin, "http://127.0.0.1")
+		},
 	}
 )
 
@@ -121,9 +142,11 @@ func (h *WebSocketHub) HandleWS(w http.ResponseWriter, r *http.Request, scanID s
 			wsClient.Close()
 		}()
 		for {
-			// Refresh read deadline on every iteration so idle connections
-			// are reaped after 10 minutes instead of leaking forever.
+			// Refresh read deadline and read under the same readMu so that
+			// SetReadDeadline cannot race with concurrent Close on the write side.
+			wsClient.readMu.Lock()
 			wsClient.conn.SetReadDeadline(time.Now().Add(10 * time.Minute))
+			wsClient.readMu.Unlock()
 			_, _, err := wsClient.ReadMessage()
 			if err != nil {
 				return

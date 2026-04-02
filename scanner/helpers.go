@@ -5,25 +5,14 @@ import (
 	"regexp"
 	"strings"
 
+	"SentryQ/utils"
+
 	treeSitter "github.com/smacker/go-tree-sitter"
 )
 
-// IsTestFile checks if the filePath looks like a test or mock file
+// IsTestFile delegates to utils.IsTestFile — single source of truth.
 func IsTestFile(filePath string) bool {
-	// Normalize to forward slashes so checks work on Windows too
-	lowerPath := strings.ToLower(strings.ReplaceAll(filePath, "\\", "/"))
-	testIndicators := []string{
-		"_test.go", "_test.py", "test.js", "test.ts", "spec.js", "spec.ts",
-		"/test/", "/tests/", "/testdata/", "/mock/", "/mocks/", "/fixture/", "/fixtures/",
-		"/__tests__/", "/__mocks__/", "/node_modules/", "/spec/", "/specs/",
-		"test_",
-	}
-	for _, indicator := range testIndicators {
-		if strings.Contains(lowerPath, indicator) {
-			return true
-		}
-	}
-	return false
+	return utils.IsTestFile(filePath)
 }
 
 // Pre-compiled regexes for StripComments (avoid recompiling per file)

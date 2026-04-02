@@ -84,7 +84,12 @@ func loadSettings() {
 }
 
 func saveSettings() {
+	// Hold the read lock for the full duration of marshal + file write so that
+	// a concurrent PUT /api/settings cannot update appSettings between the
+	// snapshot and the disk write (which would silently revert the new values).
 	appSettings.RLock()
+	defer appSettings.RUnlock()
+
 	s := struct {
 		OllamaHost   string `json:"ollama_host"`
 		DefaultModel string `json:"default_model"`
@@ -100,8 +105,12 @@ func saveSettings() {
 		CustomAPIKey: appSettings.CustomAPIKey,
 		CustomModel:  appSettings.CustomModel,
 	}
-	appSettings.RUnlock()
-	data, _ := json.MarshalIndent(s, "", "  ")
+
+	data, err := json.MarshalIndent(s, "", "  ")
+	if err != nil {
+		utils.LogError("Failed to serialize settings", err)
+		return
+	}
 	// Ensure parent directory exists (first run, or settings moved to home dir).
 	if err := os.MkdirAll(filepath.Dir(settingsPath), 0700); err != nil {
 		utils.LogError("Failed to create settings directory", err)
@@ -190,8 +199,11 @@ func StartWebServer(port int) {
 	addr := fmt.Sprintf("0.0.0.0:%d", port)
 	localAddr := fmt.Sprintf("localhost:%d", port)
 	server := &http.Server{
-		Addr:    addr,
-		Handler: corsMiddleware(mux),
+		Addr:         addr,
+		Handler:      corsMiddleware(mux),
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 0, // 0 = no write timeout — needed for long-running SSE/WebSocket upgrades and large report downloads
+		IdleTimeout:  120 * time.Second,
 	}
 
 	utils.LogInfo(fmt.Sprintf("🌐 SentryQ Web UI starting on http://%s", localAddr))
@@ -276,6 +288,9 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to create temp directory", http.StatusInternalServerError)
 		return
 	}
+	// cleanupTmp is called on any early-return error path. StartScanFromUpload
+	// takes ownership of tmpDir on success and will remove it via defer.
+	cleanupTmp := func() { os.RemoveAll(tmpDir) }
 
 	var configJSON string
 	fileCount := 0
@@ -286,6 +301,7 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
+			cleanupTmp()
 			http.Error(w, "Error reading multipart part: "+err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -294,6 +310,7 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 			buf := new(strings.Builder)
 			if _, err := io.Copy(buf, part); err != nil {
 				part.Close()
+				cleanupTmp()
 				http.Error(w, "Failed to read config field", http.StatusBadRequest)
 				return
 			}
@@ -324,7 +341,11 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			os.MkdirAll(filepath.Dir(destPath), 0755)
+			if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+				part.Close()
+				utils.LogWarn("Failed to create upload subdirectory: " + err.Error())
+				continue
+			}
 			destFile, err := os.Create(destPath)
 			if err != nil {
 				part.Close()
@@ -347,12 +368,14 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if fileCount == 0 && configJSON == "" {
+		cleanupTmp()
 		http.Error(w, "No files or config found in upload", http.StatusBadRequest)
 		return
 	}
 
 	scanID, err := StartScanFromUpload(tmpDir, configJSON)
 	if err != nil {
+		cleanupTmp()
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -643,13 +666,18 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 
 	appSettings.RLock()
 	defer appSettings.RUnlock()
+	maskedKey := ""
+	if len(appSettings.CustomAPIKey) > 0 {
+		maskedKey = "***"
+	}
 	httpJSON(w, http.StatusOK, map[string]interface{}{
-		"ollama_host":    appSettings.OllamaHost,
-		"default_model":  appSettings.DefaultModel,
-		"ai_provider":    appSettings.AIProvider,
-		"custom_api_url": appSettings.CustomAPIURL,
-		"custom_api_key": appSettings.CustomAPIKey,
-		"custom_model":   appSettings.CustomModel,
+		"ollama_host":        appSettings.OllamaHost,
+		"default_model":      appSettings.DefaultModel,
+		"ai_provider":        appSettings.AIProvider,
+		"custom_api_url":     appSettings.CustomAPIURL,
+		"custom_api_key":     maskedKey,
+		"custom_api_key_set": len(appSettings.CustomAPIKey) > 0,
+		"custom_model":       appSettings.CustomModel,
 	})
 }
 
@@ -948,8 +976,15 @@ func handleRulesFile(w http.ResponseWriter, r *http.Request) {
 			yaml3Unmarshal(data, &rules)
 		}
 		rules = append(rules, newRule)
-		out, _ := yaml3Marshal(rules)
-		os.WriteFile(rulesPath, out, 0644)
+		out, err := yaml3Marshal(rules)
+		if err != nil {
+			http.Error(w, "Failed to serialize rules: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := os.WriteFile(rulesPath, out, 0644); err != nil {
+			http.Error(w, "Failed to write rules file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 		httpJSON(w, http.StatusOK, map[string]string{"status": "added", "id": newRule.ID})
 
 	default:

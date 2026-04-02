@@ -265,7 +265,10 @@ func TestOpenAIEndpoint(baseURL, apiKey, model string) (bool, string) {
 		Stream:      false,
 	}
 
-	reqJSON, _ := json.Marshal(reqBody)
+	reqJSON, err := json.Marshal(reqBody)
+	if err != nil {
+		return false, fmt.Sprintf("failed to serialize test request: %v", err)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()

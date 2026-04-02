@@ -559,12 +559,16 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	}
 
 	// ── Confidence Calibration (always after AI) ────────────
-
+	// NOTE: batch_validator already creates a ConfidenceCalibrator, records
+	// validation outcomes, and calls SaveStats(). Creating a second fresh
+	// calibrator here and calling SaveStats() again would overwrite those
+	// learned stats with zeroes. We only call ApplyCalibrationToFindings so
+	// the saved stats (learned during batch validation) are applied to the
+	// final merged findings — no SaveStats() call here.
 	if cfg.EnableAI {
 		wsHub.BroadcastLog(scanID, "Applying confidence calibration...", "info")
 		calibrator := ai.NewConfidenceCalibrator()
 		allFindings = calibrator.ApplyCalibrationToFindings(allFindings)
-		calibrator.SaveStats()
 	}
 
 	// ── ML False Positive Reduction (if enabled) ─────────────
@@ -680,7 +684,10 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 // webGenerateReportFiles creates HTML, CSV, and PDF reports
 func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDir string) {
 	reportsDir := filepath.Join(os.TempDir(), "sentryQ", scanID)
-	os.MkdirAll(reportsDir, 0755)
+	if err := os.MkdirAll(reportsDir, 0755); err != nil {
+		utils.LogError(fmt.Sprintf("Failed to create reports directory for scan %s", scanID), err)
+		return
+	}
 
 	summary := reporter.GenerateReportSummary(findings, targetDir)
 
@@ -718,6 +725,9 @@ func mergeTwoFindings(best *reporter.Finding, f reporter.Finding, severityWeight
 	} else if w == bw && len(f.Description) > len(best.Description) {
 		best.Description = f.Description
 		best.IssueName = f.IssueName
+		if f.Remediation != "" {
+			best.Remediation = f.Remediation
+		}
 	}
 	if f.Source != "" {
 		sources[f.Source] = true

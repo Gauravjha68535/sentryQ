@@ -193,7 +193,10 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 
 // runJudgeBatch sends a single batch of findings to the Judge LLM
 func runJudgeBatch(ctx context.Context, findings []JudgeFinding, modelName string) ([]JudgeVerdictItem, error) {
-	findingsJSON, _ := json.MarshalIndent(findings, "", "  ")
+	findingsJSON, err := json.MarshalIndent(findings, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize findings for judge: %w", err)
+	}
 
 	// Create a fresh context for this judge request
 	// 15 minutes max for full batch response (large models + long batches)
@@ -273,7 +276,10 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 		}
 		outputStr = strings.TrimSpace(fullText)
 	} else {
-		reqJSON, _ := json.Marshal(reqBody)
+		reqJSON, err := json.Marshal(reqBody)
+		if err != nil {
+			return nil, fmt.Errorf("failed to serialize judge request body: %w", err)
+		}
 
 		req, err := http.NewRequestWithContext(judgeCtx, "POST", ollamaAPIURL, bytes.NewBuffer(reqJSON))
 		if err != nil {

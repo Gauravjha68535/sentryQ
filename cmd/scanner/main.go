@@ -75,7 +75,10 @@ func main() {
 		runScan(ctx, scanID, targetDir, cfg)
 		
 		// Print summary
-		findings, _ := GetFindingsForScan(scanID)
+		findings, err := GetFindingsForScan(scanID)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to retrieve findings from DB: %v\n", err)
+		}
 		fmt.Printf("\n✅ CLI Scan Complete. Total Findings: %d\n", len(findings))
 		return
 	}

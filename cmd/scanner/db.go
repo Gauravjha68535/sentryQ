@@ -205,6 +205,9 @@ func GetAllScans() ([]ScanRecord, error) {
 		}
 		scans = append(scans, s)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating scan rows: %w", err)
+	}
 	return scans, nil
 }
 
@@ -248,10 +251,20 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 		f.ID = id
 		findings = append(findings, f)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating finding rows for scan %s: %w", scanID, err)
+	}
 
-	// Fallback: if phase=final returned nothing, return all findings
+	// Fallback: if phase=final returned nothing AND the scan is no longer
+	// running, return all findings regardless of phase (backward-compat for
+	// static-only scans that never write a 'final' phase row). Do NOT fall
+	// back while the scan is still in progress — that would mix partial
+	// intermediate phases and present them as the final result.
 	if (phase == "" || phase == "final") && len(findings) == 0 {
-		return getAllFindingsForScan(scanID)
+		scan, scanErr := GetScan(scanID)
+		if scanErr == nil && scan.Status != "running" {
+			return getAllFindingsForScan(scanID)
+		}
 	}
 
 	return findings, nil
@@ -280,6 +293,9 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 		}
 		f.ID = id
 		findings = append(findings, f)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating all finding rows for scan %s: %w", scanID, err)
 	}
 	return findings, nil
 }

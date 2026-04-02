@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlusCircle, Clock, CheckCircle, XCircle, Trash2, ScanSearch } from 'lucide-react'
+import { PlusCircle, Clock, CheckCircle, XCircle, Trash2, ScanSearch, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SeverityBadge from '../components/SeverityBadge'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler } from 'chart.js'
@@ -10,7 +10,15 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip,
 export default function Dashboard() {
     const [scans, setScans] = useState([])
     const [loading, setLoading] = useState(true)
+    const [isLightMode, setIsLightMode] = useState(() => document.documentElement.getAttribute('data-theme') === 'light')
     const navigate = useNavigate()
+
+    const toggleTheme = () => {
+        const newTheme = isLightMode ? 'dark' : 'light'
+        setIsLightMode(!isLightMode)
+        document.documentElement.setAttribute('data-theme', newTheme)
+        localStorage.setItem('theme', newTheme)
+    }
 
     const fetchScans = useCallback(async () => {
         try {
@@ -98,9 +106,14 @@ export default function Dashboard() {
                     <h1>Dashboard</h1>
                     <p>Welcome to SentryQ — your AI-powered code analysis platform</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => navigate('/scan/new')}>
-                    <PlusCircle size={18} /> New Scan
-                </button>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <button className="btn btn-secondary" onClick={toggleTheme} aria-label="Toggle Theme" title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"} style={{ padding: '8px' }}>
+                        {isLightMode ? <Moon size={18} /> : <Sun size={18} />}
+                    </button>
+                    <button className="btn btn-primary" onClick={() => navigate('/scan/new')}>
+                        <PlusCircle size={18} /> New Scan
+                    </button>
+                </div>
             </div>
 
             <div className="stats-grid">
