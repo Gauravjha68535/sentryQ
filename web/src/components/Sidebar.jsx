@@ -75,12 +75,12 @@ export default function Sidebar({ isOpen, onToggle }) {
                     ))}
                 </nav>
                 <div className="sidebar-version-box" style={{ padding: '16px 12px', borderTop: '1px solid var(--border-primary)', marginTop: 'auto' }}>
-                    <div className="sidebar-version" style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Version</div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>v2.0.0 — SentryQ</div>
-                    </div>
-                    {/* Compact version for collapsed state */}
-                    {!isOpen && (
+                    {isOpen ? (
+                        <div className="sidebar-version" style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Version</div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>v2.0.0 — SentryQ</div>
+                        </div>
+                    ) : (
                         <div style={{ fontSize: '0.65rem', textAlign: 'center', color: 'var(--text-muted)', width: '100%', wordBreak: 'keep-all', whiteSpace: 'nowrap', display: 'block' }}>
                             v2.0
                         </div>
