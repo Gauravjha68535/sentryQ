@@ -51,3 +51,5 @@ feedback_report.html
 sentryq
 .sentryq-settings.json
 backend_logs.txt
+.kilo/
+0

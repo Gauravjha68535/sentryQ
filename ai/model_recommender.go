@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"SentryQ/utils"
 )
 
 type OllamaTagsResponse struct {
@@ -48,15 +50,16 @@ func GetInstalledModels(host string) []string {
 	return installed
 }
 
-// GetDefaultModel dynamically determines the best default model based on what is installed
+// GetDefaultModel dynamically determines the best default model based on what is installed.
+// Returns an empty string if Ollama is unreachable or has no models installed, and logs a
+// warning so callers produce a clear error rather than a cryptic "model '' not found".
 func GetDefaultModel() string {
 	installed := GetInstalledModels("")
 
-	// If the user has explicitly installed models, try to pick the best one
 	if len(installed) > 0 {
 		return installed[0]
 	}
 
-	// Fallback if Ollama isn't running or no models installed
+	utils.LogWarn("No Ollama models found. Start Ollama and pull a model first, e.g.: ollama pull qwen2.5-coder:7b")
 	return ""
 }

@@ -288,10 +288,6 @@ func StartWebServer(port int) {
 		utils.LogError("Server forced to shutdown", err)
 	}
 
-	// Assume CloseDB exists (if not, OS handles it, but this prevents corruption)
-	// We'll leave it out if we aren't absolutely sure it exists to prevent compile error,
-	// but normally BadgerDB handles clean exits if closed correctly.
-	// We'll call CloseDB() - let's add it to db.go next if missing.
 	CloseDB()
 
 	utils.LogInfo("SentryQ stopped.")
@@ -637,7 +633,9 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
-			// Report file missing — try to regenerate from DB
+			// Report file missing — try to regenerate from DB.
+			// Use the stored scan target name so the report shows the correct
+			// project name, not the temporary reports directory.
 			findings, dbErr := GetFindingsForScan(scanID)
 			if dbErr != nil {
 				utils.LogError(fmt.Sprintf("Failed to load findings for report regeneration (scan %s)", scanID), dbErr)
@@ -645,7 +643,11 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if len(findings) > 0 {
-				webGenerateReportFiles(scanID, findings, reportsDir)
+				targetName := scanID
+				if scanRec, recErr := GetScan(scanID); recErr == nil {
+					targetName = scanRec.Target
+				}
+				webGenerateReportFiles(scanID, findings, targetName)
 			}
 		}
 
@@ -1007,7 +1009,7 @@ func handleRulesFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid filename", http.StatusBadRequest)
 		return
 	}
-	rulesPath := filepath.Join("rules", filename)
+	rulesPath := filepath.Join(getDefaultRulesDir(), filename)
 
 	switch r.Method {
 	case http.MethodGet:
@@ -1082,6 +1084,17 @@ func handleRulesTest(w http.ResponseWriter, r *http.Request) {
 		Match   string `json:"match"`
 	}
 
+	// Reject patterns that are excessively long to guard against ReDoS.
+	// Go's regexp package uses RE2 (no catastrophic backtracking), but very
+	// long patterns can still cause high compile-time CPU usage.
+	if len(req.Pattern) > 2048 {
+		httpJSON(w, http.StatusOK, map[string]interface{}{
+			"valid":   false,
+			"error":   "pattern too long (max 2048 characters)",
+			"matches": []MatchResult{},
+		})
+		return
+	}
 	re, err := regexp.Compile(req.Pattern)
 	if err != nil {
 		httpJSON(w, http.StatusOK, map[string]interface{}{

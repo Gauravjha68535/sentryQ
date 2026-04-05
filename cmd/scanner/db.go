@@ -254,7 +254,7 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 
 	var findings []reporter.Finding
 	for rows.Next() {
-		var id int
+		var id int64
 		var data string
 		if err := rows.Scan(&id, &data); err != nil {
 			utils.LogError(fmt.Sprintf("Failed to scan finding row for scan %s", scanID), err)
@@ -265,7 +265,7 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 			utils.LogError(fmt.Sprintf("Failed to unmarshal finding id=%d for scan %s", id, scanID), err)
 			continue
 		}
-		f.ID = id
+		f.ID = int(id)
 		findings = append(findings, f)
 	}
 	if err := rows.Err(); err != nil {
@@ -297,7 +297,7 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 
 	var findings []reporter.Finding
 	for rows.Next() {
-		var id int
+		var id int64
 		var data string
 		if err := rows.Scan(&id, &data); err != nil {
 			utils.LogError(fmt.Sprintf("Failed to scan finding row for scan %s", scanID), err)
@@ -308,7 +308,7 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 			utils.LogError(fmt.Sprintf("Failed to unmarshal finding id=%d for scan %s", id, scanID), err)
 			continue
 		}
-		f.ID = id
+		f.ID = int(id)
 		findings = append(findings, f)
 	}
 	if err := rows.Err(); err != nil {

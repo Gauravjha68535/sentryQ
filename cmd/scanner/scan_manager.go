@@ -124,7 +124,7 @@ func StopScan(scanID string) error {
 
 // StartScanFromUpload handles uploaded files
 func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
-	scanID := uuid.New().String()[:8]
+	scanID := uuid.New().String()
 	var webCfg WebScanConfig
 	if err := json.Unmarshal([]byte(configJSON), &webCfg); err != nil {
 		return "", fmt.Errorf("failed to parse config JSON: %v", err)
@@ -156,8 +156,9 @@ func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 	return scanID, nil
 }
 
-// credentialPattern matches embedded credentials in URLs: https://user:pass@host
-var credentialPattern = regexp.MustCompile(`https?://[^:@\s]+:[^@\s]+@`)
+// credentialPattern matches embedded credentials in any scheme URL:
+// https://user:pass@host, ssh://user:pass@host, etc.
+var credentialPattern = regexp.MustCompile(`[a-zA-Z][a-zA-Z0-9+\-.]*://[^:@\s]+:[^@\s]+@`)
 
 // isValidGitURL validates a repository URL with strict structural checks to prevent
 // flag injection and embedded-credential leakage.
@@ -200,8 +201,16 @@ func isValidGitURL(rawURL string) bool {
 
 // sanitizeGitOutput strips embedded credentials from git command output before
 // it is sent to the browser, preventing accidental token/password disclosure.
+// Handles https://, ssh://, and other scheme URLs.
 func sanitizeGitOutput(output string) string {
-	return credentialPattern.ReplaceAllString(output, "https://***:***@")
+	return credentialPattern.ReplaceAllStringFunc(output, func(match string) string {
+		// Find the scheme end ("://") to reconstruct the sanitized URL.
+		schemeEnd := strings.Index(match, "://")
+		if schemeEnd < 0 {
+			return "***:***@"
+		}
+		return match[:schemeEnd+3] + "***:***@"
+	})
 }
 
 // StartScanFromGit clones a repo and scans it
@@ -210,13 +219,13 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		return "", fmt.Errorf("invalid or unsafe Git URL provided")
 	}
 
-	scanID := uuid.New().String()[:8]
+	scanID := uuid.New().String()
 	var webCfg WebScanConfig
 	if err := json.Unmarshal([]byte(configJSON), &webCfg); err != nil {
 		return "", fmt.Errorf("failed to parse config JSON: %v", err)
 	}
 
-	tmpDir, err := os.MkdirTemp("", "sentryq-scan-"+scanID+"-")
+	tmpDir, err := os.MkdirTemp("", "sentryq-scan-"+scanID[:8]+"-")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp dir: %v", err)
 	}
@@ -243,15 +252,26 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		}()
 		defer os.RemoveAll(tmpDir)
 
+		// Register the cancellable context immediately so StopScan can
+		// terminate the scan at any point — including during git clone.
+		ctx, cancel := context.WithCancel(context.Background())
+		registerScan(scanID, cancel)
+		defer unregisterScan(scanID)
+		defer cancel()
+
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Cloning repository: %s", repoURL), "phase")
 		wsHub.BroadcastProgress(scanID, "Cloning Repository", 5)
 
-		// Use a 5-minute timeout for git clone so a dead/slow server never hangs the scan.
-		cloneCtx, cloneCancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		// Derive clone timeout from the cancellable context so StopScan
+		// also terminates the git clone (not just the scan pipeline).
+		cloneCtx, cloneCancel := context.WithTimeout(ctx, 5*time.Minute)
 		defer cloneCancel()
 		cmd := exec.CommandContext(cloneCtx, getGitBin(), "clone", "--depth", "1", "--", repoURL, tmpDir)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
+			if ctx.Err() != nil {
+				return // scan was stopped by user, no need to broadcast error
+			}
 			wsHub.BroadcastError(scanID, fmt.Sprintf("Git clone failed: %s", sanitizeGitOutput(string(output))))
 			if err := UpdateScanStatus(scanID, "failed"); err != nil {
 				utils.LogError(fmt.Sprintf("Failed to mark scan %s as failed", scanID), err)
@@ -260,11 +280,6 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		}
 
 		wsHub.BroadcastLog(scanID, "Repository cloned successfully", "success")
-
-		ctx, cancel := context.WithCancel(context.Background())
-		registerScan(scanID, cancel)
-		defer unregisterScan(scanID)
-		defer cancel()
 
 		runScan(ctx, scanID, tmpDir, webCfg)
 	}()
@@ -1538,24 +1553,25 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 		wsHub.BroadcastLog(scanID, msg, level)
 	})
 
+	// Build file contents map once — shared by both Phase 2 (AI self-validation)
+	// and Phase 3 (static pre-validation). Uses the package-level maxFileContentSize.
+	fileContents := make(map[string]string)
+	for _, files := range result.FilePaths {
+		for _, file := range files {
+			info, statErr := os.Stat(file)
+			if statErr != nil || info.Size() > maxFileContentSize {
+				continue
+			}
+			if data, err := os.ReadFile(file); err == nil {
+				fileContents[file] = string(data)
+			}
+		}
+	}
+
 	// AI self-validation of its own findings
 	if len(aiFindings) > 0 {
 		wsHub.BroadcastProgress(scanID, "Phase 2: AI Self-Validation", 65)
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("AI validating its own %d discoveries...", len(aiFindings)), "info")
-
-		const maxFileContentSize = 10 * 1024 * 1024 // 10 MB per file
-		fileContents := make(map[string]string)
-		for _, files := range result.FilePaths {
-			for _, file := range files {
-				info, statErr := os.Stat(file)
-				if statErr != nil || info.Size() > maxFileContentSize {
-					continue
-				}
-				if data, err := os.ReadFile(file); err == nil {
-					fileContents[file] = string(data)
-				}
-			}
-		}
 		aiFindings = ai.ValidateFindingsBatch(ctx, modelName, aiFindings, fileContents)
 	}
 
@@ -1581,22 +1597,10 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	wsHub.BroadcastLog(scanID, "⚖️  PHASE 3: AI Judge — Merging Reports", "phase")
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")
 
-	// Pre-Judge: AI Validation for Static Findings (To generate Remediations and filter FPs)
+	// Pre-Judge: AI Validation for Static Findings (generates remediations and filters FPs).
+	// Reuses the fileContents map built above — no second disk read.
 	wsHub.BroadcastProgress(scanID, "Phase 3: Static Pre-Validation", 78)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("AI validating %d static discoveries for remediation insights...", len(staticFindings)), "info")
-
-	fileContents := make(map[string]string)
-	for _, files := range result.FilePaths {
-		for _, file := range files {
-			info, statErr := os.Stat(file)
-			if statErr != nil || info.Size() > maxFileContentSize {
-				continue
-			}
-			if data, err := os.ReadFile(file); err == nil {
-				fileContents[file] = string(data)
-			}
-		}
-	}
 	staticFindings = ai.ValidateFindingsBatch(ctx, modelName, staticFindings, fileContents)
 
 	judgeModel := cfg.JudgeModel

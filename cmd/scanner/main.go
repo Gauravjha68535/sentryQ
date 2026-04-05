@@ -63,7 +63,7 @@ func main() {
 		}
 		
 		// Generate a unique scan ID
-		scanID := "cli-" + uuid.New().String()[:8]
+		scanID := "cli-" + uuid.New().String()
 		if err := CreateScan(scanID, targetDir, "cli", "{}"); err != nil {
 			fmt.Printf("❌ Failed to create scan record: %v\n", err)
 			return

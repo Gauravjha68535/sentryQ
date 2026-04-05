@@ -68,7 +68,7 @@ func (c *ConfidenceCalibrator) SaveStats() {
 		utils.LogError("Failed to serialize calibrator stats", err)
 		return
 	}
-	if err := os.WriteFile(c.StatsFile, data, 0644); err != nil {
+	if err := os.WriteFile(c.StatsFile, data, 0600); err != nil {
 		utils.LogError(fmt.Sprintf("Failed to write calibrator stats to %s", c.StatsFile), err)
 	}
 }

@@ -4,41 +4,20 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"SentryQ/reporter"
 	"SentryQ/utils"
-
-	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 // SupplyChainScanner performs supply chain security analysis
 type SupplyChainScanner struct {
 	dependencies []Dependency
-	sbom         *cdx.BOM
 }
 
 // NewSupplyChainScanner creates a new supply chain scanner
 func NewSupplyChainScanner() *SupplyChainScanner {
 	return &SupplyChainScanner{
 		dependencies: make([]Dependency, 0),
-		sbom: &cdx.BOM{
-			SpecVersion: cdx.SpecVersion1_4,
-			Version:     1,
-			Metadata: &cdx.Metadata{
-				Timestamp: time.Now().Format(time.RFC3339),
-				Tools: &cdx.ToolsChoice{
-					Components: &[]cdx.Component{
-						{
-							Type:    cdx.ComponentTypeApplication,
-							Name:    "AI Security Scanner",
-							Version: "2.0.0",
-						},
-					},
-				},
-			},
-			Components: &[]cdx.Component{},
-		},
 	}
 }
 
@@ -51,9 +30,6 @@ func (scs *SupplyChainScanner) ScanSupplyChain(ctx context.Context, targetDir st
 	// Collect all dependencies
 	scs.dependencies = scs.collectAllDependencies(targetDir)
 	utils.LogInfo(fmt.Sprintf("Found %d dependencies", len(scs.dependencies)))
-
-	// Generate SBOM
-	scs.generateSBOM()
 
 	// Check for vulnerabilities
 	vulnFindings := scs.checkDependencyVulnerabilities(ctx)
@@ -77,30 +53,6 @@ func (scs *SupplyChainScanner) collectAllDependencies(targetDir string) []Depend
 	return collectDependencies(targetDir)
 }
 
-func (scs *SupplyChainScanner) generateSBOM() {
-	for _, dep := range scs.dependencies {
-		component := cdx.Component{
-			BOMRef:     fmt.Sprintf("%s@%s", dep.Name, dep.Version),
-			Type:       cdx.ComponentTypeLibrary,
-			Name:       dep.Name,
-			Version:    dep.Version,
-			PackageURL: dep.Purl,
-			Scope:      cdx.ScopeRequired,
-		}
-
-		// Add hashes
-		if dep.Hash != "" {
-			component.Hashes = &[]cdx.Hash{
-				{
-					Algorithm: cdx.HashAlgoSHA256,
-					Value:     dep.Hash,
-				},
-			}
-		}
-
-		*scs.sbom.Components = append(*scs.sbom.Components, component)
-	}
-}
 
 func (scs *SupplyChainScanner) checkDependencyVulnerabilities(ctx context.Context) []reporter.Finding {
 	var findings []reporter.Finding
