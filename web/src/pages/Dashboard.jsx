@@ -10,6 +10,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip,
 export default function Dashboard() {
     const [scans, setScans] = useState([])
     const [loading, setLoading] = useState(true)
+    const [fetchError, setFetchError] = useState(false)
     const [isLightMode, setIsLightMode] = useState(() => document.documentElement.getAttribute('data-theme') === 'light')
     const navigate = useNavigate()
 
@@ -26,9 +27,13 @@ export default function Dashboard() {
             if (res.ok) {
                 const data = await res.json()
                 setScans(data || [])
+                setFetchError(false)
+            } else {
+                setFetchError(true)
             }
         } catch (e) {
             console.error('Failed to fetch scans:', e)
+            setFetchError(true)
         } finally {
             setLoading(false)
         }
@@ -115,6 +120,12 @@ export default function Dashboard() {
                     </button>
                 </div>
             </div>
+
+            {fetchError && (
+                <div style={{ marginBottom: '16px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.4)', color: '#ef4444', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <XCircle size={15} /> Unable to reach the backend. Check that SentryQ is running and refresh.
+                </div>
+            )}
 
             <div className="stats-grid">
                 <div className="stat-card">

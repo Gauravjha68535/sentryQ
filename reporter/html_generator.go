@@ -89,7 +89,7 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		FalsePositives: falsePositives,
 		Summary:        summary,
 		RiskScore:      CalculateRiskScore(findings),
-		PriorityMatrix: GetPriorityMatrix(findings),
+		PriorityMatrix: getPriorityMatrix(findings),
 		CWECounts:      aggregateCWE(findings),
 		OWASPCounts:    aggregateOWASP(findings),
 	}

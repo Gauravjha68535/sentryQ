@@ -193,6 +193,37 @@ type OllamaAPIResponse struct {
 	Done     bool   `json:"done"`
 }
 
+// doOllamaRequest sends a POST to the Ollama generate API and returns the full
+// text response. It owns the response body lifecycle — the body is always closed
+// before returning, even if a panic occurs inside readOllamaResponse.
+func doOllamaRequest(ctx context.Context, reqJSON []byte) (string, error) {
+	ollamaMu.RLock()
+	apiURL := ollamaAPIURL
+	ollamaMu.RUnlock()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, bytes.NewBuffer(reqJSON))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := aiHTTPClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, readBodyErr := io.ReadAll(resp.Body)
+		if readBodyErr != nil {
+			return "", fmt.Errorf("ollama API error (status %d): <failed to read response body: %v>", resp.StatusCode, readBodyErr)
+		}
+		return "", fmt.Errorf("ollama API error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	return readOllamaResponse(resp.Body)
+}
+
 // readOllamaResponse reads an Ollama API response body, handling BOTH:
 // 1. Non-streaming: a single JSON object with the full response
 // 2. Streaming: line-delimited JSON objects with individual tokens (some servers ignore stream:false)
@@ -389,40 +420,14 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 					return nil, err
 				}
 
-				ollamaMu.RLock()
-				currentOllamaAPIURL := ollamaAPIURL
-				ollamaMu.RUnlock()
-
 				reqCtx, reqCancel = context.WithTimeout(ctx, 30*time.Minute)
-				req, err := http.NewRequestWithContext(reqCtx, "POST", currentOllamaAPIURL, bytes.NewBuffer(reqJSON))
-				if err != nil {
-					reqCancel()
-					return nil, err
-				}
-				req.Header.Set("Content-Type", "application/json")
-
-				resp, err := aiHTTPClient.Do(req)
-				if err != nil {
-					reqCancel()
-					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				fullText, readErr = doOllamaRequest(reqCtx, reqJSON)
+				reqCancel()
+				if readErr != nil {
+					if errors.Is(readErr, context.Canceled) || errors.Is(readErr, context.DeadlineExceeded) {
 						return nil, fmt.Errorf("scan interrupted")
 					}
-					return nil, fmt.Errorf("API request failed: %w", err)
 				}
-
-				if resp.StatusCode != http.StatusOK {
-					body, readBodyErr := io.ReadAll(resp.Body)
-					resp.Body.Close()
-					reqCancel()
-					if readBodyErr != nil {
-						return nil, fmt.Errorf("ollama API error (status %d): <failed to read response body: %v>", resp.StatusCode, readBodyErr)
-					}
-					return nil, fmt.Errorf("ollama API error (status %d): %s", resp.StatusCode, string(body))
-				}
-
-				fullText, readErr = readOllamaResponse(resp.Body)
-				resp.Body.Close()
-				reqCancel()
 			}
 
 			if readErr != nil {
@@ -568,8 +573,13 @@ func RunAIDiscovery(ctx context.Context, modelName string, targetDir string, log
 		}
 
 		for _, skip := range []string{"node_modules", "vendor", ".git", "__pycache__", "venv", ".venv", "dist", "build", ".idea", ".vscode"} {
-			if strings.Contains(path, string(os.PathSeparator)+skip+string(os.PathSeparator)) {
-				return nil
+			// Split on the OS path separator and check each component so that
+			// skip directories at the beginning or end of a path are also caught
+			// (e.g. "/node_modules/foo" or "project/build").
+			for _, component := range strings.Split(path, string(os.PathSeparator)) {
+				if component == skip {
+					return nil
+				}
 			}
 		}
 

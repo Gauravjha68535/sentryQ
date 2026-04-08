@@ -3,9 +3,13 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 
-const savedTheme = localStorage.getItem('theme') || 'dark';
-if (savedTheme === 'light') {
-  document.documentElement.setAttribute('data-theme', 'light');
+try {
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  if (savedTheme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+} catch {
+  // localStorage may be unavailable in restricted browser contexts (e.g. incognito with strict settings)
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(

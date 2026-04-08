@@ -97,8 +97,8 @@ func CalculateRiskScore(findings []Finding) RiskScore {
 	}
 }
 
-// GetPriorityMatrix categorizes findings by remediation priority
-func GetPriorityMatrix(findings []Finding) PriorityMatrix {
+// getPriorityMatrix categorizes findings by remediation priority
+func getPriorityMatrix(findings []Finding) PriorityMatrix {
 	matrix := PriorityMatrix{
 		P0: []Finding{},
 		P1: []Finding{},

@@ -98,6 +98,33 @@ func loadSettings() {
 	}
 }
 
+// recordMLFeedback records a user triage decision into the ML FP history file
+// so the MLFPReducer can learn from it on future scans.
+// Only "false_positive" and "resolved" statuses are meaningful signals;
+// "open" and "ignored" are skipped since they carry no FP/TP information.
+func recordMLFeedback(f reporter.Finding, status string) {
+	isFP := status == "false_positive"
+	isTP := status == "resolved"
+	if !isFP && !isTP {
+		return
+	}
+
+	mlCacheDir := ".sentryq-ml-cache"
+	if homeDir, err := os.UserHomeDir(); err == nil {
+		mlCacheDir = filepath.Join(homeDir, ".sentryq", "ml-cache")
+	}
+
+	reducer := ai.NewMLFPReducer(mlCacheDir)
+	if err := reducer.LoadHistory(); err != nil {
+		utils.LogWarn("ML feedback: failed to load history: " + err.Error())
+		return
+	}
+	reducer.AddFeedback(f.RuleID, f.FilePath, f.Severity, isFP, "")
+	if err := reducer.SaveHistory(); err != nil {
+		utils.LogWarn("ML feedback: failed to save history: " + err.Error())
+	}
+}
+
 // secureWriteFile writes data to path with owner-only permissions.
 // On Unix, the file is created with mode 0600 (owner read/write only).
 // On Windows, os.WriteFile permission bits are not enforced by the OS, so we
@@ -110,17 +137,19 @@ func secureWriteFile(path string, data []byte) error {
 	if runtime.GOOS == "windows" {
 		username := os.Getenv("USERNAME")
 		if username != "" {
-			_ = exec.Command(
+			if err := exec.Command(
 				"icacls", path,
 				"/inheritance:r",
 				"/grant:r", username+":F",
-			).Run()
+			).Run(); err != nil {
+				utils.LogWarn(fmt.Sprintf("secureWriteFile: icacls failed for %s: %v — file may be accessible to other users", path, err))
+			}
 		}
 	}
 	return nil
 }
 
-func saveSettings() {
+func saveSettings() error {
 	// Hold the read lock for the full duration of marshal + file write so that
 	// a concurrent PUT /api/settings cannot update appSettings between the
 	// snapshot and the disk write (which would silently revert the new values).
@@ -146,19 +175,21 @@ func saveSettings() {
 	data, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
 		utils.LogError("Failed to serialize settings", err)
-		return
+		return err
 	}
 	// Ensure parent directory exists (first run, or settings moved to home dir).
 	if err := os.MkdirAll(filepath.Dir(settingsPath), 0700); err != nil {
 		utils.LogError("Failed to create settings directory", err)
-		return
+		return err
 	}
 	// secureWriteFile uses 0600 on Unix; on Windows it additionally calls
 	// icacls to restrict the ACL to the current user (os.WriteFile alone
 	// does not enforce permission bits on Windows NTFS).
 	if err := secureWriteFile(settingsPath, data); err != nil {
 		utils.LogError("Failed to save settings", err)
+		return err
 	}
+	return nil
 }
 
 // ──────────────────────────────────────────────────────────
@@ -250,8 +281,12 @@ func StartWebServer(port int) {
 	// ── Startup Dependency Checks ──
 	checkStartupDependencies()
 
+	// Background goroutine lifetime is tied to a cancel context so it stops cleanly
+	// when the server receives a shutdown signal.
+	bgCtx, bgCancel := context.WithCancel(context.Background())
+
 	// ── Background Report Cleanup (every 6 hours, delete reports older than 48h) ──
-	go startReportCleanup()
+	go startReportCleanup(bgCtx)
 
 	// Auto-open browser
 	go openBrowser("http://" + localAddr)
@@ -279,6 +314,9 @@ func StartWebServer(port int) {
 
 	<-stop // Wait for OS signal
 	utils.LogInfo("\nShutting down gracefully...")
+
+	// Stop background goroutines before shutting down the HTTP server.
+	bgCancel()
 
 	// Give active connections 5 seconds to finish
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -315,8 +353,8 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Limit upload size to 1 GB — sufficient for any real project; prevents disk exhaustion.
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<30)
+	// Limit upload size to 100 MB — sufficient for any real project; prevents disk exhaustion.
+	r.Body = http.MaxBytesReader(w, r.Body, 100<<20)
 
 	reader, err := r.MultipartReader()
 	if err != nil {
@@ -488,9 +526,14 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
+		// Fetch finding before update so we have ruleID/filePath/severity for ML feedback.
+		finding, fetchErr := GetFindingByID(scanID, findingID)
 		if err := UpdateFindingStatus(scanID, findingID, req.Status); err != nil {
 			httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
+		}
+		if fetchErr == nil {
+			recordMLFeedback(finding, req.Status)
 		}
 		httpJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 		return
@@ -508,9 +551,14 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		}
 		var failed []int
 		for _, dbID := range req.IDs {
+			finding, fetchErr := GetFindingByID(scanID, dbID)
 			if err := UpdateFindingStatus(scanID, dbID, req.Status); err != nil {
 				utils.LogWarn(fmt.Sprintf("bulk-status: failed to update finding %d: %v", dbID, err))
 				failed = append(failed, dbID)
+				continue
+			}
+			if fetchErr == nil {
+				recordMLFeedback(finding, req.Status)
 			}
 		}
 		if len(failed) > 0 {
@@ -526,7 +574,19 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 
 	// POST /api/scan/:id/stop
 	if len(parts) >= 2 && parts[1] == "stop" && r.Method == http.MethodPost {
-		handleStopScan(w, r)
+		handleStopScan(w, scanID)
+		return
+	}
+
+	// POST /api/scan/:id/pause
+	if len(parts) >= 2 && parts[1] == "pause" && r.Method == http.MethodPost {
+		handlePauseScan(w, scanID)
+		return
+	}
+
+	// POST /api/scan/:id/resume
+	if len(parts) >= 2 && parts[1] == "resume" && r.Method == http.MethodPost {
+		handleResumeScan(w, scanID)
 		return
 	}
 
@@ -710,7 +770,10 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 			ai.SetCustomEndpoint(s.CustomAPIURL, s.CustomAPIKey, s.CustomModel)
 		}
 
-		saveSettings()
+		if err := saveSettings(); err != nil {
+			httpJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to persist settings: " + err.Error()})
+			return
+		}
 		httpJSON(w, http.StatusOK, map[string]string{"status": "saved"})
 		return
 	}
@@ -854,17 +917,28 @@ func openBrowser(url string) {
 }
 
 
-func handleStopScan(w http.ResponseWriter, r *http.Request) {
-	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")
-	parts := strings.Split(path, "/")
-	scanID := parts[0]
-
+func handleStopScan(w http.ResponseWriter, scanID string) {
 	if err := StopScan(scanID); err != nil {
 		httpJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
 		return
 	}
-
 	httpJSON(w, http.StatusOK, map[string]string{"status": "stopping"})
+}
+
+func handlePauseScan(w http.ResponseWriter, scanID string) {
+	if err := PauseScan(scanID); err != nil {
+		httpJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+		return
+	}
+	httpJSON(w, http.StatusOK, map[string]string{"status": "paused"})
+}
+
+func handleResumeScan(w http.ResponseWriter, scanID string) {
+	if err := ResumeScan(scanID); err != nil {
+		httpJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+		return
+	}
+	httpJSON(w, http.StatusOK, map[string]string{"status": "running"})
 }
 
 func init() {
@@ -874,7 +948,10 @@ func init() {
 	if home, err := os.UserHomeDir(); err == nil {
 		settingsPath = filepath.Join(home, ".sentryq", "settings.json")
 	} else {
-		settingsPath = ".sentryq-settings.json" // fallback if home dir unavailable
+		// Home directory is unavailable (e.g. container with no /etc/passwd entry).
+		// Fall back to a subdirectory of the OS temp dir so the file is never
+		// written to the current working directory, which may be shared or world-readable.
+		settingsPath = filepath.Join(os.TempDir(), "sentryq", "settings.json")
 	}
 	loadSettings()
 	startTime = time.Now()
@@ -1009,7 +1086,16 @@ func handleRulesFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid filename", http.StatusBadRequest)
 		return
 	}
-	rulesPath := filepath.Join(getDefaultRulesDir(), filename)
+	rulesDir := getDefaultRulesDir()
+	rulesPath := filepath.Join(rulesDir, filename)
+	// Verify the resolved path is still inside the rules directory to prevent
+	// path traversal via absolute paths or symlink chains.
+	cleanedPath := filepath.Clean(rulesPath)
+	cleanedDir := filepath.Clean(rulesDir) + string(filepath.Separator)
+	if !strings.HasPrefix(cleanedPath+string(filepath.Separator), cleanedDir) {
+		http.Error(w, "Invalid filename", http.StatusBadRequest)
+		return
+	}
 
 	switch r.Method {
 	case http.MethodGet:
@@ -1136,7 +1222,14 @@ func yaml3Marshal(v interface{}) ([]byte, error) {
 // ──────────────────────────────────────────────────────────
 
 // startReportCleanup runs a background loop that deletes report directories older than 48 hours.
-func startReportCleanup() {
+// It exits when ctx is cancelled (i.e. on server shutdown).
+func startReportCleanup(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.LogError("startReportCleanup: recovered from panic", fmt.Errorf("%v", r))
+		}
+	}()
+
 	const maxAge = 48 * time.Hour
 	const interval = 6 * time.Hour
 
@@ -1145,8 +1238,13 @@ func startReportCleanup() {
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	for range ticker.C {
-		cleanOldReports(maxAge)
+	for {
+		select {
+		case <-ticker.C:
+			cleanOldReports(maxAge)
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 

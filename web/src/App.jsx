@@ -8,7 +8,6 @@ import ScanProgress from './pages/ScanProgress'
 import ReportViewer from './pages/ReportViewer'
 import Settings from './pages/Settings'
 import RuleBuilder from './pages/RuleBuilder'
-import { AnimatePresence } from 'framer-motion'
 import './index.css'
 
 class ErrorBoundary extends React.Component {
@@ -54,18 +53,16 @@ export default function App() {
       <div className="app-layout">
         <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
         <main className={`main-content ${sidebarOpen ? '' : 'main-content-expanded'}`}>
-          <AnimatePresence mode="wait">
-            <ErrorBoundary>
-              <Routes>
-                <Route path="/" element={<PageTransition><Dashboard /></PageTransition>} />
-                <Route path="/scan/new" element={<PageTransition><NewScan /></PageTransition>} />
-                <Route path="/scan/:id" element={<PageTransition><ScanProgress /></PageTransition>} />
-                <Route path="/scan/:id/report" element={<PageTransition><ReportViewer /></PageTransition>} />
-                <Route path="/rules" element={<PageTransition><RuleBuilder /></PageTransition>} />
-                <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
-              </Routes>
-            </ErrorBoundary>
-          </AnimatePresence>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<PageTransition><Dashboard /></PageTransition>} />
+              <Route path="/scan/new" element={<PageTransition><NewScan /></PageTransition>} />
+              <Route path="/scan/:id" element={<PageTransition><ScanProgress /></PageTransition>} />
+              <Route path="/scan/:id/report" element={<PageTransition><ReportViewer /></PageTransition>} />
+              <Route path="/rules" element={<PageTransition><RuleBuilder /></PageTransition>} />
+              <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
+            </Routes>
+          </ErrorBoundary>
         </main>
       </div>
     </BrowserRouter>

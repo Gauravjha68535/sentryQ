@@ -39,7 +39,8 @@ func (f Finding) IsFalsePositive() bool {
 
 // IsUnreachable returns true if the finding is in a test file or has very low confidence
 func (f Finding) IsUnreachable() bool {
-	lowerPath := strings.ToLower(f.FilePath)
+	// Normalize to forward slashes so checks work on Windows paths too
+	lowerPath := strings.ToLower(strings.ReplaceAll(f.FilePath, "\\", "/"))
 	testIndicators := []string{"_test.", ".test.", ".spec.", "/test/", "/tests/", "/__tests__/", "/mock/", "/fixture/", "testdata/"}
 	for _, indicator := range testIndicators {
 		if strings.Contains(lowerPath, indicator) {

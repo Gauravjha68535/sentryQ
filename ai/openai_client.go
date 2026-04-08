@@ -195,12 +195,13 @@ func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt strin
 			}
 			return "", fmt.Errorf("OpenAI API request failed: %v", err)
 		}
-		// Defer as a panic-safety net; explicit close below ensures the
-		// connection is returned to the pool before the next retry attempt.
-		defer resp.Body.Close()
 
+		// Read the full body and close immediately so the connection is returned
+		// to the pool before any retry or return. Do NOT use defer here — defer
+		// accumulates across loop iterations and would keep all bodies open until
+		// the function returns, exhausting the connection pool under retries.
 		body, err := io.ReadAll(resp.Body)
-		resp.Body.Close() //nolint:errcheck // already deferred; double-close is safe
+		resp.Body.Close() //nolint:errcheck
 		if err != nil {
 			return "", fmt.Errorf("failed to read OpenAI response body: %v", err)
 		}
@@ -241,16 +242,16 @@ func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt strin
 }
 
 // isRetryableError checks if a network error is transient and worth retrying.
+// Only truly transient errors are included — permanent failures like
+// "connection refused" (server is down) and "no such host" (DNS won't
+// self-heal within the retry window) are excluded to avoid wasting time.
 func isRetryableError(err error) bool {
 	errMsg := err.Error()
 	retryablePatterns := []string{
 		"connection reset by peer",
-		"connection refused",
 		"EOF",
-		"context deadline exceeded",
 		"i/o timeout",
 		"broken pipe",
-		"no such host",
 		"TLS handshake timeout",
 	}
 	for _, pattern := range retryablePatterns {

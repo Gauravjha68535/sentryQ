@@ -49,6 +49,107 @@ var (
 	activeScansMu sync.Mutex
 )
 
+// PauseControl manages pause/resume state for an active scan.
+type PauseControl struct {
+	mu       sync.Mutex
+	paused   bool
+	resumeCh chan struct{}
+}
+
+// Wait blocks if the scan is paused, returning when resumed or ctx is done.
+// Returns false if ctx was cancelled (scan should stop).
+func (pc *PauseControl) Wait(ctx context.Context) bool {
+	pc.mu.Lock()
+	if !pc.paused {
+		pc.mu.Unlock()
+		return ctx.Err() == nil
+	}
+	ch := pc.resumeCh
+	pc.mu.Unlock()
+	select {
+	case <-ch:
+		return ctx.Err() == nil
+	case <-ctx.Done():
+		return false
+	}
+}
+
+var (
+	pauseControls   = make(map[string]*PauseControl)
+	pauseControlsMu sync.Mutex
+)
+
+func registerPauseControl(scanID string) {
+	pc := &PauseControl{}
+	pauseControlsMu.Lock()
+	pauseControls[scanID] = pc
+	pauseControlsMu.Unlock()
+}
+
+func unregisterPauseControl(scanID string) {
+	pauseControlsMu.Lock()
+	delete(pauseControls, scanID)
+	pauseControlsMu.Unlock()
+}
+
+func getPauseControl(scanID string) *PauseControl {
+	pauseControlsMu.Lock()
+	pc := pauseControls[scanID]
+	pauseControlsMu.Unlock()
+	return pc
+}
+
+// checkPause blocks if the scan is paused. Returns false if ctx was cancelled.
+func checkPause(scanID string, ctx context.Context) bool {
+	pc := getPauseControl(scanID)
+	if pc == nil {
+		return ctx.Err() == nil
+	}
+	return pc.Wait(ctx)
+}
+
+// PauseScan pauses an active scan between phases.
+func PauseScan(scanID string) error {
+	pc := getPauseControl(scanID)
+	if pc == nil {
+		return fmt.Errorf("scan %s not found or not active", scanID)
+	}
+	pc.mu.Lock()
+	defer pc.mu.Unlock()
+	if pc.paused {
+		return nil
+	}
+	pc.paused = true
+	pc.resumeCh = make(chan struct{})
+	if err := UpdateScanStatus(scanID, "paused"); err != nil {
+		utils.LogError(fmt.Sprintf("Failed to update scan %s status to paused", scanID), err)
+	}
+	wsHub.BroadcastLog(scanID, "⏸ Scan paused by user", "warning")
+	wsHub.Broadcast(scanID, WSMessage{Type: "paused"})
+	return nil
+}
+
+// ResumeScan resumes a paused scan.
+func ResumeScan(scanID string) error {
+	pc := getPauseControl(scanID)
+	if pc == nil {
+		return fmt.Errorf("scan %s not found or not active", scanID)
+	}
+	pc.mu.Lock()
+	defer pc.mu.Unlock()
+	if !pc.paused {
+		return nil
+	}
+	pc.paused = false
+	close(pc.resumeCh)
+	if err := UpdateScanStatus(scanID, "running"); err != nil {
+		utils.LogError(fmt.Sprintf("Failed to update scan %s status to running", scanID), err)
+	}
+	wsHub.BroadcastLog(scanID, "▶ Scan resumed", "success")
+	wsHub.Broadcast(scanID, WSMessage{Type: "resumed"})
+	return nil
+}
+
 // maxFileContentSize is the maximum file size sent to AI for context (10 MB).
 // Declared at package level to avoid duplication across runScan and runEnsembleScan.
 const maxFileContentSize = 10 * 1024 * 1024
@@ -156,6 +257,37 @@ func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 	return scanID, nil
 }
 
+// forceRemoveAll removes a directory tree. On Windows, git objects are created
+// with read-only attributes; os.RemoveAll returns "access denied" for those
+// files and leaves the temp dir behind.
+//
+// Strategy:
+//  1. os.Chmod(p, 0700) — Go's Windows implementation sets FILE_ATTRIBUTE_READONLY
+//     via SetFileAttributes, which is enough for most cases.
+//  2. If os.RemoveAll still fails (e.g. locked junction points), fall back to
+//     "attrib -R /S /D" which recursively clears the read-only attribute flag
+//     using the built-in Windows CLI tool, then retry RemoveAll.
+func forceRemoveAll(path string) {
+	if runtime.GOOS == "windows" {
+		_ = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+			_ = os.Chmod(p, 0700)
+			return nil
+		})
+	}
+	if err := os.RemoveAll(path); err != nil && runtime.GOOS == "windows" {
+		// Best-effort: strip read-only attributes with the built-in attrib command,
+		// then retry. Errors from attrib are intentionally ignored — RemoveAll
+		// already failed once, so we log the final outcome only.
+		_ = exec.Command("attrib", "-R", "/S", "/D", path).Run()
+		if retryErr := os.RemoveAll(path); retryErr != nil {
+			utils.LogWarn(fmt.Sprintf("forceRemoveAll: failed to remove %s after attrib retry: %v", path, retryErr))
+		}
+	}
+}
+
 // credentialPattern matches embedded credentials in any scheme URL:
 // https://user:pass@host, ssh://user:pass@host, etc.
 var credentialPattern = regexp.MustCompile(`[a-zA-Z][a-zA-Z0-9+\-.]*://[^:@\s]+:[^@\s]+@`)
@@ -250,7 +382,7 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 				}
 			}
 		}()
-		defer os.RemoveAll(tmpDir)
+		defer forceRemoveAll(tmpDir)
 
 		// Register the cancellable context immediately so StopScan can
 		// terminate the scan at any point — including during git clone.
@@ -289,6 +421,9 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 
 // runScan is the core scan orchestration (runs in a goroutine)
 func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanConfig) {
+	registerPauseControl(scanID)
+	defer unregisterPauseControl(scanID)
+
 	// Route to Ensemble pipeline if enabled
 	if cfg.EnableEnsemble {
 		runEnsembleScan(ctx, scanID, targetDir, cfg)
@@ -399,6 +534,8 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
 			if err == nil {
 				allFindings = append(allFindings, findings...)
+			} else {
+				utils.LogWarn(fmt.Sprintf("Taint analysis failed for %s: %v", file, err))
 			}
 		}
 	}
@@ -414,6 +551,8 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	secretFindings, err := secretDetector.ScanSecrets(targetDir)
 	if err == nil {
 		allFindings = append(allFindings, secretFindings...)
+	} else {
+		wsHub.BroadcastLog(scanID, fmt.Sprintf("Secret detection error: %v", err), "warning")
 	}
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("Secret detection complete (%d total findings)", len(allFindings)), "info")
 
@@ -493,6 +632,10 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 
 	// ── AI Discovery (was Container Scanning gated block) ──
 
+	if !checkPause(scanID, ctx) {
+		return
+	}
+
 	// ── Reachability Analysis (always) ──────────────────────
 
 	wsHub.BroadcastProgress(scanID, "Reachability Analysis", 64)
@@ -521,7 +664,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	}
 
 	if cfg.EnableAI {
-		if ctx.Err() != nil {
+		if !checkPause(scanID, ctx) {
 			return
 		}
 		// AI Discovery
@@ -605,15 +748,20 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 
 		// Consolidate with Larger LLM
 		if len(aiFindings) > 0 {
-			if cfg.ConsolidationOllamaHost != "" {
-				wsHub.BroadcastLog(scanID, fmt.Sprintf("Using Consolidation Ollama Host: %s", cfg.ConsolidationOllamaHost), "info")
+			// JudgeOllamaHost takes precedence; fall back to ConsolidationOllamaHost
+			judgeHost := cfg.JudgeOllamaHost
+			if judgeHost == "" {
+				judgeHost = cfg.ConsolidationOllamaHost
+			}
+			if judgeHost != "" {
+				wsHub.BroadcastLog(scanID, fmt.Sprintf("Using Judge Ollama Host: %s", judgeHost), "info")
 			}
 
 			wsHub.BroadcastProgress(scanID, "AI Consolidation", 85)
 			wsHub.BroadcastLog(scanID, fmt.Sprintf("Consolidating static + AI findings using Judge LLM: %s...", consolidationModel), "phase")
 
 			// Use the more robust JudgeFindings engine
-			merged, err := ai.JudgeFindings(ctx, allFindings, aiFindings, consolidationModel, cfg.ConsolidationOllamaHost)
+			merged, err := ai.JudgeFindings(ctx, allFindings, aiFindings, consolidationModel, judgeHost)
 			if err == nil {
 				allFindings = merged
 				wsHub.BroadcastLog(scanID, "Consolidation complete", "success")
@@ -849,6 +997,14 @@ func mergeTwoFindings(best *reporter.Finding, f reporter.Finding, severityWeight
 	}
 	if best.FixedCode == "" && f.FixedCode != "" {
 		best.FixedCode = f.FixedCode
+	}
+	// Preserve AiReasoning: keep the longer / more detailed explanation
+	if len(f.AiReasoning) > len(best.AiReasoning) {
+		best.AiReasoning = f.AiReasoning
+	}
+	// Preserve ExploitPath if the best doesn't have one
+	if len(best.ExploitPath) == 0 && len(f.ExploitPath) > 0 {
+		best.ExploitPath = f.ExploitPath
 	}
 }
 
@@ -1161,11 +1317,17 @@ func recalibrateSeverities(findings []reporter.Finding, targetDir string) []repo
 	return findings
 }
 
-// parseStartLine extracts the first (start) line number from a line reference like "12" or "12-18"
+// parseStartLine extracts the first (start) line number from a line reference like "12" or "12-18".
+// Uses the same manual digit-scan approach as parseLineNum in fp_suppressor.go so both
+// implementations are consistent and neither relies on fmt.Sscanf (which silently returns 0).
 func parseStartLine(lineRef string) int {
 	parts := strings.Split(lineRef, "-")
-	var n int
-	fmt.Sscanf(parts[0], "%d", &n)
+	n := 0
+	for _, ch := range parts[0] {
+		if ch >= '0' && ch <= '9' {
+			n = n*10 + int(ch-'0')
+		}
+	}
 	return n
 }
 
@@ -1193,6 +1355,9 @@ func isTrivialLine(line string) bool {
 // bestLineInWindow finds the nearest non-trivial line within [start, end) (0-indexed) relative to
 // preferredIdx (also 0-indexed). It searches outward: preferred → preferred+1 → preferred-1 → …
 func bestLineInWindow(lines []string, start, end, preferredIdx int) int {
+	if preferredIdx < 0 || preferredIdx >= len(lines) {
+		return preferredIdx
+	}
 	if !isTrivialLine(lines[preferredIdx]) {
 		return preferredIdx
 	}
@@ -1447,6 +1612,8 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
 			if err == nil {
 				staticFindings = append(staticFindings, findings...)
+			} else {
+				utils.LogWarn(fmt.Sprintf("Taint analysis failed for %s: %v", file, err))
 			}
 		}
 	}
@@ -1534,7 +1701,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	// ════════════════════════════════════════════════════════
 	//  PHASE 2: AI EXPERT (40-75%)
 	// ════════════════════════════════════════════════════════
-	if ctx.Err() != nil {
+	if !checkPause(scanID, ctx) {
 		return
 	}
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")
@@ -1590,7 +1757,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	// ════════════════════════════════════════════════════════
 	//  PHASE 3: JUDGE LLM (75-95%)
 	// ════════════════════════════════════════════════════════
-	if ctx.Err() != nil {
+	if !checkPause(scanID, ctx) {
 		return
 	}
 	wsHub.BroadcastLog(scanID, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "phase")

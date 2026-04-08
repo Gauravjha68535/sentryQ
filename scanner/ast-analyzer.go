@@ -3,6 +3,7 @@ package scanner
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,10 +35,13 @@ func NewASTAnalyzer() *ASTAnalyzer {
 		parsers:   make(map[string]*treeSitter.Parser),
 	}
 
-	// Register supported languages
+	// Register supported languages.
+	// TypeScript is intentionally omitted: the go-tree-sitter JavaScript grammar
+	// does not cover TypeScript-specific syntax (generics, decorators, type annotations).
+	// Using it for .ts/.tsx files causes silent parse failures. A dedicated
+	// github.com/smacker/go-tree-sitter/typescript grammar is needed to support TS properly.
 	analyzer.languages["python"] = python.GetLanguage()
 	analyzer.languages["javascript"] = javascript.GetLanguage()
-	analyzer.languages["typescript"] = javascript.GetLanguage() // TypeScript uses JS parser
 	analyzer.languages["java"] = java.GetLanguage()
 	analyzer.languages["kotlin"] = kotlin.GetLanguage()
 
@@ -754,15 +758,20 @@ func (aa *ASTAnalyzer) BuildReachabilityCache(targetDir string) {
 	aa.cacheOnce.Do(func() {
 		localCache := make(map[string]bool)
 
-		filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
-			if err != nil || info.IsDir() {
+		// filepath.WalkDir is more efficient than filepath.Walk: it uses fs.DirEntry
+		// which avoids an extra os.Lstat per file. Directory skipping is also correct
+		// here — the old Walk version returned nil (not SkipDir) for directories, so
+		// node_modules/vendor/.git were never actually skipped.
+		filepath.WalkDir(targetDir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
 				return nil
 			}
-
-			// Skip common non-source directories
-			base := filepath.Base(path)
-			if base == "node_modules" || base == "vendor" || base == ".git" {
-				return filepath.SkipDir
+			if d.IsDir() {
+				name := d.Name()
+				if name == "node_modules" || name == "vendor" || name == ".git" {
+					return filepath.SkipDir
+				}
+				return nil
 			}
 
 			lang := getLanguageFromPath(path)
@@ -792,8 +801,8 @@ func (aa *ASTAnalyzer) BuildReachabilityCache(targetDir string) {
 	})
 }
 
-// IsFunctionReachable quickly checks the AST cache to see if a specific library or function is ever called.
-// This is used for SCA Reachability Analysis to reduce false positives for unused dependencies.
+// IsFunctionReachable checks the AST cache to see if a specific library or function is ever called.
+// Used for SCA Reachability Analysis to reduce false positives for unused dependencies.
 func (aa *ASTAnalyzer) IsFunctionReachable(targetDir string, functionOrLibName string) bool {
 	aa.BuildReachabilityCache(targetDir)
 
@@ -802,13 +811,11 @@ func (aa *ASTAnalyzer) IsFunctionReachable(targetDir string, functionOrLibName s
 	aa.cacheMu.RLock()
 	defer aa.cacheMu.RUnlock()
 
-	// O(K) where K is unique identifiers — typically finishes in microseconds.
 	for cachedID := range aa.reachabilityCache {
 		if strings.Contains(cachedID, functionOrLibName) {
 			return true
 		}
 	}
-
 	return false
 }
 

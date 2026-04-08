@@ -88,6 +88,8 @@ func (sd *SecretDetector) ScanSecrets(targetDir string) ([]reporter.Finding, err
 		// Risk 3 fix: Lowered from 10MB to 2MB — large minified JS/JSON files
 		// can spike RAM during regex+entropy processing
 		if info.Size() > 2*1024*1024 { // 2MB
+			utils.LogWarn(fmt.Sprintf("Secret scanner: skipping large file (%.1f MB) %s — secrets in files >2 MB are not checked",
+				float64(info.Size())/(1024*1024), path))
 			return nil
 		}
 

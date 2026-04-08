@@ -20,8 +20,8 @@ type VulnerabilityStats struct {
 
 // ConfidenceCalibrator adjusts AI confidence based on historical accuracy
 type ConfidenceCalibrator struct {
-	StatsFile string
-	Stats     map[string]*VulnerabilityStats // Severity -> Stats
+	statsFile string
+	stats     map[string]*VulnerabilityStats // Severity -> Stats
 	mu        sync.RWMutex
 }
 
@@ -32,14 +32,16 @@ func NewConfidenceCalibrator() *ConfidenceCalibrator {
 		homeDir = "."
 	}
 	dbDir := filepath.Join(homeDir, ".sentryq")
-	if err := os.MkdirAll(dbDir, 0755); err != nil {
+	// Use 0700 so that only the owner can list or read the directory;
+	// 0755 would allow other local users to access the DB and settings.
+	if err := os.MkdirAll(dbDir, 0700); err != nil {
 		utils.LogWarn(fmt.Sprintf("ConfidenceCalibrator: failed to create stats directory %s: %v", dbDir, err))
 	}
 	statsFile := filepath.Join(dbDir, ".scanner-ai-stats.json")
 
 	c := &ConfidenceCalibrator{
-		StatsFile: statsFile,
-		Stats:     make(map[string]*VulnerabilityStats),
+		statsFile: statsFile,
+		stats:     make(map[string]*VulnerabilityStats),
 	}
 	c.LoadStats()
 	return c
@@ -50,9 +52,9 @@ func (c *ConfidenceCalibrator) LoadStats() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	data, err := os.ReadFile(c.StatsFile)
+	data, err := os.ReadFile(c.statsFile)
 	if err == nil {
-		if unmarshalErr := json.Unmarshal(data, &c.Stats); unmarshalErr != nil {
+		if unmarshalErr := json.Unmarshal(data, &c.stats); unmarshalErr != nil {
 			utils.LogWarn("Confidence calibrator: failed to parse stats file, resetting: " + unmarshalErr.Error())
 		}
 	}
@@ -63,13 +65,13 @@ func (c *ConfidenceCalibrator) SaveStats() {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	data, err := json.MarshalIndent(c.Stats, "", "  ")
+	data, err := json.MarshalIndent(c.stats, "", "  ")
 	if err != nil {
 		utils.LogError("Failed to serialize calibrator stats", err)
 		return
 	}
-	if err := os.WriteFile(c.StatsFile, data, 0600); err != nil {
-		utils.LogError(fmt.Sprintf("Failed to write calibrator stats to %s", c.StatsFile), err)
+	if err := os.WriteFile(c.statsFile, data, 0600); err != nil {
+		utils.LogError(fmt.Sprintf("Failed to write calibrator stats to %s", c.statsFile), err)
 	}
 }
 
@@ -78,10 +80,10 @@ func (c *ConfidenceCalibrator) RecordValidation(severity string, isTruePositive 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	stats, exists := c.Stats[severity]
+	stats, exists := c.stats[severity]
 	if !exists {
 		stats = &VulnerabilityStats{}
-		c.Stats[severity] = stats
+		c.stats[severity] = stats
 	}
 
 	stats.AssessedFindings++
@@ -103,7 +105,7 @@ func (c *ConfidenceCalibrator) CalibrateConfidence(severity string, rawConfidenc
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	stats, exists := c.Stats[severity]
+	stats, exists := c.stats[severity]
 	if !exists || stats.AssessedFindings < 5 {
 		// Not enough data to calibrate, return raw
 		return rawConfidence

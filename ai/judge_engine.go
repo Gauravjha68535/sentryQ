@@ -56,11 +56,11 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 	// Both static and AI findings are sent to the Judge in full so it can evaluate all static findings
 	// including those in files where AI didn't natively discover anything.
 
-	// Configure Ollama host for the judge if different
-	originalHost := GetOllamaBaseURL()
+	// Compute the Ollama base URL for this judge call without mutating the global.
+	// Using a local variable avoids a race when two concurrent scans use different hosts.
+	judgeOllamaBaseURL := GetOllamaBaseURL()
 	if judgeOllamaHost != "" {
-		SetOllamaHost(judgeOllamaHost)
-		defer SetOllamaHost(strings.TrimPrefix(strings.TrimPrefix(originalHost, "http://"), "https://"))
+		judgeOllamaBaseURL = "http://" + judgeOllamaHost
 	}
 
 	// Build ID-indexed maps for both sets
@@ -105,7 +105,7 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 	for batchIdx, batch := range batches {
 		utils.LogInfo(fmt.Sprintf("⚖️  Judge batch %d/%d (%d findings)...", batchIdx+1, len(batches), len(batch)))
 
-		verdicts, err := runJudgeBatch(ctx, batch, judgeModel)
+		verdicts, err := runJudgeBatch(ctx, batch, judgeModel, judgeOllamaBaseURL)
 		if err != nil {
 			utils.LogWarn(fmt.Sprintf("Judge batch %d failed: %v — keeping all findings in batch", batchIdx+1, err))
 			// On failure, keep all findings from this batch as-is
@@ -193,7 +193,7 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 }
 
 // runJudgeBatch sends a single batch of findings to the Judge LLM
-func runJudgeBatch(ctx context.Context, findings []JudgeFinding, modelName string) ([]JudgeVerdictItem, error) {
+func runJudgeBatch(ctx context.Context, findings []JudgeFinding, modelName string, ollamaBaseURL string) ([]JudgeVerdictItem, error) {
 	findingsJSON, err := json.MarshalIndent(findings, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize findings for judge: %w", err)
@@ -282,7 +282,7 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 			return nil, fmt.Errorf("failed to serialize judge request body: %w", err)
 		}
 
-		currentAPIURL := GetOllamaBaseURL() + "/api/generate"
+		currentAPIURL := ollamaBaseURL + "/api/generate"
 		req, err := http.NewRequestWithContext(judgeCtx, "POST", currentAPIURL, bytes.NewBuffer(reqJSON))
 		if err != nil {
 			return nil, fmt.Errorf("failed to create judge request: %v", err)

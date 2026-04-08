@@ -229,9 +229,13 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 				}
 
 				calibrator.RecordValidation(job.finding.Severity, result.IsTruePositive)
-				calibrator.SaveStats()
 			}
 			mu.Unlock()
+			// SaveStats does file I/O — call it outside the lock so it doesn't
+			// block other workers (or UI printing) while writing to disk.
+			if err == nil {
+				calibrator.SaveStats()
+			}
 
 			results <- job
 		}

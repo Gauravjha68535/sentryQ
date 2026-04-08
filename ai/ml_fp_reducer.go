@@ -32,6 +32,12 @@ type FindingFeedback struct {
 
 // MLFPReducer performs machine learning-based false positive reduction.
 // All exported methods are safe for concurrent use.
+//
+// NOTE: This reducer requires user feedback to be wired in via AddFeedback.
+// The intended data flow is: when a user triages a finding in the UI
+// (marking it as "false_positive" or "resolved"), the web_dashboard.go
+// PATCH /api/scan/:id/finding/:dbId/status handler should call AddFeedback
+// so the history file is populated. Without that, the filter is a no-op.
 type MLFPReducer struct {
 	mu          sync.Mutex
 	history     *FPHistory
@@ -59,30 +65,52 @@ func (ml *MLFPReducer) LoadHistory() error {
 		if os.IsNotExist(err) {
 			return nil // No history file yet
 		}
-		return err
+		return fmt.Errorf("failed to read FP history: %v", err)
 	}
 
 	return json.Unmarshal(data, &ml.history)
 }
 
-// SaveHistory saves historical feedback data
+// SaveHistory saves feedback data to disk
 func (ml *MLFPReducer) SaveHistory() error {
 	ml.mu.Lock()
 	defer ml.mu.Unlock()
 
-	ml.history.LastUpdated = time.Now().Format(time.RFC3339)
-	ml.history.TotalFeedback = len(ml.history.Findings)
+	if err := os.MkdirAll(filepath.Dir(ml.historyFile), 0700); err != nil {
+		return fmt.Errorf("failed to create ml cache dir: %v", err)
+	}
 
 	data, err := json.MarshalIndent(ml.history, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to serialize FP history: %v", err)
 	}
 
 	return os.WriteFile(ml.historyFile, data, 0600)
 }
 
+// AddFeedback records a user triage decision for a finding.
+// Call this from the status-update handler whenever a user marks a finding
+// as false_positive or resolved so the history file gets populated.
+func (ml *MLFPReducer) AddFeedback(ruleID, filePath, severity string, isFalsePositive bool, comments string) {
+	ml.mu.Lock()
+	defer ml.mu.Unlock()
+
+	ml.history.Findings = append(ml.history.Findings, FindingFeedback{
+		FindingID:       fmt.Sprintf("%s:%s", ruleID, filePath),
+		RuleID:          ruleID,
+		FilePath:        filePath,
+		Severity:        severity,
+		IsFalsePositive: isFalsePositive,
+		FeedbackDate:    time.Now(),
+		Comments:        comments,
+	})
+	ml.history.TotalFeedback++
+	ml.history.LastUpdated = time.Now().Format(time.RFC3339)
+}
+
 // FilterFindingsByFPProbability filters findings based on FP probability.
 // Findings whose historical FP probability meets or exceeds threshold are dropped.
+// Returns all findings unchanged if there is not enough history yet.
 func (ml *MLFPReducer) FilterFindingsByFPProbability(findings []reporter.Finding, threshold float64) []reporter.Finding {
 	ml.mu.Lock()
 	defer ml.mu.Unlock()
@@ -158,26 +186,17 @@ func (ml *MLFPReducer) calculateSimilarityScore(current reporter.Finding, histor
 		score += 1.0
 	}
 
+	// File path similarity
+	if current.FilePath == historical.FilePath {
+		score += 1.0
+	} else if filepath.Ext(current.FilePath) == filepath.Ext(historical.FilePath) {
+		score += 0.5
+	}
+
 	// Severity match
 	if current.Severity == historical.Severity {
 		score += 1.0
 	}
 
-	// File extension match
-	currentExt := getFileExtension(current.FilePath)
-	historicalExt := getFileExtension(historical.FilePath)
-	if currentExt == historicalExt {
-		score += 1.0
-	}
-
 	return score / maxScore
-}
-
-// Helper functions
-func getFileExtension(filePath string) string {
-	ext := filepath.Ext(filePath)
-	if ext == "" {
-		return "unknown"
-	}
-	return strings.TrimPrefix(ext, ".")
 }

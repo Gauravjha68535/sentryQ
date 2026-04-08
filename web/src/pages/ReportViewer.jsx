@@ -19,6 +19,7 @@ export default function ReportViewer() {
     const [statusFilter, setStatusFilter] = useState('all') // 'all', 'open', 'resolved', 'ignored', 'false_positive'
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedIds, setSelectedIds] = useState(new Set())
+    const [errorMsg, setErrorMsg] = useState(null)
 
     const fetchReport = useCallback(async (phase = 'final') => {
         try {
@@ -56,10 +57,14 @@ export default function ReportViewer() {
                 body: JSON.stringify({ status: newStatus })
             })
             if (res.ok) {
-                // Update local state
                 setFindings(prev => prev.map(f => f.db_id === dbId ? { ...f, status: newStatus } : f))
+            } else {
+                setErrorMsg(`Failed to update status: server returned ${res.status}`)
             }
-        } catch (e) { console.error('Failed to update status:', e) }
+        } catch (e) {
+            console.error('Failed to update status:', e)
+            setErrorMsg('Failed to update finding status. Check your connection and try again.')
+        }
     }
 
     const bulkUpdateStatus = async (newStatus) => {
@@ -74,8 +79,13 @@ export default function ReportViewer() {
             if (res.ok) {
                 setFindings(prev => prev.map(f => selectedIds.has(f.db_id) ? { ...f, status: newStatus } : f))
                 setSelectedIds(new Set())
+            } else {
+                setErrorMsg(`Bulk update failed: server returned ${res.status}`)
             }
-        } catch (e) { console.error('Bulk update failed:', e) }
+        } catch (e) {
+            console.error('Bulk update failed:', e)
+            setErrorMsg('Bulk status update failed. Check your connection and try again.')
+        }
     }
 
     const toggleSelect = (dbId) => {
@@ -86,14 +96,8 @@ export default function ReportViewer() {
         })
     }
 
-    const toggleSelectAll = () => {
-        if (selectedIds.size === filtered.length) {
-            setSelectedIds(new Set())
-        } else {
-            setSelectedIds(new Set(filtered.map(f => f.db_id)))
-        }
-    }
-
+    // filtered is declared before toggleSelectAll so the callback always
+    // references the already-computed memoised value, avoiding a forward reference.
     const filtered = useMemo(() => findings.filter(f => {
         const matchesSeverity = filter === 'all' || (f.severity || '').toLowerCase() === filter
         const matchesStatus = statusFilter === 'all' || (f.status || 'open') === statusFilter
@@ -105,6 +109,14 @@ export default function ReportViewer() {
             (f.cwe || '').toLowerCase().includes(q)
         return matchesSeverity && matchesStatus && matchesSearch
     }), [findings, filter, statusFilter, searchQuery])
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === filtered.length) {
+            setSelectedIds(new Set())
+        } else {
+            setSelectedIds(new Set(filtered.map(f => f.db_id)))
+        }
+    }
 
     // Calculate stats
     const stats = useMemo(() => {
@@ -169,6 +181,18 @@ export default function ReportViewer() {
 
     return (
         <div className="animate-fade-in">
+            {errorMsg && (
+                <div style={{
+                    background: '#7f1d1d', color: '#fca5a5', padding: '10px 16px', borderRadius: '8px',
+                    marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    fontSize: '0.85rem',
+                }}>
+                    <span>{errorMsg}</span>
+                    <button onClick={() => setErrorMsg(null)} style={{
+                        background: 'none', border: 'none', color: '#fca5a5', cursor: 'pointer', fontSize: '1rem', lineHeight: 1,
+                    }}>✕</button>
+                </div>
+            )}
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
                     <h1>Security Report</h1>

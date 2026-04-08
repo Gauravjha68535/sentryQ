@@ -42,4 +42,20 @@ fi
 echo "🐹 Building Go application..."
 CGO_ENABLED=1 go build -o sentryq ./cmd/scanner
 
-echo "✅ Build Complete! You can now run the scanner with: ./sentryq"
+# 4. Package binary + rules/ into dist/
+# The scanner resolves rules at runtime relative to the executable location
+# (getDefaultRulesDir). rules/ must be in the same directory as the binary.
+echo "📦 Packaging binary and rules/ into dist/..."
+mkdir -p dist
+cp sentryq dist/
+if [ -d "rules" ]; then
+    cp -r rules dist/
+    echo "✅ dist/ ready: sentryq binary + rules/ directory"
+else
+    echo "⚠️  Warning: rules/ directory not found — scanner will fall back to CWD at runtime"
+fi
+
+echo ""
+echo "✅ Build Complete!"
+echo "   Run from project root:  ./sentryq"
+echo "   Or deploy the dist/ folder and run: ./dist/sentryq"

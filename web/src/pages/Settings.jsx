@@ -36,14 +36,18 @@ export default function Settings() {
                     custom_model: data.custom_model || ''
                 })
             }
-        } catch { /* use defaults */ }
+        } catch (e) {
+            console.warn('[Settings] Failed to fetch settings, using defaults:', e)
+        }
     }
 
     const fetchSystemStatus = async () => {
         try {
             const res = await fetch('/api/system/status')
             if (res.ok) setSystemStatus(await res.json())
-        } catch { /* ignore */ }
+        } catch (e) {
+            console.warn('[Settings] Failed to fetch system status:', e)
+        }
     }
 
     const handleChange = (e) => {

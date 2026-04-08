@@ -107,11 +107,11 @@ Return ONLY a valid JSON object in the final part of your response:
 			useModel = modelName
 		}
 		valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)
-		defer valCancel()
 		fullText, err := GenerateViaOpenAI(valCtx, customURL, customKey, useModel, prompt, map[string]interface{}{
 			"temperature": 0.0,
 			"num_predict": 8192,
 		})
+		valCancel() // cancel immediately after call, not at function return
 		if err != nil {
 			return nil, fmt.Errorf("OpenAI validation request failed: %v", err)
 		}
@@ -136,33 +136,33 @@ Return ONLY a valid JSON object in the final part of your response:
 		}
 
 		valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)
-		defer valCancel()
 
 		httpReq, err := http.NewRequestWithContext(valCtx, "POST", GetOllamaBaseURL()+"/api/generate", bytes.NewBuffer(reqJSON))
 		if err != nil {
+			valCancel()
 			return nil, fmt.Errorf("failed to create request: %v", err)
 		}
 		httpReq.Header.Set("Content-Type", "application/json")
 
-		client := &http.Client{
-			Timeout: 12 * time.Minute,
-		}
-
-		resp, err := client.Do(httpReq)
+		// Reuse the package-level aiHTTPClient (connection pooling, tuned transport)
+		// instead of creating a throwaway client per call. The per-request deadline
+		// is already enforced by valCtx above.
+		resp, err := aiHTTPClient.Do(httpReq)
+		valCancel() // cancel immediately after the HTTP round-trip completes
 		if err != nil {
 			return nil, fmt.Errorf("ollama API request failed: %v", err)
 		}
-		defer resp.Body.Close()
+		body, readErr := readOllamaResponse(resp.Body)
+		resp.Body.Close() //nolint:errcheck
+		if readErr != nil {
+			return nil, fmt.Errorf("failed to read Ollama response: %v", readErr)
+		}
 
 		if resp.StatusCode != 200 {
 			return nil, fmt.Errorf("ollama API returned status %d", resp.StatusCode)
 		}
 
-		fullText, readErr := readOllamaResponse(resp.Body)
-		if readErr != nil {
-			return nil, fmt.Errorf("failed to read Ollama response: %v", readErr)
-		}
-		outputStr = strings.TrimSpace(fullText)
+		outputStr = strings.TrimSpace(body)
 	}
 
 	outputStr = strings.TrimPrefix(outputStr, "```json")
@@ -178,11 +178,13 @@ Return ONLY a valid JSON object in the final part of your response:
 		// Try EscapeUnescapedQuotes repair
 		repairedJSON := utils.EscapeUnescapedQuotes(jsonStr)
 		if err2 := json.Unmarshal([]byte(repairedJSON), &result); err2 != nil {
-			// Fallback: mark as uncertain instead of fabricating a strong result
+			// Fallback: mark as uncertain instead of fabricating a strong result.
+			// The [PARSE_FAILURE] prefix distinguishes this from a genuine AI
+			// response with 0.5 confidence so calibration metrics are not skewed.
 			result = ValidationResult{
 				IsTruePositive:     true,
 				Confidence:         0.5,
-				Explanation:        "AI validation response could not be parsed. Keeping finding as precaution.",
+				Explanation:        "[PARSE_FAILURE] AI validation response could not be parsed. Keeping finding as precaution.",
 				SuggestedFix:       finding.Remediation,
 				SeverityAdjustment: "same",
 				ExploitPoC:         "N/A",

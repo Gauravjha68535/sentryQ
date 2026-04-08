@@ -132,8 +132,9 @@ func (h *WebSocketHub) HandleWS(w http.ResponseWriter, r *http.Request, scanID s
 
 	// Send a welcome message
 	welcome := WSMessage{Type: "log", Message: "Connected to WebSocket", Level: "info"}
-	data, _ := json.Marshal(welcome)
-	wsClient.WriteMessage(websocket.TextMessage, data)
+	if data, err := json.Marshal(welcome); err == nil {
+		wsClient.WriteMessage(websocket.TextMessage, data) //nolint:errcheck
+	}
 
 	// Keep connection alive; read pump (just drain incoming messages)
 	go func() {

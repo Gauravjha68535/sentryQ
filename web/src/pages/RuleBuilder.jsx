@@ -28,7 +28,7 @@ export default function RuleBuilder() {
             if (res.ok) setRuleFiles(await res.json())
             else alert(`Failed to load rule files (HTTP ${res.status})`)
         } catch (e) {
-            console.error(e)
+            console.error('[RuleBuilder] Failed to load rule files:', e)
             alert('Failed to load rule files: ' + e.message)
         } finally { setLoading(false) }
     }, [])
@@ -43,7 +43,7 @@ export default function RuleBuilder() {
             if (res.ok) setRules(await res.json())
             else alert(`Failed to load rules (HTTP ${res.status})`)
         } catch (e) {
-            console.error(e)
+            console.error('[RuleBuilder] Failed to load rules for file:', filename, e)
             alert('Failed to load rules: ' + e.message)
         }
     }
@@ -60,7 +60,7 @@ export default function RuleBuilder() {
             if (res.ok) setTestResult(await res.json())
             else alert(`Test failed (HTTP ${res.status})`)
         } catch (e) {
-            console.error(e)
+            console.error('[RuleBuilder] Rule test request failed:', e)
             alert('Test request failed: ' + e.message)
         } finally { setTesting(false) }
     }
@@ -82,7 +82,7 @@ export default function RuleBuilder() {
                 alert(`Failed to save rule (HTTP ${res.status})`)
             }
         } catch (e) {
-            console.error(e)
+            console.error('[RuleBuilder] Failed to save rule:', e)
             alert('Failed to save rule: ' + e.message)
         }
     }

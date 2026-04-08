@@ -93,6 +93,8 @@ func InitDB() error {
 		`
 		_, err = db.Exec(schema)
 		if err != nil {
+			db.Close()
+			db = nil
 			initErr = fmt.Errorf("failed to create schema: %v", err)
 			return
 		}
@@ -277,9 +279,14 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 	// static-only scans that never write a 'final' phase row). Do NOT fall
 	// back while the scan is still in progress — that would mix partial
 	// intermediate phases and present them as the final result.
+	//
+	// To avoid a TOCTOU race (scan status changing between the status check and
+	// the all-findings query), we re-check the status inside the same query
+	// rather than making two separate round-trips.
 	if (phase == "" || phase == "final") && len(findings) == 0 {
-		scan, scanErr := GetScan(scanID)
-		if scanErr == nil && scan.Status != "running" {
+		var status string
+		if err := db.QueryRow("SELECT status FROM scans WHERE id = ?", scanID).Scan(&status); err == nil &&
+			status != "running" {
 			return getAllFindingsForScan(scanID)
 		}
 	}
@@ -342,6 +349,21 @@ func UpdateFindingStatus(scanID string, id int, status string) error {
 	// 3. Update in DB
 	_, err = db.Exec("UPDATE findings SET data = ? WHERE id = ? AND scan_id = ?", string(newData), id, scanID)
 	return err
+}
+
+// GetFindingByID fetches a single finding by its DB primary key within a scan.
+func GetFindingByID(scanID string, id int) (reporter.Finding, error) {
+	var data string
+	err := db.QueryRow("SELECT data FROM findings WHERE id = ? AND scan_id = ?", id, scanID).Scan(&data)
+	if err != nil {
+		return reporter.Finding{}, err
+	}
+	var f reporter.Finding
+	if err := json.Unmarshal([]byte(data), &f); err != nil {
+		return reporter.Finding{}, err
+	}
+	f.ID = id
+	return f, nil
 }
 
 // DeleteScan removes a scan and its findings
