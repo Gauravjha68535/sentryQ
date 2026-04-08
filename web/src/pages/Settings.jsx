@@ -223,7 +223,7 @@ export default function Settings() {
                                     name="custom_api_url"
                                     value={settings.custom_api_url}
                                     onChange={handleChange}
-                                    placeholder="http://10.10.0.11:5005"
+                                    placeholder="http://localhost:8000/v1"
                                     style={{ background: 'var(--bg-secondary)' }}
                                 />
                                 <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>
@@ -273,8 +273,8 @@ export default function Settings() {
                                             style={{ background: 'var(--bg-secondary)' }}
                                         />
                                     )}
-                                    <button 
-                                        className="btn btn-secondary" 
+                                    <button
+                                        className="btn btn-secondary"
                                         onClick={fetchCustomModels}
                                         disabled={fetchingModels}
                                         title="Fetch models from /v1/models"
@@ -283,18 +283,18 @@ export default function Settings() {
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <button 
-                                    className="btn btn-secondary btn-sm" 
+                                <button
+                                    className="btn btn-secondary btn-sm"
                                     onClick={testCustomEndpoint}
                                     disabled={testing}
                                 >
                                     <Play size={14} /> {testing ? 'Testing...' : 'Test Connection'}
                                 </button>
-                                
+
                                 {testResult && (
-                                    <span style={{ 
+                                    <span style={{
                                         display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 500,
                                         color: testResult.success ? 'var(--text-success)' : 'var(--text-danger)'
                                     }}>
