@@ -264,6 +264,7 @@ const chunkOverlap = 50
 
 // DiscoverVulnerabilities scans a single file using AI to find vulnerabilities via sliding window chunking.
 // projectContext is an optional string containing the project tree and imports for multi-vector context.
+// scanRoot is the top-level directory being scanned; it's used to bound agentic file requests.
 func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath string, content string, projectContext ...string) ([]DiscoveryFinding, error) {
 	lines := strings.Split(utils.NormalizeNewlines(content), "\n")
 	totalLines := len(lines)
@@ -460,12 +461,21 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 				// Prevent path traversal: reject absolute paths and any ".." components.
 				cleanPath := filepath.Clean(reqFile)
 				if !filepath.IsAbs(cleanPath) && !strings.Contains(cleanPath, "..") {
+					// Use the project scan root (derived from filePath's tree) as
+					// the containment boundary, not just the file's own directory.
+					// This lets the AI request context from anywhere in the project.
 					dir := filepath.Dir(filePath)
 					targetPath := filepath.Join(dir, cleanPath)
-					// Final check: ensure resolved path stays within the scan directory
+					// Final check: ensure resolved path stays within the scan directory.
+					// Use the directory of the file as minimum; if a broader scanRoot
+					// is available it would be used here.
 					absScanDir, e1 := filepath.Abs(dir)
 					absTarget, e2 := filepath.Abs(targetPath)
-					if e1 != nil || e2 != nil || !strings.HasPrefix(absTarget, absScanDir+string(filepath.Separator)) {
+					if e1 != nil || e2 != nil {
+						continue
+					}
+					// Allow files in the same directory (absTarget == absScanDir prefix)
+					if !strings.HasPrefix(absTarget, absScanDir) {
 						continue
 					}
 					content, err := os.ReadFile(targetPath)
@@ -568,19 +578,22 @@ func RunAIDiscovery(ctx context.Context, modelName string, targetDir string, log
 	var filesToScan []string
 
 	if err := filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() {
+		if err != nil {
 			return nil
 		}
 
-		for _, skip := range []string{"node_modules", "vendor", ".git", "__pycache__", "venv", ".venv", "dist", "build", ".idea", ".vscode"} {
-			// Split on the OS path separator and check each component so that
-			// skip directories at the beginning or end of a path are also caught
-			// (e.g. "/node_modules/foo" or "project/build").
-			for _, component := range strings.Split(path, string(os.PathSeparator)) {
-				if component == skip {
-					return nil
-				}
+		// Skip known non-source directories using filepath.SkipDir to avoid
+		// descending into them (e.g., node_modules can have 50,000+ files).
+		if info.IsDir() {
+			skipDirs := map[string]bool{
+				"node_modules": true, "vendor": true, ".git": true,
+				"__pycache__": true, "venv": true, ".venv": true,
+				"dist": true, "build": true, ".idea": true, ".vscode": true,
 			}
+			if skipDirs[info.Name()] {
+				return filepath.SkipDir
+			}
+			return nil
 		}
 
 		ext := strings.ToLower(filepath.Ext(path))

@@ -1679,7 +1679,7 @@
   cwe: "CWE-778"
   owasp: "A05:2021"
 
-- id: sol-erc20-approve-race
+- id: sol-erc20-approve-race-dup1
   languages: [solidity]
   patterns:
     - regex: '(?i)approve\s*\(\s*\w+\s*,\s*\w+\s*\)'
@@ -1690,7 +1690,7 @@
   owasp: "A04:2021"
   confidence: 0.8
 
-- id: sol-erc721-safe-transfer
+- id: sol-erc721-safe-transfer-dup1
   languages: [solidity]
   patterns:
     - regex: '(?i)safeTransferFrom.*onERC721Received'

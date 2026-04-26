@@ -1723,7 +1723,7 @@
   owasp: "A05:2021"
   confidence: 0.8
 
-- id: k8s-resource-quota
+- id: k8s-resource-quota-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)ResourceQuota'
@@ -1734,7 +1734,7 @@
   owasp: "A04:2021"
   confidence: 0.8
 
-- id: k8s-limit-range
+- id: k8s-limit-range-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)LimitRange'

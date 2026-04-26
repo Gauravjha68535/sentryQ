@@ -207,7 +207,7 @@
   owasp: "A07:2021"
   confidence: 0.8
 
-- id: crystal-ssrf
+- id: crystal-ssrf-dup1
   languages: [crystal]
   patterns:
     - regex: '(?i)HTTP::Client\.get.*\$|HTTP::Client\.post.*\$'

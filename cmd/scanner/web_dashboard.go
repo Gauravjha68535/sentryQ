@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -33,6 +34,113 @@ import (
 var staticFS fs.FS
 var staticFSOnce sync.Once
 var staticFSError error
+
+// serverAuthToken is loaded from SENTRYQ_AUTH_TOKEN at startup.
+// When non-empty, every /api/* and /ws/* request must supply the matching
+// token via "X-Auth-Token: <token>" or "Authorization: Bearer <token>".
+// If the env var is unset, the server operates in open mode (backward compatible).
+var serverAuthToken string
+
+// ipRateLimiter is a simple sliding-window rate limiter keyed by client IP.
+type ipRateLimiter struct {
+	mu       sync.Mutex
+	requests map[string][]time.Time
+}
+
+// allow returns true when the IP has fewer than maxReqs requests in the last window.
+func (rl *ipRateLimiter) allow(ip string, maxReqs int, window time.Duration) bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	now := time.Now()
+	cutoff := now.Add(-window)
+	prev := rl.requests[ip]
+	var valid []time.Time
+	for _, t := range prev {
+		if t.After(cutoff) {
+			valid = append(valid, t)
+		}
+	}
+	if len(valid) >= maxReqs {
+		rl.requests[ip] = valid
+		return false
+	}
+	rl.requests[ip] = append(valid, now)
+	return true
+}
+
+// cleanup removes entries older than maxAge from the rate limiter map,
+// preventing unbounded memory growth on long-running servers.
+func (rl *ipRateLimiter) cleanup(maxAge time.Duration) {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	cutoff := time.Now().Add(-maxAge)
+	for ip, times := range rl.requests {
+		var valid []time.Time
+		for _, t := range times {
+			if t.After(cutoff) {
+				valid = append(valid, t)
+			}
+		}
+		if len(valid) == 0 {
+			delete(rl.requests, ip)
+		} else {
+			rl.requests[ip] = valid
+		}
+	}
+}
+
+// scanRateLimiter limits scan-triggering endpoints to 10 requests/min per IP.
+var scanRateLimiter = &ipRateLimiter{requests: make(map[string][]time.Time)}
+
+// reportRateLimiter limits report download endpoints to 30 requests/min per IP.
+// Report generation (PDF/HTML/SARIF) is CPU-heavy; this prevents DoS via
+// repeated regeneration requests.
+var reportRateLimiter = &ipRateLimiter{requests: make(map[string][]time.Time)}
+
+func init() {
+	// Background cleanup every 5 minutes to prevent unbounded memory growth
+	go func() {
+		ticker := time.NewTicker(5 * time.Minute)
+		defer ticker.Stop()
+		for range ticker.C {
+			scanRateLimiter.cleanup(2 * time.Minute)
+			reportRateLimiter.cleanup(2 * time.Minute)
+		}
+	}()
+}
+
+// ollamaStatusCache holds the last Ollama reachability result so that
+// /api/status does not make a live HTTP call on every frontend poll.
+var ollamaStatusCache struct {
+	sync.Mutex
+	status    string
+	checkedAt time.Time
+}
+
+const ollamaStatusTTL = 10 * time.Second
+
+// getOllamaStatus returns a cached Ollama reachability result, refreshing at most
+// once per ollamaStatusTTL to avoid blocking every /api/status request.
+func getOllamaStatus(host string) string {
+	ollamaStatusCache.Lock()
+	defer ollamaStatusCache.Unlock()
+	if time.Since(ollamaStatusCache.checkedAt) < ollamaStatusTTL {
+		return ollamaStatusCache.status
+	}
+	status := "unreachable"
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get(fmt.Sprintf("http://%s/api/version", host))
+	if err == nil {
+		io.Copy(io.Discard, resp.Body) //nolint:errcheck
+		resp.Body.Close()
+		if resp.StatusCode == http.StatusOK {
+			status = "connected"
+		}
+	}
+	ollamaStatusCache.status = status
+	ollamaStatusCache.checkedAt = time.Now()
+	return status
+}
 
 var (
 	startTime    time.Time
@@ -126,27 +234,55 @@ func recordMLFeedback(f reporter.Finding, status string) {
 }
 
 // secureWriteFile writes data to path with owner-only permissions.
-// On Unix, the file is created with mode 0600 (owner read/write only).
-// On Windows, os.WriteFile permission bits are not enforced by the OS, so we
-// make a best-effort attempt to restrict the ACL via icacls after writing,
-// removing inherited ACEs and granting full control only to the current user.
+//
+// Unix: uses os.WriteFile with mode 0600 — the OS enforces the permission bits.
+//
+// Windows: os.WriteFile permission bits are not enforced by NTFS, so we use an
+// atomic write pattern:
+//  1. Write data to a temporary file in the same directory.
+//  2. Apply a restrictive ACL to the temp file via icacls (owner full control,
+//     inheritance removed).
+//  3. Rename the temp file to the final path — on Windows, os.Rename on the same
+//     volume is atomic and replaces the destination.
+//
+// This guarantees the final file is never visible to other users with default ACLs.
 func secureWriteFile(path string, data []byte) error {
-	if err := os.WriteFile(path, data, 0600); err != nil {
-		return err
-	}
 	if runtime.GOOS == "windows" {
-		username := os.Getenv("USERNAME")
-		if username != "" {
+		dir := filepath.Dir(path)
+		tmp, err := os.CreateTemp(dir, ".sentryq-tmp-*.json")
+		if err != nil {
+			return err
+		}
+		tmpPath := tmp.Name()
+		removeTmp := func() { os.Remove(tmpPath) }
+
+		if _, err := tmp.Write(data); err != nil {
+			tmp.Close()
+			removeTmp()
+			return err
+		}
+		tmp.Close()
+
+		// Apply restrictive ACL before exposing under the final name.
+		if username := os.Getenv("USERNAME"); username != "" {
 			if err := exec.Command(
-				"icacls", path,
+				"icacls", tmpPath,
 				"/inheritance:r",
 				"/grant:r", username+":F",
 			).Run(); err != nil {
-				utils.LogWarn(fmt.Sprintf("secureWriteFile: icacls failed for %s: %v — file may be accessible to other users", path, err))
+				utils.LogWarn(fmt.Sprintf("secureWriteFile: icacls failed for %s: %v — file may be accessible to other users", tmpPath, err))
 			}
 		}
+
+		// Atomic replace: rename is on the same drive so this is a single metadata op.
+		if err := os.Rename(tmpPath, path); err != nil {
+			removeTmp()
+			return err
+		}
+		return nil
 	}
-	return nil
+	// Unix/macOS: the OS enforces 0600 permission bits directly.
+	return os.WriteFile(path, data, 0600)
 }
 
 func saveSettings() error {
@@ -212,6 +348,12 @@ func StartWebServer(port int) {
 
 	mux := http.NewServeMux()
 
+	// Liveness probe — no auth required (excluded in authMiddleware as well).
+	// Returns 200 OK for container orchestrators (Kubernetes, Docker, etc.).
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	// API Routes
 	mux.HandleFunc("/api/scans", handleListScans)
 	mux.HandleFunc("/api/scan/upload", handleUploadScan)
@@ -270,7 +412,7 @@ func StartWebServer(port int) {
 	localAddr := fmt.Sprintf("localhost:%d", port)
 	server := &http.Server{
 		Addr:         addr,
-		Handler:      corsMiddleware(mux),
+		Handler:      corsMiddleware(authMiddleware(mux)),
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 0, // 0 = no write timeout — needed for long-running SSE/WebSocket upgrades and large report downloads
 		IdleTimeout:  120 * time.Second,
@@ -353,6 +495,13 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Rate limit: 10 scan uploads per minute per IP.
+	clientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+	if !scanRateLimiter.allow(clientIP, 10, time.Minute) {
+		http.Error(w, "Too many scan requests. Try again in a minute.", http.StatusTooManyRequests)
+		return
+	}
+
 	// Limit upload size to 100 MB — sufficient for any real project; prevents disk exhaustion.
 	r.Body = http.MaxBytesReader(w, r.Body, 100<<20)
 
@@ -427,22 +576,25 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 				utils.LogWarn("Failed to create upload subdirectory: " + err.Error())
 				continue
 			}
-			destFile, err := os.Create(destPath)
-			if err != nil {
-				part.Close()
-				continue
-			}
-
-			if _, err := io.Copy(destFile, part); err != nil {
-				destFile.Close()
-				part.Close()
-				os.Remove(destPath)
-				utils.LogWarn("Failed to write uploaded file: " + err.Error())
-				continue
-			}
-			destFile.Close()
+			// Wrap file creation + copy in a closure so defer always closes the
+			// file descriptor — even when io.Copy or os.Create error mid-way.
+			writeOK := func() bool {
+				destFile, err := os.Create(destPath)
+				if err != nil {
+					return false
+				}
+				defer destFile.Close()
+				if _, err := io.Copy(destFile, part); err != nil {
+					os.Remove(destPath)
+					utils.LogWarn("Failed to write uploaded file: " + err.Error())
+					return false
+				}
+				return true
+			}()
 			part.Close()
-			fileCount++
+			if writeOK {
+				fileCount++
+			}
 		} else {
 			part.Close()
 		}
@@ -467,6 +619,13 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 func handleGitScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Rate limit: 10 git scan requests per minute per IP.
+	clientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+	if !scanRateLimiter.allow(clientIP, 10, time.Minute) {
+		http.Error(w, "Too many scan requests. Try again in a minute.", http.StatusTooManyRequests)
 		return
 	}
 
@@ -613,6 +772,13 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 
 	// GET /api/scan/:id/report/html|csv|pdf
 	if len(parts) >= 3 && parts[1] == "report" {
+		// Rate limit: 30 report downloads per minute per IP.
+		clientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+		if !reportRateLimiter.allow(clientIP, 30, time.Minute) {
+			http.Error(w, "Too many report requests. Try again in a minute.", http.StatusTooManyRequests)
+			return
+		}
+
 		format := parts[2]
 		reportsDir := filepath.Join(os.TempDir(), "sentryQ", scanID)
 		var filePath string
@@ -668,9 +834,34 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
+			// Resolve symlinks and verify the final path stays inside the reports
+			// directory before serving, consistent with the per-format check below.
+			resolvedZip, err := filepath.EvalSymlinks(zipPath)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+			resolvedZipDir := filepath.Clean(reportsDir) + string(filepath.Separator)
+			if !strings.HasPrefix(filepath.Clean(resolvedZip)+string(filepath.Separator), resolvedZipDir) {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+			// Open the file before serving to get a stable file descriptor —
+			// eliminates the TOCTOU window between EvalSymlinks and the actual read.
+			zipFD, err := os.Open(resolvedZip)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+			defer zipFD.Close()
+			zipStat, err := zipFD.Stat()
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
 			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"sentryq_scan_%s.zip\"", scanID))
 			w.Header().Set("Content-Type", "application/zip")
-			http.ServeFile(w, r, zipPath)
+			http.ServeContent(w, r, zipStat.Name(), zipStat.ModTime(), zipFD)
 			return
 		}
 
@@ -711,9 +902,35 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		// Resolve symlinks and verify the final path stays inside the expected
+		// reports directory — prevents a crafted scan ID from escaping via symlink.
+		resolvedPath, err := filepath.EvalSymlinks(filePath)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		resolvedDir := filepath.Clean(reportsDir) + string(filepath.Separator)
+		if !strings.HasPrefix(filepath.Clean(resolvedPath)+string(filepath.Separator), resolvedDir) {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+		// Open the file by its resolved path to obtain a stable file descriptor.
+		// Serving from the fd (rather than the path) closes the TOCTOU window
+		// between EvalSymlinks and the actual file read in http.ServeFile.
+		reportFD, err := os.Open(resolvedPath)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		defer reportFD.Close()
+		reportStat, err := reportFD.Stat()
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
 		w.Header().Set("Content-Type", contentType)
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=report.%s", format))
-		http.ServeFile(w, r, filePath)
+		http.ServeContent(w, r, reportStat.Name(), reportStat.ModTime(), reportFD)
 		return
 	}
 
@@ -749,23 +966,41 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid body", http.StatusBadRequest)
 			return
 		}
-		appSettings.Lock()
-		if s.OllamaHost != "" {
-			appSettings.OllamaHost = s.OllamaHost
-		}
-		if s.DefaultModel != "" {
-			appSettings.DefaultModel = s.DefaultModel
-		}
-		if s.AIProvider != "" {
-			appSettings.AIProvider = s.AIProvider
+		// Use defer-unlock so a panic inside the locked section never
+		// causes a permanent deadlock. Capture values under the lock,
+		// then apply side-effects (AI provider switch) outside it.
+		var providerChanged bool
+		func() {
+			appSettings.Lock()
+			defer appSettings.Unlock()
+			if s.OllamaHost != "" {
+				appSettings.OllamaHost = s.OllamaHost
+			}
+			if s.DefaultModel != "" {
+				appSettings.DefaultModel = s.DefaultModel
+			}
+			if s.AIProvider != "" {
+				appSettings.AIProvider = s.AIProvider
+				providerChanged = true
+			}
+			// Only overwrite custom credentials when provided; an empty string
+			// in the request body means "do not change", not "clear the value".
+			if s.CustomAPIURL != "" {
+				appSettings.CustomAPIURL = s.CustomAPIURL
+			}
+			if s.CustomAPIKey != "" {
+				appSettings.CustomAPIKey = s.CustomAPIKey
+			}
+			if s.CustomModel != "" {
+				appSettings.CustomModel = s.CustomModel
+			}
+		}()
+
+		// Apply side-effects outside the lock to prevent deadlocking if the
+		// AI package functions block or panic.
+		if providerChanged {
 			ai.SetActiveProvider(s.AIProvider)
 		}
-		appSettings.CustomAPIURL = s.CustomAPIURL
-		appSettings.CustomAPIKey = s.CustomAPIKey
-		appSettings.CustomModel = s.CustomModel
-		appSettings.Unlock()
-
-		// Apply custom endpoint to AI package
 		if s.CustomAPIURL != "" {
 			ai.SetCustomEndpoint(s.CustomAPIURL, s.CustomAPIKey, s.CustomModel)
 		}
@@ -800,19 +1035,11 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 
-	// Check Ollama
-	ollamaStatus := "unreachable"
+	// Check Ollama — use cached result to avoid blocking every status poll.
 	appSettings.RLock()
 	host := appSettings.OllamaHost
 	appSettings.RUnlock()
-	ollamaClient := &http.Client{Timeout: 3 * time.Second}
-	resp, err := ollamaClient.Get(fmt.Sprintf("http://%s/api/version", host))
-	if err == nil {
-		defer resp.Body.Close()
-		if resp.StatusCode == 200 {
-			ollamaStatus = "connected"
-		}
-	}
+	ollamaStatus := getOllamaStatus(host)
 
 	// Check Go version
 	goVersion := runtime.Version()
@@ -835,10 +1062,31 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// isAllowedOllamaHost returns true if the host (host:port or bare host) is a
+// loopback address. This prevents the ?host= query parameter from being used as
+// an SSRF vector to reach internal network services or cloud metadata endpoints.
+func isAllowedOllamaHost(host string) bool {
+	// Strip port if present so we compare bare hostnames/IPs.
+	h := host
+	if strings.Contains(host, ":") {
+		var err error
+		h, _, err = net.SplitHostPort(host)
+		if err != nil {
+			return false
+		}
+	}
+	return h == "localhost" || h == "127.0.0.1" || h == "::1"
+}
+
 func handleModels(w http.ResponseWriter, r *http.Request) {
 
-	// Allow optional host parameter to fetch models from a different Ollama instance
+	// Allow optional host parameter to fetch models from a different Ollama instance.
+	// Restrict to loopback addresses to prevent SSRF via crafted ?host= values.
 	host := r.URL.Query().Get("host")
+	if host != "" && !isAllowedOllamaHost(host) {
+		http.Error(w, "Invalid host: only loopback addresses are permitted", http.StatusBadRequest)
+		return
+	}
 	if host == "" {
 		appSettings.RLock()
 		host = appSettings.OllamaHost
@@ -862,12 +1110,19 @@ func handleModels(w http.ResponseWriter, r *http.Request) {
 // allowedOrigin returns true for origins that SentryQ (a local tool) should accept.
 // We parse the Origin header with url.Parse so that hostnames like "localhostevil.com"
 // or "127.0.0.1.attacker.com" cannot bypass a naive HasPrefix check.
+// We also restrict to http/https schemes — other schemes (ftp, file, data, etc.)
+// are never legitimate browser origins for a local web app.
 func allowedOrigin(origin string) bool {
 	if origin == "" {
 		return true // same-origin requests have no Origin header
 	}
 	u, err := url.Parse(origin)
 	if err != nil {
+		return false
+	}
+	// Reject non-HTTP schemes (e.g., ftp://, file://, javascript://)
+	scheme := strings.ToLower(u.Scheme)
+	if scheme != "http" && scheme != "https" {
 		return false
 	}
 	host := u.Hostname() // strips port; returns bare hostname or IP
@@ -881,9 +1136,51 @@ func corsMiddleware(next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		// Include auth headers so the browser doesn't block preflight for authenticated requests.
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token, Authorization")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// authMiddleware enforces token authentication on /api/* and /ws/* routes when
+// SENTRYQ_AUTH_TOKEN is set. Static UI files always pass through so the
+// frontend can load and display the auth token prompt to the user.
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// No token configured → open mode, pass through unchanged.
+		if serverAuthToken == "" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// CORS preflight must bypass auth (browsers send OPTIONS before credentials).
+		if r.Method == http.MethodOptions {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// /health is a public liveness probe for container orchestrators — no auth.
+		if r.URL.Path == "/health" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// Only protect API and WebSocket routes; static UI files are public.
+		if !strings.HasPrefix(r.URL.Path, "/api/") && !strings.HasPrefix(r.URL.Path, "/ws/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// Accept X-Auth-Token header or Authorization: Bearer <token>.
+		token := r.Header.Get("X-Auth-Token")
+		if token == "" {
+			if auth := r.Header.Get("Authorization"); strings.HasPrefix(auth, "Bearer ") {
+				token = strings.TrimPrefix(auth, "Bearer ")
+			}
+		}
+		if token != serverAuthToken {
+			utils.LogWarn(fmt.Sprintf("Unauthorized API request from %s: %s %s", r.RemoteAddr, r.Method, r.URL.Path))
+			http.Error(w, "Unauthorized: set X-Auth-Token header with the value of SENTRYQ_AUTH_TOKEN", http.StatusUnauthorized)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -942,6 +1239,13 @@ func handleResumeScan(w http.ResponseWriter, scanID string) {
 }
 
 func init() {
+	// Load auth token from environment.  When set, all /api/* and /ws/* routes
+	// require an X-Auth-Token (or Authorization: Bearer) header with this value.
+	serverAuthToken = os.Getenv("SENTRYQ_AUTH_TOKEN")
+	if serverAuthToken != "" {
+		utils.LogInfo("API authentication enabled — requests require X-Auth-Token header (SENTRYQ_AUTH_TOKEN is set)")
+	}
+
 	// Compute settings path in the user's home directory so the file is not
 	// written to whatever the current working directory happens to be, and is
 	// only readable by the current user (0600).
@@ -1248,19 +1552,58 @@ func startReportCleanup(ctx context.Context) {
 	}
 }
 
-// cleanOldReports deletes scan report directories older than maxAge.
+// cleanOldReports deletes scan report directories older than maxAge and also
+// removes any orphaned scan temp directories (sentryq-upload-*, sentryq-scan-*)
+// that are older than 24 hours (these are normally removed by defer in the scan
+// goroutine, but a hard crash can leave them behind).
 func cleanOldReports(maxAge time.Duration) {
 	reportsRoot := filepath.Join(os.TempDir(), "sentryQ")
 	entries, err := os.ReadDir(reportsRoot)
-	if err != nil {
-		return // Directory might not exist yet
+	if err == nil {
+		cutoff := time.Now().Add(-maxAge)
+		cleaned := 0
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				continue
+			}
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+			if info.ModTime().Before(cutoff) {
+				dirPath := filepath.Join(reportsRoot, entry.Name())
+				if err := os.RemoveAll(dirPath); err == nil {
+					cleaned++
+				}
+			}
+		}
+		if cleaned > 0 {
+			utils.LogInfo(fmt.Sprintf("🧹 Report cleanup: removed %d report directories older than %s", cleaned, maxAge))
+		}
 	}
 
+	// Clean orphaned scan temp directories that survived a hard crash.
+	cleanOrphanedScanDirs(24 * time.Hour)
+}
+
+// cleanOrphanedScanDirs removes sentryq-upload-* and sentryq-scan-* directories
+// in os.TempDir() that are older than maxAge. Under normal operation these are
+// removed by the defer in StartScanFromUpload/StartScanFromGit, but a SIGKILL or
+// panic outside the deferred block can leave them behind.
+func cleanOrphanedScanDirs(maxAge time.Duration) {
+	tmpDir := os.TempDir()
+	entries, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return
+	}
 	cutoff := time.Now().Add(-maxAge)
 	cleaned := 0
-
 	for _, entry := range entries {
 		if !entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasPrefix(name, "sentryq-upload-") && !strings.HasPrefix(name, "sentryq-scan-") {
 			continue
 		}
 		info, err := entry.Info()
@@ -1268,15 +1611,14 @@ func cleanOldReports(maxAge time.Duration) {
 			continue
 		}
 		if info.ModTime().Before(cutoff) {
-			dirPath := filepath.Join(reportsRoot, entry.Name())
+			dirPath := filepath.Join(tmpDir, name)
 			if err := os.RemoveAll(dirPath); err == nil {
 				cleaned++
 			}
 		}
 	}
-
 	if cleaned > 0 {
-		utils.LogInfo(fmt.Sprintf("🧹 Report cleanup: removed %d report directories older than %s", cleaned, maxAge))
+		utils.LogInfo(fmt.Sprintf("🧹 Temp cleanup: removed %d orphaned scan directories older than %s", cleaned, maxAge))
 	}
 }
 

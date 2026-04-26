@@ -134,10 +134,6 @@
   patterns:
   - regex: |-
       (?i)jinja2\.Template\s*\([^)]+\+[^)]+\)|render_template_string\s*\([^)]*%
-  - ast:
-      language: python
-      query: '(call function: (attribute attribute: (identifier) @attr (#eq? @attr
-        "render_template_string")) arguments: (argument_list (binary_operator)))'
   severity: high
   description: "Potential Server-Side Template Injection via Jinja2 with user input"
   remediation: "Never pass user input directly to Template(). Use context variables:
@@ -247,7 +243,7 @@
 - id: py-zip-slip-extract
   languages: [python]
   patterns:
-  - regex: "ZipFile\\s*\\.\\.\\s*extract(all)?\\s*\\.(?:member\\..startswith)"
+  - regex: 'ZipFile\s*\\.\\.\s*extract(all)?\s*\\.(?:member\\..startswith)'
   severity: high
   description: "Zip extraction without path validation is vulnerable to Zip Slip"
   remediation: "Validate extracted paths: if not os.path.abspath(dest).startswith(base):
@@ -370,11 +366,6 @@
   patterns:
   - regex: |-
       (?i)(execute|cursor\.execute)\s*\(\s*["\x27].*%.*["\x27]
-  - ast:
-      language: python
-      query: '(call function: (attribute attribute: (identifier) @attr (#eq? @attr
-        "execute")) arguments: (argument_list (binary_operator left: (string) right:
-        (identifier))))'
   severity: critical
   description: "Potential SQL injection via string formatting"
   remediation: "Use parameterized queries with placeholders (?, %s) instead of string
@@ -724,7 +715,7 @@
 - id: py-sql-percent-any
   languages: [python]
   patterns:
-  - regex: "(?i)(?:SELECT|INSERT|UPDATE|DELETE|WHERE).*%\\s*\\."
+  - regex: '(?i)(?:SELECT|INSERT|UPDATE|DELETE|WHERE).*%\s*\.'
   severity: high
   description: "SQL query built with % string formatting"
   remediation: "Use parameterized queries instead of % formatting"
@@ -835,7 +826,7 @@
   languages: [python]
   patterns:
   - regex: |-
-      \.bopen\s*\.(\s*[a-zA-Z_]\.w*)
+      \bopen\s*\(\s*[a-zA-Z_]\w*\)
   severity: medium
   description: "File open with variable — validate path if user-influenced"
   remediation: "Use os.path.realpath() and verify against base directory"
@@ -1519,7 +1510,7 @@
 
 # ======================== SUBPROCESS & COMMAND EXECUTION (71-100) ========================
 
-- id: py-subprocess-shell-true
+- id: py-subprocess-shell-true-dup1
   languages: [python]
   patterns:
   - regex: |-
@@ -2317,7 +2308,7 @@
 
 # ======================== LDAP INJECTION (151-160) ========================
 
-- id: py-ldap-injection
+- id: py-ldap-injection-dup1
   languages: [python]
   patterns:
   - regex: |-
@@ -2763,7 +2754,7 @@
 
 # ======================== SSRF (191-210) ========================
 
-- id: py-ssrf-requests
+- id: py-ssrf-requests-dup1
   languages: [python]
   patterns:
   - regex: |-
@@ -2974,7 +2965,7 @@
 
 # ======================== PATH TRAVERSAL (211-230) ========================
 
-- id: py-path-traversal-open
+- id: py-path-traversal-open-dup1
   languages: [python]
   patterns:
   - regex: |-
@@ -3429,7 +3420,7 @@
 
 # ======================== LOG FORGING (251-260) ========================
 
-- id: py-log-forging
+- id: py-log-forging-dup1
   languages: [python]
   patterns:
   - regex: |-
@@ -3754,7 +3745,7 @@
 
 # ======================== HARDCODED SECRETS (281-300) ========================
 
-- id: py-hardcoded-password
+- id: py-hardcoded-password-dup1
   languages: [python]
   patterns:
   - regex: |-
@@ -3765,7 +3756,7 @@
   cwe: "CWE-798"
   owasp: "A07:2021"
 
-- id: py-hardcoded-api-key
+- id: py-hardcoded-api-key-dup1
   languages: [python]
   patterns:
   - regex: |-

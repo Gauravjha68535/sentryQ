@@ -1,0 +1,197 @@
+# Auto-generated SentryQ Security Rules
+
+- id: crypto-md5
+  name: "Weak Hash: MD5"
+  description: "MD5 is a weak hashing algorithm susceptible to collision attacks."
+  severity: "high"
+  patterns:
+    - regex: 'md5\(|crypto\.createHash\(["'']md5["'']\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: crypto-des
+  name: "Weak Encryption: DES"
+  description: "DES is considered weak and easily crackable."
+  severity: "high"
+  patterns:
+    - regex: 'crypto\.createCipher(iv)?\(["'']des["''].*\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: crypto-random
+  name: "Insecure Random"
+  description: "Math.random() is not cryptographically secure."
+  severity: "medium"
+  patterns:
+    - regex: 'Math\.random\(\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-338"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: crypto-sha1-usage
+  name: "Weak Hash: SHA-1"
+  description: "SHA-1 is cryptographically broken and should not be used for security-sensitive operations. Use SHA-256 or stronger."
+  severity: "high"
+  patterns:
+    - regex: '(?i)sha1\s*\(|hashlib\.sha1\s*\(|SHA1\s*\(|MessageDigest\.getInstance\s*\(\s*["'']SHA-1["'']\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: crypto-rc4-usage
+  name: "RC4 Stream Cipher Usage"
+  description: "RC4 is a broken stream cipher with multiple known biases and vulnerabilities. Use AES-GCM or ChaCha20-Poly1305 instead."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)RC4|ARCFOUR|createDecipheriv\s*\(\s*["'']rc4'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.9
+
+- id: crypto-ecb-mode
+  name: "ECB Mode Block Cipher"
+  description: "ECB (Electronic Codebook) mode is deterministic — identical plaintext blocks produce identical ciphertext blocks, leaking data patterns. Use GCM or CBC with proper IV."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:AES|DES|3DES).*ECB|createCipheriv\s*\(\s*["''][^"'']*-ecb["'']'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: crypto-hardcoded-iv
+  name: "Hardcoded Initialization Vector"
+  description: "Initialization vector (IV) or nonce is hardcoded. IVs must be randomly generated per encryption operation to ensure semantic security."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:iv|IV|initialization_vector)\s*=\s*(?:b?["''][^"'']{8,}["'']|0x[0-9a-fA-F]{16,})'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-329"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.75
+
+- id: crypto-hardcoded-salt
+  name: "Hardcoded Cryptographic Salt"
+  description: "Cryptographic salt is hardcoded rather than randomly generated per operation. A static salt eliminates the protection salting provides against rainbow table attacks."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:salt|SALT)\s*=\s*(?:b?["''][^"'']{4,}["'']|0x[0-9a-fA-F]+)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-760"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.75
+
+- id: crypto-weak-rsa-key
+  name: "Weak RSA Key Size"
+  description: "RSA key size is below 2048 bits, which is considered cryptographically weak and can be factored with modern hardware. Use at least 2048 bits; 3072 or 4096 recommended."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)RSA\.generate\s*\(\s*(?:512|768|1024)\s*\)|KeyPairGenerator.*(?:512|768|1024)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-326"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.9
+
+- id: crypto-static-seed-random
+  name: "Static/Predictable Seed for PRNG"
+  description: "Random number generator seeded with a static, predictable value. This makes all generated values predictable to an attacker. Use os.urandom() or equivalent CSPRNG."
+  severity: "high"
+  patterns:
+    - regex: '(?i)random\.seed\s*\(\s*(?:0|1|42|123|1234|12345)\s*\)|srand\s*\(\s*(?:0|1|42)\s*\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-336"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: crypto-null-cipher
+  name: "Null or Trivial Cipher Usage"
+  description: "Null cipher or trivially weak encoding (ROT13, Caesar cipher, Vigenere) used instead of real encryption. These provide no meaningful confidentiality."
+  severity: "high"
+  patterns:
+    - regex: '(?i)NullCipher\s*\(\s*\)|ROT13|caesar_cipher|vigenere'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+- id: crypto-tls-1-0-1-1
+  name: "Deprecated TLS/SSL Protocol Version"
+  description: "Deprecated protocol version detected (SSLv2, SSLv3, TLS 1.0, or TLS 1.1). These contain known vulnerabilities. Enforce TLS 1.2 minimum, prefer TLS 1.3."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:SSLv2|SSLv3|TLSv1\.0|TLSv1\.1|ssl\.PROTOCOL_TLS|PROTOCOL_SSLv23|TLS1_VERSION)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: crypto-no-mac-encrypt
+  name: "AES Encryption Without Authentication"
+  description: "AES encryption instantiated without an authenticated mode (GCM/CCM/EAX). Unauthenticated ciphertext is malleable and vulnerable to padding oracle and bit-flipping attacks."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)AES\.new\s*\(|Cipher\.getInstance\s*\(\s*["'']AES/ECB'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.5
+
+- id: crypto-predictable-token
+  name: "Time-Based Predictable Token"
+  description: "Security token (CSRF token, session ID) generated from the current time. Time-based tokens are predictable. Use a CSPRNG such as secrets.token_hex()."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:token|csrf_token|session_id)\s*=\s*(?:str\s*\(\s*time\.|time\.time\(\)|Date\.now\(\)|System\.currentTimeMillis)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-338"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+- id: crypto-password-sha-no-salt
+  name: "Password Hashed with SHA Without Key Derivation"
+  description: "Password hashed directly with SHA-256/512 without a proper KDF (key derivation function) or salt. Use bcrypt, argon2id, or scrypt instead."
+  severity: "high"
+  languages: [python]
+  patterns:
+    - regex: '(?i)hashlib\.sha(?:256|512)\s*\(\s*(?:password\.encode|password\.strip)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-759"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+- id: crypto-bcrypt-low-rounds
+  name: "BCrypt With Low Work Factor"
+  description: "BCrypt configured with fewer than 12 rounds may be too fast for adequate brute-force resistance. OWASP recommends a minimum work factor of 10; 12+ is preferred."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)bcrypt\.hashpw\s*\([^)]*bcrypt\.gensalt\s*\(\s*(?:[1-9]\s*\)|10\s*\))'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-916"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.75
+
+- id: crypto-3des-usage
+  name: "Triple DES (3DES) Usage"
+  description: "3DES (Triple DES) is deprecated due to its 64-bit block size making it vulnerable to SWEET32 birthday attacks. Migrate to AES-256-GCM."
+  severity: "high"
+  patterns:
+    - regex: '(?i)DESede|TripleDES|3DES|des3|DES-EDE|createCipheriv\s*\(\s*["'']des-ede'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: crypto-insecure-tls-verify-disabled
+  name: "TLS Certificate Verification Disabled"
+  description: "TLS/SSL certificate verification is disabled, allowing man-in-the-middle attacks. Never disable certificate verification in production."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)(?:verify\s*=\s*False|ssl_verify\s*=\s*False|rejectUnauthorized\s*:\s*false|InsecureRequestWarning|CERT_NONE)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-295"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85

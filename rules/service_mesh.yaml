@@ -1,0 +1,150 @@
+# SentryQ Security Rules — Service Mesh Security
+# Covers: Istio, Envoy, Linkerd, Consul Connect misconfigurations
+
+# ======================== mTLS / TLS Configuration ========================
+
+- id: service-mesh-mtls-disabled
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)mtls:\s*\n\s*mode:\s*(?:DISABLE|PERMISSIVE)'
+    - regex: '(?i)PeerAuthentication[^}]*mode:\s*(?:DISABLE|PERMISSIVE)'
+  severity: critical
+  description: "mTLS is disabled or permissive in service mesh — traffic between services is unencrypted and vulnerable to interception."
+  remediation: "Set mTLS mode to STRICT in PeerAuthentication policy for all namespaces."
+  cwe: "CWE-319"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: service-mesh-mtls-permissive-global
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)kind:\s*PeerAuthentication\s*\n\s*metadata:\s*\n\s*name:\s*default\s*\n\s*namespace:\s*istio-system[^}]*mode:\s*PERMISSIVE'
+  severity: critical
+  description: "Global mesh-wide PeerAuthentication set to PERMISSIVE — allows plaintext traffic across all services."
+  remediation: "Set global PeerAuthentication mode to STRICT: spec.mtls.mode: STRICT."
+  cwe: "CWE-319"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: service-mesh-tls-min-version-low
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)(?:minProtocolVersion|minimum_tls_version|tls_minimum_version)\s*:\s*(?:TLSv1_0|TLSv1_1|TLS10|TLS11|TLSV10|TLSV11)'
+  severity: high
+  description: "Service mesh configured with deprecated TLS version (1.0/1.1) — vulnerable to BEAST, POODLE attacks."
+  remediation: "Set minimum TLS version to TLSv1_2 or preferably TLSv1_3."
+  cwe: "CWE-326"
+  owasp: "A02:2021-Cryptographic Failures"
+
+# ======================== Authorization Policy ========================
+
+- id: service-mesh-authz-allow-all
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)kind:\s*AuthorizationPolicy[^}]*action:\s*ALLOW\s*\n(?:(?!rules:).)*$'
+    - regex: '(?i)kind:\s*AuthorizationPolicy[^}]*rules:\s*\[\s*\{\s*\}\s*\]'
+  severity: critical
+  description: "AuthorizationPolicy allows all traffic without rules — bypasses all access control."
+  remediation: "Define explicit rules with specific source principals and request paths."
+  cwe: "CWE-862"
+  owasp: "A01:2021-Broken Access Control"
+
+- id: service-mesh-authz-no-source-principal
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)kind:\s*AuthorizationPolicy[^}]*rules:\s*\n\s*-\s*to:\s*\n(?:(?!from:).)*operation'
+  severity: high
+  description: "AuthorizationPolicy rule without source identity (from:) — any service can access the endpoint."
+  remediation: "Add source principal constraints: from: [{source: {principals: ['cluster.local/ns/*/sa/my-service']}}]."
+  cwe: "CWE-862"
+  owasp: "A01:2021-Broken Access Control"
+
+- id: service-mesh-wildcard-host
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)(?:VirtualService|Gateway|DestinationRule)[^}]*hosts:\s*\n\s*-\s*["\x27]\*["\x27]'
+    - regex: '(?i)hosts:\s*\[\s*["\x27]\*["\x27]\s*\]'
+  severity: high
+  description: "Wildcard host (*) in VirtualService/Gateway — routes all traffic regardless of hostname."
+  remediation: "Specify explicit hostnames: hosts: ['api.example.com']. Avoid wildcard hosts."
+  cwe: "CWE-284"
+  owasp: "A01:2021-Broken Access Control"
+
+# ======================== Envoy Proxy Misconfigurations ========================
+
+- id: service-mesh-envoy-admin-exposed
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)admin:\s*\n\s*address:\s*\n\s*socket_address:\s*\n\s*address:\s*0\.0\.0\.0'
+    - regex: '(?i)envoy.*admin.*0\.0\.0\.0'
+  severity: critical
+  description: "Envoy admin interface bound to 0.0.0.0 — exposed to all network interfaces."
+  remediation: "Bind Envoy admin to localhost only: address: 127.0.0.1."
+  cwe: "CWE-668"
+  owasp: "A05:2021-Security Misconfiguration"
+
+- id: service-mesh-envoy-access-log-disabled
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)accessLogFile:\s*["\x27]["\x27]'
+    - regex: '(?i)meshConfig:\s*\n(?:(?!accessLogFile).)*$'
+  severity: medium
+  description: "Envoy access logging is disabled — no audit trail for mesh traffic."
+  remediation: "Enable access logging: meshConfig.accessLogFile: /dev/stdout."
+  cwe: "CWE-778"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+
+- id: service-mesh-envoy-tracing-disabled
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)tracing:\s*\n\s*enabled:\s*false'
+    - regex: '(?i)enableTracing:\s*false'
+  severity: low
+  description: "Distributed tracing is disabled in service mesh — limits observability for security events."
+  remediation: "Enable tracing with sampling: tracing.sampling: 100 for production debugging."
+  cwe: "CWE-778"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+
+# ======================== Sidecar Injection ========================
+
+- id: service-mesh-sidecar-injection-disabled
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)sidecar\.istio\.io/inject\s*:\s*["\x27]false["\x27]'
+    - regex: '(?i)linkerd\.io/inject\s*:\s*disabled'
+  severity: high
+  description: "Sidecar proxy injection is explicitly disabled — this pod bypasses mesh security policies."
+  remediation: "Enable sidecar injection unless there is a documented reason. Review if exclusion is necessary."
+  cwe: "CWE-693"
+  owasp: "A05:2021-Security Misconfiguration"
+
+# ======================== Traffic Policies ========================
+
+- id: service-mesh-circuit-breaker-missing
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)kind:\s*DestinationRule[^}]*(?:trafficPolicy:)(?:(?!connectionPool|outlierDetection).)*$'
+  severity: medium
+  description: "DestinationRule without circuit breaker — cascading failures can take down the mesh."
+  remediation: "Add connectionPool limits and outlierDetection for circuit breaking."
+  cwe: "CWE-400"
+  owasp: "A05:2021-Security Misconfiguration"
+
+- id: service-mesh-rate-limit-missing
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)kind:\s*EnvoyFilter[^}]*envoy\.filters\.http\.local_ratelimit'
+  severity: medium
+  description: "Rate limiting filter configured — verify limits are appropriate for each service."
+  remediation: "Set rate limits based on expected traffic patterns. Monitor and adjust."
+  cwe: "CWE-770"
+  owasp: "A04:2021-Insecure Design"
+
+- id: service-mesh-egress-allow-all
+  languages: [yaml, kubernetes]
+  patterns:
+    - regex: '(?i)outboundTrafficPolicy:\s*\n\s*mode:\s*ALLOW_ANY'
+    - regex: '(?i)meshConfig:\s*\n(?:.*\n)*?\s*outboundTrafficPolicy:\s*\n\s*mode:\s*ALLOW_ANY'
+  severity: high
+  description: "Mesh allows all outbound traffic (ALLOW_ANY) — compromised pods can exfiltrate data to any external host."
+  remediation: "Set outboundTrafficPolicy.mode to REGISTRY_ONLY and explicitly define ServiceEntry for allowed external services."
+  cwe: "CWE-284"
+  owasp: "A01:2021-Broken Access Control"

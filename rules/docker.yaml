@@ -2,7 +2,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^FROM\.s+[^:]+$|^USER\.s+root
+        (?i)^FROM\s+[^:]+$|^USER\s+root
   severity: high
   description: "Container running as root user"
   remediation: "Add USER instruction with non-root user: USER appuser"
@@ -13,7 +13,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)ENV\.s+(PASSWORD|SECRET|API_KEY|TOKEN)\.s*=
+        (?i)ENV\s+(PASSWORD|SECRET|API_KEY|TOKEN)\s*=
   severity: critical
   description: "Hardcoded secrets in Dockerfile ENV instruction"
   remediation: "Use Docker secrets or pass secrets at runtime via environment variables"
@@ -24,7 +24,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^ADD\.s+https?://
+        (?i)^ADD\s+https?://
   severity: medium
   description: "Using ADD instead of COPY for remote URLs"
   remediation: "Use COPY for local files and curl/wget for remote files"
@@ -35,7 +35,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^FROM\.s+[^:]+:latest|^FROM\.s+[^:]+$
+        (?i)^FROM\s+[^:]+:latest|^FROM\s+[^:]+$
   severity: medium
   description: "Using :latest tag or no tag for base image"
   remediation: "Pin base image to specific version: FROM node:18.17.0-alpine"
@@ -46,7 +46,7 @@
   languages: [yaml]
   patterns:
     - regex: |-
-        (?i)privileged:\.s*true
+        (?i)privileged:\s*true
   severity: critical
   description: "Container running in privileged mode"
   remediation: "Remove privileged: true and use specific capabilities instead"
@@ -67,7 +67,7 @@
   languages: [yaml]
   patterns:
     - regex: |-
-        (?i)network_mode:\.s*host
+        (?i)network_mode:\s*host
   severity: high
   description: "Container using host network namespace"
   remediation: "Use bridge network with explicit port mappings"
@@ -78,7 +78,7 @@
   languages: [yaml]
   patterns:
     - regex: |-
-        (?i)pid:\.s*host
+        (?i)pid:\s*host
   severity: high
   description: "Container sharing host PID namespace"
   remediation: "Remove pid: host unless absolutely necessary"
@@ -89,7 +89,7 @@
   languages: [yaml]
   patterns:
     - regex: |-
-        (?i)read_only:\.s*false|(?:read_only)security_opt
+        (?i)read_only:\s*false|(?:read_only)security_opt
   severity: medium
   description: "Container root filesystem is writable"
   remediation: "Set read_only: true and use volumes for writable paths"
@@ -110,7 +110,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)EXPOSE\.s+(22|23|3389|5900)
+        (?i)EXPOSE\s+(22|23|3389|5900)
   severity: medium
   description: "Sensitive ports exposed in Dockerfile"
   remediation: "Remove EXPOSE for sensitive services. Use internal networking"
@@ -121,7 +121,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)RUN.*\.b(curl|wget)\.b.*\.|
+        (?i)RUN.*\b(curl|wget)\b.*\.|
   severity: medium
   description: "Downloading and executing remote scripts in Dockerfile"
   remediation: "Download files, verify checksums, then execute separately"
@@ -132,7 +132,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)RUN.*\.b(apt-get|yum|apk)\.s+(install|add)\.b(?:.*&&.*rm.*-rf.*var.*cache)
+        (?i)RUN.*\b(apt-get|yum|apk)\s+(install|add)\b(?:.*&&.*rm.*-rf.*var.*cache)
   severity: low
   description: "Package manager cache not cleaned after installation"
   remediation: "Add && rm -rf /var/cache/apt/* or use --no-cache with apk"
@@ -183,7 +183,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^CMD\.s+\.w+\.s+\.w+
+        (?i)^CMD\s+\w+\s+\w+
   severity: low
   description: "CMD in shell form instead of exec form"
   remediation: "Use exec form: CMD [\"executable\", \"param\"]"
@@ -194,7 +194,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^ENTRYPOINT\.s+\.w+\.s+\.w+
+        (?i)^ENTRYPOINT\s+\w+\s+\w+
   severity: low
   description: "ENTRYPOINT in shell form"
   remediation: "Use exec form for ENTRYPOINT"
@@ -205,7 +205,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^WORKDIR\.s+[^/]
+        (?i)^WORKDIR\s+[^/]
   severity: low
   description: "WORKDIR without absolute path"
   remediation: "Use absolute paths for WORKDIR"
@@ -216,7 +216,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^COPY\.s+.*--chown
+        (?i)^COPY\s+.*--chown
   severity: low
   description: "COPY with --chown flag"
   remediation: "Ensure chown target user exists"
@@ -227,7 +227,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^ADD\.s+.*--chown
+        (?i)^ADD\s+.*--chown
   severity: low
   description: "ADD with --chown flag"
   remediation: "Prefer COPY over ADD"
@@ -249,7 +249,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^ARG\.s+(PASSWORD|SECRET|KEY|TOKEN)\.s*=
+        (?i)^ARG\s+(PASSWORD|SECRET|KEY|TOKEN)\s*=
   severity: critical
   description: "ARG with default secret value"
   remediation: "Never set default secrets in ARG"
@@ -260,7 +260,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^ENV\.s+(PASSWORD|SECRET|API_KEY|PRIVATE)
+        (?i)^ENV\s+(PASSWORD|SECRET|API_KEY|PRIVATE)
   severity: critical
   description: "ENV with secret value"
   remediation: "Pass secrets at runtime, not in Dockerfile"
@@ -271,7 +271,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN\.s+apt-get\.s+update.*^RUN\.s+apt-get\.s+install
+        (?i)^RUN\s+apt-get\s+update.*^RUN\s+apt-get\s+install
   severity: low
   description: "apt-get update and install in separate RUN"
   remediation: "Combine in single RUN for layer caching"
@@ -282,7 +282,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN.*pip\.s+install(?:.*--no-cache-dir)
+        (?i)^RUN.*pip\s+install(?:.*--no-cache-dir)
   severity: low
   description: "pip install without --no-cache-dir"
   remediation: "Add --no-cache-dir to reduce image size"
@@ -293,7 +293,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN.*npm\.s+install(?:.*--no-audit)
+        (?i)^RUN.*npm\s+install(?:.*--no-audit)
   severity: low
   description: "npm install without --no-audit"
   remediation: "Add --no-audit --no-fund for CI builds"
@@ -304,7 +304,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN.*yarn\.s+install
+        (?i)^RUN.*yarn\s+install
   severity: low
   description: "yarn install detected"
   remediation: "Add --frozen-lockfile for reproducibility"
@@ -315,7 +315,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN.*gem\.s+install
+        (?i)^RUN.*gem\s+install
   severity: low
   description: "gem install without version"
   remediation: "Pin gem versions for reproducibility"
@@ -326,7 +326,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^RUN.*composer\.s+install
+        (?i)^RUN.*composer\s+install
   severity: low
   description: "composer install detected"
   remediation: "Add --no-dev --no-scripts for production"
@@ -337,7 +337,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^EXPOSE\.s+1-65535|^EXPOSE\.s+\.*
+        (?i)^EXPOSE\s+1-65535|^EXPOSE\s+\.*
   severity: critical
   description: "EXPOSE all ports"
   remediation: "Only expose required ports"
@@ -348,7 +348,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^EXPOSE\.s+(3306|5432|1433|27017|6379)
+        (?i)^EXPOSE\s+(3306|5432|1433|27017|6379)
   severity: high
   description: "EXPOSE database port"
   remediation: "Don't expose database ports publicly"
@@ -359,7 +359,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^STOPSIGNAL\.s+
+        (?i)^STOPSIGNAL\s+
   severity: low
   description: "STOPSIGNAL instruction"
   remediation: "Ensure graceful shutdown handling"
@@ -370,7 +370,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^ONBUILD\.s+
+        (?i)^ONBUILD\s+
   severity: medium
   description: "ONBUILD instruction can surprise downstream builds"
   remediation: "Document ONBUILD triggers clearly"
@@ -381,7 +381,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^VOLUME\.s+
+        (?i)^VOLUME\s+
   severity: low
   description: "VOLUME instruction creates anonymous volume"
   remediation: "Use named volumes in compose/orchestrator"
@@ -392,7 +392,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^ARG\.s+.*^RUN.*\.$\.w+
+        (?i)^ARG\s+.*^RUN.*\.$\w+
   severity: medium
   description: "ARG value visible in image history"
   remediation: "Use multi-stage builds to hide ARG values"
@@ -403,7 +403,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)^SHELL\.s+
+        (?i)^SHELL\s+
   severity: low
   description: "Custom SHELL instruction"
   remediation: "Ensure shell is available in base image"
@@ -448,7 +448,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)restart:\.s*always|restart:\.s*unless-stopped
+        (?i)restart:\s*always|restart:\s*unless-stopped
   severity: low
   description: "Container restart policy configured"
   remediation: "Ensure restart policy is appropriate"
@@ -459,7 +459,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)logging:\.s*driver:
+        (?i)logging:\s*driver:
   severity: low
   description: "Custom logging driver configured"
   remediation: "Ensure logs are sent to secure location"
@@ -470,7 +470,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)max-size:\.s*\.d+[mg]
+        (?i)max-size:\s*\.d+[mg]
   severity: low
   description: "Log size limit configured"
   remediation: "Set appropriate log rotation"
@@ -481,7 +481,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ulimit:\.s*
+        (?i)ulimit:\s*
   severity: low
   description: "Container ulimit configured"
   remediation: "Set appropriate resource limits"
@@ -492,7 +492,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)sysctls:\.s*
+        (?i)sysctls:\s*
   severity: medium
   description: "Container sysctls modified"
   remediation: "Review sysctl changes for security"
@@ -503,7 +503,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)devices:\.s*-/dev/
+        (?i)devices:\s*-/dev/
   severity: high
   description: "Container device mapping"
   remediation: "Avoid mapping host devices"
@@ -514,7 +514,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)devices:\.s*-/dev/nvidia
+        (?i)devices:\s*-/dev/nvidia
   severity: medium
   description: "GPU device mapping"
   remediation: "Ensure GPU access is necessary"
@@ -525,7 +525,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)devices:\.s*-/dev/dri
+        (?i)devices:\s*-/dev/dri
   severity: medium
   description: "DRM device mapping"
   remediation: "Review necessity of device access"
@@ -536,7 +536,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)cgroup_parent:\.s*
+        (?i)cgroup_parent:\s*
   severity: low
   description: "Custom cgroup parent"
   remediation: "Ensure cgroup configuration is secure"
@@ -547,7 +547,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)cpu_shares:\.s*
+        (?i)cpu_shares:\s*
   severity: low
   description: "CPU shares configured"
   remediation: "Set appropriate CPU limits"
@@ -558,7 +558,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)cpu_quota:\.s*
+        (?i)cpu_quota:\s*
   severity: low
   description: "CPU quota configured"
   remediation: "Set appropriate CPU limits"
@@ -569,7 +569,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)mem_limit:\.s*
+        (?i)mem_limit:\s*
   severity: low
   description: "Memory limit configured"
   remediation: "Set appropriate memory limits"
@@ -580,7 +580,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)memswap_limit:\.s*
+        (?i)memswap_limit:\s*
   severity: low
   description: "Memory swap limit configured"
   remediation: "Consider disabling swap for security"
@@ -591,7 +591,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)oom_kill_disable:\.s*true
+        (?i)oom_kill_disable:\s*true
   severity: medium
   description: "OOM kill disabled"
   remediation: "Allow OOM kill to prevent system instability"
@@ -602,7 +602,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)pids_limit:\.s*
+        (?i)pids_limit:\s*
   severity: low
   description: "PID limit configured"
   remediation: "Set appropriate PID limits"
@@ -613,7 +613,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)shm_size:\.s*
+        (?i)shm_size:\s*
   severity: low
   description: "Shared memory size configured"
   remediation: "Set appropriate shm size"
@@ -624,7 +624,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)tmpfs:\.s*
+        (?i)tmpfs:\s*
   severity: low
   description: "tmpfs mount configured"
   remediation: "Ensure tmpfs doesn't expose sensitive data"
@@ -635,7 +635,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)stop_grace_period:\.s*
+        (?i)stop_grace_period:\s*
   severity: low
   description: "Stop grace period configured"
   remediation: "Set appropriate grace period"
@@ -646,7 +646,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)init:\.s*true
+        (?i)init:\s*true
   severity: low
   description: "Init process enabled"
   remediation: "Good for signal handling and zombie reaping"
@@ -657,7 +657,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)userns_mode:\.s*
+        (?i)userns_mode:\s*
   severity: medium
   description: "User namespace mode configured"
   remediation: "Review user namespace configuration"
@@ -668,7 +668,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)group_add:\.s*
+        (?i)group_add:\s*
   severity: medium
   description: "Additional groups configured"
   remediation: "Minimize group memberships"
@@ -679,7 +679,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)dns:\.s*
+        (?i)dns:\s*
   severity: low
   description: "Custom DNS configured"
   remediation: "Use trusted DNS servers"
@@ -690,7 +690,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)dns_search:\.s*
+        (?i)dns_search:\s*
   severity: low
   description: "DNS search domains configured"
   remediation: "Review DNS search configuration"
@@ -701,7 +701,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)dns_opt:\.s*
+        (?i)dns_opt:\s*
   severity: low
   description: "DNS options configured"
   remediation: "Review DNS options"
@@ -712,7 +712,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)extra_hosts:\.s*
+        (?i)extra_hosts:\s*
   severity: low
   description: "Extra hosts entries configured"
   remediation: "Review extra hosts configuration"
@@ -723,7 +723,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)domainname:\.s*
+        (?i)domainname:\s*
   severity: low
   description: "Container domain name configured"
   remediation: "Review domain name configuration"
@@ -735,7 +735,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/:
+        (?i)volumes:.*-\s*/:
   severity: critical
   description: "Root filesystem bind mounted"
   remediation: "Never mount root filesystem"
@@ -746,7 +746,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/etc
+        (?i)volumes:.*-\s*/etc
   severity: critical
   description: "/etc directory bind mounted"
   remediation: "Avoid mounting /etc"
@@ -757,7 +757,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/var
+        (?i)volumes:.*-\s*/var
   severity: high
   description: "/var directory bind mounted"
   remediation: "Avoid mounting /var"
@@ -768,7 +768,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/home
+        (?i)volumes:.*-\s*/home
   severity: high
   description: "/home directory bind mounted"
   remediation: "Avoid mounting /home"
@@ -779,7 +779,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/proc
+        (?i)volumes:.*-\s*/proc
   severity: critical
   description: "/proc directory bind mounted"
   remediation: "Never mount /proc"
@@ -790,7 +790,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/sys
+        (?i)volumes:.*-\s*/sys
   severity: critical
   description: "/sys directory bind mounted"
   remediation: "Never mount /sys"
@@ -801,7 +801,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/dev
+        (?i)volumes:.*-\s*/dev
   severity: critical
   description: "/dev directory bind mounted"
   remediation: "Never mount /dev"
@@ -812,7 +812,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/run
+        (?i)volumes:.*-\s*/run
   severity: high
   description: "/run directory bind mounted"
   remediation: "Avoid mounting /run"
@@ -823,7 +823,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/tmp
+        (?i)volumes:.*-\s*/tmp
   severity: medium
   description: "/tmp directory bind mounted"
   remediation: "Use container tmpfs instead"
@@ -834,7 +834,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/boot
+        (?i)volumes:.*-\s*/boot
   severity: critical
   description: "/boot directory bind mounted"
   remediation: "Never mount /boot"
@@ -845,7 +845,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/lib
+        (?i)volumes:.*-\s*/lib
   severity: high
   description: "/lib directory bind mounted"
   remediation: "Avoid mounting /lib"
@@ -856,7 +856,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/usr
+        (?i)volumes:.*-\s*/usr
   severity: high
   description: "/usr directory bind mounted"
   remediation: "Avoid mounting /usr"
@@ -867,7 +867,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/opt
+        (?i)volumes:.*-\s*/opt
   severity: medium
   description: "/opt directory bind mounted"
   remediation: "Review necessity of /opt mount"
@@ -878,7 +878,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/srv
+        (?i)volumes:.*-\s*/srv
   severity: medium
   description: "/srv directory bind mounted"
   remediation: "Review necessity of /srv mount"
@@ -889,7 +889,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/mnt
+        (?i)volumes:.*-\s*/mnt
   severity: medium
   description: "/mnt directory bind mounted"
   remediation: "Review necessity of /mnt mount"
@@ -900,7 +900,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:.*-\.s*/media
+        (?i)volumes:.*-\s*/media
   severity: medium
   description: "/media directory bind mounted"
   remediation: "Review necessity of /media mount"
@@ -944,7 +944,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)volumes:\.s*\.w+:
+        (?i)volumes:\s*\w+:
   severity: low
   description: "Named volume defined"
   remediation: "Use named volumes for persistence"
@@ -955,7 +955,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)external:\.s*true
+        (?i)external:\s*true
   severity: medium
   description: "External volume referenced"
   remediation: "Ensure external volume exists and is secure"
@@ -966,7 +966,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)driver:\.s*local
+        (?i)driver:\s*local
   severity: low
   description: "Local volume driver"
   remediation: "Local driver is default and secure"
@@ -977,7 +977,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)driver:\.s*nfs
+        (?i)driver:\s*nfs
   severity: medium
   description: "NFS volume driver"
   remediation: "Ensure NFS server is secure"
@@ -988,7 +988,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)driver:\.s*ceph
+        (?i)driver:\s*ceph
   severity: medium
   description: "Ceph volume driver"
   remediation: "Ensure Ceph cluster is secure"
@@ -999,7 +999,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)driver:\.s*rbd
+        (?i)driver:\s*rbd
   severity: medium
   description: "RBD volume driver"
   remediation: "Ensure RBD cluster is secure"
@@ -1011,7 +1011,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)network_mode:\.s*bridge
+        (?i)network_mode:\s*bridge
   severity: low
   description: "Default bridge network"
   remediation: "Consider custom network for isolation"
@@ -1022,7 +1022,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)network_mode:\.s*none
+        (?i)network_mode:\s*none
   severity: low
   description: "No network access"
   remediation: "Appropriate for isolated containers"
@@ -1033,7 +1033,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)network_mode:\.s*container:
+        (?i)network_mode:\s*container:
   severity: medium
   description: "Sharing another container's network"
   remediation: "Review network sharing necessity"
@@ -1044,7 +1044,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)network_mode:\.s*service:
+        (?i)network_mode:\s*service:
   severity: medium
   description: "Sharing another service's network"
   remediation: "Review network sharing necessity"
@@ -1055,7 +1055,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)internal:\.s*true
+        (?i)internal:\s*true
   severity: low
   description: "Internal network (no external access)"
   remediation: "Good for isolated services"
@@ -1066,7 +1066,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)attachable:\.s*true
+        (?i)attachable:\s*true
   severity: low
   description: "Attachable network"
   remediation: "Review which containers can attach"
@@ -1077,7 +1077,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)driver:\.s*overlay
+        (?i)driver:\s*overlay
   severity: low
   description: "Overlay network for swarm"
   remediation: "Ensure swarm is properly secured"
@@ -1088,7 +1088,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)driver:\.s*macvlan
+        (?i)driver:\s*macvlan
   severity: medium
   description: "Macvlan network (direct L2 access)"
   remediation: "Review macvlan security implications"
@@ -1099,7 +1099,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)driver:\.s*ipvlan
+        (?i)driver:\s*ipvlan
   severity: medium
   description: "Ipvlan network"
   remediation: "Review ipvlan security implications"
@@ -1110,7 +1110,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ipam:\.s*config:
+        (?i)ipam:\s*config:
   severity: low
   description: "Custom IPAM configuration"
   remediation: "Review IPAM settings"
@@ -1121,7 +1121,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)subnet:\.s*
+        (?i)subnet:\s*
   severity: low
   description: "Custom subnet configured"
   remediation: "Ensure subnet doesn't overlap"
@@ -1132,7 +1132,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)gateway:\.s*
+        (?i)gateway:\s*
   severity: low
   description: "Custom gateway configured"
   remediation: "Review gateway configuration"
@@ -1143,7 +1143,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ip_range:\.s*
+        (?i)ip_range:\s*
   severity: low
   description: "IP range configured"
   remediation: "Review IP range settings"
@@ -1154,7 +1154,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)aux_address:\.s*
+        (?i)aux_address:\s*
   severity: low
   description: "Auxiliary address configured"
   remediation: "Review auxiliary address settings"
@@ -1165,7 +1165,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)options:\.s*
+        (?i)options:\s*
   severity: low
   description: "Network options configured"
   remediation: "Review network options"
@@ -1176,7 +1176,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)external:\.s*true
+        (?i)external:\s*true
   severity: medium
   description: "External network referenced"
   remediation: "Ensure external network exists and is secure"
@@ -1187,7 +1187,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)name:\.s*
+        (?i)name:\s*
   severity: low
   description: "Network name configured"
   remediation: "Use descriptive network names"
@@ -1198,7 +1198,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)aliases:\.s*
+        (?i)aliases:\s*
   severity: low
   description: "Network aliases configured"
   remediation: "Review network aliases"
@@ -1209,7 +1209,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)links:\.s*
+        (?i)links:\s*
   severity: low
   description: "Container links (legacy)"
   remediation: "Use networks instead of links"
@@ -1220,7 +1220,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ports:\.s*-\.s*\.\.d+:\.d+\.
+        (?i)ports:\s*-\s*\.\.d+:\.d+\.
   severity: medium
   description: "Port mapping to all interfaces"
   remediation: "Bind to specific interface: 127.0.0.1:port:port"
@@ -1231,7 +1231,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ports:\.s*-\.s*\.127\..0\..0\..1
+        (?i)ports:\s*-\s*\.127\..0\..0\..1
   severity: low
   description: "Port mapping to localhost only"
   remediation: "Good practice for internal services"
@@ -1242,7 +1242,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ports:\.s*-\.s*\.\.d+-\.d+
+        (?i)ports:\s*-\s*\.\.d+-\.d+
   severity: medium
   description: "Port range mapping"
   remediation: "Map only required ports"
@@ -1253,7 +1253,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)publish_all_ports:\.s*true
+        (?i)publish_all_ports:\s*true
   severity: high
   description: "All ports published"
   remediation: "Publish only required ports"
@@ -1264,7 +1264,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ports:\.s*.*/udp
+        (?i)ports:\s*.*/udp
   severity: low
   description: "UDP port exposed"
   remediation: "Review UDP port necessity"
@@ -1275,7 +1275,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)ports:\.s*.*/sctp
+        (?i)ports:\s*.*/sctp
   severity: low
   description: "SCTP port exposed"
   remediation: "Review SCTP port necessity"
@@ -1287,7 +1287,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)secrets:\.s*file:
+        (?i)secrets:\s*file:
   severity: medium
   description: "Secret from file"
   remediation: "Ensure file has restricted permissions"
@@ -1298,7 +1298,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)secrets:\.s*external:\.s*true
+        (?i)secrets:\s*external:\s*true
   severity: low
   description: "External secret referenced"
   remediation: "Ensure external secret is managed securely"
@@ -1309,7 +1309,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)secrets:\.s*driver:
+        (?i)secrets:\s*driver:
   severity: low
   description: "Secret driver configured"
   remediation: "Use secure secret driver"
@@ -1320,7 +1320,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)configs:\.s*file:
+        (?i)configs:\s*file:
   severity: low
   description: "Config from file"
   remediation: "Ensure config doesn't contain secrets"
@@ -1331,7 +1331,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)configs:\.s*external:\.s*true
+        (?i)configs:\s*external:\s*true
   severity: low
   description: "External config referenced"
   remediation: "Ensure external config is secure"
@@ -1342,7 +1342,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)configs:\.s*driver:
+        (?i)configs:\s*driver:
   severity: low
   description: "Config driver configured"
   remediation: "Use secure config driver"
@@ -1353,7 +1353,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)secrets:\.s*target:
+        (?i)secrets:\s*target:
   severity: low
   description: "Secret target path"
   remediation: "Use appropriate target path"
@@ -1364,7 +1364,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)secrets:\.s*uid:
+        (?i)secrets:\s*uid:
   severity: low
   description: "Secret UID configured"
   remediation: "Set appropriate UID"
@@ -1375,7 +1375,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)secrets:\.s*gid:
+        (?i)secrets:\s*gid:
   severity: low
   description: "Secret GID configured"
   remediation: "Set appropriate GID"
@@ -1386,7 +1386,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)secrets:\.s*mode:
+        (?i)secrets:\s*mode:
   severity: low
   description: "Secret mode configured"
   remediation: "Set restrictive mode (e.g., 0400)"
@@ -1397,7 +1397,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)configs:\.s*target:
+        (?i)configs:\s*target:
   severity: low
   description: "Config target path"
   remediation: "Use appropriate target path"
@@ -1408,7 +1408,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)configs:\.s*uid:
+        (?i)configs:\s*uid:
   severity: low
   description: "Config UID configured"
   remediation: "Set appropriate UID"
@@ -1419,7 +1419,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)configs:\.s*gid:
+        (?i)configs:\s*gid:
   severity: low
   description: "Config GID configured"
   remediation: "Set appropriate GID"
@@ -1430,7 +1430,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)configs:\.s*mode:
+        (?i)configs:\s*mode:
   severity: low
   description: "Config mode configured"
   remediation: "Set appropriate mode"
@@ -1441,7 +1441,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)environment:\.s*.*_SECRET|environment:\.s*.*_PASSWORD
+        (?i)environment:\s*.*_SECRET|environment:\s*.*_PASSWORD
   severity: high
   description: "Secret in environment variable"
   remediation: "Use Docker secrets instead"
@@ -1452,7 +1452,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)env_file:\.s*
+        (?i)env_file:\s*
   severity: medium
   description: "Environment file referenced"
   remediation: "Ensure env file doesn't contain secrets"
@@ -1463,7 +1463,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)env_file:\.s*-
+        (?i)env_file:\s*-
   severity: low
   description: "Multiple env files"
   remediation: "Review all env files for secrets"
@@ -1563,7 +1563,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)insecure-registries:\.s*
+        (?i)insecure-registries:\s*
   severity: high
   description: "Insecure registry configured"
   remediation: "Use TLS for all registries"
@@ -1574,7 +1574,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)registry-mirrors:\.s*
+        (?i)registry-mirrors:\s*
   severity: low
   description: "Registry mirror configured"
   remediation: "Ensure mirror is trusted"
@@ -1585,7 +1585,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)auths:\.s*
+        (?i)auths:\s*
   severity: medium
   description: "Registry authentication configured"
   remediation: "Ensure credentials are secure"
@@ -1596,7 +1596,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)credsStore:\.s*
+        (?i)credsStore:\s*
   severity: low
   description: "Credential store configured"
   remediation: "Use secure credential store"
@@ -1607,7 +1607,7 @@
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
-        (?i)credHelpers:\.s*
+        (?i)credHelpers:\s*
   severity: low
   description: "Credential helper configured"
   remediation: "Use secure credential helper"
@@ -1617,7 +1617,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--cache-from\.s+
+        (?i)--cache-from\s+
   severity: low
   description: "Build cache from external source"
   remediation: "Ensure cache source is trusted"
@@ -1628,7 +1628,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--target\.s+
+        (?i)--target\s+
   severity: low
   description: "Multi-stage build target"
   remediation: "Ensure target stage is secure"
@@ -1639,7 +1639,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--platform\.s+
+        (?i)--platform\s+
   severity: low
   description: "Build platform specified"
   remediation: "Ensure platform is supported"
@@ -1650,7 +1650,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--ssh\.s+
+        (?i)--ssh\s+
   severity: medium
   description: "SSH agent forwarded to build"
   remediation: "Ensure SSH access is necessary"
@@ -1661,7 +1661,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--network\.s+
+        (?i)--network\s+
   severity: low
   description: "Build network mode"
   remediation: "Review build network access"
@@ -1672,7 +1672,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--no-cache\.s+
+        (?i)--no-cache\s+
   severity: low
   description: "Build without cache"
   remediation: "Good for reproducible builds"
@@ -1683,7 +1683,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--pull\.s+
+        (?i)--pull\s+
   severity: low
   description: "Always pull base image"
   remediation: "Good for security updates"
@@ -1694,7 +1694,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--squash\.s+
+        (?i)--squash\s+
   severity: low
   description: "Squash layers after build"
   remediation: "Reduces image size"
@@ -1705,7 +1705,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--compress\.s+
+        (?i)--compress\s+
   severity: low
   description: "Compress build context"
   remediation: "Good for large contexts"
@@ -1716,7 +1716,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--isolation\.s+
+        (?i)--isolation\s+
   severity: low
   description: "Build isolation mode"
   remediation: "Review isolation settings"
@@ -1727,7 +1727,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--label\.s+
+        (?i)--label\s+
   severity: low
   description: "Build metadata labels"
   remediation: "Add appropriate metadata"
@@ -1738,7 +1738,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)-t\.s+|--tag\.s+
+        (?i)-t\s+|--tag\s+
   severity: low
   description: "Image tag specified"
   remediation: "Use semantic versioning"
@@ -1749,7 +1749,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)-f\.s+|--file\.s+
+        (?i)-f\s+|--file\s+
   severity: low
   description: "Dockerfile path specified"
   remediation: "Ensure Dockerfile is secure"
@@ -1760,7 +1760,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)\.s+\../|\.s+\..\..$
+        (?i)\s+\../|\s+\..\..$
   severity: low
   description: "Build context path"
   remediation: "Use minimal build context"
@@ -1804,7 +1804,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--output\.s+|--out\.s+
+        (?i)--output\s+|--out\s+
   severity: low
   description: "Build output configuration"
   remediation: "Review output settings"
@@ -1815,7 +1815,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--provenance\.s+
+        (?i)--provenance\s+
   severity: low
   description: "Build provenance"
   remediation: "Enable for supply chain security"
@@ -1826,7 +1826,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        (?i)--sbom\.s+
+        (?i)--sbom\s+
   severity: low
   description: "SBOM generation"
   remediation: "Enable for supply chain security"
@@ -1942,7 +1942,7 @@
   languages: [dockerfile]
   patterns:
     - regex: |-
-        ^ADD\s+.*\.(tar\.gz|tgz|tar\.bz2|tbz2)
+        ^ADD\s+.*\.(tar\.gz|tgz|tar\bz2|tbz2)
   severity: medium
   description: "ADD automatically extracts archives (may overwrite files)"
   remediation: "Use COPY and RUN tar -xzf instead"
@@ -2323,7 +2323,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: docker-healthcheck-missing
+- id: docker-healthcheck-missing-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -3161,7 +3161,7 @@
 
 # ======================== DOCKER SECRETS (111-130) ========================
 
-- id: docker-secret-file
+- id: docker-secret-file-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3172,7 +3172,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: docker-secret-external
+- id: docker-secret-external-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3183,7 +3183,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: docker-secret-target
+- id: docker-secret-target-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3194,7 +3194,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: docker-secret-mode
+- id: docker-secret-mode-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3216,7 +3216,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: docker-secret-uid
+- id: docker-secret-uid-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3227,7 +3227,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: docker-secret-gid
+- id: docker-secret-gid-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3794,7 +3794,7 @@
   cwe: "CWE-284"
   owasp: "A01:2021"
 
-- id: docker-network-internal
+- id: docker-network-internal-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3805,7 +3805,7 @@
   cwe: "CWE-284"
   owasp: "A01:2021"
 
-- id: docker-network-attachable
+- id: docker-network-attachable-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3838,7 +3838,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-network-gateway
+- id: docker-network-gateway-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3849,7 +3849,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-network-ip-range
+- id: docker-network-ip-range-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3904,7 +3904,7 @@
   cwe: "CWE-319"
   owasp: "A02:2021"
 
-- id: docker-network-aliases
+- id: docker-network-aliases-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3926,7 +3926,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: docker-network-external
+- id: docker-network-external-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -3937,7 +3937,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-network-name
+- id: docker-network-name-dup1
   languages: [yaml, docker-compose]
   patterns:
     - regex: |-
@@ -4005,7 +4005,7 @@
 
 # ======================== DOCKER BUILD & CI/CD (191-200) ========================
 
-- id: docker-build-no-cache
+- id: docker-build-no-cache-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4016,7 +4016,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-build-pull
+- id: docker-build-pull-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4027,7 +4027,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-build-squash
+- id: docker-build-squash-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4038,7 +4038,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-build-platform
+- id: docker-build-platform-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4049,7 +4049,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-build-provenance
+- id: docker-build-provenance-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4060,7 +4060,7 @@
   cwe: "CWE-693"
   owasp: "A06:2021"
 
-- id: docker-build-sbom
+- id: docker-build-sbom-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4071,7 +4071,7 @@
   cwe: "CWE-693"
   owasp: "A06:2021"
 
-- id: docker-build-output
+- id: docker-build-output-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4082,7 +4082,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-build-target
+- id: docker-build-target-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-
@@ -4093,7 +4093,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: docker-build-ssh
+- id: docker-build-ssh-dup1
   languages: [dockerfile]
   patterns:
     - regex: |-

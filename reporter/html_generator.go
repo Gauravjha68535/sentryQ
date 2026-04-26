@@ -89,7 +89,7 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		FalsePositives: falsePositives,
 		Summary:        summary,
 		RiskScore:      CalculateRiskScore(findings),
-		PriorityMatrix: getPriorityMatrix(findings),
+		PriorityMatrix: GetPriorityMatrix(findings),
 		CWECounts:      aggregateCWE(findings),
 		OWASPCounts:    aggregateOWASP(findings),
 	}
@@ -120,7 +120,7 @@ func NormalizeOWASP(s string) string {
 	}
 	m := owaspRe.FindStringSubmatch(s)
 	if m == nil {
-		return ""
+		return "N/A"
 	}
 	result := m[1] // e.g. "A03:2021"
 	if m[2] != "" {
@@ -144,7 +144,7 @@ func NormalizeCWE(s string) string {
 	if m := cweRe.FindString(s); m != "" {
 		return m
 	}
-	return s // keep as-is if no CWE-NNN pattern found
+	return "N/A" // keep formatting consistent, replacing arbitrary AI text with N/A
 }
 
 func aggregateCWE(findings []Finding) []KVCount {

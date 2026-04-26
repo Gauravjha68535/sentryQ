@@ -1,0 +1,161 @@
+# SentryQ Security Rules — JWT Advanced
+# Covers: Algorithm confusion, weak secrets, claim validation, token handling
+
+# ======================== Algorithm Confusion Attacks ========================
+
+- id: jwt-algorithm-none
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)algorithm\s*[=:]\s*["\x27]none["\x27]'
+    - regex: '(?i)alg\s*[=:]\s*["\x27]none["\x27]'
+    - regex: '(?i)algorithms\s*[=:]\s*\[.*["\x27]none["\x27]'
+  severity: critical
+  description: "JWT algorithm set to 'none' — allows unsigned tokens to be accepted, enabling complete auth bypass."
+  remediation: "Never allow algorithm 'none'. Explicitly whitelist algorithms: algorithms=['HS256', 'RS256']."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: jwt-algorithm-symmetric-asymmetric-confusion
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:verify|decode|validate).*(?:algorithms?\s*[=:]\s*\[?\s*["\x27](?:HS256|HS384|HS512)["\x27]).*(?:public[_-]?key|rsa[_-]?public|pem)'
+    - regex: '(?i)(?:public[_-]?key|rsa[_-]?public|pem).*(?:algorithms?\s*[=:]\s*\[?\s*["\x27](?:HS256|HS384|HS512)["\x27])'
+  severity: critical
+  description: "JWT verification uses HMAC algorithm with a public key — classic key confusion attack. Attacker can sign tokens with the public key."
+  remediation: "Use RS256/ES256 with public keys and HS256 only with symmetric secrets. Never mix them."
+  cwe: "CWE-327"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: jwt-weak-hmac-secret
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:jwt[_-]?secret|secret[_-]?key|signing[_-]?key|token[_-]?secret)\s*[=:]\s*["\x27](secret|password|123456|changeme|test|admin|key|default|example|qwerty|letmein)["\x27]'
+  severity: critical
+  description: "JWT signed with a trivially guessable secret. Attackers can brute-force and forge arbitrary tokens."
+  remediation: "Use a cryptographically random secret of at least 256 bits. Generate with: openssl rand -hex 32."
+  cwe: "CWE-798"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: jwt-short-secret
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:jwt[_-]?secret|secret[_-]?key|signing[_-]?key)\s*[=:]\s*["\x27][^"\x27]{1,15}["\x27]'
+  severity: high
+  description: "JWT secret is too short (under 16 characters) — vulnerable to brute-force attacks."
+  remediation: "Use a secret of at least 32 characters (256 bits) for HMAC-SHA256."
+  cwe: "CWE-326"
+  owasp: "A02:2021-Cryptographic Failures"
+
+# ======================== Missing Claim Validation ========================
+
+- id: jwt-no-expiry-validation
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:verify|decode|validate).*(?:ignore[_-]?exp|verify[_-]?exp\s*[=:]\s*(?:false|False|FALSE))'
+    - regex: '(?i)options\s*[=:]\s*\{[^}]*ignore[Ee]xpiration\s*:\s*true'
+  severity: high
+  description: "JWT expiration (exp) claim validation is disabled — tokens never expire."
+  remediation: "Always validate the exp claim. Set reasonable expiry (15 min for access, 7 days for refresh)."
+  cwe: "CWE-613"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+- id: jwt-no-issuer-validation
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:verify|decode|validate).*(?:verify[_-]?iss\s*[=:]\s*(?:false|False|FALSE))'
+    - regex: '(?i)options\s*[=:]\s*\{[^}]*(?:issuer|iss)\s*:\s*(?:false|null|undefined|None)'
+  severity: medium
+  description: "JWT issuer (iss) claim validation is disabled — tokens from any issuer are accepted."
+  remediation: "Always verify the iss claim matches your expected issuer URL."
+  cwe: "CWE-345"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+- id: jwt-no-audience-validation
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:verify|decode|validate).*(?:verify[_-]?aud\s*[=:]\s*(?:false|False|FALSE))'
+    - regex: '(?i)options\s*[=:]\s*\{[^}]*(?:audience|aud)\s*:\s*(?:false|null|undefined|None)'
+  severity: medium
+  description: "JWT audience (aud) claim validation disabled — tokens for other services/APIs are accepted."
+  remediation: "Validate the aud claim to ensure the token was intended for your application."
+  cwe: "CWE-345"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+# ======================== Insecure Token Handling ========================
+
+- id: jwt-token-in-url
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:url|href|redirect|location)\s*[=+].*(?:token|jwt|access_token|id_token)\s*[=+]'
+    - regex: '(?i)\?.*(?:token|jwt|access_token)\s*='
+  severity: high
+  description: "JWT token passed in URL query parameter — exposed in browser history, server logs, and Referer headers."
+  remediation: "Pass tokens in the Authorization header (Bearer scheme) or in HTTP-only secure cookies."
+  cwe: "CWE-598"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+- id: jwt-token-in-localstorage
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)localStorage\.setItem\s*\(\s*["\x27](?:token|jwt|access_token|auth_token|id_token)["\x27]'
+    - regex: '(?i)localStorage\[?\s*["\x27](?:token|jwt|access_token|auth_token)["\x27]\]?\s*='
+  severity: high
+  description: "JWT stored in localStorage — vulnerable to XSS attacks. Any script on the page can steal the token."
+  remediation: "Store tokens in HTTP-only secure cookies with SameSite attribute, or use in-memory storage."
+  cwe: "CWE-922"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+- id: jwt-no-signature-verification
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:decode|parse).*(?:verify\s*[=:]\s*(?:false|False|FALSE)|without[_-]?verification|no[_-]?verify)'
+    - regex: '(?i)jwt\.decode\s*\([^)]*,\s*(?:options\s*=\s*\{[^}]*"verify"\s*:\s*false|verify\s*=\s*False)'
+  severity: critical
+  description: "JWT decoded without signature verification — anyone can forge tokens with arbitrary claims."
+  remediation: "Always verify JWT signatures. Use decode only for inspecting token structure, never for auth decisions."
+  cwe: "CWE-345"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: jwt-long-expiry
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:expires[_-]?in|exp|maxAge|max_age|ttl)\s*[=:]\s*["\x27]?\d{6,}["\x27]?'
+    - regex: '(?i)(?:expires[_-]?in|expiresIn)\s*[=:]\s*["\x27](?:\d+d|\d+y|365d|30d|90d)["\x27]'
+  severity: medium
+  description: "JWT access token has an extremely long expiry — compromised tokens remain valid for extended periods."
+  remediation: "Use short-lived access tokens (15-60 min) and long-lived refresh tokens with rotation."
+  cwe: "CWE-613"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+- id: jwt-sensitive-data-in-payload
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:payload|claims)\s*[=:]\s*\{[^}]*(?:password|ssn|credit[_-]?card|social[_-]?security|secret|private[_-]?key)'
+  severity: high
+  description: "Sensitive data embedded in JWT payload — JWTs are base64-encoded (not encrypted) and readable by anyone."
+  remediation: "Never include passwords, PII, or secrets in JWT payloads. Use opaque references to server-side data."
+  cwe: "CWE-312"
+  owasp: "A02:2021-Cryptographic Failures"
+
+# ======================== JWK / JWKS Vulnerabilities ========================
+
+- id: jwt-jwks-url-injection
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)(?:jku|x5u)\s*[=:]\s*["\x27]https?://(?!(?:login\.microsoftonline|accounts\.google|cognito-idp))'
+    - regex: '(?i)header\s*[=:]\s*\{[^}]*(?:jku|x5u)\s*:'
+  severity: high
+  description: "JWT header contains jku/x5u pointing to external URL — attacker can host their own JWKS to forge tokens."
+  remediation: "Validate jku/x5u against a static allowlist of trusted key endpoints. Prefer local key configuration."
+  cwe: "CWE-345"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: jwt-embedded-jwk
+  languages: [javascript, typescript, python, go, ruby, php, java, csharp]
+  patterns:
+    - regex: '(?i)header\s*[=:]\s*\{[^}]*"jwk"\s*:\s*\{'
+  severity: high
+  description: "JWT contains an embedded JWK in the header — attacker can self-sign tokens with their own key."
+  remediation: "Ignore embedded JWK in token headers. Always verify against server-side key configuration."
+  cwe: "CWE-345"
+  owasp: "A02:2021-Cryptographic Failures"

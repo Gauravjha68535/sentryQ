@@ -1,0 +1,152 @@
+# Auto-generated SentryQ Security Rules
+
+- id: proto-pollution-merge
+  name: "Prototype Pollution via Merge"
+  description: "Insecure merge operation leading to prototype pollution."
+  severity: "high"
+  patterns:
+    - regex: 'lodash\.merge\(.*req\..*\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+
+- id: proto-pollution-proto-key
+  name: "Direct __proto__ Property Access"
+  description: "Code accesses the __proto__ key via bracket notation. If this key originates from user input, it can be used to pollute Object.prototype and affect all objects in the application."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)\[["'']__proto__["'']\]'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.85
+
+- id: proto-pollution-constructor-prototype
+  name: "Access via constructor.prototype Chain"
+  description: "Code accesses .constructor.prototype, which is an alternative path to pollute Object.prototype. Attacker-controlled data flowing through this path affects all objects."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)\.constructor\.prototype'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.82
+
+- id: proto-pollution-object-assign
+  name: "Object.assign() With User-Controlled Source"
+  description: "Object.assign() called with user-supplied request data as the source object. If the source contains a __proto__ key, it will pollute Object.prototype."
+  severity: "high"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)Object\.assign\s*\(\s*\{\s*\}\s*,\s*(?:req\.|request\.|params\.|user_input)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.8
+
+- id: proto-pollution-deep-merge
+  name: "Deep Merge With User-Controlled Input"
+  description: "Deep merge function (_.merge, deepmerge, deepExtend, or jQuery.extend(true)) called with user-controlled data. Deep recursive merges are a primary vector for prototype pollution."
+  severity: "high"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:_\.merge|deepmerge|deepExtend|jQuery\.extend\s*\(\s*true)\s*\(\s*(?:req\.|request\.|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.82
+
+- id: proto-pollution-json-parse-assign
+  name: "Object.assign() With Parsed User JSON"
+  description: "Object.assign() called with JSON.parse() of user-controlled data as the source. Parsing a JSON object containing __proto__ and then assigning it can pollute Object.prototype."
+  severity: "critical"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)Object\.assign\s*\([^,)]+,\s*JSON\.parse\s*\(\s*(?:req\.|request\.|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.85
+
+- id: proto-pollution-spread-user-input
+  name: "Object Spread of User-Controlled Input"
+  description: "Object spread operator (...) applied directly to user-controlled request data. Spreading an object with a __proto__ key can pollute the prototype chain."
+  severity: "high"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\{\s*\.\.\.\s*(?:req\.|request\.|params\.|query\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.75
+
+- id: proto-pollution-hasownproperty-bypass
+  name: "hasOwnProperty Check for __proto__"
+  description: "Code explicitly checks hasOwnProperty for '__proto__', which may indicate an incomplete attempt to guard against prototype pollution. Verify the full sanitization logic."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)\.hasOwnProperty\s*\(\s*["'']__proto__["'']\s*\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.4
+
+- id: proto-pollution-for-in-user-input
+  name: "for...in Loop Over User-Controlled Object"
+  description: "for...in loop iterates over a user-controlled request object and its enumerable properties. Without a hasOwnProperty guard, prototype-inherited properties from a polluted prototype may be processed."
+  severity: "medium"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)for\s*\(\s*(?:const|let|var)\s+\w+\s+in\s+(?:req\.|request\.|params\.|body\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.5
+
+- id: proto-pollution-lodash-defaultsdeep
+  name: "Lodash _.defaultsDeep() With User Input"
+  description: "_.defaultsDeep() called with user-controlled data. Lodash versions before 4.17.21 are vulnerable to prototype pollution via this function."
+  severity: "critical"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)_\.defaultsDeep\s*\([^)]*(?:req\.|request\.|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.88
+
+- id: proto-pollution-flat-npm
+  name: "flat npm Package Usage"
+  description: "The flat npm package (versions prior to 5.0.1) is vulnerable to prototype pollution via unflatten(). Ensure you are using version 5.0.1 or higher."
+  severity: "medium"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)require\s*\(\s*["'']flat["'']\s*\)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.4
+
+- id: proto-pollution-qs-parse
+  name: "qs.parse() With User-Controlled Query String"
+  description: "qs.parse() called with user-controlled request data. Vulnerable versions of qs (< 6.10.3) allow prototype pollution via crafted query strings such as ?__proto__[x]=1."
+  severity: "medium"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)qs\.parse\s*\([^)]*(?:req\.|request\.|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.75
+
+- id: proto-pollution-set-arbitrary-key
+  name: "Dynamic Property Assignment to Arbitrary Key"
+  description: "Object property assigned using a user-controlled key. If the key is '__proto__' or 'constructor', this directly pollutes the prototype chain."
+  severity: "high"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\w+\[(?:req\.|request\.|params\.|body\.)\w+\]\s*='
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1321"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+  confidence: 0.65

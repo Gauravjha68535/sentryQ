@@ -274,21 +274,37 @@ func tryParseChunk(chunk string) *Rule {
 	return nil
 }
 
-// compilePatterns pre-compiles regexes for all rules
+// compilePatterns pre-compiles regexes for all rules and removes any rule
+// that ends up with zero compilable patterns so it never silently no-ops.
 func compilePatterns(rules []Rule) []Rule {
+	valid := rules[:0] // reuse backing array; no allocation
 	for i := range rules {
+		compiledAny := false
 		for j := range rules[i].Patterns {
-			if rules[i].Patterns[j].Regex != "" {
-				r, err := regexp.Compile(rules[i].Patterns[j].Regex)
-				if err != nil {
-					utils.LogWarn(fmt.Sprintf("Invalid regex in rule %s: %v", rules[i].ID, err))
-				} else {
-					rules[i].Patterns[j].CompiledRegex = r
-				}
+			if rules[i].Patterns[j].Regex == "" {
+				// Empty regex matches everything — skip to avoid flooding results.
+				utils.LogWarn(fmt.Sprintf("Rule %s has an empty regex pattern — skipping that pattern", rules[i].ID))
+				continue
+			}
+			r, err := regexp.Compile(rules[i].Patterns[j].Regex)
+			if err != nil {
+				utils.LogWarn(fmt.Sprintf("Invalid regex in rule %s: %v — skipping pattern", rules[i].ID, err))
+			} else {
+				rules[i].Patterns[j].CompiledRegex = r
+				compiledAny = true
 			}
 		}
+		if !compiledAny {
+			// All patterns in this rule are either empty or invalid — drop the
+			// rule entirely so it doesn't appear in rule counts misleadingly.
+			if rules[i].ID != "" {
+				utils.LogWarn(fmt.Sprintf("Rule %s has no valid patterns and will be skipped", rules[i].ID))
+			}
+			continue
+		}
+		valid = append(valid, rules[i])
 	}
-	return rules
+	return valid
 }
 
 // langToRuleFiles maps a detected language name to the rule YAML file(s) it should load.
@@ -299,7 +315,7 @@ var langToRuleFiles = map[string][]string{
 	"objective-c":   {"objective-c.yaml"},
 	"objective-cpp": {"cpp.yaml"},
 	// yaml files may be k8s/ansible/helm/cloud manifests — load all infra rule sets
-	"yaml": {"kubernetes.yaml", "ansible.yaml", "helm.yaml", "cloudformation.yaml", "azure.yaml", "gcp.yaml", "serverless.yaml"},
+	"yaml": {"kubernetes.yaml", "ansible.yaml", "helm.yaml", "cloudformation.yaml", "azure.yaml", "gcp.yaml", "serverless.yaml", "cicd.yaml"},
 	"json": {"cloudformation.yaml", "azure.yaml"},
 	"xml":  {"aspnet.yaml"},
 	"asp":  {"asp.yaml", "aspnet.yaml"},
@@ -319,15 +335,55 @@ var langToRuleFiles = map[string][]string{
 	"markdown":    {},
 	"tsql":        {"sql.yaml"},
 	"plsql":       {"sql.yaml"},
-	"webassembly": {},
+	"webassembly": {"wasm.yaml"},
+	"wat":         {"wasm.yaml"},
+	"wasm":        {"wasm.yaml"},
+	"graphql":     {"graphql.yaml", "graphql_subscriptions.yaml"},
+	"gql":         {"graphql.yaml", "graphql_subscriptions.yaml"},
 }
 
 // alwaysLoadRuleFiles are loaded for every scan regardless of detected languages.
+// These cover cross-cutting security concerns that span many languages.
 var alwaysLoadRuleFiles = []string{
 	"general.yaml",
 	"insecure_randomness.yaml",
 	"racecondition.yaml",
 	"supplychain.yaml",
+	"xxe.yaml",
+	"deserialization.yaml",
+	"ssrf.yaml",
+	"api_security.yaml",
+	"cicd.yaml",
+	"graphql_subscriptions.yaml",
+	"secrets.yaml",
+	"cryptography.yaml",
+	"authentication.yaml",
+	"oauth_oidc.yaml",
+	"template_injection.yaml",
+	"nosql_injection.yaml",
+	"prototype_pollution.yaml",
+	"ldap_injection.yaml",
+	"email_smtp_injection.yaml",
+	"http_request_smuggling.yaml",
+	"websocket_security.yaml",
+	"jwt_advanced.yaml",
+	"redos_regex.yaml",
+	"container_security.yaml",
+	"database_orm.yaml",
+	"memory_safety_escapes.yaml",
+	"service_mesh.yaml",
+	"ebpf_security.yaml",
+	"runtime_security.yaml",
+	"cache_poisoning.yaml",
+	"xss_advanced.yaml",
+	"cors_advanced.yaml",
+	"csp_bypass.yaml",
+	"sidechannel_timing.yaml",
+	"nosql_graphdb.yaml",
+	"aiml.yaml",
+	"android_security.yaml",
+	"ios_security.yaml",
+	"flutter_security.yaml",
 }
 
 // LoadRulesForLanguages loads only the rule files relevant to the detected languages,

@@ -1,7 +1,7 @@
 - id: kotlin-hardcoded-password
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\.s*=\.s*[''\.][^''\.]{8,}[''\.]'
+    - regex: '(?i)(password|passwd|pwd)\s*=\s*[''\.][^''\.]{8,}[''\.]'
   severity: high
   description: "Hardcoded password detected in Kotlin source code"
   remediation: "Use environment variables or Android Keystore for sensitive credentials"
@@ -9,7 +9,7 @@
 - id: kotlin-hardcoded-api-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\.s*=\.s*[''\.][a-zA-Z0-9]{16,}[''\.]'
+    - regex: '(?i)(api[_-]?key|apikey)\s*=\s*[''\.][a-zA-Z0-9]{16,}[''\.]'
   severity: high
   description: "Hardcoded API key detected in Kotlin source code"
   remediation: "Store API keys in encrypted SharedPreferences or use a secrets manager"
@@ -18,7 +18,7 @@
 - id: kotlin-sql-injection
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(execSQL|rawQuery)\.s*\.(\.s*[''\.].*\.+.*[''\.])'
+    - regex: '(?i)(execSQL|rawQuery)\s*\.(\s*[''\.].*\.+.*[''\.])'
   severity: critical
   description: "Potential SQL injection via string concatenation"
   remediation: "Use parameterized queries with ? placeholders in SQLite"
@@ -27,7 +27,7 @@
 - id: kotlin-command-injection
   languages: [kotlin]
   patterns:
-    - regex: 'Runtime\..getRuntime\.(\.)\..exec\.s*\.(\.s*[''\.].*\.+.*[''\.])'
+    - regex: 'Runtime\..getRuntime\.(\.)\..exec\s*\.(\s*[''\.].*\.+.*[''\.])'
   severity: critical
   description: "Potential command injection via Runtime.exec"
   remediation: "Avoid executing shell commands. If necessary, validate all inputs"
@@ -36,7 +36,7 @@
 - id: kotlin-insecure-webview
   languages: [kotlin]
   patterns:
-    - regex: 'webView\..settings\..javaScriptEnabled\.s*=\.s*true|addJavascriptInterface'
+    - regex: 'webView\..settings\..javaScriptEnabled\s*=\s*true|addJavascriptInterface'
   severity: high
   description: "JavaScript enabled in WebView without proper security controls"
   remediation: "Disable JavaScript if not needed, or implement a secure JsInterface"
@@ -45,7 +45,7 @@
 - id: kotlin-weak-crypto-md5
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(MessageDigest\..getInstance\.s*\.(\.s*[''\.]MD5[''\.])|(Cipher\..getInstance\.s*\.(\.s*[''\.]DES[''\.])))'
+    - regex: '(?i)(MessageDigest\..getInstance\s*\.(\s*[''\.]MD5[''\.])|(Cipher\..getInstance\s*\.(\s*[''\.]DES[''\.])))'
   severity: medium
   description: "Use of weak cryptographic hash function (MD5) or cipher (DES)"
   remediation: "Use SHA-256 or SHA-512. For passwords, use bcrypt or Argon2"
@@ -54,7 +54,7 @@
 - id: kotlin-insecure-file-access
   languages: [kotlin]
   patterns:
-    - regex: 'File\.s*\.(\.s*Environment\..getExternalStorageDirectory|Context\..MODE_WORLD_READABLE|Context\..MODE_WORLD_WRITEABLE)'
+    - regex: 'File\s*\.(\s*Environment\..getExternalStorageDirectory|Context\..MODE_WORLD_READABLE|Context\..MODE_WORLD_WRITEABLE)'
   severity: high
   description: "Accessing external storage or using world-readable/writable files"
   remediation: "Use scoped storage (Android 10+) and internal storage with MODE_PRIVATE"
@@ -63,7 +63,7 @@
 - id: kotlin-debug-logging
   languages: [kotlin]
   patterns:
-    - regex: 'Log\..(d|v|i)\.s*\.([^\.)]*(password|token|secret|key))'
+    - regex: 'Log\..(d|v|i)\s*\.([^\.)]*(password|token|secret|key))'
   severity: medium
   description: "Sensitive data logged in debug statements"
   remediation: "Remove or obfuscate sensitive data in log statements for production"
@@ -72,7 +72,7 @@
 - id: kotlin-insecure-sharedprefs
   languages: [kotlin]
   patterns:
-    - regex: 'getSharedPreferences\.s*\.([^\.)]+,\.s*Context\..MODE_WORLD)'
+    - regex: 'getSharedPreferences\s*\.([^\.)]+,\s*Context\..MODE_WORLD)'
   severity: high
   description: "SharedPreferences with world-readable/writable mode"
   remediation: "Use Context.MODE_PRIVATE for SharedPreferences"
@@ -81,7 +81,7 @@
 - id: kotlin-hardcoded-encryption-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(key|secret|iv)\.s*=\.s*[''\.][a-zA-Z0-9+/=]{16,}[''\.]'
+    - regex: '(?i)(key|secret|iv)\s*=\s*[''\.][a-zA-Z0-9+/=]{16,}[''\.]'
   severity: medium
   description: "Hardcoded encryption key or IV detected"
   remediation: "Use Android Keystore for key generation and storage"
@@ -99,7 +99,7 @@
 - id: kotlin-exported-component
   languages: [kotlin]
   patterns:
-    - regex: '(?i)android:exported\.s*=\.s*[''\.]true[''\.]'
+    - regex: '(?i)android:exported\s*=\s*[''\.]true[''\.]'
   severity: medium
   description: "Android component exported without permission protection"
   remediation: "Set exported=false or add permission requirements for exported components"
@@ -108,7 +108,7 @@
 - id: kotlin-pending-intent-mutable
   languages: [kotlin]
   patterns:
-    - regex: 'PendingIntent\..(getActivity|getService|getBroadcast)\.s*\.([^\.)]+,\.s*PendingIntent\..FLAG_MUTABLE)'
+    - regex: 'PendingIntent\..(getActivity|getService|getBroadcast)\s*\.([^\.)]+,\s*PendingIntent\..FLAG_MUTABLE)'
   severity: high
   description: "Mutable PendingIntent can be exploited by other apps"
   remediation: "Use FLAG_IMMUTABLE unless mutability is specifically required"
@@ -126,7 +126,7 @@
 - id: kotlin-deep-link-validation
   languages: [kotlin]
   patterns:
-    - regex: '(?i)Intent\..ACTION_VIEW|data\..scheme\.s*=='
+    - regex: '(?i)Intent\..ACTION_VIEW|data\..scheme\s*=='
   severity: medium
   description: "Deep link handling without proper validation"
   remediation: "Validate deep link URLs and use app links with verification"
@@ -135,7 +135,7 @@
 - id: kotlin-webview-file-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\..settings\..allowFileAccess\.s*=\.s*true|allowUniversalAccessFromFileURLs\.s*=\.s*true'
+    - regex: 'webView\..settings\..allowFileAccess\s*=\s*true|allowUniversalAccessFromFileURLs\s*=\s*true'
   severity: high
   description: "WebView allows file access which can lead to data theft"
   remediation: "Disable file access in WebView unless absolutely necessary"
@@ -144,7 +144,7 @@
 - id: kotlin-insecure-broadcast
   languages: [kotlin]
   patterns:
-    - regex: 'registerReceiver\.s*\.([^\.)]+,\.s*null\.s*\.)'
+    - regex: 'registerReceiver\s*\.([^\.)]+,\s*null\s*\.)'
   severity: medium
   description: "BroadcastReceiver registered without permission protection"
   remediation: "Specify permission parameter when registering BroadcastReceiver"
@@ -153,7 +153,7 @@
 - id: kotlin-tapjacking
   languages: [kotlin]
   patterns:
-    - regex: '(?i)FLAG_SECURE\.s*not\.s*set|setFlags\.s*\.([^\.)]*LayoutParams)'
+    - regex: '(?i)FLAG_SECURE\s*not\s*set|setFlags\s*\.([^\.)]*LayoutParams)'
   severity: low
   description: "Activity may be vulnerable to tapjacking attacks"
   remediation: "Set FLAG_SECURE in sensitive activities to prevent screen recording"
@@ -162,7 +162,7 @@
 - id: kotlin-implicit-intent
   languages: [kotlin]
   patterns:
-    - regex: 'startActivity\.s*\.(\.s*Intent\.s*\.([^\.)]*ACTION))'
+    - regex: 'startActivity\s*\.(\s*Intent\s*\.([^\.)]*ACTION))'
   severity: medium
   description: "Implicit intent may be intercepted by malicious apps"
   remediation: "Use explicit intents or verify package name before startActivity"
@@ -179,7 +179,7 @@
 - id: kotlin-webview-js-enabled
   languages: [kotlin]
   patterns:
-    - regex: '(?i)webView.*javaScriptEnabled\.s*=\.s*true'
+    - regex: '(?i)webView.*javaScriptEnabled\s*=\s*true'
   severity: high
   description: "WebView with JavaScript enabled — XSS risk"
   remediation: "Only enable JS when necessary. Use addJavascriptInterface carefully"
@@ -199,7 +199,7 @@
 - id: kotlin-intent-extra
   languages: [kotlin]
   patterns:
-    - regex: '(?i)intent\.(getStringExtra|getIntExtra|getBundleExtra)\.s*\.'
+    - regex: '(?i)intent\.(getStringExtra|getIntExtra|getBundleExtra)\s*\.'
   severity: medium
   description: "Intent data access — validate for injection"
   remediation: "Validate all intent extras. Don't trust inter-component data"
@@ -209,7 +209,7 @@
 - id: kotlin-content-provider
   languages: [kotlin]
   patterns:
-    - regex: '(?i)contentResolver\.(query|insert|update|delete)\.s*\.'
+    - regex: '(?i)contentResolver\.(query|insert|update|delete)\s*\.'
   severity: medium
   description: "ContentProvider operation — ensure URI is validated"
   remediation: "Validate content URIs. Use parameterized queries"
@@ -219,7 +219,7 @@
 - id: kotlin-broadcast-receiver
   languages: [kotlin]
   patterns:
-    - regex: 'registerReceiver\.s*\.'
+    - regex: 'registerReceiver\s*\.'
   severity: medium
   description: "BroadcastReceiver — ensure exported=false for sensitive receivers"
   remediation: "Use LocalBroadcastManager or set exported=false"
@@ -229,7 +229,7 @@
 - id: kotlin-sql-rawquery
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(rawQuery|execSQL)\.s*\.\.s*\..*\.'
+    - regex: '(?i)(rawQuery|execSQL)\s*\.\s*\..*\.'
   severity: critical
   description: "Raw SQL with string interpolation"
   remediation: "Use parameterized query with selectionArgs"
@@ -239,7 +239,7 @@
 - id: kotlin-runtime-exec
   languages: [kotlin]
   patterns:
-    - regex: 'Runtime\.getRuntime\.\.\.exec\.s*\.'
+    - regex: 'Runtime\.getRuntime\.\.\.exec\s*\.'
   severity: critical
   description: "Command execution on Android device"
   remediation: "Avoid runtime.exec. Use ProcessBuilder if necessary"
@@ -249,7 +249,7 @@
 - id: kotlin-log-sensitive
   languages: [kotlin]
   patterns:
-    - regex: '(?i)Log\.(d|i|w|e|v)\.s*\.\.s*.*(?:password|token|secret|key|credential)'
+    - regex: '(?i)Log\.(d|i|w|e|v)\s*\.\s*.*(?:password|token|secret|key|credential)'
   severity: high
   description: "Sensitive data in Android log output"
   remediation: "Remove sensitive data from logs. Use ProGuard to strip logs"
@@ -269,7 +269,7 @@
 - id: kotlin-certificate-trust-all
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(TrustAllCerts|X509TrustManager|checkServerTrusted\.s*\.\.s*\.\.s*\.?\.s*\.)'
+    - regex: '(?i)(TrustAllCerts|X509TrustManager|checkServerTrusted\s*\.\s*\.\s*\.?\s*\.)'
   severity: critical
   description: "Certificate trust-all — man-in-the-middle attack possible"
   remediation: "Implement proper certificate validation. Use OkHttp CertificatePinner"
@@ -298,7 +298,7 @@
 - id: kotlin-coroutine-scope-custom
   languages: [kotlin]
   patterns:
-    - regex: 'CoroutineScope\.s*\.()'
+    - regex: 'CoroutineScope\s*\.()'
   severity: low
   description: "Custom CoroutineScope"
   remediation: "Ensure proper cancellation"
@@ -318,7 +318,7 @@
 - id: kotlin-coroutine-cancel
   languages: [kotlin]
   patterns:
-    - regex: '\..cancel\.s*\.(|cancel\.s*\.())'
+    - regex: '\..cancel\s*\.(|cancel\s*\.())'
   severity: low
   description: "Coroutine cancellation"
   remediation: "Handle cancellation properly"
@@ -338,7 +338,7 @@
 - id: kotlin-coroutine-with-context
   languages: [kotlin]
   patterns:
-    - regex: 'withContext\.s*\.()'
+    - regex: 'withContext\s*\.()'
   severity: low
   description: "withContext usage"
   remediation: "Ensure proper context switching"
@@ -348,7 +348,7 @@
 - id: kotlin-coroutine-async
   languages: [kotlin]
   patterns:
-    - regex: 'async\.s*\.{|await\.s*\.()'
+    - regex: 'async\s*\.{|await\s*\.()'
   severity: low
   description: "async/await usage"
   remediation: "Handle exceptions properly"
@@ -358,7 +358,7 @@
 - id: kotlin-coroutine-flow
   languages: [kotlin]
   patterns:
-    - regex: 'flow\.s*\.{|Flow<'
+    - regex: 'flow\s*\.{|Flow<'
   severity: low
   description: "Flow usage"
   remediation: "Handle exceptions properly"
@@ -368,7 +368,7 @@
 - id: kotlin-coroutine-channel
   languages: [kotlin]
   patterns:
-    - regex: 'Channel\.s*\.(|Channel<)'
+    - regex: 'Channel\s*\.(|Channel<)'
   severity: low
   description: "Channel usage"
   remediation: "Close channels properly"
@@ -398,7 +398,7 @@
 - id: kotlin-coroutine-buffer
   languages: [kotlin]
   patterns:
-    - regex: 'buffer\.s*\.(|Channel\..BUFFERED)'
+    - regex: 'buffer\s*\.(|Channel\..BUFFERED)'
   severity: low
   description: "Channel buffer"
   remediation: "Set appropriate buffer size"
@@ -408,7 +408,7 @@
 - id: kotlin-coroutine-timeout
   languages: [kotlin]
   patterns:
-    - regex: 'withTimeout\.s*\.(|withTimeoutOrNull)'
+    - regex: 'withTimeout\s*\.(|withTimeoutOrNull)'
   severity: low
   description: "Coroutine timeout"
   remediation: "Set appropriate timeout"
@@ -418,7 +418,7 @@
 - id: kotlin-coroutine-delay
   languages: [kotlin]
   patterns:
-    - regex: 'delay\.s*\.()'
+    - regex: 'delay\s*\.()'
   severity: low
   description: "Coroutine delay"
   remediation: "Handle cancellation"
@@ -428,7 +428,7 @@
 - id: kotlin-coroutine-yield
   languages: [kotlin]
   patterns:
-    - regex: 'yield\.s*\.()'
+    - regex: 'yield\s*\.()'
   severity: low
   description: "Coroutine yield"
   remediation: "Use for cooperative scheduling"
@@ -438,7 +438,7 @@
 - id: kotlin-coroutine-mutex
   languages: [kotlin]
   patterns:
-    - regex: 'Mutex\.s*\.(|mutex\..lock)'
+    - regex: 'Mutex\s*\.(|mutex\..lock)'
   severity: low
   description: "Coroutine mutex"
   remediation: "Use withLock for safety"
@@ -448,7 +448,7 @@
 - id: kotlin-coroutine-semaphore
   languages: [kotlin]
   patterns:
-    - regex: 'Semaphore\.s*\.()'
+    - regex: 'Semaphore\s*\.()'
   severity: low
   description: "Coroutine semaphore"
   remediation: "Use for concurrency limiting"
@@ -458,7 +458,7 @@
 - id: kotlin-coroutine-atomic
   languages: [kotlin]
   patterns:
-    - regex: 'atomic\.s*\.{|AtomicInt'
+    - regex: 'atomic\s*\.{|AtomicInt'
   severity: low
   description: "Atomic operations"
   remediation: "Use for thread-safe operations"
@@ -468,7 +468,7 @@
 - id: kotlin-coroutine-structured
   languages: [kotlin]
   patterns:
-    - regex: 'coroutineScope\.s*\.()'
+    - regex: 'coroutineScope\s*\.()'
   severity: low
   description: "Structured concurrency"
   remediation: "Good practice for error handling"
@@ -499,7 +499,7 @@
 - id: kotlin-flow-collect
   languages: [kotlin]
   patterns:
-    - regex: '\..collect\.s*\.{|collect\.s*\.()'
+    - regex: '\..collect\s*\.{|collect\s*\.()'
   severity: low
   description: "Flow collection"
   remediation: "Handle exceptions"
@@ -509,7 +509,7 @@
 - id: kotlin-flow-launch-in
   languages: [kotlin]
   patterns:
-    - regex: '\..launchIn\.s*\.()'
+    - regex: '\..launchIn\s*\.()'
   severity: low
   description: "Flow launchIn"
   remediation: "Use lifecycle-aware scope"
@@ -519,7 +519,7 @@
 - id: kotlin-flow-state-in
   languages: [kotlin]
   patterns:
-    - regex: '\..stateIn\.s*\.()'
+    - regex: '\..stateIn\s*\.()'
   severity: low
   description: "Flow stateIn"
   remediation: "Configure properly"
@@ -529,7 +529,7 @@
 - id: kotlin-flow-share-in
   languages: [kotlin]
   patterns:
-    - regex: '\..shareIn\.s*\.()'
+    - regex: '\..shareIn\s*\.()'
   severity: low
   description: "Flow shareIn"
   remediation: "Configure properly"
@@ -539,7 +539,7 @@
 - id: kotlin-flow-catch
   languages: [kotlin]
   patterns:
-    - regex: '\..catch\.s*\.()'
+    - regex: '\..catch\s*\.()'
   severity: low
   description: "Flow catch"
   remediation: "Handle exceptions properly"
@@ -549,7 +549,7 @@
 - id: kotlin-flow-retry
   languages: [kotlin]
   patterns:
-    - regex: '\..retry\.s*\.()'
+    - regex: '\..retry\s*\.()'
   severity: low
   description: "Flow retry"
   remediation: "Configure retry policy"
@@ -559,7 +559,7 @@
 - id: kotlin-flow-debounce
   languages: [kotlin]
   patterns:
-    - regex: '\..debounce\.s*\.()'
+    - regex: '\..debounce\s*\.()'
   severity: low
   description: "Flow debounce"
   remediation: "Set appropriate debounce"
@@ -569,7 +569,7 @@
 - id: kotlin-flow-throttle
   languages: [kotlin]
   patterns:
-    - regex: '\..throttle\.s*\.()'
+    - regex: '\..throttle\s*\.()'
   severity: low
   description: "Flow throttle"
   remediation: "Set appropriate throttle"
@@ -579,7 +579,7 @@
 - id: kotlin-flow-distinct
   languages: [kotlin]
   patterns:
-    - regex: '\..distinctUntilChanged\.s*\.()'
+    - regex: '\..distinctUntilChanged\s*\.()'
   severity: low
   description: "Flow distinct"
   remediation: "Use for deduplication"
@@ -589,7 +589,7 @@
 - id: kotlin-flow-filter
   languages: [kotlin]
   patterns:
-    - regex: '\..filter\.s*\.()'
+    - regex: '\..filter\s*\.()'
   severity: low
   description: "Flow filter"
   remediation: "Validate filter logic"
@@ -599,7 +599,7 @@
 - id: kotlin-flow-map
   languages: [kotlin]
   patterns:
-    - regex: '\..map\.s*\.()'
+    - regex: '\..map\s*\.()'
   severity: low
   description: "Flow map"
   remediation: "Validate transformation"
@@ -609,7 +609,7 @@
 - id: kotlin-flow-flat-map
   languages: [kotlin]
   patterns:
-    - regex: '\..flatMap\.s*\.()'
+    - regex: '\..flatMap\s*\.()'
   severity: low
   description: "Flow flatMap"
   remediation: "Validate transformation"
@@ -619,7 +619,7 @@
 - id: kotlin-flow-combine
   languages: [kotlin]
   patterns:
-    - regex: '\..combine\.s*\.()'
+    - regex: '\..combine\s*\.()'
   severity: low
   description: "Flow combine"
   remediation: "Handle multiple flows"
@@ -629,7 +629,7 @@
 - id: kotlin-flow-zip
   languages: [kotlin]
   patterns:
-    - regex: '\..zip\.s*\.()'
+    - regex: '\..zip\s*\.()'
   severity: low
   description: "Flow zip"
   remediation: "Handle multiple flows"
@@ -639,7 +639,7 @@
 - id: kotlin-flow-merge
   languages: [kotlin]
   patterns:
-    - regex: '\..merge\.s*\.()'
+    - regex: '\..merge\s*\.()'
   severity: low
   description: "Flow merge"
   remediation: "Handle multiple flows"
@@ -649,7 +649,7 @@
 - id: kotlin-flow-conflate
   languages: [kotlin]
   patterns:
-    - regex: '\..conflate\.s*\.()'
+    - regex: '\..conflate\s*\.()'
   severity: low
   description: "Flow conflate"
   remediation: "Understand conflation"
@@ -659,7 +659,7 @@
 - id: kotlin-flow-flow-on
   languages: [kotlin]
   patterns:
-    - regex: '\..flowOn\.s*\.()'
+    - regex: '\..flowOn\s*\.()'
   severity: low
   description: "Flow flowOn"
   remediation: "Set appropriate dispatcher"
@@ -669,7 +669,7 @@
 - id: kotlin-flow-callback-flow
   languages: [kotlin]
   patterns:
-    - regex: 'callbackFlow\.s*\.()'
+    - regex: 'callbackFlow\s*\.()'
   severity: low
   description: "callbackFlow usage"
   remediation: "Close channel properly"
@@ -840,7 +840,7 @@
 - id: kotlin-room-migration
   languages: [kotlin]
   patterns:
-    - regex: 'Migration\.s*\.()'
+    - regex: 'Migration\s*\.()'
   severity: low
   description: "Room migration"
   remediation: "Test migrations properly"
@@ -860,7 +860,7 @@
 - id: kotlin-retrofit-base-url
   languages: [kotlin]
   patterns:
-    - regex: 'baseUrl\.s*\.()'
+    - regex: 'baseUrl\s*\.()'
   severity: low
   description: "Retrofit base URL"
   remediation: "Use HTTPS"
@@ -900,7 +900,7 @@
 - id: kotlin-retrofit-call
   languages: [kotlin]
   patterns:
-    - regex: 'Call\.s*<|\..enqueue\.s*\.()'
+    - regex: 'Call\s*<|\..enqueue\s*\.()'
   severity: low
   description: "Retrofit call"
   remediation: "Handle responses properly"
@@ -910,7 +910,7 @@
 - id: kotlin-retrofit-response
   languages: [kotlin]
   patterns:
-    - regex: 'Response\.s*<|\..body\.s*\.()'
+    - regex: 'Response\s*<|\..body\s*\.()'
   severity: low
   description: "Retrofit response"
   remediation: "Validate response"
@@ -930,7 +930,7 @@
 - id: kotlin-okhttp-client
   languages: [kotlin]
   patterns:
-    - regex: 'OkHttpClient\.s*\.(|OkHttpClient\..Builder)'
+    - regex: 'OkHttpClient\s*\.(|OkHttpClient\..Builder)'
   severity: low
   description: "OkHttp client"
   remediation: "Configure properly"
@@ -940,7 +940,7 @@
 - id: kotlin-okhttp-ssl-socket-factory
   languages: [kotlin]
   patterns:
-    - regex: 'sslSocketFactory\.s*\.()'
+    - regex: 'sslSocketFactory\s*\.()'
   severity: medium
   description: "OkHttp SSL socket factory"
   remediation: "Use default SSL"
@@ -950,7 +950,7 @@
 - id: kotlin-okhttp-hostname-verifier
   languages: [kotlin]
   patterns:
-    - regex: 'hostnameVerifier\.s*\.()'
+    - regex: 'hostnameVerifier\s*\.()'
   severity: high
   description: "OkHttp hostname verifier"
   remediation: "Use default verifier"
@@ -960,7 +960,7 @@
 - id: kotlin-okhttp-certificate-pinner
   languages: [kotlin]
   patterns:
-    - regex: 'certificatePinner\.s*\.()'
+    - regex: 'certificatePinner\s*\.()'
   severity: low
   description: "OkHttp certificate pinning"
   remediation: "Good for security"
@@ -970,7 +970,7 @@
 - id: kotlin-okhttp-dns
   languages: [kotlin]
   patterns:
-    - regex: 'dns\.s*\.()'
+    - regex: 'dns\s*\.()'
   severity: low
   description: "OkHttp DNS"
   remediation: "Use secure DNS"
@@ -980,7 +980,7 @@
 - id: kotlin-okhttp-proxy
   languages: [kotlin]
   patterns:
-    - regex: 'proxy\.s*\.()'
+    - regex: 'proxy\s*\.()'
   severity: low
   description: "OkHttp proxy"
   remediation: "Configure proxy securely"
@@ -990,7 +990,7 @@
 - id: kotlin-okhttp-cache
   languages: [kotlin]
   patterns:
-    - regex: 'cache\.s*\.()'
+    - regex: 'cache\s*\.()'
   severity: low
   description: "OkHttp cache"
   remediation: "Don't cache sensitive data"
@@ -1000,7 +1000,7 @@
 - id: kotlin-okhttp-event-listener
   languages: [kotlin]
   patterns:
-    - regex: 'eventListener\.s*\.()'
+    - regex: 'eventListener\s*\.()'
   severity: low
   description: "OkHttp event listener"
   remediation: "Don't log sensitive data"
@@ -1010,7 +1010,7 @@
 - id: kotlin-okhttp-connection-pool
   languages: [kotlin]
   patterns:
-    - regex: 'connectionPool\.s*\.()'
+    - regex: 'connectionPool\s*\.()'
   severity: low
   description: "OkHttp connection pool"
   remediation: "Configure properly"
@@ -1020,7 +1020,7 @@
 - id: kotlin-okhttp-dispatcher
   languages: [kotlin]
   patterns:
-    - regex: 'dispatcher\.s*\.()'
+    - regex: 'dispatcher\s*\.()'
   severity: low
   description: "OkHttp dispatcher"
   remediation: "Configure properly"
@@ -1151,7 +1151,7 @@
 - id: kotlin-koin-module
   languages: [kotlin]
   patterns:
-    - regex: 'module\.s*\.{|KoinApplication'
+    - regex: 'module\s*\.{|KoinApplication'
   severity: low
   description: "Koin module"
   remediation: "Configure properly"
@@ -1161,7 +1161,7 @@
 - id: kotlin-koin-inject
   languages: [kotlin]
   patterns:
-    - regex: 'inject\.s*\.(|get\.s*\.())'
+    - regex: 'inject\s*\.(|get\s*\.())'
   severity: low
   description: "Koin injection"
   remediation: "Configure properly"
@@ -1171,7 +1171,7 @@
 - id: kotlin-koin-scope
   languages: [kotlin]
   patterns:
-    - regex: 'scope\.s*\.()'
+    - regex: 'scope\s*\.()'
   severity: low
   description: "Koin scope"
   remediation: "Use appropriate scope"
@@ -1181,7 +1181,7 @@
 - id: kotlin-koin-single
   languages: [kotlin]
   patterns:
-    - regex: 'single\.s*\.()'
+    - regex: 'single\s*\.()'
   severity: low
   description: "Koin single"
   remediation: "Use for singletons"
@@ -1191,7 +1191,7 @@
 - id: kotlin-koin-factory
   languages: [kotlin]
   patterns:
-    - regex: 'factory\.s*\.()'
+    - regex: 'factory\s*\.()'
   severity: low
   description: "Koin factory"
   remediation: "Use for factories"
@@ -1201,7 +1201,7 @@
 - id: kotlin-koin-view-model
   languages: [kotlin]
   patterns:
-    - regex: 'viewModel\.s*\.()'
+    - regex: 'viewModel\s*\.()'
   severity: low
   description: "Koin viewModel"
   remediation: "Use for ViewModels"
@@ -1211,7 +1211,7 @@
 - id: kotlin-koin-android
   languages: [kotlin]
   patterns:
-    - regex: 'android\.s*\.(|startKoin)'
+    - regex: 'android\s*\.(|startKoin)'
   severity: low
   description: "Koin Android"
   remediation: "Configure properly"
@@ -1232,7 +1232,7 @@
 - id: kotlin-viewmodel
   languages: [kotlin]
   patterns:
-    - regex: 'ViewModel\.s*\.(|by viewModels)'
+    - regex: 'ViewModel\s*\.(|by viewModels)'
   severity: low
   description: "ViewModel"
   remediation: "Don't store secrets"
@@ -1272,7 +1272,7 @@
 - id: kotlin-livedata-observe
   languages: [kotlin]
   patterns:
-    - regex: '\..observe\.s*\.()'
+    - regex: '\..observe\s*\.()'
   severity: low
   description: "LiveData observe"
   remediation: "Use lifecycle-aware observer"
@@ -1282,7 +1282,7 @@
 - id: kotlin-livedata-observe-forever
   languages: [kotlin]
   patterns:
-    - regex: '\..observeForever\.s*\.()'
+    - regex: '\..observeForever\s*\.()'
   severity: medium
   description: "LiveData observeForever"
   remediation: "Remove observer properly"
@@ -1292,7 +1292,7 @@
 - id: kotlin-livedata-value
   languages: [kotlin]
   patterns:
-    - regex: '\..value\.s*=|\..postValue'
+    - regex: '\..value\s*=|\..postValue'
   severity: low
   description: "LiveData value"
   remediation: "Update on appropriate thread"
@@ -1302,7 +1302,7 @@
 - id: kotlin-livedata-transform
   languages: [kotlin]
   patterns:
-    - regex: '\..transform\.s*\.(|MediatorLiveData)'
+    - regex: '\..transform\s*\.(|MediatorLiveData)'
   severity: low
   description: "LiveData transform"
   remediation: "Validate transformation"
@@ -1312,7 +1312,7 @@
 - id: kotlin-livedata-switch-map
   languages: [kotlin]
   patterns:
-    - regex: '\..switchMap\.s*\.()'
+    - regex: '\..switchMap\s*\.()'
   severity: low
   description: "LiveData switchMap"
   remediation: "Validate transformation"
@@ -1322,7 +1322,7 @@
 - id: kotlin-flow-livedata
   languages: [kotlin]
   patterns:
-    - regex: '\..asLiveData\.s*\.(|\..asFlow\.s*\.())'
+    - regex: '\..asLiveData\s*\.(|\..asFlow\s*\.())'
   severity: low
   description: "Flow/LiveData conversion"
   remediation: "Configure properly"
@@ -1372,7 +1372,7 @@
 - id: kotlin-sealed-class
   languages: [kotlin]
   patterns:
-    - regex: 'sealed\.s+class|sealed\.s+interface'
+    - regex: 'sealed\s+class|sealed\s+interface'
   severity: low
   description: "Sealed class"
   remediation: "Good for state management"
@@ -1382,7 +1382,7 @@
 - id: kotlin-data-class
   languages: [kotlin]
   patterns:
-    - regex: 'data\.s+class'
+    - regex: 'data\s+class'
   severity: low
   description: "Data class"
   remediation: "Don't include sensitive data"
@@ -1392,7 +1392,7 @@
 - id: kotlin-value-class
   languages: [kotlin]
   patterns:
-    - regex: '@JvmInline\.s+value\.s+class'
+    - regex: '@JvmInline\s+value\s+class'
   severity: low
   description: "Value class"
   remediation: "Use for type safety"
@@ -1402,7 +1402,7 @@
 - id: kotlin-extension-function
   languages: [kotlin]
   patterns:
-    - regex: 'fun\.s+\.w+\..\.w+'
+    - regex: 'fun\s+\w+\..\w+'
   severity: low
   description: "Extension function"
   remediation: "Use appropriately"
@@ -1413,7 +1413,7 @@
 - id: kotlin-navigation-graph
   languages: [kotlin]
   patterns:
-    - regex: 'NavGraph|navigation\.s*\.()'
+    - regex: 'NavGraph|navigation\s*\.()'
   severity: low
   description: "Navigation graph"
   remediation: "Configure properly"
@@ -1443,7 +1443,7 @@
 - id: kotlin-navigation-args
   languages: [kotlin]
   patterns:
-    - regex: 'navArgs\.s*\.(|SafeArgs)'
+    - regex: 'navArgs\s*\.(|SafeArgs)'
   severity: low
   description: "Navigation args"
   remediation: "Validate arguments"
@@ -1453,7 +1453,7 @@
 - id: kotlin-navigation-deep-link
   languages: [kotlin]
   patterns:
-    - regex: 'deepLink\.s*\.(|navDeepLink)'
+    - regex: 'deepLink\s*\.(|navDeepLink)'
   severity: medium
   description: "Navigation deep link"
   remediation: "Validate deep links"
@@ -1463,7 +1463,7 @@
 - id: kotlin-navigation-action
   languages: [kotlin]
   patterns:
-    - regex: 'navigate\.s*\.(|popBackStack)'
+    - regex: 'navigate\s*\.(|popBackStack)'
   severity: low
   description: "Navigation action"
   remediation: "Validate navigation"
@@ -1473,7 +1473,7 @@
 - id: kotlin-navigation-bundle
   languages: [kotlin]
   patterns:
-    - regex: 'Bundle\.s*\.(|arguments)'
+    - regex: 'Bundle\s*\.(|arguments)'
   severity: low
   description: "Navigation bundle"
   remediation: "Don't include sensitive data"
@@ -1790,7 +1790,7 @@
 - id: kotlin-activity-exported
   languages: [kotlin]
   patterns:
-    - regex: 'android:exported\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: 'android:exported\s*=\s*[\.\.]true[\.\.]'
   severity: high
   description: "Android component exported without permission"
   remediation: "Set exported=false or add permission requirements"
@@ -1810,7 +1810,7 @@
 - id: kotlin-service-exported
   languages: [kotlin]
   patterns:
-    - regex: 'android:exported\.s*=\.s*[\.\.]true[\.\.].*?<service'
+    - regex: 'android:exported\s*=\s*[\.\.]true[\.\.].*?<service'
   severity: high
   description: "Service exported without permission"
   remediation: "Set exported=false or add permission"
@@ -1820,7 +1820,7 @@
 - id: kotlin-receiver-exported
   languages: [kotlin]
   patterns:
-    - regex: '<receiver.*?android:exported\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: '<receiver.*?android:exported\s*=\s*[\.\.]true[\.\.]'
   severity: high
   description: "BroadcastReceiver exported without permission"
   remediation: "Set exported=false or add permission"
@@ -1830,7 +1830,7 @@
 - id: kotlin-provider-exported
   languages: [kotlin]
   patterns:
-    - regex: '<provider.*?android:exported\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: '<provider.*?android:exported\s*=\s*[\.\.]true[\.\.]'
   severity: critical
   description: "ContentProvider exported (potential data leak)"
   remediation: "Set exported=false or use permission protection"
@@ -1840,7 +1840,7 @@
 - id: kotlin-provider-read-permission
   languages: [kotlin]
   patterns:
-    - regex: '<provider.*?android:readPermission\.s*=\.s*[\.\.]'
+    - regex: '<provider.*?android:readPermission\s*=\s*[\.\.]'
   severity: low
   description: "ContentProvider with read permission"
   remediation: "Good practice for exported providers"
@@ -1850,7 +1850,7 @@
 - id: kotlin-provider-write-permission
   languages: [kotlin]
   patterns:
-    - regex: '<provider.*?android:writePermission\.s*=\.s*[\.\.]'
+    - regex: '<provider.*?android:writePermission\s*=\s*[\.\.]'
   severity: low
   description: "ContentProvider with write permission"
   remediation: "Good practice for exported providers"
@@ -1860,7 +1860,7 @@
 - id: kotlin-provider-grant-uri
   languages: [kotlin]
   patterns:
-    - regex: 'android:grantUriPermissions\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: 'android:grantUriPermissions\s*=\s*[\.\.]true[\.\.]'
   severity: medium
   description: "ContentProvider grants URI permissions"
   remediation: "Restrict to specific paths or use temporary grants"
@@ -1870,7 +1870,7 @@
 - id: kotlin-activity-launch-mode
   languages: [kotlin]
   patterns:
-    - regex: 'android:launchMode\.s*=\.s*[\.\.]singleTask[\.\.]|android:launchMode\.s*=\.s*[\.\.]singleInstance[\.\.]'
+    - regex: 'android:launchMode\s*=\s*[\.\.]singleTask[\.\.]|android:launchMode\s*=\s*[\.\.]singleInstance[\.\.]'
   severity: medium
   description: "Activity with singleTask/singleInstance launch mode (task hijacking risk)"
   remediation: "Use standard or singleTop unless necessary"
@@ -1880,7 +1880,7 @@
 - id: kotlin-activity-clear-task
   languages: [kotlin]
   patterns:
-    - regex: 'android:clearTaskOnLaunch\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: 'android:clearTaskOnLaunch\s*=\s*[\.\.]true[\.\.]'
   severity: low
   description: "Activity clears task on launch"
   remediation: "Understand task management implications"
@@ -1890,7 +1890,7 @@
 - id: kotlin-activity-finish-task
   languages: [kotlin]
   patterns:
-    - regex: 'android:finishOnTaskLaunch\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: 'android:finishOnTaskLaunch\s*=\s*[\.\.]true[\.\.]'
   severity: low
   description: "Activity finishes on task launch"
   remediation: "Understand task management implications"
@@ -1900,7 +1900,7 @@
 - id: kotlin-activity-always-retain
   languages: [kotlin]
   patterns:
-    - regex: 'android:alwaysRetainTaskState\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: 'android:alwaysRetainTaskState\s*=\s*[\.\.]true[\.\.]'
   severity: low
   description: "Activity always retains task state"
   remediation: "Consider if state should be cleared"
@@ -1910,7 +1910,7 @@
 - id: kotlin-activity-document-launch
   languages: [kotlin]
   patterns:
-    - regex: 'android:documentLaunchMode\.s*=\.s*[\.\.]'
+    - regex: 'android:documentLaunchMode\s*=\s*[\.\.]'
   severity: low
   description: "Document launch mode configured"
   remediation: "Understand document launch implications"
@@ -1920,7 +1920,7 @@
 - id: kotlin-activity-allow-task-reparenting
   languages: [kotlin]
   patterns:
-    - regex: 'android:allowTaskReparenting\.s*=\.s*[\.\.]true[\.\.]'
+    - regex: 'android:allowTaskReparenting\s*=\s*[\.\.]true[\.\.]'
   severity: medium
   description: "Activity can be reparented to another task"
   remediation: "Ensure this is intended behavior"
@@ -1950,7 +1950,7 @@
 - id: kotlin-intent-action-view
   languages: [kotlin]
   patterns:
-    - regex: 'Intent\.s*\.\.s*Intent\.ACTION_VIEW\.s*\.'
+    - regex: 'Intent\s*\.\s*Intent\.ACTION_VIEW\s*\.'
   severity: medium
   description: "Implicit VIEW intent (may be intercepted)"
   remediation: "Use explicit intents or verify package name"
@@ -1960,7 +1960,7 @@
 - id: kotlin-intent-data-user-input
   languages: [kotlin]
   patterns:
-    - regex: 'Intent\.s*\.\.s*Intent\.ACTION_VIEW\.s*,\.s*Uri\.parse\.s*\.\.s*r\.(FormValue|URL\.Query)'
+    - regex: 'Intent\s*\.\s*Intent\.ACTION_VIEW\s*,\s*Uri\.parse\s*\.\s*r\.(FormValue|URL\.Query)'
   severity: high
   description: "Intent with user-controlled URL (open redirect)"
   remediation: "Validate and restrict URLs"
@@ -1970,7 +1970,7 @@
 - id: kotlin-intent-data-scheme
   languages: [kotlin]
   patterns:
-    - regex: 'intent\..*?data\..*?scheme\.s*==\.s*[\.\.]?[^\.\.]+[\.\.]?'
+    - regex: 'intent\..*?data\..*?scheme\s*==\s*[\.\.]?[^\.\.]+[\.\.]?'
   severity: low
   description: "Intent data scheme check"
   remediation: "Validate scheme before processing"
@@ -1980,7 +1980,7 @@
 - id: kotlin-intent-data-host
   languages: [kotlin]
   patterns:
-    - regex: 'intent\..*?data\..*?host\.s*==\.s*[\.\.]?[^\.\.]+[\.\.]?'
+    - regex: 'intent\..*?data\..*?host\s*==\s*[\.\.]?[^\.\.]+[\.\.]?'
   severity: low
   description: "Intent data host check"
   remediation: "Validate host before processing"
@@ -1990,7 +1990,7 @@
 - id: kotlin-intent-data-path
   languages: [kotlin]
   patterns:
-    - regex: 'intent\..*?data\..*?path\.s*==\.s*[\.\.]?[^\.\.]+[\.\.]?'
+    - regex: 'intent\..*?data\..*?path\s*==\s*[\.\.]?[^\.\.]+[\.\.]?'
   severity: low
   description: "Intent data path check"
   remediation: "Validate path before processing"
@@ -2047,7 +2047,7 @@
   cwe: "CWE-927"
   owasp: "A04:2021"
 
-- id: kotlin-pending-intent-mutable
+- id: kotlin-pending-intent-mutable-dup1
   languages: [kotlin]
   patterns:
     - regex: 'PendingIntent\.FLAG_MUTABLE'
@@ -2127,20 +2127,20 @@
   cwe: "CWE-20"
   owasp: "A03:2021"
 
-- id: kotlin-navigation-deep-link
+- id: kotlin-navigation-deep-link-dup1
   languages: [kotlin]
   patterns:
-    - regex: 'navDeepLink\.s*\.\.s*uriPattern\.s*=\.s*[\.\.][^\.\.]+[\.\.]'
+    - regex: 'navDeepLink\s*\.\s*uriPattern\s*=\s*[\.\.][^\.\.]+[\.\.]'
   severity: medium
   description: "Navigation component deep link"
   remediation: "Validate deep link URIs"
   cwe: "CWE-601"
   owasp: "A01:2021"
 
-- id: kotlin-navigation-args
+- id: kotlin-navigation-args-dup1
   languages: [kotlin]
   patterns:
-    - regex: 'navArgs\.s*\.\.s*\.'
+    - regex: 'navArgs\s*\.\s*\.'
   severity: low
   description: "Navigation args (type-safe arguments)"
   remediation: "Good for type safety"
@@ -2242,7 +2242,7 @@
 - id: kotlin-permission-grant-all
   languages: [kotlin]
   patterns:
-    - regex: 'grantResults\.all\.s*\.\.s*it\.s*==\.s*PackageManager\.PERMISSION_GRANTED\.s*\.'
+    - regex: 'grantResults\.all\s*\.\s*it\s*==\s*PackageManager\.PERMISSION_GRANTED\s*\.'
   severity: low
   description: "Checking all permissions granted"
   remediation: "Good practice"
@@ -2252,7 +2252,7 @@
 - id: kotlin-permission-grant-some
   languages: [kotlin]
   patterns:
-    - regex: 'grantResults\.[0-9]+\.\.s*==\.s*PackageManager\.PERMISSION_GRANTED'
+    - regex: 'grantResults\.[0-9]+\.\s*==\s*PackageManager\.PERMISSION_GRANTED'
   severity: low
   description: "Checking specific permission grant"
   remediation: "Good practice"
@@ -2341,7 +2341,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: kotlin-room-database
+- id: kotlin-room-database-dup1
   languages: [kotlin]
   patterns:
     - regex: '@Database'
@@ -2364,7 +2364,7 @@
 - id: kotlin-room-dao-query
   languages: [kotlin]
   patterns:
-    - regex: '@Query\.s*\.\.s*[\.\.]SELECT.*?\.\..*?\.'
+    - regex: '@Query\s*\.\s*[\.\.]SELECT.*?\.\..*?\.'
   severity: critical
   description: "SQL injection via string interpolation in Room query"
   remediation: "Use named parameters (:param) or indexed (?)"
@@ -2374,14 +2374,14 @@
 - id: kotlin-room-dao-query-concat
   languages: [kotlin]
   patterns:
-    - regex: '@Query\.s*\.\.s*[\.\.]SELECT.*?\..*?[\.\.]'
+    - regex: '@Query\s*\.\s*[\.\.]SELECT.*?\..*?[\.\.]'
   severity: critical
   description: "SQL injection via string concatenation in Room"
   remediation: "Use parameterized queries"
   cwe: "CWE-89"
   owasp: "A03:2021"
 
-- id: kotlin-room-raw-query
+- id: kotlin-room-raw-query-dup1
   languages: [kotlin]
   patterns:
     - regex: '@RawQuery'
@@ -2414,7 +2414,7 @@
 - id: kotlin-sqlite-raw-query
   languages: [kotlin]
   patterns:
-    - regex: 'rawQuery\.s*\.\.s*[\.\.].*?\..*?[\.\.]|rawQuery\.s*\.\.s*[\.\.].*?\.\..*?\.'
+    - regex: 'rawQuery\s*\.\s*[\.\.].*?\..*?[\.\.]|rawQuery\s*\.\s*[\.\.].*?\.\..*?\.'
   severity: critical
   description: "SQL injection via rawQuery with concatenation"
   remediation: "Use selectionArgs parameter"
@@ -2424,7 +2424,7 @@
 - id: kotlin-sqlite-exec-sql
   languages: [kotlin]
   patterns:
-    - regex: 'execSQL\.s*\.\.s*[\.\.].*?\..*?[\.\.]|execSQL\.s*\.\.s*[\.\.].*?\.\..*?\.'
+    - regex: 'execSQL\s*\.\s*[\.\.].*?\..*?[\.\.]|execSQL\s*\.\s*[\.\.].*?\.\..*?\.'
   severity: critical
   description: "SQL injection via execSQL with concatenation"
   remediation: "Use parameterized queries"
@@ -2514,7 +2514,7 @@
 - id: kotlin-network-okhttp-client
   languages: [kotlin]
   patterns:
-    - regex: 'OkHttpClient\.s*\.\.s*\.'
+    - regex: 'OkHttpClient\s*\.\s*\.'
   severity: low
   description: "OkHttp client without configuration"
   remediation: "Configure timeouts, certificate pinning"
@@ -2544,7 +2544,7 @@
 - id: kotlin-network-okhttp-cache
   languages: [kotlin]
   patterns:
-    - regex: 'cache\.s*\.\.s*Cache\.[^,]+,\.s*[0-9]+\.s*\.\.s*\.'
+    - regex: 'cache\s*\.\s*Cache\.[^,]+,\s*[0-9]+\s*\.\s*\.'
   severity: low
   description: "OkHttp cache configured"
   remediation: "Don't cache sensitive data"
@@ -2554,7 +2554,7 @@
 - id: kotlin-network-okhttp-cache-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'cache\.s*\.\.s*Cache.*?\.\.s*.*?url.*?(?:password|token|key)'
+    - regex: 'cache\s*\.\s*Cache.*?\.\s*.*?url.*?(?:password|token|key)'
   severity: high
   description: "OkHttp caching sensitive data (may leak to disk)"
   remediation: "Avoid caching responses with sensitive data"
@@ -2584,7 +2584,7 @@
 - id: kotlin-network-okhttp-hostname-verifier
   languages: [kotlin]
   patterns:
-    - regex: 'hostnameVerifier\.s*=\.s*.*?\..*?true.*?\.'
+    - regex: 'hostnameVerifier\s*=\s*.*?\..*?true.*?\.'
   severity: critical
   description: "Custom hostname verifier that always returns true (bypasses security)"
   remediation: "Never disable hostname verification"
@@ -2624,7 +2624,7 @@
 - id: kotlin-network-retrofit-base-url
   languages: [kotlin]
   patterns:
-    - regex: 'baseUrl\.s*\.\.s*[\.\.]http://'
+    - regex: 'baseUrl\s*\.\s*[\.\.]http://'
   severity: high
   description: "Retrofit base URL using HTTP (not HTTPS)"
   remediation: "Use HTTPS for all API endpoints"
@@ -2756,17 +2756,17 @@
 - id: kotlin-webview-javascript-enabled
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.javaScriptEnabled\.s*=\.s*true'
+    - regex: 'webView\.settings\.javaScriptEnabled\s*=\s*true'
   severity: high
   description: "WebView with JavaScript enabled (XSS risk)"
   remediation: "Disable unless necessary"
   cwe: "CWE-79"
   owasp: "A03:2021"
 
-- id: kotlin-webview-file-access
+- id: kotlin-webview-file-access-dup1
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.allowFileAccess\.s*=\.s*true'
+    - regex: 'webView\.settings\.allowFileAccess\s*=\s*true'
   severity: high
   description: "WebView allows file access (may read local files)"
   remediation: "Disable unless needed"
@@ -2776,7 +2776,7 @@
 - id: kotlin-webview-content-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.allowContentAccess\.s*=\.s*true'
+    - regex: 'webView\.settings\.allowContentAccess\s*=\s*true'
   severity: high
   description: "WebView allows content access (may access content providers)"
   remediation: "Disable unless needed"
@@ -2786,7 +2786,7 @@
 - id: kotlin-webview-universal-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.allowUniversalAccessFromFileURLs\.s*=\.s*true'
+    - regex: 'webView\.settings\.allowUniversalAccessFromFileURLs\s*=\s*true'
   severity: critical
   description: "WebView allows universal access from file URLs"
   remediation: "Never enable for untrusted content"
@@ -2796,7 +2796,7 @@
 - id: kotlin-webview-file-url-access
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.allowFileAccessFromFileURLs\.s*=\.s*true'
+    - regex: 'webView\.settings\.allowFileAccessFromFileURLs\s*=\s*true'
   severity: high
   description: "WebView allows file access from file URLs"
   remediation: "Disable unless needed"
@@ -2806,7 +2806,7 @@
 - id: kotlin-webview-dom-storage
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.domStorageEnabled\.s*=\.s*true'
+    - regex: 'webView\.settings\.domStorageEnabled\s*=\s*true'
   severity: medium
   description: "WebView DOM storage enabled (may store sensitive data)"
   remediation: "Clear storage when done"
@@ -2816,7 +2816,7 @@
 - id: kotlin-webview-database
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.databaseEnabled\.s*=\.s*true'
+    - regex: 'webView\.settings\.databaseEnabled\s*=\s*true'
   severity: medium
   description: "WebView database enabled (may store sensitive data)"
   remediation: "Clear database when done"
@@ -2846,7 +2846,7 @@
 - id: kotlin-webview-mixed-content-never
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.mixedContentMode\.s*=\.s*WebSettings\.MIXED_CONTENT_NEVER_ALLOW'
+    - regex: 'webView\.settings\.mixedContentMode\s*=\s*WebSettings\.MIXED_CONTENT_NEVER_ALLOW'
   severity: low
   description: "WebView blocks mixed content (good)"
   remediation: "Good security practice"
@@ -2856,7 +2856,7 @@
 - id: kotlin-webview-mixed-content-always
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.settings\.mixedContentMode\.s*=\.s*WebSettings\.MIXED_CONTENT_ALWAYS_ALLOW'
+    - regex: 'webView\.settings\.mixedContentMode\s*=\s*WebSettings\.MIXED_CONTENT_ALWAYS_ALLOW'
   severity: critical
   description: "WebView allows mixed content (security risk)"
   remediation: "Set to MIXED_CONTENT_NEVER_ALLOW"
@@ -2886,7 +2886,7 @@
 - id: kotlin-webview-safe-browsing
   languages: [kotlin]
   patterns:
-    - regex: 'webView\.setSafeBrowsingEnabled\.s*\.\.s*true\.s*\.'
+    - regex: 'webView\.setSafeBrowsingEnabled\s*\.\s*true\s*\.'
   severity: low
   description: "Safe Browsing enabled (good)"
   remediation: "Good for security"
@@ -2896,7 +2896,7 @@
 - id: kotlin-webview-webviewclient-should-override
   languages: [kotlin]
   patterns:
-    - regex: 'shouldOverrideUrlLoading.*?return\.s+false'
+    - regex: 'shouldOverrideUrlLoading.*?return\s+false'
   severity: medium
   description: "WebViewClient allowing all URLs (may open malicious sites)"
   remediation: "Validate URLs before loading"
@@ -2926,7 +2926,7 @@
 - id: kotlin-webview-load-url
   languages: [kotlin]
   patterns:
-    - regex: 'loadUrl\.s*\.\.s*r\.(FormValue|URL\.Query)'
+    - regex: 'loadUrl\s*\.\s*r\.(FormValue|URL\.Query)'
   severity: high
   description: "Loading URL from user input (open redirect, XSS)"
   remediation: "Validate and restrict URLs"
@@ -2936,7 +2936,7 @@
 - id: kotlin-webview-load-data
   languages: [kotlin]
   patterns:
-    - regex: 'loadData(?:WithBaseURL)?\.s*\.\.s*[^,]*r\.(FormValue|URL\.Query)'
+    - regex: 'loadData(?:WithBaseURL)?\s*\.\s*[^,]*r\.(FormValue|URL\.Query)'
   severity: high
   description: "Loading user input as HTML in WebView (XSS risk)"
   remediation: "Sanitize HTML or use text/plain"
@@ -2946,7 +2946,7 @@
 - id: kotlin-webview-evaluate-javascript
   languages: [kotlin]
   patterns:
-    - regex: 'evaluateJavascript\.s*\.\.s*r\.(FormValue|URL\.Query)'
+    - regex: 'evaluateJavascript\s*\.\s*r\.(FormValue|URL\.Query)'
   severity: critical
   description: "Evaluating user input as JavaScript (RCE risk)"
   remediation: "Never evaluate untrusted JavaScript"
@@ -2956,7 +2956,7 @@
 - id: kotlin-webview-post-url
   languages: [kotlin]
   patterns:
-    - regex: 'postUrl\.s*\.\.s*[^,]*,\.s*[^)]*r\.(FormValue|URL\.Query)'
+    - regex: 'postUrl\s*\.\s*[^,]*,\s*[^)]*r\.(FormValue|URL\.Query)'
   severity: high
   description: "POSTing user data via WebView (CSRF risk)"
   remediation: "Use app APIs instead"
@@ -2966,7 +2966,7 @@
 - id: kotlin-webview-user-agent
   languages: [kotlin]
   patterns:
-    - regex: 'settings\.userAgentString\.s*=\.s*[\.\.]'
+    - regex: 'settings\.userAgentString\s*=\s*[\.\.]'
   severity: low
   description: "Custom User-Agent set for WebView"
   remediation: "Use default unless needed"
@@ -2978,7 +2978,7 @@
 - id: kotlin-crypto-md5
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]MD5[\.\.]'
+    - regex: 'MessageDigest\.getInstance\s*\.\s*[\.\.]MD5[\.\.]'
   severity: high
   description: "MD5 hash used (cryptographically broken)"
   remediation: "Use SHA-256 or SHA-512"
@@ -2988,7 +2988,7 @@
 - id: kotlin-crypto-sha1
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]SHA-?1[\.\.]'
+    - regex: 'MessageDigest\.getInstance\s*\.\s*[\.\.]SHA-?1[\.\.]'
   severity: high
   description: "SHA-1 hash used (cryptographically weak)"
   remediation: "Use SHA-256 or SHA-512"
@@ -2998,7 +2998,7 @@
 - id: kotlin-crypto-sha256
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]SHA-?256[\.\.]'
+    - regex: 'MessageDigest\.getInstance\s*\.\s*[\.\.]SHA-?256[\.\.]'
   severity: low
   description: "SHA-256 hash (good for general hashing)"
   remediation: "Good choice"
@@ -3008,7 +3008,7 @@
 - id: kotlin-crypto-sha512
   languages: [kotlin]
   patterns:
-    - regex: 'MessageDigest\.getInstance\.s*\.\.s*[\.\.]SHA-?512[\.\.]'
+    - regex: 'MessageDigest\.getInstance\s*\.\s*[\.\.]SHA-?512[\.\.]'
   severity: low
   description: "SHA-512 hash (strong hashing)"
   remediation: "Good for high-security hashing"
@@ -3018,7 +3018,7 @@
 - id: kotlin-crypto-des
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]DES[\.\.]'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]DES[\.\.]'
   severity: critical
   description: "DES cipher used (cryptographically broken)"
   remediation: "Use AES-GCM"
@@ -3028,7 +3028,7 @@
 - id: kotlin-crypto-3des
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]DESede[\.\.]'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]DESede[\.\.]'
   severity: high
   description: "Triple DES cipher used (cryptographically weak)"
   remediation: "Use AES-GCM"
@@ -3038,7 +3038,7 @@
 - id: kotlin-crypto-aes-ecb
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]AES/ECB'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]AES/ECB'
   severity: critical
   description: "AES-ECB mode (insecure, not semantically secure)"
   remediation: "Use AES/GCM/NoPadding"
@@ -3048,7 +3048,7 @@
 - id: kotlin-crypto-aes-cbc
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]AES/CBC'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]AES/CBC'
   severity: high
   description: "AES-CBC mode (vulnerable to padding oracle attacks)"
   remediation: "Use AES/GCM/NoPadding for authenticated encryption"
@@ -3058,7 +3058,7 @@
 - id: kotlin-crypto-aes-gcm
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]AES/GCM'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]AES/GCM'
   severity: low
   description: "AES-GCM mode (authenticated encryption)"
   remediation: "Good choice, ensure IV is unique"
@@ -3068,7 +3068,7 @@
 - id: kotlin-crypto-rsa-ecb
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]RSA/ECB'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]RSA/ECB'
   severity: high
   description: "RSA with ECB mode (not meaningful for RSA)"
   remediation: "Use RSA/ECB/OAEPWithSHA256AndMGF1Padding"
@@ -3078,7 +3078,7 @@
 - id: kotlin-crypto-rsa-pkcs1
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]RSA/ECB/PKCS1Padding[\.\.]'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]RSA/ECB/PKCS1Padding[\.\.]'
   severity: medium
   description: "RSA with PKCS#1 v1.5 padding (vulnerable to attacks)"
   remediation: "Use OAEP padding"
@@ -3088,7 +3088,7 @@
 - id: kotlin-crypto-rsa-oaep
   languages: [kotlin]
   patterns:
-    - regex: 'Cipher\.getInstance\.s*\.\.s*[\.\.]RSA/ECB/OAEP'
+    - regex: 'Cipher\.getInstance\s*\.\s*[\.\.]RSA/ECB/OAEP'
   severity: low
   description: "RSA with OAEP padding (secure)"
   remediation: "Good choice"
@@ -3098,7 +3098,7 @@
 - id: kotlin-crypto-iv-static
   languages: [kotlin]
   patterns:
-    - regex: 'IvParameterSpec\.s*\.\.s*byteArrayOf\.s*\.[^)]*\.'
+    - regex: 'IvParameterSpec\s*\.\s*byteArrayOf\s*\.[^)]*\.'
   severity: high
   description: "Static IV used in encryption (may be insecure)"
   remediation: "Generate random IV for each encryption"
@@ -3108,7 +3108,7 @@
 - id: kotlin-crypto-iv-zero
   languages: [kotlin]
   patterns:
-    - regex: 'IvParameterSpec\.s*\.\.s*ByteArray\.s*\.\.s*[0-9]+\.s*\.\.s*\.'
+    - regex: 'IvParameterSpec\s*\.\s*ByteArray\s*\.\s*[0-9]+\s*\.\s*\.'
   severity: critical
   description: "Zero IV used in encryption (extremely insecure)"
   remediation: "Always use random IVs"
@@ -3118,7 +3118,7 @@
 - id: kotlin-crypto-secret-key-spec
   languages: [kotlin]
   patterns:
-    - regex: 'SecretKeySpec\.s*\.\.s*byteArrayOf\.s*\.[^)]*\.'
+    - regex: 'SecretKeySpec\s*\.\s*byteArrayOf\s*\.[^)]*\.'
   severity: high
   description: "Hardcoded encryption key in code"
   remediation: "Use Android Keystore for key storage"
@@ -3128,7 +3128,7 @@
 - id: kotlin-crypto-keystore
   languages: [kotlin]
   patterns:
-    - regex: 'KeyStore\.getInstance\.s*\.\.s*[\.\.]AndroidKeyStore[\.\.]'
+    - regex: 'KeyStore\.getInstance\s*\.\s*[\.\.]AndroidKeyStore[\.\.]'
   severity: low
   description: "Using Android Keystore (good for key storage)"
   remediation: "Good practice for key management"
@@ -3138,7 +3138,7 @@
 - id: kotlin-crypto-keystore-generate-key
   languages: [kotlin]
   patterns:
-    - regex: 'KeyPairGenerator\.getInstance\.s*\.\.s*[\.\.]RSA[\.\.]\.s*,\.s*[\.\.]AndroidKeyStore[\.\.]'
+    - regex: 'KeyPairGenerator\.getInstance\s*\.\s*[\.\.]RSA[\.\.]\s*,\s*[\.\.]AndroidKeyStore[\.\.]'
   severity: low
   description: "Generating keys in Android Keystore (secure)"
   remediation: "Good for key generation"
@@ -3148,7 +3148,7 @@
 - id: kotlin-crypto-keystore-generate-aes
   languages: [kotlin]
   patterns:
-    - regex: 'KeyGenerator\.getInstance\.s*\.\.s*[\.\.]AES[\.\.]\.s*,\.s*[\.\.]AndroidKeyStore[\.\.]'
+    - regex: 'KeyGenerator\.getInstance\s*\.\s*[\.\.]AES[\.\.]\s*,\s*[\.\.]AndroidKeyStore[\.\.]'
   severity: low
   description: "Generating AES keys in Android Keystore"
   remediation: "Good for symmetric keys"
@@ -3188,7 +3188,7 @@
 - id: kotlin-crypto-mac
   languages: [kotlin]
   patterns:
-    - regex: 'Mac\.getInstance\.s*\.\.s*[\.\.]HmacSHA256[\.\.]'
+    - regex: 'Mac\.getInstance\s*\.\s*[\.\.]HmacSHA256[\.\.]'
   severity: low
   description: "HMAC-SHA256 for message authentication"
   remediation: "Good for authentication"
@@ -3198,7 +3198,7 @@
 - id: kotlin-crypto-mac-md5
   languages: [kotlin]
   patterns:
-    - regex: 'Mac\.getInstance\.s*\.\.s*[\.\.]HmacMD5[\.\.]'
+    - regex: 'Mac\.getInstance\s*\.\s*[\.\.]HmacMD5[\.\.]'
   severity: high
   description: "HMAC-MD5 (cryptographically weak)"
   remediation: "Use HMAC-SHA256"
@@ -3208,7 +3208,7 @@
 - id: kotlin-crypto-mac-sha1
   languages: [kotlin]
   patterns:
-    - regex: 'Mac\.getInstance\.s*\.\.s*[\.\.]HmacSHA1[\.\.]'
+    - regex: 'Mac\.getInstance\s*\.\s*[\.\.]HmacSHA1[\.\.]'
   severity: high
   description: "HMAC-SHA1 (cryptographically weak)"
   remediation: "Use HMAC-SHA256"
@@ -3218,7 +3218,7 @@
 - id: kotlin-crypto-signature
   languages: [kotlin]
   patterns:
-    - regex: 'Signature\.getInstance\.s*\.\.s*[\.\.]SHA256withRSA[\.\.]'
+    - regex: 'Signature\.getInstance\s*\.\s*[\.\.]SHA256withRSA[\.\.]'
   severity: low
   description: "RSA signature with SHA256 (good)"
   remediation: "Good for signatures"
@@ -3228,7 +3228,7 @@
 - id: kotlin-crypto-signature-md5
   languages: [kotlin]
   patterns:
-    - regex: 'Signature\.getInstance\.s*\.\.s*[\.\.]MD5withRSA[\.\.]'
+    - regex: 'Signature\.getInstance\s*\.\s*[\.\.]MD5withRSA[\.\.]'
   severity: critical
   description: "MD5 with RSA signature (cryptographically broken)"
   remediation: "Use SHA256withRSA"
@@ -3238,7 +3238,7 @@
 - id: kotlin-crypto-signature-sha1
   languages: [kotlin]
   patterns:
-    - regex: 'Signature\.getInstance\.s*\.\.s*[\.\.]SHA1withRSA[\.\.]'
+    - regex: 'Signature\.getInstance\s*\.\s*[\.\.]SHA1withRSA[\.\.]'
   severity: high
   description: "SHA1 with RSA signature (cryptographically weak)"
   remediation: "Use SHA256withRSA"
@@ -3310,7 +3310,7 @@
 - id: kotlin-biometric-authenticate-no-crypto
   languages: [kotlin]
   patterns:
-    - regex: 'authenticate\.s*\.\.s*[^)]*?'
+    - regex: 'authenticate\s*\.\s*[^)]*?'
   severity: medium
   description: "Biometric authentication without crypto (weaker)"
   remediation: "Use with CryptoObject for sensitive ops"
@@ -3490,7 +3490,7 @@
 - id: kotlin-input-validation-length
   languages: [kotlin]
   patterns:
-    - regex: 'length\.s*>\.s*[0-9]+|length\.s*<\.s*[0-9]+'
+    - regex: 'length\s*>\s*[0-9]+|length\s*<\s*[0-9]+'
   severity: low
   description: "Length validation"
   remediation: "Set min/max length"
@@ -3500,7 +3500,7 @@
 - id: kotlin-input-validation-range
   languages: [kotlin]
   patterns:
-    - regex: 'in\.s*[0-9]+\.\.[0-9]+'
+    - regex: 'in\s*[0-9]+\.\.[0-9]+'
   severity: low
   description: "Range validation"
   remediation: "Validate numeric ranges"
@@ -3510,7 +3510,7 @@
 - id: kotlin-input-validation-whitelist
   languages: [kotlin]
   patterns:
-    - regex: 'in\.s*setOf|contains\.s*in\.s*listOf'
+    - regex: 'in\s*setOf|contains\s*in\s*listOf'
   severity: low
   description: "Whitelist validation"
   remediation: "Good for enum values"
@@ -3520,7 +3520,7 @@
 - id: kotlin-input-validation-blacklist
   languages: [kotlin]
   patterns:
-    - regex: '!in\.s*setOf|!contains'
+    - regex: '!in\s*setOf|!contains'
   severity: medium
   description: "Blacklist validation (bypass risk)"
   remediation: "Use whitelist instead"
@@ -3530,7 +3530,7 @@
 - id: kotlin-input-validation-null
   languages: [kotlin]
   patterns:
-    - regex: '==\.s*null|\.=\.s*null'
+    - regex: '==\s*null|\.=\s*null'
   severity: low
   description: "Null check"
   remediation: "Use safe calls and elvis"
@@ -3599,20 +3599,20 @@
 
 # ======================== HARDCODED SECRETS (281-300) ========================
 
-- id: kotlin-hardcoded-password
+- id: kotlin-hardcoded-password-dup1
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\.s*=\.s*[\.\.][^\.\.]{8,}[\.\.]'
+    - regex: '(?i)(password|passwd|pwd)\s*=\s*[\.\.][^\.\.]{8,}[\.\.]'
   severity: high
   description: "Hardcoded password detected"
   remediation: "Use environment variables or Android Keystore"
   cwe: "CWE-798"
   owasp: "A07:2021"
 
-- id: kotlin-hardcoded-api-key
+- id: kotlin-hardcoded-api-key-dup1
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\.s*=\.s*[\.\.][a-zA-Z0-9]{16,}[\.\.]'
+    - regex: '(?i)(api[_-]?key|apikey)\s*=\s*[\.\.][a-zA-Z0-9]{16,}[\.\.]'
   severity: high
   description: "Hardcoded API key detected"
   remediation: "Store API keys in BuildConfig or secure config"
@@ -3622,7 +3622,7 @@
 - id: kotlin-hardcoded-jwt-secret
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key)\.s*=\.s*[\.\.][^\.\.]{8,}[\.\.]'
+    - regex: '(?i)(jwt[_-]?secret|signing[_-]?key)\s*=\s*[\.\.][^\.\.]{8,}[\.\.]'
   severity: critical
   description: "Hardcoded JWT signing secret"
   remediation: "Use environment variables for JWT secrets"
@@ -3652,7 +3652,7 @@
 - id: kotlin-hardcoded-firebase-api-key
   languages: [kotlin]
   patterns:
-    - regex: '(?i)apiKey:\.s*[\.\.]AIza[a-zA-Z0-9_-]{35}[\.\.]'
+    - regex: '(?i)apiKey:\s*[\.\.]AIza[a-zA-Z0-9_-]{35}[\.\.]'
   severity: high
   description: "Firebase API key hardcoded"
   remediation: "Use Firebase Remote Config for non-sensitive keys"
@@ -3752,7 +3752,7 @@
 - id: kotlin-hardcoded-oauth-secret
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\.s*=\.s*[\.\.][^\.\.]+[\.\.]'
+    - regex: '(?i)(oauth|auth0|okta)_(client_)?secret\s*=\s*[\.\.][^\.\.]+[\.\.]'
   severity: critical
   description: "OAuth client secret hardcoded"
   remediation: "Use environment variables"
@@ -3789,10 +3789,10 @@
   cwe: "CWE-321"
   owasp: "A02:2021"
 
-- id: kotlin-hardcoded-encryption-key
+- id: kotlin-hardcoded-encryption-key-dup1
   languages: [kotlin]
   patterns:
-    - regex: '(?i)(key|secret|iv)\.s*=\.s*[\.\.][a-zA-Z0-9+/=]{16,}[\.\.]'
+    - regex: '(?i)(key|secret|iv)\s*=\s*[\.\.][a-zA-Z0-9+/=]{16,}[\.\.]'
   severity: critical
   description: "Hardcoded encryption key or IV"
   remediation: "Use Android Keystore for keys"
@@ -4006,7 +4006,7 @@
 - id: kotlin-json-gson-from-json
   languages: [kotlin]
   patterns:
-    - regex: 'fromJson\.s*\.\.s*[^,]+,\.s*[^)]+::class.java'
+    - regex: 'fromJson\s*\.\s*[^,]+,\s*[^)]+::class.java'
   severity: medium
   description: "Gson deserialization (type safety)"
   remediation: "Use TypeToken for generic types"
@@ -4016,7 +4016,7 @@
 - id: kotlin-json-gson-from-json-untyped
   languages: [kotlin]
   patterns:
-    - regex: 'fromJson\.s*\.\.s*[^,]+,\.s*JsonElement::class'
+    - regex: 'fromJson\s*\.\s*[^,]+,\s*JsonElement::class'
   severity: high
   description: "Gson deserialization to untyped JsonElement"
   remediation: "Use typed classes for parsing"
@@ -4036,7 +4036,7 @@
 - id: kotlin-json-moshi-from-json
   languages: [kotlin]
   patterns:
-    - regex: 'fromJson\.s*\.\.s*[^,]+,\.s*[^)]+::class'
+    - regex: 'fromJson\s*\.\s*[^,]+,\s*[^)]+::class'
   severity: low
   description: "Moshi deserialization"
   remediation: "Moshi is safer than Gson"
@@ -4076,7 +4076,7 @@
 - id: kotlin-json-jackson-polymorphic
   languages: [kotlin]
   patterns:
-    - regex: '@JsonTypeInfo.*?use\.s*=\.s*JsonTypeInfo\.Id\.CLASS'
+    - regex: '@JsonTypeInfo.*?use\s*=\s*JsonTypeInfo\.Id\.CLASS'
   severity: high
   description: "Jackson polymorphic deserialization (security risk)"
   remediation: "Use whitelist of allowed classes"
@@ -4086,7 +4086,7 @@
 - id: kotlin-json-kotlinx-serialization
   languages: [kotlin]
   patterns:
-    - regex: 'Json\.s*\.\.s*\.|Json\.encodeToString|Json\.decodeFromString'
+    - regex: 'Json\s*\.\s*\.|Json\.encodeToString|Json\.decodeFromString'
   severity: low
   description: "kotlinx.serialization (type-safe)"
   remediation: "Good for Kotlin"
@@ -4096,7 +4096,7 @@
 - id: kotlin-json-kotlinx-ignore-unknown
   languages: [kotlin]
   patterns:
-    - regex: 'ignoreUnknownKeys\.s*=\.s*true'
+    - regex: 'ignoreUnknownKeys\s*=\s*true'
   severity: low
   description: "Ignoring unknown keys (good for forward compatibility)"
   remediation: "Good practice"
@@ -4106,7 +4106,7 @@
 - id: kotlin-json-kotlinx-coerce-input-values
   languages: [kotlin]
   patterns:
-    - regex: 'coerceInputValues\.s*=\.s*true'
+    - regex: 'coerceInputValues\s*=\s*true'
   severity: medium
   description: "Coercing input values (may hide errors)"
   remediation: "Use strict parsing"
@@ -4196,17 +4196,17 @@
 - id: kotlin-coroutine-launch
   languages: [kotlin]
   patterns:
-    - regex: 'launch\.s*\.'
+    - regex: 'launch\s*\.'
   severity: low
   description: "Coroutine launch"
   remediation: "Ensure proper error handling"
   cwe: "CWE-754"
   owasp: "A06:2021"
 
-- id: kotlin-coroutine-async
+- id: kotlin-coroutine-async-dup1
   languages: [kotlin]
   patterns:
-    - regex: 'async\.s*\.'
+    - regex: 'async\s*\.'
   severity: low
   description: "Coroutine async"
   remediation: "Remember to await() and handle errors"
@@ -4233,7 +4233,7 @@
   cwe: "CWE-754"
   owasp: "A06:2021"
 
-- id: kotlin-coroutine-cancel
+- id: kotlin-coroutine-cancel-dup1
   languages: [kotlin]
   patterns:
     - regex: '\.cancel\.\.'
@@ -4243,10 +4243,10 @@
   cwe: "CWE-401"
   owasp: "A06:2021"
 
-- id: kotlin-coroutine-with-context
+- id: kotlin-coroutine-with-context-dup1
   languages: [kotlin]
   patterns:
-    - regex: 'withContext\.s*\.[^)]+\.'
+    - regex: 'withContext\s*\.[^)]+\.'
   severity: low
   description: "Switching coroutine context"
   remediation: "Use appropriate dispatchers"
@@ -4293,10 +4293,10 @@
   cwe: "CWE-770"
   owasp: "A04:2023"
 
-- id: kotlin-coroutine-flow
+- id: kotlin-coroutine-flow-dup1
   languages: [kotlin]
   patterns:
-    - regex: 'flow\.s*\.|MutableStateFlow|MutableSharedFlow'
+    - regex: 'flow\s*\.|MutableStateFlow|MutableSharedFlow'
   severity: low
   description: "Flow usage"
   remediation: "Handle flow exceptions"
@@ -4306,7 +4306,7 @@
 - id: kotlin-coroutine-flow-catch
   languages: [kotlin]
   patterns:
-    - regex: '\.catch\.s*\.'
+    - regex: '\.catch\s*\.'
   severity: low
   description: "Flow catch operator"
   remediation: "Handle flow exceptions"
@@ -4316,7 +4316,7 @@
 - id: kotlin-coroutine-flow-retry
   languages: [kotlin]
   patterns:
-    - regex: '\.retry\.s*\.[0-9]+\.'
+    - regex: '\.retry\s*\.[0-9]+\.'
   severity: low
   description: "Flow retry operator"
   remediation: "Set appropriate retry limits"
@@ -4326,7 +4326,7 @@
 - id: kotlin-coroutine-flow-collect
   languages: [kotlin]
   patterns:
-    - regex: '\.collect\.s*\.'
+    - regex: '\.collect\s*\.'
   severity: low
   description: "Flow collection"
   remediation: "Collect in appropriate scope"
@@ -4336,7 +4336,7 @@
 - id: kotlin-coroutine-flow-launch-in
   languages: [kotlin]
   patterns:
-    - regex: '\.launchIn\.s*\.'
+    - regex: '\.launchIn\s*\.'
   severity: low
   description: "Launching flow collection"
   remediation: "Ensure proper scope"
@@ -4345,7 +4345,7 @@
 
 # ======================== WORK MANAGER (361-380) ========================
 
-- id: kotlin-work-manager
+- id: kotlin-work-manager-dup1
   languages: [kotlin]
   patterns:
     - regex: 'WorkManager\.getInstance'
@@ -4385,7 +4385,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: kotlin-work-constraints
+- id: kotlin-work-constraints-dup1
   languages: [kotlin]
   patterns:
     - regex: 'Constraints\.Builder\.\.'
@@ -4457,7 +4457,7 @@
 
 # ======================== MISCELLANEOUS (381-400) ========================
 
-- id: kotlin-clipboard-sensitive
+- id: kotlin-clipboard-sensitive-dup1
   languages: [kotlin]
   patterns:
     - regex: 'ClipboardManager.*?setText.*?(?:password|token|key)'
@@ -4560,7 +4560,7 @@
 - id: kotlin-text-selectable-sensitive
   languages: [kotlin]
   patterns:
-    - regex: 'textIsSelectable\.s*=\.s*true.*?(?:password|token|key)'
+    - regex: 'textIsSelectable\s*=\s*true.*?(?:password|token|key)'
   severity: high
   description: "Sensitive text selectable (can be copied)"
   remediation: "Disable text selection for sensitive data"

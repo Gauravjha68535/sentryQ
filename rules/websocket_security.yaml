@@ -1,0 +1,149 @@
+# SentryQ Security Rules — WebSocket Security
+# Covers: Origin validation, authentication, injection, DoS, data exposure
+
+# ======================== Origin Validation ========================
+
+- id: ws-missing-origin-check
+  languages: [javascript, typescript, python, go, ruby, java]
+  patterns:
+    - regex: '(?i)(?:WebSocketServer|WebSocket\.Server|ws\.Server|socketio|Socket\.IO)\s*\(\s*\{[^}]*(?:(?!verifyClient|origins|allowedOrigins|cors).)*\}'
+    - regex: '(?i)new\s+(?:WebSocketServer|ws\.Server)\s*\(\s*\{\s*(?:port|server|noServer)\s*:'
+  severity: high
+  description: "WebSocket server created without origin validation — vulnerable to cross-site WebSocket hijacking (CSWSH)."
+  remediation: "Implement verifyClient callback to check request.headers.origin against an allowlist."
+  cwe: "CWE-346"
+  owasp: "A01:2021-Broken Access Control"
+
+- id: ws-origin-wildcard
+  languages: [javascript, typescript, python, go, ruby, java]
+  patterns:
+    - regex: '(?i)(?:allowedOrigins|cors[_-]?origins?|origins?)\s*[=:]\s*["\x27]\*["\x27]'
+    - regex: '(?i)cors\s*[=:]\s*\{[^}]*origin\s*:\s*(?:true|["\x27]\*["\x27])'
+    - regex: '(?i)Access-Control-Allow-Origin.*\*'
+  severity: critical
+  description: "WebSocket allows connections from any origin (*) — any malicious website can connect to your WebSocket server."
+  remediation: "Restrict origins to specific trusted domains: origins: ['https://example.com']."
+  cwe: "CWE-942"
+  owasp: "A01:2021-Broken Access Control"
+
+- id: ws-origin-check-bypass
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)verifyClient\s*[:=]\s*(?:function|\([^)]*\)\s*=>)\s*\{[^}]*return\s+true'
+    - regex: '(?i)verifyClient\s*[:=]\s*\(\s*\)\s*=>\s*true'
+  severity: critical
+  description: "WebSocket verifyClient always returns true — origin check is bypassed."
+  remediation: "Validate info.origin or info.req.headers.origin in verifyClient callback."
+  cwe: "CWE-346"
+  owasp: "A01:2021-Broken Access Control"
+
+# ======================== Authentication ========================
+
+- id: ws-no-auth-on-connection
+  languages: [javascript, typescript, python, go]
+  patterns:
+    - regex: '(?i)(?:wss|ws|socket)\.on\s*\(\s*["\x27]connection["\x27]\s*,\s*(?:function|\([^)]*\)\s*=>)\s*\{(?:(?!auth|token|session|verify|jwt|cookie).)*\}'
+  severity: high
+  description: "WebSocket connection handler without authentication — any client can connect and exchange messages."
+  remediation: "Verify authentication token/session in the connection handler or upgrade request before accepting."
+  cwe: "CWE-306"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+- id: ws-token-in-url
+  languages: [javascript, typescript, python, go, ruby]
+  patterns:
+    - regex: '(?i)new\s+WebSocket\s*\(\s*["\x27`]wss?://[^"\x27`]*\?.*(?:token|jwt|auth|key|session)='
+    - regex: '(?i)ws[s]?\s*://.*\?(?:token|auth_token|jwt|api_key)='
+  severity: high
+  description: "WebSocket auth token passed in URL query string — visible in server logs, proxy logs, and browser history."
+  remediation: "Send auth token in the first WebSocket message after connection, or use cookies/headers during upgrade."
+  cwe: "CWE-598"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+# ======================== Injection Attacks ========================
+
+- id: ws-message-no-validation
+  languages: [javascript, typescript, python, go]
+  patterns:
+    - regex: '(?i)(?:ws|socket|connection)\.on\s*\(\s*["\x27]message["\x27]\s*,\s*(?:function|\([^)]*\)\s*=>)\s*\{[^}]*JSON\.parse\s*\([^)]+\)[^}]*(?:eval|exec|query|sql|command|child_process)'
+  severity: critical
+  description: "WebSocket message parsed and used directly in dangerous sinks (eval, SQL, exec) without validation."
+  remediation: "Validate and sanitize all WebSocket message data. Use schema validation (joi, zod, ajv)."
+  cwe: "CWE-20"
+  owasp: "A03:2021-Injection"
+
+- id: ws-message-broadcast-unsanitized
+  languages: [javascript, typescript, python, go]
+  patterns:
+    - regex: '(?i)(?:ws|socket|connection)\.on\s*\(\s*["\x27]message["\x27]\s*,[^}]*(?:broadcast|clients\.forEach|emit\s*\(\s*["\x27](?!error))'
+  severity: high
+  description: "WebSocket message broadcast to other clients without sanitization — stored XSS via WebSocket."
+  remediation: "Sanitize and validate all messages before broadcasting. Apply HTML encoding for chat/messaging apps."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: ws-sql-injection
+  languages: [javascript, typescript, python, go, ruby, java, csharp]
+  patterns:
+    - regex: '(?i)(?:ws|socket|connection)\.on\s*\(\s*["\x27]message["\x27]\s*,[^}]*(?:query|execute|raw)\s*\(\s*["\x27`].*\$\{|.*\+\s*(?:data|msg|message|payload))'
+  severity: critical
+  description: "WebSocket message data concatenated into SQL query — SQL injection via WebSocket."
+  remediation: "Use parameterized queries. Never concatenate WebSocket message data into SQL strings."
+  cwe: "CWE-89"
+  owasp: "A03:2021-Injection"
+
+# ======================== DoS / Resource Exhaustion ========================
+
+- id: ws-no-message-size-limit
+  languages: [javascript, typescript, python, go]
+  patterns:
+    - regex: '(?i)new\s+(?:WebSocketServer|ws\.Server)\s*\(\s*\{(?:(?!maxPayload|max_size|maxMessageSize).)*\}'
+  severity: medium
+  description: "WebSocket server without message size limit — vulnerable to memory exhaustion via large payloads."
+  remediation: "Set maxPayload option: new WebSocket.Server({ maxPayload: 1024 * 1024 }) for 1MB limit."
+  cwe: "CWE-400"
+  owasp: "A04:2021-Insecure Design"
+
+- id: ws-no-rate-limiting
+  languages: [javascript, typescript, python, go]
+  patterns:
+    - regex: '(?i)(?:ws|socket|connection)\.on\s*\(\s*["\x27]message["\x27]\s*,\s*(?:function|\([^)]*\)\s*=>)\s*\{(?:(?!rateLimit|throttle|rate_limit|bucket|cooldown).)*\}'
+  severity: medium
+  description: "WebSocket message handler without rate limiting — vulnerable to message flooding DoS."
+  remediation: "Implement per-client rate limiting using token bucket or sliding window algorithm."
+  cwe: "CWE-770"
+  owasp: "A04:2021-Insecure Design"
+
+- id: ws-no-connection-limit
+  languages: [javascript, typescript, python, go]
+  patterns:
+    - regex: '(?i)new\s+(?:WebSocketServer|ws\.Server)\s*\(\s*\{(?:(?!maxConnections|clientTracking|max_connections).)*\}'
+  severity: medium
+  description: "WebSocket server without connection limit — vulnerable to connection exhaustion DoS."
+  remediation: "Track connected clients and reject new connections above threshold."
+  cwe: "CWE-770"
+  owasp: "A04:2021-Insecure Design"
+
+# ======================== Data Exposure ========================
+
+- id: ws-sensitive-data-unencrypted
+  languages: [javascript, typescript, python, go, ruby]
+  patterns:
+    - regex: '(?i)new\s+WebSocket\s*\(\s*["\x27`]ws://(?!localhost|127\.0\.0\.1)'
+    - regex: '(?i)WebSocket\s*\(\s*["\x27]ws://(?!localhost|127\.0\.0\.1|0\.0\.0\.0)'
+  severity: high
+  description: "WebSocket connection using unencrypted ws:// protocol to non-localhost — data is transmitted in plaintext."
+  remediation: "Use wss:// (WebSocket Secure) for all non-localhost connections."
+  cwe: "CWE-319"
+  owasp: "A02:2021-Cryptographic Failures"
+
+- id: ws-error-info-leak
+  languages: [javascript, typescript, python, go]
+  patterns:
+    - regex: '(?i)(?:ws|socket|connection)\.send\s*\(\s*(?:JSON\.stringify\s*\(\s*\{[^}]*(?:stack|stackTrace|err\.message|error\.message|traceback))'
+    - regex: '(?i)catch\s*\(\s*(?:e|err|error)\s*\)\s*\{[^}]*(?:ws|socket|connection)\.send\s*\(\s*(?:e|err|error)\.(?:message|stack)'
+  severity: medium
+  description: "WebSocket error handler leaks stack traces/internal errors to client."
+  remediation: "Send generic error messages. Log detailed errors server-side only."
+  cwe: "CWE-209"
+  owasp: "A05:2021-Security Misconfiguration"

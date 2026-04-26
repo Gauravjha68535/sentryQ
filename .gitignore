@@ -53,3 +53,6 @@ sentryq
 backend_logs.txt
 .kilo/
 0
+.kilocode/
+coverage.out
+dist/

@@ -568,7 +568,7 @@
   cwe: "CWE-327"
   owasp: "A02:2021"
   confidence: 0.8
-- id: sql-xp-cmdshell
+- id: sql-xp-cmdshell-dup1
   languages: [sql]
   patterns:
     - regex: '(?i)xp_cmdshell\s+'
@@ -578,7 +578,7 @@
   cwe: "CWE-78"
   owasp: "A03:2021"
   confidence: 0.9
-- id: sql-linked-server
+- id: sql-linked-server-dup1
   languages: [sql]
   patterns:
     - regex: '(?i)sp_addlinkedserver'

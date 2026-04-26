@@ -23,6 +23,11 @@ import (
 type ASTAnalyzer struct {
 	languages         map[string]*treeSitter.Language
 	parsers           map[string]*treeSitter.Parser
+	// parserMu guards per-language parser access. tree-sitter parsers are NOT
+	// thread-safe — concurrent calls to ParseCtx on the same parser object cause
+	// data races in the underlying C library. One mutex per language means
+	// different languages can still be parsed concurrently.
+	parserMu          map[string]*sync.Mutex
 	reachabilityCache map[string]bool
 	cacheMu           sync.RWMutex
 	cacheOnce         sync.Once
@@ -33,6 +38,7 @@ func NewASTAnalyzer() *ASTAnalyzer {
 	analyzer := &ASTAnalyzer{
 		languages: make(map[string]*treeSitter.Language),
 		parsers:   make(map[string]*treeSitter.Parser),
+		parserMu:  make(map[string]*sync.Mutex),
 	}
 
 	// Register supported languages.
@@ -45,21 +51,31 @@ func NewASTAnalyzer() *ASTAnalyzer {
 	analyzer.languages["java"] = java.GetLanguage()
 	analyzer.languages["kotlin"] = kotlin.GetLanguage()
 
-	// Initialize parsers
+	// Initialize parsers and per-language mutexes.
+	// Each language gets its own mutex so different languages can be parsed
+	// concurrently while still preventing two goroutines from sharing one parser.
 	for lang, language := range analyzer.languages {
 		parser := treeSitter.NewParser()
 		parser.SetLanguage(language)
 		analyzer.parsers[lang] = parser
+		analyzer.parserMu[lang] = &sync.Mutex{}
 	}
 
 	return analyzer
 }
 
-// AnalyzeFile scans a file using AST-based analysis
-func (aa *ASTAnalyzer) AnalyzeFile(filePath string) ([]reporter.Finding, error) {
+// AnalyzeFile scans a file using AST-based analysis.
+// ctx is the scan's cancellation context — if it is cancelled the parse is
+// aborted immediately so the goroutine can be cleaned up without delay.
+func (aa *ASTAnalyzer) AnalyzeFile(ctx context.Context, filePath string) ([]reporter.Finding, error) {
 	lang := getLanguageFromPath(filePath)
 	if lang == "" || aa.parsers[lang] == nil {
 		return nil, nil // Skip unsupported languages
+	}
+
+	// Bail out early if the scan was already cancelled.
+	if ctx.Err() != nil {
+		return nil, nil
 	}
 
 	content, err := os.ReadFile(filePath)
@@ -68,8 +84,19 @@ func (aa *ASTAnalyzer) AnalyzeFile(filePath string) ([]reporter.Finding, error) 
 	}
 
 	parser := aa.parsers[lang]
-	tree, err := parser.ParseCtx(context.Background(), nil, content)
+	// Lock the per-language mutex so no two goroutines share the same parser
+	// simultaneously — tree-sitter parsers are not thread-safe.
+	mu := aa.parserMu[lang]
+	mu.Lock()
+	// Use the scan context so a user-triggered stop or timeout also aborts
+	// the tree-sitter parse — previously this was context.Background() which
+	// caused the parser to keep running after the scan was cancelled.
+	tree, err := parser.ParseCtx(ctx, nil, content)
+	mu.Unlock()
 	if err != nil {
+		if ctx.Err() != nil {
+			return nil, nil // cancelled — not an error worth logging
+		}
 		return nil, fmt.Errorf("failed to parse AST: %w", err)
 	}
 	if tree == nil {

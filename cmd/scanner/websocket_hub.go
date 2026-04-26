@@ -22,7 +22,6 @@ type WSMessage struct {
 	Count   int    `json:"count,omitempty"`
 }
 
-// WSClient wraps a websocket connection with a mutex for thread-safe writes
 // WSClient wraps a websocket connection with separate mutexes for thread-safe
 // reads and writes. gorilla/websocket allows one concurrent reader + one
 // concurrent writer, but not two of the same kind. Keeping write and close
@@ -32,19 +31,32 @@ type WSClient struct {
 	conn    *websocket.Conn
 	writeMu sync.Mutex // guards WriteMessage and Close
 	readMu  sync.Mutex // guards ReadMessage (only one goroutine reads, but mutex keeps SetReadDeadline safe)
+	closed  bool       // guarded by writeMu; makes Close() idempotent
 }
 
-// WriteMessage is a thread-safe wrapper for writing text messages
+// wsWriteTimeout is the maximum time allowed for a single WebSocket write.
+// A slow or stalled client must not block broadcast delivery to all other clients.
+const wsWriteTimeout = 5 * time.Second
+
+// WriteMessage is a thread-safe wrapper for writing text messages.
+// It sets a per-write deadline so a stalled client cannot block the caller indefinitely.
 func (c *WSClient) WriteMessage(messageType int, data []byte) error {
 	c.writeMu.Lock()
 	defer c.writeMu.Unlock()
+	c.conn.SetWriteDeadline(time.Now().Add(wsWriteTimeout)) //nolint:errcheck
 	return c.conn.WriteMessage(messageType, data)
 }
 
-// Close gracefully closes the connection
+// Close gracefully closes the connection. It is idempotent — calling it more
+// than once (e.g. from both Broadcast's error path and the read goroutine's
+// defer) is safe and returns nil on the second call.
 func (c *WSClient) Close() error {
 	c.writeMu.Lock()
 	defer c.writeMu.Unlock()
+	if c.closed {
+		return nil
+	}
+	c.closed = true
 	return c.conn.Close()
 }
 

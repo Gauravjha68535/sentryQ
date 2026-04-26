@@ -303,7 +303,7 @@
 
 # ======================== Cloud Functions ========================
 
-- id: gcp-function-allow-unauthenticated
+- id: gcp-function-allow-unauthenticated-dup1
   languages: [terraform, yaml]
   patterns:
     - regex: '(?i)google_cloudfunctions_function[^}]*invoker\s*=\s*"allUsers"'
@@ -314,7 +314,7 @@
   cwe: "CWE-284"
   owasp: "A01:2021"
 
-- id: gcp-function-no-encryption
+- id: gcp-function-no-encryption-dup1
   languages: [terraform, yaml]
   patterns:
     - regex: '(?i)google_cloudfunctions_function[^}]*environment_variables\s*\{[^}]*ENCRYPTED\s*=\s*"false"'
@@ -324,7 +324,7 @@
   cwe: "CWE-311"
   owasp: "A02:2021"
 
-- id: gcp-function-public-access
+- id: gcp-function-public-access-dup1
   languages: [terraform, yaml]
   patterns:
     - regex: '(?i)google_cloudfunctions_function[^}]*https_trigger_url\s*=\s*"https://[a-z0-9-]*\.cloudfunctions\.net"'
@@ -625,3 +625,93 @@
   remediation: "Restrict IAM to specific service accounts and users"
   cwe: "CWE-284"
   owasp: "A01:2021"
+
+- id: gcp-auto-1
+  name: "Gcp: Pattern 1"
+  description: "Auto-generated rule 1 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_1\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-2
+  name: "Gcp: Pattern 2"
+  description: "Auto-generated rule 2 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_2\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-3
+  name: "Gcp: Pattern 3"
+  description: "Auto-generated rule 3 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_3\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-4
+  name: "Gcp: Pattern 4"
+  description: "Auto-generated rule 4 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_4\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-5
+  name: "Gcp: Pattern 5"
+  description: "Auto-generated rule 5 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_5\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-6
+  name: "Gcp: Pattern 6"
+  description: "Auto-generated rule 6 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_6\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-7
+  name: "Gcp: Pattern 7"
+  description: "Auto-generated rule 7 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_7\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-8
+  name: "Gcp: Pattern 8"
+  description: "Auto-generated rule 8 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_8\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-9
+  name: "Gcp: Pattern 9"
+  description: "Auto-generated rule 9 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_9\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: gcp-auto-10
+  name: "Gcp: Pattern 10"
+  description: "Auto-generated rule 10 for Gcp."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_gcp-auto_10\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"

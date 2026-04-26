@@ -1,0 +1,184 @@
+# SentryQ Security Rules — Advanced XSS
+# Covers: DOM Clobbering, Mutation XSS, Prototype chain, Template injection, CSP bypass techniques
+
+# ======================== DOM Clobbering ========================
+
+- id: xss-dom-clobbering-id-access
+  languages: [javascript, typescript, html]
+  patterns:
+    - regex: '(?i)(?:document\.|window\.)(?:getElementById|querySelector)\s*\(\s*["\x27](?:form|input|body|head|title|name|id|action|method|target|src|href)["\x27]\s*\)'
+  severity: medium
+  description: "Accessing DOM elements by common names — vulnerable to DOM clobbering where attacker-injected HTML elements shadow expected properties."
+  remediation: "Use unique IDs. Verify element type before use: if (el instanceof HTMLFormElement)."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: xss-dom-clobbering-named-access
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:window|document|globalThis)\[(?:req\.|request\.|params\.|query\.|body\.|input\.)'
+    - regex: '(?i)document\.(?:all|forms|images|links|anchors|scripts)\s*\[\s*(?:req\.|request\.|params\.)'
+  severity: high
+  description: "Dynamic property access on document/window with user input — DOM clobbering can override expected values."
+  remediation: "Never use user input for DOM property access. Use explicit getElementById() with validation."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: xss-dom-clobbering-form-override
+  languages: [html]
+  patterns:
+    - regex: '(?i)<(?:input|img|embed|object|a)\s+[^>]*(?:name|id)\s*=\s*["\x27](?:action|method|submit|target|enctype|encoding)["\x27]'
+  severity: high
+  description: "HTML element with name/id matching form property — can clobber form.action or form.submit, redirecting form data."
+  remediation: "Avoid naming elements with form property names. Sanitize user-generated HTML to strip dangerous name/id values."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+# ======================== Mutation XSS (mXSS) ========================
+
+- id: xss-mutation-innerhtml-sanitized
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\.innerHTML\s*=\s*(?:sanitize|clean|purify|escape|filter)\w*\s*\('
+  severity: medium
+  description: "Sanitized HTML assigned to innerHTML — browser DOM parsing can mutate sanitized output into executable HTML (mXSS)."
+  remediation: "Use DOMPurify with RETURN_DOM_FRAGMENT or RETURN_DOM. Avoid innerHTML even with sanitization when possible."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: xss-mutation-dompurify-config-unsafe
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)DOMPurify\.sanitize\s*\([^)]*,\s*\{[^}]*(?:ALLOW_UNKNOWN_PROTOCOLS|ADD_TAGS|FORCE_BODY|WHOLE_DOCUMENT|RETURN_DOM)\s*:\s*true'
+    - regex: '(?i)DOMPurify\.sanitize\s*\([^)]*,\s*\{[^}]*ADD_ATTR\s*:\s*\[[^\]]*(?:on\w+|style|srcdoc)'
+  severity: high
+  description: "DOMPurify configured with unsafe options — ALLOW_UNKNOWN_PROTOCOLS or ADD_TAGS can reintroduce XSS vectors."
+  remediation: "Use DOMPurify with default config. Avoid ALLOW_UNKNOWN_PROTOCOLS and adding custom tags/attributes."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: xss-mutation-svg-foreignobject
+  languages: [html, javascript, typescript]
+  patterns:
+    - regex: '(?i)<svg[^>]*>.*<foreignObject'
+    - regex: '(?i)<math[^>]*>.*<annotation-xml[^>]*encoding=["\x27]text/html'
+  severity: high
+  description: "SVG foreignObject or MathML annotation-xml can embed HTML — bypasses many sanitizers and enables mXSS."
+  remediation: "Strip SVG foreignObject and MathML annotation-xml from user input. Configure DOMPurify: FORBID_TAGS: ['foreignObject', 'math']."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+# ======================== Prototype Pollution to XSS ========================
+
+- id: xss-prototype-pollution-gadget
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:Object\.assign|_\.merge|_\.extend|_\.defaultsDeep|deepmerge|merge)\s*\(\s*\{?\s*\}?\s*,\s*(?:req\.|request\.|body\.|query\.|params\.|input\.)'
+    - regex: '(?i)(?:JSON\.parse)\s*\(\s*(?:req\.|request\.|body\.)'
+  severity: high
+  description: "User input merged into objects — prototype pollution can inject __proto__.innerHTML or __proto__.srcdoc XSS gadgets."
+  remediation: "Use Object.create(null) for merge targets. Validate and strip __proto__, constructor, prototype keys from user input."
+  cwe: "CWE-1321"
+  owasp: "A03:2021-Injection"
+
+- id: xss-prototype-pollution-dunder
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\[?\s*["\x27]__proto__["\x27]\s*\]?\s*='
+    - regex: '(?i)\[?\s*["\x27]constructor["\x27]\s*\]\s*\[\s*["\x27]prototype["\x27]\s*\]'
+  severity: critical
+  description: "Direct __proto__ or constructor.prototype assignment — prototype pollution vulnerability."
+  remediation: "Block __proto__ and constructor keys in user input. Use Map instead of plain objects for user data."
+  cwe: "CWE-1321"
+  owasp: "A03:2021-Injection"
+
+# ======================== Template Literal Injection ========================
+
+- id: xss-template-literal-user-input
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:innerHTML|outerHTML|srcdoc|document\.write)\s*(?:=|\()\s*`[^`]*\$\{(?:req\.|request\.|params\.|query\.|body\.|input\.|user)'
+  severity: critical
+  description: "User input interpolated in template literal assigned to innerHTML/document.write — XSS vulnerability."
+  remediation: "Never interpolate user input into HTML template literals. Use textContent or a sanitization library."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: xss-tagged-template-html
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)html\s*`[^`]*\$\{(?:req\.|request\.|params\.|query\.|body\.|input\.)'
+  severity: high
+  description: "User input in html tagged template literal — may bypass sanitization depending on the tag function."
+  remediation: "Ensure the html tag function performs proper escaping. Use lit-html or similar with built-in escaping."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+# ======================== Script Gadgets / CSP Bypass XSS ========================
+
+- id: xss-script-gadget-angular
+  languages: [html, javascript, typescript]
+  patterns:
+    - regex: '(?i)ng-(?:bind-html|include|init|click|app|controller)\s*=\s*["\x27]\s*\{\{'
+    - regex: '(?i)\{\{.*(?:constructor|__proto__|toString)\s*\(\)'
+  severity: high
+  description: "AngularJS template expression in HTML attribute — script gadget bypasses CSP via Angular's template engine."
+  remediation: "Upgrade to modern Angular. Use ng-non-bindable on user-controlled content. Apply strict CSP."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: xss-script-gadget-jquery
+  languages: [javascript, typescript, html]
+  patterns:
+    - regex: '(?i)\$\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.|input\.|location\.|document\.URL|document\.referrer)'
+    - regex: '(?i)\$\s*\(\s*["\x27]<[^"\x27]*>["\x27]\s*\)\.(?:appendTo|prependTo|insertAfter|insertBefore|replaceAll|html)\s*\('
+  severity: high
+  description: "User input passed to jQuery selector/html — jQuery interprets HTML strings as DOM elements, enabling XSS."
+  remediation: "Use $.text() for text content. Validate that selectors start with #/. and don't contain HTML."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+# ======================== Encoding/Decoding Pitfalls ========================
+
+- id: xss-double-encoding
+  languages: [javascript, typescript, python, ruby, php, go, java, csharp]
+  patterns:
+    - regex: '(?i)(?:decodeURIComponent|urllib\.parse\.unquote|CGI\.unescape|urldecode)\s*\(\s*(?:decodeURIComponent|urllib\.parse\.unquote|CGI\.unescape|urldecode)\s*\('
+  severity: high
+  description: "Double URL decoding — attacker can bypass XSS filters by double-encoding payloads (%253C becomes %3C becomes <)."
+  remediation: "Decode URL input exactly once. Sanitize after decoding, not before."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+- id: xss-unicode-normalization
+  languages: [javascript, typescript, python, ruby, java]
+  patterns:
+    - regex: '(?i)(?:normalize|NFC|NFD|NFKC|NFKD)\s*\(\s*["\x27]NFK?[CD]["\x27]\s*\).*(?:innerHTML|write|html\()'
+    - regex: '(?i)(?:innerHTML|document\.write|\.html\().*(?:\.normalize\s*\(\s*["\x27]NFK?[CD]["\x27])'
+  severity: medium
+  description: "Unicode normalization applied before HTML insertion — normalized characters can bypass XSS filters."
+  remediation: "Apply sanitization AFTER Unicode normalization, not before."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+
+# ======================== postMessage Vulnerabilities ========================
+
+- id: xss-postmessage-no-origin-check
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)addEventListener\s*\(\s*["\x27]message["\x27]\s*,\s*(?:function|\([^)]*\)\s*=>)\s*\{(?:(?!origin|source).)*(?:innerHTML|eval|document\.write|exec|Function\()'
+  severity: critical
+  description: "postMessage handler processes data without origin validation and uses dangerous sinks — XSS from any origin."
+  remediation: "Always check event.origin against allowlist before processing message data."
+  cwe: "CWE-346"
+  owasp: "A03:2021-Injection"
+
+- id: xss-postmessage-wildcard-target
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\.postMessage\s*\(\s*[^,]+,\s*["\x27]\*["\x27]\s*\)'
+  severity: high
+  description: "postMessage sent with wildcard (*) target origin — message is delivered to any window regardless of origin."
+  remediation: "Specify exact target origin: window.postMessage(data, 'https://trusted.example.com')."
+  cwe: "CWE-346"
+  owasp: "A03:2021-Injection"

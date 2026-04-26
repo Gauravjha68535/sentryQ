@@ -218,7 +218,7 @@
   cwe: "CWE-1321"
   owasp: "A08:2021"
 
-- id: js-prototype-pollution-clone
+- id: js-prototype-pollution-clone-dup1
   languages: [javascript, typescript]
   patterns:
     - regex: 'function\s+clone\s*\([^)]*\)\s*\{[^}]*JSON\.parse\(JSON\.stringify'
@@ -4421,7 +4421,7 @@
   cwe: "CWE-1321"
   owasp: "A08:2021"
 
-- id: js-prototype-pollution-merge
+- id: js-prototype-pollution-merge-dup1
   languages: [javascript, typescript]
   patterns:
   - regex: '(?i)(\.merge|\.extend|\.recursive|deepMerge)\s*\(\s*[^,]+,\s*(?:req\.body|req\.query)'

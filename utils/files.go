@@ -10,8 +10,8 @@ func IsTestFile(filePath string) bool {
 	testIndicators := []string{
 		"_test.go", "test.js", "test.ts", "spec.js", "spec.ts",
 		"/test/", "/tests/", "/testdata/", "/mock/", "/mocks/", "/fixture/",
-		"/__tests__/", "/__mocks__/", "/node_modules/",
-		"_test.py", "test_", "/spec/", "/specs/", "/fixtures/",
+		"/__tests__/", "/__mocks__/", "/node_modules/", "/__test__/",
+		"_test.py", "/test_", "/spec/", "/specs/", "/fixtures/",
 	}
 
 	for _, indicator := range testIndicators {

@@ -5,15 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"SentryQ/utils"
-
 	treeSitter "github.com/smacker/go-tree-sitter"
 )
-
-// IsTestFile delegates to utils.IsTestFile — single source of truth.
-func IsTestFile(filePath string) bool {
-	return utils.IsTestFile(filePath)
-}
 
 // Pre-compiled regexes for StripComments (avoid recompiling per file)
 var (
@@ -23,7 +16,14 @@ var (
 	reHTMLComment  = regexp.MustCompile(`(?s)<!--.*?-->`)
 )
 
-// StripComments replaces comments with spaces to preserve line numbers/offsets
+// StripComments replaces comments with spaces to preserve line numbers/offsets.
+//
+// KNOWN LIMITATION: This function uses regex-based replacement without tracking
+// string literal context. Comment delimiters inside string literals (e.g.
+// url = "https://example.com") may be incorrectly treated as comments. A full
+// state-machine parser would fix this but is not yet implemented. The pattern
+// engine compensates by running regexes against the original source for URL-heavy
+// rules and relying on the cleaned source only for code-structure patterns.
 func StripComments(source string, ext string) string {
 	ext = strings.ToLower(ext)
 
@@ -177,8 +177,8 @@ func stripQuotes(s string) string {
 }
 
 func hasHighEntropy(s string) bool {
-	// calculateEntropy is in secret_detector.go and available in the scanner package
-	return calculateEntropy(s) > 4.5
+	// Uses the package-level HighEntropyThreshold constant from secret_detector.go
+	return calculateEntropy(s) > HighEntropyThreshold
 }
 
 func containsPattern(node *treeSitter.Node, content []byte, pattern string) bool {

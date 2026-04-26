@@ -1,0 +1,50 @@
+# SentryQ Security Rules — Session Management
+# Covers CWE-613 (Insufficient Session Expiration) and CWE-1004/CWE-614 (Insecure Cookies)
+
+- id: session-cookie-secure-false
+  languages: [javascript, typescript, python, java, php, go, ruby]
+  patterns:
+    - regex: '(?i)cookie\s*:\s*\{[^}]*secure\s*:\s*false'
+    - regex: '(?i)Set-Cookie:.*(?![sS]ecure)'
+    - regex: '(?i)session\s*\(\s*\{[^}]*secure\s*:\s*False'
+  severity: high
+  description: "Session cookie configured without the 'Secure' flag. The browser will transmit this cookie over unencrypted HTTP connections, making it trivial for network attackers to intercept the session token."
+  remediation: "Always set the 'Secure' flag to true for authentication and session cookies. Ensure your application is served exclusively over HTTPS."
+  cwe: "CWE-614"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.85
+
+- id: session-cookie-httponly-false
+  languages: [javascript, typescript, python, java, php, go, ruby]
+  patterns:
+    - regex: '(?i)cookie\s*:\s*\{[^}]*httpOnly\s*:\s*false'
+    - regex: '(?i)session\s*\(\s*\{[^}]*httponly\s*:\s*False'
+  severity: high
+  description: "Session cookie configured with the 'HttpOnly' flag set to false. This allows client-side JavaScript to read the cookie, exposing the session token to Cross-Site Scripting (XSS) attacks."
+  remediation: "Always set the 'HttpOnly' flag to true for authentication and session cookies to protect them from XSS."
+  cwe: "CWE-1004"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.90
+
+- id: session-cookie-samesite-none
+  languages: [javascript, typescript, python, java, php, go, ruby]
+  patterns:
+    - regex: '(?i)sameSite\s*:\s*["\x27]None["\x27]'
+  severity: medium
+  description: "Cookie SameSite policy explicitly set to 'None'. This instructs the browser to send the cookie with cross-site requests, completely removing modern browser protections against Cross-Site Request Forgery (CSRF)."
+  remediation: "Set 'SameSite=Lax' or 'SameSite=Strict' for session cookies unless explicitly required for a cross-domain integration, in which case CSRF tokens MUST be rigidly enforced."
+  cwe: "CWE-1275"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.80
+
+- id: session-infinite-timeout
+  languages: [javascript, typescript, python, java, php, go]
+  patterns:
+    - regex: '(?i)maxAge\s*:\s*(?:null|0|false|-1)'
+    - regex: '(?i)expires\s*:\s*(?:null|0|false|-1)'
+  severity: medium
+  description: "Session is configured without an absolute timeout or expiration. Infinite sessions massively increase the risk of session hijacking, especially on shared devices."
+  remediation: "Implement strict absolute timeouts (e.g., 24 hours) and idle timeouts (e.g., 30 minutes). After the timeout period, force the user to re-authenticate."
+  cwe: "CWE-613"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.75

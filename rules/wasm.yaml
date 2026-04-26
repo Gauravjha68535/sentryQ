@@ -1,0 +1,160 @@
+# WASM / WebAssembly Security Rules
+# Covers: memory safety, WASI misuse, host import abuse, and unsafe JS↔WASM boundaries
+
+- id: wasm-memory-grow-unchecked
+  languages: [wat, wasm, c, cpp, rust]
+  patterns:
+    - regex: (?i)memory\.grow\s*\(
+  severity: medium
+  description: "WebAssembly memory.grow without checking the return value — a return of -1 indicates allocation failure and continued use causes memory corruption."
+  remediation: "Check the return value of memory.grow; if it is -1, handle the allocation failure before accessing the new memory region."
+  cwe: "CWE-252"
+  owasp: "A05:2021"
+
+- id: wasm-unsafe-js-interop-eval
+  languages: [javascript, typescript]
+  patterns:
+    - regex: (?i)WebAssembly\.(instantiate|compile)\s*\(.*eval\s*\(
+    - regex: (?i)eval\s*\(.*WebAssembly\.(instantiate|compile)
+  severity: high
+  description: "Passing eval()-generated code into WebAssembly instantiation allows arbitrary code injection through the JS↔WASM boundary."
+  remediation: "Never combine eval() with WebAssembly instantiation. Validate and sanitize all data passed across the JS↔WASM boundary."
+  cwe: "CWE-94"
+  owasp: "A03:2021"
+
+- id: wasm-arbitrary-memory-read
+  languages: [javascript, typescript]
+  patterns:
+    - regex: (?i)new\s+(Uint8Array|Int32Array|Float64Array|BigInt64Array)\s*\(\s*\w+\.memory\.buffer\s*\)
+  severity: medium
+  description: "Direct access to a WebAssembly module's memory buffer allows reading arbitrary WASM memory, potentially exposing secrets or internal state."
+  remediation: "Use defined WASM export functions to read data rather than directly accessing the raw memory buffer from JavaScript."
+  cwe: "CWE-125"
+  owasp: "A05:2021"
+
+- id: wasm-untrusted-import-function
+  languages: [wat]
+  patterns:
+    - regex: (?i)\(import\s+"[^"]*"\s+"[^"]*"\s+\(func
+  severity: low
+  description: "WebAssembly import declarations should be audited — imported host functions are a trust boundary; malicious or misconfigured hosts can pass untrusted callbacks."
+  remediation: "Audit all WASM import declarations. Validate inputs in imported host functions and restrict what WASM modules can import from the host environment."
+  cwe: "CWE-20"
+  owasp: "A08:2021"
+
+- id: wasm-wasi-path-traversal
+  languages: [rust, c, cpp, wat]
+  patterns:
+    - regex: (?i)wasi_(path_open|fd_write|fd_read)\s*\(.*\.\./
+    - regex: (?i)path_open.*\.\./
+  severity: high
+  description: "WASI path operations with relative path components (../) can escape the preopen directory sandbox, enabling path traversal attacks."
+  remediation: "Canonicalize all file paths before passing them to WASI path operations. Reject paths containing '..' components."
+  cwe: "CWE-22"
+  owasp: "A01:2021"
+
+- id: wasm-unvalidated-linear-memory-offset
+  languages: [javascript, typescript]
+  patterns:
+    - regex: (?i)memory\.buffer\b.{0,60}(?:parseInt|Number|parseFloat)\s*\(
+  severity: medium
+  description: "Calculating WASM linear memory offsets using user-controlled numeric values without bounds checking can lead to out-of-bounds memory access."
+  remediation: "Validate that all computed memory offsets are within the allocated WASM memory bounds before use."
+  cwe: "CWE-119"
+  owasp: "A05:2021"
+
+- id: wasm-instantiate-streaming-no-origin-check
+  languages: [javascript, typescript]
+  patterns:
+    - regex: (?i)WebAssembly\.instantiateStreaming\s*\(\s*fetch\s*\(
+  severity: low
+  description: "WebAssembly.instantiateStreaming(fetch(...)) without verifying the fetch origin or integrity of the .wasm binary can allow loading tampered WASM modules."
+  remediation: "Use Subresource Integrity (SRI) or verify the fetched WASM binary's hash before instantiation. Ensure the fetch URL is to a trusted, controlled source."
+  cwe: "CWE-494"
+  owasp: "A08:2021"
+
+- id: wasm-shared-memory-race
+  languages: [javascript, typescript, wat]
+  patterns:
+    - regex: (?i)SharedArrayBuffer\s*\(\s*\d+\s*\)
+    - regex: (?i)Atomics\.(load|store|exchange|compareExchange)\s*\(
+  severity: low
+  description: "SharedArrayBuffer shared between the main thread and WASM workers without proper atomic synchronization creates race conditions and potential data corruption."
+  remediation: "Use Atomics operations consistently for all shared state between threads. Document all SharedArrayBuffer access patterns and ensure mutual exclusion where required."
+  cwe: "CWE-362"
+  owasp: "A05:2021"
+
+- id: wasm-exported-memory-write-no-validation
+  languages: [javascript, typescript]
+  patterns:
+    - regex: (?i)exports\.memory\b.{0,80}set\s*\(
+    - regex: (?i)instance\.exports\.memory\b
+  severity: medium
+  description: "Writing to exported WASM memory from JavaScript without length and bounds validation can corrupt the WASM module's internal state."
+  remediation: "Always validate the offset and length before writing to exported WASM memory. Use WASM-exported helper functions to perform bounded writes safely."
+  cwe: "CWE-787"
+  owasp: "A05:2021"
+
+- id: wasm-rust-unsafe-ffi-no-bounds
+  languages: [rust]
+  patterns:
+    - regex: (?i)#\[no_mangle\]\s*pub\s+(?:unsafe\s+)?extern\s+"C"\s+fn\b
+  severity: medium
+  description: "Rust functions exported to WASM with #[no_mangle] extern \"C\" bypass Rust's safety guarantees. Pointer arguments from the JavaScript host are untrusted and require explicit bounds checking."
+  remediation: "Validate all pointer offsets and lengths in extern C functions called from JavaScript. Use Rust's slice::from_raw_parts carefully with explicit bounds checks."
+  cwe: "CWE-119"
+  owasp: "A05:2021"
+
+- id: wasm-c-stack-buffer-overflow
+  languages: [c, cpp]
+  patterns:
+    - regex: (?i)alloca\s*\(\s*(?:[a-zA-Z_]\w*|\d+\s*\*\s*[a-zA-Z_]\w*)\s*\)
+  severity: high
+  description: "alloca with a variable or user-controlled size in code compiled to WASM can overflow the shadow stack, leading to memory corruption that is hard to detect in the WASM sandbox."
+  remediation: "Avoid alloca with dynamic sizes in WASM targets. Use fixed-size stack buffers or heap allocation with explicit size limits."
+  cwe: "CWE-121"
+  owasp: "A05:2021"
+
+- id: wasm-rust-wasm-bindgen-unsafe
+  languages: [rust]
+  patterns:
+  - regex: '(?i)#\[wasm_bindgen\][\s\S]*?unsafe\s*\{'
+  severity: medium
+  description: "An unsafe block wrapped around a wasm_bindgen FFI boundary. Incorrectly handling raw pointers crossing the WASM->JS memory gap can induce memory unsafety despite Rust's guarantees."
+  remediation: "Strictly validate all array buffers, views, and pointer lengths at the boundary before jumping into the unsafe block."
+  cwe: "CWE-119"
+  owasp: "A05:2021"
+  confidence: 0.75
+
+- id: wasm-c-use-after-free
+  languages: [c, cpp]
+  patterns:
+  - regex: '(?i)free\s*\(\s*(\w+)\s*\)[\s\S]{1,50}\1'
+  severity: high
+  description: "Potential Use-After-Free in Emscripten WASM target. Because WASM runs inside a linear sandbox without hardware memory traps, Use-After-Free logic flaws are silently ignored and easily exploitable."
+  remediation: "Immediately nullify pointers after freeing them (ptr = NULL). Use smart pointers in C++."
+  cwe: "CWE-416"
+  owasp: "A05:2021"
+  confidence: 0.65
+
+- id: wasm-unchecked-import-buffer
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)TextDecoder\s*\(\s*["'']utf-8["'']\s*\)\.decode\s*\(\s*new\s+Uint8Array\s*\(\s*memory\.buffer'
+  severity: medium
+  description: "Blindly decoding huge contiguous chunks of WASM linear memory into JS Strings using TextDecoder without maximum bounds can exhaust the V8 JS engine heap, leading to DoS."
+  remediation: "Always clamp length offsets to a strict maximum size before allocating the Uint8Array slice."
+  cwe: "CWE-400"
+  owasp: "A05:2021"
+  confidence: 0.70
+
+- id: wasm-go-js-eval
+  languages: [go]
+  patterns:
+  - regex: '(?i)js\.Global\(\)\.Call\(\s*["'']eval["'']'
+  severity: high
+  description: "Go WebAssembly code executing a generic eval() call on the JS host environment. This allows complete cross-boundary logic injection."
+  remediation: "Export proper Go functions using js.FuncOf and have JS call them via strongly typed callbacks. Never trigger eval() remotely."
+  cwe: "CWE-94"
+  owasp: "A03:2021"
+  confidence: 0.95

@@ -1,0 +1,231 @@
+# API Security Rules
+# Covers: broken object-level authorization, mass assignment, rate limiting gaps,
+# authentication weaknesses, improper error handling, and OWASP API Top 10 (2023)
+
+# ========================= BROKEN OBJECT LEVEL AUTHORIZATION (BOLA) =========================
+
+- id: api-bola-direct-id-from-request
+  languages: [javascript, typescript, python, java, go, ruby, php]
+  patterns:
+    - regex: '(?i)(?:params|path|request|req)\.\w*(?:id|Id|ID)\b.{0,120}(?:find|get|fetch|query|select|load|retrieve)\s*\('
+    - regex: '(?i)(?:findById|findOne|get_by_id|GetByID)\s*\(\s*(?:req|request|params|c\.Param|r\.PathParam)\b'
+  severity: high
+  description: "API endpoint retrieves an object using an ID taken directly from the request path/body without verifying the requesting user owns or has access to that resource (BOLA/IDOR)."
+  remediation: "Always scope object lookups to the authenticated user: User.find({ id: req.params.id, owner: req.user.id }). Never query by ID alone without an ownership/permission check."
+  cwe: "CWE-639"
+  owasp: "API1:2023"
+
+- id: api-bola-admin-endpoint-no-auth
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)(?:router|app|express|flask|gin|mux)\.\w+\s*\(\s*[''"][/\\]?(?:admin|internal|manage|dashboard)[/''"]'
+    - regex: '(?i)@(?:Get|Post|Put|Delete|Patch)Mapping\s*\(\s*"[^"]*(?:admin|internal|management)[^"]*"\s*\)'
+  severity: high
+  description: "Admin or internal API route registered without explicit authentication/authorization middleware at the route or handler level."
+  remediation: "Apply authentication and role-based authorization middleware to all admin routes. Prefer a dedicated router group or prefix that enforces authorization for all child routes."
+  cwe: "CWE-306"
+  owasp: "API1:2023"
+
+# ========================= BROKEN AUTHENTICATION =========================
+
+- id: api-auth-jwt-none-algorithm
+  languages: [javascript, typescript, python, java, go, ruby, php]
+  patterns:
+    - regex: '(?i)(?:algorithm|alg)\s*[:=]\s*[''"]none[''"]'
+    - regex: '(?i)jwt\.verify\s*\(.{0,80}algorithms\s*:\s*\[[^\]]*[''"]none[''"]\]'
+    - regex: '(?i)decode\s*\(.{0,80}options\s*=\s*\{[^}]*verify\s*=\s*False\b'
+  severity: critical
+  description: "JWT verification configured to accept the 'none' algorithm, allowing attackers to forge tokens by stripping the signature entirely."
+  remediation: "Explicitly specify a list of allowed algorithms and reject 'none'. Use an asymmetric algorithm (RS256, ES256) for production JWTs."
+  cwe: "CWE-347"
+  owasp: "API2:2023"
+
+- id: api-auth-weak-jwt-secret
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)jwt\.sign\s*\([^,]+,\s*[''"](?:secret|password|changeme|test|dev|123|abc|key)[''"]\b'
+    - regex: '(?i)(?:JWT_SECRET|JWT_KEY|SECRET_KEY)\s*[:=]\s*[''"](?:secret|password|changeme|test|dev|123)[''"]\b'
+  severity: critical
+  description: "JWT signed with a hardcoded weak secret allows offline brute-force attacks to forge valid tokens."
+  remediation: "Generate JWT secrets with a cryptographically secure random generator (at least 256 bits of entropy). Store secrets in environment variables or a secrets manager, never in code."
+  cwe: "CWE-798"
+  owasp: "API2:2023"
+
+- id: api-auth-basic-over-http
+  languages: [javascript, typescript, python, java, go, ruby, php]
+  patterns:
+    - regex: '(?i)Authorization\s*:\s*[''"]?Basic\b.{0,60}http://'
+    - regex: '(?i)http://[^/]+/[^\s''"]*auth'
+  severity: high
+  description: "HTTP Basic Authentication credentials transmitted over plain HTTP (not HTTPS) are exposed in network traffic."
+  remediation: "Enforce HTTPS for all API endpoints. Use TLS termination and redirect HTTP to HTTPS with HSTS headers."
+  cwe: "CWE-319"
+  owasp: "API2:2023"
+
+- id: api-auth-api-key-in-query-param
+  languages: [javascript, typescript, python, java, go, ruby, php]
+  patterns:
+    - regex: '(?i)[?&](?:api_key|apikey|api-key|access_token|token|key)\s*=\s*\S+'
+    - regex: '(?i)(?:requests\.get|axios\.get|fetch)\s*\(.{0,100}[?&](?:api_key|access_token|token)\s*='
+  severity: medium
+  description: "API key or access token passed as a URL query parameter is logged in server access logs, browser history, and proxy logs."
+  remediation: "Pass API keys in the Authorization header (Bearer token) or a custom X-API-Key header. Never include secrets in URLs."
+  cwe: "CWE-598"
+  owasp: "API2:2023"
+
+# ========================= BROKEN OBJECT PROPERTY LEVEL AUTHORIZATION =========================
+
+- id: api-mass-assignment
+  languages: [javascript, typescript, python, ruby, php]
+  patterns:
+    - regex: '(?i)(?:User|Model|Document|Record|Entity)\s*\.(?:create|update|save|upsert)\s*\(\s*(?:req\.body|request\.data|request\.json|params)\b'
+    - regex: '(?i)Object\.assign\s*\(\s*\w+\s*,\s*req\.body\b'
+    - regex: '(?i)(?:merge|update_attributes|assign_attributes)\s*\(\s*(?:params|request\.params)\b'
+  severity: high
+  description: "Model created or updated by spreading user-controlled request body directly onto the object, allowing mass assignment of protected fields (isAdmin, role, price)."
+  remediation: "Use an explicit allowlist of fields that clients may set. Validate and extract only permitted properties from the request body before passing to the model."
+  cwe: "CWE-915"
+  owasp: "API3:2023"
+
+- id: api-excessive-data-exposure
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)res\.json\s*\(\s*(?:user|account|profile|customer)\b\s*\)'
+    - regex: '(?i)render\s+json\s*:\s*@\w*(?:user|account|profile)\b\s*$'
+    - regex: '(?i)return\s+(?:jsonify|json_response)\s*\(\s*(?:user|account|profile)\.__dict__\b'
+  severity: medium
+  description: "API response returns the entire user/account object without filtering, potentially exposing internal fields like password hashes, tokens, or PII."
+  remediation: "Define explicit response DTOs/serializers that allowlist only the fields the client needs. Never serialize full model objects directly to API responses."
+  cwe: "CWE-213"
+  owasp: "API3:2023"
+
+# ========================= UNRESTRICTED RESOURCE CONSUMPTION =========================
+
+- id: api-no-rate-limiting
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)(?:app|router|express)\.\w+\s*\(\s*[''"][^''"]+[''"],\s*(?:async\s*)?\(?(?:req|request|ctx)\)?\s*=>'
+    - regex: '(?i)@(?:Get|Post|Put|Delete|Patch)Mapping\s*\([^)]*\)\s*\n\s*public\b'
+  severity: medium
+  description: "API endpoint defined without rate limiting or throttling middleware — a single client can send unlimited requests, causing denial of service."
+  remediation: "Apply rate limiting middleware to all public API endpoints. Use token bucket or sliding window algorithms with per-IP and per-user limits appropriate to the endpoint's cost."
+  cwe: "CWE-770"
+  owasp: "API4:2023"
+
+- id: api-no-pagination-limit
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)(?:find|findAll|query|select|list)\s*\(\s*\{[^}]*(?:where|filter)\b[^}]*\}\s*\)\s*[^.]'
+    - regex: '(?i)(?:limit|page_size|per_page)\s*[:=]\s*(?:req|request|params)\.\w+(?:\s*\|\|\s*\d+)?'
+  severity: medium
+  description: "API endpoint returns or accepts an unbounded result set size from user input, allowing resource exhaustion by requesting a very large page size."
+  remediation: "Enforce a server-side maximum page size (e.g., 100 records). Ignore or clamp client-supplied limit values that exceed the maximum."
+  cwe: "CWE-770"
+  owasp: "API4:2023"
+
+# ========================= BROKEN FUNCTION LEVEL AUTHORIZATION =========================
+
+- id: api-missing-role-check
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)(?:delete|remove|destroy|drop)\s*\(\s*(?:req|request|params)\.\w*(?:id|Id|ID)\b'
+    - regex: '(?i)(?:router|app)\s*\.(?:put|patch|delete)\s*\(\s*[''"][^''"]+[''"]\s*,\s*(?:async\s*)?\(?(?:req|request)\)?'
+  severity: high
+  description: "Destructive API operation (delete, bulk update) performed without checking the caller's role or admin privileges."
+  remediation: "Apply role-based authorization checks before any admin-level or destructive operation. Use authorization middleware that verifies the user has the required role/permission."
+  cwe: "CWE-285"
+  owasp: "API5:2023"
+
+# ========================= SECURITY MISCONFIGURATION =========================
+
+- id: api-cors-wildcard-credentials
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)Access-Control-Allow-Origin\s*:\s*[''"]\*[''"]\s.{0,80}Access-Control-Allow-Credentials\s*:\s*[''"]?true'
+    - regex: '(?i)cors\s*\(\s*\{[^}]*origin\s*:\s*[''"]\*[''"]\s*,[^}]*credentials\s*:\s*true'
+    - regex: '(?i)allow_origins\s*=\s*\["?\*"?\].{0,120}allow_credentials\s*=\s*True'
+  severity: critical
+  description: "CORS configured with Access-Control-Allow-Origin: * and Access-Control-Allow-Credentials: true — browsers reject this combination but misconfigured servers can expose session tokens to any origin."
+  remediation: "Never combine a wildcard origin with credentials: true. Explicitly enumerate trusted origins in the allowlist when credentials are needed."
+  cwe: "CWE-942"
+  owasp: "API8:2023"
+
+- id: api-stack-trace-in-response
+  languages: [javascript, typescript, python, java, go, ruby, php]
+  patterns:
+    - regex: '(?i)res\.(?:json|send|status)\s*\(.{0,120}(?:err\.stack|traceback|stack_trace|exception\.message)\b'
+    - regex: '(?i)render\s+json\s*:\s*\{[^}]*(?:backtrace|exception|stack)\s*:\s*(?:e|err|error)\b'
+  severity: medium
+  description: "API response includes a stack trace or detailed exception message, disclosing internal file paths, library versions, and application structure to clients."
+  remediation: "Log full stack traces server-side only. Return generic error messages to clients: { error: 'Internal server error', requestId: uuid }. Use error ID for correlating logs."
+  cwe: "CWE-209"
+  owasp: "API8:2023"
+
+- id: api-http-verb-override
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)(?:methodOverride|method-override|X-HTTP-Method-Override|X-Method-Override)\b'
+    - regex: '(?i)app\.use\s*\(\s*methodOverride\s*\('
+  severity: medium
+  description: "HTTP method override middleware or X-HTTP-Method-Override header allows clients to bypass firewall rules that filter by HTTP verb."
+  remediation: "Disable HTTP method override middleware in production APIs. If required for legacy clients, validate the override header against a strict allowlist and apply authorization checks based on the effective method."
+  cwe: "CWE-436"
+  owasp: "API8:2023"
+
+# ========================= IMPROPER INVENTORY / ASSETS =========================
+
+- id: api-debug-endpoint-exposed
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)(?:router|app|flask|gin|mux|express)\.\w+\s*\(\s*[''"]\/?(?:debug|test|ping|healthcheck|__debug__|_debug)\b'
+    - regex: '(?i)@(?:Get|Post)Mapping\s*\(\s*"[^"]*(?:debug|test|actuator/env|actuator/beans)[^"]*"\s*\)'
+  severity: medium
+  description: "Debug, test, or diagnostic API endpoint registered that may expose internal application state, environment variables, or unauthenticated functionality."
+  remediation: "Remove debug endpoints from production builds. Use feature flags or build tags to include them only in development. Protect any needed health endpoints with authentication."
+  cwe: "CWE-489"
+  owasp: "API9:2023"
+
+- id: api-version-in-url-no-deprecation
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)[''"]/(?:api/)?v(?:1|2|3|4|5)/'
+  severity: low
+  description: "Multiple API version paths detected — older versions may lack security controls present in newer versions and should be deprecated with sunset headers."
+  remediation: "Add Sunset and Deprecation headers to older API versions. Track active consumers and set a decommission date. Ensure all API versions go through the same authentication and authorization middleware."
+  cwe: "CWE-1059"
+  owasp: "API9:2023"
+
+# ========================= UNSAFE API CONSUMPTION =========================
+
+- id: api-consume-http-not-https
+  languages: [javascript, typescript, python, java, go, ruby, php]
+  patterns:
+    - regex: '(?i)(?:fetch|axios\.get|axios\.post|requests\.get|requests\.post|http\.get|http\.NewRequest)\s*\(\s*[''"]http://(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}'
+    - regex: '(?i)RestTemplate\s*\(\s*\).{0,80}http://(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}'
+  severity: medium
+  description: "API client makes outbound requests to external services over plain HTTP, exposing data in transit to interception."
+  remediation: "Use HTTPS for all external API calls. Enforce TLS certificate validation and configure minimum TLS version (1.2+)."
+  cwe: "CWE-319"
+  owasp: "API10:2023"
+
+- id: api-ssrf-via-user-url
+  languages: [javascript, typescript, python, java, go, ruby, php]
+  patterns:
+    - regex: '(?i)(?:fetch|axios|requests\.get|http\.Get|curl_exec|Net::HTTP)\s*\(.{0,60}(?:req\.(?:body|query|params)|request\.(?:data|args|form)|c\.(?:Param|Query)|r\.(?:URL|FormValue))\b'
+  severity: critical
+  description: "Outbound HTTP request made to a URL derived from user-controlled input without URL scheme/host validation — classic Server-Side Request Forgery (SSRF)."
+  remediation: "Parse and validate the URL before making the request. Allowlist permitted schemes (https only) and destination hosts. Block requests to private IP ranges and cloud metadata endpoints."
+  cwe: "CWE-918"
+  owasp: "API10:2023"
+
+- id: api-graphql-over-rest-no-auth
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)(?:app|router|express|flask|gin)\.\w+\s*\(\s*[''"]/graphql'
+    - regex: '(?i)graphqlHTTP\s*\(\s*\{\s*schema\s*:'
+  severity: medium
+  description: "GraphQL endpoint mounted without authentication middleware in the route configuration, making the entire schema accessible without credentials."
+  remediation: "Apply authentication middleware at the route level before the GraphQL handler, or validate credentials inside the context factory. Return 401 for unauthenticated requests."
+  cwe: "CWE-306"
+  owasp: "API2:2023"
+

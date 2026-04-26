@@ -196,7 +196,7 @@
   owasp: "A03:2021"
   confidence: 0.8
 
-- id: haskell-path-traversal
+- id: haskell-path-traversal-dup1
   languages: [haskell]
   patterns:
     - regex: '(?i)writeFile\s*\(.*\$|readFile\s*\(.*\$'

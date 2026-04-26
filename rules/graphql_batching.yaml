@@ -1,0 +1,36 @@
+# SentryQ Security Rules — GraphQL Batching & Abuse
+# Covers CWE-400 (Uncontrolled Resource Consumption) and CWE-770 (Allocation of Resources Without Limits)
+
+- id: graphql-batching-array-apollo
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)ApolloServer\s*\(\s*\{[^}]*allowBatchedHttpRequests\s*:\s*true'
+  severity: medium
+  description: "Apollo Server configured with allowBatchedHttpRequests: true without apparent batching limits. This allows an attacker to send an array of hundreds of queries in a single HTTP request, potentially bypassing rate limiters and causing Denial of Service (DoS)."
+  remediation: "If query batching is required, implement a strong limit on the number of queries allowed per batch using custom middleware or Apollo Server plugins. Prefer using normal HTTP multiplexing (HTTP/2) instead of application-level batching."
+  cwe: "CWE-770"
+  owasp: "API4:2023-Unrestricted Resource Consumption"
+  confidence: 0.85
+
+- id: graphql-missing-depth-limit
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)ApolloServer\s*\(\s*\{(?![^}]*validationRules[^}]*graphql-depth-limit)'
+    - regex: '(?i)graphqlHTTP\s*\(\s*\{(?![^}]*validationRules[^}]*depthLimit)'
+  severity: high
+  description: "GraphQL server instantiated without a depth limit validation rule. Attackers can execute deeply nested recursive queries (e.g., User -> Friends -> User -> Friends), leading to resource exhaustion and DoS."
+  remediation: "Apply a strict GraphQL Depth Limit validation rule. In Node.js, use the 'graphql-depth-limit' library and pass it into the validationRules array of the server configuration."
+  cwe: "CWE-400"
+  owasp: "API4:2023-Unrestricted Resource Consumption"
+  confidence: 0.70
+
+- id: graphql-missing-query-complexity
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)ApolloServer\s*\(\s*\{(?![^}]*validationRules[^}]*complexity)'
+  severity: medium
+  description: "GraphQL server started without a Cost/Complexity analysis validation rule. Wide but shallow queries using many computationally expensive fields or excessive aliases can exhaust server resources."
+  remediation: "Implement query complexity analysis using a library like 'graphql-query-complexity'. Assign costs to heavy resolvers and reject queries exceeding a maximum total cost score."
+  cwe: "CWE-400"
+  owasp: "API4:2023-Unrestricted Resource Consumption"
+  confidence: 0.65

@@ -99,7 +99,7 @@
   cwe: "CWE-200"
   owasp: "A01:2021"
   confidence: 0.8
-- id: apache-server-tokens
+- id: apache-server-tokens-dup1
   languages: [apache]
   patterns:
     - regex: '(?i)^\s*ServerTokens\s+(?:OS|Full|Minimal|Minor)'
@@ -109,7 +109,7 @@
   cwe: "CWE-200"
   owasp: "A05:2021"
   confidence: 0.8
-- id: apache-server-signature
+- id: apache-server-signature-dup1
   languages: [apache]
   patterns:
     - regex: '(?i)^\s*ServerSignature\s+On'
@@ -129,7 +129,7 @@
   cwe: "CWE-548"
   owasp: "A01:2021"
   confidence: 0.8
-- id: apache-trace-enable
+- id: apache-trace-enable-dup1
   languages: [apache]
   patterns:
     - regex: '(?i)^\s*TraceEnable\s+(?:On|extended)'
@@ -209,7 +209,7 @@
   cwe: "CWE-319"
   owasp: "A02:2021"
   confidence: 0.8
-- id: apache-missing-hsts
+- id: apache-missing-hsts-dup1
   languages: [apache]
   patterns:
     - regex: '(?i)<VirtualHost\s+.*:443>[\s\S]*?set\s+Strict-Transport-Security'
@@ -1119,7 +1119,7 @@
   cwe: "CWE-78"
   owasp: "A03:2021"
   confidence: 0.8
-- id: apache-allow-override-all
+- id: apache-allow-override-all-dup1
   languages: [apache]
   patterns:
     - regex: '(?i)<Directory.*>[\s\S]*?AllowOverride\s+All'
@@ -1130,7 +1130,7 @@
   owasp: "A01:2021"
   confidence: 0.8
 
-- id: apache-satisfy-any
+- id: apache-satisfy-any-dup1
   languages: [apache]
   patterns:
     - regex: '(?i)Satisfy\s+Any'
@@ -1141,7 +1141,7 @@
   owasp: "A01:2021"
   confidence: 0.8
 
-- id: apache-trace-enable
+- id: apache-trace-enable-dup2
   languages: [apache]
   patterns:
     - regex: '(?i)TraceEnable\s+On'

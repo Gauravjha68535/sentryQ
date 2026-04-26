@@ -97,6 +97,10 @@ func WalkDirectory(root string) (*ScanResult, error) {
 	close(fileChan)
 	wg.Wait()
 
+	if err != nil {
+		utils.LogWarn(fmt.Sprintf("Directory walk encountered errors — scan results may be partial: %v", err))
+	}
+
 	return result, err
 }
 

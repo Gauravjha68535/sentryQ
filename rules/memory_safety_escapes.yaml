@@ -1,0 +1,156 @@
+# SentryQ Security Rules — Memory Safety Escapes
+# Covers unsafe memory operations across Rust, Go, C/C++, Java, and Python
+
+- id: memory-rust-unsafe-block
+  languages: [rust]
+  patterns:
+    - regex: '(?i)\bunsafe\s*\{'
+  severity: high
+  description: "Rust unsafe block disables the borrow checker and memory safety guarantees. Code inside unsafe blocks can dereference raw pointers, call unsafe functions, and violate Rust's aliasing rules."
+  remediation: "Minimize the scope of unsafe blocks to the smallest possible region. Document precisely which invariants the programmer is upholding. Consider safe abstractions (e.g., Vec, slice) before reaching for unsafe code."
+  cwe: "CWE-119"
+  owasp: "A06:2021"
+  confidence: 0.75
+
+- id: memory-rust-raw-pointer-deref
+  languages: [rust]
+  patterns:
+    - regex: '\*\s*(?:mut\s+)?\w+\s+as\s+\*(?:mut|const)'
+  severity: high
+  description: "Casting a reference or integer to a raw pointer (*mut T or *const T). Dereferencing such pointers inside unsafe blocks can cause use-after-free, data races, or undefined behavior."
+  remediation: "Prefer safe Rust abstractions. If raw pointers are necessary, wrap them in a safe abstraction that enforces correct lifetimes and aliasing rules. Never store raw pointers across async await points."
+  cwe: "CWE-476"
+  owasp: "A06:2021"
+  confidence: 0.72
+
+- id: memory-rust-transmute
+  languages: [rust]
+  patterns:
+    - regex: '(?i)mem::transmute\s*\('
+  severity: critical
+  description: "std::mem::transmute reinterprets the bits of a value as another type without any safety checks. This is one of the most dangerous operations in Rust and can cause immediate undefined behavior if types are not layout-compatible."
+  remediation: "Replace with safer alternatives: use as for numeric casts, From/Into for type conversions, or bytemuck::cast for guaranteed-safe transmutes. If transmute is truly required, add a compile-time size assertion."
+  cwe: "CWE-704"
+  owasp: "A06:2021"
+  confidence: 0.90
+
+- id: memory-rust-from-raw-parts
+  languages: [rust]
+  patterns:
+    - regex: '(?i)(?:slice::from_raw_parts|Vec::from_raw_parts|String::from_raw_parts)\s*\('
+  severity: high
+  description: "Constructing a Rust slice, Vec, or String from raw parts bypasses all safety invariants. Incorrect pointer, length, or capacity values cause immediate memory unsafety."
+  remediation: "Ensure the pointer is valid and non-null, the length and capacity are correct, the data is properly aligned, and the lifetime of the resulting object does not exceed the underlying memory. Prefer safe constructors when possible."
+  cwe: "CWE-119"
+  owasp: "A06:2021"
+  confidence: 0.85
+
+- id: memory-go-unsafe-pointer
+  languages: [go]
+  patterns:
+    - regex: '(?i)unsafe\.Pointer\s*\('
+  severity: high
+  description: "Go unsafe.Pointer bypasses the type system and the garbage collector's pointer tracking. Misuse can cause use-after-free, memory corruption, or GC crashes."
+  remediation: "Avoid unsafe.Pointer unless interfacing with C via cgo. Follow Go's unsafe.Pointer conversion rules exactly. Consider uintptr-to-Pointer round trips only when the GC cannot move allocations during the operation."
+  cwe: "CWE-119"
+  owasp: "A06:2021"
+  confidence: 0.80
+
+- id: memory-go-reflect-unsafe
+  languages: [go]
+  patterns:
+    - regex: '(?i)reflect\.StringHeader|reflect\.SliceHeader'
+  severity: medium
+  description: "reflect.StringHeader and reflect.SliceHeader expose raw pointer fields. Misuse (e.g., retaining a pointer past the lifetime of the original value) can lead to use-after-free when the GC collects the underlying data."
+  remediation: "Use unsafe.SliceData, unsafe.StringData, and unsafe.String (Go 1.20+) instead, which are GC-aware. Avoid retaining the Header struct beyond the immediate operation."
+  cwe: "CWE-119"
+  owasp: "A06:2021"
+  confidence: 0.70
+
+- id: memory-c-buffer-overflow
+  languages: [c, cpp]
+  patterns:
+    - regex: '(?i)(?:gets|strcpy|strcat|sprintf|scanf)\s*\('
+  severity: critical
+  description: "Use of unsafe C string/IO function that does not perform bounds checking. Functions like gets(), strcpy(), strcat(), sprintf(), and scanf() with %s can overflow destination buffers, enabling stack smashing and arbitrary code execution."
+  remediation: "Replace gets() with fgets(). Replace strcpy/strcat with strlcpy/strlcat or strncpy/strncat with explicit size limits. Replace sprintf with snprintf. Replace scanf %s with scanf %Ns where N is the buffer size minus one."
+  cwe: "CWE-120"
+  owasp: "A06:2021"
+  confidence: 0.88
+
+- id: memory-c-format-string
+  languages: [c, cpp]
+  patterns:
+    - regex: '(?i)printf\s*\(\s*(?:argv|input|user|str|data|buf|msg)\s*\)'
+  severity: critical
+  description: "printf() called with a user-controlled or externally-sourced format string. An attacker can supply format specifiers (%n, %x, %s) to read or write arbitrary memory locations."
+  remediation: "Always use a literal format string: printf(\"%s\", user_input) instead of printf(user_input). Enable compiler warnings (-Wformat-security) and treat them as errors."
+  cwe: "CWE-134"
+  owasp: "A03:2021"
+  confidence: 0.87
+
+- id: memory-c-integer-overflow
+  languages: [c, cpp]
+  patterns:
+    - regex: '(?i)malloc\s*\(\s*[a-zA-Z_]\w*\s*\*\s*[a-zA-Z_]\w*\s*\)'
+  severity: high
+  description: "malloc() called with a size computed as a product of two variables, which can integer-overflow to a small value. This causes malloc to allocate a buffer far smaller than expected, leading to a heap buffer overflow on write."
+  remediation: "Check for overflow before the multiplication using safe integer arithmetic helpers (e.g., reallocarray() on OpenBSD/Linux, or a custom overflow check). Alternatively, use calloc(count, size) which checks for overflow on most platforms."
+  cwe: "CWE-190"
+  owasp: "A06:2021"
+  confidence: 0.80
+
+- id: memory-cpp-use-after-free
+  languages: [c, cpp]
+  patterns:
+    - regex: '(?i)free\s*\(\s*\w+\s*\)\s*;[^;]*\w+\s*(?:->|\.)\w+'
+  severity: critical
+  description: "A pointer is accessed through member access (-> or .) after being passed to free(). This use-after-free vulnerability can result in heap corruption, information disclosure, or arbitrary code execution."
+  remediation: "Set the pointer to NULL immediately after calling free(). Use smart pointers in C++ (std::unique_ptr, std::shared_ptr) to automate lifetime management. Employ AddressSanitizer during testing to detect UAF at runtime."
+  cwe: "CWE-416"
+  owasp: "A06:2021"
+  confidence: 0.78
+
+- id: memory-cpp-null-deref-after-delete
+  languages: [cpp]
+  patterns:
+    - regex: '(?i)delete\s+\w+\s*;[^;]*\w+->'
+  severity: high
+  description: "A pointer is dereferenced via -> after being deleted. This constitutes a use-after-free or null-pointer dereference, both of which cause undefined behavior."
+  remediation: "Set the pointer to nullptr after delete. Prefer smart pointers (std::unique_ptr) that automatically invalidate after destruction. Enable AddressSanitizer and UBSan in CI builds."
+  cwe: "CWE-476"
+  owasp: "A06:2021"
+  confidence: 0.75
+
+- id: memory-java-null-deref-optional
+  languages: [java]
+  patterns:
+    - regex: '(?i)Optional[^.]*\.get\s*\(\s*\)'
+  severity: medium
+  description: "Optional.get() called without a preceding isPresent() or isEmpty() check. If the Optional is empty, this throws NoSuchElementException and may mask a null-pointer dereference logic error."
+  remediation: "Use Optional.orElse(), Optional.orElseGet(), Optional.orElseThrow(), or Optional.ifPresent() instead of unconditional .get(). Never call .get() without first confirming the Optional is non-empty."
+  cwe: "CWE-476"
+  owasp: "A06:2021"
+  confidence: 0.72
+
+- id: memory-python-pickle-deserialization
+  languages: [python]
+  patterns:
+    - regex: '(?i)pickle\.loads\s*\(|cPickle\.loads\s*\('
+  severity: critical
+  description: "Python pickle.loads() or cPickle.loads() deserializes arbitrary Python objects. Deserializing attacker-controlled data allows remote code execution via crafted pickle payloads."
+  remediation: "Never deserialize pickle data from untrusted sources. Use safe serialization formats such as JSON, MessagePack, or Protocol Buffers for data exchange. If pickle is required internally, use HMAC-signed pickles and verify the signature before deserialization."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+  confidence: 0.92
+
+- id: memory-rust-ptr-offset
+  languages: [rust]
+  patterns:
+    - regex: '(?i)\.(?:offset|add|sub)\s*\([^)]*\)'
+  severity: high
+  description: "Raw pointer arithmetic with .offset(), .add(), or .sub() inside unsafe context. Incorrect offsets can move the pointer outside the allocated object, causing undefined behavior on dereference."
+  remediation: "Ensure pointer arithmetic stays within the bounds of the original allocation. Prefer safe slice indexing over manual pointer arithmetic. Use .get() or .get_unchecked() (with explicit bounds check) rather than raw offsets."
+  cwe: "CWE-823"
+  owasp: "A06:2021"
+  confidence: 0.70

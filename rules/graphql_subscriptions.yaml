@@ -1,0 +1,131 @@
+# GraphQL Subscriptions Security Rules
+# Covers: subscription DoS, authentication bypass, event data leakage,
+# missing rate limits, and WebSocket transport misconfigurations
+
+- id: gql-sub-no-auth-check
+  languages: [javascript, typescript, python, java, go, ruby]
+  patterns:
+    - regex: '(?i)(?:subscribe|subscription|onSubscribe|SubscriptionServer)\b.{0,300}(?:context|resolve)\b'
+  severity: high
+  description: "GraphQL subscription resolvers that do not verify authentication in the context or resolve phase allow unauthenticated clients to receive real-time event streams."
+  remediation: "Verify authentication in the subscription context factory (e.g., onConnect) and re-check authorization in every subscription resolver. Reject unauthenticated WebSocket upgrades immediately."
+  cwe: "CWE-306"
+  owasp: "A01:2021"
+
+- id: gql-sub-missing-onconnect-auth
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)SubscriptionServer\.create\s*\(\s*\{\s*schema\s*:'
+    - regex: '(?i)useServer\s*\(\s*\{\s*schema\s*:'
+  severity: high
+  description: "GraphQL SubscriptionServer or graphql-ws useServer created without an onConnect/context authentication handler — all WebSocket clients are accepted unconditionally."
+  remediation: "Always supply an onConnect callback that validates tokens before accepting subscription connections. Return false or throw to reject unauthorized clients."
+  cwe: "CWE-306"
+  owasp: "A01:2021"
+
+- id: gql-sub-no-rate-limit
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)(?:subscribe|SubscriptionServer|pubsub\.subscribe|withFilter)\b.{0,200}(?:resolve|asyncIterator)'
+  severity: medium
+  description: "GraphQL subscription setup without rate limiting or connection throttling allows a single client to exhaust server resources by creating thousands of concurrent subscriptions."
+  remediation: "Implement per-user subscription limits and connection rate limiting. Track active subscriptions per user and enforce a maximum (e.g., 10 concurrent subscriptions per client)."
+  cwe: "CWE-770"
+  owasp: "A05:2021"
+
+- id: gql-sub-unbounded-pubsub-publish
+  languages: [javascript, typescript, python]
+  patterns:
+    - regex: '(?i)pubsub\.publish\s*\(\s*[`''"][^`''"]+[`''"]\s*,\s*\{'
+    - regex: '(?i)eventEmitter\.emit\s*\(\s*[`''"][^`''"]+[`''"]'
+  severity: medium
+  description: "Unbounded PubSub publish calls without payload size validation can broadcast oversized event payloads to all subscribers, causing memory exhaustion."
+  remediation: "Validate and limit the size of event payloads before publishing to PubSub. Reject payloads exceeding a configured maximum size (e.g., 64 KB)."
+  cwe: "CWE-400"
+  owasp: "A05:2021"
+
+- id: gql-sub-filter-bypass
+  languages: [javascript, typescript, python]
+  patterns:
+    - regex: '(?i)withFilter\s*\(\s*\([^)]*\)\s*=>\s*(?:true\b|1\b)'
+    - regex: '(?i)withFilter\s*\([^,]+,\s*\(\)\s*=>\s*true\b'
+  severity: high
+  description: "Subscription filter returning a hardcoded 'true' broadcasts all events to every subscriber regardless of their authorization context, leaking other users' data."
+  remediation: "Implement a proper authorization check in the withFilter callback. Compare the event's userId/tenantId against the subscriber's authenticated context before allowing delivery."
+  cwe: "CWE-863"
+  owasp: "A01:2021"
+
+- id: gql-sub-sensitive-data-in-payload
+  languages: [javascript, typescript, python, java]
+  patterns:
+    - regex: '(?i)pubsub\.publish\s*\(.{0,80}(?:password|secret|token|apiKey|ssn|creditCard)\b'
+    - regex: '(?i)eventEmitter\.emit\s*\(.{0,80}(?:password|secret|token|apiKey)\b'
+  severity: high
+  description: "Sensitive fields (passwords, tokens, secrets) included in subscription event payloads can be exposed to all subscribers on the channel."
+  remediation: "Never publish raw sensitive fields in subscription payloads. Redact or omit sensitive data and use field-level resolvers to apply per-subscriber access control."
+  cwe: "CWE-312"
+  owasp: "A02:2021"
+
+- id: gql-sub-websocket-no-origin-check
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)new\s+WebSocket\s*\(\s*(?:ws|wss)://'
+    - regex: '(?i)createClient\s*\(\s*\{[^}]*url\s*:\s*(?:ws|wss)://'
+  severity: medium
+  description: "WebSocket connections for GraphQL subscriptions without server-side origin validation are vulnerable to Cross-Site WebSocket Hijacking (CSWSH)."
+  remediation: "Validate the Origin header on WebSocket upgrade requests server-side. Reject connections from origins not in an explicit allowlist."
+  cwe: "CWE-346"
+  owasp: "A07:2021"
+
+- id: gql-sub-introspection-subscription-leak
+  languages: [javascript, typescript, python]
+  patterns:
+    - regex: '(?i)__schema\b.{0,100}subscription'
+    - regex: '(?i)introspect.{0,100}subscription'
+  severity: low
+  description: "GraphQL introspection revealing subscription type fields discloses real-time data model internals to potential attackers."
+  remediation: "Disable introspection in production environments or use an allowlist to restrict introspection to authenticated admin users only."
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+
+- id: gql-sub-async-iterator-unclosed
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)async\s*\*\s*\w+\s*\([^)]*\)\s*\{[^}]{0,500}yield\b'
+    - regex: '(?i)\[Symbol\.asyncIterator\]\s*\(\s*\)\s*\{'
+  severity: medium
+  description: "Async generator-based GraphQL subscription iterators without a return()/cleanup path leak resources when clients disconnect, eventually exhausting server memory."
+  remediation: "Implement the return() method on subscription async iterators to clean up database listeners, event handlers, and other resources when a subscription ends."
+  cwe: "CWE-401"
+  owasp: "A05:2021"
+
+- id: gql-sub-no-depth-limit
+  languages: [javascript, typescript, python, java]
+  patterns:
+    - regex: '(?i)(?:subscribe|SubscriptionServer)\b.{0,400}(?:execute|schema)'
+  severity: medium
+  description: "GraphQL subscription queries without depth or complexity limits allow clients to submit deeply nested subscriptions that trigger expensive database queries on every published event."
+  remediation: "Apply graphql-depth-limit and graphql-query-complexity checks to subscription queries at connection time, before executing the subscription."
+  cwe: "CWE-770"
+  owasp: "A05:2021"
+
+- id: gql-sub-mutation-triggered-broadcast
+  languages: [javascript, typescript, python]
+  patterns:
+    - regex: '(?i)pubsub\.publish\s*\(.{0,120}(?:await\s+)?(?:db|orm|model|repository)\.\w+\('
+  severity: low
+  description: "Publishing subscription events directly inside database mutation calls without error handling means a failed publish could leave subscribers out of sync with the actual data state."
+  remediation: "Decouple event publishing from database writes using a transactional outbox pattern or event queue. Handle publish failures gracefully without rolling back the database transaction."
+  cwe: "CWE-755"
+  owasp: "A05:2021"
+
+- id: gql-sub-channel-enumeration
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)pubsub\.subscribe\s*\(\s*(?:`|''|")[^`''"]*\$\{|\+\s*(?:req|params|body|input|userId|id)\b'
+    - regex: '(?i)pubsub\.subscribe\s*\(\s*[`''"]\w+[`''"]\s*\+'
+  severity: high
+  description: "Subscription channel names constructed from user-supplied input without authorization checks allow clients to subscribe to arbitrary channels, including other users' private event streams."
+  remediation: "Always authorize the requested channel name against the authenticated user's permissions before subscribing. Construct channel names server-side from verified identity data, never from raw client input."
+  cwe: "CWE-639"
+  owasp: "A01:2021"

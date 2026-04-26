@@ -193,7 +193,8 @@ func GenerateSARIF(filename string, findings []Finding) error {
 		}},
 	}
 
-	f, err := os.Create(filename)
+	// Use 0600 permissions for generated reports, consistent with secureWriteFile
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}

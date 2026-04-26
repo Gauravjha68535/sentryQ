@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -97,6 +98,17 @@ func getPauseControl(scanID string) *PauseControl {
 	pc := pauseControls[scanID]
 	pauseControlsMu.Unlock()
 	return pc
+}
+
+// getScanTimeout returns the maximum scan duration.
+// Override the default 60-minute cap with SENTRYQ_SCAN_TIMEOUT_MINUTES env var.
+func getScanTimeout() time.Duration {
+	if v := os.Getenv("SENTRYQ_SCAN_TIMEOUT_MINUTES"); v != "" {
+		if mins, err := strconv.Atoi(v); err == nil && mins > 0 {
+			return time.Duration(mins) * time.Minute
+		}
+	}
+	return 60 * time.Minute
 }
 
 // checkPause blocks if the scan is paused. Returns false if ctx was cancelled.
@@ -246,13 +258,21 @@ func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 				}
 			}
 		}()
-		ctx, cancel := context.WithCancel(context.Background())
+		timeout := getScanTimeout()
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		registerScan(scanID, cancel)
 		defer unregisterScan(scanID)
 		defer cancel()
 
 		defer os.RemoveAll(targetDir) // Clean up upload temp directory
 		runScan(ctx, scanID, targetDir, webCfg)
+
+		// Handle timeout separately from user cancellation (StopScan already
+		// updates status to "stopped" before the goroutine reaches this point).
+		if ctx.Err() == context.DeadlineExceeded {
+			wsHub.BroadcastLog(scanID, fmt.Sprintf("⏰ Scan timed out after %s. Set SENTRYQ_SCAN_TIMEOUT_MINUTES to allow longer scans.", timeout), "error")
+			_ = UpdateScanStatus(scanID, "failed")
+		}
 	}()
 	return scanID, nil
 }
@@ -384,9 +404,10 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		}()
 		defer forceRemoveAll(tmpDir)
 
-		// Register the cancellable context immediately so StopScan can
-		// terminate the scan at any point — including during git clone.
-		ctx, cancel := context.WithCancel(context.Background())
+		// Register a timeout-bounded context so StopScan (cancel) AND the
+		// global scan timeout both terminate the scan + clone gracefully.
+		timeout := getScanTimeout()
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		registerScan(scanID, cancel)
 		defer unregisterScan(scanID)
 		defer cancel()
@@ -394,15 +415,15 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Cloning repository: %s", repoURL), "phase")
 		wsHub.BroadcastProgress(scanID, "Cloning Repository", 5)
 
-		// Derive clone timeout from the cancellable context so StopScan
-		// also terminates the git clone (not just the scan pipeline).
+		// Derive clone timeout from the scan context so StopScan also
+		// terminates the git clone (not just the scan pipeline).
 		cloneCtx, cloneCancel := context.WithTimeout(ctx, 5*time.Minute)
 		defer cloneCancel()
 		cmd := exec.CommandContext(cloneCtx, getGitBin(), "clone", "--depth", "1", "--", repoURL, tmpDir)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			if ctx.Err() != nil {
-				return // scan was stopped by user, no need to broadcast error
+				return // scan was stopped by user or timed out, no need to broadcast error
 			}
 			wsHub.BroadcastError(scanID, fmt.Sprintf("Git clone failed: %s", sanitizeGitOutput(string(output))))
 			if err := UpdateScanStatus(scanID, "failed"); err != nil {
@@ -414,6 +435,12 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		wsHub.BroadcastLog(scanID, "Repository cloned successfully", "success")
 
 		runScan(ctx, scanID, tmpDir, webCfg)
+
+		// Handle timeout separately from user cancellation.
+		if ctx.Err() == context.DeadlineExceeded {
+			wsHub.BroadcastLog(scanID, fmt.Sprintf("⏰ Scan timed out after %s. Set SENTRYQ_SCAN_TIMEOUT_MINUTES to allow longer scans.", timeout), "error")
+			_ = UpdateScanStatus(scanID, "failed")
+		}
 	}()
 
 	return scanID, nil
@@ -506,7 +533,10 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	astAnalyzer := scanner.NewASTAnalyzer()
 	for _, files := range result.FilePaths {
 		for _, file := range files {
-			findings, err := astAnalyzer.AnalyzeFile(file)
+			if ctx.Err() != nil {
+				break
+			}
+			findings, err := astAnalyzer.AnalyzeFile(ctx, file)
 			if err != nil {
 				utils.LogWarn(fmt.Sprintf("AST analysis failed for %s: %v", file, err))
 				continue
@@ -619,7 +649,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 
 		// Threat Intelligence Enrichment (now part of Deep Scan)
 		wsHub.BroadcastProgress(scanID, "Threat Intelligence", 63)
-		wsHub.BroadcastLog(scanID, "Enriching findings with threat intelligence (CVE, CISA KEV, MITRE ATT&CK)...", "phase")
+		wsHub.BroadcastLog(scanID, "Enriching findings with threat intelligence (MITRE ATT&CK)...", "phase")
 		threatIntelScanner := scanner.NewThreatIntelScanner()
 		enrichedFindings, tiErr := threatIntelScanner.ScanWithThreatIntel(allFindings)
 		if tiErr == nil {
@@ -891,8 +921,6 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	// Calculate counts
 	criticalCount := riskScore.CriticalCount
 	highCount := riskScore.HighCount
-
-	// ── Compliance Checking (gated) ─────────────────────────
 
 	wsHub.BroadcastProgress(scanID, "Saving Results", 95)
 	wsHub.BroadcastLog(scanID, "Saving findings to database...", "info")
@@ -1430,8 +1458,7 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 	indicesByFile := make(map[string][]int)
 
 	for i := range findings {
-		var lineNum int
-		fmt.Sscanf(findings[i].LineNumber, "%d", &lineNum)
+		lineNum := parseStartLine(findings[i].LineNumber)
 		if lineNum <= 0 {
 			continue
 		}
@@ -1452,8 +1479,7 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 		lines := strings.Split(utils.NormalizeNewlines(string(content)), "\n")
 
 		for _, idx := range indices {
-			var lineNum int
-			fmt.Sscanf(findings[idx].LineNumber, "%d", &lineNum)
+			lineNum := parseStartLine(findings[idx].LineNumber)
 
 			preferredIdx := lineNum - 1 // 0-indexed
 
@@ -1594,7 +1620,10 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	astAnalyzer := scanner.NewASTAnalyzer()
 	for _, files := range result.FilePaths {
 		for _, file := range files {
-			findings, err := astAnalyzer.AnalyzeFile(file)
+			if ctx.Err() != nil {
+				break
+			}
+			findings, err := astAnalyzer.AnalyzeFile(ctx, file)
 			if err != nil {
 				utils.LogWarn(fmt.Sprintf("AST analysis failed for %s: %v", file, err))
 				continue
@@ -1609,6 +1638,9 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	taintAnalyzer := scanner.NewTaintAnalyzer()
 	for _, files := range result.FilePaths {
 		for _, file := range files {
+			if ctx.Err() != nil {
+				break
+			}
 			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
 			if err == nil {
 				staticFindings = append(staticFindings, findings...)
@@ -1664,7 +1696,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	// Container Scanning
 	wsHub.BroadcastProgress(scanID, "Phase 1: Container Scanning", 32)
 	wsHub.BroadcastLog(scanID, "Scanning Dockerfiles & Kubernetes manifests...", "info")
-	containerScanner := scanner.NewContainerScanner(int64(len(staticFindings) + 1000))
+	containerScanner := scanner.NewContainerScanner(int64(len(staticFindings)) + 1)
 	containerFindings, cErr := containerScanner.ScanContainers(targetDir, ctx)
 	if cErr == nil {
 		staticFindings = append(staticFindings, containerFindings...)
@@ -1722,24 +1754,35 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 
 	// Build file contents map once — shared by both Phase 2 (AI self-validation)
 	// and Phase 3 (static pre-validation). Uses the package-level maxFileContentSize.
+	// A cumulative size cap prevents OOM on repositories with many large files.
+	const maxTotalFileContents = 512 * 1024 * 1024 // 512 MB cumulative cap
 	fileContents := make(map[string]string)
+	var cumulativeSize int64
 	for _, files := range result.FilePaths {
 		for _, file := range files {
 			info, statErr := os.Stat(file)
 			if statErr != nil || info.Size() > maxFileContentSize {
 				continue
 			}
+			if cumulativeSize+info.Size() > maxTotalFileContents {
+				utils.LogWarn("fileContents map reached 512 MB cumulative cap — skipping remaining files")
+				goto fileContentsDone
+			}
 			if data, err := os.ReadFile(file); err == nil {
 				fileContents[file] = string(data)
+				cumulativeSize += info.Size()
 			}
 		}
 	}
+fileContentsDone:
 
 	// AI self-validation of its own findings
 	if len(aiFindings) > 0 {
 		wsHub.BroadcastProgress(scanID, "Phase 2: AI Self-Validation", 65)
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("AI validating its own %d discoveries...", len(aiFindings)), "info")
-		aiFindings = ai.ValidateFindingsBatch(ctx, modelName, aiFindings, fileContents)
+		aiFindings = ai.ValidateFindingsBatch(ctx, modelName, aiFindings, fileContents, func(msg string, level string) {
+			wsHub.BroadcastLog(scanID, msg, level)
+		})
 	}
 
 	// Deduplicate Phase 2
@@ -1768,7 +1811,9 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	// Reuses the fileContents map built above — no second disk read.
 	wsHub.BroadcastProgress(scanID, "Phase 3: Static Pre-Validation", 78)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("AI validating %d static discoveries for remediation insights...", len(staticFindings)), "info")
-	staticFindings = ai.ValidateFindingsBatch(ctx, modelName, staticFindings, fileContents)
+	staticFindings = ai.ValidateFindingsBatch(ctx, modelName, staticFindings, fileContents, func(msg string, level string) {
+		wsHub.BroadcastLog(scanID, msg, level)
+	})
 
 	judgeModel := cfg.JudgeModel
 	if judgeModel == "" {

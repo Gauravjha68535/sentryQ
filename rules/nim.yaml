@@ -328,7 +328,7 @@
   owasp: "A03:2021"
   confidence: 0.8
 
-- id: nim-ssrf
+- id: nim-ssrf-dup1
   languages: [nim]
   patterns:
     - regex: '(?i)httpclient\.request\s*\(.*url\s*='

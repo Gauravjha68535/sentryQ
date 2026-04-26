@@ -174,7 +174,7 @@
   owasp: "A03:2021"
   confidence: 0.8
 
-- id: clojure-ssrf
+- id: clojure-ssrf-dup1
   languages: [clojure]
   patterns:
     - regex: '(?i)\(client/get\s+.*#\{|\(http/get\s+.*#\{'

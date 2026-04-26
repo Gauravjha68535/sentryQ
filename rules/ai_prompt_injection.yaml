@@ -1,0 +1,73 @@
+# SentryQ Security Rules — AI & Prompt Injection
+# Covers CWE-74 (Improper Neutralization of Special Elements in Output Used by a Downstream Component)
+
+- id: ai-prompt-injection-concatenation
+  languages: [python, javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:prompt|template|system_message)\s*\+=\s*(?:req\.|request\.|user_input|data)'
+    - regex: '(?i)f["\x27].*(?:prompt|system|instruction).*\{.*(?:req\.|request\.|user_input).*\}'
+    - regex: '\`.*(?:prompt|system|instruction).*\$\{(?:req\.|request\.|user_input).*\}.*\`'
+  severity: critical
+  description: "Direct string concatenation or formatting used to construct AI prompts. If user input is injected directly into system prompts without delimiters or isolation, prompt injection attacks (including jailbreaks and instruction overrides) are highly likely."
+  remediation: "Never concatenate user input directly into the main system prompt. Use explicit delimiters (like ``` or <text>) to encapsulate user input. Prefer the native message array structure (e.g., {'role': 'user', 'content': input}) provided by LLM SDKs."
+  cwe: "CWE-74"
+  owasp: "LLM01:2023-Prompt Injection"
+  confidence: 0.85
+
+- id: ai-openai-system-role-injection
+  languages: [python, javascript, typescript]
+  patterns:
+    - regex: '(?i)\{\s*["\x27]?role["\x27]?\s*:\s*["\x27]system["\x27]\s*,\s*["\x27]?content["\x27]?\s*:\s*[^}]*\+\s*(?:req\.|user_input|data)'
+  severity: high
+  description: "User input is directly inserted into the OpenAI 'system' role content. The system role is highly privileged, and allowing user influence here compromises the LLM's guardrails."
+  remediation: "System roles should be static. Pass all user-controlled variables through the 'user' role instead."
+  cwe: "CWE-74"
+  owasp: "LLM01:2023-Prompt Injection"
+  confidence: 0.90
+
+- id: ai-langchain-prompt-template-unsanitized
+  languages: [python, javascript, typescript]
+  patterns:
+    - regex: '(?i)PromptTemplate\.from_template\s*\(\s*(?:req\.|user_input)'
+    - regex: '(?i)SystemMessagePromptTemplate\.from_template\s*\(\s*f["\x27]'
+  severity: high
+  description: "A LangChain Prompt Template or System Message Template is constructed dynamically using user input or f-strings instead of LangChain's native input variables mechanism."
+  remediation: "Define static templates with placeholders (e.g., {input}) and pass user data via the template's 'format' or 'invoke' methods dictionary."
+  cwe: "CWE-74"
+  owasp: "LLM01:2023-Prompt Injection"
+  confidence: 0.85
+
+- id: ai-unsafe-llm-execution
+  languages: [python]
+  patterns:
+    - regex: '(?i)(?:llm|agent)\.run\s*\([^)]*(?:eval\s*\(|exec\s*\()'
+    - regex: '(?i)create_python_agent\s*\('
+  severity: critical
+  description: "LLM output is routed to an insecure interpreter code execution block (e.g., Python REPL tool, eval, exec) without strict sandboxing. This enables LLM-driven Remote Code Execution (RCE) if the prompt is injected."
+  remediation: "Never execute code directly outputted by an LLM in the host environment. If code execution is required, use secure, isolated sandboxes (like Docker containers with dropped privileges or strict WebAssembly environments)."
+  cwe: "CWE-94"
+  owasp: "LLM02:2023-Insecure Output Handling"
+  confidence: 0.88
+
+- id: ai-llm-ssrf-plugin
+  languages: [python, javascript, typescript]
+  patterns:
+    - regex: '(?i)requests\.get\s*\(\s*(?:llm_output|agent_response|gpt_response)'
+    - regex: '(?i)fetch\s*\(\s*(?:llm_output|agent_response)'
+  severity: critical
+  description: "The LLM's output is directly used as a URL parameter for an HTTP request. If an attacker injects a prompt causing the LLM to output an internal IP, this leads to Server-Side Request Forgery via the LLM pipeline."
+  remediation: "Validate and strictly allow-list URLs or hosts returned by an LLM before passing them to any HTTP client. Never trust LLM output to perform unrestricted network calls."
+  cwe: "CWE-918"
+  owasp: "LLM02:2023-Insecure Output Handling"
+  confidence: 0.82
+
+- id: ai-llm-sql-injection
+  languages: [python, javascript, typescript, java, go]
+  patterns:
+    - regex: '(?i)(?:query|execute|exec|rawQuery)\s*\(\s*(?:llm_output|agent_response|gpt_response|sql_chain_response)'
+  severity: critical
+  description: "LLM output is directly executed as a SQL or database query. This is extraordinarily dangerous and leads directly to unauthorized data modification, extraction, or dropping of entire tables."
+  remediation: "Never pipe LLM output directly into database execution engines. Ensure human-in-the-loop validation, or restrict the database connection with drastically reduced privileges (read-only, limited views)."
+  cwe: "CWE-89"
+  owasp: "LLM02:2023-Insecure Output Handling"
+  confidence: 0.85

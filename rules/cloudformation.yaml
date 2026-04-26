@@ -1103,7 +1103,7 @@
   cwe: "CWE-311"
   owasp: "A02:2021"
   confidence: 0.8
-- id: cfn-redshift-public
+- id: cfn-redshift-public-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)Type:\s*AWS::Redshift::Cluster[\s\S]*?PubliclyAccessible:\s*true'

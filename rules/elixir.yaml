@@ -1428,7 +1428,7 @@
   cwe: "CWE-532"
   owasp: "A05:2021"
 
-- id: elixir-logger-metadata
+- id: elixir-logger-metadata-dup1
   languages: [elixir]
   patterns:
     - regex: 'Logger\.metadata\s*\('

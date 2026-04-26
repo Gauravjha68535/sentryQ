@@ -1,0 +1,135 @@
+- id: cors-wildcard-origin
+  patterns:
+  - regex: '(?i)Access-Control-Allow-Origin\s*:\s*\*'
+  - regex: '(?i)setHeader\s*\(\s*["'']Access-Control-Allow-Origin["'']\s*,\s*["'']\*["'']'
+  severity: high
+  description: "CORS policy allows all origins via wildcard (*). Any website can make authenticated cross-origin requests to this endpoint and read the response."
+  remediation: "Replace the wildcard with an explicit allowlist of trusted origins. Validate the request Origin header against this list and reflect only allowed origins. Never combine Access-Control-Allow-Origin: * with Access-Control-Allow-Credentials: true."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.85
+
+- id: cors-reflect-origin
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)res\.setHeader\s*\(\s*["'']Access-Control-Allow-Origin["'']\s*,\s*req\.headers\.origin'
+  - regex: '(?i)response\.setHeader\s*\(\s*["'']Access-Control-Allow-Origin["'']\s*,\s*request\.headers\.origin'
+  - regex: '(?i)Access-Control-Allow-Origin[^''"\n]*\$\{[^}]*origin'
+  severity: critical
+  description: "The Origin request header is reflected directly into the Access-Control-Allow-Origin response header without validation. This effectively allows any origin to make cross-origin requests, bypassing CORS protection entirely."
+  remediation: "Validate the incoming Origin against a strict allowlist before reflecting it. Reject or respond with no CORS headers if the origin is not in the allowlist."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: cors-credentials-wildcard
+  patterns:
+  - regex: '(?i)Access-Control-Allow-Credentials\s*[=:,]\s*[''"]?true[''"]?'
+  severity: critical
+  description: "Access-Control-Allow-Credentials: true is set, allowing cookies and authorization headers to be included in cross-origin requests. When combined with a permissive origin policy, this allows any site to make authenticated requests and read responses."
+  remediation: "Only set Access-Control-Allow-Credentials: true when strictly necessary. Never pair it with Access-Control-Allow-Origin: *. Maintain an explicit origin allowlist and reject origins not on the list."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.8
+
+- id: cors-null-origin
+  patterns:
+  - regex: '(?i)Access-Control-Allow-Origin\s*[=:,]\s*["'']null["'']'
+  severity: high
+  description: "CORS policy explicitly allows the 'null' origin. Sandboxed iframes, local HTML files, and redirect chains can produce a null origin, allowing attacker-controlled pages to make credentialed cross-origin requests."
+  remediation: "Remove null from the CORS origin allowlist. Only permit explicit https:// scheme origins. The null origin should never be trusted in production applications."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: cors-preflight-cache-long
+  patterns:
+  - regex: 'Access-Control-Max-Age\s*[=:,]\s*[''"]?[0-9]{6,}[''"]?'
+  - regex: 'Access-Control-Max-Age\s*[=:,]\s*[''"]?864000[''"]?'
+  severity: low
+  description: "The CORS preflight cache (Access-Control-Max-Age) is set to an excessively long duration. Changes to CORS policy will not take effect for cached clients during this window, delaying security fixes."
+  remediation: "Set Access-Control-Max-Age to a reasonable value (e.g., 600 seconds / 10 minutes). This balances performance with the ability to quickly update CORS policies when needed."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.7
+
+- id: cors-expose-sensitive-headers
+  patterns:
+  - regex: '(?i)Access-Control-Expose-Headers[^''"\n]*(?:Authorization|Cookie|X-API-Key|X-Auth-Token|X-Session|X-CSRF)'
+  severity: medium
+  description: "Sensitive headers (Authorization, Cookie, API keys, session tokens) are exposed via Access-Control-Expose-Headers. Cross-origin scripts can read these header values, potentially leaking credentials."
+  remediation: "Audit the Access-Control-Expose-Headers list and remove any headers containing authentication material or sensitive data. Only expose headers that cross-origin scripts explicitly need to read."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.85
+
+- id: cors-middleware-express-origin-true
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)cors\s*\(\s*\{\s*origin\s*:\s*true'
+  severity: high
+  description: "Express cors middleware is configured with origin: true, which reflects the request Origin header verbatim. This disables CORS origin enforcement and allows any domain to make cross-origin requests."
+  remediation: "Replace origin: true with an explicit allowlist: cors({ origin: ['https://app.example.com', 'https://admin.example.com'] }). For dynamic allowlists, use a callback function that validates the origin."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: cors-flask-all-origins
+  languages: [python]
+  patterns:
+  - regex: '(?i)CORS\s*\(\s*app\s*\)'
+  - regex: '(?i)@cross_origin\s*\(\s*\)'
+  - regex: '(?i)CORS\s*\(\s*app\s*,\s*resources\s*=\s*\{\s*r["'']/\*'
+  severity: medium
+  description: "Flask-CORS is configured to allow all origins (no origins parameter) or the cross_origin decorator is used with default settings. This permits any domain to make cross-origin requests."
+  remediation: "Specify an explicit origins list: CORS(app, origins=['https://app.example.com']). For route-level decorators, use @cross_origin(origins=['https://app.example.com'])."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.75
+
+- id: cors-django-all-origins
+  languages: [python]
+  patterns:
+  - regex: 'CORS_ALLOW_ALL_ORIGINS\s*=\s*True'
+  - regex: 'CORS_ORIGIN_ALLOW_ALL\s*=\s*True'
+  severity: high
+  description: "Django CORS headers is configured to allow all origins (CORS_ALLOW_ALL_ORIGINS=True). Any website can make cross-origin requests to this Django application."
+  remediation: "Set CORS_ALLOW_ALL_ORIGINS = False and populate CORS_ALLOWED_ORIGINS with a list of trusted origins. Use CORS_ALLOWED_ORIGIN_REGEXES for pattern-based allowlists when needed."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.95
+
+- id: cors-spring-all-origins
+  languages: [java]
+  patterns:
+  - regex: '@CrossOrigin\s*\(\s*origins\s*=\s*["'']\*["'']'
+  - regex: '@CrossOrigin\s*\(\s*\)'
+  severity: high
+  description: "Spring's @CrossOrigin annotation allows all origins either via wildcard or default settings. Any website can make cross-origin requests to this endpoint."
+  remediation: "Specify explicit origins in the annotation: @CrossOrigin(origins = {\"https://app.example.com\"}). For global CORS configuration, use WebMvcConfigurer.addCorsMappings with an explicit origin allowlist."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: cors-go-all-origins
+  languages: [go]
+  patterns:
+  - regex: 'AllowAllOrigins\s*:\s*true'
+  - regex: '(?i)AllowOrigins\s*:\s*\[\s*"\*"\s*\]'
+  severity: high
+  description: "Go CORS middleware (gin-contrib/cors or similar) is configured to allow all origins. Any website can make cross-origin requests to this service."
+  remediation: "Set AllowAllOrigins: false and populate AllowOrigins with an explicit list of trusted origins: AllowOrigins: []string{\"https://app.example.com\"}."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: cors-regex-origin-bypass
+  patterns:
+  - regex: '(?i)origin[^''"\n]*\.test\s*\([^)]*origin'
+  - regex: '(?i)origin[^''"\n]*\.match\s*\([^)]*origin'
+  severity: high
+  description: "CORS origin validation uses a regex test against the Origin header. Regex-based origin validation is frequently bypassable (e.g., attacker registers evil-example.com to match .*example\\.com)."
+  remediation: "Use exact string matching against an explicit allowlist of trusted origins. If regex is necessary, anchor the pattern at both start and end (^ and $) and escape all dots and special characters."
+  cwe: "CWE-346"
+  owasp: "A05:2021"
+  confidence: 0.75

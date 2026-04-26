@@ -54,7 +54,9 @@ func main() {
 			fmt.Printf("❌ Failed to initialize database: %v\n", err)
 			return
 		}
-		
+		// Apply stored AI provider/model/API key settings (same settings the web UI uses).
+		loadSettings()
+
 		// Configure a basic scan (no AI by default for speed in CLI, but can be enabled)
 		cfg := WebScanConfig{
 			EnableDeepScan: true,

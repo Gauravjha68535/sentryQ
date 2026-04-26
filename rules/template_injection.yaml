@@ -1,0 +1,167 @@
+# Auto-generated SentryQ Security Rules
+
+- id: ssti-jinja2
+  name: "Jinja2 SSTI"
+  description: "Server-side template injection via Jinja2."
+  severity: "high"
+  patterns:
+    - regex: 'render_template_string\(.*request\.'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+
+- id: ssti-jinja2-unsafe-loader
+  name: "Jinja2 Environment Without Autoescape"
+  description: "Jinja2 Environment instantiated — verify autoescape=True is set to prevent XSS and SSTI via template rendering of user-controlled data."
+  severity: "high"
+  languages: [python]
+  patterns:
+    - regex: '(?i)jinja2\.Environment\s*\('
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.6
+
+- id: ssti-mako-render
+  name: "Mako Template Rendering User Input"
+  description: "Mako template instantiated with what appears to be user-controlled input. This can lead to server-side template injection and remote code execution."
+  severity: "critical"
+  languages: [python]
+  patterns:
+    - regex: '(?i)Template\s*\(\s*(?:request\.|req\.|user_input|text\s*=\s*(?:request\.|req\.))'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.8
+
+- id: ssti-erb-ruby
+  name: "ERB Template Injection (Ruby)"
+  description: "ERB template instantiated with user-supplied parameters. Unsanitized user input in ERB templates leads to arbitrary Ruby code execution."
+  severity: "critical"
+  languages: [ruby]
+  patterns:
+    - regex: '(?i)ERB\.new\s*\(\s*(?:params\[|request\.|@\w+\s*=\s*params)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: ssti-twig-php
+  name: "Twig Template Injection (PHP)"
+  description: "Twig template rendered with user-controlled superglobal input ($_GET/$_POST/$_REQUEST). This allows arbitrary Twig expression injection."
+  severity: "critical"
+  languages: [php]
+  patterns:
+    - regex: '(?i)\$twig->render\s*\([^)]*\$_(?:GET|POST|REQUEST)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.9
+
+- id: ssti-handlebars-compile
+  name: "Handlebars Template Compiled From User Input"
+  description: "Handlebars.compile() called with user-controlled data. Compiling user-supplied templates enables arbitrary JavaScript execution in older Handlebars versions and data leakage in newer ones."
+  severity: "critical"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:Handlebars|handlebars)\.compile\s*\(\s*(?:req\.|request\.|params\.|user_input)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.88
+
+- id: ssti-pebble-java
+  name: "Pebble Template Injection (Java)"
+  description: "Pebble template evaluated with user-controlled request parameters. Template injection in Pebble can lead to information disclosure and remote code execution."
+  severity: "critical"
+  languages: [java]
+  patterns:
+    - regex: '(?i)PebbleTemplate|\.evaluate\s*\([^)]*(?:request\.getParameter|userInput|param)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.8
+
+- id: ssti-freemarker-java
+  name: "FreeMarker Template Injection (Java)"
+  description: "FreeMarker template processed with user-supplied request parameters. FreeMarker SSTI can be exploited for remote code execution via built-ins like ?eval and ?new."
+  severity: "critical"
+  languages: [java]
+  patterns:
+    - regex: '(?i)Template.*process\s*\([^)]*(?:request\.getParameter|userInput)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.82
+
+- id: ssti-velocity-java
+  name: "Apache Velocity Template Injection (Java)"
+  description: "Velocity template merged or evaluated with user-controlled context data. Velocity SSTI can execute arbitrary Java code via reflection."
+  severity: "critical"
+  languages: [java]
+  patterns:
+    - regex: '(?i)Velocity(?:Engine)?\.mergeTemplate\s*\(|VelocityContext.*(?:request|userInput)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.8
+
+- id: ssti-smarty-php
+  name: "Smarty Template Injection (PHP)"
+  description: "Smarty template displayed or fetched with user-controlled superglobal data. Smarty SSTI allows execution of arbitrary PHP via {php} tags in older versions."
+  severity: "critical"
+  languages: [php]
+  patterns:
+    - regex: '(?i)\$smarty->display\s*\([^)]*\$_(?:GET|POST|REQUEST)|Smarty.*fetch.*\$_(?:GET|POST)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.88
+
+- id: ssti-mustache-js
+  name: "Mustache Template Rendered With User Input"
+  description: "Mustache.render() called with user-controlled template or data. While Mustache is logic-less, rendering user-supplied templates enables XSS and data exfiltration."
+  severity: "high"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)Mustache\.render\s*\(\s*(?:req\.|request\.|params\.|user_input)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.8
+
+- id: ssti-el-injection-java
+  name: "Java EL Expression Language Injection"
+  description: "Expression Language createValueExpression called with user-supplied input. EL injection can result in arbitrary Java code execution on the server."
+  severity: "critical"
+  languages: [java]
+  patterns:
+    - regex: '(?i)ExpressionFactory.*createValueExpression\s*\([^)]*(?:request\.getParameter|userInput)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-917"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: ssti-thymeleaf-java
+  name: "Thymeleaf Template Injection (Java)"
+  description: "Thymeleaf template engine processes user-controlled request parameters as a template name or expression. This can lead to Spring EL injection and RCE."
+  severity: "critical"
+  languages: [java]
+  patterns:
+    - regex: '(?i)templateEngine\.process\s*\([^)]*(?:request\.getParameter|userInput|param)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: ssti-python-string-format-template
+  name: "Python String Template With User Input"
+  description: "Python string.Template instantiated with user-controlled data. Template substitution with user input can expose internal application variables via ${} expressions."
+  severity: "critical"
+  languages: [python]
+  patterns:
+    - regex: '(?i)Template\s*\(\s*(?:request\.|req\.|user_input|data\[)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.78

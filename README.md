@@ -14,21 +14,26 @@
 
 SentryQ transforms security scanning from simple pattern matching into **Intelligent Orchestration**. It runs your codebase through seven independent static analysis engines, performs **AI-driven vulnerability validation** via Chain-of-Thought reasoning, and uses a **"Security Judge" LLM** to deduplicate and merge findings — all running 100% locally. Your code never leaves `localhost`.
 
+> **Local-first guarantee:** No telemetry, no cloud uploads. Scans run entirely on your machine — including AI inference via Ollama.
+
 ---
 
 ## ✨ Core Capabilities
 
 | Feature | Details |
 | :--- | :--- |
-| **Multi-Engine SAST** | 12,400+ rules across 67+ languages + Tree-Sitter AST + inter-procedural taint tracking |
-| **Shannon Entropy Secret Detection** | Catches known secrets (AWS, GitHub, Stripe) and custom credentials via entropy analysis + base64/hex decode |
-| **SCA / Dependency Auditing** | OSV API + `osv-scanner` CLI, reachability-aware (unused deps are downgraded) |
+| **Multi-Engine SAST** | 13,900+ rules across 67+ languages + Tree-Sitter AST (Python, JS, Java, Kotlin) + intra-file taint tracking (11 languages) |
+| **Shannon Entropy Secret Detection** | Catches known secrets (AWS, GitHub, Stripe, JWT, Slack) and custom credentials via entropy analysis + base64/hex decode |
+| **SCA / Dependency Auditing** | OSV API + `osv-scanner` CLI, reachability-aware (unused deps are downgraded) + supply chain / typosquatting checks |
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
-| **MITRE ATT&CK Enrichment** | Local technique mapping — no network calls |
-| **AI-Orchestrated Triage** | Local LLMs via Ollama or any OpenAI-compatible endpoint. Chain-of-Thought validation slashes false positives |
-| **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge |
-| **Real-Time Dashboard** | React + WebSocket. Dark/Light mode. Per-finding triage (open/resolved/ignored/FP) |
-| **Multi-Format Reports** | SARIF, HTML, PDF, CSV — auto-generated per scan |
+| **MITRE ATT&CK Enrichment** | Local technique mapping from CWE/issue keywords — no network calls |
+| **AI-Orchestrated Triage** | Local LLMs via Ollama or any OpenAI-compatible endpoint. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding |
+| **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge (separate configurable models per phase) |
+| **Real-Time Dashboard** | React + WebSocket. Dark/Light mode. Per-finding triage (open/resolved/ignored/FP) with bulk triage. Pause/Resume scan controls |
+| **Rule Builder UI** | In-browser YAML rule editor with live regex test pane. Edit and create custom rules without leaving the dashboard |
+| **Trust Score & Priority Matrix** | Per-finding composite Trust Score (0–100) + P0–P3 remediation priority tiers in all reports |
+| **ML Feedback Loop** | User triage decisions feed a local FP-history cache (`~/.sentryq/ml-cache/`) to filter recurring false positives in future scans |
+| **Multi-Format Reports** | SARIF, HTML, PDF, CSV — auto-generated per scan, served for 48 hours then auto-cleaned |
 
 ---
 
@@ -37,9 +42,9 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 ```
 Source Code
     │
-    ├──► Pattern Engine       (12,400+ regex rules, 67+ languages)
-    ├──► AST Analyzer         (Tree-Sitter: Python, JS/TS, Java, Kotlin)
-    ├──► Taint-Flow Tracker   (source→sink dataflow, 11 languages)
+    ├──► Pattern Engine       (13,900+ regex rules, 67+ languages)
+    ├──► AST Analyzer         (Tree-Sitter: Python, JavaScript, Java, Kotlin)
+    ├──► Taint-Flow Tracker   (intra-file source→sink, 11 languages)
     ├──► Secret Detector      (regex + Shannon entropy + base64/hex decode)
     ├──► Dependency Scanner   (OSV API + osv-scanner CLI)
     ├──► Container Scanner    (Dockerfile + K8s + Trivy)
@@ -54,18 +59,18 @@ Aggregated Raw Findings
     ▼
 AI Validation Layer (optional)
     │
-    ├──► Chain-of-Thought Validator  (per-finding taint analysis)
+    ├──► Chain-of-Thought Validator  (per-finding analysis + Exploit PoC + Fixed Code)
     ├──► AI Discovery Engine         (sliding-window vulnerability hunt)
-    ├──► Judge Engine                (multi-report consensus & dedup)
+    ├──► Judge Engine                (multi-report consensus & dedup; configurable separate model)
     ├──► Confidence Calibrator       (historical accuracy weighting)
-    └──► ML FP Reducer               (similarity-based historical filter)
+    └──► FP Reducer                  (frequency-based historical filter via local feedback cache)
     │
     ▼
 Final Report
-    ├──► React Dashboard  (WebSocket real-time, Dark/Light mode)
+    ├──► React Dashboard  (WebSocket real-time, Dark/Light mode, Pause/Resume, bulk triage)
     ├──► SARIF            (GitHub Security Tab, GitLab, Azure DevOps)
-    ├──► HTML / PDF / CSV
-    └──► SQLite           (scan history, per-finding triage status)
+    ├──► HTML / PDF / CSV (Trust Score, Priority Matrix P0–P3, Exploit PoC, Fixed Code)
+    └──► SQLite           (scan history, per-finding triage status, ensemble phase storage)
 ```
 
 ---
@@ -174,6 +179,23 @@ SentryQ auto-loads all rules on startup and on every scan, filtered to the langu
 
 ---
 
+## 🔧 Additional Capabilities
+
+| Capability | Details |
+| :--- | :--- |
+| **Scan Pause / Resume** | Pause a running scan between phases and resume later; state persisted to DB |
+| **Bulk Triage** | Multi-select findings in the dashboard and set status in one action |
+| **Rule Builder** | In-browser YAML rule editor with live regex test pane — no file system access needed |
+| **Trust Score** | Per-finding composite score (0–100): base confidence + engine corroboration bonus + AI validation bonus |
+| **Priority Matrix** | P0 (critical/high reachable) → P3 (low) remediation tiers surfaced in HTML and PDF reports |
+| **Exploit PoC & Fixed Code** | AI validator generates a working proof-of-concept and a corrected code snippet per finding |
+| **FP Feedback Loop** | Triage decisions (false_positive / resolved) are stored locally at `~/.sentryq/ml-cache/` and used to suppress recurring false positives in future scans |
+| **Multi-Phase Ensemble Storage** | All three ensemble phases (static / ai / final) are stored independently in SQLite and viewable separately in the ReportViewer |
+| **Git URL scanning** | Paste a public or private Git URL in the UI; SentryQ clones, scans, and cleans up automatically |
+| **Report auto-cleanup** | Generated report files (HTML, PDF, CSV, SARIF) are automatically deleted 48 hours after scan completion |
+
+---
+
 ## ⚙️ CI/CD Integration (GitHub Actions)
 
 ```yaml
@@ -213,7 +235,9 @@ jobs:
 ## 🔍 Scan Modes
 
 ### Standard Mode
-Runs all always-on engines (pattern, AST, taint, secret detection). Enable **Deep Scan** to add dependency auditing, Semgrep, supply chain checks, container scanning, and MITRE enrichment. Enable **AI** to add Chain-of-Thought validation and AI discovery.
+Runs all always-on engines (pattern, AST, taint, secret detection, FP suppression, reachability). Enable **Deep Scan** to add dependency auditing, Semgrep, supply chain / typosquatting checks, container scanning, and MITRE ATT&CK enrichment. Enable **AI** to add Chain-of-Thought validation (with Exploit PoC + Fixed Code generation), AI discovery, Judge LLM consolidation, and confidence calibration.
+
+> **Note:** AST analysis covers Python, JavaScript, Java, and Kotlin. Taint tracking is intra-file across 11 languages. Browser notifications fire on scan completion.
 
 ### Ensemble Audit Mode
 Three-phase high-assurance pipeline for maximum accuracy:
@@ -231,11 +255,12 @@ Three-phase high-assurance pipeline for maximum accuracy:
 | Area | Location |
 | :--- | :--- |
 | Core scanner engines | `scanner/` |
-| AI validation & triage | `ai/` |
+| AI validation, judge, calibration | `ai/` |
 | API server & scan orchestration | `cmd/scanner/` |
 | Frontend UI | `web/src/` |
-| Report generators | `reporter/` |
-| Detection rules | `rules/` |
+| Report generators (SARIF, HTML, PDF, CSV) | `reporter/` |
+| Detection rules (67 languages + 15 framework files) | `rules/` |
+| Rule loader (YAML parsing) | `config/` |
 
 **Frontend dev server:**
 ```bash

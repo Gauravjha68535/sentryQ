@@ -1,0 +1,214 @@
+# Server-Side Request Forgery (SSRF) Rules
+# Detects patterns where user-controlled input reaches HTTP/network request functions
+# Reference: OWASP A10:2021 - SSRF, CWE-918
+
+# ======================== Python ========================
+
+- id: ssrf-python-requests-user-input
+  languages: [python]
+  patterns:
+    - regex: 'requests\.(get|post|put|delete|patch|head|options|request)\s*\(\s*(?:url\s*=\s*)?\w*(request|req|user|input|param|data|body|host|target|url|endpoint)\w*'
+    - regex: 'requests\.(get|post|put|delete|patch)\s*\(\s*f[''"]'
+    - regex: 'requests\.(get|post|put|delete|patch)\s*\(\s*[''"][^''"].*\+\s*\w'
+  severity: high
+  description: "HTTP request made with potentially user-controlled URL — SSRF risk. An attacker can redirect requests to internal services (AWS metadata, localhost, internal APIs)."
+  remediation: "Validate URLs against an allowlist of permitted hosts/schemes. Reject private IP ranges (169.254.x.x, 10.x.x.x, 172.16-31.x.x, 192.168.x.x). Use urllib.parse to parse and validate before requesting."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-python-urllib-user-input
+  languages: [python]
+  patterns:
+    - regex: 'urllib\.request\.urlopen\s*\(\s*\w*(request|req|user|input|param|url|host|target)\w*'
+    - regex: 'urllib\.request\.urlopen\s*\(\s*f[''"]'
+    - regex: 'urllib2\.urlopen\s*\(\s*\w*(url|request|host)'
+  severity: high
+  description: "urllib.request.urlopen with user-controlled URL — SSRF risk."
+  remediation: "Parse URL with urllib.parse.urlparse, validate scheme is http/https only, and validate host against an explicit allowlist."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-python-httpx-user-input
+  languages: [python]
+  patterns:
+    - regex: 'httpx\.(get|post|put|delete|patch|request)\s*\(\s*\w*(url|request|host|target|endpoint)'
+    - regex: 'httpx\.(AsyncClient|Client)\s*\(\s*\)'
+  severity: medium
+  description: "httpx HTTP client used — verify URL inputs are validated against an allowlist."
+  remediation: "Validate the URL before passing to httpx. Restrict to approved domains and reject private IP ranges."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+# ======================== Node.js / JavaScript ========================
+
+- id: ssrf-node-http-user-input
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'http\.request\s*\(\s*(?:url|req\.|request\.|params\.|query\.)'
+    - regex: 'https\.request\s*\(\s*(?:url|req\.|request\.|params\.|query\.)'
+    - regex: 'http\.get\s*\(\s*(?:req\.|request\.|params\.|query\.)'
+  severity: high
+  description: "Node.js http.request/https.request with user-controlled input — SSRF risk."
+  remediation: "Validate target URL against an allowlist. Use a URL parser to extract and check the hostname before making the request."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-node-axios-user-input
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'axios\.(get|post|put|delete|patch|request)\s*\(\s*(?:req\.|request\.|params\.|query\.|`)'
+    - regex: 'axios\.(get|post|put|delete|patch)\s*\(\s*\w*[Uu]rl\w*'
+    - regex: 'axios\.(get|post)\s*\(\s*\$\{'
+  severity: high
+  description: "axios HTTP call with potentially user-controlled URL — SSRF risk."
+  remediation: "Validate URL with URL() constructor, check hostname against an allowlist, and reject private/loopback addresses."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-node-fetch-user-input
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'fetch\s*\(\s*(?:req\.|request\.|params\.|query\.|`\$\{)'
+    - regex: 'fetch\s*\(\s*\w*[Uu]rl\w*'
+    - regex: 'node-fetch.*fetch\s*\(\s*\w*[Uu]rl'
+  severity: high
+  description: "fetch() with potentially user-controlled URL — SSRF risk."
+  remediation: "Parse URL with new URL(input), validate hostname against allowlist, and block private IP ranges before calling fetch()."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+# ======================== Java ========================
+
+- id: ssrf-java-url-open-connection
+  languages: [java]
+  patterns:
+    - regex: 'new\s+URL\s*\(\s*(?:request\.|req\.|param|url|host|target)'
+    - regex: '\.openConnection\s*\(\s*\)'
+    - regex: 'new\s+URL\s*\(\s*\w+\s*\)\.openStream'
+  severity: high
+  description: "java.net.URL with user-controlled input followed by openConnection/openStream — SSRF risk."
+  remediation: "Validate the URL against an allowlist of permitted hosts. Use URI.create() to parse, then check getHost() against approved domains."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-java-httpclient-user-input
+  languages: [java]
+  patterns:
+    - regex: 'HttpClient\.newHttpClient\s*\(\s*\)'
+    - regex: 'HttpRequest\.newBuilder\s*\(\s*\)'
+    - regex: 'CloseableHttpClient\s+\w+\s*='
+  severity: medium
+  description: "Java HTTP client usage — ensure URL inputs are validated against an allowlist."
+  remediation: "Before sending requests, parse the URI and check the host against an explicit allowlist of permitted domains."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-java-resttemplate-user-input
+  languages: [java]
+  patterns:
+    - regex: 'restTemplate\.(getForObject|getForEntity|postForObject|postForEntity|exchange)\s*\(\s*\w*(url|uri|endpoint|host)'
+    - regex: 'RestTemplate\s*\(\s*\)\.(?:getForObject|exchange)'
+  severity: high
+  description: "Spring RestTemplate with potentially user-controlled URL — SSRF risk."
+  remediation: "Validate the URL against an allowlist before passing to RestTemplate. Use URI templates with explicit base URLs rather than concatenating user input."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-java-webclient-user-input
+  languages: [java]
+  patterns:
+    - regex: 'WebClient\.create\s*\(\s*\w*(url|uri|host|endpoint)'
+    - regex: '\.uri\s*\(\s*\w*(url|uri|endpoint|host|input|param)'
+  severity: high
+  description: "Spring WebClient with potentially user-controlled URI — SSRF risk."
+  remediation: "Set a fixed base URL via WebClient.create(\"https://fixed-host.com\") and never concatenate user input into the URI."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+# ======================== Go ========================
+
+- id: ssrf-go-http-get-user-input
+  languages: [go]
+  patterns:
+    - regex: 'http\.Get\s*\(\s*(?:r\.|req\.|url|host|target|endpoint)'
+    - regex: 'http\.Post\s*\(\s*(?:r\.|req\.|url|host|target|endpoint)'
+    - regex: 'http\.Do\s*\(\s*\w*[Rr]eq'
+  severity: high
+  description: "Go net/http request with potentially user-controlled URL — SSRF risk."
+  remediation: "Parse the URL with url.Parse(), verify the scheme is http/https, and check the Host against an allowlist before making the request."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-go-http-newrequest-user-input
+  languages: [go]
+  patterns:
+    - regex: 'http\.NewRequest\s*\(\s*\w+\s*,\s*(?:r\.|req\.|url|host|target|endpoint|fmt\.Sprintf)'
+    - regex: 'http\.NewRequestWithContext\s*\(\s*\w+\s*,\s*\w+\s*,\s*(?:r\.|req\.|url|host|fmt\.Sprintf)'
+  severity: high
+  description: "http.NewRequest with potentially user-controlled URL — SSRF risk."
+  remediation: "Validate the URL before passing to http.NewRequest. Use url.Parse to extract and allowlist the host."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+# ======================== PHP ========================
+
+- id: ssrf-php-curl-user-input
+  languages: [php]
+  patterns:
+    - regex: 'curl_setopt\s*\(\s*\$\w+\s*,\s*CURLOPT_URL\s*,\s*\$_(GET|POST|REQUEST|COOKIE)'
+    - regex: 'curl_setopt\s*\(\s*\$\w+\s*,\s*CURLOPT_URL\s*,\s*\$\w*(url|host|target|endpoint|input)'
+  severity: critical
+  description: "cURL CURLOPT_URL set from user-controlled input — SSRF risk. Can reach internal services, AWS metadata endpoint, etc."
+  remediation: "Parse the URL with parse_url(), validate the host against an allowlist of permitted domains, and block private IP ranges."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-php-file-get-contents-url
+  languages: [php]
+  patterns:
+    - regex: 'file_get_contents\s*\(\s*\$_(GET|POST|REQUEST|COOKIE)'
+    - regex: 'file_get_contents\s*\(\s*\$\w*(url|host|target|endpoint|input|param)'
+  severity: critical
+  description: "file_get_contents with user-controlled URL can be used for SSRF to access internal resources."
+  remediation: "Only use file_get_contents with static, hardcoded paths or URLs. For dynamic URLs, use cURL with validated, allowlisted hosts only."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+# ======================== Ruby ========================
+
+- id: ssrf-ruby-net-http-user-input
+  languages: [ruby]
+  patterns:
+    - regex: 'Net::HTTP\.get\s*\(\s*(?:params|request|URI\.parse|url|host)'
+    - regex: 'Net::HTTP\.start\s*\(\s*(?:params|request|url|host)'
+    - regex: 'URI\.open\s*\(\s*(?:params|request|url|host)'
+  severity: high
+  description: "Ruby Net::HTTP with potentially user-controlled URL — SSRF risk."
+  remediation: "Parse the URI, validate the host against an allowlist, and restrict schemes to http/https before making the request."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+- id: ssrf-ruby-open-uri-user-input
+  languages: [ruby]
+  patterns:
+    - regex: 'open\s*\(\s*(?:params|request|url|host|\$\{)'
+    - regex: 'Kernel\.open\s*\(\s*(?:params|request|url)'
+  severity: critical
+  description: "Kernel#open with user input can open arbitrary URIs or even execute shell commands (via '|cmd' prefix)."
+  remediation: "Never use Kernel#open or open-uri with untrusted input. Use URI.open with explicit URI validation, or use Net::HTTP directly."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+
+# ======================== Generic Cloud Metadata ========================
+
+- id: ssrf-cloud-metadata-hardcoded
+  languages: [javascript, typescript, python, java, go, ruby, php, csharp]
+  patterns:
+    - regex: '169\.254\.169\.254'
+    - regex: 'metadata\.google\.internal'
+    - regex: 'fd00:ec2::254'
+  severity: critical
+  description: "Cloud instance metadata endpoint hardcoded — SSRF targeting this URL can leak IAM credentials, instance identity, and configuration."
+  remediation: "Remove hardcoded metadata endpoints. If legitimately needed (e.g., fetching instance ID at startup), use IMDSv2 (AWS) which requires a PUT token, and restrict from untrusted user input paths."
+  cwe: "CWE-918"
+  owasp: "A10:2021"

@@ -1,0 +1,164 @@
+- id: cache-poisoning-x-forwarded-host
+  patterns:
+  - regex: '(?i)X-Forwarded-Host'
+  severity: high
+  description: "X-Forwarded-Host header is referenced in application logic. Attackers can supply a malicious host value that gets cached and served to other users, enabling cache poisoning to redirect traffic or inject content."
+  remediation: "Do not use X-Forwarded-Host to construct absolute URLs or cache keys without strict validation against an allowlist of known hosts. Configure the load balancer to strip and set this header rather than trusting client input."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.7
+
+- id: cache-poisoning-unkeyed-header
+  patterns:
+  - regex: '(?i)(?:X-Forwarded-Proto|X-Original-URL|X-Rewrite-URL|X-Override-URL)\s*:'
+  - regex: '(?i)req\.headers\[["''](?:x-forwarded-proto|x-original-url|x-rewrite-url|x-override-url)["'']\]'
+  severity: high
+  description: "Headers commonly excluded from cache keys (X-Forwarded-Proto, X-Original-URL, X-Rewrite-URL, X-Override-URL) are referenced in request handling. Responses influenced by these unkeyed headers may be cached and served to other users."
+  remediation: "Ensure these headers are included in cache key configuration or strip them at the CDN/proxy layer. Never route or rewrite based on these headers without including them in the cache key."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: cache-poisoning-vary-missing
+  patterns:
+  - regex: '(?i)Cache-Control[^:]*:?[^''"\n]*public'
+  severity: medium
+  description: "Response is marked as publicly cacheable. If the response content varies by request headers (e.g., Accept-Language, User-Agent) but a Vary header is absent, different users may receive each other's responses."
+  remediation: "Add a Vary header listing all request headers that influence the response content. Use Vary: Accept-Encoding, Accept-Language at minimum. Audit what headers affect the response and include them in the Vary header or cache key."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.4
+
+- id: cache-poisoning-fat-get
+  patterns:
+  - regex: '(?i)method\s*[=:]\s*["'']GET["''][^}]*body\s*[=:]\s*'
+  - regex: '(?i)fetch\s*\([^)]*method\s*:\s*["'']GET["''][^)]*body\s*:'
+  severity: medium
+  description: "A GET or HEAD request is constructed with a body. Some caches ignore or strip request bodies, causing body-dependent responses to be cached under a key that ignores the body, poisoning the cache for all users."
+  remediation: "Do not include bodies in GET or HEAD requests. Use POST for requests that require a body. Verify that your CDN and reverse proxy correctly handle or reject GET requests with bodies."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.65
+
+- id: cache-poisoning-reflected-header
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)res\.setHeader\s*\([^)]*req\.headers'
+  - regex: '(?i)res\.set\s*\([^)]*req\.headers'
+  - regex: '(?i)response\.setHeader\s*\([^)]*request\.headers'
+  severity: high
+  description: "A request header value is being directly reflected into a response header. If this response is cached, the attacker-controlled value persists and is served to subsequent users."
+  remediation: "Never reflect request header values into response headers without strict validation and sanitization. If a value must be echoed (e.g., for CORS), validate it against an explicit allowlist before setting it."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: cache-poisoning-user-agent-reflected
+  patterns:
+  - regex: '(?i)User-Agent[^''"\n]*cache'
+  - regex: '(?i)cache[^''"\n]*User-Agent'
+  severity: medium
+  description: "The User-Agent header appears to be used in cache key or cached response logic. User-Agent is often excluded from cache keys, making User-Agent-dependent responses susceptible to cache poisoning."
+  remediation: "Include User-Agent in the Vary header if responses differ by it, or normalize User-Agent to a small set of categories before using it in cache key decisions. Do not reflect the raw User-Agent value in cached responses."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.5
+
+- id: cache-poisoning-cookie-in-cache
+  patterns:
+  - regex: '(?i)Cache-Control[^''"\n]*public[^''"\n]*Set-Cookie'
+  - regex: '(?i)Set-Cookie[^''"\n]*Cache-Control[^''"\n]*public'
+  severity: high
+  description: "A response sets cookies and is also marked as publicly cacheable. Publicly cached responses with Set-Cookie headers cause session cookies to be served to the wrong user."
+  remediation: "Never combine Set-Cookie with Cache-Control: public. Authenticated or session responses must use Cache-Control: private, no-store, or no-cache. Ensure CDN/proxy configurations strip Set-Cookie from publicly cached responses."
+  cwe: "CWE-444"
+  owasp: "A02:2021"
+  confidence: 0.85
+
+- id: cache-poisoning-cdn-s3-public
+  patterns:
+  - regex: '(?i)s3[^''"\n]*acl[^''"\n]*public.read'
+  - regex: '(?i)public.read[^''"\n]*s3'
+  - regex: '(?i)"ACL"\s*:\s*"public-read"'
+  - regex: "(?i)'ACL'\\s*:\\s*'public-read'"
+  severity: medium
+  description: "An S3 bucket or object is configured with public-read ACL. Publicly writable storage used as a CDN origin can allow attackers to replace cached assets and serve malicious content."
+  remediation: "Restrict S3 bucket ACLs to private. Use CloudFront signed URLs or bucket policies to grant read access only to the CDN origin identity. Enable S3 Block Public Access at the account level."
+  cwe: "CWE-284"
+  owasp: "A01:2021"
+  confidence: 0.7
+
+- id: cache-poisoning-response-splitting
+  patterns:
+  - regex: '(?i)(?:Location|Content-Type|Set-Cookie)[^''"\n]*(?:\\r\\n|\\n|%0d%0a|%0a)'
+  - regex: '(?i)header\s*\([^)]*(?:%0d%0a|%0a|\\r\\n)'
+  severity: critical
+  description: "HTTP response splitting: CR/LF characters appear in a header value. An attacker who controls part of a response header can inject additional HTTP headers or a second HTTP response, enabling cache poisoning, XSS, or session fixation."
+  remediation: "Reject or strip CR (\\r, %0d) and LF (\\n, %0a) characters from all user-supplied values before writing them into HTTP response headers. Use framework-level header APIs that sanitize header values automatically."
+  cwe: "CWE-113"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: cache-poisoning-pragma-no-cache-bypass
+  patterns:
+  - regex: '(?i)Pragma\s*:\s*no-cache'
+  severity: low
+  description: "Pragma: no-cache is used as a cache directive. This legacy header is not reliably honored by modern CDNs and proxies. Responses that rely on it for cache bypass may still be cached and served stale."
+  remediation: "Use Cache-Control: no-cache, no-store, must-revalidate alongside Pragma: no-cache for backwards compatibility. Verify that your CDN correctly honors Cache-Control directives."
+  cwe: "CWE-444"
+  owasp: "A05:2021"
+  confidence: 0.4
+
+- id: cache-poisoning-host-header-injection
+  patterns:
+  - regex: '(?i)req\.headers\[["'']host["'']\]'
+  - regex: '(?i)request\.META\[["'']HTTP_HOST["'']\]'
+  - regex: '(?i)\$_SERVER\[["'']HTTP_HOST["'']\]'
+  severity: high
+  description: "The HTTP Host header is used directly in application logic, URL construction, or redirects. If the response is cached, an attacker-controlled Host header value can be served to all subsequent users."
+  remediation: "Use a configured server_name or application base URL rather than trusting the Host header. If the Host must be used, validate it against a strict allowlist of known domains before including it in any cached response."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: cache-poisoning-unkeyed-port
+  patterns:
+  - regex: '(?i)X-Forwarded-Port'
+  severity: high
+  description: "X-Forwarded-Port header is referenced in application logic but is often unkeyed in caches. Attackers can smuggle port definitions to bypass access controls or poison redirects."
+  remediation: "Ensure X-Forwarded-Port is included in the cache key or stripped securely at the edge."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: cache-poisoning-unkeyed-scheme
+  patterns:
+  - regex: '(?i)X-Forwarded-Scheme'
+  severity: high
+  description: "X-Forwarded-Scheme header is in use. Manipulating this unkeyed header can force the application to generate HTTP instead of HTTPS links, poisoning the cache with insecure URLs."
+  remediation: "Include scheme headers in your cache key, or hardcode absolute HTTPS URLs for generation."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: cache-poisoning-wcd-path
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+  - regex: '(?i)app\.(?:get|use)\s*\(\s*["'']\/\w+\.(?:css|js|png|jpg|gif)["'']'
+  severity: critical
+  description: "Web Cache Deception marker: A dynamic route is statically masking as a static asset extension (e.g., .css). Attackers can append .css to an authenticated dynamic route to trick the CDN into caching private data."
+  remediation: "Configure CDN caching strictly on Content-Type and exact directory paths, rather than relying on URL extensions. Never serve authenticated dynamic data on routes that look like static assets."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: cache-poisoning-param-cloaking
+  languages: [ruby, python, javascript]
+  patterns:
+  - regex: '(?i)Rack::Utils\.parse_nested_query'
+  severity: medium
+  description: "Use of parameter parsing functions that might cloak cache keys (e.g., treating ';' as a delimiter when the cache only respects '&'). Parameter cloaking causes severe cache-key collisions."
+  remediation: "Normalize query string parsing at both the edge CDN and the application tier so they interpret parameter delimiters identically."
+  cwe: "CWE-444"
+  owasp: "A03:2021"
+  confidence: 0.60

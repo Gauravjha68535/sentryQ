@@ -1,10 +1,10 @@
 package scanner
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -83,19 +83,11 @@ func scanDependenciesFallback(ctx context.Context, targetDir string) ([]reporter
 	dependencies := collectDependencies(targetDir)
 	utils.LogInfo(fmt.Sprintf("Found %d dependencies to scan (Manual Fallback)", len(dependencies)))
 
-	// Query OSV API for each dependency
+	// Query OSV API using batched requests to minimise round-trips.
+	// Fall back to individual queries for any batch that fails.
 	analyzer := NewASTAnalyzer()
 
-	for _, dep := range dependencies {
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-		vulns, err := queryOSV(ctx, dep)
-		if err != nil {
-			utils.LogWarn(fmt.Sprintf("Failed to query OSV for %s: %v", dep.Name, err))
-			continue
-		}
-
+	processDep := func(dep Dependency, vulns []OSVVulnerability) {
 		for _, vuln := range vulns {
 			severity := mapOSVSeverity(vuln.Severity)
 			fixedVersion := getFixedVersion(vuln, dep.Ecosystem)
@@ -110,7 +102,6 @@ func scanDependenciesFallback(ctx context.Context, targetDir string) ([]reporter
 
 			description := fmt.Sprintf("Vulnerable dependency: %s@%s - %s", dep.Name, dep.Version, summary)
 
-			// Reachability Analysis
 			isReachable := analyzer.IsFunctionReachable(targetDir, dep.Name)
 			issueName := fmt.Sprintf("CVE: %s - %s", vuln.ID, dep.Name)
 
@@ -122,6 +113,11 @@ func scanDependenciesFallback(ctx context.Context, targetDir string) ([]reporter
 				description += "\n\nREACHABILITY: Verified active usage of this library in the source code."
 			}
 
+			rem := fmt.Sprintf("Update %s to version %s or later. Details: %s", dep.Name, fixedVersion, vuln.Details)
+			if fixedVersion == "unknown" {
+				rem = fmt.Sprintf("No fixed version available for %s yet. Monitor the advisory for updates. Details: %s", dep.Name, vuln.Details)
+			}
+
 			findings = append(findings, reporter.Finding{
 				SrNo:        srNo,
 				IssueName:   issueName,
@@ -130,16 +126,49 @@ func scanDependenciesFallback(ctx context.Context, targetDir string) ([]reporter
 				Severity:    severity,
 				LineNumber:  fmt.Sprintf("%d", dep.LineNumber),
 				AiValidated: "No",
-				Remediation: func() string {
-						if fixedVersion == "unknown" {
-							return fmt.Sprintf("No fixed version available for %s yet. Monitor the advisory for updates. Details: %s", dep.Name, vuln.Details)
-						}
-						return fmt.Sprintf("Update %s to version %s or later. Details: %s", dep.Name, fixedVersion, vuln.Details)
-					}(),
+				Remediation: rem,
 				RuleID:      vuln.ID,
 				Source:      "osv",
 			})
 			srNo++
+		}
+	}
+
+	for batchStart := 0; batchStart < len(dependencies); batchStart += osvBatchSize {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
+		end := batchStart + osvBatchSize
+		if end > len(dependencies) {
+			end = len(dependencies)
+		}
+		batch := dependencies[batchStart:end]
+
+		batchVulns, err := queryOSVBatch(ctx, batch)
+		if err != nil {
+			// Batch failed — fall back to individual queries for this slice.
+			utils.LogWarn(fmt.Sprintf("OSV batch query failed (%v), falling back to individual queries for %d deps", err, len(batch)))
+			for _, dep := range batch {
+				if ctx.Err() != nil {
+					return nil, ctx.Err()
+				}
+				vulns, qErr := queryOSV(ctx, dep)
+				if qErr != nil {
+					utils.LogWarn(fmt.Sprintf("Failed to query OSV for %s: %v", dep.Name, qErr))
+					continue
+				}
+				processDep(dep, vulns)
+			}
+			continue
+		}
+
+		for i, dep := range batch {
+			if i >= len(batchVulns) {
+				// API returned fewer results than we sent — process remaining deps as having no vulns.
+				break
+			}
+			processDep(dep, batchVulns[i])
 		}
 	}
 
@@ -197,8 +226,86 @@ func collectDependencies(targetDir string) []Dependency {
 	return deps
 }
 
-// osvHTTPClient is shared across all queryOSV calls to reuse TCP connections.
-var osvHTTPClient = &http.Client{Timeout: 30 * time.Second}
+// osvHTTPClient is shared across all OSV calls to reuse TCP connections.
+var osvHTTPClient = &http.Client{
+	Timeout: 30 * time.Second,
+	Transport: &http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 20,
+		IdleConnTimeout:     90 * time.Second,
+	},
+}
+
+// osvBatchSize is the maximum number of packages sent in a single /v1/querybatch call.
+// The OSV API does not publish a hard cap; 100 is a safe conservative batch size.
+const osvBatchSize = 100
+
+// osvBatchResponse is the envelope returned by the OSV /v1/querybatch endpoint.
+type osvBatchResponse struct {
+	Results []struct {
+		Vulns []OSVVulnerability `json:"vulns"`
+	} `json:"results"`
+}
+
+// queryOSVBatch queries the OSV /v1/querybatch endpoint for multiple packages in
+// one HTTP round-trip, returning a slice of vulnerability lists that aligns
+// 1-to-1 with the input deps slice.  Falls back to empty results on any error
+// so the caller can gracefully degrade to individual queryOSV calls.
+func queryOSVBatch(ctx context.Context, deps []Dependency) ([][]OSVVulnerability, error) {
+	type pkgQuery struct {
+		Package struct {
+			Name      string `json:"name"`
+			Ecosystem string `json:"ecosystem"`
+		} `json:"package"`
+		Version string `json:"version"`
+	}
+	type batchReq struct {
+		Queries []pkgQuery `json:"queries"`
+	}
+
+	req := batchReq{Queries: make([]pkgQuery, len(deps))}
+	for i, d := range deps {
+		req.Queries[i].Package.Name = d.Name
+		req.Queries[i].Package.Ecosystem = d.Ecosystem
+		req.Queries[i].Version = d.Version
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST",
+		"https://api.osv.dev/v1/querybatch", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := osvHTTPClient.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("OSV batch API returned status %d", resp.StatusCode)
+	}
+
+	var batchResp osvBatchResponse
+	if err := json.NewDecoder(resp.Body).Decode(&batchResp); err != nil {
+		return nil, err
+	}
+
+	out := make([][]OSVVulnerability, len(deps))
+	for i, r := range batchResp.Results {
+		if i >= len(out) {
+			break
+		}
+		out[i] = r.Vulns
+	}
+	return out, nil
+}
 
 // queryOSV queries the OSV API for vulnerabilities, with exponential backoff on 429/5xx.
 func queryOSV(ctx context.Context, dep Dependency) ([]OSVVulnerability, error) {
@@ -239,7 +346,7 @@ func queryOSV(ctx context.Context, dep Dependency) ([]OSVVulnerability, error) {
 			}
 			// Exponential backoff: 1s, 2s, 4s ± up to 500ms jitter
 			backoff := time.Duration(1<<uint(attempt))*time.Second +
-				time.Duration(rand.Int63n(int64(500*time.Millisecond)))
+				time.Duration(time.Now().UnixNano()%int64(500*time.Millisecond))
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
@@ -248,14 +355,16 @@ func queryOSV(ctx context.Context, dep Dependency) ([]OSVVulnerability, error) {
 			continue
 		}
 
-		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
 			return nil, fmt.Errorf("OSV API returned status %d", resp.StatusCode)
 		}
 
 		var osvResp OSVResponse
-		if err := json.NewDecoder(resp.Body).Decode(&osvResp); err != nil {
-			return nil, err
+		decodeErr := json.NewDecoder(resp.Body).Decode(&osvResp)
+		resp.Body.Close() // close immediately — not deferred so it doesn't accumulate in retry loops
+		if decodeErr != nil {
+			return nil, decodeErr
 		}
 		return osvResp.Vulns, nil
 	}

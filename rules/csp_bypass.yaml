@@ -1,0 +1,164 @@
+- id: csp-unsafe-inline
+  patterns:
+  - regex: '(?i)Content-Security-Policy[^:]*:?[^''"\n]*unsafe-inline'
+  severity: high
+  description: "Content Security Policy includes 'unsafe-inline', which permits inline scripts and styles. This nullifies CSP's protection against XSS attacks that inject inline script payloads."
+  remediation: "Remove 'unsafe-inline' from the CSP. Refactor inline scripts to external files and use a cryptographic nonce (nonce-<random>) or hash (sha256-<hash>) for any inline scripts that cannot be moved."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: csp-unsafe-eval
+  patterns:
+  - regex: '(?i)Content-Security-Policy[^:]*:?[^''"\n]*unsafe-eval'
+  severity: high
+  description: "Content Security Policy includes 'unsafe-eval', which permits eval(), setTimeout(string), setInterval(string), and new Function(). This allows XSS payloads that use these APIs to execute."
+  remediation: "Remove 'unsafe-eval' from the CSP. Refactor code that uses eval(), new Function(), or string-based setTimeout/setInterval. If third-party scripts require eval, scope 'unsafe-eval' to a separate sandbox domain."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: csp-wildcard-source
+  patterns:
+  - regex: '(?i)Content-Security-Policy[^:]*:?[^''"\n]*script-src\s+\*'
+  - regex: '(?i)Content-Security-Policy[^:]*:?[^''"\n]*default-src\s+\*'
+  severity: critical
+  description: "CSP script-src or default-src uses a wildcard (*), which allows scripts to be loaded from any origin. This completely negates XSS protection as attackers can load scripts from their own domains."
+  remediation: "Replace the wildcard with an explicit list of trusted script origins. Use 'strict-dynamic' with nonces for modern browsers to avoid maintaining a large allowlist."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: csp-missing-default-src
+  patterns:
+  - regex: '(?i)Content-Security-Policy(?![^''"\n]*default-src)'
+  severity: medium
+  description: "A Content Security Policy is defined but does not include a 'default-src' directive. Without default-src, resource types not covered by other directives fall back to loading from any origin."
+  remediation: "Add 'default-src' as a fallback directive in every CSP. A safe starting baseline is: default-src 'none'; script-src 'self'; ... Add specific directives for each resource type your application requires."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.4
+
+- id: csp-data-uri-script
+  patterns:
+  - regex: '(?i)script-src[^;''"\n]*data:'
+  - regex: '(?i)default-src[^;''"\n]*data:'
+  severity: high
+  description: "CSP permits 'data:' URIs in script-src. Attackers can inject payloads via data: URIs (e.g., <script src=\"data:text/javascript,...\">) to bypass CSP and execute arbitrary JavaScript."
+  remediation: "Remove 'data:' from script-src. If data URIs are needed for images or fonts, scope them to the specific directive (img-src data:, font-src data:) and keep them out of script-src entirely."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: csp-http-in-csp
+  patterns:
+  - regex: '(?i)Content-Security-Policy[^:]*:?[^''"\n]*http://'
+  severity: medium
+  description: "CSP policy contains an http:// source. Scripts or resources loaded over plain HTTP can be intercepted and replaced by a network attacker, undermining the security guarantee of the CSP."
+  remediation: "Replace all http:// sources in the CSP with https:// equivalents. Use the 'upgrade-insecure-requests' directive to automatically upgrade HTTP subrequests to HTTPS."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.85
+
+- id: csp-nonce-hardcoded
+  patterns:
+  - regex: '(?i)nonce-[A-Za-z0-9+/=]{8,}'
+  severity: high
+  description: "A hardcoded nonce value is used in the CSP. CSP nonces must be randomly generated per-response — a static nonce is equivalent to no nonce at all, since attackers can reuse it in injected scripts."
+  remediation: "Generate a cryptographically random nonce (at least 128 bits) for every HTTP response. Use a secure random generator (e.g., crypto.randomBytes in Node.js, secrets module in Python). Never hardcode or reuse nonces."
+  cwe: "CWE-330"
+  owasp: "A05:2021"
+  confidence: 0.85
+
+- id: csp-helmet-disabled
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)contentSecurityPolicy\s*:\s*false'
+  - regex: '(?i)helmet\s*\(\s*\{\s*contentSecurityPolicy\s*:\s*false'
+  severity: high
+  description: "Helmet's Content Security Policy middleware is explicitly disabled. The application will not send a Content-Security-Policy header, leaving it fully exposed to XSS attacks."
+  remediation: "Remove contentSecurityPolicy: false from the Helmet configuration. Configure a CSP policy using helmet.contentSecurityPolicy({ directives: { ... } }) appropriate for your application's requirements."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: csp-meta-tag-csp
+  patterns:
+  - regex: '<meta[^>]*http-equiv\s*=\s*["'']Content-Security-Policy'
+  severity: low
+  description: "CSP is delivered via an HTML <meta> tag. Meta-delivered CSP does not protect against network-level injection before the HTML is parsed and does not support some directives (e.g., frame-ancestors, sandbox, report-uri)."
+  remediation: "Deliver the Content-Security-Policy via an HTTP response header instead of a meta tag. HTTP headers are enforced earlier in the browser's parsing pipeline and support the full range of CSP directives."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.8
+
+- id: csp-report-only-only
+  patterns:
+  - regex: 'Content-Security-Policy-Report-Only'
+  severity: low
+  description: "Content-Security-Policy-Report-Only is set. The Report-Only header does not enforce the policy — it only reports violations. If no enforcing Content-Security-Policy header is also present, there is no active XSS protection."
+  remediation: "Use Content-Security-Policy-Report-Only during the policy development phase only. Once the policy is validated (no legitimate violations), switch to the enforcing Content-Security-Policy header."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.35
+
+- id: csp-iframe-allow-scripts-same-origin
+  patterns:
+  - regex: '(?i)allow\s*=\s*["''][^"'']*allow-scripts[^"'']*allow-same-origin'
+  - regex: '(?i)sandbox\s*=\s*["''][^"'']*allow-scripts[^"'']*allow-same-origin'
+  severity: high
+  description: "An iframe sandbox attribute combines 'allow-scripts' and 'allow-same-origin'. This combination negates the sandbox entirely — sandboxed scripts can access the same-origin parent page and remove the sandbox attribute."
+  remediation: "Never combine allow-scripts with allow-same-origin in the same sandbox attribute. Grant only the minimum set of permissions the iframe requires. If same-origin access is needed, remove the sandbox entirely and rely on CSP frame-ancestors instead."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: csp-object-src-missing
+  patterns:
+  - regex: '(?i)Content-Security-Policy(?![^''"\n]*object-src)(?![^''"\n]*default-src\s+[''"]none[''"])'
+  severity: medium
+  description: "CSP does not define an object-src directive. Without object-src, browsers may allow plugins such as Flash or Java applets to execute, which can bypass script-src restrictions."
+  remediation: "Add 'object-src: none' to your CSP to block all plugin execution. This is the recommended setting for modern web applications that do not use browser plugins."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.4
+
+- id: csp-jsonp-callback-bypass
+  patterns:
+  - regex: '(?i)script-src[^;''"\n]*(?:api\.github\.com|accounts\.google\.com|www\.google\.com)'
+  severity: high
+  description: "The script-src directive explicitly allows known JSONP endpoints. Attackers can bypass the CSP by invoking JSONP callbacks to execute XSS payloads."
+  remediation: "Remove known JSONP endpoints from the script-src allowlist. Modern APIs should use CORS rather than JSONP. Rely on strict-dynamic and nonces."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.80
+
+- id: csp-missing-base-uri
+  patterns:
+  - regex: '(?i)Content-Security-Policy(?![^''"\n]*base-uri)'
+  severity: medium
+  description: "The CSP lacks a base-uri directive. Attackers can inject a <base> tag to hijack all relative URLs on the page, including relative script endpoints and form actions."
+  remediation: "Add base-uri 'none' or base-uri 'self' to your CSP policy to block unauthorized <base> tag injection."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.85
+
+- id: csp-angular-bypass-whitelist
+  patterns:
+  - regex: '(?i)script-src[^;''"\n]*ajax\.googleapis\.com'
+  severity: high
+  description: "The script-src directive allows unpinned CDNs that host ancient, vulnerable versions of AngularJS. Attackers can load a vulnerable Angular file and execute client-side template injection to bypass CSP."
+  remediation: "Do not blindly allowlist entire CDNs. Pin exact file hashes natively or enforce strict-dynamic with nonces, which negates trust in the origin domain alone."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.70
+
+- id: csp-missing-form-action
+  patterns:
+  - regex: '(?i)Content-Security-Policy(?![^''"\n]*form-action)'
+  severity: medium
+  description: "The CSP lacks a form-action directive. Attackers can inject a malicious form or manipulate the DOM to submit sensitive form data to a third-party server."
+  remediation: "Implement form-action 'self' to strictly enforce that forms can only submit data back to your own origin."
+  cwe: "CWE-693"
+  owasp: "A05:2021"
+  confidence: 0.85

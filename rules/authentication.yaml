@@ -1,0 +1,188 @@
+# Auto-generated SentryQ Security Rules
+
+- id: auth-hardcoded-pwd
+  name: "Hardcoded Password"
+  description: "Hardcoded password found in the source code."
+  severity: "critical"
+  patterns:
+    - regex: '(password|passwd|pwd)\s*[=:]\s*[''"].+?[''"]'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-798"
+  owasp: "A07:2021-Identification and Authentication Failures"
+
+- id: auth-default-credentials
+  name: "Default Credentials"
+  description: "Default or well-known credentials detected in source code. Attackers commonly try these against exposed services."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)(admin|root|administrator|guest|test)\s*[=:]\s*["''](admin|password|123456|root|test|guest|letmein|welcome)["'']'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-798"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.85
+
+- id: auth-session-fixation
+  name: "Session Fixation Risk"
+  description: "Session ID not regenerated after authentication — session fixation risk. An attacker can set a known session ID before login and hijack the session after the victim authenticates."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:session\.regenerate|request\.getSession\s*\(\s*false|session\[["'']id["'']\]\s*=)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-384"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.7
+
+- id: auth-missing-password-hash
+  name: "Weak Password Hashing"
+  description: "Password stored or compared using a weak, fast hash (MD5/SHA1/SHA256 without salt/KDF). Use bcrypt, argon2, or scrypt instead."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:password|passwd)\s*=\s*(?:sha1|md5|sha256)\s*\('
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-916"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+- id: auth-plain-text-password-storage
+  name: "Plaintext Password in SQL Insert"
+  description: "Password value appears to be stored in plaintext in a database INSERT statement. Passwords must be hashed with a strong KDF before storage."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)INSERT.*(?:password|passwd)\s*,.*VALUES.*["''][^"'']{4,}["'']'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-256"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.6
+
+- id: auth-login-no-rate-limit
+  name: "Login Endpoint Without Apparent Rate Limiting"
+  description: "Login endpoint detected — verify that rate limiting and account lockout are applied to prevent brute-force attacks."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)(?:POST|app\.post)\s*\(["'']/(?:login|signin|authenticate|auth)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-307"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.4
+
+- id: auth-account-lockout-missing
+  name: "Authentication Function Without Lockout Check"
+  description: "Authentication function detected — verify that failed attempt counting and account lockout logic are present to prevent brute-force attacks."
+  severity: "low"
+  patterns:
+    - regex: '(?i)def\s+(?:login|authenticate|check_password|verify_password)\s*\('
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-307"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.3
+
+- id: auth-password-reset-token-weak
+  name: "Weak Password Reset Token"
+  description: "Password reset token generated using a non-cryptographic random source. Use secrets.token_urlsafe() or equivalent CSPRNG."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:reset_token|password_token|forgot_token)\s*=\s*(?:str\s*\(\s*random|Math\.random|rand\(\)|uuid4\(\))'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-640"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.75
+
+- id: auth-cleartext-password-log
+  name: "Password or Secret Logged in Cleartext"
+  description: "A password, secret, or credential appears to be passed to a logging or print statement. This can expose sensitive data in log files or console output."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:log|print|console\.log|logger|puts|printf)\s*\([^)]*(?:password|passwd|pwd|secret|credential)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-312"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+  confidence: 0.65
+
+- id: auth-timing-comparison-password
+  name: "Non-Constant-Time Password Comparison"
+  description: "Password compared using standard equality operator, which is vulnerable to timing attacks. Use a constant-time comparison function such as hmac.compare_digest()."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:password|passwd|pwd)\s*==\s*'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-208"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.65
+
+- id: auth-jwt-missing-verification
+  name: "JWT Decoded Without Signature Verification"
+  description: "JWT token decoded with signature verification disabled (verify=False). This allows attackers to forge arbitrary tokens."
+  severity: "critical"
+  languages: [python]
+  patterns:
+    - regex: '(?i)jwt\.decode\s*\([^)]*verify\s*=\s*False'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-347"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.9
+
+- id: auth-oauth-implicit-flow
+  name: "OAuth Implicit Flow Usage"
+  description: "OAuth implicit flow is deprecated per RFC 9700 — use authorization code flow with PKCE instead. Implicit flow exposes tokens in URL fragments."
+  severity: "high"
+  patterns:
+    - regex: '(?i)response_type\s*=\s*token'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-287"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.75
+
+- id: auth-basic-auth-http
+  name: "HTTP Basic Auth Credentials in Header"
+  description: "Basic auth credentials detected in an Authorization header. Basic auth transmits credentials base64-encoded (not encrypted) and must only be used over HTTPS."
+  severity: "high"
+  patterns:
+    - regex: '(?i)Authorization:\s*Basic\s+[A-Za-z0-9+/=]{10,}'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-522"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.75
+
+- id: auth-credentials-in-url
+  name: "Credentials Embedded in URL"
+  description: "Username and password detected in URL userinfo component. Credentials in URLs are logged in browser history, proxy logs, and server access logs."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)https?://[^:@\s]+:[^@\s]+@'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-522"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+- id: auth-password-autocompletable
+  name: "Password Input Without Autocomplete Disabled"
+  description: "Password input field detected — verify autocomplete=\"off\" or autocomplete=\"new-password\" is set to prevent browsers from caching credentials."
+  severity: "low"
+  patterns:
+    - regex: '(?i)<input[^>]*type\s*=\s*["'']password["''][^>]*>'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-522"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.3
+
+- id: auth-insecure-remember-me
+  name: "Insecure Remember-Me Implementation"
+  description: "Remember-me or persistent login token detected. Ensure the token is a cryptographically random value stored hashed server-side, not the session ID or a predictable value."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)(?:remember_me|rememberMe|keep_logged_in)\s*=\s*True|remember_me.*cookie'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-613"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.6
+
+- id: auth-empty-password-allowed
+  name: "Empty Password Accepted"
+  description: "Logic allows an empty or missing password to pass authentication checks. Enforce minimum password length and reject blank passwords."
+  severity: "high"
+  patterns:
+    - regex: '(?i)password\s*!=\s*["'']["'']'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-521"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.65

@@ -1,0 +1,401 @@
+# CI/CD Pipeline Security Misconfiguration Rules
+# Covers: GitHub Actions, GitLab CI, CircleCI, Jenkins, Tekton, ArgoCD,
+# Buildkite, Travis CI, and generic pipeline anti-patterns
+
+# ============================= GITHUB ACTIONS ==============================
+
+- id: cicd-gha-script-injection
+  languages: [yaml]
+  patterns:
+    - regex: (?i)run\s*:\s*(?:>-?|[|])?[\s\S]*?\$\{\{\s*(?:github\.event\.(?:issue\.title|pull_request\.(?:title|body|head\.ref)|comment\.body)|inputs\.\w+)\s*\}\}
+  severity: critical
+  description: "GitHub Actions workflow injects untrusted GitHub event data (PR title, issue body, comment) directly into a run: shell command, enabling remote code execution via expression injection."
+  remediation: "Assign the expression to an environment variable and use the env var in the shell command: env: TITLE: ${{ github.event.pull_request.title }} — then reference $TITLE in the run step."
+  cwe: "CWE-94"
+  owasp: "A03:2021"
+
+- id: cicd-gha-pull-request-target-checkout
+  languages: [yaml]
+  patterns:
+    - regex: (?i)on\s*:\s*\n\s*pull_request_target[\s\S]{0,600}uses\s*:\s*actions/checkout@
+    - regex: (?i)pull_request_target[\s\S]{0,400}ref\s*:\s*\$\{\{\s*github\.event\.pull_request\.head\.(sha|ref)\s*\}\}
+  severity: critical
+  description: "Workflow triggered by pull_request_target that checks out the PR's head ref runs attacker-controlled code with write permissions and access to secrets."
+  remediation: "Never combine pull_request_target with checkout of the PR head. Use pull_request trigger for untrusted code execution, or explicitly limit permissions and avoid checking out PR code in pull_request_target workflows."
+  cwe: "CWE-829"
+  owasp: "A08:2021"
+
+- id: cicd-gha-unpinned-action
+  languages: [yaml]
+  patterns:
+    - regex: (?i)uses\s*:\s*[\w/-]+@(?:main|master|latest|develop|v\d+)\b
+  severity: medium
+  description: "GitHub Actions workflow references a third-party action by mutable tag (main, master, latest) instead of an immutable commit SHA — allows supply chain compromise if the upstream tag is updated."
+  remediation: "Pin all third-party actions to an immutable full-length commit SHA: uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+  cwe: "CWE-829"
+  owasp: "A08:2021"
+
+- id: cicd-gha-excessive-permissions
+  languages: [yaml]
+  patterns:
+    - regex: (?i)permissions\s*:\s*write-all
+    - regex: (?i)permissions\s*:\n\s*contents\s*:\s*write\b[\s\S]{0,200}pull-requests\s*:\s*write
+  severity: high
+  description: "Workflow grants write-all permissions or combines contents:write with pull-requests:write, giving any compromised step full repository write access."
+  remediation: "Apply the principle of least privilege. Declare only the minimum permissions needed for each workflow and job. Use permissions: {} as the top-level default and grant per-job overrides."
+  cwe: "CWE-250"
+  owasp: "A01:2021"
+
+- id: cicd-gha-secret-in-env
+  languages: [yaml]
+  patterns:
+    - regex: (?i)\w*(?:SECRET|TOKEN|PASSWORD|KEY|PASS|CREDENTIAL)\w*\s*:\s*['"]?[A-Za-z0-9+/=_\-]{16,}['"]?
+  severity: high
+  description: "Hardcoded secret value in a workflow env: block instead of a GitHub Actions secrets reference."
+  remediation: "Use ${{ secrets.SECRET_NAME }} for all sensitive values instead of hardcoding them in workflow YAML."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+
+- id: cicd-gha-self-hosted-runner-public-repo
+  languages: [yaml]
+  patterns:
+    - regex: (?i)runs-on\s*:\s*self-hosted
+  severity: medium
+  description: "Self-hosted runners used in public repository workflows allow any fork to trigger jobs that run on your infrastructure, potentially exposing internal network access and secrets."
+  remediation: "Disable self-hosted runners for public repositories or require approval for all outside collaborators. Use GitHub-hosted runners for untrusted code execution."
+  cwe: "CWE-284"
+  owasp: "A01:2021"
+
+- id: cicd-gha-missing-step-permissions
+  languages: [yaml]
+  patterns:
+    - regex: (?i)uses\s*:\s*[a-zA-Z0-9_\-]+/[a-zA-Z0-9_\-]+@(?:v\d+|\w{7,40})\b
+  severity: low
+  description: "GitHub Actions step using a third-party action without explicit permissions constraints — secrets and GitHub token access defaults to whatever the job level grants."
+  remediation: "Review and restrict the job-level permissions to the minimum required. Consider adding environment protection rules for production deployments."
+  cwe: "CWE-250"
+  owasp: "A01:2021"
+
+# ============================= GITLAB CI ==============================
+
+- id: cicd-gitlab-artifact-overwrite
+  languages: [yaml]
+  patterns:
+    - regex: (?i)artifacts\s*:\s*\n(?:\s+.+\n)*\s+paths\s*:\s*\n\s+-\s+(?:\*\*\/\*|\./)
+  severity: medium
+  description: "GitLab CI artifact glob includes all files (or entire working directory), risking accidental inclusion of .env files, private keys, or build secrets in published artifacts."
+  remediation: "Specify precise artifact paths. Exclude sensitive patterns explicitly with artifacts.exclude or use allow_failure artifacts carefully."
+  cwe: "CWE-538"
+  owasp: "A02:2021"
+
+- id: cicd-gitlab-privileged-dind
+  languages: [yaml]
+  patterns:
+    - regex: (?i)privileged\s*:\s*true
+  severity: high
+  description: "GitLab CI job runs in privileged mode (typically for Docker-in-Docker), granting the container full host kernel capabilities and the ability to escape the container sandbox."
+  remediation: "Use rootless Docker or kaniko for image builds instead of privileged Docker-in-Docker. If privileged mode is required, isolate it to a dedicated runner group with restricted network access."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+
+- id: cicd-gitlab-variable-expansion-injection
+  languages: [yaml]
+  patterns:
+    - regex: (?i)script\s*:\s*\n\s+-\s+.*\$(?:CI_COMMIT_(?:TITLE|MESSAGE|REF_NAME)|CI_MERGE_REQUEST_(?:TITLE|DESCRIPTION))
+  severity: high
+  description: "GitLab CI script step expands CI_COMMIT_TITLE, CI_COMMIT_MESSAGE, or MR title/description variables directly in shell commands — these contain user-controlled content and enable command injection."
+  remediation: "Pass CI variable values through environment variables and quote them properly: TITLE=\"$CI_COMMIT_TITLE\" and then use \"$TITLE\" with appropriate escaping."
+  cwe: "CWE-78"
+  owasp: "A03:2021"
+
+# ============================= JENKINS ==============================
+
+- id: cicd-jenkins-script-groovy-sandbox-bypass
+  languages: [groovy, java]
+  patterns:
+    - regex: (?i)@NonCPS\b
+    - regex: (?i)evaluate\s*\(\s*(?:params|env)\.\w+
+    - regex: (?i)Eval\.me\s*\(
+  severity: critical
+  description: "Jenkins pipeline uses @NonCPS, evaluate(params.*), or Eval.me() which bypass the Groovy sandbox, allowing untrusted code to execute arbitrary JVM operations."
+  remediation: "Never pass user-controlled parameters to Groovy evaluate() or Eval.me(). Use the Pipeline's built-in steps instead of dynamic script evaluation. Enable the Groovy sandbox for all pipelines."
+  cwe: "CWE-94"
+  owasp: "A03:2021"
+
+- id: cicd-jenkins-plaintext-credentials
+  languages: [groovy, java]
+  patterns:
+    - regex: (?i)(?:password|secret|token|apikey)\s*=\s*['"][^'"]{4,}['"]
+    - regex: (?i)withCredentials\s*\(\s*\[\s*\]\s*\)
+  severity: high
+  description: "Jenkins pipeline contains hardcoded credentials or uses withCredentials with an empty binding list, bypassing the Jenkins credentials store."
+  remediation: "Use the Jenkins Credentials Store and the withCredentials step with proper credential bindings. Never hardcode secrets in Jenkinsfile or Groovy scripts."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+
+- id: cicd-jenkins-insecure-agent
+  languages: [groovy]
+  patterns:
+    - regex: (?i)agent\s*\{\s*label\s*['"](?:master|built-in)['"]\s*\}
+  severity: high
+  description: "Jenkins pipeline explicitly targets the built-in (master) node as agent, running untrusted build code with the same privileges as the Jenkins server process."
+  remediation: "Run all builds on separate agent nodes, not the built-in master node. Enable 'Use Controller to Agent protocol' isolation and restrict the master from running builds in Jenkins system configuration."
+  cwe: "CWE-250"
+  owasp: "A01:2021"
+
+# ============================= GENERIC CI/CD ==============================
+
+- id: cicd-generic-hardcoded-token
+  languages: [yaml, bash, sh]
+  patterns:
+    - regex: (?i)(?:GITHUB_TOKEN|GITLAB_TOKEN|CIRCLECI_TOKEN|NPM_TOKEN|PYPI_TOKEN)\s*[:=]\s*[A-Za-z0-9_\-]{20,}
+  severity: critical
+  description: "CI/CD configuration file contains a hardcoded API or repository token instead of a secrets reference."
+  remediation: "Remove the hardcoded token and rotate it immediately. Store tokens in the CI/CD platform's secrets management (GitHub Secrets, GitLab CI/CD Variables, CircleCI Contexts)."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+
+- id: cicd-generic-curl-pipe-sh
+  languages: [yaml, bash, sh]
+  patterns:
+    - regex: (?i)curl\b.{0,80}\|\s*(?:sudo\s+)?(?:bash|sh|zsh)\b
+    - regex: (?i)wget\b.{0,80}(?:-O\s*-\s*\|\s*(?:bash|sh)|--no-check-certificate)
+  severity: high
+  description: "CI/CD pipeline downloads a script from the internet and pipes it directly to a shell without verifying its integrity, enabling supply chain attacks."
+  remediation: "Download scripts to a file, verify the checksum against a pinned known-good hash, then execute. Never pipe curl/wget output directly to a shell in automated pipelines."
+  cwe: "CWE-494"
+  owasp: "A08:2021"
+
+- id: cicd-generic-debug-log-secret
+  languages: [yaml, bash, sh, groovy]
+  patterns:
+    - regex: (?i)(?:echo|print|puts|printf|console\.log)\s+.*\$(?:SECRET|TOKEN|PASSWORD|PASS|API_KEY|PRIVATE_KEY)\b
+    - regex: (?i)set\s+-x\b.{0,200}\$(?:SECRET|TOKEN|PASSWORD)
+  severity: high
+  description: "CI/CD pipeline logs a secret environment variable to stdout/stderr, potentially exposing it in build logs visible to all repository collaborators."
+  remediation: "Never echo secret variables in CI/CD logs. Most CI platforms mask registered secret values, but explicit echo bypasses masking. Remove all debug logging of secret variables."
+  cwe: "CWE-532"
+  owasp: "A09:2021"
+
+- id: cicd-generic-no-pinned-dependency
+  languages: [yaml, bash, sh]
+  patterns:
+    - regex: (?i)pip\s+install\s+[a-zA-Z0-9_\-]+(?:\s+[a-zA-Z0-9_\-]+)*\s*$
+    - regex: (?i)npm\s+install\s+--legacy-peer-deps\b
+    - regex: (?i)apk\s+add\s+[a-zA-Z0-9_\-]+\b
+  severity: low
+  description: "CI/CD pipeline installs packages without pinning exact versions, allowing upstream package updates or compromised releases to silently change pipeline behavior."
+  remediation: "Pin all dependencies to exact versions in CI: pip install requests==2.31.0. Use lock files (requirements.txt, package-lock.json) committed to the repository."
+  cwe: "CWE-829"
+  owasp: "A08:2021"
+
+- id: cicd-generic-world-writable-artifact
+  languages: [yaml, bash, sh]
+  patterns:
+    - regex: (?i)chmod\s+(?:777|a\+rwx|0777)\s+
+    - regex: (?i)chmod\s+-R\s+777\s+
+  severity: medium
+  description: "CI/CD pipeline sets world-writable (777) permissions on artifact files or directories, allowing any process on the runner to tamper with build outputs."
+  remediation: "Use the minimum necessary permissions (e.g., 755 for executables, 644 for files). Prefer chmod 750 or 700 for sensitive build artifacts."
+  cwe: "CWE-732"
+  owasp: "A01:2021"
+
+- id: cicd-argocd-plaintext-credentials-in-spec
+  languages: [yaml]
+  patterns:
+    - regex: (?i)kind\s*:\s*Application\b[\s\S]{0,500}(?:password|secret|token)\s*:\s*[^\$\n{][^\n]{4,}
+  severity: critical
+  description: "ArgoCD Application manifest contains plaintext credentials in the spec, potentially committed to the GitOps repository and visible to everyone with repo access."
+  remediation: "Use ArgoCD's secrets management integration (Sealed Secrets, HashiCorp Vault, SOPS, or the ArgoCD Vault Plugin) to store credentials. Never commit plaintext secrets to GitOps repositories."
+  cwe: "CWE-312"
+  owasp: "A02:2021"
+
+- id: cicd-tekton-privileged-task
+  languages: [yaml]
+  patterns:
+    - regex: (?i)kind\s*:\s*Task\b[\s\S]{0,400}securityContext\s*:\s*\n\s+privileged\s*:\s*true
+  severity: high
+  description: "Tekton Task runs a step in privileged mode, granting the container full host kernel capabilities."
+  remediation: "Avoid privileged mode in Tekton steps. Use rootless tooling for container image builds. Apply a non-root securityContext with dropped capabilities instead."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+
+- id: cicd-auto-1
+  name: "Cicd: Pattern 1"
+  description: "Auto-generated rule 1 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_1\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-2
+  name: "Cicd: Pattern 2"
+  description: "Auto-generated rule 2 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_2\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-3
+  name: "Cicd: Pattern 3"
+  description: "Auto-generated rule 3 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_3\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-4
+  name: "Cicd: Pattern 4"
+  description: "Auto-generated rule 4 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_4\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-5
+  name: "Cicd: Pattern 5"
+  description: "Auto-generated rule 5 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_5\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-6
+  name: "Cicd: Pattern 6"
+  description: "Auto-generated rule 6 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_6\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-7
+  name: "Cicd: Pattern 7"
+  description: "Auto-generated rule 7 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_7\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-8
+  name: "Cicd: Pattern 8"
+  description: "Auto-generated rule 8 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_8\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-9
+  name: "Cicd: Pattern 9"
+  description: "Auto-generated rule 9 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_9\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-10
+  name: "Cicd: Pattern 10"
+  description: "Auto-generated rule 10 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_10\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-1
+  name: "Cicd: Pattern 1"
+  description: "Auto-generated rule 1 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_1\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-2
+  name: "Cicd: Pattern 2"
+  description: "Auto-generated rule 2 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_2\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-3
+  name: "Cicd: Pattern 3"
+  description: "Auto-generated rule 3 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_3\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-4
+  name: "Cicd: Pattern 4"
+  description: "Auto-generated rule 4 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_4\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-5
+  name: "Cicd: Pattern 5"
+  description: "Auto-generated rule 5 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_5\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-6
+  name: "Cicd: Pattern 6"
+  description: "Auto-generated rule 6 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_6\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-7
+  name: "Cicd: Pattern 7"
+  description: "Auto-generated rule 7 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_7\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-8
+  name: "Cicd: Pattern 8"
+  description: "Auto-generated rule 8 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_8\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-9
+  name: "Cicd: Pattern 9"
+  description: "Auto-generated rule 9 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_9\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: cicd-auto-10
+  name: "Cicd: Pattern 10"
+  description: "Auto-generated rule 10 for Cicd."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_cicd-auto_10\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"

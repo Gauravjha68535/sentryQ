@@ -1,0 +1,134 @@
+# SentryQ Security Rules — NoSQL & Graph Database Injection
+# Covers CWE-943 (Improper Neutralization of Special Elements in Data Query Logic)
+
+- id: nosql-neo4j-cypher-injection
+  languages: [python, javascript, java]
+  patterns:
+    - regex: '(?i)session\.run\s*\([^)]*\+'
+    - regex: '(?i)session\.run\s*\(\s*f["\x27]'
+    - regex: '(?i)session\.run\s*\([^)]*%'
+  severity: critical
+  description: "Neo4j Cypher query constructed by string concatenation or string formatting with user-controlled input. Allows Cypher injection, which can result in unauthorized data access, modification, or deletion."
+  remediation: "Use parameterized Cypher queries exclusively. Pass user input as named parameters: session.run('MATCH (n {name: $name}) RETURN n', name=user_input). Never interpolate user data directly into the query string."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: nosql-neo4j-string-format
+  patterns:
+    - regex: '(?i)db\.query\s*\(\s*f["\x27]'
+    - regex: '(?i)neo4j.*driver.*session.*run.*f["\x27]'
+  severity: critical
+  description: "Neo4j query built using an f-string or format string, embedding variables directly into the Cypher statement. Even trusted-looking variables may carry attacker-controlled data through the call stack."
+  remediation: "Replace f-string queries with parameterized equivalents. Use the $param syntax in Cypher and supply values through the parameters dict argument of session.run()."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.82
+
+- id: nosql-arangodb-aql-injection
+  patterns:
+    - regex: '(?i)db\.query\s*\(\s*["\x27][^"''\x27]*["\x27]\s*\+'
+    - regex: '(?i)arangodb.*aql.*\+\s*(?:req\.|request\.)'
+  severity: critical
+  description: "ArangoDB AQL query constructed by concatenating user input into the query string. Enables AQL injection that can expose or manipulate arbitrary data in the database."
+  remediation: "Use ArangoDB's bind variables feature: db.query(aql`FOR doc IN @@collection FILTER doc.name == ${userInput} RETURN doc`). The aql template tag automatically handles parameter binding and escaping."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.82
+
+- id: nosql-elasticsearch-injection
+  patterns:
+    - regex: '(?i)es\.search\s*\(\s*body\s*=\s*\{[^}]*(?:req\.|request\.|user_input|params\.)'
+    - regex: '(?i)client\.search\s*\(\s*\{[^}]*query.*\+'
+  severity: high
+  description: "Elasticsearch search body constructed with user-controlled input embedded directly into the query DSL. Allows manipulation of query logic, potentially exposing data that should be filtered out."
+  remediation: "Always construct Elasticsearch query bodies programmatically using typed data structures, never by string concatenation. Validate and sanitize inputs such as field names against an allow-list. Use Elasticsearch's security features (field-level security, document-level security)."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.78
+
+- id: nosql-redis-injection
+  patterns:
+    - regex: '(?i)redis\.(?:get|set|hget|hset|lpush|zadd|eval|evalsha)\s*\([^)]*(?:req\.|request\.|user_input|params\.)'
+  severity: high
+  description: "Redis command issued with user-controlled input as a key or value argument without validation. Allows key space manipulation, data poisoning, or in the case of EVAL, server-side Lua script injection."
+  remediation: "Validate and normalize all user-supplied Redis keys. Never pass user input to Redis EVAL or EVALSHA. Use prefixed namespacing for keys and enforce strict format validation (e.g., alphanumeric + limited punctuation)."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.80
+
+- id: nosql-cassandra-injection
+  patterns:
+    - regex: '(?i)session\.execute\s*\(\s*["\x27][^"''\x27]*["\x27]\.format'
+    - regex: '(?i)session\.execute\s*\(\s*[^)]*\+\s*(?:req\.|user_input)'
+  severity: critical
+  description: "Cassandra CQL query built using Python's .format() or string concatenation with user input. Enables CQL injection, which can leak or corrupt data across keyspaces."
+  remediation: "Use prepared statements with bound parameters: stmt = session.prepare('SELECT * FROM users WHERE name=?'); session.execute(stmt, [user_input]). Prepared statements are compiled once and never reparse user data as CQL."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.87
+
+- id: nosql-firebase-rules-bypass
+  patterns:
+    - regex: '(?i)\.read:\s*["\x27]true["\x27]'
+    - regex: '(?i)\.write:\s*["\x27]true["\x27]'
+  severity: critical
+  description: "Firebase Realtime Database security rule grants unconditional read or write access to all users, including unauthenticated ones. This exposes the entire database node to public access."
+  remediation: "Replace true rules with authentication checks: \".read\": \"auth != null\". Apply principle of least privilege — scope rules to the minimum required data paths and user roles. Audit all rules with the Firebase Rules Playground before deployment."
+  cwe: "CWE-284"
+  owasp: "A01:2021"
+  confidence: 0.90
+
+- id: nosql-mongodb-mapreduce-injection
+  patterns:
+    - regex: '(?i)db\.collection\.mapReduce\s*\([^)]*(?:req\.|request\.|user_input)'
+    - regex: '(?i)\.mapReduce\s*\([^)]*(?:req\.|request\.|params\.)'
+  severity: critical
+  description: "MongoDB mapReduce operation constructed with user-controlled JavaScript code. mapReduce executes JavaScript server-side, so injected code runs with database privileges."
+  remediation: "Avoid using mapReduce with any user-supplied input. Prefer the MongoDB Aggregation Pipeline, which uses a structured operator-based DSL with no JavaScript execution. If mapReduce is required, validate map/reduce functions against a strict allow-list of known-good functions."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: nosql-dynamodb-scan-no-filter
+  patterns:
+    - regex: '(?i)dynamodb\.scan\s*\(\s*\{'
+  severity: medium
+  description: "DynamoDB Scan operation detected without a FilterExpression. A full-table scan reads every item in the table, which can expose data beyond the requester's authorization scope and degrades performance at scale."
+  remediation: "Replace Scan with Query using a KeyConditionExpression wherever possible. If Scan is necessary, always supply a FilterExpression and use ProjectionExpression to limit returned attributes. Ensure IAM policies restrict scan access to authorized roles only."
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+  confidence: 0.45
+
+- id: nosql-couchdb-injection
+  patterns:
+    - regex: '(?i)nano\.db\.get\s*\([^)]*(?:req\.|request\.|user_input|params\.)\w+'
+    - regex: '(?i)couch.*\.get\s*\([^)]*(?:req\.|request\.|params\.)'
+  severity: high
+  description: "CouchDB document ID constructed from user-controlled request data. An attacker can enumerate or access arbitrary documents by manipulating the ID."
+  remediation: "Validate document IDs against an expected format (UUID, alphanumeric slug) using an allow-list pattern. Never pass raw user input as a CouchDB document or view key without validation."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.80
+
+- id: nosql-mongodb-where-js-injection
+  patterns:
+    - regex: '(?i)\.find\s*\(\s*\{\s*\$where\s*:'
+    - regex: '(?i)\$where\s*:\s*(?:req\.|request\.|user_input|params\.)'
+  severity: critical
+  description: "MongoDB $where operator executes arbitrary JavaScript on the server. If user input influences the $where expression, it constitutes server-side JavaScript injection with full query-scope privileges."
+  remediation: "Never use the $where operator with user-supplied data. Replace $where with MongoDB Query Language operators ($eq, $gt, $regex, etc.) which do not execute JavaScript. Disable server-side JavaScript execution in mongod.conf with javascriptEnabled: false when not needed."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.88
+
+- id: nosql-graphql-introspection-enabled
+  patterns:
+    - regex: '(?i)introspection\s*:\s*true'
+    - regex: '(?i)allowIntrospection\s*:\s*true'
+  severity: medium
+  description: "GraphQL introspection is explicitly enabled. While useful during development, leaving introspection on in production exposes the complete schema to attackers, aiding targeted injection and enumeration attacks."
+  remediation: "Disable introspection in production environments. In Apollo Server, set introspection: false (or rely on the default, which disables introspection when NODE_ENV=production). Apply depth and complexity limits to all queries."
+  cwe: "CWE-200"
+  owasp: "A05:2021"
+  confidence: 0.75

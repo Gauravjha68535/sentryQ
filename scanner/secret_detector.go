@@ -56,6 +56,15 @@ var secretDetectorPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`['"][a-zA-Z0-9+/=]{32,}['"]`),
 }
 
+// HighEntropyThreshold is the Shannon entropy threshold above which a string
+// is considered "high entropy" (likely a secret). This single constant is
+// used by both the secret detector and the AST analyzer (via helpers.go).
+const HighEntropyThreshold = 4.5
+
+// descriptiveEntropyThreshold is a stricter threshold used ONLY for the
+// description text ("High-entropy string detected") to reduce noise.
+const descriptiveEntropyThreshold = 5.0
+
 // NewSecretDetector creates a new secret detector with enhanced patterns
 func NewSecretDetector() *SecretDetector {
 	return &SecretDetector{patterns: secretDetectorPatterns}
@@ -76,8 +85,9 @@ func (sd *SecretDetector) ScanSecrets(targetDir string) ([]reporter.Finding, err
 		if info.IsDir() {
 			// Skip common directories
 			skipDirs := []string{"node_modules", "vendor", ".git", "__pycache__", "venv", ".venv", "env", ".env"}
+			nameLower := strings.ToLower(info.Name())
 			for _, skip := range skipDirs {
-				if info.Name() == skip {
+				if nameLower == skip {
 					return filepath.SkipDir
 				}
 			}
@@ -240,7 +250,7 @@ func generateSecretDescription(matchedText string) string {
 	if strings.Contains(cleaned, "PRIVATE KEY") {
 		return "Private key detected in source code"
 	}
-	if calculateEntropy(cleaned) > 5.0 {
+	if calculateEntropy(cleaned) > descriptiveEntropyThreshold {
 		return "High-entropy string detected (likely a secret or credential)"
 	}
 

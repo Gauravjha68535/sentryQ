@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -45,6 +46,9 @@ func getDefaultConfidence(severity string) float64 {
 	}
 }
 
+// logBlockedOnce ensures the suppression list is printed exactly once per process.
+var logBlockedOnce sync.Once
+
 // blockedRuleIDs contains rules that are known to produce overwhelming false positives.
 // These are skipped during scanning rather than deleted from YAML (easier to undo).
 var blockedRuleIDs = map[string]bool{
@@ -78,6 +82,38 @@ var blockedRuleIDs = map[string]bool{
 	"gql-auth-jwt-weak-secret":    true, // misfires on strongly-typed long secrets
 	"gql-auth-jwt-no-expiry":      true, // misfires despite explicit expiresIn config
 	"js-error-file-path":          true, // flags path.resolve out of error contexts
+
+	// "Good practice" JS rules mislabeled as security findings
+	// These patterns indicate SAFE/defensive coding, not vulnerabilities.
+	"js-prototype-pollution-deep-freeze": true, // Object.freeze/seal is a GOOD defensive measure
+	"js-prototype-pollution-map-set":     true, // Map/WeakMap is IMMUNE to prototype pollution
+	"js-prototype-pollution-immutable":   true, // Immutable.js usage is IMMUNE to prototype pollution
+
+	// Overly broad supply chain rules not in the blocked list yet
+	// (the typosquatting-npm/pip/general variants are blocked above;
+	// these additionally broad patterns fire on nearly every project)
+	"supplychain-pip-internal-public":   true, // pattern 2 fires on ANY `pip install name-with-hyphen`
+	"supplychain-gem-internal-public":   true, // pattern 2 fires on ANY hyphenated gem name
+	"supplychain-nuget-internal-public": true, // pattern 1 fires on ANY CamelCase NuGet package
+
+	// Overly broad race-condition rules that fire on common code patterns
+	"race-token-generation-concurrent":    true, // fires on ANY function that generates a token
+	"race-singleton-not-thread-safe":      true, // fires on ANY getInstance/Singleton naming
+	"race-coupon-redeem-concurrent":       true, // fires on any decrement or balance update without full race proof
+	"race-lazy-init-without-sync":         true, // fires on simple null/nil checks — too broad for general use
+	"race-db-increment-without-lock":      true, // fires on any UPDATE counter += 1 query, including correct DB-atomic ops
+	"race-double-checked-locking-unsafe":  true, // fires on any double-check pattern even in GC-safe languages
+	"race-db-read-modify-write":           true, // alternation matches any standalone UPDATE/INSERT/DELETE
+	"race-payment-concurrent-transaction": true, // tautology — same word twice on same line
+	"race-auth-check-then-act":            true, // fires on correct auth middleware in single-threaded runtimes
+
+	// Express framework rules with patterns that fire on every route definition
+	"express-missing-helmet":   true, // pattern app\.use\( fires on helmet itself — cannot detect absence
+	"express-no-rate-limiting": true, // pattern app\.post\( fires on every POST route regardless of rate limiting
+
+	// Over-broad supply chain HTTP/version rules
+	"supplychain-http-url":        true, // pattern "http://" matches ANY URL in comments, strings, docs
+	"supplychain-version-wildcard": true, // pattern ">= 0" matches too broadly across non-manifest files
 }
 
 // Pre-compiled regexes for framework detection (avoid recompiling per scan)
@@ -95,6 +131,7 @@ var frameworkDetectors = map[string]*regexp.Regexp{
 	"next_js": regexp.MustCompile(`(?i)"next"\s*[:=]|next\.config`),
 	"nuxt_js": regexp.MustCompile(`(?i)"nuxt"\s*[:=]|nuxt\.config`),
 	"svelte":  regexp.MustCompile(`(?i)"svelte"\s*[:=]|\.svelte`),
+	"go_web":  regexp.MustCompile(`(?i)"github\.com/gin-gonic/gin"|"github\.com/labstack/echo"|"github\.com/gofiber/fiber"`),
 }
 
 // detectFrameworks reads a subset of files to guess which frameworks are in use
@@ -151,6 +188,7 @@ var frameworkFileMap = map[string]string{
 	"next_js": "next_js.yaml",
 	"nuxt_js": "nuxt_js.yaml",
 	"svelte":  "svelte.yaml",
+	"go_web":  "go_web.yaml",
 }
 
 // localFrameworkDetectors for per-file verification to avoid generic language leakage
@@ -169,6 +207,17 @@ var localFrameworkDetectors = map[string]*regexp.Regexp{
 // RunPatternScan performs multi-threaded pattern scanning across all files.
 // It respects ctx cancellation: workers stop picking up new jobs once ctx is done.
 func RunPatternScan(ctx context.Context, result *ScanResult, baseRules []config.Rule, rulesDir string) []reporter.Finding {
+	// Log the suppression list once so operators know which rules are silenced.
+	logBlockedOnce.Do(func() {
+		ids := make([]string, 0, len(blockedRuleIDs))
+		for id := range blockedRuleIDs {
+			ids = append(ids, id)
+		}
+		sort.Strings(ids)
+		utils.LogInfo(fmt.Sprintf("Pattern engine: %d rules suppressed (known FP generators): %s",
+			len(ids), strings.Join(ids, ", ")))
+	})
+
 	// Detect frameworks and load specific rules
 	detectedFrameworks := detectFrameworks(result)
 	rules := append([]config.Rule(nil), baseRules...) // Copy base rules
@@ -247,7 +296,10 @@ func RunPatternScan(ctx context.Context, result *ScanResult, baseRules []config.
 			}()
 			for job := range jobChan {
 				if ctx.Err() != nil {
-					continue // drain channel without doing work after cancellation
+					// Context cancelled — stop processing. The remaining jobs in
+					// jobChan will be drained by the GC when jobChan is GC'd; we
+					// must not block here or the wg.Wait() call below will stall.
+					return
 				}
 				findings := scanFile(job.filePath, job.rules, &srCounter)
 				resultChan <- scanResult{findings: findings}
@@ -289,7 +341,7 @@ const maxPatternFileSizeBytes = 5 * 1024 * 1024 // 5 MB
 // scanFile scans a single file against all applicable rules
 func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.Finding {
 	// Contextual Filtering 1: Skip test/mock files to reduce false positives
-	if IsTestFile(filePath) {
+	if utils.IsTestFile(filePath) {
 		return nil
 	}
 

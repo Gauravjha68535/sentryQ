@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -56,20 +55,61 @@ func InitDB() error {
 			return
 		}
 
-		// Set pragmas via SQL rather than DSN URL parameters so the behaviour is
-		// consistent across modernc.org/sqlite versions (URL pragma syntax is
-		// undocumented and may change between minor releases).
-		for _, pragma := range []string{
+		// SQLite is single-writer. Allow up to 4 concurrent readers but cap at
+		// 4 total open connections to prevent "database is locked" under load.
+		// Idle connections are kept warm to avoid repeated open/close overhead.
+		db.SetMaxOpenConns(4)
+		db.SetMaxIdleConns(4)
+		db.SetConnMaxLifetime(0) // connections live as long as the process
+
+		// Apply critical pragmas. WAL mode and busy_timeout are required for safe
+		// concurrent access — treat failures as fatal so the app does not start in
+		// an unsafe state that silently loses data or deadlocks under concurrent scans.
+		criticalPragmas := []string{
 			"PRAGMA journal_mode=WAL",
 			"PRAGMA busy_timeout=5000",
-		} {
+		}
+		for _, pragma := range criticalPragmas {
 			if _, err := db.Exec(pragma); err != nil {
-				utils.LogWarn(fmt.Sprintf("db: %s failed: %v", pragma, err))
+				db.Close()
+				db = nil
+				initErr = fmt.Errorf("critical DB pragma failed (%s): %v — cannot start safely", pragma, err)
+				return
 			}
 		}
 
-		// Create tables
-		schema := `
+		// Enable foreign keys before any schema work.
+		if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+			utils.LogWarn("PRAGMA foreign_keys: " + err.Error())
+		}
+
+		// Run versioned migrations. Each migration is applied exactly once and
+		// recorded in the schema_migrations table. Adding a new schema change:
+		//   1. Append a new migration to the `migrations` slice below.
+		//   2. Bump the version number by 1.
+		// Never edit or reorder existing migrations — only append.
+		if initErr = runMigrations(db); initErr != nil {
+			db.Close()
+			db = nil
+			return
+		}
+
+		utils.LogInfo("📦 Database initialized at " + dbPath)
+	})
+	return initErr
+}
+
+// migration holds a single versioned schema change.
+type migration struct {
+	version int
+	sql     string
+}
+
+// migrations is the ordered, append-only list of all schema changes.
+// Each entry is applied exactly once and recorded in schema_migrations.
+// Rule: never edit or reorder an existing entry — only append new ones.
+var migrations = []migration{
+	{1, `
 		CREATE TABLE IF NOT EXISTS scans (
 			id TEXT PRIMARY KEY,
 			target TEXT NOT NULL,
@@ -90,36 +130,64 @@ func InitDB() error {
 			FOREIGN KEY (scan_id) REFERENCES scans(id) ON DELETE CASCADE
 		);
 		CREATE INDEX IF NOT EXISTS idx_findings_scan_id ON findings(scan_id);
-		`
-		_, err = db.Exec(schema)
+		CREATE INDEX IF NOT EXISTS idx_findings_phase ON findings(scan_id, phase);
+	`},
+	// v2 — future schema changes go here, e.g.:
+	// {2, `ALTER TABLE scans ADD COLUMN risk_score REAL DEFAULT 0`},
+}
+
+// runMigrations creates the schema_migrations tracking table if needed,
+// then applies any migrations whose version is higher than the current
+// recorded schema version. Each migration runs inside its own transaction
+// so a partial failure leaves the database in a consistent state.
+func runMigrations(db *sql.DB) error {
+	// Bootstrap: create the version-tracking table on first run.
+	if _, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS schema_migrations (
+			version INTEGER PRIMARY KEY,
+			applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+		)
+	`); err != nil {
+		return fmt.Errorf("failed to create schema_migrations table: %w", err)
+	}
+
+	// Determine the highest version already applied.
+	var currentVersion int
+	row := db.QueryRow("SELECT COALESCE(MAX(version), 0) FROM schema_migrations")
+	if err := row.Scan(&currentVersion); err != nil {
+		return fmt.Errorf("failed to read current schema version: %w", err)
+	}
+
+	for _, m := range migrations {
+		if m.version <= currentVersion {
+			continue // already applied
+		}
+
+		tx, err := db.Begin()
 		if err != nil {
-			db.Close()
-			db = nil
-			initErr = fmt.Errorf("failed to create schema: %v", err)
-			return
+			return fmt.Errorf("migration v%d: failed to begin transaction: %w", m.version, err)
 		}
 
-		// Enable foreign keys
-		if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-			utils.LogWarn("PRAGMA foreign_keys: " + err.Error())
+		if _, err := tx.Exec(m.sql); err != nil {
+			_ = tx.Rollback()
+			return fmt.Errorf("migration v%d failed: %w", m.version, err)
 		}
 
-		// Add phase column if it doesn't exist (migration for existing DBs)
-		// Ignore "duplicate column" errors — that just means the migration already ran.
-		if _, err := db.Exec("ALTER TABLE findings ADD COLUMN phase TEXT NOT NULL DEFAULT 'final'"); err != nil {
-			if !strings.Contains(err.Error(), "duplicate column") {
-				utils.LogWarn("ALTER TABLE findings (phase): " + err.Error())
-			}
+		if _, err := tx.Exec(
+			"INSERT INTO schema_migrations (version) VALUES (?)", m.version,
+		); err != nil {
+			_ = tx.Rollback()
+			return fmt.Errorf("migration v%d: failed to record version: %w", m.version, err)
 		}
 
-		// Create phase index (safe to run after column is guaranteed to exist)
-		if _, err := db.Exec("CREATE INDEX IF NOT EXISTS idx_findings_phase ON findings(scan_id, phase)"); err != nil {
-			utils.LogWarn("CREATE INDEX idx_findings_phase: " + err.Error())
+		if err := tx.Commit(); err != nil {
+			return fmt.Errorf("migration v%d: failed to commit: %w", m.version, err)
 		}
 
-		utils.LogInfo("📦 Database initialized at " + dbPath)
-	})
-	return initErr
+		utils.LogInfo(fmt.Sprintf("DB: applied schema migration v%d", m.version))
+	}
+
+	return nil
 }
 
 // CreateScan inserts a new scan record
@@ -267,6 +335,12 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 			utils.LogError(fmt.Sprintf("Failed to unmarshal finding id=%d for scan %s", id, scanID), err)
 			continue
 		}
+		// Guard against corrupted or schema-mismatch rows that would produce
+		// zero-value findings flowing silently into reports.
+		if f.RuleID == "" || f.FilePath == "" {
+			utils.LogWarn(fmt.Sprintf("Skipping malformed finding id=%d for scan %s: missing RuleID or FilePath", id, scanID))
+			continue
+		}
 		f.ID = int(id)
 		findings = append(findings, f)
 	}
@@ -313,6 +387,12 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 		var f reporter.Finding
 		if err := json.Unmarshal([]byte(data), &f); err != nil {
 			utils.LogError(fmt.Sprintf("Failed to unmarshal finding id=%d for scan %s", id, scanID), err)
+			continue
+		}
+		// Guard against corrupted or schema-mismatch rows that would produce
+		// zero-value findings flowing silently into reports.
+		if f.RuleID == "" || f.FilePath == "" {
+			utils.LogWarn(fmt.Sprintf("Skipping malformed finding id=%d for scan %s: missing RuleID or FilePath", id, scanID))
 			continue
 		}
 		f.ID = int(id)
