@@ -174,7 +174,7 @@
   owasp: "A03:2021"
   confidence: 0.8
 
-- id: ocaml-ssrf
+- id: ocaml-ssrf-dup1
   languages: [ocaml]
   patterns:
     - regex: '(?i)Cohttp\.get\s*\(.*\$|Uri\.of_string.*\$'

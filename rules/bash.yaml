@@ -1,7 +1,7 @@
 - id: bash-eval-usage
   languages: [bash]
   patterns:
-    - regex: '\.beval\.s+'
+    - regex: '\.beval\s+'
   severity: high
   description: "Use of eval can execute arbitrary code"
   remediation: "Avoid eval. Use arrays and proper quoting for dynamic commands"
@@ -32,7 +32,7 @@
 - id: bash-hardcoded-password
   languages: [bash]
   patterns:
-    - regex: '(?i)(PASSWORD|PASSWD|DB_PASS|MYSQL_PASSWORD)\.s*=\.s*[''\.][^''\.]{8,}[''\.]'
+    - regex: '(?i)(PASSWORD|PASSWD|DB_PASS|MYSQL_PASSWORD)\s*=\s*[''\.][^''\.]{8,}[''\.]'
   severity: high
   description: "Hardcoded password in shell script"
   remediation: "Use environment variables, .env files with restricted permissions, or a secrets manager"
@@ -42,7 +42,7 @@
 - id: bash-hardcoded-api-key
   languages: [bash]
   patterns:
-    - regex: '(?i)(API_KEY|SECRET_KEY|ACCESS_TOKEN)\.s*=\.s*[''\.][a-zA-Z0-9]{16,}[''\.]'
+    - regex: '(?i)(API_KEY|SECRET_KEY|ACCESS_TOKEN)\s*=\s*[''\.][a-zA-Z0-9]{16,}[''\.]'
   severity: high
   description: "Hardcoded API key or token in shell script"
   remediation: "Pass secrets via environment variables or secrets manager"
@@ -52,7 +52,7 @@
 - id: bash-aws-credentials
   languages: [bash]
   patterns:
-    - regex: 'AKIA[0-9A-Z]{16}|(?i)AWS_SECRET_ACCESS_KEY\.s*=\.s*[''\.][^''\.]+[''\.]'
+    - regex: 'AKIA[0-9A-Z]{16}|(?i)AWS_SECRET_ACCESS_KEY\s*=\s*[''\.][^''\.]+[''\.]'
   severity: critical
   description: "AWS credentials detected in shell script"
   remediation: "Use IAM roles, AWS CLI profiles, or environment variables"
@@ -63,7 +63,7 @@
 - id: bash-world-writable-chmod
   languages: [bash]
   patterns:
-    - regex: 'chmod\.s+(777|666|o\.+w)'
+    - regex: 'chmod\s+(777|666|o\.+w)'
   severity: high
   description: "Setting world-writable permissions is a security risk"
   remediation: "Use restrictive permissions: chmod 750 for dirs, chmod 640 for files"
@@ -84,7 +84,7 @@
 - id: bash-curl-insecure
   languages: [bash]
   patterns:
-    - regex: 'curl\.s+.*(-k|--insecure)'
+    - regex: 'curl\s+.*(-k|--insecure)'
   severity: high
   description: "curl with --insecure flag disables SSL certificate verification"
   remediation: "Remove -k/--insecure flag. Fix certificate issues instead"
@@ -94,7 +94,7 @@
 - id: bash-wget-no-check
   languages: [bash]
   patterns:
-    - regex: 'wget\.s+.*--no-check-certificate'
+    - regex: 'wget\s+.*--no-check-certificate'
   severity: high
   description: "wget with --no-check-certificate disables SSL verification"
   remediation: "Remove --no-check-certificate. Install proper CA certificates"
@@ -104,7 +104,7 @@
 - id: bash-pipe-to-shell
   languages: [bash]
   patterns:
-    - regex: 'curl\.s+.*\.|\.s*(bash|sh|zsh)|wget\.s+.*-O\.s*-\.s*\.|\.s*(bash|sh)'
+    - regex: 'curl\s+.*\.|\s*(bash|sh|zsh)|wget\s+.*-O\s*-\s*\.|\s*(bash|sh)'
   severity: critical
   description: "Piping remote content directly to shell is extremely dangerous"
   remediation: "Download script first, inspect it, then execute: curl -o script.sh URL && bash script.sh"
@@ -115,7 +115,7 @@
 - id: bash-sql-injection-cli
   languages: [bash]
   patterns:
-    - regex: '(?i)(mysql|psql|sqlite3)\.s+.*-e\.s+[''\.].*\.$'
+    - regex: '(?i)(mysql|psql|sqlite3)\s+.*-e\s+[''\.].*\.$'
   severity: critical
   description: "SQL injection via variable interpolation in CLI database commands"
   remediation: "Use parameterized queries or properly escape variables"
@@ -126,7 +126,7 @@
 - id: bash-suid-binary
   languages: [bash]
   patterns:
-    - regex: 'chmod\.s+[u+]?s\.s|chmod\.s+4[0-7]{3}\.s'
+    - regex: 'chmod\s+[u+]?s\.s|chmod\s+4[0-7]{3}\.s'
   severity: high
   description: "Setting SUID bit can lead to privilege escalation"
   remediation: "Avoid SUID. Use capabilities or sudoers for specific permissions"
@@ -209,7 +209,7 @@
 - id: bash-awk-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)awk\.s+''[^'']*\.$\.{'
+    - regex: '(?i)awk\s+''[^'']*\.$\.{'
   severity: high
   description: "AWK command with variable interpolation may allow injection"
   remediation: "Pass variables via -v option: awk -v var=\"$value\""
@@ -219,7 +219,7 @@
 - id: bash-sed-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)sed\.s+''[^'']*\.$[A-Za-z_]'
+    - regex: '(?i)sed\s+''[^'']*\.$[A-Za-z_]'
   severity: high
   description: "SED command with variable interpolation may allow injection"
   remediation: "Use proper quoting and escape special characters"
@@ -229,7 +229,7 @@
 - id: bash-grep-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)grep\.s+.*\.$\.{?[A-Za-z_]'
+    - regex: '(?i)grep\s+.*\.$\.{?[A-Za-z_]'
   severity: medium
   description: "GREP with variable may allow regex injection"
   remediation: "Use grep -F for fixed strings or escape regex metacharacters"
@@ -239,7 +239,7 @@
 - id: bash-find-exec-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)find\.s+.*-exec\.s+.*\.$'
+    - regex: '(?i)find\s+.*-exec\s+.*\.$'
   severity: high
   description: "FIND -exec with variable may allow command injection"
   remediation: "Use -exec with {} properly quoted or use -execdir"
@@ -249,7 +249,7 @@
 - id: bash-xargs-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)xargs\.s+.*\.$|xargs\.s+-I'
+    - regex: '(?i)xargs\s+.*\.$|xargs\s+-I'
   severity: high
   description: "XARGS with variable may allow command injection"
   remediation: "Use xargs -0 with proper quoting"
@@ -259,7 +259,7 @@
 - id: bash-cut-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)cut\.s+.*\.$\.{'
+    - regex: '(?i)cut\s+.*\.$\.{'
   severity: medium
   description: "CUT command with variable interpolation"
   remediation: "Validate field numbers before using in cut command"
@@ -269,7 +269,7 @@
 - id: bash-tr-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)tr\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)tr\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "TR command with variable may allow injection"
   remediation: "Validate character sets before using in tr command"
@@ -279,7 +279,7 @@
 - id: bash-sort-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)sort\.s+.*-k\.s+\.$'
+    - regex: '(?i)sort\s+.*-k\s+\.$'
   severity: low
   description: "SORT with variable key may allow injection"
   remediation: "Validate sort key numbers"
@@ -289,7 +289,7 @@
 - id: bash-head-tail-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)(head|tail)\.s+.*-n\.s+\.$'
+    - regex: '(?i)(head|tail)\s+.*-n\s+\.$'
   severity: low
   description: "HEAD/TAIL with variable line count"
   remediation: "Validate numeric input before using"
@@ -299,7 +299,7 @@
 - id: bash-printf-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)printf\.s+''[^'']*\.$\.{'
+    - regex: '(?i)printf\s+''[^'']*\.$\.{'
   severity: medium
   description: "PRINTF with variable may allow format string injection"
   remediation: "Use printf '%s' \"$var\" instead of interpolation"
@@ -309,7 +309,7 @@
 - id: bash-echo-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)echo\.s+.*-e.*\.$'
+    - regex: '(?i)echo\s+.*-e.*\.$'
   severity: medium
   description: "ECHO -e with variable may interpret escape sequences"
   remediation: "Use printf instead of echo -e"
@@ -319,7 +319,7 @@
 - id: bash-read-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)read\.s+.*\.$\.{?IFS'
+    - regex: '(?i)read\s+.*\.$\.{?IFS'
   severity: medium
   description: "READ with modified IFS may cause word splitting"
   remediation: "Reset IFS after use: IFS=$'\n\t'"
@@ -329,7 +329,7 @@
 - id: bash-case-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)case\.s+\.$.*in.*\.*'
+    - regex: '(?i)case\s+\.$.*in.*\.*'
   severity: low
   description: "CASE statement with wildcard may match unexpectedly"
   remediation: "Use specific patterns instead of wildcards"
@@ -339,7 +339,7 @@
 - id: bash-select-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)select\.s+.*in\.s+\.$'
+    - regex: '(?i)select\s+.*in\s+\.$'
   severity: medium
   description: "SELECT menu with variable options"
   remediation: "Validate menu options before presenting"
@@ -349,7 +349,7 @@
 - id: bash-timeout-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)timeout\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)timeout\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "TIMEOUT command with variable may allow injection"
   remediation: "Validate timeout value is numeric"
@@ -361,7 +361,7 @@
 - id: bash-rm-recursive
   languages: [bash]
   patterns:
-    - regex: '(?i)rm\.s+.*-rf\.s+/|rm\.s+.*-fr\.s+/'
+    - regex: '(?i)rm\s+.*-rf\s+/|rm\s+.*-fr\s+/'
   severity: critical
   description: "Recursive delete on root or system directories"
   remediation: "Never use rm -rf on system directories. Add safety checks"
@@ -371,7 +371,7 @@
 - id: bash-rm-variable-path
   languages: [bash]
   patterns:
-    - regex: '(?i)rm\.s+.*\.$[A-Za-z_]*\.s*$'
+    - regex: '(?i)rm\s+.*\.$[A-Za-z_]*\s*$'
   severity: high
   description: "RM with variable path may delete unintended files"
   remediation: "Validate path before deletion. Use -i for interactive"
@@ -381,7 +381,7 @@
 - id: bash-cp-overwrite
   languages: [bash]
   patterns:
-    - regex: '(?i)cp\.s+.*-f\.s+.*\.$'
+    - regex: '(?i)cp\s+.*-f\s+.*\.$'
   severity: medium
   description: "CP with force flag may overwrite important files"
   remediation: "Remove -f flag or validate destination before copying"
@@ -391,7 +391,7 @@
 - id: bash-mv-overwrite
   languages: [bash]
   patterns:
-    - regex: '(?i)mv\.s+.*-f\.s+.*\.$'
+    - regex: '(?i)mv\s+.*-f\s+.*\.$'
   severity: medium
   description: "MV with force flag may overwrite important files"
   remediation: "Remove -f flag or validate destination before moving"
@@ -401,7 +401,7 @@
 - id: bash-cat-variable-file
   languages: [bash]
   patterns:
-    - regex: '(?i)cat\.s+.*\.$[A-Za-z_]*\.s*$'
+    - regex: '(?i)cat\s+.*\.$[A-Za-z_]*\s*$'
   severity: medium
   description: "CAT with variable may read sensitive files"
   remediation: "Validate file path against allowlist"
@@ -411,7 +411,7 @@
 - id: bash-tac-variable-file
   languages: [bash]
   patterns:
-    - regex: '(?i)tac\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)tac\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "TAC with variable may read sensitive files"
   remediation: "Validate file path against allowlist"
@@ -421,7 +421,7 @@
 - id: bash-less-more-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)(less|more)\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)(less|more)\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "LESS/MORE with variable may expose sensitive files"
   remediation: "Validate file path before viewing"
@@ -431,7 +431,7 @@
 - id: bash-tail-follow-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)tail\.s+.*-f\.s+.*\.$'
+    - regex: '(?i)tail\s+.*-f\s+.*\.$'
   severity: medium
   description: "TAIL -f with variable may follow sensitive logs"
   remediation: "Validate log file path"
@@ -441,7 +441,7 @@
 - id: bash-touch-variable-path
   languages: [bash]
   patterns:
-    - regex: '(?i)touch\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)touch\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "TOUCH with variable may create files in sensitive locations"
   remediation: "Validate file path before creating"
@@ -451,7 +451,7 @@
 - id: bash-mkdir-variable-path
   languages: [bash]
   patterns:
-    - regex: '(?i)mkdir\.s+.*-p\.s+.*\.$'
+    - regex: '(?i)mkdir\s+.*-p\s+.*\.$'
   severity: medium
   description: "MKDIR with variable may create directories in sensitive locations"
   remediation: "Validate directory path before creating"
@@ -461,7 +461,7 @@
 - id: bash-rmdir-variable-path
   languages: [bash]
   patterns:
-    - regex: '(?i)rmdir\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)rmdir\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "RMDIR with variable may remove important directories"
   remediation: "Validate directory path before removing"
@@ -471,7 +471,7 @@
 - id: bash-ln-symbolic
   languages: [bash]
   patterns:
-    - regex: '(?i)ln\.s+.*-s\.s+.*\.$'
+    - regex: '(?i)ln\s+.*-s\s+.*\.$'
   severity: high
   description: "Symbolic link with variable may create security bypass"
   remediation: "Validate link target and avoid symlinks in sensitive areas"
@@ -481,7 +481,7 @@
 - id: bash-chown-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)chown\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)chown\s+.*\.$[A-Za-z_]'
   severity: high
   description: "CHOWN with variable may change ownership incorrectly"
   remediation: "Validate owner/group before changing"
@@ -491,7 +491,7 @@
 - id: bash-chgrp-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)chgrp\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)chgrp\s+.*\.$[A-Za-z_]'
   severity: high
   description: "CHGRP with variable may change group incorrectly"
   remediation: "Validate group before changing"
@@ -501,7 +501,7 @@
 - id: bash-stat-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)stat\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)stat\s+.*\.$[A-Za-z_]'
   severity: low
   description: "STAT with variable may leak file metadata"
   remediation: "Validate file path before stat"
@@ -513,7 +513,7 @@
 - id: bash-nc-netcat-listen
   languages: [bash]
   patterns:
-    - regex: '(?i)nc\.s+.*-l|netcat\.s+.*-l'
+    - regex: '(?i)nc\s+.*-l|netcat\s+.*-l'
   severity: high
   description: "Netcat listening mode may create backdoor"
   remediation: "Avoid netcat listen in production scripts"
@@ -523,7 +523,7 @@
 - id: bash-nc-connect-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)nc\.s+.*\.$[A-Za-z_]|netcat\.s+.*\.$'
+    - regex: '(?i)nc\s+.*\.$[A-Za-z_]|netcat\s+.*\.$'
   severity: high
   description: "Netcat with variable host may connect to malicious server"
   remediation: "Validate host and port before connecting"
@@ -533,7 +533,7 @@
 - id: bash-ssh-no-host-check
   languages: [bash]
   patterns:
-    - regex: '(?i)ssh\.s+.*-o\.s+StrictHostKeyChecking=no'
+    - regex: '(?i)ssh\s+.*-o\s+StrictHostKeyChecking=no'
   severity: high
   description: "SSH with disabled host key checking is vulnerable to MITM"
   remediation: "Use StrictHostKeyChecking=yes with known_hosts"
@@ -543,7 +543,7 @@
 - id: bash-ssh-password-cli
   languages: [bash]
   patterns:
-    - regex: '(?i)sshpass\.s+.*-p|ssh.*PasswordAuthentication'
+    - regex: '(?i)sshpass\s+.*-p|ssh.*PasswordAuthentication'
   severity: high
   description: "SSH password in command line is visible in process list"
   remediation: "Use SSH keys instead of passwords"
@@ -553,7 +553,7 @@
 - id: bash-scp-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)scp\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)scp\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "SCP with variable may transfer to/from unintended locations"
   remediation: "Validate source and destination paths"
@@ -563,7 +563,7 @@
 - id: bash-rsync-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)rsync\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)rsync\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "RSYNC with variable may sync unintended files"
   remediation: "Validate source and destination paths"
@@ -573,7 +573,7 @@
 - id: bash-ftp-anonymous
   languages: [bash]
   patterns:
-    - regex: '(?i)ftp\.s+.*anonymous|lftp\.s+.*anonymous'
+    - regex: '(?i)ftp\s+.*anonymous|lftp\s+.*anonymous'
   severity: medium
   description: "Anonymous FTP access detected"
   remediation: "Use authenticated FTP or SFTP instead"
@@ -583,7 +583,7 @@
 - id: bash-telnet-usage
   languages: [bash]
   patterns:
-    - regex: '(?i)telnet\.s+'
+    - regex: '(?i)telnet\s+'
   severity: high
   description: "Telnet transmits data in plaintext"
   remediation: "Use SSH instead of Telnet"
@@ -593,7 +593,7 @@
 - id: bash-nslookup-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)nslookup\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)nslookup\s+.*\.$[A-Za-z_]'
   severity: low
   description: "NSLOOKUP with variable may leak internal DNS info"
   remediation: "Validate DNS query input"
@@ -603,7 +603,7 @@
 - id: bash-dig-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)dig\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)dig\s+.*\.$[A-Za-z_]'
   severity: low
   description: "DIG with variable may leak internal DNS info"
   remediation: "Validate DNS query input"
@@ -613,7 +613,7 @@
 - id: bash-ping-flood
   languages: [bash]
   patterns:
-    - regex: '(?i)ping\.s+.*-f|ping\.s+.*flood'
+    - regex: '(?i)ping\s+.*-f|ping\s+.*flood'
   severity: medium
   description: "Ping flood may be used for DoS"
   remediation: "Avoid ping flood in scripts"
@@ -623,7 +623,7 @@
 - id: bash-traceroute-variable
   languages: [bash]
   patterns:
-    - regex: '(?i)(traceroute|tracepath)\.s+.*\.$'
+    - regex: '(?i)(traceroute|tracepath)\s+.*\.$'
   severity: low
   description: "Traceroute with variable may leak network topology"
   remediation: "Validate target before tracing"
@@ -633,7 +633,7 @@
 - id: bash-nmap-scan
   languages: [bash]
   patterns:
-    - regex: '(?i)nmap\.s+.*-sS|nmap\.s+.*-sV'
+    - regex: '(?i)nmap\s+.*-sS|nmap\s+.*-sV'
   severity: medium
   description: "Nmap scanning detected — may be unauthorized"
   remediation: "Ensure scanning is authorized and logged"
@@ -643,7 +643,7 @@
 - id: bash-wget-recursive
   languages: [bash]
   patterns:
-    - regex: '(?i)wget\.s+.*-r|wget\.s+.*--recursive'
+    - regex: '(?i)wget\s+.*-r|wget\s+.*--recursive'
   severity: medium
   description: "Recursive wget may download unintended content"
   remediation: "Limit recursion depth and validate URLs"
@@ -653,7 +653,7 @@
 - id: bash-curl-post-data
   languages: [bash]
   patterns:
-    - regex: '(?i)curl\.s+.*-d\.s+.*\.$|curl\.s+.*--data'
+    - regex: '(?i)curl\s+.*-d\s+.*\.$|curl\s+.*--data'
   severity: medium
   description: "CURL POST with variable may send sensitive data"
   remediation: "Validate data before sending. Use HTTPS"
@@ -665,7 +665,7 @@
 - id: bash-gpg-passphrase-cli
   languages: [bash]
   patterns:
-    - regex: '(?i)gpg\.s+.*--passphrase\.s+'
+    - regex: '(?i)gpg\s+.*--passphrase\s+'
   severity: high
   description: "GPG passphrase on command line is visible"
   remediation: "Use gpg-agent or passphrase file with restricted permissions"
@@ -675,7 +675,7 @@
 - id: bash-openssl-passwd-cli
   languages: [bash]
   patterns:
-    - regex: '(?i)openssl\.s+.*-pass\.s+pass:'
+    - regex: '(?i)openssl\s+.*-pass\s+pass:'
   severity: high
   description: "OpenSSL password on command line is visible"
   remediation: "Use password file or environment variable"
@@ -685,7 +685,7 @@
 - id: bash-git-credential-store
   languages: [bash]
   patterns:
-    - regex: '(?i)git\.s+.*credential\..store'
+    - regex: '(?i)git\s+.*credential\..store'
   severity: medium
   description: "Git credential store may save passwords in plaintext"
   remediation: "Use credential helper with encryption"
@@ -695,7 +695,7 @@
 - id: bash-docker-login-password
   languages: [bash]
   patterns:
-    - regex: '(?i)docker\.s+login\.s+.*-p|docker.*--password'
+    - regex: '(?i)docker\s+login\s+.*-p|docker.*--password'
   severity: critical
   description: "Docker password on command line is visible"
   remediation: "Use docker login with stdin or credential helper"
@@ -705,7 +705,7 @@
 - id: bash-kubectl-token
   languages: [bash]
   patterns:
-    - regex: '(?i)kubectl\.s+.*--token\.s+'
+    - regex: '(?i)kubectl\s+.*--token\s+'
   severity: high
   description: "Kubernetes token on command line is visible"
   remediation: "Use kubeconfig file with proper permissions"
@@ -715,7 +715,7 @@
 - id: bash-vault-token-env
   languages: [bash]
   patterns:
-    - regex: '(?i)VAULT_TOKEN\.s*=|vault\.s+.*-token'
+    - regex: '(?i)VAULT_TOKEN\s*=|vault\s+.*-token'
   severity: medium
   description: "Vault token in environment may be leaked"
   remediation: "Use Vault agent or short-lived tokens"
@@ -755,7 +755,7 @@
 - id: bash-bearer-token-header
   languages: [bash]
   patterns:
-    - regex: '(?i)Authorization:\.s*Bearer\.s+\.$'
+    - regex: '(?i)Authorization:\s*Bearer\s+\.$'
   severity: medium
   description: "Bearer token in script may be logged"
   remediation: "Mask tokens in logs. Use short-lived tokens"
@@ -765,7 +765,7 @@
 - id: bash-basic-auth-header
   languages: [bash]
   patterns:
-    - regex: '(?i)Authorization:\.s*Basic\.s+'
+    - regex: '(?i)Authorization:\s*Basic\s+'
   severity: high
   description: "Basic auth credentials may be base64 decoded"
   remediation: "Use token-based auth instead of Basic"
@@ -817,7 +817,7 @@
 - id: bash-su-without-password
   languages: [bash]
   patterns:
-    - regex: '(?i)su\.s+-\.s*$|su\.s+root\.s*$'
+    - regex: '(?i)su\s+-\s*$|su\s+root\s*$'
   severity: high
   description: "SU to root without proper authentication"
   remediation: "Use sudo with proper configuration instead"
@@ -827,7 +827,7 @@
 - id: bash-sudo-all-commands
   languages: [bash]
   patterns:
-    - regex: '(?i)sudo\.s+.*\.(ALL\.)\.s+ALL'
+    - regex: '(?i)sudo\s+.*\.(ALL\.)\s+ALL'
   severity: high
   description: "Sudo configured for all commands"
   remediation: "Limit sudo to specific commands"
@@ -837,7 +837,7 @@
 - id: bash-setuid-script
   languages: [bash]
   patterns:
-    - regex: '(?i)chmod\.s+[u+]?s.*\..sh|\..bash'
+    - regex: '(?i)chmod\s+[u+]?s.*\..sh|\..bash'
   severity: critical
   description: "SUID bit on shell script is ignored but dangerous"
   remediation: "Never set SUID on scripts. Use compiled binaries"
@@ -847,7 +847,7 @@
 - id: bash-setgid-script
   languages: [bash]
   patterns:
-    - regex: '(?i)chmod\.s+[g+]?s.*\..sh|\..bash'
+    - regex: '(?i)chmod\s+[g+]?s.*\..sh|\..bash'
   severity: high
   description: "SGID bit on shell script may cause issues"
   remediation: "Avoid SGID on scripts"
@@ -857,7 +857,7 @@
 - id: bash-chroot-escape
   languages: [bash]
   patterns:
-    - regex: '(?i)chroot\.s+.*\.$'
+    - regex: '(?i)chroot\s+.*\.$'
   severity: high
   description: "Chroot with variable may allow escape"
   remediation: "Chroot is not security boundary. Use containers"
@@ -867,7 +867,7 @@
 - id: bash-capabilities-set
   languages: [bash]
   patterns:
-    - regex: '(?i)setcap\.s+|getcap\.s+'
+    - regex: '(?i)setcap\s+|getcap\s+'
   severity: medium
   description: "Linux capabilities manipulation detected"
   remediation: "Audit capability assignments carefully"
@@ -907,7 +907,7 @@
 - id: bash-cron-root
   languages: [bash]
   patterns:
-    - regex: '(?i)crontab\.s+-u\.s+root|/etc/cron\..d/'
+    - regex: '(?i)crontab\s+-u\s+root|/etc/cron\..d/'
   severity: medium
   description: "Root cron job modification detected"
   remediation: "Audit cron jobs for security issues"
@@ -917,7 +917,7 @@
 - id: bash-at-job
   languages: [bash]
   patterns:
-    - regex: '(?i)at\.s+.*-f|atq|atrm'
+    - regex: '(?i)at\s+.*-f|atq|atrm'
   severity: medium
   description: "AT job scheduling detected"
   remediation: "Audit scheduled jobs for security"
@@ -927,7 +927,7 @@
 - id: bash-systemd-service
   languages: [bash]
   patterns:
-    - regex: '(?i)systemctl\.s+.*\..service|/etc/systemd/'
+    - regex: '(?i)systemctl\s+.*\..service|/etc/systemd/'
   severity: medium
   description: "Systemd service manipulation detected"
   remediation: "Audit service files for security issues"
@@ -937,7 +937,7 @@
 - id: bash-init-script
   languages: [bash]
   patterns:
-    - regex: '(?i)/etc/init\..d/|service\.s+'
+    - regex: '(?i)/etc/init\..d/|service\s+'
   severity: medium
   description: "Init script manipulation detected"
   remediation: "Audit init scripts for security issues"
@@ -957,7 +957,7 @@
 - id: bash-selinux-apparmor
   languages: [bash]
   patterns:
-    - regex: '(?i)setenforce\.s+0|aa-disable|getenforce'
+    - regex: '(?i)setenforce\s+0|aa-disable|getenforce'
   severity: high
   description: "Security module disabled detected"
   remediation: "Keep SELinux/AppArmor enabled in enforcing mode"
@@ -969,7 +969,7 @@
 - id: bash-getopts-missing-validation
   languages: [bash]
   patterns:
-    - regex: '(?i)getopts\.s+.*\.$[A-Za-z_]'
+    - regex: '(?i)getopts\s+.*\.$[A-Za-z_]'
   severity: medium
   description: "GETOPTS with variable may allow injection"
   remediation: "Validate all option values"
@@ -979,7 +979,7 @@
 - id: bash-shift-usage
   languages: [bash]
   patterns:
-    - regex: '(?i)shift\.s+[0-9]+'
+    - regex: '(?i)shift\s+[0-9]+'
   severity: low
   description: "SHIFT usage may cause argument confusion"
   remediation: "Document argument positions clearly"
@@ -989,7 +989,7 @@
 - id: bash-getarg-missing
   languages: [bash]
   patterns:
-    - regex: '^#!/bin/(bash|sh)\.s*$'
+    - regex: '^#!/bin/(bash|sh)\s*$'
   severity: medium
   description: "Script may not validate command line arguments"
   remediation: "Add argument validation at script start"
@@ -999,7 +999,7 @@
 - id: bash-regex-validation-missing
   languages: [bash]
   patterns:
-    - regex: '(?i)if\.s+\.[\.[\.s+.*=~]'
+    - regex: '(?i)if\s+\.[\.[\s+.*=~]'
   severity: low
   description: "Regex validation detected — ensure it's comprehensive"
   remediation: "Use strict regex patterns for validation"
@@ -1009,7 +1009,7 @@
 - id: bash-numeric-validation-missing
   languages: [bash]
   patterns:
-    - regex: '(?i)\.$[A-Za-z_]*\.s*-eq|\.$[A-Za-z_]*\.s*-gt'
+    - regex: '(?i)\.$[A-Za-z_]*\s*-eq|\.$[A-Za-z_]*\s*-gt'
   severity: medium
   description: "Numeric comparison without validation"
   remediation: "Validate input is numeric before comparison"
@@ -1029,7 +1029,7 @@
 - id: bash-associative-array
   languages: [bash]
   patterns:
-    - regex: '(?i)declare\.s+-A|\.[.*\.]='
+    - regex: '(?i)declare\s+-A|\.[.*\.]='
   severity: low
   description: "Associative array usage detected"
   remediation: "Validate keys before array access"
@@ -1039,7 +1039,7 @@
 - id: bash-here-document-injection
   languages: [bash]
   patterns:
-    - regex: '(?i)<<\.s*EOF.*\.$|<<-.*\.$'
+    - regex: '(?i)<<\s*EOF.*\.$|<<-.*\.$'
   severity: medium
   description: "Here document with variable interpolation"
   remediation: "Quote EOF delimiter to prevent expansion: <<'EOF'"
@@ -1071,7 +1071,7 @@
 - id: bash-trap-missing
   languages: [bash]
   patterns:
-    - regex: '^#!/bin/(bash|sh)\.s*$'
+    - regex: '^#!/bin/(bash|sh)\s*$'
   severity: medium
   description: "Script missing trap for cleanup on exit"
   remediation: "Add trap for cleanup: trap cleanup EXIT INT TERM"
@@ -1081,7 +1081,7 @@
 - id: bash-exit-code-ignored
   languages: [bash]
   patterns:
-    - regex: '(?i)\.|\.|\.s*true|\.|\.|\.s*:'
+    - regex: '(?i)\.|\.|\s*true|\.|\.|\s*:'
   severity: medium
   description: "Exit code ignored with || true pattern"
   remediation: "Handle errors properly instead of ignoring"
@@ -1091,7 +1091,7 @@
 - id: bash-pipeline-status
   languages: [bash]
   patterns:
-    - regex: '(?i)pipefail|set\.s+-o\.s+pipefail'
+    - regex: '(?i)pipefail|set\s+-o\s+pipefail'
   severity: low
   description: "Pipeline status handling detected"
   remediation: "Ensure pipefail is set for proper error handling"
@@ -1101,7 +1101,7 @@
 - id: bash-logger-syslog
   languages: [bash]
   patterns:
-    - regex: '(?i)logger\.s+'
+    - regex: '(?i)logger\s+'
   severity: low
   description: "Syslog logging detected — verify log content"
   remediation: "Don't log sensitive data to syslog"
@@ -1111,7 +1111,7 @@
 - id: bash-tee-output
   languages: [bash]
   patterns:
-    - regex: '(?i)tee\.s+'
+    - regex: '(?i)tee\s+'
   severity: low
   description: "TEE output detected — verify file permissions"
   remediation: "Ensure tee output files have proper permissions"
@@ -1121,7 +1121,7 @@
 - id: bash-redirect-overwrite
   languages: [bash]
   patterns:
-    - regex: '(?i)>\.s*\.$|>>\.s*\.$'
+    - regex: '(?i)>\s*\.$|>>\s*\.$'
   severity: medium
   description: "Redirect to variable path may overwrite files"
   remediation: "Validate file path before redirecting"
@@ -1131,7 +1131,7 @@
 - id: bash-exec-redirect
   languages: [bash]
   patterns:
-    - regex: '(?i)exec\.s+.*>\.s*|exec\.s+.*<\.s*'
+    - regex: '(?i)exec\s+.*>\s*|exec\s+.*<\s*'
   severity: medium
   description: "EXEC with file redirect changes file descriptors"
   remediation: "Restore file descriptors after use"
@@ -1151,7 +1151,7 @@
 - id: bash-signal-handler
   languages: [bash]
   patterns:
-    - regex: '(?i)trap\.s+.*SIG|trap\.s+.*INT|trap\.s+.*TERM'
+    - regex: '(?i)trap\s+.*SIG|trap\s+.*INT|trap\s+.*TERM'
   severity: low
   description: "Signal handler detected — verify cleanup"
   remediation: "Ensure signal handlers clean up resources"
@@ -1161,7 +1161,7 @@
 - id: bash-timeout-missing
   languages: [bash]
   patterns:
-    - regex: '(?i)while\.s+true|for\.s+.*do'
+    - regex: '(?i)while\s+true|for\s+.*do'
   severity: medium
   description: "Infinite loop detected — may hang without timeout"
   remediation: "Add timeout or iteration limit to loops"
@@ -1173,7 +1173,7 @@
 - id: bash-docker-privileged
   languages: [bash]
   patterns:
-    - regex: '(?i)docker\.s+run\.s+.*--privileged'
+    - regex: '(?i)docker\s+run\s+.*--privileged'
   severity: critical
   description: "Docker container running in privileged mode"
   remediation: "Remove --privileged. Use specific capabilities instead"
@@ -1183,7 +1183,7 @@
 - id: bash-docker-socket-mount
   languages: [bash]
   patterns:
-    - regex: '(?i)-v\.s+/var/run/docker\..sock|docker\..sock'
+    - regex: '(?i)-v\s+/var/run/docker\..sock|docker\..sock'
   severity: critical
   description: "Docker socket mounted in container — allows container escape"
   remediation: "Never mount Docker socket in containers"
@@ -1193,7 +1193,7 @@
 - id: bash-docker-root-user
   languages: [bash]
   patterns:
-    - regex: '(?i)USER\.s+root|docker.*--user\.s+root'
+    - regex: '(?i)USER\s+root|docker.*--user\s+root'
   severity: high
   description: "Container running as root user"
   remediation: "Use non-root user in containers"
@@ -1203,7 +1203,7 @@
 - id: bash-kubernetes-secret-env
   languages: [bash]
   patterns:
-    - regex: '(?i)kubectl\.s+.*secret|K8S_SECRET'
+    - regex: '(?i)kubectl\s+.*secret|K8S_SECRET'
   severity: medium
   description: "Kubernetes secret handling detected"
   remediation: "Use sealed secrets or external secrets manager"
@@ -1253,7 +1253,7 @@
 - id: bash-github-action-secret
   languages: [bash]
   patterns:
-    - regex: '(?i)\.$\.{\.{\.s*secrets\..|GITHUB_TOKEN'
+    - regex: '(?i)\.$\.{\.{\s*secrets\..|GITHUB_TOKEN'
   severity: medium
   description: "GitHub Actions secret usage detected"
   remediation: "Use GitHub secrets properly. Don't print secrets"
@@ -1283,7 +1283,7 @@
 - id: bash-helm-secret
   languages: [bash]
   patterns:
-    - regex: '(?i)helm\.s+.*--set.*secret|helm.*values.*yaml'
+    - regex: '(?i)helm\s+.*--set.*secret|helm.*values.*yaml'
   severity: medium
   description: "Helm chart with secrets detected"
   remediation: "Use Helm secrets plugin or external secrets"
@@ -1303,7 +1303,7 @@
 - id: bash-artifact-upload
   languages: [bash]
   patterns:
-    - regex: '(?i)aws\.s+s3.*cp|gsutil.*cp|azure.*upload'
+    - regex: '(?i)aws\s+s3.*cp|gsutil.*cp|azure.*upload'
   severity: medium
   description: "Artifact upload to cloud storage detected"
   remediation: "Ensure artifacts don't contain secrets"
@@ -1329,7 +1329,7 @@
 - id: bash-globbing-unquoted
   languages: [bash]
   patterns:
-    - regex: '\.*\.s+\.$|\.?\.s+\.$|\.[.*\.]\.s+\.$'
+    - regex: '\.*\s+\.$|\.?\s+\.$|\.[.*\.]\s+\.$'
   severity: high
   description: "Unquoted globbing characters with variables (unexpected expansion)"
   remediation: "Quote variables: \"$var\" or use set -f to disable globbing"
@@ -1339,7 +1339,7 @@
 - id: bash-globbing-rm-rf
   languages: [bash]
   patterns:
-    - regex: 'rm\.s+.*\.*.*\./|rm\.s+.*\.?.*\./'
+    - regex: 'rm\s+.*\.*.*\./|rm\s+.*\.?.*\./'
   severity: critical
   description: "Globbing with rm command (accidental deletion)"
   remediation: "Use explicit paths, never use globs with rm -rf"
@@ -1349,7 +1349,7 @@
 - id: bash-globbing-star
   languages: [bash]
   patterns:
-    - regex: '\.*\.s+[^\.'']|\.*\.s*$'
+    - regex: '\.*\s+[^\.'']|\.*\s*$'
   severity: medium
   description: "Unquoted * in command (may expand unexpectedly)"
   remediation: "Quote glob patterns: \"*\" or use set -f"
@@ -1359,7 +1359,7 @@
 - id: bash-globbing-question
   languages: [bash]
   patterns:
-    - regex: '\.?\.s+[^\.'']|\.?\.s*$'
+    - regex: '\.?\s+[^\.'']|\.?\s*$'
   severity: medium
   description: "Unquoted ? in command (may expand unexpectedly)"
   remediation: "Quote glob patterns: \"?\" or use set -f"
@@ -1369,7 +1369,7 @@
 - id: bash-globbing-brackets
   languages: [bash]
   patterns:
-    - regex: '\\.\[[^.]]*\]\.s+[^.'']'
+    - regex: '\\.\[[^.]]*\]\s+[^.'']'
   severity: medium
   description: "Unquoted character class in command (may expand)"
   remediation: "Quote glob patterns: \"[a-z]\""
@@ -1379,7 +1379,7 @@
 - id: bash-globbing-find-exec
   languages: [bash]
   patterns:
-    - regex: 'find.*-exec.*\.{\.}\.s*;'
+    - regex: 'find.*-exec.*\.{\.}\s*;'
   severity: low
   description: "find -exec with {} (may have unexpected results)"
   remediation: "Use -execdir instead of -exec"
@@ -1389,7 +1389,7 @@
 - id: bash-globbing-find-print0
   languages: [bash]
   patterns:
-    - regex: 'find.*-print0\.s*\.|\.s*xargs\.s*-0'
+    - regex: 'find.*-print0\s*\.|\s*xargs\s*-0'
   severity: low
   description: "find -print0 with xargs -0 (good for special chars)"
   remediation: "Good practice for handling filenames with spaces"
@@ -1399,7 +1399,7 @@
 - id: bash-globbing-find-exec-missing
   languages: [bash]
   patterns:
-    - regex: 'find.*-exec.*?\.{\.}\.s*\.+'
+    - regex: 'find.*-exec.*?\.{\.}\s*\.+'
   severity: low
   description: "find -exec with + (more efficient)"
   remediation: "Good for batch operations"
@@ -1429,7 +1429,7 @@
 - id: bash-globbing-word-splitting
   languages: [bash]
   patterns:
-    - regex: 'IFS=\.s*[^\.n]*\.s*\.$|for\.s+\.w+\.s+in\.s+\.$[^\.'']'
+    - regex: 'IFS=\s*[^\.n]*\s*\.$|for\s+\w+\s+in\s+\.$[^\.'']'
   severity: high
   description: "Word splitting vulnerability (IFS changed or unquoted)"
   remediation: "Quote variables: \"$var\", reset IFS after use"
@@ -1439,7 +1439,7 @@
 - id: bash-globbing-ifs-change
   languages: [bash]
   patterns:
-    - regex: 'IFS\.s*=\.s*[^\.n]+'
+    - regex: 'IFS\s*=\s*[^\.n]+'
   severity: medium
   description: "IFS changed (affects word splitting)"
   remediation: "Save and restore IFS: oldIFS=$IFS; IFS=...; ...; IFS=$oldIFS"
@@ -1449,7 +1449,7 @@
 - id: bash-globbing-ifs-unset
   languages: [bash]
   patterns:
-    - regex: 'unset\.s+IFS'
+    - regex: 'unset\s+IFS'
   severity: medium
   description: "IFS unset (defaults to whitespace)"
   remediation: "Explicitly set IFS to desired value"
@@ -1459,7 +1459,7 @@
 - id: bash-globbing-for-loop-unquoted
   languages: [bash]
   patterns:
-    - regex: 'for\.s+\.w+\.s+in\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*\.s*;'
+    - regex: 'for\s+\w+\s+in\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s*;'
   severity: high
   description: "For loop over unquoted variable (word splitting)"
   remediation: "Quote: for item in \"$list\""
@@ -1469,7 +1469,7 @@
 - id: bash-globbing-while-read
   languages: [bash]
   patterns:
-    - regex: 'while\.s+read\.s+\.w+\.s*;'
+    - regex: 'while\s+read\s+\w+\s*;'
   severity: low
   description: "while read loop (good for line-by-line)"
   remediation: "Use IFS= to preserve leading/trailing whitespace"
@@ -1479,7 +1479,7 @@
 - id: bash-globbing-while-read-ifs
   languages: [bash]
   patterns:
-    - regex: 'while\.s+IFS\.s*=\.s*\.s+read'
+    - regex: 'while\s+IFS\s*=\s*\s+read'
   severity: low
   description: "while read with IFS set (preserves whitespace)"
   remediation: "Good practice: while IFS= read -r line"
@@ -1489,7 +1489,7 @@
 - id: bash-globbing-read-r
   languages: [bash]
   patterns:
-    - regex: 'read\.s+'
+    - regex: 'read\s+'
   severity: medium
   description: "read without -r (backslash escapes interpreted)"
   remediation: "Use read -r for raw input"
@@ -1509,7 +1509,7 @@
 - id: bash-globbing-pathname-expansion
   languages: [bash]
   patterns:
-    - regex: 'set\.s+\.-o\.s+noglob|set\.s+\.-f'
+    - regex: 'set\s+\.-o\s+noglob|set\s+\.-f'
   severity: low
   description: "Globbing disabled (good for literal strings)"
   remediation: "Good practice when working with special characters"
@@ -1519,7 +1519,7 @@
 - id: bash-globbing-case-pattern
   languages: [bash]
   patterns:
-    - regex: 'case\.s+\.$[a-zA-Z_]+\.s+in\.s+\.*[^)]*\.*'
+    - regex: 'case\s+\.$[a-zA-Z_]+\s+in\s+\.*[^)]*\.*'
   severity: low
   description: "Case pattern with wildcards (may match unexpectedly)"
   remediation: "Use specific patterns, quote variable expansions"
@@ -1571,7 +1571,7 @@
 - id: bash-word-splitting-assign
   languages: [bash]
   patterns:
-    - regex: '\.w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: '\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "Assignment without quotes (preserves internal spaces?)"
   remediation: "Quote: var=\"$value\""
@@ -1581,7 +1581,7 @@
 - id: bash-word-splitting-export
   languages: [bash]
   patterns:
-    - regex: 'export\.s+\.w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'export\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: high
   description: "Export without quotes (environment variable issues)"
   remediation: "Quote: export VAR=\"$value\""
@@ -1591,7 +1591,7 @@
 - id: bash-word-splitting-local
   languages: [bash]
   patterns:
-    - regex: 'local\.s+\.w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'local\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "Local variable without quotes"
   remediation: "Quote: local var=\"$value\""
@@ -1601,7 +1601,7 @@
 - id: bash-word-splitting-readonly
   languages: [bash]
   patterns:
-    - regex: 'readonly\.s+\.w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'readonly\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "Readonly variable without quotes"
   remediation: "Quote: readonly var=\"$value\""
@@ -1611,7 +1611,7 @@
 - id: bash-word-splitting-declare
   languages: [bash]
   patterns:
-    - regex: 'declare\.s+\.w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'declare\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "Declare without quotes"
   remediation: "Quote: declare var=\"$value\""
@@ -1621,7 +1621,7 @@
 - id: bash-word-splitting-typeset
   languages: [bash]
   patterns:
-    - regex: 'typeset\.s+\.w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'typeset\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "Typeset without quotes"
   remediation: "Quote: typeset var=\"$value\""
@@ -1631,7 +1631,7 @@
 - id: bash-word-splitting-printf-format
   languages: [bash]
   patterns:
-    - regex: 'printf\.s+[^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'printf\s+[^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: high
   description: "printf format string with variable (format injection)"
   remediation: "Use printf '%s' \"$var\" instead of interpolating"
@@ -1641,7 +1641,7 @@
 - id: bash-word-splitting-printf-variable
   languages: [bash]
   patterns:
-    - regex: 'printf\.s+[''\.][^''\.]*[''\.]\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'printf\s+[''\.][^''\.]*[''\.]\s+\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "printf with variable as argument (good)"
   remediation: "Good practice"
@@ -1651,7 +1651,7 @@
 - id: bash-word-splitting-echo
   languages: [bash]
   patterns:
-    - regex: 'echo\.s+[^-][^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'echo\s+[^-][^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "echo with unquoted variable (may interpret options)"
   remediation: "Use printf '%s\n' \"$var\" instead of echo"
@@ -1661,7 +1661,7 @@
 - id: bash-word-splitting-echo-e
   languages: [bash]
   patterns:
-    - regex: 'echo\.s+-e\.s+.*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'echo\s+-e\s+.*\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: high
   description: "echo -e with variable (escape sequence injection)"
   remediation: "Use printf instead of echo -e"
@@ -1671,7 +1671,7 @@
 - id: bash-word-splitting-test
   languages: [bash]
   patterns:
-    - regex: '\.[\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*\.s+'
+    - regex: '\.[\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s+'
   severity: critical
   description: "Test [ ] with unquoted variable (syntax error if empty)"
   remediation: "Quote in tests: [ \"$var\" = \"value\" ]"
@@ -1681,7 +1681,7 @@
 - id: bash-word-splitting-test-operator
   languages: [bash]
   patterns:
-    - regex: '\.[\.s+[^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*[^\.'']*\.s+'
+    - regex: '\.[\s+[^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*[^\.'']*\s+'
   severity: critical
   description: "Test with unquoted variable (word splitting)"
   remediation: "Always quote variables in [ ] tests"
@@ -1691,7 +1691,7 @@
 - id: bash-word-splitting-double-bracket
   languages: [bash]
   patterns:
-    - regex: '\.[\.[\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*\.s+'
+    - regex: '\.[\.[\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s+'
   severity: low
   description: "Double bracket [[ ]] with variable (safer)"
   remediation: "Double brackets handle empty variables better"
@@ -1701,7 +1701,7 @@
 - id: bash-word-splitting-here-doc
   languages: [bash]
   patterns:
-    - regex: '<<\.s*\.w+\.s*.*\.$'
+    - regex: '<<\s*\w+\s*.*\.$'
   severity: medium
   description: "Here document with variable expansion"
   remediation: "Quote delimiter: <<'EOF' to prevent expansion"
@@ -1711,7 +1711,7 @@
 - id: bash-word-splitting-here-string
   languages: [bash]
   patterns:
-    - regex: '<<<\.s*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: '<<<\s*\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "Here string with variable (word splitting)"
   remediation: "Quote: <<< \"$var\""
@@ -1743,7 +1743,7 @@
 - id: bash-race-mktemp-missing
   languages: [bash]
   patterns:
-    - regex: '>\.s*\./tmp\./[^/]+'
+    - regex: '>\s*\./tmp\./[^/]+'
   severity: high
   description: "Creating file in /tmp without mktemp"
   remediation: "Use mktemp for secure temp file creation"
@@ -1753,7 +1753,7 @@
 - id: bash-race-mktemp-usage
   languages: [bash]
   patterns:
-    - regex: 'mktemp\.s+[^|;]+'
+    - regex: 'mktemp\s+[^|;]+'
   severity: low
   description: "mktemp usage (good for temp files)"
   remediation: "Good practice"
@@ -1763,7 +1763,7 @@
 - id: bash-race-mktemp-d
   languages: [bash]
   patterns:
-    - regex: 'mktemp\.s+-d'
+    - regex: 'mktemp\s+-d'
   severity: low
   description: "mktemp -d for temp directory"
   remediation: "Good practice"
@@ -1803,7 +1803,7 @@
 - id: bash-race-flock
   languages: [bash]
   patterns:
-    - regex: 'flock\.s+'
+    - regex: 'flock\s+'
   severity: low
   description: "flock usage (good for file locking)"
   remediation: "Good practice for concurrent access"
@@ -1813,7 +1813,7 @@
 - id: bash-race-flock-fd
   languages: [bash]
   patterns:
-    - regex: 'exec\.s+\.d+>\.s*[^;]+;\.s*flock'
+    - regex: 'exec\s+\.d+>\s*[^;]+;\s*flock'
   severity: low
   description: "flock with file descriptor (good)"
   remediation: "Good for atomic operations"
@@ -1823,7 +1823,7 @@
 - id: bash-race-check-then-act
   languages: [bash]
   patterns:
-    - regex: 'if\.s+\.[\.s+\.!\.s+-[ef]\.s+[^]]+\.]\.s*;\.s*then\.s*.*?\.s+>\.s*\.1'
+    - regex: 'if\s+\.[\s+\.!\s+-[ef]\s+[^]]+\.]\s*;\s*then\s*.*?\s+>\s*\.1'
   severity: critical
   description: "TOCTOU race: check if file exists, then create"
   remediation: "Use atomic operations: set -o noclobber, flock"
@@ -1833,7 +1833,7 @@
 - id: bash-race-mkdir-check
   languages: [bash]
   patterns:
-    - regex: 'if\.s+\.[\.s+\.!\.s+-d\.s+[^]]+\.]\.s*;\.s*then\.s*mkdir'
+    - regex: 'if\s+\.[\s+\.!\s+-d\s+[^]]+\.]\s*;\s*then\s*mkdir'
   severity: high
   description: "Check if directory exists, then create (race)"
   remediation: "Use mkdir directly, it's atomic"
@@ -1843,7 +1843,7 @@
 - id: bash-race-symlink
   languages: [bash]
   patterns:
-    - regex: 'ln\.s+-s\.s+[^;]+'
+    - regex: 'ln\s+-s\s+[^;]+'
   severity: medium
   description: "Symlink creation (may be race condition)"
   remediation: "Use ln -sf to force overwrite"
@@ -1853,7 +1853,7 @@
 - id: bash-race-symlink-check
   languages: [bash]
   patterns:
-    - regex: 'if\.s+\.[\.s+\.!\.s+-L\.s+[^]]+\.]\.s*;\.s*then\.s*ln'
+    - regex: 'if\s+\.[\s+\.!\s+-L\s+[^]]+\.]\s*;\s*then\s*ln'
   severity: high
   description: "Check symlink then create (race)"
   remediation: "Use ln -sf directly"
@@ -1873,7 +1873,7 @@
 - id: bash-race-kill-check
   languages: [bash]
   patterns:
-    - regex: 'if\.s+kill\.s+-0\.s+\.$PID.*?then.*?kill\.s+\.$PID'
+    - regex: 'if\s+kill\s+-0\s+\.$PID.*?then.*?kill\s+\.$PID'
   severity: medium
   description: "Check if process exists then kill (race)"
   remediation: "Just kill, it handles non-existent processes"
@@ -1895,7 +1895,7 @@
 - id: bash-source-user-input
   languages: [bash]
   patterns:
-    - regex: 'source\.s+.*\.$\.{?[A-Za-z_][A-Za-z0-9_]*\.}?.*?\.|.*?source'
+    - regex: 'source\s+.*\.$\.{?[A-Za-z_][A-Za-z0-9_]*\.}?.*?\.|.*?source'
   severity: critical
   description: "Sourcing file with user input (arbitrary code execution)"
   remediation: "Never source files based on user input"
@@ -1905,7 +1905,7 @@
 - id: bash-source-relative
   languages: [bash]
   patterns:
-    - regex: 'source\.s+[\.'']?\..\./[\.'']?'
+    - regex: 'source\s+[\.'']?\..\./[\.'']?'
   severity: medium
   description: "Sourcing relative path (depends on current directory)"
   remediation: "Use absolute paths: source \"$(dirname \"$0\")/file.sh\""
@@ -1915,7 +1915,7 @@
 - id: bash-source-absolute
   languages: [bash]
   patterns:
-    - regex: 'source\.s+[\.'']?\./[\.'']?[^\.'']+'
+    - regex: 'source\s+[\.'']?\./[\.'']?[^\.'']+'
   severity: low
   description: "Sourcing absolute path (safer)"
   remediation: "Good practice"
@@ -1925,7 +1925,7 @@
 - id: bash-source-without-check
   languages: [bash]
   patterns:
-    - regex: 'source\.s+[^;]+'
+    - regex: 'source\s+[^;]+'
   severity: high
   description: "Sourcing file without checking existence"
   remediation: "Check file exists: [ -f \"$file\" ] && source \"$file\""
@@ -1935,7 +1935,7 @@
 - id: bash-source-multiple
   languages: [bash]
   patterns:
-    - regex: 'for\.s+\.w+\.s+in\.s+[^;]+;\.s+do\.s+source'
+    - regex: 'for\s+\w+\s+in\s+[^;]+;\s+do\s+source'
   severity: high
   description: "Loop sourcing multiple files (may include unexpected files)"
   remediation: "Use explicit list of files to source"
@@ -1945,7 +1945,7 @@
 - id: bash-source-wildcard
   languages: [bash]
   patterns:
-    - regex: 'source\.s+\.*'
+    - regex: 'source\s+\.*'
   severity: critical
   description: "Sourcing all files with wildcard (code injection)"
   remediation: "Never use wildcards with source"
@@ -1955,7 +1955,7 @@
 - id: bash-source-dir
   languages: [bash]
   patterns:
-    - regex: 'source\.s+\./etc\./profile\..d\./\.*'
+    - regex: 'source\s+\./etc\./profile\..d\./\.*'
   severity: critical
   description: "Sourcing directory contents (unpredictable)"
   remediation: "Source specific files only"
@@ -1965,7 +1965,7 @@
 - id: bash-source-bashrc
   languages: [bash]
   patterns:
-    - regex: 'source\.s+~?\./\..bashrc|source\.s+~?\./\..profile'
+    - regex: 'source\s+~?\./\..bashrc|source\s+~?\./\..profile'
   severity: medium
   description: "Sourcing user profile files (may have unexpected aliases)"
   remediation: "Avoid in scripts meant for production"
@@ -1975,7 +1975,7 @@
 - id: bash-source-return-check
   languages: [bash]
   patterns:
-    - regex: 'source\.s+[^;]+\.s*;\.s*\.[\.[\.s*\.$\.?\.s*\.-ne\.s*0]'
+    - regex: 'source\s+[^;]+\s*;\s*\.[\.[\s*\.$\.?\s*\.-ne\s*0]'
   severity: low
   description: "Checking source return value (good)"
   remediation: "Good practice"
@@ -1985,7 +1985,7 @@
 - id: bash-source-in-function
   languages: [bash]
   patterns:
-    - regex: 'function\.s+\.w+\.s*{\.s*source\.s+'
+    - regex: 'function\s+\w+\s*{\s*source\s+'
   severity: high
   description: "Sourcing inside function (modifies function scope)"
   remediation: "Source outside functions or use subshell"
@@ -1995,7 +1995,7 @@
 - id: bash-source-subshell
   languages: [bash]
   patterns:
-    - regex: '\.(\.s*source\.s+)'
+    - regex: '\.(\s*source\s+)'
   severity: low
   description: "Sourcing in subshell (isolates changes)"
   remediation: "Good practice to avoid side effects"
@@ -2005,7 +2005,7 @@
 - id: bash-source-exported-function
   languages: [bash]
   patterns:
-    - regex: 'export\.s+-f\.s+'
+    - regex: 'export\s+-f\s+'
   severity: medium
   description: "Exporting functions (security risk in environment)"
   remediation: "Avoid exporting functions"
@@ -2025,7 +2025,7 @@
 - id: bash-source-bash-completion
   languages: [bash]
   patterns:
-    - regex: 'source\.s+.*bash_completion'
+    - regex: 'source\s+.*bash_completion'
   severity: low
   description: "Sourcing bash completion (slow, may have issues)"
   remediation: "Disable in scripts unless needed"
@@ -2037,7 +2037,7 @@
 - id: bash-eval-command
   languages: [bash]
   patterns:
-    - regex: 'eval\.s+\.$'
+    - regex: 'eval\s+\.$'
   severity: critical
   description: "eval with variable (arbitrary code execution)"
   remediation: "Avoid eval entirely, use arrays and proper quoting"
@@ -2047,7 +2047,7 @@
 - id: bash-eval-user-input
   languages: [bash]
   patterns:
-    - regex: 'eval\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*\.s*\.|'
+    - regex: 'eval\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s*\.|'
   severity: critical
   description: "eval with user input (remote code execution)"
   remediation: "Never eval user input"
@@ -2057,7 +2057,7 @@
 - id: bash-eval-command-substitution
   languages: [bash]
   patterns:
-    - regex: 'eval\.s+`[^`]+`|eval\.s+\.$\.([^)]+\.)'
+    - regex: 'eval\s+`[^`]+`|eval\s+\.$\.([^)]+\.)'
   severity: critical
   description: "eval with command substitution (double evaluation)"
   remediation: "Avoid eval, use command substitution directly"
@@ -2067,7 +2067,7 @@
 - id: bash-eval-here-doc
   languages: [bash]
   patterns:
-    - regex: 'eval\.s+<<'
+    - regex: 'eval\s+<<'
   severity: critical
   description: "eval with here document (code injection)"
   remediation: "Don't eval, use file or variable directly"
@@ -2077,7 +2077,7 @@
 - id: bash-eval-printf
   languages: [bash]
   patterns:
-    - regex: 'eval\.s+\.$\.(printf)'
+    - regex: 'eval\s+\.$\.(printf)'
   severity: critical
   description: "eval with printf (format string injection)"
   remediation: "Avoid eval, use printf directly"
@@ -2087,7 +2087,7 @@
 - id: bash-eval-argument
   languages: [bash]
   patterns:
-    - regex: 'eval\.s+\.$\.d+'
+    - regex: 'eval\s+\.$\.d+'
   severity: critical
   description: "eval with script argument (code injection)"
   remediation: "Validate arguments instead of evaling"
@@ -2097,7 +2097,7 @@
 - id: bash-eval-array
   languages: [bash]
   patterns:
-    - regex: 'eval\.s+\.$\.{[^}]+\.}'
+    - regex: 'eval\s+\.$\.{[^}]+\.}'
   severity: critical
   description: "eval with array (code injection)"
   remediation: "Use array directly, not eval"
@@ -2107,7 +2107,7 @@
 - id: bash-eval-in-function
   languages: [bash]
   patterns:
-    - regex: 'function\.s+\.w+\.s*{\.s*eval\.s+'
+    - regex: 'function\s+\w+\s*{\s*eval\s+'
   severity: critical
   description: "eval inside function (dangerous)"
   remediation: "Restructure to avoid eval"
@@ -2117,7 +2117,7 @@
 - id: bash-eval-loop
   languages: [bash]
   patterns:
-    - regex: 'for\.s+\.w+\.s+in.*?;\.s*do\.s*eval'
+    - regex: 'for\s+\w+\s+in.*?;\s*do\s*eval'
   severity: critical
   description: "eval in loop (multiple code injection opportunities)"
   remediation: "Restructure to avoid eval"
@@ -2127,7 +2127,7 @@
 - id: bash-eval-trap
   languages: [bash]
   patterns:
-    - regex: 'trap\.s+[''\.]eval'
+    - regex: 'trap\s+[''\.]eval'
   severity: critical
   description: "eval in trap handler (dangerous)"
   remediation: "Use functions in trap, not eval"
@@ -2137,7 +2137,7 @@
 - id: bash-builtin-declare
   languages: [bash]
   patterns:
-    - regex: 'declare\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+    - regex: 'declare\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
   severity: high
   description: "declare with variable name (dynamic variable creation)"
   remediation: "Use associative arrays instead"
@@ -2147,7 +2147,7 @@
 - id: bash-builtin-export-dynamic
   languages: [bash]
   patterns:
-    - regex: 'export\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+    - regex: 'export\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
   severity: high
   description: "export with variable name (dynamic environment)"
   remediation: "Use fixed environment variable names"
@@ -2157,7 +2157,7 @@
 - id: bash-builtin-readonly-dynamic
   languages: [bash]
   patterns:
-    - regex: 'readonly\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+    - regex: 'readonly\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
   severity: high
   description: "readonly with variable name (dynamic)"
   remediation: "Use fixed variable names"
@@ -2167,7 +2167,7 @@
 - id: bash-builtin-local-dynamic
   languages: [bash]
   patterns:
-    - regex: 'local\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+    - regex: 'local\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
   severity: high
   description: "local with variable name (dynamic)"
   remediation: "Use fixed variable names"
@@ -2177,7 +2177,7 @@
 - id: bash-printf-variable-varname
   languages: [bash]
   patterns:
-    - regex: 'printf\.s+-v\.s+\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'printf\s+-v\s+\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: high
   description: "printf -v with variable variable name"
   remediation: "Use fixed variable names"
@@ -2199,7 +2199,7 @@
 - id: bash-env-path
   languages: [bash]
   patterns:
-    - regex: 'PATH\.s*=\.s*[^:]*\..:'
+    - regex: 'PATH\s*=\s*[^:]*\..:'
   severity: critical
   description: "PATH includes current directory (command hijacking)"
   remediation: "Remove . from PATH, use ./command explicitly"
@@ -2209,7 +2209,7 @@
 - id: bash-env-path-empty
   languages: [bash]
   patterns:
-    - regex: 'PATH\.s*=\.s*::|PATH\.s*=\.s*:'
+    - regex: 'PATH\s*=\s*::|PATH\s*=\s*:'
   severity: critical
   description: "PATH contains empty entry (current directory)"
   remediation: "Remove empty entries from PATH"
@@ -2219,7 +2219,7 @@
 - id: bash-env-path-relative
   languages: [bash]
   patterns:
-    - regex: 'PATH\.s*=\.s*[^:]*\..\..[^:]'
+    - regex: 'PATH\s*=\s*[^:]*\..\..[^:]'
   severity: high
   description: "PATH contains relative paths (security risk)"
   remediation: "Use absolute paths in PATH"
@@ -2229,7 +2229,7 @@
 - id: bash-env-ifs
   languages: [bash]
   patterns:
-    - regex: 'IFS\.s*=\.s*[^\.n]+'
+    - regex: 'IFS\s*=\s*[^\.n]+'
   severity: high
   description: "IFS modification (affects word splitting)"
   remediation: "Save and restore IFS"
@@ -2239,7 +2239,7 @@
 - id: bash-env-ps1
   languages: [bash]
   patterns:
-    - regex: 'PS1\.s*='
+    - regex: 'PS1\s*='
   severity: low
   description: "PS1 modification (command prompt)"
   remediation: "Avoid in scripts"
@@ -2259,7 +2259,7 @@
 - id: bash-env-tmpdir
   languages: [bash]
   patterns:
-    - regex: 'TMPDIR\.s*=\.s*[^:]+'
+    - regex: 'TMPDIR\s*=\s*[^:]+'
   severity: low
   description: "TMPDIR setting (temp directory)"
   remediation: "Ensure directory exists and is writable"
@@ -2269,7 +2269,7 @@
 - id: bash-env-umask
   languages: [bash]
   patterns:
-    - regex: 'umask\.s+[0-7]{3,4}'
+    - regex: 'umask\s+[0-7]{3,4}'
   severity: low
   description: "umask setting (file creation mask)"
   remediation: "Set restrictive umask: umask 077"
@@ -2279,7 +2279,7 @@
 - id: bash-env-umask-weak
   languages: [bash]
   patterns:
-    - regex: 'umask\.s+0?(000|111|222|333|444|555|666)'
+    - regex: 'umask\s+0?(000|111|222|333|444|555|666)'
   severity: high
   description: "Weak umask (world-writable files)"
   remediation: "Set umask 077 for security"
@@ -2306,7 +2306,7 @@
   cwe: "CWE-754"
   owasp: "A06:2021"
 
-- id: bash-trap-missing
+- id: bash-trap-missing-dup1
   languages: [bash]
   patterns:
     - regex: '^.*\./tmp\./[^\.s]+'
@@ -2329,7 +2329,7 @@
 - id: bash-trap-ignore
   languages: [bash]
   patterns:
-    - regex: 'trap\.s+[''\.]\.s*[''\.]\.s+SIG|trap\.s+[''\.]\.s*[''\.]\.s+INT'
+    - regex: 'trap\s+[''\.]\s*[''\.]\s+SIG|trap\s+[''\.]\s*[''\.]\s+INT'
   severity: high
   description: "Ignoring signals (may prevent cleanup)"
   remediation: "Handle signals properly, don't ignore"
@@ -2419,7 +2419,7 @@
 - id: bash-trap-pipefail
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-o\.s+pipefail.*trap'
+    - regex: 'set\s+-o\s+pipefail.*trap'
   severity: low
   description: "pipefail with trap (good)"
   remediation: "Good for pipeline error handling"
@@ -2429,7 +2429,7 @@
 - id: bash-trap-e
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-e.*trap'
+    - regex: 'set\s+-e.*trap'
   severity: low
   description: "set -e with trap (good)"
   remediation: "Good for error handling"
@@ -2439,7 +2439,7 @@
 - id: bash-trap-u
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-u.*trap'
+    - regex: 'set\s+-u.*trap'
   severity: low
   description: "set -u with trap (good)"
   remediation: "Good for unset variable errors"
@@ -2451,7 +2451,7 @@
 - id: bash-set-e
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-e|set\.s+-o\.s+errexit'
+    - regex: 'set\s+-e|set\s+-o\s+errexit'
   severity: low
   description: "set -e (exit on error) - good"
   remediation: "Good practice"
@@ -2471,7 +2471,7 @@
 - id: bash-set-u
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-u|set\.s+-o\.s+nounset'
+    - regex: 'set\s+-u|set\s+-o\s+nounset'
   severity: low
   description: "set -u (error on unset variables) - good"
   remediation: "Good practice"
@@ -2491,7 +2491,7 @@
 - id: bash-set-o-pipefail
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-o\.s+pipefail'
+    - regex: 'set\s+-o\s+pipefail'
   severity: low
   description: "set -o pipefail (pipeline error detection) - good"
   remediation: "Good practice with set -e"
@@ -2511,7 +2511,7 @@
 - id: bash-set-x
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-x|set\.s+-o\.s+xtrace'
+    - regex: 'set\s+-x|set\s+-o\s+xtrace'
   severity: medium
   description: "set -x (debug mode) - may leak sensitive data"
   remediation: "Remove in production, use conditionally"
@@ -2521,7 +2521,7 @@
 - id: bash-set-v
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-v|set\.s+-o\.s+verbose'
+    - regex: 'set\s+-v|set\s+-o\s+verbose'
   severity: medium
   description: "set -v (verbose mode) - may leak information"
   remediation: "Remove in production"
@@ -2531,7 +2531,7 @@
 - id: bash-set-n
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-n'
+    - regex: 'set\s+-n'
   severity: low
   description: "set -n (no execution) - syntax check only"
   remediation: "Good for testing"
@@ -2541,7 +2541,7 @@
 - id: bash-set-f
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-f|set\.s+-o\.s+noglob'
+    - regex: 'set\s+-f|set\s+-o\s+noglob'
   severity: low
   description: "set -f (disable globbing) - good for literal strings"
   remediation: "Good when working with special characters"
@@ -2551,7 +2551,7 @@
 - id: bash-set-c
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-c'
+    - regex: 'set\s+-c'
   severity: low
   description: "set -c (prevent overwriting files)"
   remediation: "Good for safety"
@@ -2561,7 +2561,7 @@
 - id: bash-set-b
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-b'
+    - regex: 'set\s+-b'
   severity: low
   description: "set -b (notify of background job completion)"
   remediation: "Not a security issue"
@@ -2571,7 +2571,7 @@
 - id: bash-set-h
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-h|set\.s+-o\.s+hashall'
+    - regex: 'set\s+-h|set\s+-o\s+hashall'
   severity: low
   description: "set -h (command hashing)"
   remediation: "Default behavior"
@@ -2581,7 +2581,7 @@
 - id: bash-set-euo
   languages: [bash]
   patterns:
-    - regex: 'set\.s+-euo\.s+pipefail|set\.s+-euxo\.s+pipefail'
+    - regex: 'set\s+-euo\s+pipefail|set\s+-euxo\s+pipefail'
   severity: low
   description: "set -euo pipefail (comprehensive error handling) - best practice"
   remediation: "Recommended for all scripts"
@@ -2603,7 +2603,7 @@
 - id: bash-shopt-dotglob
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+dotglob'
+    - regex: 'shopt\s+-s\s+dotglob'
   severity: medium
   description: "dotglob enabled (includes dot files in globs)"
   remediation: "Be careful when globbing, may include . and .."
@@ -2613,7 +2613,7 @@
 - id: bash-shopt-nullglob
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+nullglob'
+    - regex: 'shopt\s+-s\s+nullglob'
   severity: low
   description: "nullglob enabled (empty glob expands to nothing)"
   remediation: "Good for avoiding literal * when no matches"
@@ -2623,7 +2623,7 @@
 - id: bash-shopt-failglob
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+failglob'
+    - regex: 'shopt\s+-s\s+failglob'
   severity: low
   description: "failglob enabled (error if no matches)"
   remediation: "Good for catching missing files"
@@ -2633,7 +2633,7 @@
 - id: bash-shopt-extglob
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+extglob'
+    - regex: 'shopt\s+-s\s+extglob'
   severity: low
   description: "extglob enabled (extended pattern matching)"
   remediation: "Use with caution, may be complex"
@@ -2643,7 +2643,7 @@
 - id: bash-shopt-nocaseglob
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+nocaseglob'
+    - regex: 'shopt\s+-s\s+nocaseglob'
   severity: low
   description: "nocaseglob enabled (case-insensitive globbing)"
   remediation: "Be aware of case sensitivity"
@@ -2653,7 +2653,7 @@
 - id: bash-shopt-globstar
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+globstar'
+    - regex: 'shopt\s+-s\s+globstar'
   severity: low
   description: "globstar enabled (** matches recursively)"
   remediation: "Be careful with deep directories"
@@ -2673,7 +2673,7 @@
 - id: bash-shopt-histappend
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+histappend'
+    - regex: 'shopt\s+-s\s+histappend'
   severity: low
   description: "histappend enabled (appends history)"
   remediation: "Not relevant for scripts"
@@ -2683,7 +2683,7 @@
 - id: bash-shopt-cdspell
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+cdspell'
+    - regex: 'shopt\s+-s\s+cdspell'
   severity: low
   description: "cdspell enabled (auto-corrects cd typos)"
   remediation: "Not recommended for scripts"
@@ -2693,7 +2693,7 @@
 - id: bash-shopt-checkhash
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+checkhash'
+    - regex: 'shopt\s+-s\s+checkhash'
   severity: low
   description: "checkhash enabled (verifies command hash)"
   remediation: "Good for security"
@@ -2703,7 +2703,7 @@
 - id: bash-shopt-checkwinsize
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+checkwinsize'
+    - regex: 'shopt\s+-s\s+checkwinsize'
   severity: low
   description: "checkwinsize enabled (updates LINES/COLUMNS)"
   remediation: "Not a security issue"
@@ -2713,7 +2713,7 @@
 - id: bash-shopt-cmdhist
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+cmdhist'
+    - regex: 'shopt\s+-s\s+cmdhist'
   severity: low
   description: "cmdhist enabled (saves multi-line commands)"
   remediation: "Not relevant for scripts"
@@ -2723,7 +2723,7 @@
 - id: bash-shopt-lithist
   languages: [bash]
   patterns:
-    - regex: 'shopt\.s+-s\.s+lithist'
+    - regex: 'shopt\s+-s\s+lithist'
   severity: low
   description: "lithist enabled (preserves newlines in history)"
   remediation: "Not relevant for scripts"
@@ -2735,7 +2735,7 @@
 - id: bash-function-export
   languages: [bash]
   patterns:
-    - regex: 'export\.s+-f'
+    - regex: 'export\s+-f'
   severity: high
   description: "Exporting functions (security risk in environment)"
   remediation: "Avoid exporting functions"
@@ -2745,7 +2745,7 @@
 - id: bash-function-readonly
   languages: [bash]
   patterns:
-    - regex: 'readonly\.s+-f'
+    - regex: 'readonly\s+-f'
   severity: low
   description: "Readonly function (good)"
   remediation: "Good for preventing modification"
@@ -2755,7 +2755,7 @@
 - id: bash-function-declare
   languages: [bash]
   patterns:
-    - regex: 'declare\.s+-f|declare\.s+-F'
+    - regex: 'declare\s+-f|declare\s+-F'
   severity: low
   description: "declare with function options"
   remediation: "Normal function operations"
@@ -2765,7 +2765,7 @@
 - id: bash-function-unset
   languages: [bash]
   patterns:
-    - regex: 'unset\.s+-f'
+    - regex: 'unset\s+-f'
   severity: low
   description: "Unsetting functions (cleanup)"
   remediation: "Good practice"
@@ -2775,7 +2775,7 @@
 - id: bash-function-type
   languages: [bash]
   patterns:
-    - regex: 'type\.s+\.w+'
+    - regex: 'type\s+\w+'
   severity: low
   description: "type command (information disclosure)"
   remediation: "Avoid in production scripts"
@@ -2785,7 +2785,7 @@
 - id: bash-function-command
   languages: [bash]
   patterns:
-    - regex: 'command\.s+\.w+'
+    - regex: 'command\s+\w+'
   severity: low
   description: "command builtin (bypasses functions)"
   remediation: "Good for using builtins instead of functions"
@@ -2795,7 +2795,7 @@
 - id: bash-function-builtin
   languages: [bash]
   patterns:
-    - regex: 'builtin\.s+\.w+'
+    - regex: 'builtin\s+\w+'
   severity: low
   description: "builtin command (forces builtin usage)"
   remediation: "Good for avoiding aliases"
@@ -2805,7 +2805,7 @@
 - id: bash-function-enable
   languages: [bash]
   patterns:
-    - regex: 'enable\.s+'
+    - regex: 'enable\s+'
   severity: low
   description: "enable command (enables/disables builtins)"
   remediation: "Use with caution"
@@ -2815,7 +2815,7 @@
 - id: bash-function-alias
   languages: [bash]
   patterns:
-    - regex: 'alias\.s+'
+    - regex: 'alias\s+'
   severity: medium
   description: "alias usage (may hide commands)"
   remediation: "Use functions instead of aliases in scripts"
@@ -2825,7 +2825,7 @@
 - id: bash-function-alias-unalias
   languages: [bash]
   patterns:
-    - regex: 'unalias\.s+-a'
+    - regex: 'unalias\s+-a'
   severity: low
   description: "unalias -a (removes all aliases) - good"
   remediation: "Good for scripts to ensure clean environment"
@@ -2835,7 +2835,7 @@
 - id: bash-function-return
   languages: [bash]
   patterns:
-    - regex: 'return\.s+[0-9]+'
+    - regex: 'return\s+[0-9]+'
   severity: low
   description: "return with exit code (good)"
   remediation: "Always return meaningful exit codes"
@@ -2845,7 +2845,7 @@
 - id: bash-function-return-missing
   languages: [bash]
   patterns:
-    - regex: 'function\.s+\.w+\.s*{\.s*[^}]*}'
+    - regex: 'function\s+\w+\s*{\s*[^}]*}'
   severity: medium
   description: "Function without return (uses last command exit code)"
   remediation: "Add explicit return statements"
@@ -2855,7 +2855,7 @@
 - id: bash-function-local-var
   languages: [bash]
   patterns:
-    - regex: 'function\.s+\.w+\.s*{\.s*[^}]*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+    - regex: 'function\s+\w+\s*{\s*[^}]*\.$[a-zA-Z_][a-zA-Z0-9_]*'
   severity: medium
   description: "Function using global variables (side effects)"
   remediation: "Use local variables with local keyword"
@@ -2865,7 +2865,7 @@
 - id: bash-function-local-keyword
   languages: [bash]
   patterns:
-    - regex: 'local\.s+\.w+='
+    - regex: 'local\s+\w+='
   severity: low
   description: "local variable in function (good)"
   remediation: "Good practice"
@@ -2875,7 +2875,7 @@
 - id: bash-function-redefine
   languages: [bash]
   patterns:
-    - regex: 'function\.s+\.w+\.s*{\.s*[^}]*}\.s*function\.s+\.1'
+    - regex: 'function\s+\w+\s*{\s*[^}]*}\s*function\s+\.1'
   severity: low
   description: "Function redefinition (may be intentional)"
   remediation: "Ensure this is intended"
@@ -2894,10 +2894,10 @@
   cwe: "CWE-754"
   owasp: "A06:2021"
 
-- id: bash-exit-code-ignored
+- id: bash-exit-code-ignored-dup1
   languages: [bash]
   patterns:
-    - regex: 'command\.s+[^;]+;\.s*'
+    - regex: 'command\s+[^;]+;\s*'
   severity: high
   description: "Command without exit code check"
   remediation: "Check exit codes or use set -e"
@@ -2907,7 +2907,7 @@
 - id: bash-exit-code-or
   languages: [bash]
   patterns:
-    - regex: '\.|\.|\.s+true|\.|\.|\.s*:'
+    - regex: '\.|\.|\s+true|\.|\.|\s*:'
   severity: high
   description: "Ignoring errors with || true"
   remediation: "Handle errors properly, don't ignore"
@@ -2917,7 +2917,7 @@
 - id: bash-exit-code-and
   languages: [bash]
   patterns:
-    - regex: '&&\.s+exit'
+    - regex: '&&\s+exit'
   severity: low
   description: "Exit on error with && (limited)"
   remediation: "Use set -e for better coverage"
@@ -2957,7 +2957,7 @@
 - id: bash-exit-code-exit
   languages: [bash]
   patterns:
-    - regex: 'exit\.s+[0-9]+'
+    - regex: 'exit\s+[0-9]+'
   severity: low
   description: "exit with specific code (good)"
   remediation: "Use meaningful exit codes"
@@ -2967,7 +2967,7 @@
 - id: bash-exit-code-exit-0
   languages: [bash]
   patterns:
-    - regex: 'exit\.s+0'
+    - regex: 'exit\s+0'
   severity: low
   description: "exit 0 (success)"
   remediation: "Good for normal completion"
@@ -2977,7 +2977,7 @@
 - id: bash-exit-code-exit-1
   languages: [bash]
   patterns:
-    - regex: 'exit\.s+1'
+    - regex: 'exit\s+1'
   severity: low
   description: "exit 1 (general error)"
   remediation: "Use specific codes for different errors"
@@ -2987,7 +2987,7 @@
 - id: bash-exit-code-custom
   languages: [bash]
   patterns:
-    - regex: 'exit\.s+[2-9][0-9]*'
+    - regex: 'exit\s+[2-9][0-9]*'
   severity: low
   description: "exit with custom code (good)"
   remediation: "Document custom exit codes"
@@ -3007,7 +3007,7 @@
 - id: bash-exit-code-success-check
   languages: [bash]
   patterns:
-    - regex: 'if\.s+\.[\.s+\.$\.?\.s+-eq\.s+0]'
+    - regex: 'if\s+\.[\s+\.$\.?\s+-eq\s+0]'
   severity: low
   description: "Explicit success check (good)"
   remediation: "Good practice"
@@ -3017,7 +3017,7 @@
 - id: bash-exit-code-failure-check
   languages: [bash]
   patterns:
-    - regex: 'if\.s+\.[\.s+\.$\.?\.s+-ne\.s+0]'
+    - regex: 'if\s+\.[\s+\.$\.?\s+-ne\s+0]'
   severity: low
   description: "Explicit failure check (good)"
   remediation: "Good practice"
@@ -3027,7 +3027,7 @@
 - id: bash-exit-code-conditional
   languages: [bash]
   patterns:
-    - regex: 'exit\.s+\.$\.?'
+    - regex: 'exit\s+\.$\.?'
   severity: low
   description: "exit with previous exit code (good)"
   remediation: "Preserves error status"
@@ -3059,7 +3059,7 @@
 - id: bash-secure-options-header
   languages: [bash]
   patterns:
-    - regex: '^#!/bin/bash\.s*\.n(set\.s+-[euo]+\.s*pipefail|set\.s+-euo)'
+    - regex: '^#!/bin/bash\s*\.n(set\s+-[euo]+\s*pipefail|set\s+-euo)'
   severity: low
   description: "Script with secure options (good)"
   remediation: "Best practice"
@@ -3129,7 +3129,7 @@
 - id: bash-secure-owner-root
   languages: [bash]
   patterns:
-    - regex: 'root\.s+root'
+    - regex: 'root\s+root'
   severity: medium
   description: "Script owned by root (ensure permissions are tight)"
   remediation: "chmod 750 for root-owned scripts"
@@ -3141,7 +3141,7 @@
 - id: bash-loop-infinite
   languages: [bash]
   patterns:
-    - regex: 'while\.s+true|while\.s*:\.s*;|for\.s*\.(\.s*;\.s*;\.s*\.)'
+    - regex: 'while\s+true|while\s*:\s*;|for\s*\.(\s*;\s*;\s*\.)'
   severity: medium
   description: "Infinite loop (may hang)"
   remediation: "Add exit conditions or timeouts"
@@ -3151,7 +3151,7 @@
 - id: bash-loop-while-read
   languages: [bash]
   patterns:
-    - regex: 'while\.s+read\.s+-r\.s+line'
+    - regex: 'while\s+read\s+-r\s+line'
   severity: low
   description: "while read loop (good)"
   remediation: "Good for processing files"
@@ -3161,7 +3161,7 @@
 - id: bash-loop-for-file
   languages: [bash]
   patterns:
-    - regex: 'for\.s+file\.s+in\.s+\.*'
+    - regex: 'for\s+file\s+in\s+\.*'
   severity: medium
   description: "for file in * (may include unexpected files)"
   remediation: "Check if file is regular: [ -f \"$file\" ]"
@@ -3171,7 +3171,7 @@
 - id: bash-loop-for-array
   languages: [bash]
   patterns:
-    - regex: 'for\.s+item\.s+in\.s+\.$\.{[^}]+\.[@\.]\.}'
+    - regex: 'for\s+item\s+in\s+\.$\.{[^}]+\.[@\.]\.}'
   severity: low
   description: "for loop over array (good)"
   remediation: "Good practice"
@@ -3181,7 +3181,7 @@
 - id: bash-loop-for-command
   languages: [bash]
   patterns:
-    - regex: 'for\.s+item\.s+in\.s+\.$\.([^)]+\.)'
+    - regex: 'for\s+item\s+in\s+\.$\.([^)]+\.)'
   severity: high
   description: "for loop over command output (word splitting risk)"
   remediation: "Use while read loop for command output"
@@ -3191,7 +3191,7 @@
 - id: bash-loop-break
   languages: [bash]
   patterns:
-    - regex: 'break\.s+[0-9]+'
+    - regex: 'break\s+[0-9]+'
   severity: low
   description: "break with level (good)"
   remediation: "Good for nested loops"
@@ -3201,7 +3201,7 @@
 - id: bash-loop-continue
   languages: [bash]
   patterns:
-    - regex: 'continue\.s+[0-9]+'
+    - regex: 'continue\s+[0-9]+'
   severity: low
   description: "continue with level (good)"
   remediation: "Good for nested loops"
@@ -3211,7 +3211,7 @@
 - id: bash-loop-select
   languages: [bash]
   patterns:
-    - regex: 'select\.s+\.w+\.s+in'
+    - regex: 'select\s+\w+\s+in'
   severity: medium
   description: "select menu (interactive)"
   remediation: "Avoid in non-interactive scripts"
@@ -3221,7 +3221,7 @@
 - id: bash-loop-until
   languages: [bash]
   patterns:
-    - regex: 'until\.s+'
+    - regex: 'until\s+'
   severity: low
   description: "until loop (opposite of while)"
   remediation: "Use when condition should become true"
@@ -3231,7 +3231,7 @@
 - id: bash-loop-arithmetic
   languages: [bash]
   patterns:
-    - regex: 'for\.s+\.(\.s*\.(\.s*[a-zA-Z_]+=0))'
+    - regex: 'for\s+\.(\s*\.(\s*[a-zA-Z_]+=0))'
   severity: low
   description: "C-style for loop"
   remediation: "Good for arithmetic loops"
@@ -3241,7 +3241,7 @@
 - id: bash-loop-command-sub
   languages: [bash]
   patterns:
-    - regex: 'for\.s+\.w+\.s+in\.s+\.$\.(find)'
+    - regex: 'for\s+\w+\s+in\s+\.$\.(find)'
   severity: high
   description: "for loop over find output (pathname expansion risk)"
   remediation: "Use find -print0 | while IFS= read -r -d ''"
@@ -3251,7 +3251,7 @@
 - id: bash-loop-find-while
   languages: [bash]
   patterns:
-    - regex: 'find.*-print0\.s*\.|\.s*while\.s+IFS= read\.s+-r\.s+-d'
+    - regex: 'find.*-print0\s*\.|\s*while\s+IFS= read\s+-r\s+-d'
   severity: low
   description: "find with while read (good for filenames with spaces)"
   remediation: "Best practice"
@@ -3261,7 +3261,7 @@
 - id: bash-loop-while-ifs
   languages: [bash]
   patterns:
-    - regex: 'while\.s+IFS= read\.s+-r'
+    - regex: 'while\s+IFS= read\s+-r'
   severity: low
   description: "while read with IFS= (preserves whitespace) - good"
   remediation: "Good practice"
@@ -3271,7 +3271,7 @@
 - id: bash-loop-while-redirect
   languages: [bash]
   patterns:
-    - regex: 'while.*?do.*?done\.s*<'
+    - regex: 'while.*?do.*?done\s*<'
   severity: low
   description: "while loop with input redirection (good)"
   remediation: "Good for file processing"
@@ -3281,7 +3281,7 @@
 - id: bash-loop-while-pipe
   languages: [bash]
   patterns:
-    - regex: 'while.*?do.*?done\.s*\.|'
+    - regex: 'while.*?do.*?done\s*\.|'
   severity: medium
   description: "while loop in pipeline (subshell, variable scope issues)"
   remediation: "Use process substitution: while ... done < <(command)"

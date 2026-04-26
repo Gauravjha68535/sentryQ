@@ -1154,7 +1154,7 @@
   owasp: "A04:2021"
   confidence: 0.8
 
-- id: ansible-delegate-to
+- id: ansible-delegate-to-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)delegate_to:\s*localhost'

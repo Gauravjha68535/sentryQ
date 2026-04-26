@@ -1,0 +1,142 @@
+# SentryQ Security Rules — ReDoS / Regular Expression Denial of Service
+# Covers: Catastrophic backtracking, nested quantifiers, evil regex patterns
+
+# ======================== Nested Quantifiers (Catastrophic Backtracking) ========================
+
+- id: redos-nested-quantifier-plus-plus
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, perl]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile|regexp\.MustCompile)\s*\(\s*["\x27/].*\([^)]*\+\)\+'
+  severity: high
+  description: "Regex with nested quantifiers (a+)+ — classic ReDoS pattern causing exponential backtracking."
+  remediation: "Rewrite pattern to use atomic groups or possessive quantifiers. Simplify: (a+)+ → a+."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+- id: redos-nested-quantifier-star-star
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, perl]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile|regexp\.MustCompile)\s*\(\s*["\x27/].*\([^)]*\*\)\*'
+  severity: high
+  description: "Regex with nested quantifiers (a*)* — causes catastrophic backtracking on non-matching input."
+  remediation: "Flatten nested quantifiers: (a*)* → a*."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+- id: redos-nested-quantifier-plus-star
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, perl]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile|regexp\.MustCompile)\s*\(\s*["\x27/].*\([^)]*\+\)\*'
+  severity: high
+  description: "Regex with nested quantifiers (a+)* — exponential time on adversarial input."
+  remediation: "Simplify to a single quantifier: (a+)* → a*."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+# ======================== Overlapping Alternations ========================
+
+- id: redos-overlapping-alternation
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, perl]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile)\s*\(\s*["\x27/].*\([^)]*\|[^)]*\)\+'
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile)\s*\(\s*["\x27/].*\([^)]*\|[^)]*\)\*'
+  severity: medium
+  description: "Regex with alternation inside a quantified group (a|a)+ — overlapping branches cause exponential backtracking."
+  remediation: "Ensure alternation branches don't overlap. Use character classes [ab]+ instead of (a|b)+."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+# ======================== Greedy Quantifiers on Common Patterns ========================
+
+- id: redos-greedy-dot-star-repeated
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, perl]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile)\s*\(\s*["\x27/].*\.[\*\+].*\.[\*\+].*\.[\*\+]'
+  severity: medium
+  description: "Regex with multiple greedy .* or .+ quantifiers — can cause catastrophic backtracking on long inputs."
+  remediation: "Use non-greedy quantifiers (.*?), or constrain with character classes like [^\\s]* instead of .*."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+# ======================== Evil Regex in User Input ========================
+
+- id: redos-user-input-regex
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp]
+  patterns:
+    - regex: '(?i)new RegExp\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.|input\.|args\.|user)'
+    - regex: '(?i)re\.compile\s*\(\s*(?:request\.|form\.|args\.|params\.|input)'
+    - regex: '(?i)Regex\s*\(\s*(?:Request\.|HttpContext\.|model\.)'
+    - regex: '(?i)regexp\.MustCompile\s*\(\s*(?:r\.|req\.|c\.)'
+  severity: critical
+  description: "User-controlled input used directly in regex compilation — attacker can inject evil regex patterns causing ReDoS."
+  remediation: "Never compile user input as regex. Use string matching, or sanitize with regex.escape()/RegExp.escape()."
+  cwe: "CWE-1333"
+  owasp: "A03:2021-Injection"
+
+- id: redos-user-input-match
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:req|request|params|query|body|input)\.\w+\.match\s*\(\s*new RegExp'
+    - regex: '(?i)\.match\s*\(\s*new RegExp\s*\(\s*(?:req|request|params|query|body)\.'
+  severity: critical
+  description: "User input used to construct regex for .match() — can be exploited for ReDoS."
+  remediation: "Use string includes/indexOf/startsWith instead of regex with user input."
+  cwe: "CWE-1333"
+  owasp: "A03:2021-Injection"
+
+# ======================== Quantifier on Complex Character Classes ========================
+
+- id: redos-complex-charclass-quantifier
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, perl]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile)\s*\(\s*["\x27/].*\[[^\]]{10,}\][\+\*]\{?\d*'
+  severity: medium
+  description: "Regex with large character class followed by quantifier — may cause excessive backtracking depending on engine."
+  remediation: "Simplify character classes and use atomic groups where supported."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+# ======================== No Timeout on Regex Execution ========================
+
+- id: redos-no-timeout-csharp
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)new\s+Regex\s*\(\s*[^,)]+\)\s*(?!.*[Tt]imeout)'
+    - regex: '(?i)Regex\.(?:Match|Replace|IsMatch|Split)\s*\(\s*[^,)]+,\s*[^,)]+\)\s*(?!.*[Tt]imeout)'
+  severity: medium
+  description: "Regex created without timeout in .NET — can hang indefinitely on malicious input."
+  remediation: "Use the Regex constructor with TimeSpan timeout parameter: new Regex(pattern, RegexOptions.None, TimeSpan.FromSeconds(1))."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+- id: redos-no-timeout-java
+  languages: [java]
+  patterns:
+    - regex: '(?i)Pattern\.compile\s*\([^)]+\)\.matcher\s*\([^)]+\)\.(?:find|matches)\s*\('
+  severity: medium
+  description: "Java regex execution without timeout protection — can hang on adversarial input."
+  remediation: "Use a separate thread with timeout, or switch to RE2J library for guaranteed linear-time matching."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+# ======================== Known Evil Regex Patterns ========================
+
+- id: redos-email-validation-evil
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp, perl]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile)\s*\(\s*["\x27/].*\[a-zA-Z0-9[^\]]*\]\+@\[a-zA-Z0-9'
+  severity: medium
+  description: "Custom email validation regex may be vulnerable to ReDoS — use well-tested libraries instead."
+  remediation: "Use a tested library (validator.js, email-validator) instead of custom email regex."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+
+- id: redos-url-validation-evil
+  languages: [javascript, typescript, python, ruby, php, java, go, csharp]
+  patterns:
+    - regex: '(?i)(?:re\.compile|new RegExp|Regex|Pattern\.compile)\s*\(\s*["\x27/].*https?\s*:\s*\\/\s*\\/\s*\([^)]+\)\+'
+  severity: medium
+  description: "Custom URL validation regex may be vulnerable to ReDoS — use URL class or tested libraries."
+  remediation: "Use built-in URL/URI parsing (new URL(), urllib.parse) instead of regex for URL validation."
+  cwe: "CWE-1333"
+  owasp: "A06:2021-Vulnerable and Outdated Components"

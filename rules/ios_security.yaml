@@ -1,0 +1,156 @@
+# SentryQ iOS Security Rules
+# Covers: ATS misconfig, Keychain access, deprecated APIs, hardcoded secrets, TLS, and data protection
+
+- id: ios-ats-disabled
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)NSAllowsArbitraryLoads'
+  severity: critical
+  description: "App Transport Security (ATS) globally disabled via NSAllowsArbitraryLoads. This removes iOS enforced TLS requirements, allowing the app to make unencrypted HTTP connections and accept invalid TLS certificates, exposing all network traffic to interception."
+  remediation: "Remove NSAllowsArbitraryLoads from Info.plist. Configure specific NSExceptionDomains only for domains that genuinely cannot use TLS, and document the business justification. Apple may reject App Store submissions with NSAllowsArbitraryLoads set without a valid reason."
+  cwe: "CWE-319"
+  owasp: "A02:2021"
+  confidence: 0.95
+
+- id: ios-ats-domain-exception
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)NSExceptionAllowsInsecureHTTPLoads'
+  severity: high
+  description: "ATS exception NSExceptionAllowsInsecureHTTPLoads configured for one or more domains. This selectively disables TLS enforcement for specific domains, making connections to those domains vulnerable to MITM attacks."
+  remediation: "Migrate all domains to HTTPS. If an exception is truly necessary (e.g., for a third-party domain not under your control), limit the exception scope and document it. Set NSExceptionMinimumTLSVersion to TLSv1.3 and NSExceptionRequiresForwardSecrecy to true within the exception."
+  cwe: "CWE-319"
+  owasp: "A02:2021"
+  confidence: 0.9
+
+- id: ios-keychain-accessible-always
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'kSecAttrAccessibleAlways[^W]'
+  severity: critical
+  description: "Keychain item set with kSecAttrAccessibleAlways accessibility. This makes the item accessible even when the device is locked, and it migrates to a new device during restore. Sensitive data like tokens and credentials can be read without user authentication."
+  remediation: "Use kSecAttrAccessibleWhenUnlocked or kSecAttrAccessibleWhenUnlockedThisDeviceOnly for items that should only be read when the device is unlocked. Use kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly for items requiring device passcode protection. Avoid kSecAttrAccessibleAlways and kSecAttrAccessibleAlwaysThisDeviceOnly."
+  cwe: "CWE-311"
+  owasp: "A02:2021"
+  confidence: 0.95
+
+- id: ios-uiwebview-usage
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'UIWebView'
+  severity: high
+  description: "UIWebView is deprecated as of iOS 12 and has known security vulnerabilities. It lacks the security isolation, JavaScript JIT hardening, and process separation improvements introduced in WKWebView. UIWebView will cause App Store rejection on new submissions."
+  remediation: "Replace all UIWebView instances with WKWebView. Configure WKWebView with a WKWebViewConfiguration specifying a WKContentRuleList to block mixed content. Enable allowsInlineMediaPlayback and mediaTypesRequiringUserActionForPlayback appropriately."
+  cwe: "CWE-749"
+  owasp: "A06:2021"
+  confidence: 0.95
+
+- id: ios-hardcoded-secret
+  languages: [swift]
+  patterns:
+    - regex: '(?i)(?:let|var)\s+(?:apiKey|token|password|secret|accessKey|privateKey|clientSecret)\s*=\s*["''][^"'']{8,}["'']'
+  severity: critical
+  description: "Hardcoded secret, API key, or password detected in Swift source. Hardcoded credentials are visible to anyone who extracts and disassembles the app binary, and they cannot be revoked without a full app update."
+  remediation: "Store secrets in the iOS Keychain and provision them at runtime (e.g., fetched from a secure configuration service after user authentication). Use Certificate-based authentication rather than API keys where possible. If secrets must ship with the app, protect them with code obfuscation and certificate pinning at minimum."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+  confidence: 0.85
+
+- id: ios-insecure-random
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)arc4random\(\)|arc4random_uniform\(|rand\(\)|random\(\)'
+  severity: medium
+  description: "Cryptographically weak random number generator in use (arc4random, rand, random). These functions should not be used for security-sensitive operations such as generating tokens, nonces, session identifiers, or encryption keys."
+  remediation: "Use SecRandomCopyBytes() for cryptographic random data in Objective-C, or the SystemRandomNumberGenerator in Swift's CryptoKit. For UUID-based identifiers, use UUID() which uses a CSPRNG internally."
+  cwe: "CWE-338"
+  owasp: "A02:2021"
+  confidence: 0.8
+
+- id: ios-log-sensitive
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)NSLog\s*\(@?[^)]*(?:password|token|secret|key|ssn|credit|cvv)'
+  severity: medium
+  description: "NSLog called with a format string containing sensitive keywords. NSLog output is written to the device console and system log, accessible to other apps with the com.apple.logging-private entitlement and visible in Xcode/Console.app during device connection."
+  remediation: "Remove all NSLog statements that print sensitive values. Replace NSLog with os_log using the .private flag for any values that should not appear in logs: os_log(.info, 'Value: %{private}@', sensitiveValue). Strip logging from release builds using preprocessor macros."
+  cwe: "CWE-532"
+  owasp: "A09:2021"
+  confidence: 0.85
+
+- id: ios-print-sensitive
+  languages: [swift]
+  patterns:
+    - regex: '(?i)print\s*\([^)]*(?:password|token|secret|key|ssn|credit)'
+  severity: medium
+  description: "Swift print() called with sensitive data. In debug builds print() output appears in the Xcode console; in release builds it may still appear in device logs accessible via instruments or a connected Mac."
+  remediation: "Remove print() calls containing sensitive values. Use #if DEBUG guards around all debug logging. For structured logging in production, use os.Logger from the os framework with privacy labels."
+  cwe: "CWE-532"
+  owasp: "A09:2021"
+  confidence: 0.85
+
+- id: ios-clipboard-sensitive
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)UIPasteboard\.general\.\s*(?:string\s*=|setValue).*(?:password|token|secret|key)'
+  severity: high
+  description: "Sensitive data written to the system clipboard via UIPasteboard.general. Clipboard contents are accessible to all apps on the device (universal clipboard on iOS 10+) and can be synced to other devices via Handoff."
+  remediation: "Avoid writing sensitive data to UIPasteboard.general. If copy functionality is required for user convenience, clear the clipboard after a short timeout. Consider using UIPasteboard(name:create:) with a non-persistent pasteboard that does not persist across app launches."
+  cwe: "CWE-312"
+  owasp: "A02:2021"
+  confidence: 0.85
+
+- id: ios-jailbreak-detection-missing
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)class\s+\w*JailbreakDetect'
+  severity: low
+  description: "Jailbreak detection class detected. Verify that the detection logic is comprehensive, checks multiple indicators (cydia URL scheme, file system paths, dynamic library injection, sandbox violation), and is not trivially bypassable via hooking."
+  remediation: "Implement multi-vector jailbreak detection (file existence checks, URL scheme checks, fork/system call checks, ptrace checks, dylib injection checks). Obfuscate method names and detection logic to resist Frida/cycript hooking. Consider using a commercial RASP SDK for robust protection."
+  cwe: "CWE-919"
+  owasp: "A08:2021"
+  confidence: 0.3
+
+- id: ios-ssl-pinning-disabled
+  languages: [swift]
+  patterns:
+    - regex: '(?i)ServerTrustPolicy.*disabled|ServerTrustPolicies.*DisablePinning|disableEvaluation'
+  severity: critical
+  description: "SSL/TLS certificate pinning explicitly disabled in Alamofire ServerTrustPolicy or equivalent. Disabling pinning allows the app to trust any certificate issued by any CA in the system store, making it trivially interceptable with a proxy tool like Burp Suite."
+  remediation: "Use .pinPublicKeys or .pinCertificates ServerTrustPolicy with a bundled list of expected public keys or certificates. Implement backup pin rotation using a remotely-fetched pin set with a short TTL. Never use .disableEvaluation in production builds."
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+  confidence: 0.9
+
+- id: ios-data-protection-missing
+  languages: [swift]
+  patterns:
+    - regex: '(?i)Data\.write\s*\([^)]*options\s*:\s*\[\]|NSData\.write.*atomically\s*:\s*true'
+  severity: medium
+  description: "File written without data protection options. Files written without specifying .completeFileProtection or similar NSData writing options are protected only by the default protection class, meaning they can be read when the device is locked in some configurations."
+  remediation: "Write sensitive files with Data.write(to:options:.completeFileProtection) which maps to the NSFileProtectionComplete attribute. This ensures the file's encryption key is wiped from memory when the device is locked. Set the data protection entitlement in your provisioning profile."
+  cwe: "CWE-311"
+  owasp: "A02:2021"
+  confidence: 0.7
+
+- id: ios-backdoor-url-scheme
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)application\s*\(.*open\s+url'
+  severity: medium
+  description: "Custom URL scheme handler (application(_:open:options:) or handleOpenURL:) detected. Without proper authentication and parameter validation, URL scheme handlers can be invoked by any app on the device to trigger sensitive actions or navigate to privileged routes."
+  remediation: "Validate the calling app's bundle ID via the sourceApplication parameter (Obj-C) or the UIOpenURLContext.sourceApplication property (iOS 13+). Sanitize all URL parameters before use. Prefer Universal Links over custom URL schemes as they require a verified server-side entitlement."
+  cwe: "CWE-939"
+  owasp: "A01:2021"
+  confidence: 0.65
+
+- id: ios-wkwebview-allows-all-navigation
+  languages: [swift]
+  patterns:
+    - regex: '(?i)decidePolicyFor.*navigationAction.*allow|webView.*navigationDelegate.*allow'
+  severity: medium
+  description: "WKWebView navigation policy delegate appears to unconditionally allow all navigation requests. This can permit the WebView to navigate to arbitrary URLs, including file:// paths or custom scheme handlers that expose app internals."
+  remediation: "Implement a strict URL allowlist in the decidePolicyFor navigationAction delegate. Reject navigation to file://, data://, and blob:// URLs unless explicitly required. Inspect the request URL's host and scheme before calling decisionHandler(.allow)."
+  cwe: "CWE-601"
+  owasp: "A01:2021"
+  confidence: 0.6

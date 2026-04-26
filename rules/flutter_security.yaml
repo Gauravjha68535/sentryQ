@@ -1,0 +1,145 @@
+# SentryQ Flutter / Dart Security Rules
+# Covers: cleartext traffic, insecure storage, certificate validation, SQL injection, and data leakage
+
+- id: flutter-cleartext-http
+  languages: [dart]
+  patterns:
+    - regex: '(?i)http://[a-zA-Z0-9\-\.]{4,}'
+  severity: high
+  description: "Cleartext HTTP URL hardcoded in Dart source. HTTP traffic is unencrypted and subject to man-in-the-middle attacks that can intercept credentials, session tokens, and sensitive data in transit."
+  remediation: "Replace all http:// URLs with https://. Configure the Android network security config and iOS ATS to disallow cleartext traffic. Use Flutter's http package with an HttpClient that enforces TLS certificate validation."
+  cwe: "CWE-319"
+  owasp: "A02:2021"
+  confidence: 0.8
+
+- id: flutter-shared-prefs-sensitive
+  languages: [dart]
+  patterns:
+    - regex: '(?i)SharedPreferences.*set(?:String|Int|Bool)\s*\([^)]*(?:password|token|secret|key|pin)'
+  severity: critical
+  description: "Sensitive data (password, token, secret, key, PIN) stored in SharedPreferences. SharedPreferences stores data in plaintext XML on Android and CFPreferences on iOS, both readable on rooted/jailbroken devices and via ADB backup."
+  remediation: "Store sensitive values using the flutter_secure_storage package, which uses Android Keystore on Android and the iOS Keychain. Never store passwords or long-lived tokens in SharedPreferences."
+  cwe: "CWE-312"
+  owasp: "A02:2021"
+  confidence: 0.9
+
+- id: flutter-debug-mode-check
+  languages: [dart]
+  patterns:
+    - regex: 'kDebugMode'
+  severity: low
+  description: "Debug mode flag (kDebugMode) detected. If security-sensitive checks (certificate pinning, jailbreak detection, root detection, or authentication bypass) are gated on kDebugMode, they will be absent in release builds, weakening the security posture."
+  remediation: "Audit all code paths guarded by kDebugMode. Ensure that security controls are active in release builds. Development-only conveniences (mock authentication, certificate bypass) must not be present in production code."
+  cwe: "CWE-94"
+  owasp: "A05:2021"
+  confidence: 0.5
+
+- id: flutter-insecure-certificate
+  languages: [dart]
+  patterns:
+    - regex: 'badCertificateCallback.*true|onBadCertificate.*true'
+  severity: critical
+  description: "TLS certificate validation disabled by returning true from badCertificateCallback or onBadCertificate. This makes the application fully vulnerable to man-in-the-middle attacks; all TLS traffic can be intercepted and decrypted."
+  remediation: "Remove the certificate callback or make it return false (reject invalid certificates). For testing, use a proper test CA rather than disabling validation. For certificate pinning, compare the server certificate's public key hash against a hardcoded expected value."
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+  confidence: 0.95
+
+- id: flutter-http-no-certificate-pinning
+  languages: [dart]
+  patterns:
+    - regex: '(?i)HttpClient\s*\(\s*\)'
+  severity: medium
+  description: "HttpClient instantiated without certificate pinning configuration. The default HttpClient trusts the system certificate store, making the app vulnerable to MITM attacks using fraudulently issued or compromised CA certificates."
+  remediation: "Implement certificate pinning by overriding the SecurityContext or using a package such as http_certificate_pinning or dio with a custom Interceptor that compares the server's certificate SHA-256 fingerprint against a pinned value."
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+  confidence: 0.6
+
+- id: flutter-sqlite-injection
+  languages: [dart]
+  patterns:
+    - regex: '(?i)db\.rawQuery\s*\([^,)]*\$\{|db\.execute\s*\([^)]*\$\{'
+  severity: high
+  description: "SQLite rawQuery or execute called with string interpolation (${}). Interpolating Dart variables directly into SQL strings enables SQL injection, allowing attackers to read, modify, or delete database contents."
+  remediation: "Use parameterized queries exclusively: db.rawQuery('SELECT * FROM users WHERE id = ?', [userId]). Never interpolate variables into SQL strings. Validate and sanitize all inputs before using them as query parameters."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: flutter-hive-sensitive-no-encryption
+  languages: [dart]
+  patterns:
+    - regex: '(?i)Hive\.openBox\s*\(\s*[''"][^''"]*(user|auth|token|secret|key)'
+  severity: high
+  description: "Hive box opened without encryption for a box with a security-sensitive name (user, auth, token, secret, key). Hive boxes are stored as plain binary files that can be read on rooted devices or via device backup."
+  remediation: "Open sensitive Hive boxes with an encryption cipher: Hive.openBox('tokens', encryptionCipher: HiveAesCipher(encryptionKey)) where encryptionKey is derived from the Android Keystore or iOS Keychain using flutter_secure_storage."
+  cwe: "CWE-312"
+  owasp: "A02:2021"
+  confidence: 0.85
+
+- id: flutter-logcat-sensitive
+  languages: [dart]
+  patterns:
+    - regex: '(?i)debugPrint\s*\([^)]*(?:password|token|secret|key)|print\s*\([^)]*(?:password|token|secret|key)'
+  severity: medium
+  description: "Sensitive data (password, token, secret, key) printed to the debug console. On Android this output appears in logcat and is accessible to any app holding READ_LOGS permission; on iOS it appears in the device console."
+  remediation: "Remove all print/debugPrint statements that include sensitive values. Use a structured logging library (e.g., logger package) configured to suppress output in release mode. Never log credentials, tokens, or PII."
+  cwe: "CWE-532"
+  owasp: "A09:2021"
+  confidence: 0.85
+
+- id: flutter-android-backup-enabled
+  languages: [dart]
+  patterns:
+    - regex: 'android:allowBackup\s*=\s*["'']true["'']'
+  severity: medium
+  description: "Android manifest has allowBackup=true. This enables ADB backups, which can extract SharedPreferences, databases, and other app data without root access on debug-enabled devices, potentially exposing sensitive user data."
+  remediation: "Set android:allowBackup=\"false\" in AndroidManifest.xml if backup is not required. If backup is needed, use the BackupAgent API with selective backup rules that exclude sensitive data directories and SharedPreferences files."
+  cwe: "CWE-530"
+  owasp: "A02:2021"
+  confidence: 0.85
+
+- id: flutter-clipboard-sensitive
+  languages: [dart]
+  patterns:
+    - regex: '(?i)Clipboard\.setData.*(?:password|secret|token|key|ssn)'
+  severity: high
+  description: "Sensitive data (password, secret, token, key, SSN) copied to the system clipboard. Clipboard contents are globally accessible to all apps on the device (on Android pre-10) and may persist across sessions."
+  remediation: "Avoid copying sensitive data to the clipboard. If unavoidable (e.g., copy password manager entry), clear the clipboard after a short timeout using a scheduled timer. Display a user warning that the data is in the clipboard."
+  cwe: "CWE-312"
+  owasp: "A02:2021"
+  confidence: 0.85
+
+- id: flutter-url-launch-unvalidated
+  languages: [dart]
+  patterns:
+    - regex: '(?i)launchUrl\s*\(\s*Uri\.parse\s*\([^)]*(?:user|input|param|request)'
+  severity: medium
+  description: "launchUrl called with a URI parsed from user-controlled input. Without validation this enables open redirect attacks and, depending on device configuration, can launch arbitrary intent URIs on Android or deep-link hijacking on iOS."
+  remediation: "Validate the scheme and host of any URL before passing it to launchUrl. Maintain a whitelist of permitted schemes (https) and domains. Use Uri.parse and check uri.scheme and uri.host before calling launchUrl."
+  cwe: "CWE-601"
+  owasp: "A01:2021"
+  confidence: 0.75
+
+- id: flutter-webview-javascript-enabled
+  languages: [dart]
+  patterns:
+    - regex: '(?i)javascriptMode\s*:\s*JavascriptMode\.unrestricted|javascriptEnabled\s*:\s*true'
+  severity: medium
+  description: "WebView configured with unrestricted JavaScript execution. If the WebView loads untrusted URLs or content, JavaScript can access the platform JavaScript channels and potentially interact with native Dart code."
+  remediation: "Disable JavaScript unless strictly necessary. When JavaScript must be enabled, restrict the WebView to a content security policy, avoid exposing platform channels to untrusted content, and enforce a URL whitelist using the navigationDelegate."
+  cwe: "CWE-79"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: flutter-deep-link-no-validation
+  languages: [dart]
+  patterns:
+    - regex: '(?i)onGenerateRoute.*Uri\.parse|initialLink.*Uri\.parse'
+  severity: medium
+  description: "Deep link URI parsed without explicit host or scheme validation. Maliciously crafted deep links can navigate the application to unintended routes, potentially bypassing authentication or leaking sensitive route state."
+  remediation: "Validate deep link URIs against an allowlist of known routes and expected host values. Use GoRouter or auto_route with explicit route guards. Reject deep links with unexpected schemes or paths before processing."
+  cwe: "CWE-601"
+  owasp: "A01:2021"
+  confidence: 0.65

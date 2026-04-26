@@ -123,7 +123,7 @@
   cwe: "CWE-548"
   owasp: "A01:2021"
   confidence: 0.8
-- id: nginx-server-tokens-on
+- id: nginx-server-tokens-on-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)^\s*server_tokens\s+(?:on|build|.*(?:.*\d))\s*;'
@@ -133,7 +133,7 @@
   cwe: "CWE-200"
   owasp: "A05:2021"
   confidence: 0.8
-- id: nginx-root-location
+- id: nginx-root-location-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)^\s*location[\s\S]*?\{\s*\n\s*root\s+'
@@ -233,7 +233,7 @@
   cwe: "CWE-320"
   owasp: "A02:2021"
   confidence: 0.8
-- id: nginx-missing-hsts
+- id: nginx-missing-hsts-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)server\s*\{[\s\S]*?'
@@ -303,7 +303,7 @@
   cwe: "CWE-918"
   owasp: "A10:2021"
   confidence: 0.8
-- id: nginx-proxy-set-header-host
+- id: nginx-proxy-set-header-host-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)^\s*proxy_set_header\s+Host\s+\$host\s*;'
@@ -533,7 +533,7 @@
   cwe: "CWE-532"
   owasp: "A09:2021"
   confidence: 0.8
-- id: nginx-access-log-off
+- id: nginx-access-log-off-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)^\s*access_log\s+off\s*;'

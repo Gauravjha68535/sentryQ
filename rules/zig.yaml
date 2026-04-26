@@ -306,7 +306,7 @@
   owasp: "A07:2021"
   confidence: 0.8
 
-- id: zig-ssrf
+- id: zig-ssrf-dup1
   languages: [zig]
   patterns:
     - regex: '(?i)std\.http\.fetch\s*\(.*url.*='

@@ -1110,7 +1110,7 @@
 
 # ======================== MIDDLEWARE MISCONFIGURATION (1-30) ========================
 
-- id: aspnet-middleware-order
+- id: aspnet-middleware-order-dup1
   languages: [csharp]
   patterns:
     - regex: 'app\.UseAuthentication\(\);[^}]*app\.UseAuthorization\(\);[^}]*app\.UseEndpoints\('
@@ -1824,7 +1824,7 @@
   cwe: "CWE-312"
   owasp: "A02:2021"
 
-- id: aspnet-blazor-webassembly-auth
+- id: aspnet-blazor-webassembly-auth-dup1
   languages: [csharp]
   patterns:
     - regex: 'AddOidcAuthentication|AddMsalAuthentication'
@@ -1976,7 +1976,7 @@
   cwe: "CWE-284"
   owasp: "A01:2021"
 
-- id: aspnet-signalr-groups
+- id: aspnet-signalr-groups-dup1
   languages: [csharp]
   patterns:
     - regex: 'Groups\.AddToGroupAsync|Groups\.RemoveFromGroupAsync'
@@ -2306,7 +2306,7 @@
   cwe: "CWE-640"
   owasp: "A07:2021"
 
-- id: aspnet-identity-email-confirmation
+- id: aspnet-identity-email-confirmation-dup1
   languages: [csharp]
   patterns:
     - regex: 'GenerateEmailConfirmationTokenAsync|ConfirmEmailAsync'

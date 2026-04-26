@@ -1,26 +1,266 @@
+# Go Web Framework Security Rules
+# Real rules only — no auto-generated junk
+
 - id: go-gin-insecure-middleware
   languages: [go]
   patterns:
     - regex: 'gin\.Default\(\)|gin\.New\(\)'
   severity: low
-  description: "Gin default/new without security middleware"
-  remediation: "Ensure you add helmet, cors, and other security middlewares."
+  description: "Gin router initialized — ensure security middleware (auth, CORS, rate limiting) is applied before registering routes"
+  remediation: "Add security middleware using r.Use(): authentication, CORS headers, rate limiting, and request size limits."
   cwe: "CWE-693"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.4
 
 - id: go-fiber-cors-wildcard
   languages: [go]
   patterns:
-    - regex: 'cors\.New\(cors\.Config\{.*AllowOrigins:\s*"[*]".*\}\)'
+    - regex: 'cors\.New\(cors\.Config\{.*AllowOrigins:\s*"[*]"'
   severity: high
-  description: "Fiber CORS with wildcard origin"
-  remediation: "Specify exact origins instead of '*'."
+  description: "Fiber CORS configured with wildcard origin — any website can issue cross-origin requests"
+  remediation: "Specify exact allowed origins in AllowOrigins instead of '*'."
   cwe: "CWE-346"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.9
 
 - id: go-echo-binder-injection
   languages: [go]
   patterns:
-    - regex: 'c\.Bind\(.*\)'
+    - regex: 'c\.Bind\s*\('
   severity: medium
-  description: "Echo binding without validation"
-  remediation: "Always validate bound structures using a validator library."
+  description: "Echo request binding without explicit validation — bound structs should be validated before use"
+  remediation: "Call a validator (e.g., go-playground/validator) immediately after c.Bind() and return 400 on validation failure."
   cwe: "CWE-20"
+  owasp: "A03:2021-Injection"
+  confidence: 0.5
+
+- id: go-web-sql-injection
+  languages: [go]
+  patterns:
+    - regex: '(?i)(db|DB)\.(Query|Exec|QueryRow)\s*\(\s*(?:fmt\.Sprintf|fmt\.Errorf)'
+  severity: critical
+  description: "SQL injection: fmt.Sprintf used to construct SQL query string passed to database Query/Exec"
+  remediation: "Use parameterized queries with '?' or '$N' placeholders. Never format user data into SQL strings."
+  cwe: "CWE-89"
+  owasp: "A03:2021-Injection"
+  confidence: 0.92
+
+- id: go-web-sql-injection-concat
+  languages: [go]
+  patterns:
+    - regex: '(?i)(db|DB)\.(Query|Exec|QueryRow)\s*\(\s*[^,)]*\+'
+  severity: critical
+  description: "SQL injection: string concatenation used to build SQL query passed to database Query/Exec"
+  remediation: "Replace concatenation with parameterized placeholders and pass values as separate arguments."
+  cwe: "CWE-89"
+  owasp: "A03:2021-Injection"
+  confidence: 0.88
+
+- id: go-web-ssrf-http-get
+  languages: [go]
+  patterns:
+    - regex: 'http\.(Get|Post)\s*\(\s*(?:r\.FormValue|r\.URL\.Query)'
+  severity: high
+  description: "SSRF: user-supplied URL from form value or query parameter passed directly to http.Get/Post"
+  remediation: "Parse the URL and validate the hostname against an allowlist before making the request."
+  cwe: "CWE-918"
+  owasp: "A10:2021-Server-Side Request Forgery"
+  confidence: 0.9
+
+- id: go-web-ssrf-fmt-sprintf
+  languages: [go]
+  patterns:
+    - regex: 'http\.(Get|Post)\s*\(\s*fmt\.Sprintf'
+  severity: high
+  description: "SSRF: dynamically constructed URL via fmt.Sprintf passed to http.Get/Post — may include user input"
+  remediation: "Validate that the final URL resolves to an allowlisted host before making the HTTP request."
+  cwe: "CWE-918"
+  owasp: "A10:2021-Server-Side Request Forgery"
+  confidence: 0.75
+
+- id: go-web-open-redirect
+  languages: [go]
+  patterns:
+    - regex: 'http\.Redirect\s*\([^,]+,\s*[^,]+,\s*(?:r\.FormValue|r\.URL\.Query|r\.PostForm)'
+  severity: high
+  description: "Open redirect: user-controlled value from form or query passed directly to http.Redirect"
+  remediation: "Validate the redirect target against an allowlist of permitted paths or domains."
+  cwe: "CWE-601"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.9
+
+- id: go-web-path-traversal
+  languages: [go]
+  patterns:
+    - regex: 'filepath\.Join\s*\([^)]*(?:r\.FormValue|r\.URL\.Query|r\.PathValue)'
+  severity: high
+  description: "Path traversal: user-controlled path component used in filepath.Join without sanitization"
+  remediation: "After filepath.Join, use filepath.Clean and verify the result has the expected base prefix with strings.HasPrefix."
+  cwe: "CWE-22"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.9
+
+- id: go-web-template-injection
+  languages: [go]
+  patterns:
+    - regex: '(?i)tmpl\.Execute\s*\([^,]+,\s*r\.FormValue'
+  severity: high
+  description: "Template injection: user form input passed directly as template data to Execute()"
+  remediation: "Only pass validated, typed structs to template Execute(). Never pass raw request strings as template data."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: go-web-template-html-unsafe
+  languages: [go]
+  patterns:
+    - regex: 'template\.HTML\s*\(\s*(?:r\.FormValue|r\.URL\.Query|r\.PostForm)'
+  severity: high
+  description: "XSS: user input cast to template.HTML bypasses Go's automatic HTML escaping"
+  remediation: "Never cast user input to template.HTML, template.JS, or template.URL. Use the type-safe template engine escaping."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+  confidence: 0.95
+
+- id: go-web-command-injection
+  languages: [go]
+  patterns:
+    - regex: 'exec\.Command\s*\([^)]*(?:r\.FormValue|r\.URL\.Query|r\.PostForm)'
+  severity: critical
+  description: "Command injection: user-supplied input from HTTP request passed to exec.Command"
+  remediation: "Avoid using user input in shell commands. If necessary, pass arguments as separate exec.Command args (not shell strings) and validate against a strict allowlist."
+  cwe: "CWE-78"
+  owasp: "A03:2021-Injection"
+  confidence: 0.95
+
+- id: go-web-xss-fprintf
+  languages: [go]
+  patterns:
+    - regex: 'fmt\.Fprintf\s*\(w,\s*[^,]+,\s*(?:r\.FormValue|r\.URL\.Query)'
+  severity: high
+  description: "Reflected XSS: user-controlled input injected into HTTP response via fmt.Fprintf"
+  remediation: "HTML-encode user input with html.EscapeString before writing to the response, or use html/template."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+  confidence: 0.88
+
+- id: go-web-insecure-cors
+  languages: [go]
+  patterns:
+    - regex: '(?i)Access-Control-Allow-Origin.*\*'
+  severity: high
+  description: "CORS wildcard header set — allows any origin to make cross-origin requests"
+  remediation: "Validate the Origin request header against an allowlist and echo only permitted origins."
+  cwe: "CWE-346"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.9
+
+- id: go-web-hardcoded-secret
+  languages: [go]
+  patterns:
+    - regex: '(?i)(?:secret|password|key|token)\s*:?=\s*"[A-Za-z0-9+/!@#$%^&*]{12,}"'
+  severity: high
+  description: "Hardcoded secret, password, or API key detected in source code"
+  remediation: "Move secrets to environment variables or a secrets manager. Use os.Getenv() or a config library."
+  cwe: "CWE-798"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+- id: go-web-missing-tls
+  languages: [go]
+  patterns:
+    - regex: 'http\.ListenAndServe\s*\('
+  severity: medium
+  description: "HTTP server started without TLS — all traffic is transmitted in cleartext"
+  remediation: "Use http.ListenAndServeTLS() with a valid certificate, or place the service behind a TLS-terminating proxy."
+  cwe: "CWE-319"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.7
+
+- id: go-web-gorilla-csrf-disabled
+  languages: [go]
+  patterns:
+    - regex: 'csrf\.Secure\s*\(\s*false\s*\)'
+  severity: high
+  description: "Gorilla CSRF protection configured with Secure(false) — CSRF cookie will be sent over HTTP, enabling interception"
+  remediation: "Only set csrf.Secure(false) in local development. In production, always use csrf.Secure(true) with HTTPS."
+  cwe: "CWE-352"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.9
+
+- id: go-web-gin-no-auth
+  languages: [go]
+  patterns:
+    - regex: '(?i)r\.(GET|POST|PUT|DELETE)\s*\([''"]/(?:admin|api|user)'
+  severity: medium
+  description: "Sensitive route registered — verify authentication and authorization middleware is applied"
+  remediation: "Wrap sensitive route groups with authentication middleware: r.Group(\"/admin\").Use(AuthMiddleware())."
+  cwe: "CWE-862"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.4
+
+- id: go-web-pprof-exposed
+  languages: [go]
+  patterns:
+    - regex: '(?i)_ "net/http/pprof"'
+  severity: medium
+  description: "pprof debug profiling endpoints imported — exposes /debug/pprof routes that leak runtime internals"
+  remediation: "Remove the pprof import in production builds, or restrict the debug server to localhost only on a separate port."
+  cwe: "CWE-200"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.9
+
+- id: go-web-directory-traversal-serve
+  languages: [go]
+  patterns:
+    - regex: 'http\.FileServer\s*\(\s*http\.Dir\s*\('
+  severity: low
+  description: "http.FileServer serving a directory — ensure the served path does not expose sensitive files"
+  remediation: "Restrict the served directory to a dedicated public assets folder. Avoid serving from project root."
+  cwe: "CWE-200"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.5
+
+- id: go-web-jwt-weak-validation
+  languages: [go]
+  patterns:
+    - regex: 'jwt\.ParseWithClaims\s*\(.*func\s*\('
+  severity: medium
+  description: "JWT parsed with ParseWithClaims — verify the key validation function properly rejects invalid signing methods"
+  remediation: "In the key function, check token.Method matches the expected algorithm (e.g., jwt.SigningMethodHS256) and return an error otherwise."
+  cwe: "CWE-347"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.6
+
+- id: go-web-tls-insecure-skip-verify
+  languages: [go]
+  patterns:
+    - regex: 'InsecureSkipVerify\s*:\s*true'
+  severity: critical
+  description: "TLS certificate verification disabled — connections are vulnerable to man-in-the-middle attacks"
+  remediation: "Remove InsecureSkipVerify: true. Use proper certificate validation, and add custom CAs via tls.Config.RootCAs if needed."
+  cwe: "CWE-295"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.98
+
+- id: go-web-random-insecure
+  languages: [go]
+  patterns:
+    - regex: 'math/rand\.(Int|Float|Intn|Read)\s*\('
+  severity: medium
+  description: "Cryptographically insecure math/rand used — predictable values unsuitable for security purposes"
+  remediation: "Use crypto/rand for any security-sensitive randomness such as tokens, nonces, or session IDs."
+  cwe: "CWE-338"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.75
+
+- id: go-web-gin-debug-mode
+  languages: [go]
+  patterns:
+    - regex: 'gin\.SetMode\s*\(\s*gin\.DebugMode\s*\)'
+  severity: low
+  description: "Gin running in debug mode — verbose route and error output may leak implementation details"
+  remediation: "Set gin.SetMode(gin.ReleaseMode) in production to suppress debug output."
+  cwe: "CWE-209"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.85

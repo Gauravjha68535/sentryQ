@@ -1,0 +1,156 @@
+# SentryQ Security Rules — Runtime Security
+# Covers: Dynamic code execution, unsafe deserialization, process spawning, signal handling
+
+# ======================== Dynamic Code Execution ========================
+
+- id: runtime-eval-user-input
+  languages: [javascript, typescript, python, ruby, php]
+  patterns:
+    - regex: '(?i)eval\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.|input\.|args\.|user)'
+  severity: critical
+  description: "eval() called with user-controlled input — remote code execution vulnerability."
+  remediation: "Never use eval() with user input. Use safe alternatives like JSON.parse() or ast.literal_eval()."
+  cwe: "CWE-95"
+  owasp: "A03:2021-Injection"
+
+- id: runtime-exec-user-input
+  languages: [javascript, typescript, python, ruby, php, go]
+  patterns:
+    - regex: '(?i)(?:exec|execSync|spawn|spawnSync|child_process)\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.)'
+    - regex: '(?i)(?:os\.system|subprocess\.(?:call|run|Popen|check_output))\s*\(\s*(?:request\.|form\.|args\.)'
+    - regex: '(?i)(?:system|exec|shell_exec|passthru|popen)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE)'
+  severity: critical
+  description: "OS command execution with user-controlled input — command injection vulnerability."
+  remediation: "Use parameterized commands, avoid shell=True, and validate/sanitize all inputs."
+  cwe: "CWE-78"
+  owasp: "A03:2021-Injection"
+
+- id: runtime-dynamic-import
+  languages: [javascript, typescript, python, ruby]
+  patterns:
+    - regex: '(?i)require\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.)'
+    - regex: '(?i)import\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.)'
+    - regex: '(?i)__import__\s*\(\s*(?:request\.|form\.|args\.)'
+    - regex: '(?i)importlib\.import_module\s*\(\s*(?:request\.|form\.)'
+  severity: critical
+  description: "Dynamic module import with user-controlled path — arbitrary code loading."
+  remediation: "Use a static allowlist of permitted modules. Never dynamically import based on user input."
+  cwe: "CWE-94"
+  owasp: "A03:2021-Injection"
+
+# ======================== Unsafe Deserialization ========================
+
+- id: runtime-unsafe-deserialize-python
+  languages: [python]
+  patterns:
+    - regex: '(?i)pickle\.(?:loads?|Unpickler)\s*\(\s*(?:request\.|form\.|args\.|body\.|data\.|input)'
+    - regex: '(?i)yaml\.(?:load|unsafe_load)\s*\(\s*(?:request\.|form\.|data\.|body\.)'
+    - regex: '(?i)marshal\.loads?\s*\(\s*(?:request\.|data\.)'
+  severity: critical
+  description: "Unsafe deserialization of user-controlled data — leads to arbitrary code execution."
+  remediation: "Use yaml.safe_load(), json.loads(), or dataclass validation instead of pickle/marshal."
+  cwe: "CWE-502"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+
+- id: runtime-unsafe-deserialize-java
+  languages: [java]
+  patterns:
+    - regex: '(?i)ObjectInputStream\s*\(\s*(?:request\.|socket\.|input)'
+    - regex: '(?i)readObject\s*\(\s*\)'
+    - regex: '(?i)XMLDecoder\s*\(\s*(?:request\.|new\s+BufferedInputStream)'
+  severity: critical
+  description: "Java deserialization of untrusted data — leads to remote code execution."
+  remediation: "Use JSON/protobuf instead. If serialization is needed, use a serialization filter (JEP 290)."
+  cwe: "CWE-502"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+
+- id: runtime-unsafe-deserialize-ruby
+  languages: [ruby]
+  patterns:
+    - regex: '(?i)Marshal\.(?:load|restore)\s*\(\s*(?:request\.|params\.|body\.)'
+    - regex: '(?i)YAML\.load\s*\(\s*(?:request\.|params\.|body\.)'
+  severity: critical
+  description: "Ruby deserialization with user input — leads to arbitrary code execution."
+  remediation: "Use YAML.safe_load() and JSON.parse() instead of Marshal.load/YAML.load."
+  cwe: "CWE-502"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+
+- id: runtime-unsafe-deserialize-php
+  languages: [php]
+  patterns:
+    - regex: '(?i)unserialize\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE)'
+    - regex: '(?i)unserialize\s*\(\s*(?:file_get_contents|fread|fgets)\s*\('
+  severity: critical
+  description: "PHP unserialize with user input — leads to object injection and code execution."
+  remediation: "Use json_decode() instead of unserialize(). If needed, use allowed_classes option."
+  cwe: "CWE-502"
+  owasp: "A08:2021-Software and Data Integrity Failures"
+
+# ======================== Unsafe Function Constructors ========================
+
+- id: runtime-function-constructor
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)new\s+Function\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.|input\.)'
+    - regex: '(?i)new\s+Function\s*\(\s*["\x27]return\s+' 
+  severity: critical
+  description: "Function constructor with dynamic input — equivalent to eval() and enables code injection."
+  remediation: "Avoid the Function constructor. Use predefined functions or safe template engines."
+  cwe: "CWE-95"
+  owasp: "A03:2021-Injection"
+
+- id: runtime-settimeout-string
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:setTimeout|setInterval)\s*\(\s*(?:req\.|request\.|params\.|query\.|body\.|input\.)'
+    - regex: '(?i)(?:setTimeout|setInterval)\s*\(\s*["\x27][^"\x27]*["\x27]\s*\+\s*(?:req\.|request\.|params\.)'
+  severity: high
+  description: "setTimeout/setInterval with string argument from user input — eval-like code execution."
+  remediation: "Pass function references to setTimeout/setInterval, never string expressions."
+  cwe: "CWE-95"
+  owasp: "A03:2021-Injection"
+
+# ======================== Process/Signal Safety ========================
+
+- id: runtime-uncaught-exception-handler
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)process\.on\s*\(\s*["\x27]uncaughtException["\x27]\s*,\s*(?:function|\([^)]*\)\s*=>)\s*\{[^}]*\}'
+  severity: medium
+  description: "uncaughtException handler may mask errors and leave process in undefined state."
+  remediation: "Log the error and exit gracefully. Use process managers (PM2, systemd) for restart."
+  cwe: "CWE-755"
+  owasp: "A05:2021-Security Misconfiguration"
+
+- id: runtime-process-exit
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)process\.exit\s*\(\s*0?\s*\)'
+  severity: low
+  description: "process.exit() called — may terminate before async operations complete."
+  remediation: "Allow the event loop to drain naturally, or use process.exitCode = 1."
+  cwe: "CWE-404"
+  owasp: "A05:2021-Security Misconfiguration"
+
+# ======================== Sandbox Escapes ========================
+
+- id: runtime-vm-sandbox-escape
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:vm\.runInNewContext|vm\.runInContext|vm\.Script|vm2|isolated-vm)\s*\(\s*(?:req\.|request\.|body\.|input\.)'
+    - regex: '(?i)vm\.createContext\s*\(\s*\{[^}]*(?:this|constructor|__proto__)'
+  severity: critical
+  description: "Node.js vm module sandbox with user input — vm module is NOT a security sandbox and can be escaped."
+  remediation: "Use isolated-vm, Web Workers, or separate processes for untrusted code execution."
+  cwe: "CWE-265"
+  owasp: "A03:2021-Injection"
+
+- id: runtime-python-exec-compile
+  languages: [python]
+  patterns:
+    - regex: '(?i)(?:exec|compile)\s*\(\s*(?:request\.|form\.|args\.|body\.|data\.|input)'
+  severity: critical
+  description: "Python exec()/compile() with user input — arbitrary code execution."
+  remediation: "Never use exec() or compile() with user input. Use ast.literal_eval() for safe evaluation."
+  cwe: "CWE-95"
+  owasp: "A03:2021-Injection"

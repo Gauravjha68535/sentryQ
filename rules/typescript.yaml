@@ -1,25 +1,3 @@
-- id: ts-type-guard-nullish-coalescing
-  languages: [typescript]
-  patterns:
-    - regex: |-
-        \w+\s*\?\?\s*\w+
-  severity: low
-  description: "Nullish coalescing operator used - good for default values"
-  remediation: "Good practice for providing defaults for null/undefined"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-- id: ts-type-guard-array-isarray
-  languages: [typescript]
-  patterns:
-    - regex: |-
-        Array\.isArray\s*\(\s*\w+\s*\)
-  severity: low
-  description: "Array.isArray check - good for array validation"
-  remediation: "Combine with element validation for complete type safety"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
 - id: ts-type-guard-number-isnan
   languages: [typescript]
   patterns:
@@ -31,17 +9,6 @@
   cwe: "CWE-20"
   owasp: "A03:2021"
 
-- id: ts-type-guard-number-finite
-  languages: [typescript]
-  patterns:
-    - regex: |-
-        Number\.isFinite\s*\(\s*\w+\s*\)
-  severity: low
-  description: "Number.isFinite check - good for number validation"
-  remediation: "Good practice for validating numbers"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
 - id: ts-type-guard-date-validation
   languages: [typescript]
   patterns:
@@ -50,17 +17,6 @@
   severity: low
   description: "Date instanceof check - but doesn't validate invalid dates"
   remediation: "Also check !isNaN(date.getTime()) for valid dates"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-- id: ts-type-guard-enum
-  languages: [typescript]
-  patterns:
-    - regex: |-
-        Object\.values\s*\(\s*\w+Enum\s*\)\.includes\s*\(\s*\w+\s*\)
-  severity: low
-  description: "Enum value validation - good for checking allowed values"
-  remediation: "Good practice - also consider using zod enums"
   cwe: "CWE-20"
   owasp: "A03:2021"
 

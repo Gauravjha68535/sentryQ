@@ -1400,7 +1400,7 @@
   owasp: "A02:2021"
   confidence: 0.8
 
-- id: scala-collection-mutable
+- id: scala-collection-mutable-dup1
   languages: [scala]
   patterns:
     - regex: '(?i)mutable\.Map|mutable\.List|mutable\.Set'

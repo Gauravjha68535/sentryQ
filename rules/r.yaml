@@ -317,7 +317,7 @@
   owasp: "A03:2021"
   confidence: 0.8
 
-- id: r-xxe
+- id: r-xxe-dup1
   languages: [r]
   patterns:
     - regex: '(?i)xmlParse\s*\(.*dtd|CWzmlTreeParse\s*\(.*dtd'

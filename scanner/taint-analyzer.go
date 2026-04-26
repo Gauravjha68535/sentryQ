@@ -13,7 +13,8 @@ import (
 // TaintAnalyzer tracks user input through code to detect injection vulnerabilities
 type TaintAnalyzer struct {
 	taintSources      []*regexp.Regexp
-	taintSinks        map[string][]string
+	taintSinks        map[string][]string    // raw sink patterns (kept for reference)
+	compiledSinks     map[string][]*regexp.Regexp // pre-compiled at init; used in AnalyzeTaintFlow
 	sanitizers        []*regexp.Regexp
 	scopeStartPattern *regexp.Regexp
 	// Pre-compiled patterns for taint flow analysis (compiled once at initialization)
@@ -25,7 +26,7 @@ type TaintAnalyzer struct {
 
 // NewTaintAnalyzer creates a new taint analyzer
 func NewTaintAnalyzer() *TaintAnalyzer {
-	return &TaintAnalyzer{
+	ta := &TaintAnalyzer{
 		// Sources: Where user input enters the application
 		taintSources: []*regexp.Regexp{
 			// Python
@@ -115,6 +116,32 @@ func NewTaintAnalyzer() *TaintAnalyzer {
 		interpolationRe: regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=)\s*(?:f"|f'|` + "`" + `|\$\{).*\$?([a-zA-Z_][a-zA-Z0-9_]*)`),
 		funcCallRe:      regexp.MustCompile(`(?:await\s+)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)`),
 	}
+
+	// Pre-compile all sink patterns at construction time so AnalyzeTaintFlow
+	// does not pay the regexp.Compile cost on every file it processes.
+	//
+	// IMPORTANT: taintSinks[lang] is rebuilt here to contain ONLY the patterns
+	// that compiled successfully, keeping it exactly in sync with compiledSinks[lang].
+	// Without this, any invalid regex would shorten compiledSinks without shortening
+	// taintSinks, causing sinkPatterns[i] to reference the wrong raw pattern at
+	// runtime (wrong injection type, CWE, OWASP, remediation).
+	ta.compiledSinks = make(map[string][]*regexp.Regexp, len(ta.taintSinks))
+	for lang, patterns := range ta.taintSinks {
+		compiled := make([]*regexp.Regexp, 0, len(patterns))
+		valid := make([]string, 0, len(patterns))
+		for _, p := range patterns {
+			if re, err := regexp.Compile(p); err == nil {
+				compiled = append(compiled, re)
+				valid = append(valid, p)
+			} else {
+				utils.LogWarn(fmt.Sprintf("taint-analyzer: invalid sink regex for %s: %v", lang, err))
+			}
+		}
+		ta.compiledSinks[lang] = compiled
+		ta.taintSinks[lang] = valid // keep raw patterns in sync with compiled slice
+	}
+
+	return ta
 }
 
 // taintInfo stores metadata about how a variable became tainted
@@ -131,7 +158,7 @@ const maxTaintHops = 10
 // AnalyzeTaintFlow scans a file for taint flow vulnerabilities
 func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, error) {
 	lang := getLanguageFromPath(filePath)
-	if lang == "" || ta.taintSinks[lang] == nil {
+	if lang == "" || ta.compiledSinks[lang] == nil {
 		return nil, nil
 	}
 
@@ -153,15 +180,10 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 	reportedPairs := make(map[string]bool)
 
 
-	// Pre-compile sink regexes for performance
-	compiledSinks := make([]*regexp.Regexp, 0)
+	// Use the sink regexes pre-compiled in NewTaintAnalyzer (zero allocation per file).
+	compiledSinks := ta.compiledSinks[lang]
+	// Raw sink patterns are still needed for display strings (getInjectionType, etc.).
 	sinkPatterns := ta.taintSinks[lang]
-	for _, sp := range sinkPatterns {
-		re, err := regexp.Compile(sp)
-		if err == nil {
-			compiledSinks = append(compiledSinks, re)
-		}
-	}
 
 	// Regexes for method-chain and concat/interpolation detection
 	// Use pre-compiled patterns from struct for better performance

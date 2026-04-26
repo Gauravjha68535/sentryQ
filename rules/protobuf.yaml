@@ -507,7 +507,7 @@
   cwe: "CWE-697"
   owasp: "A06:2021"
   confidence: 0.8
-- id: protobuf-map-sensitive-key
+- id: protobuf-map-sensitive-key-dup1
   languages: [protobuf]
   patterns:
     - regex: '(?i)map<string,\s*string>\s*(?:headers|metadata|attributes)'

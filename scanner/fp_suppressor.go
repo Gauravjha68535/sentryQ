@@ -17,19 +17,21 @@ func SuppressFalsePositives(findings []reporter.Finding, targetDir string) []rep
 	fileCache := make(map[string]string)
 
 	readFile := func(filePath string) string {
-		if content, ok := fileCache[filePath]; ok {
-			return content
-		}
 		absPath := filePath
 		if !filepath.IsAbs(absPath) {
 			absPath = filepath.Join(targetDir, filePath)
+		}
+		// Always cache under the resolved absolute path so that the same file
+		// accessed via different relative paths gets a cache hit.
+		if content, ok := fileCache[absPath]; ok {
+			return content
 		}
 		data, err := os.ReadFile(absPath)
 		if err != nil {
 			return ""
 		}
 		content := string(data)
-		fileCache[filePath] = content
+		fileCache[absPath] = content
 		return content
 	}
 
@@ -221,8 +223,18 @@ func shouldSuppress(f reporter.Finding, fileContent string) bool {
 		}
 
 	case "RESOURCE_LIMIT":
-		// Downgrade "express.json() without size limit" — it's hygiene, not a vuln
-		return true
+		// Only suppress the specific "express.json() without body size limit" pattern
+		// (bodyParser / express.json without a limit: option). Actual DoS vectors
+		// (e.g. missing connection limits, missing queue caps) should not be suppressed.
+		if lineNum > 0 && lineNum <= len(lines) {
+			line := strings.ToLower(lines[lineNum-1])
+			if strings.Contains(line, "express.json()") ||
+				strings.Contains(line, "bodyparsed.json()") ||
+				strings.Contains(line, "bodyparser.json()") ||
+				strings.Contains(line, "bodyparser.urlencoded()") {
+				return true
+			}
+		}
 	}
 
 	return false

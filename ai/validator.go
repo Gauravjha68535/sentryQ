@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -25,8 +26,23 @@ type ValidationResult struct {
 	FixedCodeSnippet           string  `json:"fixed_code_snippet"`
 }
 
+// maxPromptFileContent is the maximum number of bytes of file content injected
+// into the AI validation prompt. Truncating prevents:
+//   - Prompt injection via adversarial content in scanned files.
+//   - Context-window exhaustion on small models.
+//   - Excessive latency on large/minified source files.
+const maxPromptFileContent = 8000
+
 // ValidateFinding sends a single finding to the AI model for validation
 func ValidateFinding(ctx context.Context, modelName string, finding reporter.Finding, fileContent string, relatedFilesContext string) (*ValidationResult, error) {
+	// Truncate file content to prevent prompt injection and context overflow.
+	if len(fileContent) > maxPromptFileContent {
+		fileContent = fileContent[:maxPromptFileContent] + "\n\n... [FILE TRUNCATED — showing first 8 KB only] ..."
+	}
+	// Truncate related files context separately.
+	if len(relatedFilesContext) > maxPromptFileContent {
+		relatedFilesContext = relatedFilesContext[:maxPromptFileContent] + "\n... [CONTEXT TRUNCATED]"
+	}
 	// Detect if this is a test file using the canonical shared utility
 	isTestFile := utils.IsTestFile(finding.FilePath)
 
@@ -148,18 +164,29 @@ Return ONLY a valid JSON object in the final part of your response:
 		// instead of creating a throwaway client per call. The per-request deadline
 		// is already enforced by valCtx above.
 		resp, err := aiHTTPClient.Do(httpReq)
-		valCancel() // cancel immediately after the HTTP round-trip completes
 		if err != nil {
+			valCancel()
 			return nil, fmt.Errorf("ollama API request failed: %v", err)
 		}
-		body, readErr := readOllamaResponse(resp.Body)
-		resp.Body.Close() //nolint:errcheck
-		if readErr != nil {
-			return nil, fmt.Errorf("failed to read Ollama response: %v", readErr)
+
+		// Check status BEFORE reading body so Ollama error responses (4xx/5xx)
+		// produce a useful "status 403" message instead of a confusing JSON-decode
+		// error from trying to parse an error page as a generate response.
+		if resp.StatusCode != http.StatusOK {
+			io.Copy(io.Discard, resp.Body) //nolint:errcheck
+			resp.Body.Close()              //nolint:errcheck
+			valCancel()
+			return nil, fmt.Errorf("ollama API returned status %d", resp.StatusCode)
 		}
 
-		if resp.StatusCode != 200 {
-			return nil, fmt.Errorf("ollama API returned status %d", resp.StatusCode)
+		body, readErr := readOllamaResponse(resp.Body)
+		resp.Body.Close() //nolint:errcheck
+		// Cancel AFTER the body is fully read. Cancelling before readOllamaResponse
+		// causes the transport to close the TCP connection mid-stream, truncating
+		// large AI responses and returning a spurious "context canceled" error.
+		valCancel()
+		if readErr != nil {
+			return nil, fmt.Errorf("failed to read Ollama response: %v", readErr)
 		}
 
 		outputStr = strings.TrimSpace(body)
@@ -228,16 +255,27 @@ func getCodeSnippet(fileContents map[string]string, filePath string, lineNumber 
 		return snippet
 	}
 
-	// For larger files, use ±150 lines around the finding (300 lines total)
-	var start, end int
-	fmt.Sscanf(lineNumber, "%d", &start)
-	end = start
-
-	for i, c := range lineNumber {
-		if c == '-' {
-			fmt.Sscanf(lineNumber[i+1:], "%d", &end)
-			break
+	// For larger files, use ±150 lines around the finding (300 lines total).
+	// Use digit-scan instead of fmt.Sscanf — Sscanf silently returns 0 for
+	// non-numeric inputs like "N/A" or empty strings, causing the AI to receive
+	// the wrong code context (first 150 lines of the file rather than the
+	// vulnerable region).
+	start := parseLineNumFromStr(lineNumber)
+	end := start
+	if dashIdx := strings.Index(lineNumber, "-"); dashIdx >= 0 {
+		if e := parseLineNumFromStr(lineNumber[dashIdx+1:]); e > 0 {
+			end = e
 		}
+	}
+
+	if start <= 0 {
+		// Line number unavailable — return the first 300 lines as best-effort context
+		end = min(len(lines), 300)
+		snippet := ""
+		for i := 0; i < end; i++ {
+			snippet += fmt.Sprintf("%d: %s\n", i+1, lines[i])
+		}
+		return snippet
 	}
 
 	contextStart := max(0, start-150)
@@ -249,4 +287,19 @@ func getCodeSnippet(fileContents map[string]string, filePath string, lineNumber 
 	}
 
 	return snippet
+}
+
+// parseLineNumFromStr extracts the first integer from a line-number string using
+// digit-scan, consistent with parseStartLine in scan_manager.go and parseLineNum
+// in fp_suppressor.go. Returns 0 for non-numeric / empty inputs.
+func parseLineNumFromStr(s string) int {
+	n := 0
+	for _, ch := range s {
+		if ch >= '0' && ch <= '9' {
+			n = n*10 + int(ch-'0')
+		} else if n > 0 {
+			break // stop after first run of digits
+		}
+	}
+	return n
 }

@@ -3,7 +3,7 @@
   patterns:
     - regex: |-
         (?i)(onload|onloadstart|onloadeddata|onloadedmetadata|onloadend)\s*=
-  severity: high
+  severity: info
   description: "Inline onload event handler - XSS risk if attacker controls attribute value"
   remediation: "Use addEventListener() in JavaScript files. Never use inline event handlers with untrusted data."
   cwe: "CWE-79"
@@ -14,7 +14,7 @@
   patterns:
     - regex: |-
         (?i)(onerror|onabort|onstalled|onsuspend)\s*=
-  severity: critical
+  severity: info
   description: "Inline onerror handler - executes when resource fails to load, common XSS vector"
   remediation: "Remove inline error handlers. Use try/catch in JavaScript instead."
   cwe: "CWE-79"
@@ -25,7 +25,7 @@
   patterns:
     - regex: |-
         (?i)(onclick|ondblclick|onmousedown|onmouseup|onmousemove|onmouseover|onmouseout|onmouseenter|onmouseleave)\s*=
-  severity: high
+  severity: info
   description: "Inline mouse event handler - XSS risk, also creates accessibility issues"
   remediation: "Use addEventListener in external scripts. Separate behavior from markup."
   cwe: "CWE-79"
@@ -36,7 +36,7 @@
   patterns:
     - regex: |-
         (?i)(onkeydown|onkeypress|onkeyup)\s*=
-  severity: high
+  severity: info
   description: "Inline keyboard event handler - XSS risk"
   remediation: "Use addEventListener in external JavaScript files."
   cwe: "CWE-79"
@@ -47,7 +47,7 @@
   patterns:
     - regex: |-
         (?i)(onfocus|onblur|onfocusin|onfocusout)\s*=
-  severity: high
+  severity: info
   description: "Inline focus event handler - XSS risk"
   remediation: "Use addEventListener for focus management."
   cwe: "CWE-79"
@@ -58,7 +58,7 @@
   patterns:
     - regex: |-
         (?i)(onsubmit|onreset|onchange|oninput|oninvalid|onselect|onformdata)\s*=
-  severity: high
+  severity: info
   description: "Inline form event handler - XSS risk"
   remediation: "Close event handlers or remove dangerous inline script code."
   cwe: "CWE-79"
@@ -80,7 +80,7 @@
   patterns:
     - regex: |-
         (?i)(ondrag|ondragstart|ondragend|ondragenter|ondragleave|ondragover|ondrop)\s*=
-  severity: medium
+  severity: info
   description: "Inline drag-and-drop event handler - XSS risk"
   remediation: "Use addEventListener for drag events."
   cwe: "CWE-79"
@@ -91,7 +91,7 @@
   patterns:
     - regex: |-
         (?i)(oncopy|oncut|onpaste)\s*=
-  severity: medium
+  severity: info
   description: "Inline clipboard event handler - XSS risk, can leak sensitive data"
   remediation: "Use addEventListener and consider clipboard permissions."
   cwe: "CWE-79"
@@ -102,7 +102,7 @@
   patterns:
     - regex: |-
         (?i)(onplay|onplaying|onpause|onprogress|ontimeupdate|onvolumechange|onwaiting|onseeking|onseeked|onratechange|ondurationchange|oncanplay|oncanplaythrough)\s*=
-  severity: medium
+  severity: info
   description: "Inline media event handler - XSS risk"
   remediation: "Use addEventListener for media events."
   cwe: "CWE-79"
@@ -113,7 +113,7 @@
   patterns:
     - regex: |-
         (?i)(ontouchstart|ontouchmove|ontouchend|ontouchcancel)\s*=
-  severity: medium
+  severity: info
   description: "Inline touch event handler - XSS risk"
   remediation: "Use addEventListener for touch events."
   cwe: "CWE-79"
@@ -124,7 +124,7 @@
   patterns:
     - regex: |-
         (?i)(onscroll|onwheel)\s*=
-  severity: medium
+  severity: info
   description: "Inline scroll event handler - XSS risk, performance issues"
   remediation: "Use addEventListener with passive option for better performance."
   cwe: "CWE-79"
@@ -135,7 +135,7 @@
   patterns:
     - regex: |-
         (?i)(onanimationstart|onanimationend|onanimationiteration|ontransitionstart|ontransitionend|ontransitionrun|cancel)\s*=
-  severity: medium
+  severity: info
   description: "Inline animation event handler - XSS risk"
   remediation: "Use addEventListener for animation events."
   cwe: "CWE-79"
@@ -146,7 +146,7 @@
   patterns:
     - regex: |-
         (?i)(onmessage|onmessageerror)\s*=
-  severity: high
+  severity: info
   description: "Inline message event handler - XSS risk, postMessage vulnerabilities"
   remediation: "Use addEventListener and always validate event.origin."
   cwe: "CWE-79"
@@ -157,7 +157,7 @@
   patterns:
     - regex: |-
         (?i)(ononline|onoffline)\s*=
-  severity: low
+  severity: info
   description: "Inline online/offline event handler"
   remediation: "Use addEventListener for network status changes."
   cwe: "CWE-79"
@@ -168,7 +168,7 @@
   patterns:
     - regex: |-
         (?i)(onstorage|onhashchange|onpopstate)\s*=
-  severity: medium
+  severity: info
   description: "Inline storage/history event handler - XSS risk"
   remediation: "Use addEventListener for storage and history events."
   cwe: "CWE-79"
@@ -179,7 +179,7 @@
   patterns:
     - regex: |-
         (?i)(ontoggle|onclose)\s*=
-  severity: medium
+  severity: info
   description: "Inline toggle/close event handler - XSS risk"
   remediation: "Use addEventListener for details/summary and dialog events."
   cwe: "CWE-79"
@@ -190,7 +190,7 @@
   patterns:
     - regex: |-
         (?i)(onsearch|oninput|onbeforeinput)\s*=
-  severity: medium
+  severity: info
   description: "Inline search/input event handler - XSS risk"
   remediation: "Use addEventListener with debouncing for search inputs."
   cwe: "CWE-79"
@@ -201,7 +201,7 @@
   patterns:
     - regex: |-
         (?i)(onpointerdown|onpointerup|onpointermove|onpointerover|onpointerout|onpointerenter|onpointerleave|onpointercancel|ongotpointercapture|onlostpointercapture)\s*=
-  severity: medium
+  severity: info
   description: "Inline pointer event handler - XSS risk"
   remediation: "Use addEventListener for pointer events."
   cwe: "CWE-79"
@@ -212,7 +212,7 @@
   patterns:
     - regex: |-
         (?i)(onwheel|onmousewheel)\s*=
-  severity: medium
+  severity: info
   description: "Inline wheel event handler - XSS risk, performance issues"
   remediation: "Use addEventListener with passive: true for better scrolling performance."
   cwe: "CWE-79"
@@ -223,7 +223,7 @@
   patterns:
     - regex: |-
         (?i)(onselect|onselectionchange)\s*=
-  severity: medium
+  severity: info
   description: "Inline selection event handler - XSS risk"
   remediation: "Use addEventListener for text selection events."
   cwe: "CWE-79"
@@ -234,7 +234,7 @@
   patterns:
     - regex: |-
         (?i)oncontextmenu\s*=
-  severity: medium
+  severity: info
   description: "Inline context menu handler - XSS risk, can disable right-click"
   remediation: "Use addEventListener and avoid disabling browser features."
   cwe: "CWE-79"
@@ -245,7 +245,7 @@
   patterns:
     - regex: |-
         (?i)onshow\s*=
-  severity: medium
+  severity: info
   description: "Inline show event handler (deprecated)"
   remediation: "Remove deprecated event handlers."
   cwe: "CWE-79"
@@ -256,7 +256,7 @@
   patterns:
     - regex: |-
         (?i)ontimeupdate\s*=
-  severity: low
+  severity: info
   description: "Inline timeupdate event handler"
   remediation: "Use addEventListener for media time updates."
   cwe: "CWE-79"
@@ -267,7 +267,7 @@
   patterns:
     - regex: |-
         (?i)onwaiting\s*=
-  severity: low
+  severity: info
   description: "Inline waiting event handler"
   remediation: "Use addEventListener for media buffering events."
   cwe: "CWE-79"
@@ -278,7 +278,7 @@
   patterns:
     - regex: |-
         (?i)onplaying\s*=
-  severity: low
+  severity: info
   description: "Inline playing event handler"
   remediation: "Use addEventListener for media playback events."
   cwe: "CWE-79"
@@ -289,7 +289,7 @@
   patterns:
     - regex: |-
         (?i)onpause\s*=
-  severity: low
+  severity: info
   description: "Inline pause event handler"
   remediation: "Use addEventListener for media pause events."
   cwe: "CWE-79"
@@ -300,7 +300,7 @@
   patterns:
     - regex: |-
         (?i)onseeking\s*=
-  severity: low
+  severity: info
   description: "Inline seeking event handler"
   remediation: "Use addEventListener for media seeking events."
   cwe: "CWE-79"
@@ -311,7 +311,7 @@
   patterns:
     - regex: |-
         (?i)onseeked\s*=
-  severity: low
+  severity: info
   description: "Inline seeked event handler"
   remediation: "Use addEventListener for media seeked events."
   cwe: "CWE-79"
@@ -322,7 +322,7 @@
   patterns:
     - regex: |-
         (?i)onratechange\s*=
-  severity: low
+  severity: info
   description: "Inline ratechange event handler"
   remediation: "Use addEventListener for playback rate changes."
   cwe: "CWE-79"
@@ -333,7 +333,7 @@
   patterns:
     - regex: |-
         (?i)ondurationchange\s*=
-  severity: low
+  severity: info
   description: "Inline durationchange event handler"
   remediation: "Use addEventListener for media duration changes."
   cwe: "CWE-79"
@@ -2298,7 +2298,7 @@
   cwe: "CWE-319"
   owasp: "A02:2021"
 
-- id: html-embed-src-javascript
+- id: html-embed-src-javascript-dup1
   languages: [html]
   patterns:
     - regex: |-
@@ -2353,7 +2353,7 @@
   cwe: "CWE-319"
   owasp: "A02:2021"
 
-- id: html-object-data-javascript
+- id: html-object-data-javascript-dup1
   languages: [html]
   patterns:
     - regex: |-

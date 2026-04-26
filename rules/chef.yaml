@@ -1219,7 +1219,7 @@
   owasp: "A08:2021"
   confidence: 0.8
 
-- id: chef-sudo-nopasswd
+- id: chef-sudo-nopasswd-dup1
   languages: [ruby]
   patterns:
     - regex: '(?i)sudo\s+''NOPASSWD'''

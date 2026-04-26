@@ -1,28 +1,310 @@
-# Express Security Rules
-- id: express-missing-helmet
-  name: "Express: Missing Helmet HTTP Headers"
-  description: "Helmet helps secure Express apps by setting various HTTP headers. Not using it leaves the app vulnerable to XSS and clickjacking."
-  severity: "medium"
-  patterns:
-    - regex: 'app\.use\('
-  cwe: "CWE-693"
-  owasp: "A05:2021-Security Misconfiguration"
-
-- id: express-no-rate-limiting
-  name: "Express: Missing Rate Limiting"
-  description: "Lack of rate limiting exposes the API to brute force and DoS attacks."
-  severity: "high"
-  patterns:
-    - regex: 'app\.post\('
-  cwe: "CWE-799"
-  owasp: "A04:2021-Insecure Design"
+# Express.js / Node.js Security Rules
+# Real rules only — no auto-generated junk
 
 - id: express-unsafe-regex
-  name: "Express: Unsafe Regular Expression (ReDoS)"
-  description: "Using user input directly in RegExp can lead to Regular Expression Denial of Service."
-  severity: "high"
+  languages: [javascript, typescript]
   patterns:
-    - regex: 'new\s*RegExp\s*\(.*req\..*\)'
+    - regex: 'new\s*RegExp\s*\(.*req\.'
+  severity: high
+  description: "User input passed directly to RegExp constructor can cause Regular Expression Denial of Service (ReDoS)"
+  remediation: "Validate and sanitize user input before using it in a RegExp. Use safe-regex or re2 library."
   cwe: "CWE-1333"
   owasp: "A04:2021-Insecure Design"
+  confidence: 0.8
 
+- id: express-missing-helmet
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'app\s*=\s*express\s*\(\s*\)'
+  severity: low
+  description: "Express app initialized without helmet middleware — security-relevant HTTP headers may be missing"
+  remediation: "Add 'const helmet = require(\"helmet\"); app.use(helmet());' immediately after app initialization."
+  cwe: "CWE-693"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.5
+
+- id: express-open-redirect
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'res\.redirect\s*\(\s*req\.(query|body|params)'
+  severity: high
+  description: "Open redirect: user-controlled input passed directly to res.redirect() allows attackers to redirect users to malicious sites"
+  remediation: "Validate the redirect target against an allowlist of permitted URLs or domains."
+  cwe: "CWE-601"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.9
+
+- id: express-ssrf-axios
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'axios\.(get|post|put|delete)\s*\(\s*req\.(query|body|params)'
+  severity: high
+  description: "SSRF: user-controlled URL passed to axios HTTP client, enabling server-side request forgery"
+  remediation: "Validate the URL against an allowlist of permitted hosts. Use a URL parsing library to extract and check the hostname."
+  cwe: "CWE-918"
+  owasp: "A10:2021-Server-Side Request Forgery"
+  confidence: 0.9
+
+- id: express-ssrf-fetch
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'fetch\s*\(\s*(req\.|request\.)'
+  severity: high
+  description: "SSRF: user-controlled input passed directly to fetch(), allowing server-side request forgery"
+  remediation: "Validate and allowlist the target URL before making the request."
+  cwe: "CWE-918"
+  owasp: "A10:2021-Server-Side Request Forgery"
+  confidence: 0.85
+
+- id: express-nosql-injection
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '\.find\s*\(\s*\{\s*[a-zA-Z]+\s*:\s*req\.'
+  severity: high
+  description: "NoSQL injection: unsanitized request data used directly in a MongoDB query object"
+  remediation: "Use mongoose schema validation, express-mongo-sanitize middleware, or explicitly type-cast query parameters."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: express-path-traversal-sendfile
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'res\.sendFile\s*\(\s*(?:path\.join\s*\()?[^)]*req\.(query|params|body)'
+  severity: high
+  description: "Path traversal: user-controlled input used in res.sendFile() path construction"
+  remediation: "Resolve the path and verify it starts with an expected base directory using path.resolve() and a startsWith() check."
+  cwe: "CWE-22"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.9
+
+- id: express-sql-injection-concat
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(SELECT|INSERT|UPDATE|DELETE|WHERE).*\+\s*req\.(query|body|params)'
+  severity: critical
+  description: "SQL injection: raw request data concatenated into SQL query string"
+  remediation: "Use parameterized queries or an ORM (Sequelize, Knex). Never concatenate user input into SQL strings."
+  cwe: "CWE-89"
+  owasp: "A03:2021-Injection"
+  confidence: 0.95
+
+- id: express-command-injection
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)(exec|execSync|spawn|spawnSync)\s*\([^)]*req\.(query|body|params)'
+  severity: critical
+  description: "Command injection: user-controlled input passed to child_process exec/spawn function"
+  remediation: "Avoid shell execution with user input. If unavoidable, use execFile with an argument array and validate inputs strictly."
+  cwe: "CWE-78"
+  owasp: "A03:2021-Injection"
+  confidence: 0.95
+
+- id: express-xss-res-send
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'res\.(send|write|end)\s*\(\s*req\.(query|body|params)'
+  severity: high
+  description: "Reflected XSS: unsanitized request data written directly to HTTP response"
+  remediation: "Encode output using a library like DOMPurify or he. Set Content-Type to application/json when returning data, not text/html."
+  cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+  confidence: 0.9
+
+- id: express-jwt-no-verify
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'jwt\.decode\s*\('
+  severity: high
+  description: "JWT decoded without signature verification — jwt.decode() does not validate the token signature"
+  remediation: "Use jwt.verify() with the secret/public key instead of jwt.decode() to validate the token signature and claims."
+  cwe: "CWE-347"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: express-hardcoded-secret
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)app\.use\s*\(\s*session\s*\(\s*\{[^}]*secret\s*:\s*[''"][^"'']{1,20}[''"]'
+  severity: high
+  description: "Hardcoded session secret detected — short or static secrets are easily guessed or brute-forced"
+  remediation: "Store the session secret in an environment variable (process.env.SESSION_SECRET) and use a long random value."
+  cwe: "CWE-798"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: express-missing-csrf
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'bodyParser\.urlencoded\s*\(\s*\{'
+  severity: medium
+  description: "Body parser configured for form submissions — verify CSRF protection middleware is applied to state-changing routes"
+  remediation: "Use csurf or csrf-csrf middleware for all state-mutating POST/PUT/DELETE routes."
+  cwe: "CWE-352"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.5
+
+- id: express-missing-csrf-urlencoded
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'express\.urlencoded\s*\(\s*\{'
+  severity: medium
+  description: "express.urlencoded body parser configured — verify CSRF protection is applied to state-changing routes"
+  remediation: "Apply csrf-csrf or csurf middleware to protect form-based routes from cross-site request forgery."
+  cwe: "CWE-352"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.5
+
+- id: express-cors-wildcard
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'cors\s*\(\s*\{\s*origin\s*:\s*[''"][*][''"]'
+  severity: high
+  description: "CORS configured with wildcard origin — any website can make cross-origin requests to this API"
+  remediation: "Specify an explicit list of allowed origins instead of '*'. Use an origin callback for dynamic allowlisting."
+  cwe: "CWE-346"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.95
+
+- id: express-cors-origin-reflect
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'origin\s*:\s*(?:req\.headers\.origin|true)'
+  severity: high
+  description: "CORS origin reflected from request or set to true — equivalent to wildcard, allows any origin"
+  remediation: "Validate the request Origin against a strict allowlist before reflecting it back."
+  cwe: "CWE-346"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.9
+
+- id: express-information-disclosure
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'res\.status\s*\(\s*500\s*\).*(?:err\.message|e\.message|error\.stack)'
+  severity: medium
+  description: "Internal error details (message or stack trace) returned in HTTP 500 response, leaking implementation info"
+  remediation: "Return a generic error message to clients. Log the full error server-side only."
+  cwe: "CWE-209"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.85
+
+- id: express-directory-listing
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'serveIndex\s*\('
+  severity: medium
+  description: "serve-index middleware enables directory listing — may expose sensitive file listings"
+  remediation: "Remove serveIndex middleware in production or restrict it to authenticated administrative routes."
+  cwe: "CWE-548"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.85
+
+- id: express-prototype-pollution-merge
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)_\.(merge|extend|assign)\s*\(\s*\{\s*\}[^,]*,\s*req\.'
+  severity: high
+  description: "Prototype pollution: lodash merge/extend/assign with user-controlled input can pollute Object prototype"
+  remediation: "Use Object.assign with a null prototype object, or sanitize user input to remove __proto__, constructor, and prototype keys."
+  cwe: "CWE-1321"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: express-rate-limit-missing
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'app\.(post|put|delete|patch)\s*\([''"]/(?:login|auth|register|signup|api)'
+  severity: medium
+  description: "Authentication or sensitive API endpoint defined without visible rate limiting — may be susceptible to brute force"
+  remediation: "Apply express-rate-limit or similar middleware to authentication and sensitive endpoints."
+  cwe: "CWE-307"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.5
+
+- id: express-ejs-template-injection
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'res\.render\s*\([^,]+,\s*req\.(query|body|params)'
+  severity: high
+  description: "Template injection: user-controlled data passed directly as template variables to res.render()"
+  remediation: "Never pass raw request objects to templates. Extract and validate only the specific fields needed."
+  cwe: "CWE-1336"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: express-multipart-unrestricted
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'multer\s*\(\s*\{\s*dest\s*:'
+  severity: medium
+  description: "Multer file upload configured without file type filter or size limits — allows unrestricted file uploads"
+  remediation: "Add fileFilter to check MIME type and file extension, and set limits.fileSize to restrict upload size."
+  cwe: "CWE-434"
+  owasp: "A04:2021-Insecure Design"
+  confidence: 0.75
+
+- id: express-multipart-storage-unrestricted
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'multer\s*\(\s*\{\s*storage\s*:\s*multer\.diskStorage'
+  severity: medium
+  description: "Multer disk storage configured — verify fileFilter and limits are set to prevent unrestricted uploads"
+  remediation: "Add fileFilter callback to validate MIME types and extensions. Set limits.fileSize to cap upload size."
+  cwe: "CWE-434"
+  owasp: "A04:2021-Insecure Design"
+  confidence: 0.6
+
+- id: express-eval-injection
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'eval\s*\(\s*req\.(query|body|params)'
+  severity: critical
+  description: "eval() called with user-controlled input — direct code injection vulnerability"
+  remediation: "Never use eval() with user input. Redesign the feature to avoid dynamic code evaluation."
+  cwe: "CWE-95"
+  owasp: "A03:2021-Injection"
+  confidence: 0.98
+
+- id: express-insecure-cookie
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'res\.cookie\s*\([^)]*\{[^}]*\}'
+  severity: medium
+  description: "Cookie set — verify httpOnly, secure, and sameSite attributes are configured correctly"
+  remediation: "Set cookies with: { httpOnly: true, secure: true, sameSite: 'strict' } in production."
+  cwe: "CWE-1004"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.4
+
+- id: express-mongoose-injection
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '\.findOne\s*\(\s*\{\s*[a-zA-Z]+\s*:\s*req\.'
+  severity: high
+  description: "Potential NoSQL injection: unsanitized request field used in Mongoose findOne query"
+  remediation: "Use express-mongo-sanitize middleware or explicitly cast and validate query parameters."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: express-xxe-xml-parse
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)xml2js\.parseString\s*\(\s*req\.(body|rawBody)'
+  severity: high
+  description: "XML parsed from request body — verify XXE protection is enabled on the parser"
+  remediation: "Disable external entity processing: set explicitCharkey and ignoreAttrs appropriately, or use a XXE-safe parser."
+  cwe: "CWE-611"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.8
+
+- id: express-http-method-override
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'require\s*\(\s*[''"]method-override[''"]'
+  severity: low
+  description: "method-override middleware in use — can allow clients to spoof HTTP methods via headers or query params"
+  remediation: "Restrict method-override to specific trusted routes and validate that method overrides are expected."
+  cwe: "CWE-444"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.6

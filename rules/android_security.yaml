@@ -1,0 +1,162 @@
+- id: android-webview-js-enabled
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'setJavaScriptEnabled\s*\(\s*true\s*\)'
+  severity: high
+  description: "WebView has JavaScript enabled. This allows XSS and remote code execution if the WebView loads untrusted content or URLs."
+  remediation: "Disable JavaScript with setJavaScriptEnabled(false) unless strictly required. If required, restrict the URLs the WebView can navigate to using a whitelist and WebViewClient.shouldOverrideUrlLoading."
+  cwe: "CWE-749"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: android-webview-file-access
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'setAllowFileAccess\s*\(\s*true\s*\)'
+  - regex: 'setAllowFileAccessFromFileURLs\s*\(\s*true\s*\)'
+  - regex: 'setAllowUniversalAccessFromFileURLs\s*\(\s*true\s*\)'
+  severity: high
+  description: "WebView file access is enabled. Malicious pages loaded in the WebView can read arbitrary files from the device via file:// URIs."
+  remediation: "Set setAllowFileAccess(false), setAllowFileAccessFromFileURLs(false), and setAllowUniversalAccessFromFileURLs(false). Serve assets via the assets:// scheme instead."
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+  confidence: 0.85
+
+- id: android-cleartext-traffic
+  patterns:
+  - regex: 'android:usesCleartextTraffic\s*=\s*["'']true["'']'
+  severity: high
+  description: "Cleartext HTTP traffic is permitted in the AndroidManifest. Sensitive data can be intercepted by network attackers."
+  remediation: "Set android:usesCleartextTraffic=\"false\" in the manifest and define a network_security_config.xml that enforces HTTPS for all domains."
+  cwe: "CWE-319"
+  owasp: "A02:2021"
+  confidence: 0.9
+
+- id: android-debuggable
+  patterns:
+  - regex: 'android:debuggable\s*=\s*["'']true["'']'
+  severity: high
+  description: "The application is marked as debuggable in AndroidManifest. Attackers can attach a debugger, inspect memory, and bypass security controls on production devices."
+  remediation: "Remove android:debuggable=\"true\" from the manifest or ensure it is only set in debug build variants via buildTypes in build.gradle."
+  cwe: "CWE-94"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: android-exported-no-permission
+  patterns:
+  - regex: 'android:exported\s*=\s*["'']true["'']'
+  severity: medium
+  description: "An Activity, Service, or Receiver is exported without a permission restriction. Any application on the device can interact with this component."
+  remediation: "Add android:permission to restrict access, or set android:exported=\"false\" if the component does not need to be accessible from other apps."
+  cwe: "CWE-926"
+  owasp: "A01:2021"
+  confidence: 0.65
+
+- id: android-world-readable-prefs
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'MODE_WORLD_READABLE'
+  - regex: 'MODE_WORLD_WRITEABLE'
+  severity: critical
+  description: "SharedPreferences or files are created with world-readable or world-writeable mode. Any application on the device can read or modify this data."
+  remediation: "Use MODE_PRIVATE (value 0) for SharedPreferences and file operations. Use EncryptedSharedPreferences from the Jetpack Security library for sensitive data."
+  cwe: "CWE-732"
+  owasp: "A01:2021"
+  confidence: 0.95
+
+- id: android-insecure-random
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'new\s+Random\s*\(\s*\)'
+  - regex: 'Math\.random\s*\(\s*\)'
+  severity: medium
+  description: "java.util.Random is not cryptographically secure. It must not be used for security-sensitive operations like token generation, nonce creation, or key derivation."
+  remediation: "Replace java.util.Random with java.security.SecureRandom for all cryptographic or security-sensitive random value generation."
+  cwe: "CWE-338"
+  owasp: "A02:2021"
+  confidence: 0.7
+
+- id: android-hardcoded-api-key
+  languages: [java, kotlin]
+  patterns:
+  - regex: '(?i)(apiKey|api_key|apiSecret|secretKey|access_token|accessToken)\s*(?:=|:)\s*["''][A-Za-z0-9+/=_\-]{16,}["'']'
+  severity: critical
+  description: "A hardcoded API key or secret was found in source code. Secrets committed to source code are trivially extracted from APKs and version control history."
+  remediation: "Remove hardcoded secrets. Store secrets server-side and fetch them at runtime, or use Android Keystore for device-bound credentials. Use a secrets management system and rotate the exposed key immediately."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+  confidence: 0.8
+
+- id: android-log-sensitive-data
+  languages: [java, kotlin]
+  patterns:
+  - regex: '(?i)Log\.(d|i|e|w|v)\s*\([^)]*(?:password|passwd|token|secret|credit.card|ssn|dob|auth)'
+  severity: medium
+  description: "Sensitive data such as passwords, tokens, or PII is being written to the Android system log. Logs are accessible to other applications with READ_LOGS permission and retained in bug reports."
+  remediation: "Never log sensitive data. Strip or redact sensitive fields before logging. Use ProGuard/R8 rules to remove debug log calls in release builds."
+  cwe: "CWE-532"
+  owasp: "A09:2021"
+  confidence: 0.8
+
+- id: android-implicit-pending-intent
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'PendingIntent\.getActivity\s*\([^)]*new\s+Intent\s*\(\s*\)'
+  - regex: 'PendingIntent\.getBroadcast\s*\([^)]*new\s+Intent\s*\(\s*\)'
+  - regex: 'PendingIntent\.getService\s*\([^)]*new\s+Intent\s*\(\s*\)'
+  severity: high
+  description: "PendingIntent is created with an implicit Intent. A malicious application may intercept the PendingIntent and redirect it to an unintended component."
+  remediation: "Always construct PendingIntents with explicit Intents that specify the target component (package and class). Use FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT as appropriate."
+  cwe: "CWE-927"
+  owasp: "A01:2021"
+  confidence: 0.75
+
+- id: android-sqlite-rawquery-injection
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'rawQuery\s*\(\s*[^,)]*\+'
+  - regex: 'execSQL\s*\(\s*[^,)]*\+'
+  - regex: 'rawQuery\s*\(\s*["''][^"'']*["'']\s*\+\s*[^,)]*,'
+  severity: high
+  description: "SQLite rawQuery or execSQL called with a string concatenation. Unsanitized user input passed directly into a SQL statement enables SQL injection."
+  remediation: "Use parameterized queries: rawQuery(\"SELECT * FROM t WHERE col=?\", new String[]{userInput}). Never concatenate user-controlled values into SQL strings."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: android-deep-link-no-validation
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'getIntent\s*\(\s*\)\.getData\s*\(\s*\)'
+  - regex: 'handleDeepLink\s*\('
+  - regex: 'intent\.getData\s*\(\s*\)\.getQueryParameter\s*\('
+  severity: medium
+  description: "Deep link URI data is read from an Intent without apparent validation. Unvalidated deep link parameters can lead to open redirects, sensitive data disclosure, or unintended actions."
+  remediation: "Validate the scheme, host, and all query parameters of deep link URIs before processing. Ensure the Intent's data origin is expected and that no sensitive action is taken based solely on deep link parameters."
+  cwe: "CWE-939"
+  owasp: "A01:2021"
+  confidence: 0.65
+
+- id: android-allow-backup-enabled
+  patterns:
+  - regex: 'android:allowBackup\s*=\s*["'']true["'']'
+  severity: medium
+  description: "android:allowBackup is enabled. ADB backup can extract the application's data directory without root access, exposing databases, preferences, and tokens."
+  remediation: "Set android:allowBackup=\"false\" or define android:fullBackupContent with explicit include/exclude rules using a backup_rules.xml to prevent sensitive data from being backed up."
+  cwe: "CWE-530"
+  owasp: "A05:2021"
+  confidence: 0.85
+
+- id: android-insecure-ssl-trust-all
+  languages: [java, kotlin]
+  patterns:
+  - regex: 'ALLOW_ALL_HOSTNAME_VERIFIER'
+  - regex: '(?i)checkServerTrusted\s*\([^)]*\)\s*\{?\s*\}'
+  - regex: 'SSLSocketFactory\.ALLOW_ALL_HOSTNAME_VERIFIER'
+  - regex: '(?i)getInsecure\s*\(\s*\)'
+  severity: critical
+  description: "SSL/TLS certificate or hostname validation is disabled. This enables man-in-the-middle attacks — any certificate, including self-signed or expired ones, will be accepted."
+  remediation: "Remove trust-all TrustManagers and hostname verifiers. Use the system default SSLContext. Implement certificate pinning for high-value endpoints using the Android network security configuration or OkHttp CertificatePinner."
+  cwe: "CWE-295"
+  owasp: "A02:2021"
+  confidence: 0.9

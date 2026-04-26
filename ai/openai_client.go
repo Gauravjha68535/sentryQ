@@ -3,11 +3,12 @@ package ai
 import (
 	"bytes"
 	"context"
+	cryptorand "crypto/rand"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"strings"
 	"sync"
@@ -185,7 +186,7 @@ func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt strin
 			if attempt < maxRetries && isRetryableError(err) {
 				// Exponential backoff with ±1 s jitter to avoid thundering herd
 				backoff := time.Duration(1<<uint(attempt+1))*time.Second +
-					time.Duration(rand.Int63n(int64(time.Second)))
+					cryptoRandDuration(time.Second)
 				select {
 				case <-time.After(backoff):
 				case <-ctx.Done():
@@ -209,7 +210,7 @@ func GenerateViaOpenAI(ctx context.Context, baseURL, apiKey, model, prompt strin
 		// Retry on server-side transient errors (502, 503, 429)
 		if attempt < maxRetries && (resp.StatusCode == 502 || resp.StatusCode == 503 || resp.StatusCode == 429) {
 			backoff := time.Duration(1<<uint(attempt+1))*time.Second +
-				time.Duration(rand.Int63n(int64(time.Second)))
+				cryptoRandDuration(time.Second)
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
@@ -260,6 +261,18 @@ func isRetryableError(err error) bool {
 		}
 	}
 	return false
+}
+
+// cryptoRandDuration returns a random duration in [0, maxDuration) using
+// crypto/rand. Used for retry jitter to avoid thundering herd.
+func cryptoRandDuration(maxDuration time.Duration) time.Duration {
+	var b [8]byte
+	if _, err := cryptorand.Read(b[:]); err != nil {
+		// Fallback: no jitter rather than panicking
+		return 0
+	}
+	n := binary.LittleEndian.Uint64(b[:])
+	return time.Duration(n % uint64(maxDuration))
 }
 
 // TestOpenAIEndpoint makes a lightweight test call to verify connectivity.

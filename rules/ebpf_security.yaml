@@ -1,0 +1,167 @@
+# SentryQ eBPF Security Rules
+# Covers: privilege escalation, memory safety, verifier bypass, and unsafe helper usage
+
+- id: ebpf-unrestricted-bpf-syscall
+  languages: [c, python, go]
+  patterns:
+    - regex: '(?i)bpf\s*\(\s*BPF_PROG_LOAD'
+  severity: critical
+  description: "BPF program loaded without sufficient capability check. Loading eBPF programs requires CAP_BPF or CAP_SYS_ADMIN; doing so without verifying the caller's privileges allows unprivileged users to load arbitrary kernel code."
+  remediation: "Verify that the process holds CAP_BPF (Linux 5.8+) before calling bpf(BPF_PROG_LOAD). Use seccomp or LSM hooks to restrict which processes may load eBPF programs, and prefer unprivileged BPF only for approved use-cases such as socket filters."
+  cwe: "CWE-269"
+  owasp: "A01:2021"
+  confidence: 0.8
+
+- id: ebpf-no-bounds-check
+  languages: [c, python, go]
+  patterns:
+    - regex: '(?i)bpf_probe_read\s*\('
+  severity: high
+  description: "bpf_probe_read without bounds validation can read arbitrary kernel memory. If the source pointer or size is derived from user-controlled or unvalidated data, an attacker can exfiltrate sensitive kernel memory regions."
+  remediation: "Prefer bpf_probe_read_kernel() or bpf_probe_read_user() which enforce stricter address-space checks. Always validate the size argument against a compile-time constant or a verified map value before calling bpf_probe_read."
+  cwe: "CWE-125"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: ebpf-map-no-size-limit
+  languages: [c, python, go]
+  patterns:
+    - regex: '(?i)BPF_MAP_CREATE.*max_entries\s*=\s*0'
+  severity: high
+  description: "eBPF map created with max_entries=0. A map with no enforced entry limit can exhaust kernel memory, leading to denial-of-service conditions."
+  remediation: "Set max_entries to a reasonable upper bound reflecting the expected workload. For dynamically-sized requirements, use BPF_MAP_TYPE_LRU_HASH which automatically evicts old entries."
+  cwe: "CWE-770"
+  owasp: "A05:2021"
+  confidence: 0.8
+
+- id: ebpf-raw-tracepoint-unsafe
+  languages: [c, python, go]
+  patterns:
+    - regex: '(?i)BPF_RAW_TRACEPOINT|raw_tp_open'
+  severity: medium
+  description: "Raw tracepoint eBPF program detected. Raw tracepoints expose unadulterated kernel arguments without the type-safety layer provided by BTF-typed tracepoints, increasing the risk of misinterpreting pointer types and accessing invalid memory."
+  remediation: "Prefer BTF-enabled tracepoints (BPF_PROG_TYPE_TRACING with BPF_TRACE_FENTRY/FEXIT) which provide type-checked arguments. If raw tracepoints are necessary, rigorously validate all pointer arguments before dereferencing."
+  cwe: "CWE-269"
+  owasp: "A01:2021"
+  confidence: 0.65
+
+- id: ebpf-kprobe-sensitive-function
+  languages: [python]
+  patterns:
+    - regex: '(?i)attach_kprobe.*(?:do_exit|sys_kill|__x64_sys_kill|security_file_open)'
+  severity: high
+  description: "kprobe attached to a sensitive kernel function (do_exit, sys_kill, security_file_open). Attaching probes to security-critical functions can be used to spy on or manipulate process lifecycle events and file access decisions."
+  remediation: "Restrict kprobe attachment to non-security-critical functions where possible. Use LSM BPF programs instead, which integrate with the kernel security framework and are subject to policy controls. Audit and log all kprobe attachment operations."
+  cwe: "CWE-269"
+  owasp: "A01:2021"
+  confidence: 0.85
+
+- id: ebpf-py-bcc-unsafe-string
+  languages: [python]
+  patterns:
+    - regex: '(?i)ct\.string_at\s*\(|ct\.cast\s*\('
+  severity: medium
+  description: "BCC Python bindings ct.string_at() or ct.cast() called without explicit length bounds. These ctypes wrappers perform direct memory access; without a bounded length argument they can read beyond the intended buffer and expose unrelated kernel data."
+  remediation: "Always pass an explicit maximum length to ct.string_at(ptr, max_len). Validate that pointer values originate from trusted, kernel-verified sources (e.g., BPF map lookups). Avoid ct.cast() on addresses derived from user space."
+  cwe: "CWE-125"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: ebpf-no-verifier-bypass
+  languages: [c, python, go]
+  patterns:
+    - regex: '(?i)BPF_F_ALLOW_OVERRIDE|bpf_override_return'
+  severity: critical
+  description: "eBPF verifier bypass flag or bpf_override_return() detected. BPF_F_ALLOW_OVERRIDE permits sub-programs to override security decisions made by parent programs. bpf_override_return() can alter return values of kernel functions, enabling privilege escalation or security control bypass."
+  remediation: "Remove BPF_F_ALLOW_OVERRIDE from production eBPF programs. Avoid bpf_override_return() outside of kernel fault-injection testing. Gate any use of these features behind capability checks and code review."
+  cwe: "CWE-284"
+  owasp: "A01:2021"
+  confidence: 0.9
+
+- id: ebpf-perf-event-unrestricted
+  languages: [c, python, go]
+  patterns:
+    - regex: '(?i)perf_event_open\s*\([^)]*PERF_SAMPLE_RAW'
+  severity: medium
+  description: "perf_event_open with PERF_SAMPLE_RAW collects raw sample data including stack traces and register contents. Without strict access controls this can expose sensitive runtime data such as encryption keys, passwords in registers, or private process memory."
+  remediation: "Restrict perf_event_open to privileged users via /proc/sys/kernel/perf_event_paranoid (set to 2 or higher). Validate that the requesting process has CAP_PERFMON. Avoid PERF_SAMPLE_RAW in production monitoring pipelines unless the output is strictly access-controlled."
+  cwe: "CWE-200"
+  owasp: "A02:2021"
+  confidence: 0.75
+
+- id: ebpf-ringbuf-no-reserve-check
+  languages: [c]
+  patterns:
+    - regex: '(?i)bpf_ringbuf_reserve\s*\([^)]+\)'
+  severity: medium
+  description: "bpf_ringbuf_reserve() return value may not be checked for NULL. If the ring buffer is full, bpf_ringbuf_reserve() returns NULL; dereferencing this pointer causes a kernel BUG or panic."
+  remediation: "Always check the return value of bpf_ringbuf_reserve() for NULL before writing to the reserved region. Use bpf_ringbuf_discard() on the NULL path to keep the ring buffer in a consistent state."
+  cwe: "CWE-476"
+  owasp: "A05:2021"
+  confidence: 0.7
+
+- id: ebpf-stack-size-exceeded
+  languages: [c]
+  patterns:
+    - regex: '(?i)char\s+\w+\s*\[\s*[5-9][0-9]{2,}|char\s+\w+\s*\[\s*[1-9][0-9]{3,}'
+  severity: high
+  description: "Large stack allocation detected in potential eBPF C code. The eBPF verifier enforces a 512-byte stack limit per program frame; stack arrays exceeding this cause load-time rejection and may indicate a design flaw that could be worked around with unsafe patterns."
+  remediation: "Keep per-frame stack usage under 512 bytes. Move large buffers to BPF maps (e.g., BPF_MAP_TYPE_PERCPU_ARRAY) as scratch space. Split logic across tail calls if frame depth is a concern."
+  cwe: "CWE-121"
+  owasp: "A05:2021"
+  confidence: 0.55
+
+- id: ebpf-map-type-unpriv-socket
+  languages: [c, python]
+  patterns:
+    - regex: '(?i)BPF_MAP_TYPE_SOCKMAP|BPF_MAP_TYPE_SOCKHASH'
+  severity: medium
+  description: "SOCKMAP or SOCKHASH eBPF map type in use. These map types allow redirecting socket traffic at the kernel level. Misconfiguration can redirect arbitrary socket connections, potentially enabling data exfiltration or traffic interception."
+  remediation: "Limit SOCKMAP/SOCKHASH programs to privileged cgroups. Use cgroup-based eBPF attachment to constrain the scope of socket redirection. Audit all sk_msg and sk_skb programs that consume these maps."
+  cwe: "CWE-923"
+  owasp: "A01:2021"
+  confidence: 0.65
+
+- id: ebpf-tail-call-loop
+  languages: [c, python, go]
+  patterns:
+  - regex: '(?i)bpf_tail_call\s*\([^,]+,\s*[^,]+,\s*\d+\s*\)'
+  severity: medium
+  description: "Hardcoded index in bpf_tail_call. Misconfigured tail calls can trigger infinite loops bypassing the BPF verifier in older kernels, causing hard lockups."
+  remediation: "Use dynamic verified indexes or strictly enforce max tail call limits within your codebase."
+  cwe: "CWE-835"
+  owasp: "A05:2021"
+  confidence: 0.60
+
+- id: ebpf-uninitialized-map-val
+  languages: [c]
+  patterns:
+  - regex: '(?i)bpf_map_lookup_elem\s*\(.*return\s+0'
+  severity: low
+  description: "Failing to properly initialize or bounds-check after a map lookup can leak uninitialized kernel memory via ebpf bounds."
+  remediation: "Always null-check bpf_map_lookup_elem outputs immediately and explicitly zero out memory buffers before sending them to userspace using bpf_perf_event_output."
+  cwe: "CWE-908"
+  owasp: "A05:2021"
+  confidence: 0.50
+
+- id: ebpf-unsafe-kernel-ptr
+  languages: [c]
+  patterns:
+  - regex: '(?i)\(\s*struct\s+\w+\s*\*\s*\)\s*(?:ctx|skb)->'
+  severity: high
+  description: "Blindly casting context block pointers directly to kernel struct types without BPF verifier helpers avoids kernel address space safety mechanisms."
+  remediation: "Use bpf_probe_read_kernel / bpf_probe_read_user explicitly, or rely on CORE (Compile Once Run Everywhere) BTF types to handle structs."
+  cwe: "CWE-119"
+  owasp: "A05:2021"
+  confidence: 0.70
+
+- id: ebpf-bpf-printk-production
+  languages: [c]
+  patterns:
+  - regex: '(?i)bpf_trace_printk\s*\('
+  severity: low
+  description: "bpf_trace_printk is a debug tool that writes to the tracepipe. Leaving it in production eBPF programs severely degrades system performance and can leak sensitive packet/syscall data."
+  remediation: "Strip out bpf_trace_printk calls for release builds. Rely on bpf_perf_event_output or Ringbuffers to ferry data to userspace."
+  cwe: "CWE-200"
+  owasp: "A05:2021"
+  confidence: 0.90

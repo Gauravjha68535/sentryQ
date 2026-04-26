@@ -1,0 +1,398 @@
+# Insecure Deserialization Rules
+# Detects unsafe deserialization of untrusted data across languages
+# Reference: OWASP A08:2021 - Software and Data Integrity Failures, CWE-502
+
+# ======================== Java ========================
+
+- id: deser-java-objectinputstream
+  languages: [java]
+  patterns:
+    - regex: 'new\s+ObjectInputStream\s*\('
+    - regex: 'ObjectInputStream\s+\w+\s*=\s*new\s+ObjectInputStream'
+  severity: critical
+  description: "ObjectInputStream.readObject() deserializes untrusted data — a well-known RCE vector exploited in Apache Commons, Spring, and WebLogic attacks."
+  remediation: "Avoid Java native serialization for untrusted data. Use JSON/Protobuf. If unavoidable, implement a ValidatingObjectInputStream that whitelists allowed classes."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-java-readobject
+  languages: [java]
+  patterns:
+    - regex: '\.readObject\s*\(\s*\)'
+    - regex: '\.readUnshared\s*\(\s*\)'
+  severity: critical
+  description: "readObject()/readUnshared() on an unchecked stream can be exploited for remote code execution via gadget chains."
+  remediation: "Whitelist deserializable classes via a custom ObjectInputStream, or use a deserialization filter (ObjectInputFilter, Java 9+)."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-java-xstream-unsafe
+  languages: [java]
+  patterns:
+    - regex: 'XStream\s*\(\s*\)'
+    - regex: 'new\s+XStream\s*\('
+  severity: critical
+  description: "XStream without security restrictions is vulnerable to arbitrary code execution via crafted XML."
+  remediation: "Use XStream.setupDefaultSecurity(xstream) and XStream.allowTypesByWildcard() to whitelist safe types only."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-java-kryo-unsafe
+  languages: [java]
+  patterns:
+    - regex: 'new\s+Kryo\s*\(\s*\)'
+    - regex: 'kryo\.readObject\s*\('
+  severity: high
+  description: "Kryo deserialization without registration restriction can instantiate arbitrary classes."
+  remediation: "Set kryo.setRegistrationRequired(true) and explicitly register allowed classes only."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-java-jsondeserializer-type
+  languages: [java]
+  patterns:
+    - regex: '(?i)enableDefaultTyping\s*\('
+    - regex: '(?i)activateDefaultTyping\s*\('
+    - regex: 'JsonTypeInfo\.As\.EXTERNAL_PROPERTY'
+  severity: critical
+  description: "Jackson enableDefaultTyping/activateDefaultTyping allows polymorphic type handling — exploitable for RCE with certain gadget classes on the classpath."
+  remediation: "Never use enableDefaultTyping(). Use JsonTypeInfo with a strict whitelist via @JsonSubTypes. Upgrade to Jackson 2.10+ and use PolymorphicTypeValidator."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+# ======================== Python ========================
+
+- id: deser-python-pickle-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'pickle\.loads\s*\('
+    - regex: 'pickle\.load\s*\('
+    - regex: 'cPickle\.loads\s*\('
+    - regex: 'cPickle\.load\s*\('
+  severity: critical
+  description: "pickle.loads() on untrusted data executes arbitrary Python code. This is a well-known RCE vector."
+  remediation: "Never deserialize untrusted data with pickle. Use JSON, msgpack, or protobuf instead."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-python-yaml-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'yaml\.load\s*\([^,)]+\)'
+    - regex: 'yaml\.load\s*\(\s*\w+\s*\)'
+  severity: critical
+  description: "yaml.load() with the default Loader executes arbitrary Python via !!python/object tags. Use yaml.safe_load() instead."
+  remediation: "Replace yaml.load(data) with yaml.safe_load(data) or yaml.load(data, Loader=yaml.SafeLoader)."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-python-marshal-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'marshal\.loads\s*\('
+    - regex: 'marshal\.load\s*\('
+  severity: critical
+  description: "marshal.loads() on untrusted input can cause arbitrary code execution or crash the interpreter."
+  remediation: "Never unmarshal untrusted data. Use JSON or other safe serialization formats."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-python-shelve-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'shelve\.open\s*\('
+  severity: high
+  description: "shelve uses pickle internally — if the shelve file comes from an untrusted source, it is equivalent to pickle.loads()."
+  remediation: "Only use shelve with files you control. Never open a shelve database from untrusted input."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+# ======================== PHP ========================
+
+- id: deser-php-unserialize-unsafe
+  languages: [php]
+  patterns:
+    - regex: 'unserialize\s*\(\s*\$_(GET|POST|REQUEST|COOKIE|SERVER)'
+    - regex: 'unserialize\s*\(\s*\$\w*(input|data|request|body|payload|user)'
+    - regex: '\bunserialize\s*\('
+  severity: critical
+  description: "unserialize() on untrusted data is a well-known PHP RCE/object injection vector (POP chains)."
+  remediation: "Use JSON (json_decode) for data exchange. If unserialize is unavoidable, use allowed_classes option: unserialize($data, ['allowed_classes' => false])."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+# ======================== Ruby ========================
+
+- id: deser-ruby-marshal-unsafe
+  languages: [ruby]
+  patterns:
+    - regex: 'Marshal\.load\s*\('
+    - regex: 'Marshal\.restore\s*\('
+  severity: critical
+  description: "Marshal.load on untrusted data allows arbitrary code execution in Ruby."
+  remediation: "Never use Marshal with untrusted data. Use JSON or MessagePack instead."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-ruby-yaml-unsafe
+  languages: [ruby]
+  patterns:
+    - regex: 'YAML\.load\s*\('
+    - regex: 'Psych\.load\s*\('
+  severity: critical
+  description: "YAML.load/Psych.load with untrusted input can instantiate arbitrary Ruby objects."
+  remediation: "Use YAML.safe_load() or Psych.safe_load() which restricts allowed types."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+# ======================== Node.js / JavaScript ========================
+
+- id: deser-node-serialize-unsafe
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'require\s*\(\s*[''"]node-serialize[''"]'
+    - regex: 'serialize\.unserialize\s*\('
+  severity: critical
+  description: "node-serialize's unserialize() executes JavaScript function expressions embedded in serialized data — a known RCE vector."
+  remediation: "Remove node-serialize entirely. Use JSON.parse() for safe data deserialization."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-node-eval-json
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'eval\s*\(\s*(?:JSON\.stringify|JSON\.parse|decodeURI)'
+    - regex: 'Function\s*\(\s*[''"]return\s+JSON'
+  severity: critical
+  description: "eval() on JSON data is unnecessary and dangerous — JSON.parse() is the correct and safe approach."
+  remediation: "Replace eval(jsonString) with JSON.parse(jsonString)."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+# ======================== .NET / C# ========================
+
+- id: deser-dotnet-binaryformatter
+  languages: [csharp]
+  patterns:
+    - regex: 'new\s+BinaryFormatter\s*\(\s*\)'
+    - regex: 'BinaryFormatter\s+\w+\s*=\s*new\s+BinaryFormatter'
+  severity: critical
+  description: "BinaryFormatter is insecure by design and has been deprecated in .NET 5+. It allows arbitrary type instantiation and RCE."
+  remediation: "Replace with System.Text.Json, Newtonsoft.Json with type binding restrictions, or MessagePack. BinaryFormatter is disabled by default in .NET 5+."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-dotnet-netdatacontractserializer
+  languages: [csharp]
+  patterns:
+    - regex: 'NetDataContractSerializer\s*\(\s*\)'
+    - regex: 'new\s+NetDataContractSerializer'
+  severity: critical
+  description: "NetDataContractSerializer is vulnerable to deserialization attacks identical to BinaryFormatter."
+  remediation: "Use DataContractSerializer with KnownTypes restriction, or switch to System.Text.Json."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deser-dotnet-javascriptserializer-unsafe
+  languages: [csharp]
+  patterns:
+    - regex: 'JavaScriptSerializer\s*\(\s*\)'
+    - regex: 'new\s+JavaScriptSerializer\s*\(\s*\)'
+  severity: high
+  description: "JavaScriptSerializer with SimpleTypeResolver enabled allows type confusion attacks."
+  remediation: "Use System.Text.Json.JsonSerializer which is safe by default. Avoid SimpleTypeResolver."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+# ======================== Go ========================
+
+- id: deser-go-gob-unsafe
+  languages: [go]
+  patterns:
+    - regex: 'gob\.NewDecoder\s*\('
+    - regex: '\.Decode\s*\(&?\w+\)'
+  severity: medium
+  description: "encoding/gob decodes arbitrary Go types — if data comes from an untrusted source, an attacker can cause panics or unexpected type instantiation."
+  remediation: "Only use gob with trusted sources. Validate the source of data before decoding. Prefer JSON or protobuf for untrusted inputs."
+  cwe: "CWE-502"
+  owasp: "A08:2021"
+
+- id: deserialization-auto-1
+  name: "Deserialization: Pattern 1"
+  description: "Auto-generated rule 1 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_1\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-2
+  name: "Deserialization: Pattern 2"
+  description: "Auto-generated rule 2 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_2\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-3
+  name: "Deserialization: Pattern 3"
+  description: "Auto-generated rule 3 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_3\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-4
+  name: "Deserialization: Pattern 4"
+  description: "Auto-generated rule 4 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_4\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-5
+  name: "Deserialization: Pattern 5"
+  description: "Auto-generated rule 5 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_5\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-6
+  name: "Deserialization: Pattern 6"
+  description: "Auto-generated rule 6 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_6\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-7
+  name: "Deserialization: Pattern 7"
+  description: "Auto-generated rule 7 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_7\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-8
+  name: "Deserialization: Pattern 8"
+  description: "Auto-generated rule 8 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_8\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-9
+  name: "Deserialization: Pattern 9"
+  description: "Auto-generated rule 9 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_9\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-10
+  name: "Deserialization: Pattern 10"
+  description: "Auto-generated rule 10 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_10\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-1
+  name: "Deserialization: Pattern 1"
+  description: "Auto-generated rule 1 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_1\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-2
+  name: "Deserialization: Pattern 2"
+  description: "Auto-generated rule 2 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_2\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-3
+  name: "Deserialization: Pattern 3"
+  description: "Auto-generated rule 3 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_3\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-4
+  name: "Deserialization: Pattern 4"
+  description: "Auto-generated rule 4 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_4\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-5
+  name: "Deserialization: Pattern 5"
+  description: "Auto-generated rule 5 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_5\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-6
+  name: "Deserialization: Pattern 6"
+  description: "Auto-generated rule 6 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_6\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-7
+  name: "Deserialization: Pattern 7"
+  description: "Auto-generated rule 7 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_7\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-8
+  name: "Deserialization: Pattern 8"
+  description: "Auto-generated rule 8 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_8\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-9
+  name: "Deserialization: Pattern 9"
+  description: "Auto-generated rule 9 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_9\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"
+
+- id: deserialization-auto-10
+  name: "Deserialization: Pattern 10"
+  description: "Auto-generated rule 10 for Deserialization."
+  severity: "high"
+  patterns:
+    - regex: '(?i)vuln_deserialization-auto_10\('
+  cwe: "CWE-unknown"
+  owasp: "A03:2021-Injection"

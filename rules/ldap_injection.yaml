@@ -1,0 +1,129 @@
+# SentryQ Security Rules — LDAP Injection
+# Covers CWE-90 (LDAP Injection) and related weaknesses
+
+- id: ldap-injection-search-concat
+  patterns:
+    - regex: '(?i)ldap.*search\s*\([^)]*\+\s*(?:req\.|request\.|user_input|params\.|query\.)'
+  severity: critical
+  description: "LDAP search filter constructed by string concatenation with user-controlled input. An attacker can inject LDAP metacharacters to bypass authentication or enumerate directory entries."
+  remediation: 'Use parameterized LDAP filters or sanitize user input by escaping LDAP special characters (*, (, ), \\, NUL). In Java use LdapEncoder.filterEncode(); in Python use ldap3 with proper filter escaping.'
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: ldap-injection-filter-python
+  languages: [python]
+  patterns:
+    - regex: '(?i)ldap3?\.search\s*\([^)]*(?:request\.|req\.|user_input|form\.)'
+  severity: critical
+  description: "Python LDAP search called with user-supplied input in the filter argument. Unsanitized input allows LDAP filter injection attacks."
+  remediation: "Escape all user-supplied values using ldap3's escape_filter_chars() before incorporating them into LDAP filter strings. Never concatenate raw user input into filter expressions."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.88
+
+- id: ldap-injection-java-search
+  languages: [java]
+  patterns:
+    - regex: '(?i)ctx\.search\s*\([^)]*\+\s*\w*(?:user|name|input|request|param)\w*'
+  severity: critical
+  description: "Java JNDI DirContext.search() called with a filter built by concatenating a user-controlled variable. Enables LDAP injection leading to unauthorized data access or authentication bypass."
+  remediation: "Use a parameterized search filter with DirContext.search(Name, String, Object[], SearchControls) where user input is passed as an attribute value array, not embedded in the filter string. Alternatively, escape input using OWASP ESAPI's LDAPEncoder."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.87
+
+- id: ldap-injection-dn-construction
+  patterns:
+    - regex: '(?i)(?:dn|distinguishedName)\s*=.*[''"'']\s*\+\s*(?:req\.|request\.|user_input|params\.)'
+  severity: critical
+  description: "Distinguished Name (DN) constructed by concatenating user-controlled input. Malicious input can redirect LDAP operations to unintended directory entries."
+  remediation: "Escape DN components using an appropriate LDAP library function (e.g., LdapEncoder.nameEncode() in Java, escape_dn_chars() in Python). Validate that each RDN component conforms to the expected format before use."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.82
+
+- id: ldap-injection-php
+  languages: [php]
+  patterns:
+    - regex: '(?i)ldap_search\s*\([^)]*\$_(?:GET|POST|REQUEST|COOKIE)'
+  severity: critical
+  description: "PHP ldap_search() receives a filter built from a superglobal ($_GET, $_POST, etc.). Allows an attacker to manipulate the LDAP query with injected metacharacters."
+  remediation: "Escape user input with ldap_escape($input, '', LDAP_ESCAPE_FILTER) before using it in an LDAP filter. Validate input format (e.g., alphanumeric-only for usernames) before the escaping step."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.90
+
+- id: ldap-injection-node
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)ldapClient\.search\s*\([^)]*req\.(?:query|body|params)'
+  severity: critical
+  description: "Node.js LDAP client search called with an Express request property (query, body, or params) embedded in the filter. Enables LDAP filter injection."
+  remediation: "Use the ldapjs library's escapeFn or manually escape all LDAP special characters (* ( ) \\ NUL) from user input before constructing search filters. Prefer allow-list validation of expected input values."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.87
+
+- id: ldap-no-tls
+  patterns:
+    - regex: '(?i)ldap://'
+  severity: high
+  description: "LDAP connection URI uses the plaintext ldap:// scheme. Credentials and directory data are transmitted in cleartext, exposing them to network eavesdropping."
+  remediation: "Use ldaps:// (LDAP over TLS) or configure STARTTLS after connecting. Ensure the server certificate is validated and not set to LDAP_OPT_X_TLS_NEVER."
+  cwe: "CWE-319"
+  owasp: "A02:2021"
+  confidence: 0.80
+
+- id: ldap-anonymous-bind
+  patterns:
+    - regex: '(?i)ldap.*bind\s*\(\s*[''"'']{2}\s*,\s*[''"'']{2}'
+    - regex: '(?i)simple_bind_s\s*\(\s*\)'
+  severity: critical
+  description: "LDAP bind performed with empty credentials (anonymous bind). This allows unauthenticated read access to directory entries and may expose sensitive organizational data."
+  remediation: "Always perform an authenticated bind with a service account. Store the bind DN and password in a secrets manager, not in source code. Restrict anonymous LDAP access at the directory server level."
+  cwe: "CWE-287"
+  owasp: "A07:2021"
+  confidence: 0.85
+
+- id: ldap-injection-csharp
+  languages: [csharp]
+  patterns:
+    - regex: '(?i)DirectorySearcher.*Filter\s*=\s*[^;]*\+\s*(?:Request\.|HttpContext\.|user)'
+  severity: critical
+  description: "C# DirectorySearcher.Filter property set by concatenating user-supplied input. Allows LDAP filter injection via untrusted HTTP request values."
+  remediation: "Escape special characters using Encoder.LdapFilterEncode() from the AntiXSS / Microsoft.Security.Application library. Validate input format with a strict allow-list before insertion into the filter."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: ldap-injection-go
+  languages: [go]
+  patterns:
+    - regex: '(?i)l\.Search\s*\(\s*ldap\.NewSearchRequest[^)]*fmt\.Sprintf'
+  severity: critical
+  description: "Go LDAP search request built with fmt.Sprintf, embedding user-controlled values into the filter string without escaping. Permits LDAP filter injection."
+  remediation: "Use the go-ldap library's ldap.EscapeFilter() to escape user input before inserting it into filter templates. Construct filter strings with a fixed template and pass escaped values into the slots."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: ldap-wildcard-injection
+  patterns:
+    - regex: '(?i)ldap.*filter.*(?:request\.|req\.|user_input|params\.|query\.)\w*[^)]*\*'
+  severity: high
+  description: "LDAP filter may contain a wildcard (*) derived from user input, enabling enumeration of directory entries beyond the intended scope."
+  remediation: "Strip or escape the wildcard character (*) from all user-supplied values using the appropriate LDAP escaping function for your platform."
+  cwe: "CWE-90"
+  owasp: "A03:2021"
+  confidence: 0.70
+
+- id: ldap-hardcoded-credentials
+  patterns:
+    - regex: '(?i)ldap.*bind\s*\([^)]*[''"''][a-zA-Z0-9_\-\.@]+[''"'']\s*,\s*[''"''][^''"'']{4,}[''"'']'
+  severity: high
+  description: "LDAP bind call contains hardcoded credentials. Secrets embedded in source code are exposed to anyone with repository access and cannot be rotated without a code change."
+  remediation: "Store LDAP bind credentials in environment variables or a secrets manager. Retrieve them at runtime and never commit them to source control."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+  confidence: 0.75

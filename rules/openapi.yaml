@@ -878,7 +878,7 @@
   cwe: "CWE-754"
   owasp: "A05:2021"
   confidence: 0.8
-- id: openapi-x-powered-by
+- id: openapi-x-powered-by-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)X-Powered-By'
@@ -918,7 +918,7 @@
   cwe: "CWE-287"
   owasp: "A07:2021"
   confidence: 0.8
-- id: openapi-implicit-grant
+- id: openapi-implicit-grant-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)grant_types:\s*\n\s*implicit:'

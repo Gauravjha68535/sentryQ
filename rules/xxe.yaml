@@ -1,0 +1,217 @@
+# XML External Entity (XXE) Injection Rules
+# Detects unsafe XML parsers that allow external entity processing
+# Reference: OWASP A05:2021 - Security Misconfiguration, CWE-611
+
+# ======================== Java ========================
+
+- id: xxe-java-documentbuilder-unsafe
+  languages: [java]
+  patterns:
+    - regex: 'DocumentBuilderFactory\.newInstance\s*\(\s*\)'
+    - regex: 'DocumentBuilderFactory\s+\w+\s*=\s*DocumentBuilderFactory\.newInstance'
+  severity: high
+  description: "DocumentBuilderFactory may allow XXE by default. External entities must be explicitly disabled."
+  remediation: "Disable external entities: factory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true); factory.setFeature(\"http://xml.org/sax/features/external-general-entities\", false);"
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-java-saxparser-unsafe
+  languages: [java]
+  patterns:
+    - regex: 'SAXParserFactory\.newInstance\s*\(\s*\)'
+    - regex: 'SAXParser\s+\w+\s*=\s*\w+\.newSAXParser'
+  severity: high
+  description: "SAXParserFactory may allow XXE by default. External entities must be explicitly disabled."
+  remediation: "Disable external entities: factory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);"
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-java-xmlreader-unsafe
+  languages: [java]
+  patterns:
+    - regex: 'XMLReaderFactory\.createXMLReader\s*\(\s*\)'
+    - regex: 'XMLInputFactory\.newInstance\s*\(\s*\)'
+  severity: high
+  description: "XMLReader/XMLInputFactory may allow XXE. Must explicitly disable IS_SUPPORTING_EXTERNAL_ENTITIES."
+  remediation: "factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE); factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);"
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-java-transformer-unsafe
+  languages: [java]
+  patterns:
+    - regex: 'TransformerFactory\.newInstance\s*\(\s*\)'
+  severity: medium
+  description: "TransformerFactory may be vulnerable to XXE via XSLT stylesheets with external entity references."
+  remediation: "factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, \"\"); factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, \"\");"
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+# ======================== Python ========================
+
+- id: xxe-python-lxml-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'lxml\.etree\.parse\s*\('
+    - regex: 'etree\.XMLParser\s*\(\s*\)'
+    - regex: 'etree\.fromstring\s*\('
+  severity: high
+  description: "lxml parsers resolve external entities by default unless explicitly disabled."
+  remediation: "Use safe parser: parser = etree.XMLParser(resolve_entities=False, no_network=True); or use defusedxml library."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-python-xml-etree-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'xml\.etree\.ElementTree\.parse\s*\('
+    - regex: 'ElementTree\.parse\s*\('
+    - regex: 'xml\.etree\.ElementTree\.fromstring\s*\('
+  severity: medium
+  description: "xml.etree.ElementTree is vulnerable to billion laughs attack (DoS) but not classical XXE. Use defusedxml for complete protection."
+  remediation: "Replace with: import defusedxml.ElementTree as ET"
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-python-minidom-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'xml\.dom\.minidom\.parse\s*\('
+    - regex: 'minidom\.parse\s*\('
+    - regex: 'minidom\.parseString\s*\('
+  severity: high
+  description: "xml.dom.minidom is vulnerable to XXE. External entities are resolved by default."
+  remediation: "Use defusedxml.minidom.parse() instead."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-python-sax-unsafe
+  languages: [python]
+  patterns:
+    - regex: 'xml\.sax\.parse\s*\('
+    - regex: 'xml\.sax\.parseString\s*\('
+  severity: high
+  description: "xml.sax parser is vulnerable to XXE by default."
+  remediation: "Use defusedxml.sax.parse() or disable external entity processing explicitly."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+# ======================== PHP ========================
+
+- id: xxe-php-simplexml-unsafe
+  languages: [php]
+  patterns:
+    - regex: 'simplexml_load_string\s*\('
+    - regex: 'simplexml_load_file\s*\('
+  severity: high
+  description: "simplexml functions may process external entities if LIBXML_NOENT is passed."
+  remediation: "Never pass LIBXML_NOENT. Use libxml_disable_entity_loader(true) before parsing (PHP < 8.0) or use LIBXML_NONET flag."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-php-domxml-unsafe
+  languages: [php]
+  patterns:
+    - regex: 'DOMDocument\s*\(\s*\)'
+    - regex: '\$dom\s*->\s*loadXML\s*\('
+    - regex: '\$dom\s*->\s*load\s*\('
+  severity: high
+  description: "DOMDocument may process external XML entities. LIBXML_NOENT enables full XXE."
+  remediation: "Use libxml_set_external_entity_loader(null) or ensure LIBXML_NOENT is not passed to loadXML/load."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-php-xmlparser-unsafe
+  languages: [php]
+  patterns:
+    - regex: 'xml_parser_create\s*\('
+  severity: medium
+  description: "xml_parser_create creates a parser that may expand external entities."
+  remediation: "Use xml_parser_set_option with XML_OPTION_SKIP_TAGSTART or switch to a safer parsing library."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+# ======================== .NET / C# ========================
+
+- id: xxe-dotnet-xmldocument-unsafe
+  languages: [csharp]
+  patterns:
+    - regex: 'XmlDocument\s+\w+\s*=\s*new\s+XmlDocument\s*\(\s*\)'
+    - regex: 'new\s+XmlDocument\s*\(\s*\)'
+  severity: high
+  description: "XmlDocument in .NET Framework < 4.5.2 enables DTD processing by default, allowing XXE."
+  remediation: "Set XmlDocument.XmlResolver = null; or use XmlReaderSettings with DtdProcessing = DtdProcessing.Prohibit."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-dotnet-xmlreader-dtd
+  languages: [csharp]
+  patterns:
+    - regex: 'DtdProcessing\s*=\s*DtdProcessing\.Parse'
+    - regex: 'ProhibitDtd\s*=\s*false'
+  severity: critical
+  description: "DTD processing explicitly enabled — XXE is possible when parsing untrusted XML."
+  remediation: "Use DtdProcessing.Prohibit (default in .NET 4.5.2+) and set XmlResolver = null."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+# ======================== Go ========================
+
+- id: xxe-go-encoding-xml-unsafe
+  languages: [go]
+  patterns:
+    - regex: 'xml\.Unmarshal\s*\('
+    - regex: 'xml\.NewDecoder\s*\('
+  severity: low
+  description: "Go's encoding/xml does not resolve external entities by default, but is vulnerable to billion laughs (DoS) attacks via deeply nested entities. Validate input size before parsing."
+  remediation: "Wrap reader with an io.LimitReader to cap input size. Consider github.com/antchfx/xmlquery for more control."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+# ======================== Ruby ========================
+
+- id: xxe-ruby-nokogiri-unsafe
+  languages: [ruby]
+  patterns:
+    - regex: 'Nokogiri::XML\s*\('
+    - regex: 'Nokogiri::HTML\s*\('
+  severity: medium
+  description: "Nokogiri parses external entities in norecovery mode. Use strict mode to disable DTD loading."
+  remediation: "Use Nokogiri::XML(xml) { |config| config.strict.nonet } or Nokogiri::XML::ParseOptions::NOENT."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-ruby-rexml-unsafe
+  languages: [ruby]
+  patterns:
+    - regex: 'REXML::Document\.new\s*\('
+    - regex: 'REXML::Document\s+\w+\s*=\s*REXML::Document\.new'
+  severity: high
+  description: "REXML is vulnerable to XXE and billion laughs DoS attacks on older Ruby versions."
+  remediation: "Use Nokogiri with nonet option or upgrade to Ruby >= 2.5 which patches REXML entity expansion."
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+# ======================== Node.js ========================
+
+- id: xxe-node-xml2js-unsafe
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'require\s*\(\s*[''"]xml2js[''"]'
+    - regex: 'from\s+[''"]xml2js[''"]'
+  severity: low
+  description: "xml2js does not process external entities by default, but validate that explicitCharkey and mergeAttrs are configured to avoid prototype pollution."
+  remediation: "Ensure xml2js options do not allow untrusted keys: { explicitArray: true, mergeAttrs: false }"
+  cwe: "CWE-611"
+  owasp: "A05:2021"
+
+- id: xxe-node-libxmljs-unsafe
+  languages: [javascript, typescript]
+  patterns:
+    - regex: 'libxmljs\.parseXml\s*\('
+    - regex: 'libxmljs\.parseXmlString\s*\('
+  severity: high
+  description: "libxmljs may resolve external entities when noent option is set."
+  remediation: "Pass { noent: false, nonet: true } to parseXml/parseXmlString when handling untrusted input."
+  cwe: "CWE-611"
+  owasp: "A05:2021"

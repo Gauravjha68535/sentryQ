@@ -1,0 +1,147 @@
+# Auto-generated SentryQ Security Rules
+
+- id: nosql-mongo
+  name: "NoSQL Injection: MongoDB"
+  description: "Using user input directly in MongoDB queries."
+  severity: "high"
+  patterns:
+    - regex: '\.find\(\{.*\$where.*req\.'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+
+- id: nosql-mongoose-find-user-input
+  name: "Mongoose find() With User-Controlled Filter"
+  description: "Mongoose find() called with user-supplied request data in the filter document. An attacker can inject MongoDB operators (e.g., $gt, $where) to bypass authentication or extract data."
+  severity: "critical"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\.find\s*\(\s*\{[^}]*:\s*req\.(?:query|body|params)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: nosql-mongoose-where-clause
+  name: "Mongoose where().equals() With User Input"
+  description: "Mongoose query chain with user-controlled value in equals(). Unsanitized input can override query conditions."
+  severity: "high"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\.where\s*\(\s*["''][^"'']+["'']\s*\)\s*\.equals\s*\(\s*req\.'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.82
+
+- id: nosql-pymongo-find-user-input
+  name: "PyMongo find() With User-Controlled Filter"
+  description: "PyMongo collection.find() called with user-supplied data in the filter document. Attackers can inject MongoDB query operators to manipulate query logic."
+  severity: "critical"
+  languages: [python]
+  patterns:
+    - regex: '(?i)collection\.find\s*\(\s*\{[^}]*:\s*(?:request\.|req\.|user_input|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: nosql-dynamodb-injection
+  name: "DynamoDB Query With User-Controlled Expression"
+  description: "DynamoDB get_item/query/scan called with user-controlled data. Malicious input in key conditions or filter expressions can expose unintended data."
+  severity: "high"
+  patterns:
+    - regex: '(?i)dynamodb\.(?:get_item|query|scan)\s*\(\s*\{[^}]*(?:request\.|req\.|user_input)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.75
+
+- id: nosql-elasticsearch-user-input
+  name: "Elasticsearch Query With User-Controlled Input"
+  description: "Elasticsearch search() called with user-controlled data in the query body. Attackers can manipulate query logic to exfiltrate data or cause denial of service."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:es|client)\.search\s*\(\s*(?:index\s*=|body\s*=\s*\{)[^}]*(?:request\.|req\.|user_input)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.75
+
+- id: nosql-redis-user-key
+  name: "Redis Command With User-Controlled Key"
+  description: "Redis command executed with a user-controlled key name. Attackers can access arbitrary keys, including those belonging to other users or containing sensitive data."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)r(?:edis)?\.(?:get|set|hget|hset|lpush|sadd)\s*\([^,)]*(?:req\.|request\.|user_input|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.7
+
+- id: nosql-cassandra-user-input
+  name: "Cassandra Query With String Formatting"
+  description: "Cassandra session.execute() called with a query string built via format() or % operator containing user data. Use prepared statements with bound parameters instead."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)session\.execute\s*\(\s*["''][^"'']*["'']\.format\s*\(|session\.execute\s*\([^)]*%\s*(?:req\.|request\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: nosql-firebase-user-read
+  name: "Firebase Realtime Database Ref With User Input"
+  description: "Firebase database reference constructed from user-controlled data. This allows unauthorized data access if the path contains references to other users' data."
+  severity: "high"
+  patterns:
+    - regex: '(?i)db\.ref\s*\(\s*(?:req\.|request\.|params\.|user_input)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.8
+
+- id: nosql-couchdb-user-input
+  name: "CouchDB Operation With User-Controlled ID"
+  description: "CouchDB nano operation called with user-controlled document ID. Attackers can access or delete arbitrary documents."
+  severity: "high"
+  patterns:
+    - regex: '(?i)nano\.db\.(?:get|insert|destroy)\s*\([^,)]*(?:req\.|request\.|user_input|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.78
+
+- id: nosql-mongodb-operator-injection
+  name: "MongoDB Operator Injection via Request Body"
+  description: "MongoDB query operators ($where, $regex, $gt, $or, etc.) detected in user-supplied request data path. Attackers can inject operators to bypass authentication or dump collections."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)(?:req\.body|request\.json\(\)|request\.POST)\[.*\].*\$(?:where|regex|gt|lt|ne|in|nin|or|and)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: nosql-mongo-projection-override
+  name: "MongoDB Projection Controlled by User Input"
+  description: "User-controlled value passed as the projection (second argument) to MongoDB find(). Attackers can override the projection to expose fields that should be hidden (e.g., password hashes)."
+  severity: "high"
+  patterns:
+    - regex: '(?i)\.find\s*\([^)]*,\s*(?:req\.|request\.|user_input)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-200"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.72
+
+- id: nosql-mongoose-findbyid-user-input
+  name: "Mongoose findById() With User-Controlled ID"
+  description: "Mongoose findById() or findOne() called with unsanitized user input. Passing object values (e.g., {$gt: ''}) instead of string IDs can match unintended documents."
+  severity: "high"
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)\.find(?:ById|One)\s*\(\s*req\.(?:params|body|query)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-943"
+  owasp: "A03:2021-Injection"
+  confidence: 0.82

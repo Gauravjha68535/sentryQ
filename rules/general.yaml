@@ -1,3 +1,8 @@
+# SentryQ Security Rules — General / Cross-Language
+# Common security issues that apply across all or most programming languages
+
+# ======================== Information Disclosure ========================
+
 - id: generic-exposed-dev-version
   languages: [javascript, typescript, python, go, ruby, php, csharp, html, tsx, jsx]
   patterns:
@@ -27,3 +32,120 @@
   remediation: "Implement a global middleware to enforce strict HTTP security headers on all web responses."
   cwe: "CWE-693"
   owasp: "A05:2021"
+
+# ======================== Debug Mode / Verbose Logging ========================
+
+- id: generic-debug-mode-enabled
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java]
+  patterns:
+  - regex: '(?i)(?:DEBUG|debug)\s*[=:]\s*(?:true|True|TRUE|1|["\x27]true["\x27])'
+  - regex: '(?i)app\.(?:config|settings)\[?\s*["\x27]?DEBUG["\x27]?\]?\s*[=:]\s*True'
+  - regex: '(?i)FLASK_DEBUG\s*=\s*1'
+  severity: high
+  description: "Debug mode is enabled, which exposes detailed error messages, stack traces, and internal application state to attackers."
+  remediation: "Disable debug mode in all production and staging environments. Use environment variables to control debug settings."
+  cwe: "CWE-489"
+  owasp: "A05:2021"
+
+- id: generic-verbose-error-logging
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java]
+  patterns:
+  - regex: '(?i)console\.(?:log|debug|trace)\s*\(\s*(?:err|error|exception|stack|stackTrace|traceback)'
+  - regex: '(?i)(?:logger|logging)\.(?:debug|trace)\s*\(\s*(?:f["\x27]|.*(?:password|token|secret|key|credential))' 
+  severity: medium
+  description: "Sensitive data or detailed error information logged at debug/trace level. Logs may be accessible to unauthorized users or stored insecurely."
+  remediation: "Log sanitized messages at appropriate levels. Never log passwords, tokens, or secrets at any level."
+  cwe: "CWE-532"
+  owasp: "A09:2021"
+
+# ======================== TODO/FIXME with Security Context ========================
+
+- id: generic-todo-security
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java, rust, kotlin, swift]
+  patterns:
+  - regex: '(?i)(?:TODO|FIXME|HACK|XXX|TEMP)\s*:?\s*.*(?:security|auth|password|token|secret|vulnerability|exploit|bypass|injection|xss|csrf|sqli)'
+  severity: medium
+  description: "Security-related TODO/FIXME comment found — indicates known but unfixed security issue."
+  remediation: "Address the security TODO immediately or create a tracked issue. Never ship known unfixed security items."
+  cwe: "CWE-1059"
+  owasp: "A04:2021"
+
+# ======================== Hardcoded IP Addresses ========================
+
+- id: generic-hardcoded-internal-ip
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java, rust, kotlin, swift]
+  patterns:
+  - regex: '(?i)["\x27](?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})["\x27]'
+  severity: medium
+  description: "Hardcoded internal/private IP address found. Reveals network topology and may break across environments."
+  remediation: "Use environment variables, service discovery, or DNS names instead of hardcoded IP addresses."
+  cwe: "CWE-200"
+  owasp: "A05:2021"
+
+# ======================== Insecure Randomness ========================
+
+- id: generic-math-random-security
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)Math\.random\s*\(\s*\).*(?:token|key|secret|password|session|nonce|salt|csrf|otp|code|id)'
+  severity: high
+  description: "Math.random() used for security-sensitive value. It is not cryptographically secure and output is predictable."
+  remediation: "Use crypto.randomBytes() (Node) or crypto.getRandomValues() (browsers) for security-sensitive randomness."
+  cwe: "CWE-330"
+  owasp: "A02:2021"
+
+- id: generic-random-security-python
+  languages: [python]
+  patterns:
+  - regex: '(?i)random\.(?:random|randint|choice|randrange|sample)\s*\(.*(?:token|key|secret|password|session|nonce|salt|otp)'
+  severity: high
+  description: "Python random module used for security purposes. The random module uses Mersenne Twister which is predictable."
+  remediation: "Use secrets.token_hex(), secrets.token_urlsafe(), or os.urandom() for cryptographic randomness."
+  cwe: "CWE-330"
+  owasp: "A02:2021"
+
+# ======================== Unvalidated Redirects ========================
+
+- id: generic-open-redirect
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java]
+  patterns:
+  - regex: '(?i)(?:res\.redirect|redirect|header\s*\(\s*["\x27]Location)\s*\(?\s*(?:req\.|request\.|params\.|query\.|body\.)' 
+  - regex: '(?i)(?:redirect_to|redirect|sendRedirect)\s*\(?\s*(?:params|request\.GET|request\.POST|request\.args)' 
+  severity: high
+  description: "Redirect destination taken from user input without validation — open redirect enables phishing."
+  remediation: "Validate redirect URLs against an allowlist of permitted paths/domains. Use relative paths only."
+  cwe: "CWE-601"
+  owasp: "A01:2021"
+
+# ======================== Miscellaneous ========================
+
+- id: generic-cors-wildcard
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java]
+  patterns:
+  - regex: '(?i)Access-Control-Allow-Origin\s*[=:]\s*["\x27]\*["\x27]'
+  - regex: '(?i)(?:cors|CORS)\s*\(\s*\{?[^}]*origin\s*:\s*(?:true|["\x27]\*["\x27])'
+  severity: high
+  description: "CORS configured to allow all origins (*). Any website can make cross-origin requests to this API."
+  remediation: "Restrict CORS to specific trusted origins. Never use wildcard with credentials."
+  cwe: "CWE-942"
+  owasp: "A05:2021"
+
+- id: generic-http-no-tls
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java]
+  patterns:
+  - regex: '(?i)(?:fetch|axios|requests?\.(?:get|post|put|delete|patch)|http\.(?:Get|Post)|HttpClient|urllib)\s*\(\s*["\x27]http://(?!localhost|127\.0\.0\.1|0\.0\.0\.0)'
+  severity: medium
+  description: "HTTP request to non-localhost endpoint without TLS — data transmitted in plaintext."
+  remediation: "Use HTTPS for all external API calls. Configure TLS verification properly."
+  cwe: "CWE-319"
+  owasp: "A02:2021"
+
+- id: generic-disabled-certificate-verification
+  languages: [javascript, typescript, python, go, ruby, php, csharp, java]
+  patterns:
+  - regex: '(?i)(?:verify\s*[=:]\s*(?:false|False|FALSE)|NODE_TLS_REJECT_UNAUTHORIZED\s*[=:]\s*["\x270"\x27]|InsecureSkipVerify\s*:\s*true|ssl_verify\s*[=:]\s*false|rejectUnauthorized\s*:\s*false)'
+  severity: critical
+  description: "TLS certificate verification is disabled — vulnerable to man-in-the-middle attacks."
+  remediation: "Never disable certificate verification in production. Fix certificate issues at the source."
+  cwe: "CWE-295"
+  owasp: "A07:2021"

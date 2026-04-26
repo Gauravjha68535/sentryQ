@@ -1,0 +1,49 @@
+# SentryQ Security Rules — Unrestricted File Upload
+# Covers CWE-434 (Unrestricted Upload of File with Dangerous Type)
+
+- id: file-upload-unvalidated-extension
+  languages: [python, javascript, typescript, java, php, go]
+  patterns:
+    - regex: '(?i)(?:file|upload)\.(?:save|mv|move|transferTo)\s*\(\s*(?:req\.|request\.)'
+    - regex: '(?i)move_uploaded_file\s*\([^,]+,\s*\$_(?:FILES|POST|GET)'
+  severity: critical
+  description: "File uploaded and saved directly without explicit extension or MIME type validation. Attackers can upload executable files (e.g., .php, .jsp, .py) leading to Remote Code Execution."
+  remediation: "Validate the file extension against a strict allow-list (e.g., .jpg, .png, .pdf). Verify the actual file content matches the extension using magic bytes/file signatures. Never rely solely on the Content-Type header."
+  cwe: "CWE-434"
+  owasp: "A04:2021-Insecure Design"
+  confidence: 0.75
+
+- id: file-upload-path-traversal-filename
+  languages: [python, javascript, typescript, java, php, go]
+  patterns:
+    - regex: '(?i)os\.path\.join\s*\([^)]*(?:file\.filename|request\.files)'
+    - regex: '(?i)path\.join\s*\([^)]*(?:file\.originalname|req\.files)'
+  severity: high
+  description: "User-supplied filename is used directly in server file path construction. Providing a filename like '../../../etc/passwd' enables path traversal, allowing the attacker to overwrite critical system files."
+  remediation: "Never trust the user-provided filename. Generate a cryptographically secure random filename (e.g., UUIDs) or forcefully extract just the base name and sanitize it using secure libraries like werkzeug.utils.secure_filename."
+  cwe: "CWE-22"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.85
+
+- id: file-upload-missing-size-limit
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)multer\s*\(\s*\{(?![^}]*limits[^}]*fileSize)'
+    - regex: '(?i)app\.config\[["\x27]MAX_CONTENT_LENGTH["\x27]\]\s*=\s*(?:None|0)'
+  severity: medium
+  description: "File upload handler configured without a maximum upload size limit. An attacker can upload massive files to exhaust server disk space or memory, resulting in Denial of Service."
+  remediation: "Set strict maximum file size limits globally via your web server (e.g., NGINX client_max_body_size) and at the application framework level (e.g., multer limits.fileSize, Flask MAX_CONTENT_LENGTH)."
+  cwe: "CWE-400"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.80
+
+- id: file-upload-xml-svg-xxe-xss
+  languages: [javascript, typescript, python, java, php]
+  patterns:
+    - regex: '(?i)allow(?:ed)?_\w*\s*=\s*\[[^\]]*["\x27](?:svg|xml)["\x27][^\]]*\]'
+  severity: high
+  description: "SVG or XML files are globally permitted in the file upload allow-list. SVGs can carry embedded JavaScript (Stored XSS) and XML can carry External Entities (XXE)."
+  remediation: "If SVGs must be accepted, rigorously sanitize them server-side using a tool like DOMPurify or svgo. Ensure XML parsers disable external entity resolution. Set strict Content-Security-Policy responses when serving these assets."
+  cwe: "CWE-434"
+  owasp: "A04:2021-Insecure Design"
+  confidence: 0.88

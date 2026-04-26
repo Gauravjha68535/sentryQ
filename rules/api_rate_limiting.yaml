@@ -1,0 +1,47 @@
+# SentryQ Security Rules — API Rate Limiting
+# Covers CWE-770 (Allocation of Resources Without Limits) and CWE-307 (Improper Restriction of Excessive Authentication Attempts)
+
+- id: rate-limit-missing-login-endpoints
+  languages: [javascript, typescript, python, go, ruby, java, php]
+  patterns:
+    - regex: '(?i)(?:app\.post|router\.post|@PostMapping)\s*\(\s*["\x27]\/(?:login|authenticate|signin|auth)["\x27]\s*,\s*(?:req|request|ctx)'
+  severity: high
+  description: "Authentication endpoint detected without an inline or apparent upstream rate limiter. Lack of rate limiting on authentication routes allows credential stuffing and brute-force attacks against user accounts."
+  remediation: "Apply strict rate limiting (e.g., 5-10 requests per minute per IP/username) explicitly bounded to login endpoints. Implement progressive delays or account lockouts after consecutive failures."
+  cwe: "CWE-307"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.65
+
+- id: rate-limit-missing-password-reset
+  languages: [javascript, typescript, python, go, ruby, java, php]
+  patterns:
+    - regex: '(?i)(?:app\.post|router\.post|@PostMapping)\s*\(\s*["\x27]\/(?:forgot-password|reset-password|recover)["\x27]'
+  severity: high
+  description: "Password reset/recovery endpoint registered without an explicit rate limiter. This enables attackers to send thousands of recovery emails, causing user harassment, email provider blacklisting, or user enumeration."
+  remediation: "Rate limit password reset requests globally and per-user/IP (e.g., max 3 requests per hour per email)."
+  cwe: "CWE-770"
+  owasp: "A04:2021-Insecure Design"
+  confidence: 0.70
+
+- id: express-rate-limit-disabled
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)rateLimit\s*\(\s*\{[^}]*max\s*:\s*0'
+  severity: medium
+  description: "Express rate-limit configuration has max: 0. This effectively disables rate limiting for the applied routes."
+  remediation: "Set a sensible 'max' limit (e.g., 100 requests per 15 minutes for standard APIs, much lower for auth)."
+  cwe: "CWE-770"
+  owasp: "A04:2021-Insecure Design"
+  confidence: 0.95
+
+- id: api-global-unbounded-pagination
+  languages: [javascript, typescript, python, java, go]
+  patterns:
+    - regex: '(?i)(?:limit|per_page)\s*=\s*(?:req\.|request\.)(?:query|params)\.(?:limit|per_page)'
+    - regex: '(?i)\.findAll\s*\(\s*\{[^}]*limit\s*:\s*req\.'
+  severity: medium
+  description: "A database query natively binds its 'limit' or 'per_page' clause directly to user input without an upper clamp. An attacker can request a billion rows in a single API call, leading to memory exhaustion and database DoS."
+  remediation: "Never trust client-supplied pagination limits directly. Parse the limit as an integer, clamp it dynamically (e.g., limit = Math.min(parseInt(req.query.limit) || 20, 100)), and apply it to the database query."
+  cwe: "CWE-400"
+  owasp: "A04:2021-Insecure Design"
+  confidence: 0.85

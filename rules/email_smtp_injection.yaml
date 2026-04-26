@@ -1,0 +1,149 @@
+# SentryQ Email / SMTP Injection Security Rules
+# Covers: header injection, CRLF injection, open relays, attachment traversal, and HTML injection
+
+- id: email-header-injection-php
+  languages: [php]
+  patterns:
+    - regex: '(?i)mail\s*\([^)]*\$_(GET|POST|REQUEST|COOKIE)'
+  severity: critical
+  description: "PHP mail() called with unsanitized superglobal input. An attacker can inject newline characters into the To, Subject, or additional-headers arguments to add arbitrary headers (Bcc, Cc), enabling spam relay or account takeover via forged messages."
+  remediation: "Sanitize all user-supplied values passed to mail() by stripping or rejecting \\r and \\n characters. Prefer a library such as PHPMailer or SwiftMailer that performs header encoding internally. Validate email addresses with filter_var($addr, FILTER_VALIDATE_EMAIL)."
+  cwe: "CWE-93"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: email-header-injection-python-sendmail
+  languages: [python]
+  patterns:
+    - regex: '(?i)smtplib.*sendmail\s*\([^)]*(?:request\.|req\.|user_input|form)'
+  severity: high
+  description: "smtplib.sendmail() called with data that appears to originate from a web request or user input. Unsanitized CR/LF characters in the message headers enable SMTP header injection."
+  remediation: "Use the email.message.EmailMessage API to construct messages, which handles header encoding automatically. Strip \\r and \\n from any user-supplied header fields. Validate all email addresses before constructing the message."
+  cwe: "CWE-93"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: email-crlf-injection
+  patterns:
+    - regex: '(?i)(?:to|from|cc|bcc|subject)\s*[=:][^\n]*(?:\\r\\n|\\n|%0d%0a|%0a)'
+  severity: critical
+  description: "Email header field contains or is constructed with CRLF sequences (\\r\\n, %0d%0a). Injecting these sequences into header fields allows attackers to add arbitrary headers, attach malicious content, or use the server as an open relay."
+  remediation: "Reject or strip any \\r or \\n characters (including URL-encoded variants %0d, %0a) from user-controlled values before inserting them into email headers. Use a well-tested email library that performs RFC-compliant header folding and encoding."
+  cwe: "CWE-93"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: email-smtp-injection-header-concat
+  patterns:
+    - regex: '(?i)(?:Message-ID|Subject|From|To|Cc|Bcc)\s*:\s*[^"]*\+\s*(?:req\.|request\.|params\.|input)'
+  severity: high
+  description: "Email header value constructed by string concatenation with request/input data. Concatenating unvalidated user input directly into header strings is a classic SMTP injection vector."
+  remediation: "Never concatenate raw user input into email header strings. Use a structured email library (e.g., Python's email.headerregistry, Java's javax.mail MimeMessage) that encodes header values per RFC 2047. Validate and whitelist expected values."
+  cwe: "CWE-93"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: email-open-relay-no-auth
+  languages: [python]
+  patterns:
+    - regex: '(?i)smtplib\.SMTP\s*\(\s*[^)]+\)'
+  severity: medium
+  description: "smtplib.SMTP() connection initiated — verify that STARTTLS and authentication are performed before sending messages. SMTP connections without TLS and authentication can be intercepted and may configure an open relay."
+  remediation: "Always call server.ehlo(), server.starttls(), and server.login(user, password) immediately after creating the SMTP connection. Prefer smtplib.SMTP_SSL for port 465 connections. Never send credentials or message content over an unencrypted SMTP session."
+  cwe: "CWE-356"
+  owasp: "A02:2021"
+  confidence: 0.4
+
+- id: email-nodemailer-injection
+  languages: [javascript, typescript]
+  patterns:
+    - regex: '(?i)nodemailer.*createTransport[^}]*\{[^}]*(?:to|from|subject)\s*:\s*req\.'
+  severity: high
+  description: "Nodemailer transport created with email fields (to, from, subject) sourced directly from the Express request object. This allows an attacker to inject arbitrary header values or redirect messages to unintended recipients."
+  remediation: "Validate and sanitize all email fields received from the client before passing them to Nodemailer. Enforce recipient whitelisting where possible. Use a dedicated validation library (e.g., validator.js isEmail()) and strip CRLF sequences from subject lines."
+  cwe: "CWE-93"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: email-template-injection-via-email
+  languages: [python]
+  patterns:
+    - regex: '(?i)send_mail\s*\([^)]*render_template_string'
+  severity: high
+  description: "Email body constructed with render_template_string() and passed to send_mail(). If the template string includes user-controlled input, this combines Server-Side Template Injection (SSTI) with email delivery, enabling remote code execution or data exfiltration via the email channel."
+  remediation: "Never pass user-controlled strings to render_template_string(). Use render_template() with a fixed template file. Sanitize all user input inserted into template context variables. Consider using a logic-less template engine (e.g., Mustache) for email rendering."
+  cwe: "CWE-1336"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: email-no-tls-smtp
+  languages: [python]
+  patterns:
+    - regex: '(?i)smtplib\.SMTP\s*\(\s*[''"][^''"]+[''"],\s*25\s*\)'
+  severity: medium
+  description: "SMTP connection on port 25 without TLS. Port 25 is the unauthenticated relay port; connecting to it without upgrading to TLS via STARTTLS exposes credentials and message contents to network eavesdropping."
+  remediation: "Use port 587 (STARTTLS) or 465 (SMTP over TLS) for authenticated email submission. After connecting, call ehlo() and starttls() before login() and sendmail(). Set context=ssl.create_default_context() to enforce certificate validation."
+  cwe: "CWE-319"
+  owasp: "A02:2021"
+  confidence: 0.85
+
+- id: email-php-header-injection-cc
+  languages: [php]
+  patterns:
+    - regex: '(?i)\$headers\s*\.?=\s*.*\$_(GET|POST|REQUEST)'
+  severity: critical
+  description: "PHP email headers string concatenated with raw superglobal data. Injecting CRLF sequences into the $headers variable allows adding arbitrary mail headers (Bcc, Cc, Content-Type), turning the application into a spam relay or enabling phishing attacks."
+  remediation: "Build email headers programmatically with a library that encodes header values (PHPMailer, Symfony Mailer). Manually strip \\r and \\n characters from any user-supplied header content. Apply a whitelist to allowed header names and values."
+  cwe: "CWE-93"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: email-blind-ssrf-webhook
+  patterns:
+    - regex: '(?i)(?:webhook|notification|alert).*http.*\$\{.*(?:email|address|domain)'
+  severity: medium
+  description: "Webhook or notification URL constructed using user-controlled email/domain/address data. An attacker can supply an internal hostname or IP address in the email field to trigger Server-Side Request Forgery (SSRF), potentially reaching internal services."
+  remediation: "Validate and resolve webhook URLs against an allowlist of permitted hosts before making outbound HTTP requests. Use a DNS rebinding-resistant SSRF mitigation library. Never embed raw user-supplied domain or email data directly into URL templates."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+  confidence: 0.7
+
+- id: email-html-injection
+  patterns:
+    - regex: '(?i)(?:send_html_email|html_message|body.*html).*(?:req\.|request\.|params\.)'
+  severity: high
+  description: "HTML email body constructed with unsanitized request data. Injecting arbitrary HTML into email bodies enables phishing attacks, credential harvesting pages, and may bypass email client security controls."
+  remediation: "Sanitize HTML content with a dedicated library (e.g., bleach in Python, DOMPurify for JS) before embedding it in email bodies. Use parameterized templates with auto-escaping. Provide a plain-text fallback and ensure the Content-Type is correctly set."
+  cwe: "CWE-79"
+  owasp: "A03:2021"
+  confidence: 0.75
+
+- id: email-attachment-path-traversal
+  patterns:
+    - regex: '(?i)(?:attach|attachment|MIMEBase)\s*\([^)]*(?:req\.|request\.|user_input|filename)'
+  severity: high
+  description: "Email attachment constructed with a filename or path derived from user input. Without path sanitization an attacker can supply path traversal sequences (../../etc/passwd) to attach arbitrary files from the server filesystem."
+  remediation: "Use os.path.basename() to strip directory components from user-supplied filenames. Validate filenames against an allowlist of permitted extensions. Store user-uploaded files in an isolated directory and reference them by a server-generated UUID, never by the original filename."
+  cwe: "CWE-22"
+  owasp: "A01:2021"
+  confidence: 0.8
+
+- id: email-mass-bcc-harvesting
+  patterns:
+    - regex: '(?i)bcc\s*[=:]\s*[^;\n]*(?:select|query|fetch|all_users|user_list)'
+  severity: medium
+  description: "BCC field populated from a database query result or user list. Sending email to a bulk BCC list constructed from a full user enumeration query can expose the entire user base to mass disclosure if the query is attacker-influenced."
+  remediation: "Paginate bulk email sends and avoid exposing full user lists via BCC. Prefer mailing-list services that hide recipient addresses. Ensure that the query populating the BCC field is scoped to the intended recipients and is not influenced by user input."
+  cwe: "CWE-200"
+  owasp: "A01:2021"
+  confidence: 0.6
+
+- id: email-spoofed-from-address
+  patterns:
+    - regex: '(?i)(?:from|reply.to|sender)\s*[=:]\s*[''"][^''"]*[''"].*(?:req\.|request\.|params\.|user_input)'
+  severity: high
+  description: "From or Reply-To email header set using a value derived from user input. An attacker can supply a spoofed sender address, enabling phishing attacks where the email appears to originate from a trusted source."
+  remediation: "Hardcode the From address to a controlled domain address. Never allow users to set the From or Reply-To headers directly. If reply-to customization is required, validate the supplied address with DMARC alignment rules."
+  cwe: "CWE-346"
+  owasp: "A03:2021"
+  confidence: 0.75

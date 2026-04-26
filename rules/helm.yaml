@@ -1005,7 +1005,7 @@
   cwe: "CWE-400"
   owasp: "A04:2021"
   confidence: 0.8
-- id: helm-ingress-no-tls
+- id: helm-ingress-no-tls-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)kind:\s*Ingress'
@@ -1025,7 +1025,7 @@
   cwe: "CWE-284"
   owasp: "A01:2021"
   confidence: 0.8
-- id: helm-wildcard-resources
+- id: helm-wildcard-resources-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)resources:\s*\["\*"\]'
@@ -1035,7 +1035,7 @@
   cwe: "CWE-284"
   owasp: "A01:2021"
   confidence: 0.8
-- id: helm-wildcard-verbs
+- id: helm-wildcard-verbs-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)verbs:\s*\["\*"\]'
@@ -1075,7 +1075,7 @@
   cwe: "CWE-250"
   owasp: "A01:2021"
   confidence: 0.8
-- id: helm-allow-privilege-escalation
+- id: helm-allow-privilege-escalation-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)allowPrivilegeEscalation:\s*true'
@@ -1137,7 +1137,7 @@
   owasp: "A01:2021"
   confidence: 0.8
 
-- id: helm-seccomp-unconfined
+- id: helm-seccomp-unconfined-dup1
   languages: [yaml]
   patterns:
     - regex: '(?i)seccompProfile:[\s\S]*?type:\s*Unconfined'

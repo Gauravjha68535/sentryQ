@@ -1,0 +1,144 @@
+- id: container-privileged-mode
+  patterns:
+  - regex: 'privileged:\s*true'
+  severity: critical
+  description: "Container is running in privileged mode, giving it full access to the host kernel and all devices. This effectively gives the container root access to the host."
+  remediation: "Remove the privileged: true flag. Instead, grant only the specific Linux capabilities required using securityContext.capabilities.add. Use seccomp and AppArmor profiles to further restrict system calls."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.95
+
+- id: container-run-as-root
+  patterns:
+  - regex: 'runAsUser:\s*0'
+  severity: high
+  description: "Container is explicitly configured to run as root (UID 0). A container escape vulnerability combined with root privileges significantly increases the blast radius of a compromise."
+  remediation: "Set runAsUser to a non-zero UID and set runAsNonRoot: true in the securityContext. Ensure the container image supports running as a non-root user."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: container-host-pid
+  patterns:
+  - regex: 'hostPID:\s*true'
+  severity: critical
+  description: "Pod shares the host PID namespace. The container can see and signal all processes on the host, enabling process enumeration, ptrace attacks, and privilege escalation."
+  remediation: "Remove hostPID: true. Isolate containers in their own PID namespace (the default). Only system-level daemonsets should ever require host PID access."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.95
+
+- id: container-host-network
+  patterns:
+  - regex: 'hostNetwork:\s*true'
+  severity: high
+  description: "Pod uses the host network namespace. The container can bind to any port on the host and interact with host network interfaces, bypassing network policies and enabling lateral movement."
+  remediation: "Remove hostNetwork: true. Expose services via Kubernetes Service objects. Only infrastructure components (e.g., CNI plugins, monitoring agents) should use host networking."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.95
+
+- id: container-host-ipc
+  patterns:
+  - regex: 'hostIPC:\s*true'
+  severity: high
+  description: "Pod shares the host IPC namespace. Containers can access shared memory segments and semaphores belonging to host processes and other containers, enabling data leakage and privilege escalation."
+  remediation: "Remove hostIPC: true. Containers should use their own isolated IPC namespace unless there is an explicit and documented requirement for host IPC access."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.95
+
+- id: container-capability-add-all
+  patterns:
+  - regex: '(?i)add:\s*\[?\s*["'']?ALL["'']?\s*\]?'
+  severity: critical
+  description: "Container is granted ALL Linux capabilities. This is equivalent to privileged mode and allows the container to bypass virtually all kernel security restrictions."
+  remediation: "Remove ALL capabilities and grant only the specific capabilities the container actually requires (e.g., NET_BIND_SERVICE for binding to low ports). Use drop: [ALL] as a baseline and add back only what is needed."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: container-no-resource-limits
+  patterns:
+  - regex: '(?i)resources:\s*\{\}'
+  - regex: '(?i)resources:\s*$'
+  severity: medium
+  description: "Container has no resource limits defined. Without CPU and memory limits, a misbehaving or compromised container can exhaust node resources and cause a denial of service to other workloads."
+  remediation: "Define resources.limits.cpu and resources.limits.memory for all containers. Also set resources.requests to enable proper scheduling. Use LimitRange objects to enforce defaults cluster-wide."
+  cwe: "CWE-770"
+  owasp: "A05:2021"
+  confidence: 0.5
+
+- id: container-latest-image-tag
+  patterns:
+  - regex: 'image:\s*[^:@\s]+:latest'
+  - regex: 'image:\s*[^:@\s\n"'']+\s*$'
+  severity: medium
+  description: "Container image uses the 'latest' tag or no tag at all. The latest tag is mutable — deployments may inadvertently pull untested or malicious image versions, breaking reproducibility and introducing supply chain risk."
+  remediation: "Pin images to a specific immutable digest (image: myrepo/myimage@sha256:abc123...) or a specific version tag. Implement an image scanning and promotion workflow to control which versions reach production."
+  cwe: "CWE-1104"
+  owasp: "A06:2021"
+  confidence: 0.85
+
+- id: container-no-readonly-root
+  patterns:
+  - regex: 'readOnlyRootFilesystem:\s*false'
+  severity: medium
+  description: "The container's root filesystem is writable. A writable root filesystem allows an attacker who gains code execution to modify binaries, install tools, and establish persistence."
+  remediation: "Set readOnlyRootFilesystem: true in the container's securityContext. Mount specific directories that require write access as emptyDir or PVC volumes."
+  cwe: "CWE-732"
+  owasp: "A05:2021"
+  confidence: 0.85
+
+- id: container-allow-privilege-escalation
+  patterns:
+  - regex: 'allowPrivilegeEscalation:\s*true'
+  severity: high
+  description: "allowPrivilegeEscalation is enabled. A process inside the container can gain more privileges than its parent process, for example via setuid binaries or sudo, facilitating privilege escalation attacks."
+  remediation: "Set allowPrivilegeEscalation: false in the container's securityContext. This is safe for the vast majority of workloads. Combine with runAsNonRoot: true and drop ALL capabilities."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.9
+
+- id: container-secret-env-var
+  patterns:
+  - regex: '(?i)(?:name:\s*(?:PASSWORD|SECRET|KEY|TOKEN|API_KEY|PRIVATE_KEY|DB_PASS))'
+  - regex: '(?i)(?:PASSWORD|SECRET|KEY|TOKEN|API_KEY)\s*:\s*\n\s*value:\s*[A-Za-z0-9+/=_\-]{8,}'
+  severity: critical
+  description: "A sensitive credential or secret is stored as a plaintext environment variable in the pod spec. Environment variables in pod specs are stored unencrypted in etcd and visible to anyone with cluster read access."
+  remediation: "Use Kubernetes Secrets with valueFrom.secretKeyRef instead of hardcoded values. Enable etcd encryption at rest. Consider an external secrets operator (e.g., External Secrets Operator, Vault Agent Injector) for production workloads."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+  confidence: 0.8
+
+- id: container-docker-socket-mount
+  patterns:
+  - regex: '/var/run/docker\.sock'
+  severity: critical
+  description: "The Docker socket is mounted into the container. Access to the Docker socket is equivalent to root access on the host — any process in the container can create privileged containers and escape to the host."
+  remediation: "Do not mount the Docker socket unless absolutely unavoidable. Use purpose-built tools like kaniko or Buildah for in-cluster image builds. If CI/CD requires Docker access, use Docker-in-Docker with appropriate isolation."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.95
+
+- id: container-insecure-registry
+  patterns:
+  - regex: '(?i)insecure-registries'
+  - regex: '"insecure-registries"\s*:'
+  severity: high
+  description: "Docker daemon or registry configuration allows insecure (HTTP) registries. Images pulled from insecure registries can be tampered with in transit via a man-in-the-middle attack."
+  remediation: "Use HTTPS registries with valid TLS certificates. Remove all entries from insecure-registries. If using a private registry, provision a valid certificate from a trusted CA."
+  cwe: "CWE-494"
+  owasp: "A02:2021"
+  confidence: 0.9
+
+- id: container-seccomp-unconfined
+  patterns:
+  - regex: '(?i)seccomp\.security\.alpha\.kubernetes\.io/pod:\s*unconfined'
+  - regex: '(?i)seccompProfile:\s*\n\s*type:\s*Unconfined'
+  severity: high
+  description: "Seccomp profile is set to Unconfined. Without a seccomp profile, the container can make any system call to the kernel, greatly increasing the attack surface for kernel exploitation."
+  remediation: "Use the RuntimeDefault seccomp profile as a baseline (seccompProfile.type: RuntimeDefault). For sensitive workloads, define a custom Localhost seccomp profile that restricts syscalls to only those required."
+  cwe: "CWE-250"
+  owasp: "A05:2021"
+  confidence: 0.85

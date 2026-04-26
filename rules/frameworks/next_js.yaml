@@ -1112,7 +1112,7 @@
   cwe: "CWE-352"
   owasp: "A01:2021"
 
-- id: nextjs-csrf-disabled-protection
+- id: nextjs-csrf-disabled-protection-dup1
   languages: [javascript, typescript]
   patterns:
     - regex: 'disabled.*protection|disabled.*protection'
@@ -1122,7 +1122,7 @@
   cwe: "CWE-352"
   owasp: "A01:2021"
 
-- id: nextjs-csrf-protection-disabled
+- id: nextjs-csrf-protection-disabled-dup1
   languages: [javascript, typescript]
   patterns:
     - regex: 'protection.*disabled|protection.*disabled'
@@ -1162,7 +1162,7 @@
   cwe: "CWE-352"
   owasp: "A01:2021"
 
-- id: nextjs-csrf-no-protection
+- id: nextjs-csrf-no-protection-dup1
   languages: [javascript, typescript]
   patterns:
     - regex: 'no.*protection|no.*protection'
@@ -1393,7 +1393,7 @@
   cwe: "CWE-306"
   owasp: "A01:2021"
 
-- id: nextjs-api-authentication-missing
+- id: nextjs-api-authentication-missing-dup1
   languages: [javascript, typescript]
   patterns:
     - regex: 'authentication.*missing|authentication.*missing'

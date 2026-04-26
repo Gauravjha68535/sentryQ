@@ -289,19 +289,19 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 		}
 		req.Header.Set("Content-Type", "application/json")
 
-		client := &http.Client{
-			Timeout: 20 * time.Minute,
-		}
-		resp, err := client.Do(req)
+		// Reuse the package-level aiHTTPClient (connection pooling, tuned transport)
+		// instead of creating a throwaway client per batch. The per-request deadline
+		// is already enforced by judgeCtx above.
+		resp, err := aiHTTPClient.Do(req)
 		if err != nil {
 			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 				return nil, fmt.Errorf("judge evaluation interrupted")
 			}
 			return nil, fmt.Errorf("judge LLM request failed: %v", err)
 		}
-		defer resp.Body.Close()
 
 		fullText, readErr := readOllamaResponse(resp.Body)
+		resp.Body.Close() //nolint:errcheck
 		if readErr != nil {
 			return nil, fmt.Errorf("failed to read judge response: %v", readErr)
 		}

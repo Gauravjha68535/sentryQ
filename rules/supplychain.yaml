@@ -10,8 +10,6 @@
     - regex: |-
         (?i)"name":\s*"(@private|@internal|@company|@corp|@enterprise)
     - regex: |-
-# DUPLICATE REMOVED:         (?i)"name":\s*"(@[a-zA-Z0-9]+)-(common|shared|internal|utils|lib|core)
-    - regex: |-
         (?i)npm\s+install\s+@[a-zA-Z0-9]+-[a-zA-Z0-9]+\s+--save
   severity: critical
   description: "Potential dependency confusion - internal package name may be hijacked from public registry"
@@ -70,14 +68,10 @@
   languages: [javascript, typescript]
   patterns:
     - regex: |-
-        (?i)"(react|express|lodash|axios|request|moment|chalk|async|npm|yargs|dotenv|body-parser|mongoose)"[^a-zA-Z]
-    - regex: |-
-        (?i)"(webpack|babel|eslint|prettier|jest|mocha|ts-node|nodemon)"[^a-zA-Z]
-    - regex: |-
-        (?i)"(vue|angular|svelte|next|nuxt)"[^a-zA-Z]
+        (?i)"(reactt|reacct|reaact|expresss|exprss|lodasj|loadsh|axois|axio5|webpackk|web-pack|babbel|eslnt|eslnit|prettler|pretier|jesst|jset|mochaa|mocha5)"\s*:
   severity: high
-  description: "Potential typosquatting - verify package name is intentional (common targets for typosquatting)"
-  remediation: "Verify the package is the official one - check package download count, maintainer, and repository URL"
+  description: "Potential typosquatting — package name is a near-misspelling of a popular npm package."
+  remediation: "Verify the package is the official one — check npm download count, maintainer, and repository URL."
   cwe: "CWE-506"
   owasp: "A06:2021"
 
@@ -85,14 +79,10 @@
   languages: [python]
   patterns:
     - regex: |-
-        (?i)^(requests|numpy|pandas|flask|django|boto3|urllib3|pillow|yaml|jinja2)
-    - regex: |-
-        (?i)^(scipy|numpy|pandas|matplotlib|sklearn|tensorflow|keras|torch)
-    - regex: |-
-        (?i)^(beautifulsoup4|selenium|scrapy|psycopg2|mysqlclient|redis)
+        (?i)(requets|requetss|requrests|numppy|numby|pandass|pnadas|flaask|flaskk|djnago|dajngo|botto3|urlllib3|pillow3|pilllow|jnija2|jinja3)
   severity: high
-  description: "Potential typosquatting - verify Python package name is intentional"
-  remediation: "Verify package authenticity on PyPI - check download count, maintainer, and verify package source"
+  description: "Potential typosquatting — package name is a near-misspelling of a popular Python package."
+  remediation: "Verify package authenticity on PyPI — check download count, maintainer, and verify package source."
   cwe: "CWE-506"
   owasp: "A06:2021"
 
@@ -464,12 +454,14 @@
   languages: [javascript, typescript, python, ruby, php, java, go, csharp, dotnet]
   patterns:
     - regex: |-
-        (?i)(minimist|lodash|moment|node-fetch|axios|qs|handlebars|serialize-javascript|ssh2|tar)
+        (?i)"(minimist|qs|serialize-javascript|ssh2)"\s*:\s*"[~^]?[01]\.
     - regex: |-
-        (?i)(Pillow|numpy|requests|flask|django|pyyaml|jinja2|urllib3|boto3)
-  severity: high
-  description: "Package with known vulnerabilities in public CVE databases"
-  remediation: "Run npm audit, pip-audit, or similar tools regularly; update to latest patched versions"
+        (?i)"(node-fetch)"\s*:\s*"[~^]?[12]\.
+    - regex: |-
+        (?i)(pyyaml)\s*[=<>~!]+\s*[0-5]\.
+  severity: medium
+  description: "Dependency with historically vulnerable old version range detected — verify you are on a patched version."
+  remediation: "Run npm audit / pip-audit / bundler-audit regularly. Update to latest patched versions."
   cwe: "CWE-1104"
   owasp: "A06:2021"
 
@@ -497,8 +489,6 @@
   patterns:
     - regex: |-
         (?i)"[a-zA-Z0-9-]+"\s*:\s*"\*"
-    - regex: |-
-# DUPLICATE REMOVED:         (?i)"[a-zA-Z0-9-]+"\s*:\s*">=\s*0\.0\.0"
     - regex: |-
         (?i)[a-zA-Z0-9_-]+\s*>=\s*0
     - regex: |-

@@ -1800,7 +1800,7 @@
   owasp: "A05:2021"
   confidence: 0.8
 
-- id: cpp-auto-ptr
+- id: cpp-auto-ptr-dup1
   languages: [cpp]
   patterns:
     - regex: 'std::auto_ptr'

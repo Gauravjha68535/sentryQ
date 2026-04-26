@@ -739,7 +739,7 @@
   owasp: "A04:2021"
 
 # Format String
-- id: java-format-string
+- id: java-format-string-dup1
   languages: [java]
   patterns:
     - regex: 'String\.format\s*\(\s*request\.getParameter\s*\('
@@ -1299,7 +1299,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: java-jsp-scriptlet
+- id: java-jsp-scriptlet-dup1
   languages: [java]
   patterns:
     - regex: '<%[^@]'

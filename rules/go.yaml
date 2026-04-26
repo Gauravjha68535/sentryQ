@@ -2810,7 +2810,7 @@
 
 # ======================== COMMAND INJECTION (1-20) ========================
 
-- id: go-command-injection
+- id: go-command-injection-dup1
   languages: [go]
   patterns:
     - regex: '(?i)exec\.Command\s*\(\s*[\\"''](sh|bash|cmd)[\\"'']\s*,\s*[\\"''](-c|/c)[\\"'']\s*,'
@@ -2820,7 +2820,7 @@
   cwe: "CWE-78"
   owasp: "A03:2021"
 
-- id: go-command-injection-general
+- id: go-command-injection-general-dup1
   languages: [go]
   patterns:
     - regex: 'exec\.Command(?:Context)?\s*\(\s*[^,]+,\s*[^)]*\b(req|c|r|ctx|params)[^)]*\]'
@@ -3012,7 +3012,7 @@
 
 # ======================== SQL INJECTION (21-50) ========================
 
-- id: go-sqli-fmt-sprintf
+- id: go-sqli-fmt-sprintf-dup1
   languages: [go]
   patterns:
     - regex: '(?i)fmt\.Sprintf\(\s*[\\"''][^\\"'']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE).*?%s.*?[\\"'']'
@@ -3022,7 +3022,7 @@
   cwe: "CWE-89"
   owasp: "A03:2021"
 
-- id: go-sqli-concat
+- id: go-sqli-concat-dup1
   languages: [go]
   patterns:
     - regex: '(?i)[\\"''][^\\"'']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)[^\\"'']*[\\"'']\s*\+'
@@ -3032,7 +3032,7 @@
   cwe: "CWE-89"
   owasp: "A03:2021"
 
-- id: go-sqli-gorm
+- id: go-sqli-gorm-dup1
   languages: [go]
   patterns:
     - regex: '(?i)\.(Raw|Exec|Where|Order)\s*\(\s*fmt\.Sprintf'
@@ -3566,7 +3566,7 @@
   cwe: "CWE-693"
   owasp: "A05:2021"
 
-- id: go-http-client-no-timeout
+- id: go-http-client-no-timeout-dup1
   languages: [go]
   patterns:
     - regex: 'http\.Client\s*{\s*}'
@@ -4372,7 +4372,7 @@
 
 # ======================== CRYPTOGRAPHY (151-170) ========================
 
-- id: go-crypto-md5-usage
+- id: go-crypto-md5-usage-dup1
   languages: [go]
   patterns:
     - regex: 'crypto/md5|md5\.(New|Sum)'
@@ -4382,7 +4382,7 @@
   cwe: "CWE-327"
   owasp: "A02:2021"
 
-- id: go-crypto-sha1-usage
+- id: go-crypto-sha1-usage-dup1
   languages: [go]
   patterns:
     - regex: 'crypto/sha1|sha1\.(New|Sum)'
@@ -4392,7 +4392,7 @@
   cwe: "CWE-327"
   owasp: "A02:2021"
 
-- id: go-crypto-rc4-usage
+- id: go-crypto-rc4-usage-dup1
   languages: [go]
   patterns:
     - regex: 'crypto/rc4|rc4\.NewCipher'
@@ -4402,7 +4402,7 @@
   cwe: "CWE-327"
   owasp: "A02:2021"
 
-- id: go-crypto-des-usage
+- id: go-crypto-des-usage-dup1
   languages: [go]
   patterns:
     - regex: 'crypto/des|des\.New(?:TripleDES)?Cipher'

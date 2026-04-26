@@ -1,6 +1,9 @@
 package scanner
 
-import "testing"
+import (
+	"SentryQ/utils"
+	"testing"
+)
 
 func TestIsTestFile(t *testing.T) {
 	tests := []struct {
@@ -32,7 +35,7 @@ func TestIsTestFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := IsTestFile(tt.path)
+			result := utils.IsTestFile(tt.path)
 			if result != tt.expected {
 				t.Errorf("IsTestFile(%q) = %v, want %v", tt.path, result, tt.expected)
 			}

@@ -1,0 +1,203 @@
+- id: orm-django-raw-query
+  languages: [python]
+  patterns:
+  - regex: '(?i)\.raw\s*\(\s*f["'']'
+  - regex: '(?i)\.raw\s*\(\s*[^)]*%s'
+  - regex: '(?i)\.raw\s*\(\s*[^)]*\+'
+  - regex: '(?i)\.raw\s*\(\s*[^)]*\.format\s*\('
+  severity: critical
+  description: "Django ORM .raw() is called with a dynamically constructed query string. String formatting or concatenation in raw SQL enables SQL injection."
+  remediation: "Pass user input as parameters to .raw(): Model.objects.raw('SELECT * FROM t WHERE col=%s', [user_input]). Never use f-strings, % formatting, or string concatenation to embed values in raw SQL."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: orm-sqlalchemy-text-injection
+  languages: [python]
+  patterns:
+  - regex: '(?i)db\.execute\s*\(\s*f["'']'
+  - regex: '(?i)session\.execute\s*\(\s*text\s*\(\s*f["'']'
+  - regex: '(?i)engine\.execute\s*\(\s*f["'']'
+  - regex: '(?i)connection\.execute\s*\(\s*f["'']'
+  severity: critical
+  description: "SQLAlchemy execute() is called with an f-string SQL statement. User-controlled values interpolated via f-strings bypass parameterization, enabling SQL injection."
+  remediation: "Use SQLAlchemy's text() with bound parameters: db.execute(text('SELECT * FROM t WHERE col=:val'), {'val': user_input}). Never use f-strings or string concatenation to construct SQL passed to execute()."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: orm-sqlalchemy-raw-query
+  languages: [python]
+  patterns:
+  - regex: '(?i)db\.session\.execute\s*\(\s*["'']\s*SELECT'
+  - regex: '(?i)engine\.execute\s*\(\s*[^)]*%\s*'
+  - regex: '(?i)session\.execute\s*\(\s*["''][^"'']*["'']\s*%'
+  severity: high
+  description: "SQLAlchemy session.execute() is called with a raw SELECT string or with %-style string formatting. This pattern is prone to SQL injection if any part of the query is user-controlled."
+  remediation: "Use the SQLAlchemy ORM query interface or construct text() queries with named bind parameters. Avoid passing raw SQL strings to execute() directly."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: orm-active-record-string-injection
+  languages: [ruby]
+  patterns:
+  - regex: '(?i)\.where\s*\(\s*["''][^"'']*#\{'
+  - regex: '(?i)\.where\s*\(\s*["''][^"'']*%s'
+  - regex: '(?i)\.where\s*\(\s*["''][^"'']*"\s*\+'
+  - regex: '(?i)\.find_by_sql\s*\(\s*["''][^"'']*#\{'
+  severity: critical
+  description: "ActiveRecord .where() or .find_by_sql() is called with string interpolation (#{}). This directly injects user input into the SQL query, enabling SQL injection."
+  remediation: "Use ActiveRecord parameterized queries: Model.where('col = ?', user_input) or Model.where(col: user_input). Never use string interpolation inside SQL fragments passed to where()."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: orm-hibernate-native-query
+  languages: [java]
+  patterns:
+  - regex: '(?i)createNativeQuery\s*\(\s*[^)]*\+'
+  - regex: '(?i)createQuery\s*\(\s*["''][^"'']*["'']\s*\+'
+  - regex: '(?i)createNativeQuery\s*\(\s*["''][^"'']*["'']\s*\+'
+  - regex: '(?i)entityManager\.createQuery\s*\(\s*[^)]*\+'
+  severity: high
+  description: "Hibernate createNativeQuery() or createQuery() is called with string concatenation. Concatenating user input into HQL/SQL queries enables SQL or HQL injection."
+  remediation: "Use named or positional parameters: session.createQuery(\"FROM Entity WHERE col = :val\").setParameter(\"val\", userInput). Never concatenate user input into query strings."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: orm-sequelize-raw-query
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)sequelize\.query\s*\(\s*`[^`]*\$\{'
+  - regex: '(?i)sequelize\.query\s*\(\s*[^,)]*\+'
+  - regex: '(?i)sequelize\.query\s*\(\s*["''][^"'']*["'']\s*\+'
+  severity: critical
+  description: "Sequelize.query() is called with template literal interpolation or string concatenation. User input embedded in the query string enables SQL injection."
+  remediation: "Use Sequelize's replacements or bind parameters: sequelize.query('SELECT * FROM t WHERE col = ?', { replacements: [userInput] }). Prefer the Sequelize model API (Model.findAll({ where: { col: userInput } })) over raw queries."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: orm-mongoose-query-injection
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)\.find\s*\(\s*req\.'
+  - regex: '(?i)\.findOne\s*\(\s*req\.'
+  - regex: '(?i)\.findById\s*\(\s*req\.'
+  - regex: '(?i)\.updateOne\s*\(\s*req\.'
+  - regex: '(?i)\.deleteOne\s*\(\s*req\.'
+  severity: high
+  description: "Mongoose query method receives req.body or req.params directly as the query filter. An attacker can inject MongoDB query operators (e.g., {$gt: ''}) to manipulate query logic and bypass authentication or access unauthorized records."
+  remediation: "Sanitize and validate request data before using it in queries. Use mongoose-sanitize or express-mongo-sanitize middleware. Explicitly pick and type-check expected fields instead of passing req.body directly."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: orm-gorm-raw-query
+  languages: [go]
+  patterns:
+  - regex: '(?i)db\.Raw\s*\(\s*fmt\.Sprintf'
+  - regex: '(?i)db\.Exec\s*\(\s*fmt\.Sprintf'
+  - regex: '(?i)db\.Raw\s*\(\s*[^,)]*\+'
+  - regex: '(?i)db\.Exec\s*\(\s*[^,)]*\+'
+  severity: critical
+  description: "GORM db.Raw() or db.Exec() is called with fmt.Sprintf or string concatenation to construct the query. This allows SQL injection if any part of the format string is user-controlled."
+  remediation: "Use GORM's positional parameters: db.Raw(\"SELECT * FROM t WHERE col = ?\", userInput). Never use fmt.Sprintf or string concatenation to build SQL queries passed to GORM."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.9
+
+- id: orm-prisma-raw-query
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)prisma\.\$queryRaw\s*\('
+  - regex: '(?i)prisma\.\$executeRaw\s*\('
+  - regex: '(?i)prisma\.\$queryRawUnsafe\s*\('
+  - regex: '(?i)prisma\.\$executeRawUnsafe\s*\('
+  severity: critical
+  description: "Prisma $queryRaw, $executeRaw, or the Unsafe variants are used. Template literal interpolation in these calls or use of the Unsafe variants bypasses Prisma's parameterization and enables SQL injection."
+  remediation: "Use Prisma's tagged template literal syntax for $queryRaw: prisma.$queryRaw`SELECT * FROM t WHERE col = ${userInput}`. This ensures parameterization. Avoid $queryRawUnsafe and $executeRawUnsafe entirely."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: orm-n-plus-one-query
+  patterns:
+  - regex: '(?i)for\s*\([^)]*\)\s*\{[^}]*\.(findOne|findById|where|fetch|load|get)\s*\('
+  - regex: '(?i)\.forEach\s*\([^)]*=>[^}]*\.(findOne|findById|find|fetch)\s*\('
+  - regex: '(?i)\.map\s*\([^)]*=>[^}]*\.(findOne|findById|find|fetch)\s*\('
+  severity: low
+  description: "Potential N+1 query: a database lookup is called inside a loop. Each iteration issues a separate query, causing N database round trips for N items, leading to severe performance degradation under load."
+  remediation: "Use eager loading (includes, joins, preload) to fetch related data in bulk before the loop. Alternatively, collect IDs in the loop and use a single IN query or bulk lookup after the loop."
+  cwe: "CWE-400"
+  owasp: "A05:2021"
+  confidence: 0.55
+
+- id: orm-exposed-connection-string
+  patterns:
+  - regex: '(?i)(?:postgresql|postgres|mysql|mongodb|mssql|sqlserver|redis|amqp|rabbitmq)://[^@\s]{3,}:[^@\s]{3,}@'
+  severity: critical
+  description: "A database or message broker connection string containing credentials is hardcoded in source code. Credentials embedded in code are exposed to anyone with repository access and in build artifacts."
+  remediation: "Remove connection strings from source code immediately. Store them in environment variables or a secrets manager (e.g., HashiCorp Vault, AWS Secrets Manager). Reference them via environment variables at runtime. Rotate the exposed credentials."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+  confidence: 0.9
+
+- id: orm-entity-mass-assignment
+  patterns:
+  - regex: '(?i)\.save\s*\(\s*(?:request\.data|req\.body|params\.permit!|request\.params)'
+  - regex: '(?i)Model\.create\s*\(\s*req\.body'
+  - regex: '(?i)Model\.create\s*\(\s*request\.data'
+  - regex: '(?i)\.update_attributes\s*\(\s*params\b'
+  severity: high
+  description: "ORM save() or create() receives an entire request body or params hash without explicit field filtering. An attacker can include unexpected fields (e.g., admin=true, role=admin) to modify protected attributes."
+  remediation: "Explicitly allowlist the fields that users are permitted to set. In Rails, use strong parameters (params.require(:model).permit(:field1, :field2)). In other ORMs, construct the model object by explicitly mapping only permitted fields from the request."
+  cwe: "CWE-915"
+  owasp: "A03:2021"
+  confidence: 0.8
+
+- id: orm-express-mass-assignment
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)(?:Model|User|Account)\.(?:create|update|build)\s*\(\s*\{\s*\.\.\.req\.(?:body|query|params)\s*\}'
+  severity: high
+  description: "Explicit object spreading of req.body directly into an ORM create/update method. This forces mass-assignment, exposing restricted fields (like is_admin or role)."
+  remediation: "Avoid object spread operators on request bodies when passing data to the database. Explicitly destructure allowed fields: const { name, email } = req.body; User.create({ name, email });"
+  cwe: "CWE-915"
+  owasp: "A03:2021"
+  confidence: 0.90
+
+- id: orm-django-mass-assignment
+  languages: [python]
+  patterns:
+  - regex: '(?i)(?:Model|User|Account)\.objects\.(?:create|update)\s*\(\s*\*\*req(?:uest)?\.(?:POST|GET|data)'
+  severity: high
+  description: "Expanding a Django request.POST directly into ORM operations. This allows mass assignment where attackers can overwrite internal model constants."
+  remediation: "Use Django ModelForms to properly filter and validate incoming data rather than expanding the raw POST dictionary into the database interface."
+  cwe: "CWE-915"
+  owasp: "A03:2021"
+  confidence: 0.85
+
+- id: orm-hibernate-hql-injection
+  languages: [java]
+  patterns:
+  - regex: '(?i)\.createQuery\s*\(\s*["''].*["'']\s*\+\s*[^)]*\)'
+  severity: critical
+  description: "String concatenation inside a Hibernate createQuery() call. HQL/JPQL is highly susceptible to injection if parameters aren't explicitly bound."
+  remediation: "Use named or positional parameters natively supported by the JPA specification instead of string concatenation."
+  cwe: "CWE-89"
+  owasp: "A03:2021"
+  confidence: 0.90
+
+- id: orm-nosql-where-injection
+  languages: [javascript, typescript]
+  patterns:
+  - regex: '(?i)find\s*\(\s*\{\s*\$where\s*:\s*(?:req\.|request\.)'
+  severity: critical
+  description: "MongoDB $where clause takes an evaluated JavaScript string. Passing unsanitized user inputs here allows complete NoSQL Injection and Server-Side JavaScript Execution."
+  remediation: "Never use $where with user input. Instead, use native MongoDB operator expressions like $eq, $gt, and strict type casting."
+  cwe: "CWE-943"
+  owasp: "A03:2021"
+  confidence: 0.95

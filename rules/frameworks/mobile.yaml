@@ -1,26 +1,340 @@
+# Mobile Security Rules (Android, iOS, Flutter, React Native)
+# Real rules only — no auto-generated junk
+
+# ─── React Native ─────────────────────────────────────────────────────────────
+
 - id: react-native-async-storage-sensitive
-  languages: [javascript, typescript, jsx, tsx]
+  languages: [javascript, typescript]
   patterns:
     - regex: 'AsyncStorage\.setItem\s*\(\s*[''"][^'']*(?:password|token|secret|key)'
   severity: high
-  description: "Storing sensitive data in AsyncStorage (unencrypted)"
-  remediation: "Use react-native-keychain or react-native-encrypted-storage instead."
+  description: "Sensitive data stored in AsyncStorage which is unencrypted and accessible on rooted/jailbroken devices"
+  remediation: "Use react-native-keychain or react-native-encrypted-storage for sensitive values."
   cwe: "CWE-312"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.9
 
 - id: react-native-sensitive-info-leak
-  languages: [javascript, typescript, jsx, tsx]
+  languages: [javascript, typescript]
   patterns:
     - regex: 'console\.(log|debug|info|warn)\s*\(\s*.*(?:password|token|secret|key|credential)'
   severity: high
-  description: "Sensitive data leaked to React Native logs"
-  remediation: "Remove sensitive logs before production builds."
+  description: "Sensitive data logged to React Native console — logs may be captured in production crash reporters"
+  remediation: "Remove sensitive data from all log statements before shipping to production."
   cwe: "CWE-532"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+  confidence: 0.85
 
 - id: react-native-insecure-webview
-  languages: [javascript, typescript, jsx, tsx]
+  languages: [javascript, typescript]
   patterns:
     - regex: '<WebView[^>]*javaScriptEnabled\s*=\s*\{\s*true\s*\}'
   severity: medium
-  description: "React Native WebView with JS enabled"
-  remediation: "Ensure the content source is trusted."
+  description: "React Native WebView with JavaScript enabled — ensure content source is trusted to prevent XSS"
+  remediation: "Only load trusted URLs. Disable JS if not needed. Use originWhitelist and onShouldStartLoadWithRequest."
   cwe: "CWE-79"
+  owasp: "A03:2021-Injection"
+  confidence: 0.75
+
+# ─── Android (Java / Kotlin) ──────────────────────────────────────────────────
+
+- id: mobile-android-webview-js
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'setJavaScriptEnabled\s*\(\s*true\s*\)'
+  severity: high
+  description: "Android WebView has JavaScript enabled — if arbitrary URLs can be loaded, this enables XSS and interface abuse"
+  remediation: "Disable JavaScript if not required. If required, restrict loaded URLs to a trusted allowlist using shouldOverrideUrlLoading."
+  cwe: "CWE-749"
+  owasp: "A03:2021-Injection"
+  confidence: 0.85
+
+- id: mobile-android-webview-file-access
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'setAllowFileAccess\s*\(\s*true\s*\)'
+  severity: high
+  description: "Android WebView file access enabled — allows WebView to read local filesystem files"
+  remediation: "Set setAllowFileAccess(false) and setAllowContentAccess(false) unless specifically required."
+  cwe: "CWE-200"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.9
+
+- id: mobile-android-clear-text-traffic
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'android:usesCleartextTraffic\s*=\s*[''"]true[''"]'
+  severity: high
+  description: "Android app permits cleartext (HTTP) network traffic — sensitive data may be transmitted unencrypted"
+  remediation: "Set android:usesCleartextTraffic=\"false\" in the manifest and use HTTPS for all endpoints."
+  cwe: "CWE-319"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.95
+
+- id: mobile-android-debug-enabled
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'android:debuggable\s*=\s*[''"]true[''"]'
+  severity: high
+  description: "Android app has debuggable=true in manifest — enables ADB debugging and memory inspection on production builds"
+  remediation: "Remove android:debuggable=\"true\" from the manifest. Gradle sets this automatically for debug builds."
+  cwe: "CWE-94"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.95
+
+- id: mobile-android-exported-activity
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'android:exported\s*=\s*[''"]true[''"]'
+  severity: medium
+  description: "Android component exported — accessible to other applications; verify it requires appropriate permissions"
+  remediation: "If export is not needed, set android:exported=\"false\". If export is required, add android:permission to restrict access."
+  cwe: "CWE-926"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.7
+
+- id: mobile-android-world-readable
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'MODE_WORLD_READABLE|MODE_WORLD_WRITEABLE'
+  severity: critical
+  description: "File created with world-readable or world-writable mode — any app on the device can read or modify it"
+  remediation: "Use MODE_PRIVATE for file creation. Share data between apps via ContentProvider with proper permissions."
+  cwe: "CWE-732"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.98
+
+- id: mobile-android-implicit-intent
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'startActivity\s*\(\s*new\s+Intent\s*\(\s*\)'
+  severity: medium
+  description: "Implicit Intent with no explicit component — any app can intercept this intent (intent hijacking)"
+  remediation: "Use explicit Intents by specifying the target component class: new Intent(this, TargetActivity.class)."
+  cwe: "CWE-927"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.8
+
+- id: mobile-android-insecure-random
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'new\s+Random\s*\(\s*\)'
+  severity: medium
+  description: "java.util.Random used — cryptographically insecure, predictable output unsuitable for security tokens"
+  remediation: "Use java.security.SecureRandom for any security-sensitive randomness."
+  cwe: "CWE-338"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.75
+
+- id: mobile-android-hardcoded-key
+  languages: [java, kotlin]
+  patterns:
+    - regex: '(?i)(api_key|secret|password|token)\s*=\s*[''"][A-Za-z0-9+/=_-]{12,}[''"]'
+  severity: critical
+  description: "Hardcoded API key, secret, or credential detected in Android source code"
+  remediation: "Store secrets server-side or in the Android Keystore. Never embed credentials in source code or APK resources."
+  cwe: "CWE-798"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: mobile-android-log-sensitive
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'Log\.(d|i|e|w|v)\s*\([^)]*(?:password|token|secret|key|ssn)'
+  severity: medium
+  description: "Sensitive data written to Android logcat — accessible to other apps with READ_LOGS permission on older Android"
+  remediation: "Remove sensitive values from all Log statements. Use ProGuard rules to strip debug logs in release builds."
+  cwe: "CWE-532"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+  confidence: 0.88
+
+- id: mobile-android-webview-addjavascriptinterface
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'addJavascriptInterface\s*\('
+  severity: high
+  description: "addJavascriptInterface exposes Java objects to JavaScript — can enable RCE on Android < 4.2 and may be abused in loaded pages"
+  remediation: "Restrict URLs loaded in the WebView. Use @JavascriptInterface annotation and validate all calls from JS."
+  cwe: "CWE-749"
+  owasp: "A03:2021-Injection"
+  confidence: 0.9
+
+- id: mobile-android-sql-injection
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'rawQuery\s*\(\s*[''"][^''"]*(SELECT|INSERT|UPDATE|DELETE)'
+  severity: high
+  description: "SQLite rawQuery with a raw SQL string — may be vulnerable to SQL injection if user data is concatenated"
+  remediation: "Use parameterized rawQuery with selectionArgs, or use the query()/insert()/update() helper methods."
+  cwe: "CWE-89"
+  owasp: "A03:2021-Injection"
+  confidence: 0.75
+
+- id: mobile-android-external-storage
+  languages: [java, kotlin]
+  patterns:
+    - regex: 'getExternalStorageDirectory\s*\(\s*\)|getExternalFilesDir\s*\('
+  severity: medium
+  description: "Data written to external storage — accessible to any app with READ_EXTERNAL_STORAGE permission"
+  remediation: "Store sensitive data in internal storage (getFilesDir) with MODE_PRIVATE, not on external storage."
+  cwe: "CWE-312"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+# ─── iOS (Swift / Objective-C) ────────────────────────────────────────────────
+
+- id: mobile-ios-ats-disabled
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'NSAllowsArbitraryLoads.*true|NSAllowsArbitraryLoadsInWebContent.*true'
+  severity: high
+  description: "iOS App Transport Security (ATS) disabled — app can make unencrypted HTTP connections"
+  remediation: "Remove NSAllowsArbitraryLoads from Info.plist. Migrate all endpoints to HTTPS."
+  cwe: "CWE-319"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.9
+
+- id: mobile-ios-keychain-accessible-always
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'kSecAttrAccessibleAlways[^W]'
+  severity: high
+  description: "Keychain item set to kSecAttrAccessibleAlways — data is readable even when device is locked"
+  remediation: "Use kSecAttrAccessibleWhenUnlockedThisDeviceOnly or kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly."
+  cwe: "CWE-311"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.92
+
+- id: mobile-ios-uiwebview
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'UIWebView'
+  severity: medium
+  description: "UIWebView is deprecated since iOS 12 and has known security vulnerabilities — migrate to WKWebView"
+  remediation: "Replace UIWebView with WKWebView which provides a sandboxed process and better security controls."
+  cwe: "CWE-749"
+  owasp: "A06:2021-Vulnerable and Outdated Components"
+  confidence: 0.9
+
+- id: mobile-ios-hardcoded-secret
+  languages: [swift, objective-c]
+  patterns:
+    - regex: '(?i)let\s+(apiKey|token|password|secret)\s*=\s*"[^"]{8,}"'
+  severity: critical
+  description: "Hardcoded secret or API key in Swift source — visible in compiled binary via strings analysis"
+  remediation: "Store secrets in the iOS Keychain, fetched at runtime from a secure backend, or using obfuscation at minimum."
+  cwe: "CWE-798"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: mobile-ios-log-sensitive
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'NSLog\s*\(@[^)]*(?:password|token|secret|key)'
+  severity: medium
+  description: "Sensitive data written to NSLog — accessible in device console and crash logs"
+  remediation: "Remove sensitive values from NSLog calls. Use os_log with private data qualifiers in debug builds only."
+  cwe: "CWE-532"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+  confidence: 0.88
+
+- id: mobile-ios-insecure-random
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'arc4random\(\)|rand\(\)|random\(\)'
+  severity: medium
+  description: "Cryptographically weak random number function used — output is predictable for security purposes"
+  remediation: "Use SecRandomCopyBytes() or Swift's SystemRandomNumberGenerator for cryptographic randomness."
+  cwe: "CWE-338"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: mobile-ios-tls-skip-verify
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'didReceiveAuthenticationChallenge.*completionHandler\s*\(\s*\.useCredential'
+  severity: high
+  description: "SSL/TLS certificate challenge accepted unconditionally — vulnerable to man-in-the-middle attacks"
+  remediation: "Validate the server certificate against expected CAs. Implement certificate pinning using TrustKit or Network.framework."
+  cwe: "CWE-295"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.8
+
+- id: mobile-ios-swift-log-sensitive
+  languages: [swift]
+  patterns:
+    - regex: 'print\s*\([^)]*(?:password|token|secret|apiKey|credential)'
+  severity: medium
+  description: "Sensitive data printed via Swift print() — visible in Xcode console and device logs"
+  remediation: "Remove sensitive data from print statements. Wrap debug logging in #if DEBUG blocks."
+  cwe: "CWE-532"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+  confidence: 0.85
+
+- id: mobile-ios-realm-unencrypted
+  languages: [swift, objective-c]
+  patterns:
+    - regex: 'Realm\s*\(\s*\)|try\s*Realm\s*\(\s*\)'
+  severity: medium
+  description: "Realm database opened without encryption configuration — all data stored in plaintext on disk"
+  remediation: "Configure Realm with an encryption key: Realm.Configuration(encryptionKey: key). Store the key in the Keychain."
+  cwe: "CWE-312"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.7
+
+# ─── Flutter (Dart) ───────────────────────────────────────────────────────────
+
+- id: mobile-flutter-cleartext
+  languages: [dart]
+  patterns:
+    - regex: '(?i)http://[a-zA-Z0-9]'
+  severity: medium
+  description: "Cleartext HTTP URL in Flutter app — data transmitted without encryption"
+  remediation: "Replace http:// URLs with https://. For local development, use Android Network Security Config or iOS ATS exceptions."
+  cwe: "CWE-319"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.75
+
+- id: mobile-flutter-debug-mode
+  languages: [dart]
+  patterns:
+    - regex: 'kDebugMode\s*\?'
+  severity: low
+  description: "Flutter code branches on kDebugMode — verify security-sensitive code paths are not exposed in debug builds"
+  remediation: "Ensure debug-only code branches do not disable security controls like certificate validation or authentication."
+  cwe: "CWE-94"
+  owasp: "A05:2021-Security Misconfiguration"
+  confidence: 0.4
+
+- id: mobile-flutter-shared-prefs-sensitive
+  languages: [dart]
+  patterns:
+    - regex: 'SharedPreferences.*(?:setString|setInt).*(?:password|token|key|secret)'
+  severity: high
+  description: "Sensitive value stored in SharedPreferences (Flutter) — unencrypted, accessible on rooted devices"
+  remediation: "Use flutter_secure_storage which wraps Keychain (iOS) and EncryptedSharedPreferences (Android)."
+  cwe: "CWE-312"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.88
+
+- id: mobile-flutter-http-no-verify
+  languages: [dart]
+  patterns:
+    - regex: 'badCertificateCallback\s*:\s*\([^)]*\)\s*=>\s*true'
+  severity: critical
+  description: "Flutter HTTP client configured to accept all certificates including invalid/self-signed — MITM vulnerable"
+  remediation: "Remove the badCertificateCallback override. Use proper certificate pinning with a custom SecurityContext."
+  cwe: "CWE-295"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.97
+
+- id: mobile-flutter-hardcoded-secret
+  languages: [dart]
+  patterns:
+    - regex: '(?i)(?:apiKey|secretKey|token|password)\s*=\s*[''"][A-Za-z0-9+/=_-]{12,}[''"]'
+  severity: critical
+  description: "Hardcoded secret or API key in Flutter Dart source — extractable from compiled app binary"
+  remediation: "Fetch secrets from a secure backend at runtime. Use flutter_dotenv with secrets excluded from version control."
+  cwe: "CWE-798"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85

@@ -1,0 +1,155 @@
+# Auto-generated SentryQ Security Rules
+
+- id: oauth-state-missing
+  name: "OAuth State Parameter Missing"
+  description: "Missing state parameter in OAuth flow can lead to CSRF."
+  severity: "high"
+  patterns:
+    - regex: 'https://.*oauth.*response_type=code'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-352"
+  owasp: "A01:2021-Broken Access Control"
+
+- id: oauth-missing-pkce
+  name: "OAuth Authorization Code Without PKCE"
+  description: "OAuth authorization code flow initiated without a code_challenge parameter. Without PKCE, the authorization code can be intercepted and exchanged by an attacker."
+  severity: "high"
+  patterns:
+    - regex: '(?i)response_type=code'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-287"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.4
+
+- id: oauth-implicit-flow
+  name: "OAuth Implicit Flow"
+  description: "OAuth implicit flow is deprecated per RFC 9700 — use authorization code flow with PKCE instead. Implicit flow exposes access tokens in URL fragments, visible in browser history and server logs."
+  severity: "high"
+  patterns:
+    - regex: '(?i)response_type\s*=\s*(?:token|id_token)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-287"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.75
+
+- id: oauth-no-audience-validation
+  name: "JWT Audience Validation Disabled"
+  description: "JWT decoded with audience verification disabled (verify_aud=False). This allows tokens issued for other services to be accepted, enabling cross-service token replay attacks."
+  severity: "critical"
+  languages: [python]
+  patterns:
+    - regex: '(?i)jwt\.decode\s*\([^)]*options\s*=\s*\{[^}]*["'']verify_aud["'']\s*:\s*False'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-287"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.9
+
+- id: oauth-client-secret-in-url
+  name: "OAuth Client Secret in URL"
+  description: "OAuth client_secret detected in a URL parameter. Client secrets in URLs are logged in server access logs, browser history, and proxy caches."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)client_secret=[A-Za-z0-9\-_]{10,}'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-522"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.85
+
+- id: oauth-refresh-token-log
+  name: "OAuth Token Written to Log"
+  description: "OAuth access or refresh token passed to a logging or print statement. Tokens in logs can be harvested to impersonate users or access APIs."
+  severity: "high"
+  patterns:
+    - regex: '(?i)(?:log|print|console\.log)\s*\([^)]*(?:refresh_token|access_token)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-532"
+  owasp: "A09:2021-Security Logging and Monitoring Failures"
+  confidence: 0.75
+
+- id: oauth-token-in-query-param
+  name: "OAuth Token Passed as URL Query Parameter"
+  description: "OAuth access token passed as a URL query parameter. Query parameters are recorded in server access logs, browser history, and referrer headers."
+  severity: "high"
+  patterns:
+    - regex: '(?i)\?(?:access_token|token)=[A-Za-z0-9\-_.]{10,}'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-598"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.82
+
+- id: oauth-no-token-expiry
+  name: "OAuth Token With Excessive or No Expiry"
+  description: "OAuth token expiry set to zero (never expires) or an extremely large value. Tokens should expire within a short window (e.g., 3600 seconds) to limit the damage from token leakage."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)expires_in\s*:\s*(?:0|9999999|315360000)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-613"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.75
+
+- id: oauth-open-redirect-callback
+  name: "OAuth Redirect URI From User Input"
+  description: "OAuth redirect_uri constructed from user-supplied request data. Attackers can redirect the authorization code or access token to an attacker-controlled server."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)redirect_uri\s*=\s*(?:req\.|request\.|params\.)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-601"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.85
+
+- id: oidc-no-nonce-check
+  name: "OIDC ID Token Decoded Without Nonce Verification"
+  description: "OIDC ID token decoded without verifying the nonce claim. Missing nonce validation allows replay of previously captured ID tokens."
+  severity: "high"
+  patterns:
+    - regex: '(?i)decode.*id_token'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-287"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.4
+
+- id: oauth-insufficient-scope-check
+  name: "OAuth Wildcard Scope Requested"
+  description: "OAuth scope set to wildcard (*). Applications should request only the minimum scopes needed for their operation (principle of least privilege)."
+  severity: "high"
+  patterns:
+    - regex: '(?i)scope\s*=\s*["'']?\*["'']?|scopes\s*:\s*["'']\*["'']'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-269"
+  owasp: "A01:2021-Broken Access Control"
+  confidence: 0.8
+
+- id: oauth-pkce-weak-verifier
+  name: "PKCE Code Verifier Using Weak Randomness"
+  description: "PKCE code_verifier generated using non-cryptographic randomness (Math.random, Python random, uuid4). The code verifier must be generated using a CSPRNG with at least 256 bits of entropy."
+  severity: "high"
+  patterns:
+    - regex: '(?i)code_verifier\s*=\s*(?:str\s*\(\s*random|Math\.random|uuid4\(\))'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-338"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.82
+
+- id: oauth-authorization-code-no-expiry
+  name: "OAuth Authorization Code With Long Expiry"
+  description: "OAuth authorization code configured with a very long or zero expiry. Authorization codes should expire within 60–600 seconds to limit interception window."
+  severity: "medium"
+  patterns:
+    - regex: '(?i)authorization_code.*expires_in\s*:\s*(?:[1-9][0-9]{4,}|0)'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-613"
+  owasp: "A07:2021-Identification and Authentication Failures"
+  confidence: 0.7
+
+- id: oauth-jwt-algorithm-none
+  name: "JWT 'none' Algorithm Accepted"
+  description: "JWT library configured to accept the 'none' algorithm, which means the signature is not verified. Attackers can forge arbitrary tokens by setting alg=none."
+  severity: "critical"
+  patterns:
+    - regex: '(?i)algorithms\s*=\s*\[[^]]*["'']none["'']'
+  remediation: "Review and fix this security vulnerability by following established secure coding guidelines to prevent exploitation."
+  cwe: "CWE-347"
+  owasp: "A02:2021-Cryptographic Failures"
+  confidence: 0.92

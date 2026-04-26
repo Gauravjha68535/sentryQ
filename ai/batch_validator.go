@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"SentryQ/reporter"
+	"SentryQ/utils"
 
 	"github.com/fatih/color"
 )
@@ -259,17 +260,29 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 
 	// Re-assemble results in original order (safeguarding against missing results)
 	orderedFindings := make([]reporter.Finding, len(findings))
+	resultCount := 0
 	for res := range results {
 		orderedFindings[res.index] = res.finding
+		resultCount++
+	}
+
+	if resultCount < len(findings) {
+		utils.LogWarn(fmt.Sprintf("AI validation: expected %d results but received %d — some findings may have been dropped", len(findings), resultCount))
 	}
 
 	var finalFindings []reporter.Finding
+	droppedCount := 0
 	for _, f := range orderedFindings {
 		// Only append findings that were actually populated (not empty default structs)
 		// We use FilePath as a decent indicator that this finding wasn't completely dropped
 		if f.FilePath != "" {
 			finalFindings = append(finalFindings, f)
+		} else {
+			droppedCount++
 		}
+	}
+	if droppedCount > 0 {
+		utils.LogWarn(fmt.Sprintf("AI validation: %d findings had empty results and were excluded from output", droppedCount))
 	}
 
 	// Summary
