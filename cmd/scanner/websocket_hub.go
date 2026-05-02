@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
+
 	"sync"
 	"time"
 
@@ -83,16 +83,8 @@ var (
 		// "localhostevil.com" or "127.0.0.1.attacker.com" cannot slip through a
 		// naive HasPrefix check.
 		CheckOrigin: func(r *http.Request) bool {
-			origin := r.Header.Get("Origin")
-			if origin == "" {
-				return true // same-origin / direct connection (no Origin header)
-			}
-			u, err := url.Parse(origin)
-			if err != nil {
-				return false
-			}
-			host := u.Hostname() // strips port; returns bare IP or hostname
-			return host == "localhost" || host == "127.0.0.1" || host == "::1"
+			// Rely on the same unified origin checker used by CORS middleware.
+			return allowedOrigin(r.Header.Get("Origin"))
 		},
 	}
 )

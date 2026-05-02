@@ -153,7 +153,7 @@ func GenerateReportSummary(findings []Finding, targetDir string) ReportSummary {
 		TotalFindings:   len(findings),
 		TargetDirectory: targetDir,
 		ScanDate:        time.Now().Format("January 2, 2006 at 3:04 PM MST"),
-		ScannerVersion:  "2.0.0",
+		ScannerVersion:  Version,
 	}
 
 	for _, f := range findings {

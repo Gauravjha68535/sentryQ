@@ -3,12 +3,9 @@ package ai
 import (
 	"SentryQ/reporter"
 	"SentryQ/utils"
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 	"time"
 )
@@ -113,83 +110,18 @@ Return ONLY a valid JSON object in the final part of your response:
 		fileContent,
 		crossFileNote)
 
-	// Dispatch based on active provider
-	var outputStr string
-
-	if GetActiveProvider() == ProviderOpenAI {
-		customURL, customKey, customMdl := GetCustomEndpoint()
-		useModel := customMdl
-		if useModel == "" {
-			useModel = modelName
-		}
-		valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)
-		fullText, err := GenerateViaOpenAI(valCtx, customURL, customKey, useModel, prompt, map[string]interface{}{
-			"temperature": 0.0,
-			"num_predict": 8192,
-		})
-		valCancel() // cancel immediately after call, not at function return
-		if err != nil {
-			return nil, fmt.Errorf("OpenAI validation request failed: %v", err)
-		}
-		outputStr = strings.TrimSpace(fullText)
-	} else {
-		// Use Ollama HTTP API instead of CLI subprocess
-		reqBody := OllamaAPIRequest{
-			Model:  modelName,
-			Prompt: prompt,
-			Stream: false,
-			Options: map[string]interface{}{
-				"num_ctx":     4096,
-				"num_predict": 1024,
-				"temperature": 0.0,
-			},
-			KeepAlive: "15m",
-		}
-
-		reqJSON, err := json.Marshal(reqBody)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal request: %v", err)
-		}
-
-		valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)
-
-		httpReq, err := http.NewRequestWithContext(valCtx, "POST", GetOllamaBaseURL()+"/api/generate", bytes.NewBuffer(reqJSON))
-		if err != nil {
-			valCancel()
-			return nil, fmt.Errorf("failed to create request: %v", err)
-		}
-		httpReq.Header.Set("Content-Type", "application/json")
-
-		// Reuse the package-level aiHTTPClient (connection pooling, tuned transport)
-		// instead of creating a throwaway client per call. The per-request deadline
-		// is already enforced by valCtx above.
-		resp, err := aiHTTPClient.Do(httpReq)
-		if err != nil {
-			valCancel()
-			return nil, fmt.Errorf("ollama API request failed: %v", err)
-		}
-
-		// Check status BEFORE reading body so Ollama error responses (4xx/5xx)
-		// produce a useful "status 403" message instead of a confusing JSON-decode
-		// error from trying to parse an error page as a generate response.
-		if resp.StatusCode != http.StatusOK {
-			io.Copy(io.Discard, resp.Body) //nolint:errcheck
-			resp.Body.Close()              //nolint:errcheck
-			valCancel()
-			return nil, fmt.Errorf("ollama API returned status %d", resp.StatusCode)
-		}
-
-		body, readErr := readOllamaResponse(resp.Body)
-		resp.Body.Close() //nolint:errcheck
-		// Cancel AFTER the body is fully read. Cancelling before readOllamaResponse
-		// causes the transport to close the TCP connection mid-stream, truncating
-		// large AI responses and returning a spurious "context canceled" error.
-		valCancel()
-		if readErr != nil {
-			return nil, fmt.Errorf("failed to read Ollama response: %v", readErr)
-		}
-
-		outputStr = strings.TrimSpace(body)
+	// Use unified dispatcher (handles provider routing and OllamaHost overriding)
+	valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)
+	outputStr, err := Generate(valCtx, GenerateOptions{
+		Model:       modelName,
+		Prompt:      prompt,
+		Temperature: 0.0,
+		NumPredict:  8192,
+	})
+	valCancel()
+	
+	if err != nil {
+		return nil, fmt.Errorf("AI validation request failed: %v", err)
 	}
 
 	outputStr = strings.TrimPrefix(outputStr, "```json")
@@ -248,11 +180,11 @@ func getCodeSnippet(fileContents map[string]string, filePath string, lineNumber 
 
 	// For small files (≤500 lines), send the entire file for maximum context
 	if len(lines) <= 500 {
-		snippet := ""
+		var sb strings.Builder
 		for i, line := range lines {
-			snippet += fmt.Sprintf("%d: %s\n", i+1, line)
+			fmt.Fprintf(&sb, "%d: %s\n", i+1, line)
 		}
-		return snippet
+		return sb.String()
 	}
 
 	// For larger files, use ±150 lines around the finding (300 lines total).
@@ -270,23 +202,23 @@ func getCodeSnippet(fileContents map[string]string, filePath string, lineNumber 
 
 	if start <= 0 {
 		// Line number unavailable — return the first 300 lines as best-effort context
-		end = min(len(lines), 300)
-		snippet := ""
-		for i := 0; i < end; i++ {
-			snippet += fmt.Sprintf("%d: %s\n", i+1, lines[i])
+		limit := min(len(lines), 300)
+		var sb strings.Builder
+		for i := 0; i < limit; i++ {
+			fmt.Fprintf(&sb, "%d: %s\n", i+1, lines[i])
 		}
-		return snippet
+		return sb.String()
 	}
 
 	contextStart := max(0, start-150)
 	contextEnd := min(len(lines), end+150)
 
-	snippet := ""
+	var sb strings.Builder
 	for i := contextStart; i < contextEnd && i < len(lines); i++ {
-		snippet += fmt.Sprintf("%d: %s\n", i+1, lines[i])
+		fmt.Fprintf(&sb, "%d: %s\n", i+1, lines[i])
 	}
 
-	return snippet
+	return sb.String()
 }
 
 // parseLineNumFromStr extracts the first integer from a line-number string using

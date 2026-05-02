@@ -145,18 +145,33 @@ func getOllamaStatus(host string) string {
 var (
 	startTime    time.Time
 	settingsPath string // initialized in init() to ~/.sentryq/settings.json
-	appSettings  = struct {
+	appSettings = struct {
 		sync.RWMutex
-		OllamaHost   string `json:"ollama_host"`
-		DefaultModel string `json:"default_model"`
+		// Common
 		AIProvider   string `json:"ai_provider"`
+		DefaultModel string `json:"default_model"`
+		// Ollama
+		OllamaHost string `json:"ollama_host"`
+		// LM Studio
+		LMStudioHost  string `json:"lmstudio_host"`
+		LMStudioModel string `json:"lmstudio_model"`
+		// OpenAI-compatible custom endpoint
 		CustomAPIURL string `json:"custom_api_url"`
 		CustomAPIKey string `json:"custom_api_key"`
 		CustomModel  string `json:"custom_model"`
+		// Claude (Anthropic)
+		ClaudeAPIKey string `json:"claude_api_key"`
+		ClaudeModel  string `json:"claude_model"`
+		// Gemini (Google)
+		GeminiAPIKey string `json:"gemini_api_key"`
+		GeminiModel  string `json:"gemini_model"`
 	}{
-		OllamaHost:   "localhost:11434",
-		DefaultModel: "qwen2.5-coder:7b",
-		AIProvider:   "ollama",
+		AIProvider:    "ollama",
+		DefaultModel:  "qwen2.5-coder:7b",
+		OllamaHost:    "localhost:11434",
+		LMStudioHost:  "localhost:1234",
+		ClaudeModel:   "claude-sonnet-4-6",
+		GeminiModel:   "gemini-2.0-flash",
 	}
 )
 
@@ -164,45 +179,82 @@ func loadSettings() {
 	data, err := os.ReadFile(settingsPath)
 	if err == nil {
 		var s struct {
-			OllamaHost   string `json:"ollama_host"`
-			DefaultModel string `json:"default_model"`
-			AIProvider   string `json:"ai_provider"`
-			CustomAPIURL string `json:"custom_api_url"`
-			CustomAPIKey string `json:"custom_api_key"`
-			CustomModel  string `json:"custom_model"`
+			AIProvider    string `json:"ai_provider"`
+			DefaultModel  string `json:"default_model"`
+			OllamaHost    string `json:"ollama_host"`
+			LMStudioHost  string `json:"lmstudio_host"`
+			LMStudioModel string `json:"lmstudio_model"`
+			CustomAPIURL  string `json:"custom_api_url"`
+			CustomAPIKey  string `json:"custom_api_key"`
+			CustomModel   string `json:"custom_model"`
+			ClaudeAPIKey  string `json:"claude_api_key"`
+			ClaudeModel   string `json:"claude_model"`
+			GeminiAPIKey  string `json:"gemini_api_key"`
+			GeminiModel   string `json:"gemini_model"`
 		}
 		if err := json.Unmarshal(data, &s); err == nil {
-			// Environment variable takes precedence over the stored key so that
+			// Environment variables take precedence over stored keys so that
 			// users can inject credentials via the process environment without
 			// ever writing them to disk.
 			if envKey := os.Getenv("SENTRYQ_CUSTOM_API_KEY"); envKey != "" {
 				s.CustomAPIKey = envKey
 			}
+			if envKey := os.Getenv("SENTRYQ_CLAUDE_API_KEY"); envKey != "" {
+				s.ClaudeAPIKey = envKey
+			}
+			if envKey := os.Getenv("SENTRYQ_GEMINI_API_KEY"); envKey != "" {
+				s.GeminiAPIKey = envKey
+			}
 
 			appSettings.Lock()
-			appSettings.OllamaHost = s.OllamaHost
-			appSettings.DefaultModel = s.DefaultModel
 			if s.AIProvider != "" {
 				appSettings.AIProvider = s.AIProvider
 			}
+			if s.DefaultModel != "" {
+				appSettings.DefaultModel = s.DefaultModel
+			}
+			if s.OllamaHost != "" {
+				appSettings.OllamaHost = s.OllamaHost
+			}
+			if s.LMStudioHost != "" {
+				appSettings.LMStudioHost = s.LMStudioHost
+			}
+			appSettings.LMStudioModel = s.LMStudioModel
 			appSettings.CustomAPIURL = s.CustomAPIURL
 			appSettings.CustomAPIKey = s.CustomAPIKey
 			appSettings.CustomModel = s.CustomModel
+			appSettings.ClaudeAPIKey = s.ClaudeAPIKey
+			if s.ClaudeModel != "" {
+				appSettings.ClaudeModel = s.ClaudeModel
+			}
+			appSettings.GeminiAPIKey = s.GeminiAPIKey
+			if s.GeminiModel != "" {
+				appSettings.GeminiModel = s.GeminiModel
+			}
 			appSettings.Unlock()
 
-			// Apply provider config to AI package
+			// Apply all provider configs to the AI package
 			ai.SetActiveProvider(s.AIProvider)
 			if s.CustomAPIURL != "" {
 				ai.SetCustomEndpoint(s.CustomAPIURL, s.CustomAPIKey, s.CustomModel)
 			}
+			ai.SetLMStudioConfig(s.LMStudioHost, s.LMStudioModel)
+			ai.SetClaudeConfig(s.ClaudeAPIKey, s.ClaudeModel)
+			ai.SetGeminiConfig(s.GeminiAPIKey, s.GeminiModel)
 		}
 	} else {
-		// Settings file doesn't exist yet — still honour the env-var override.
+		// Settings file doesn't exist yet — still honour env-var overrides.
+		appSettings.Lock()
 		if envKey := os.Getenv("SENTRYQ_CUSTOM_API_KEY"); envKey != "" {
-			appSettings.Lock()
 			appSettings.CustomAPIKey = envKey
-			appSettings.Unlock()
 		}
+		if envKey := os.Getenv("SENTRYQ_CLAUDE_API_KEY"); envKey != "" {
+			appSettings.ClaudeAPIKey = envKey
+		}
+		if envKey := os.Getenv("SENTRYQ_GEMINI_API_KEY"); envKey != "" {
+			appSettings.GeminiAPIKey = envKey
+		}
+		appSettings.Unlock()
 	}
 }
 
@@ -293,19 +345,31 @@ func saveSettings() error {
 	defer appSettings.RUnlock()
 
 	s := struct {
-		OllamaHost   string `json:"ollama_host"`
-		DefaultModel string `json:"default_model"`
-		AIProvider   string `json:"ai_provider"`
-		CustomAPIURL string `json:"custom_api_url"`
-		CustomAPIKey string `json:"custom_api_key"`
-		CustomModel  string `json:"custom_model"`
+		AIProvider    string `json:"ai_provider"`
+		DefaultModel  string `json:"default_model"`
+		OllamaHost    string `json:"ollama_host"`
+		LMStudioHost  string `json:"lmstudio_host"`
+		LMStudioModel string `json:"lmstudio_model"`
+		CustomAPIURL  string `json:"custom_api_url"`
+		CustomAPIKey  string `json:"custom_api_key"`
+		CustomModel   string `json:"custom_model"`
+		ClaudeAPIKey  string `json:"claude_api_key"`
+		ClaudeModel   string `json:"claude_model"`
+		GeminiAPIKey  string `json:"gemini_api_key"`
+		GeminiModel   string `json:"gemini_model"`
 	}{
-		OllamaHost:   appSettings.OllamaHost,
-		DefaultModel: appSettings.DefaultModel,
-		AIProvider:   appSettings.AIProvider,
-		CustomAPIURL: appSettings.CustomAPIURL,
-		CustomAPIKey: appSettings.CustomAPIKey,
-		CustomModel:  appSettings.CustomModel,
+		AIProvider:    appSettings.AIProvider,
+		DefaultModel:  appSettings.DefaultModel,
+		OllamaHost:    appSettings.OllamaHost,
+		LMStudioHost:  appSettings.LMStudioHost,
+		LMStudioModel: appSettings.LMStudioModel,
+		CustomAPIURL:  appSettings.CustomAPIURL,
+		CustomAPIKey:  appSettings.CustomAPIKey,
+		CustomModel:   appSettings.CustomModel,
+		ClaudeAPIKey:  appSettings.ClaudeAPIKey,
+		ClaudeModel:   appSettings.ClaudeModel,
+		GeminiAPIKey:  appSettings.GeminiAPIKey,
+		GeminiModel:   appSettings.GeminiModel,
 	}
 
 	data, err := json.MarshalIndent(s, "", "  ")
@@ -406,13 +470,17 @@ func StartWebServer(port int) {
 		http.FileServer(http.FS(staticFS)).ServeHTTP(w, r)
 	})
 
-	// Bind to all interfaces (0.0.0.0) so the UI is reachable from other
-	// machines on the same network, not just localhost.
-	addr := fmt.Sprintf("0.0.0.0:%d", port)
+	// Default to localhost to prevent accidental LAN exposure.
+	// Set SENTRYQ_BIND=0.0.0.0 to explicitly allow network access.
+	bindAddr := "127.0.0.1"
+	if envBind := os.Getenv("SENTRYQ_BIND"); envBind != "" {
+		bindAddr = envBind
+	}
+	addr := fmt.Sprintf("%s:%d", bindAddr, port)
 	localAddr := fmt.Sprintf("localhost:%d", port)
 	server := &http.Server{
 		Addr:         addr,
-		Handler:      corsMiddleware(authMiddleware(mux)),
+		Handler:      corsMiddleware(csrfMiddleware(authMiddleware(mux))),
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 0, // 0 = no write timeout — needed for long-running SSE/WebSocket upgrades and large report downloads
 		IdleTimeout:  120 * time.Second,
@@ -955,36 +1023,45 @@ func handleWebSocketRoute(w http.ResponseWriter, r *http.Request) {
 func handleSettings(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
 		var s struct {
-			OllamaHost   string `json:"ollama_host"`
-			DefaultModel string `json:"default_model"`
-			AIProvider   string `json:"ai_provider"`
-			CustomAPIURL string `json:"custom_api_url"`
-			CustomAPIKey string `json:"custom_api_key"`
-			CustomModel  string `json:"custom_model"`
+			AIProvider    string `json:"ai_provider"`
+			DefaultModel  string `json:"default_model"`
+			OllamaHost    string `json:"ollama_host"`
+			LMStudioHost  string `json:"lmstudio_host"`
+			LMStudioModel string `json:"lmstudio_model"`
+			CustomAPIURL  string `json:"custom_api_url"`
+			CustomAPIKey  string `json:"custom_api_key"`
+			CustomModel   string `json:"custom_model"`
+			ClaudeAPIKey  string `json:"claude_api_key"`
+			ClaudeModel   string `json:"claude_model"`
+			GeminiAPIKey  string `json:"gemini_api_key"`
+			GeminiModel   string `json:"gemini_model"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
 			http.Error(w, "Invalid body", http.StatusBadRequest)
 			return
 		}
-		// Use defer-unlock so a panic inside the locked section never
-		// causes a permanent deadlock. Capture values under the lock,
-		// then apply side-effects (AI provider switch) outside it.
+
 		var providerChanged bool
 		func() {
 			appSettings.Lock()
 			defer appSettings.Unlock()
-			if s.OllamaHost != "" {
-				appSettings.OllamaHost = s.OllamaHost
-			}
-			if s.DefaultModel != "" {
-				appSettings.DefaultModel = s.DefaultModel
-			}
 			if s.AIProvider != "" {
 				appSettings.AIProvider = s.AIProvider
 				providerChanged = true
 			}
-			// Only overwrite custom credentials when provided; an empty string
-			// in the request body means "do not change", not "clear the value".
+			if s.DefaultModel != "" {
+				appSettings.DefaultModel = s.DefaultModel
+			}
+			if s.OllamaHost != "" {
+				appSettings.OllamaHost = s.OllamaHost
+			}
+			if s.LMStudioHost != "" {
+				appSettings.LMStudioHost = s.LMStudioHost
+			}
+			if s.LMStudioModel != "" {
+				appSettings.LMStudioModel = s.LMStudioModel
+			}
+			// Only overwrite credentials when non-empty (empty = "do not change")
 			if s.CustomAPIURL != "" {
 				appSettings.CustomAPIURL = s.CustomAPIURL
 			}
@@ -994,15 +1071,41 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 			if s.CustomModel != "" {
 				appSettings.CustomModel = s.CustomModel
 			}
+			if s.ClaudeAPIKey != "" {
+				appSettings.ClaudeAPIKey = s.ClaudeAPIKey
+			}
+			if s.ClaudeModel != "" {
+				appSettings.ClaudeModel = s.ClaudeModel
+			}
+			if s.GeminiAPIKey != "" {
+				appSettings.GeminiAPIKey = s.GeminiAPIKey
+			}
+			if s.GeminiModel != "" {
+				appSettings.GeminiModel = s.GeminiModel
+			}
 		}()
 
-		// Apply side-effects outside the lock to prevent deadlocking if the
-		// AI package functions block or panic.
+		// Apply side-effects outside the lock
 		if providerChanged {
 			ai.SetActiveProvider(s.AIProvider)
 		}
 		if s.CustomAPIURL != "" {
 			ai.SetCustomEndpoint(s.CustomAPIURL, s.CustomAPIKey, s.CustomModel)
+		}
+		if s.LMStudioHost != "" || s.LMStudioModel != "" {
+			appSettings.RLock()
+			ai.SetLMStudioConfig(appSettings.LMStudioHost, appSettings.LMStudioModel)
+			appSettings.RUnlock()
+		}
+		if s.ClaudeAPIKey != "" || s.ClaudeModel != "" {
+			appSettings.RLock()
+			ai.SetClaudeConfig(appSettings.ClaudeAPIKey, appSettings.ClaudeModel)
+			appSettings.RUnlock()
+		}
+		if s.GeminiAPIKey != "" || s.GeminiModel != "" {
+			appSettings.RLock()
+			ai.SetGeminiConfig(appSettings.GeminiAPIKey, appSettings.GeminiModel)
+			appSettings.RUnlock()
 		}
 
 		if err := saveSettings(); err != nil {
@@ -1015,18 +1118,34 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 
 	appSettings.RLock()
 	defer appSettings.RUnlock()
-	maskedKey := ""
+	maskedCustomKey := ""
 	if len(appSettings.CustomAPIKey) > 0 {
-		maskedKey = "***"
+		maskedCustomKey = "***"
+	}
+	maskedClaudeKey := ""
+	if len(appSettings.ClaudeAPIKey) > 0 {
+		maskedClaudeKey = "***"
+	}
+	maskedGeminiKey := ""
+	if len(appSettings.GeminiAPIKey) > 0 {
+		maskedGeminiKey = "***"
 	}
 	httpJSON(w, http.StatusOK, map[string]interface{}{
-		"ollama_host":        appSettings.OllamaHost,
-		"default_model":      appSettings.DefaultModel,
-		"ai_provider":        appSettings.AIProvider,
-		"custom_api_url":     appSettings.CustomAPIURL,
-		"custom_api_key":     maskedKey,
-		"custom_api_key_set": len(appSettings.CustomAPIKey) > 0,
-		"custom_model":       appSettings.CustomModel,
+		"ai_provider":         appSettings.AIProvider,
+		"default_model":       appSettings.DefaultModel,
+		"ollama_host":         appSettings.OllamaHost,
+		"lmstudio_host":       appSettings.LMStudioHost,
+		"lmstudio_model":      appSettings.LMStudioModel,
+		"custom_api_url":      appSettings.CustomAPIURL,
+		"custom_api_key":      maskedCustomKey,
+		"custom_api_key_set":  len(appSettings.CustomAPIKey) > 0,
+		"custom_model":        appSettings.CustomModel,
+		"claude_api_key":      maskedClaudeKey,
+		"claude_api_key_set":  len(appSettings.ClaudeAPIKey) > 0,
+		"claude_model":        appSettings.ClaudeModel,
+		"gemini_api_key":      maskedGeminiKey,
+		"gemini_api_key_set":  len(appSettings.GeminiAPIKey) > 0,
+		"gemini_model":        appSettings.GeminiModel,
 	})
 }
 
@@ -1141,6 +1260,29 @@ func corsMiddleware(next http.Handler) http.Handler {
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// csrfMiddleware protects against Cross-Site Request Forgery on state-changing API endpoints.
+// It requires that POST/PUT/DELETE requests specify Content-Type: application/json.
+// Because browsers do not allow cross-origin requests with this Content-Type without
+// a successful CORS preflight, this simple check prevents CSRF attacks via <form> or text/plain POSTs.
+func csrfMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
+			// Skip CSRF check for websocket upgrade requests which use GET but can mutate state
+			if r.Header.Get("Upgrade") == "websocket" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			contentType := r.Header.Get("Content-Type")
+			if !strings.HasPrefix(contentType, "application/json") {
+				utils.LogWarn(fmt.Sprintf("CSRF block: Missing/invalid Content-Type from %s: %s %s", r.RemoteAddr, r.Method, r.URL.Path))
+				http.Error(w, "CSRF protection: Content-Type must be application/json", http.StatusForbidden)
+				return
+			}
 		}
 		next.ServeHTTP(w, r)
 	})
@@ -1272,24 +1414,34 @@ func handleCustomEndpointTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		URL    string `json:"url"`
-		APIKey string `json:"api_key"`
-		Model  string `json:"model"`
+		Provider string `json:"provider"`
+		URL      string `json:"url"`
+		APIKey   string `json:"api_key"`
+		Model    string `json:"model"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if req.URL == "" || req.Model == "" {
-		httpJSON(w, http.StatusOK, map[string]interface{}{
-			"success": false,
-			"message": "URL and model name are required",
-		})
-		return
+	var ok bool
+	var msg string
+	switch req.Provider {
+	case "claude":
+		ok, msg = ai.TestClaudeEndpoint(req.APIKey, req.Model)
+	case "gemini":
+		ok, msg = ai.TestGeminiEndpoint(req.APIKey, req.Model)
+	default: // openai, lmstudio, or any OpenAI-compatible
+		if req.URL == "" || req.Model == "" {
+			httpJSON(w, http.StatusOK, map[string]interface{}{
+				"success": false,
+				"message": "URL and model name are required",
+			})
+			return
+		}
+		ok, msg = ai.TestOpenAIEndpoint(req.URL, req.APIKey, req.Model)
 	}
 
-	ok, msg := ai.TestOpenAIEndpoint(req.URL, req.APIKey, req.Model)
 	httpJSON(w, http.StatusOK, map[string]interface{}{
 		"success": ok,
 		"message": msg,
@@ -1297,6 +1449,18 @@ func handleCustomEndpointTest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCustomEndpointModels(w http.ResponseWriter, r *http.Request) {
+	provider := r.URL.Query().Get("provider")
+
+	// Hardcoded model lists for cloud providers
+	switch provider {
+	case "claude":
+		httpJSON(w, http.StatusOK, map[string]interface{}{"models": ai.KnownClaudeModels})
+		return
+	case "gemini":
+		httpJSON(w, http.StatusOK, map[string]interface{}{"models": ai.KnownGeminiModels})
+		return
+	}
+
 	url := r.URL.Query().Get("url")
 	// Prefer the Authorization header to avoid exposing the key in URLs (which appear in
 	// server logs, browser history, and proxy logs). Fall back to the query param for

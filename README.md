@@ -4,9 +4,9 @@
   <p><strong>Next-Gen AI-Orchestrated Security Analysis Platform</strong></p>
   <p><i>A high-performance, local-first security tool designed for elite engineering teams. Powered by Go and AI.</i></p>
 
-  [![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat-square&logo=go)](https://golang.org)
+  [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go)](https://golang.org)
   [![React Version](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react)](https://react.dev)
-  [![Ollama Support](https://img.shields.io/badge/AI-Ollama%20%7C%20OpenAI-FF9900?style=flat-square&logo=openai)](https://ollama.com)
+  [![AI Support](https://img.shields.io/badge/AI-Ollama%20%7C%20OpenAI%20%7C%20Claude%20%7C%20Gemini-FF9900?style=flat-square&logo=openai)](https://ollama.com)
   [![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](LICENSE)
 </div>
 
@@ -22,12 +22,12 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 
 | Feature | Details |
 | :--- | :--- |
-| **Multi-Engine SAST** | 13,900+ rules across 67+ languages + Tree-Sitter AST (Python, JS, Java, Kotlin) + intra-file taint tracking (11 languages) |
-| **Shannon Entropy Secret Detection** | Catches known secrets (AWS, GitHub, Stripe, JWT, Slack) and custom credentials via entropy analysis + base64/hex decode |
+| **Multi-Engine SAST** | 14,600+ rules across 122 rule files (67+ languages, 15 framework targets) + Tree-Sitter AST (Python, JS, Java, Kotlin) + intra-file taint tracking (11 languages) |
+| **Shannon Entropy Secret Detection** | Catches known secrets (AWS, GitHub, Google, Stripe, Slack, JWT, private keys) and custom credentials via entropy analysis + base64/hex decode |
 | **SCA / Dependency Auditing** | OSV API + `osv-scanner` CLI, reachability-aware (unused deps are downgraded) + supply chain / typosquatting checks |
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
 | **MITRE ATT&CK Enrichment** | Local technique mapping from CWE/issue keywords — no network calls |
-| **AI-Orchestrated Triage** | Local LLMs via Ollama or any OpenAI-compatible endpoint. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding |
+| **AI-Orchestrated Triage** | Supports **Ollama, OpenAI, Anthropic Claude, Google Gemini, and LM Studio**. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding. Smart worker scaling optimizes for latency vs. VRAM. |
 | **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge (separate configurable models per phase) |
 | **Real-Time Dashboard** | React + WebSocket. Dark/Light mode. Per-finding triage (open/resolved/ignored/FP) with bulk triage. Pause/Resume scan controls |
 | **Rule Builder UI** | In-browser YAML rule editor with live regex test pane. Edit and create custom rules without leaving the dashboard |
@@ -42,7 +42,7 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 ```
 Source Code
     │
-    ├──► Pattern Engine       (13,900+ regex rules, 67+ languages)
+    ├──► Pattern Engine       (14,600+ regex rules, 67+ languages, 15 framework targets)
     ├──► AST Analyzer         (Tree-Sitter: Python, JavaScript, Java, Kotlin)
     ├──► Taint-Flow Tracker   (intra-file source→sink, 11 languages)
     ├──► Secret Detector      (regex + Shannon entropy + base64/hex decode)
@@ -52,7 +52,7 @@ Source Code
     ▼
 Aggregated Raw Findings
     │
-    ├──► FP Suppressor        (code-context pattern matching)
+    ├──► FP Suppressor        (code-context pattern matching + blocked rule list)
     ├──► Reachability Analyzer(call-graph DFS from entry points)
     ├──► MITRE ATT&CK Enrich  (local technique mapping)
     │
@@ -81,11 +81,11 @@ Final Report
 
 | Platform | Requirements |
 | :--- | :--- |
-| **Linux** | Go 1.24+, Node.js 18+, GCC (for SQLite), [Ollama](https://ollama.com) (optional, for AI) |
+| **Linux** | Go 1.25+, Node.js 18+, GCC (required for go-tree-sitter CGO sources), [Ollama](https://ollama.com) (optional, for AI) |
 | **macOS** | `brew install go node ollama` |
-| **Windows** | Go 1.24+, Node.js 18+, GCC via [TDM-GCC](https://jmeubank.github.io/tdm-gcc/) or MSYS2, Ollama |
+| **Windows** | Go 1.25+, Node.js 18+, GCC via [TDM-GCC](https://jmeubank.github.io/tdm-gcc/) or MSYS2, Ollama |
 
-> **Note:** SentryQ uses `modernc.org/sqlite` (pure Go SQLite driver) — no CGO required on most platforms. The `CGO_ENABLED=0` build flag is enforced in the build scripts.
+> **Note:** SentryQ uses `modernc.org/sqlite` (pure Go SQLite driver) for its database. However, **CGO is required** because the Tree-Sitter AST analyzer embeds C grammar sources via `go-tree-sitter`. Ensure GCC (or a compatible C compiler) is available on your `PATH` before building.
 
 **Optional AI model (recommended):**
 ```bash
@@ -109,7 +109,7 @@ cd sentryQ
 .\build.bat
 ```
 
-This bundles the React frontend and compiles the Go backend into a single `sentryq` binary.
+This bundles the React frontend and compiles the Go backend into a single `sentryq` binary. The `rules/` directory is packaged alongside the binary in `dist/` — both must remain co-located at runtime.
 
 ---
 
@@ -143,6 +143,10 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → upload a fold
 | `PORT` | Override default port 5336 | `PORT=8080 ./sentryq` |
 | `OLLAMA_HOST` | Remote Ollama host:port | `OLLAMA_HOST=10.0.0.5:11434 ./sentryq` |
 | `SENTRYQ_CUSTOM_API_KEY` | Inject API key without writing to disk | `SENTRYQ_CUSTOM_API_KEY=sk-... ./sentryq` |
+| `SENTRYQ_CLAUDE_API_KEY` | Inject Anthropic Claude API key | `SENTRYQ_CLAUDE_API_KEY=sk-ant-... ./sentryq` |
+| `SENTRYQ_GEMINI_API_KEY` | Inject Google Gemini API key | `SENTRYQ_GEMINI_API_KEY=AIza... ./sentryq` |
+| `SENTRYQ_BIND` | Set listening interface (defaults to 127.0.0.1 for security) | `SENTRYQ_BIND=0.0.0.0 ./sentryq` |
+| `SENTRYQ_AUTH_TOKEN` | Enable API authentication & CSRF protection | `SENTRYQ_AUTH_TOKEN=mysecret ./sentryq` |
 
 ---
 
@@ -154,10 +158,20 @@ Settings are stored at `~/.sentryq/settings.json` (owner-only, mode 0600). Confi
 | :--- | :--- | :--- |
 | `ollama_host` | Ollama server host:port | `localhost:11434` |
 | `default_model` | LLM for Chain-of-Thought validation | auto-detected from installed models |
-| `ai_provider` | `ollama` or `openai` (any OpenAI-compatible endpoint) | `ollama` |
+| `ai_provider` | `ollama`, `openai`, `claude`, `gemini`, or `lmstudio` | `ollama` |
 | `custom_api_url` | Custom endpoint URL (vLLM, TGI, LM Studio, etc.) | — |
 | `custom_api_key` | API key for custom provider | — |
 | `custom_model` | Model name for custom provider | — |
+
+**Per-scan overrides** (configurable from the New Scan UI):
+
+| Field | Description |
+| :--- | :--- |
+| `aiModel` / `ollamaHost` | Model and host used for Chain-of-Thought validation |
+| `consolidationModel` / `consolidationOllamaHost` | Model used for AI discovery consolidation |
+| `judgeModel` / `judgeOllamaHost` | Separate model and host for the Judge LLM in Ensemble mode |
+| `enableMLFPReduction` | Enable ML-based false positive suppression using local feedback history |
+| `customRulesDir` | Path to an additional directory of custom YAML rule files |
 
 ### Custom Rules
 
@@ -190,9 +204,11 @@ SentryQ auto-loads all rules on startup and on every scan, filtered to the langu
 | **Priority Matrix** | P0 (critical/high reachable) → P3 (low) remediation tiers surfaced in HTML and PDF reports |
 | **Exploit PoC & Fixed Code** | AI validator generates a working proof-of-concept and a corrected code snippet per finding |
 | **FP Feedback Loop** | Triage decisions (false_positive / resolved) are stored locally at `~/.sentryq/ml-cache/` and used to suppress recurring false positives in future scans |
+| **Confidence Calibration** | Historical TP/FP accuracy per severity is tracked in `~/.sentryq/.scanner-ai-stats.json` and used to adjust future AI confidence scores |
 | **Multi-Phase Ensemble Storage** | All three ensemble phases (static / ai / final) are stored independently in SQLite and viewable separately in the ReportViewer |
 | **Git URL scanning** | Paste a public or private Git URL in the UI; SentryQ clones, scans, and cleans up automatically |
 | **Report auto-cleanup** | Generated report files (HTML, PDF, CSV, SARIF) are automatically deleted 48 hours after scan completion |
+| **Browser Notifications** | Desktop push notification fires on scan completion (requires browser permission) |
 
 ---
 
@@ -214,7 +230,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.25'
 
       - name: Build SentryQ
         run: |
@@ -237,7 +253,7 @@ jobs:
 ### Standard Mode
 Runs all always-on engines (pattern, AST, taint, secret detection, FP suppression, reachability). Enable **Deep Scan** to add dependency auditing, Semgrep, supply chain / typosquatting checks, container scanning, and MITRE ATT&CK enrichment. Enable **AI** to add Chain-of-Thought validation (with Exploit PoC + Fixed Code generation), AI discovery, Judge LLM consolidation, and confidence calibration.
 
-> **Note:** AST analysis covers Python, JavaScript, Java, and Kotlin. Taint tracking is intra-file across 11 languages. Browser notifications fire on scan completion.
+> **Note:** AST analysis covers Python, JavaScript, Java, and Kotlin. Taint tracking is intra-file across 11 languages (Python, PHP, JavaScript/TypeScript, Java, Kotlin, C#/ASP.NET, Go, Ruby, Swift, Dart). Browser notifications fire on scan completion.
 
 ### Ensemble Audit Mode
 Three-phase high-assurance pipeline for maximum accuracy:
@@ -259,7 +275,7 @@ Three-phase high-assurance pipeline for maximum accuracy:
 | API server & scan orchestration | `cmd/scanner/` |
 | Frontend UI | `web/src/` |
 | Report generators (SARIF, HTML, PDF, CSV) | `reporter/` |
-| Detection rules (67 languages + 15 framework files) | `rules/` |
+| Detection rules (107 files: 67+ languages + security domains; 15 framework files) | `rules/` |
 | Rule loader (YAML parsing) | `config/` |
 
 **Frontend dev server:**

@@ -16,8 +16,9 @@ import (
 )
 
 var (
-	db     *sql.DB
-	dbOnce sync.Once
+	db            *sql.DB
+	dbMu          sync.Mutex
+	dbInitialized bool
 )
 
 // ScanRecord represents a scan in the database
@@ -34,69 +35,74 @@ type ScanRecord struct {
 	HighCount     int        `json:"high_count"`
 }
 
-// InitDB initializes the SQLite database
+// InitDB initializes the SQLite database.
+// Unlike sync.Once, this uses a mutex+bool pattern so that initialization
+// can be retried if a previous attempt failed (e.g., disk full, permissions).
+// Once successfully initialized, subsequent calls are no-ops.
 func InitDB() error {
-	var initErr error
-	dbOnce.Do(func() {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			homeDir = "."
-		}
-		dbDir := filepath.Join(homeDir, ".sentryq")
-		if err := os.MkdirAll(dbDir, 0700); err != nil {
-			initErr = fmt.Errorf("failed to create database directory %s: %v", dbDir, err)
-			return
-		}
-		dbPath := filepath.Join(dbDir, "scans.db")
+	dbMu.Lock()
+	defer dbMu.Unlock()
 
-		db, err = sql.Open("sqlite", dbPath)
-		if err != nil {
-			initErr = fmt.Errorf("failed to open database: %v", err)
-			return
-		}
+	if dbInitialized {
+		return nil
+	}
 
-		// SQLite is single-writer. Allow up to 4 concurrent readers but cap at
-		// 4 total open connections to prevent "database is locked" under load.
-		// Idle connections are kept warm to avoid repeated open/close overhead.
-		db.SetMaxOpenConns(4)
-		db.SetMaxIdleConns(4)
-		db.SetConnMaxLifetime(0) // connections live as long as the process
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		homeDir = "."
+	}
+	dbDir := filepath.Join(homeDir, ".sentryq")
+	if err := os.MkdirAll(dbDir, 0700); err != nil {
+		return fmt.Errorf("failed to create database directory %s: %v", dbDir, err)
+	}
+	dbPath := filepath.Join(dbDir, "scans.db")
 
-		// Apply critical pragmas. WAL mode and busy_timeout are required for safe
-		// concurrent access — treat failures as fatal so the app does not start in
-		// an unsafe state that silently loses data or deadlocks under concurrent scans.
-		criticalPragmas := []string{
-			"PRAGMA journal_mode=WAL",
-			"PRAGMA busy_timeout=5000",
-		}
-		for _, pragma := range criticalPragmas {
-			if _, err := db.Exec(pragma); err != nil {
-				db.Close()
-				db = nil
-				initErr = fmt.Errorf("critical DB pragma failed (%s): %v — cannot start safely", pragma, err)
-				return
-			}
-		}
+	db, err = sql.Open("sqlite", dbPath)
+	if err != nil {
+		return fmt.Errorf("failed to open database: %v", err)
+	}
 
-		// Enable foreign keys before any schema work.
-		if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-			utils.LogWarn("PRAGMA foreign_keys: " + err.Error())
-		}
+	// SQLite is single-writer. Allow up to 4 concurrent readers but cap at
+	// 4 total open connections to prevent "database is locked" under load.
+	// Idle connections are kept warm to avoid repeated open/close overhead.
+	db.SetMaxOpenConns(4)
+	db.SetMaxIdleConns(4)
+	db.SetConnMaxLifetime(0) // connections live as long as the process
 
-		// Run versioned migrations. Each migration is applied exactly once and
-		// recorded in the schema_migrations table. Adding a new schema change:
-		//   1. Append a new migration to the `migrations` slice below.
-		//   2. Bump the version number by 1.
-		// Never edit or reorder existing migrations — only append.
-		if initErr = runMigrations(db); initErr != nil {
+	// Apply critical pragmas. WAL mode and busy_timeout are required for safe
+	// concurrent access — treat failures as fatal so the app does not start in
+	// an unsafe state that silently loses data or deadlocks under concurrent scans.
+	criticalPragmas := []string{
+		"PRAGMA journal_mode=WAL",
+		"PRAGMA busy_timeout=5000",
+	}
+	for _, pragma := range criticalPragmas {
+		if _, err := db.Exec(pragma); err != nil {
 			db.Close()
 			db = nil
-			return
+			return fmt.Errorf("critical DB pragma failed (%s): %v — cannot start safely", pragma, err)
 		}
+	}
 
-		utils.LogInfo("📦 Database initialized at " + dbPath)
-	})
-	return initErr
+	// Enable foreign keys before any schema work.
+	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		utils.LogWarn("PRAGMA foreign_keys: " + err.Error())
+	}
+
+	// Run versioned migrations. Each migration is applied exactly once and
+	// recorded in the schema_migrations table. Adding a new schema change:
+	//   1. Append a new migration to the `migrations` slice below.
+	//   2. Bump the version number by 1.
+	// Never edit or reorder existing migrations — only append.
+	if err := runMigrations(db); err != nil {
+		db.Close()
+		db = nil
+		return err
+	}
+
+	dbInitialized = true
+	utils.LogInfo("📦 Database initialized at " + dbPath)
+	return nil
 }
 
 // migration holds a single versioned schema change.
@@ -446,7 +452,7 @@ func GetFindingByID(scanID string, id int) (reporter.Finding, error) {
 	return f, nil
 }
 
-// DeleteScan removes a scan and its findings
+// DeleteScan removes a scan, its findings, and its generated report files.
 func DeleteScan(id string) error {
 	tx, err := db.Begin()
 	if err != nil {
@@ -465,13 +471,30 @@ func DeleteScan(id string) error {
 	if _, err := tx.Exec("DELETE FROM scans WHERE id = ?", id); err != nil {
 		return rollback(err)
 	}
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	// Best-effort cleanup of generated report files on disk.
+	// Errors are logged but not returned — the DB deletion already succeeded.
+	reportsDir := filepath.Join(os.TempDir(), "sentryQ", id)
+	if err := os.RemoveAll(reportsDir); err != nil && !os.IsNotExist(err) {
+		utils.LogWarn(fmt.Sprintf("DeleteScan: failed to remove report files at %s: %v", reportsDir, err))
+	}
+	return nil
 }
 
-// CloseDB closes the database connection cleanly
+// CloseDB closes the database connection cleanly and resets initialization
+// state so that InitDB() can re-open the database if needed (e.g., after
+// a graceful restart within the same process).
 func CloseDB() error {
+	dbMu.Lock()
+	defer dbMu.Unlock()
+
 	if db != nil {
 		err := db.Close()
+		db = nil
+		dbInitialized = false
 		if err == nil {
 			utils.LogInfo("Database connection closed cleanly.")
 		} else {

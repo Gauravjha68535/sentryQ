@@ -184,7 +184,7 @@ func GenerateSARIF(filename string, findings []Finding) error {
 			Tool: sarifTool{
 				Driver: sarifDriver{
 					Name:           "SentryQ",
-					Version:        "2.0.0",
+					Version:        Version,
 					InformationURI: "https://github.com/SentryQ/SentryQ",
 					Rules:          rules,
 				},

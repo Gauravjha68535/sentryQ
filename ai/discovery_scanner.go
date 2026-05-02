@@ -390,44 +390,19 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 			var fullText string
 			var readErr error
 
-			// Dispatch based on active provider
-			if GetActiveProvider() == ProviderOpenAI {
-				customURL, customKey, customMdl := GetCustomEndpoint()
-				useModel := customMdl
-				if useModel == "" {
-					useModel = modelName
-				}
-				reqCtx, reqCancel = context.WithTimeout(ctx, 30*time.Minute)
-				fullText, readErr = GenerateViaOpenAI(reqCtx, customURL, customKey, useModel, prompt, map[string]interface{}{
-					"temperature": 0.0,
-					"num_predict": 8192,
-				})
-				reqCancel()
-			} else {
-				reqBody := OllamaAPIRequest{
-					Model:  modelName,
-					Prompt: prompt,
-					Stream: false,
-					Options: map[string]interface{}{
-						"num_ctx":     16384,
-						"num_predict": 4096,
-						"temperature": 0.0,
-					},
-					KeepAlive: "15m",
-				}
-
-				reqJSON, err := json.Marshal(reqBody)
-				if err != nil {
-					return nil, err
-				}
-
-				reqCtx, reqCancel = context.WithTimeout(ctx, 30*time.Minute)
-				fullText, readErr = doOllamaRequest(reqCtx, reqJSON)
-				reqCancel()
-				if readErr != nil {
-					if errors.Is(readErr, context.Canceled) || errors.Is(readErr, context.DeadlineExceeded) {
-						return nil, fmt.Errorf("scan interrupted")
-					}
+			// Dispatch via unified generator
+			reqCtx, reqCancel = context.WithTimeout(ctx, 30*time.Minute)
+			fullText, readErr = Generate(reqCtx, GenerateOptions{
+				Model:       modelName,
+				Prompt:      prompt,
+				Temperature: 0.0,
+				NumPredict:  4096, // Matches original default for Ollama in this engine
+				OllamaHost:  GetOllamaBaseURL(),
+			})
+			reqCancel()
+			if readErr != nil {
+				if errors.Is(readErr, context.Canceled) || errors.Is(readErr, context.DeadlineExceeded) {
+					return nil, fmt.Errorf("scan interrupted")
 				}
 			}
 
@@ -648,7 +623,18 @@ func RunAIDiscovery(ctx context.Context, modelName string, targetDir string, log
 		errorCount      int
 	)
 
-	numWorkers := 2 // Reduced from 4 to 2 for reasoning models to prevent local thrashing
+	// Scale worker count based on provider: cloud APIs are network-latency-bound
+	// and benefit from higher concurrency; local inference (Ollama/LMStudio) is
+	// GPU-VRAM-bound and thrashes with too many parallel requests.
+	numWorkers := 2
+	switch GetActiveProvider() {
+	case ProviderOpenAI, ProviderClaude, ProviderGemini:
+		numWorkers = 5 // Cloud APIs: limited by round-trip latency, not compute
+	case ProviderLMStudio:
+		numWorkers = 2 // Local inference: same constraints as Ollama
+	default: // ProviderOllama
+		numWorkers = 2
+	}
 	if totalFiles < numWorkers {
 		numWorkers = totalFiles
 	}

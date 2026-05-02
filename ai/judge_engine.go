@@ -1,12 +1,10 @@
 package ai
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -245,67 +243,23 @@ Your job is to produce a FINAL, deduplicated, high-precision verdict.
 
 IMPORTANT: Every finding ID from the input MUST appear exactly once — either as a master_id or inside a duplicate_ids array. Do not skip any.`, string(findingsJSON))
 
-	reqBody := OllamaAPIRequest{
-		Model:  modelName,
-		Prompt: prompt,
-		Stream: false,
-		Options: map[string]interface{}{
-			"num_ctx":     32768,
-			"num_predict": 8192,
-			"temperature": 0.0,
-		},
-	}
-
-	var outputStr string
-
-	// Dispatch based on active provider
-	if GetActiveProvider() == ProviderOpenAI {
-		customURL, customKey, customMdl := GetCustomEndpoint()
-		useModel := customMdl
-		if useModel == "" {
-			useModel = modelName
+	// Use unified dispatcher (handles provider routing and OllamaHost overriding)
+	outputStr, err := Generate(judgeCtx, GenerateOptions{
+		Model:       modelName,
+		Prompt:      prompt,
+		Temperature: 0.0,
+		NumPredict:  8192,
+		OllamaHost:  ollamaBaseURL,
+	})
+	
+	if err != nil {
+		isInterrupted := func(err error) bool {
+			return errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || strings.Contains(err.Error(), "scan interrupted")
 		}
-		fullText, err := GenerateViaOpenAI(judgeCtx, customURL, customKey, useModel, prompt, map[string]interface{}{
-			"temperature": 0.0,
-			"num_predict": 8192,
-		})
-		if err != nil {
-			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || strings.Contains(err.Error(), "scan interrupted") {
-				return nil, fmt.Errorf("judge evaluation interrupted")
-			}
-			return nil, fmt.Errorf("judge LLM request failed: %v", err)
+		if isInterrupted(err) {
+			return nil, fmt.Errorf("judge evaluation interrupted")
 		}
-		outputStr = strings.TrimSpace(fullText)
-	} else {
-		reqJSON, err := json.Marshal(reqBody)
-		if err != nil {
-			return nil, fmt.Errorf("failed to serialize judge request body: %w", err)
-		}
-
-		currentAPIURL := ollamaBaseURL + "/api/generate"
-		req, err := http.NewRequestWithContext(judgeCtx, "POST", currentAPIURL, bytes.NewBuffer(reqJSON))
-		if err != nil {
-			return nil, fmt.Errorf("failed to create judge request: %v", err)
-		}
-		req.Header.Set("Content-Type", "application/json")
-
-		// Reuse the package-level aiHTTPClient (connection pooling, tuned transport)
-		// instead of creating a throwaway client per batch. The per-request deadline
-		// is already enforced by judgeCtx above.
-		resp, err := aiHTTPClient.Do(req)
-		if err != nil {
-			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-				return nil, fmt.Errorf("judge evaluation interrupted")
-			}
-			return nil, fmt.Errorf("judge LLM request failed: %v", err)
-		}
-
-		fullText, readErr := readOllamaResponse(resp.Body)
-		resp.Body.Close() //nolint:errcheck
-		if readErr != nil {
-			return nil, fmt.Errorf("failed to read judge response: %v", readErr)
-		}
-		outputStr = strings.TrimSpace(fullText)
+		return nil, fmt.Errorf("judge LLM request failed: %v", err)
 	}
 
 	// Extract JSON block using common utility

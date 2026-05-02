@@ -21,26 +21,54 @@ import (
 
 // Provider types
 const (
-	ProviderOllama = "ollama"
-	ProviderOpenAI = "openai"
+	ProviderOllama   = "ollama"
+	ProviderLMStudio = "lmstudio"
+	ProviderOpenAI   = "openai"
+	ProviderClaude   = "claude"
+	ProviderGemini   = "gemini"
 )
 
 var (
-	providerMu    sync.RWMutex
+	providerMu     sync.RWMutex
 	activeProvider = ProviderOllama
 
-	customAPIURL   string
-	customAPIKey   string
-	customModel    string
+	customAPIURL string
+	customAPIKey string
+	customModel  string
+
+	lmstudioBaseURL = "http://localhost:1234"
+	lmstudioModel   string
 )
 
 // SetActiveProvider switches the global AI backend.
 func SetActiveProvider(provider string) {
 	providerMu.Lock()
 	defer providerMu.Unlock()
-	if provider == ProviderOpenAI || provider == ProviderOllama {
+	switch provider {
+	case ProviderOllama, ProviderLMStudio, ProviderOpenAI, ProviderClaude, ProviderGemini:
 		activeProvider = provider
 	}
+}
+
+// SetLMStudioConfig configures the LM Studio local endpoint.
+func SetLMStudioConfig(host, model string) {
+	providerMu.Lock()
+	defer providerMu.Unlock()
+	if host != "" {
+		if strings.HasPrefix(host, "http://") || strings.HasPrefix(host, "https://") {
+			lmstudioBaseURL = host
+		} else {
+			lmstudioBaseURL = "http://" + host
+		}
+	}
+	lmstudioModel = model
+}
+
+// GetLMStudioConfig returns the LM Studio base URL and model.
+func GetLMStudioConfig() (baseURL, model string) {
+	providerMu.RLock()
+	defer providerMu.RUnlock()
+	return lmstudioBaseURL, lmstudioModel
 }
 
 // GetActiveProvider returns the current provider.

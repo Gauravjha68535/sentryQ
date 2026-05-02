@@ -54,6 +54,7 @@ func main() {
 			fmt.Printf("❌ Failed to initialize database: %v\n", err)
 			return
 		}
+		defer CloseDB()
 		// Apply stored AI provider/model/API key settings (same settings the web UI uses).
 		loadSettings()
 

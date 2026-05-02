@@ -59,8 +59,8 @@ func StripComments(source string, ext string) string {
 func buildNewlineIndices(source string) []int {
 	var indices []int
 	indices = append(indices, -1) // Virtual newline at start for 1-based indexing
-	for i, i_byte := range []byte(source) {
-		if i_byte == '\n' {
+	for i, b := range []byte(source) {
+		if b == '\n' {
 			indices = append(indices, i)
 		}
 	}
