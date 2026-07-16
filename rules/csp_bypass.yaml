@@ -30,10 +30,13 @@
   confidence: 0.9
 
 - id: csp-missing-default-src
+  languages: []
   patterns:
-  - regex: '(?i)Content-Security-Policy(?![^''"\n]*default-src)'
+    - regex: '(?i)Content-Security-Policy[^\\n]*'
+  negative_patterns:
+    - regex: '(?i)default-src'
   severity: medium
-  description: "A Content Security Policy is defined but does not include a 'default-src' directive. Without default-src, resource types not covered by other directives fall back to loading from any origin."
+  description: "Content-Security-Policy header missing default-src directive — allows unrestricted fallback resource loading."
   remediation: "Add 'default-src' as a fallback directive in every CSP. A safe starting baseline is: default-src 'none'; script-src 'self'; ... Add specific directives for each resource type your application requires."
   cwe: "CWE-693"
   owasp: "A05:2021"
@@ -114,10 +117,13 @@
   confidence: 0.9
 
 - id: csp-object-src-missing
+  languages: []
   patterns:
-  - regex: '(?i)Content-Security-Policy(?![^''"\n]*object-src)(?![^''"\n]*default-src\s+[''"]none[''"])'
+    - regex: '(?i)Content-Security-Policy[^\\n]*'
+  negative_patterns:
+    - regex: '(?i)object-src'
   severity: medium
-  description: "CSP does not define an object-src directive. Without object-src, browsers may allow plugins such as Flash or Java applets to execute, which can bypass script-src restrictions."
+  description: "CSP header missing object-src directive — Flash/plugin injection bypass possible."
   remediation: "Add 'object-src: none' to your CSP to block all plugin execution. This is the recommended setting for modern web applications that do not use browser plugins."
   cwe: "CWE-693"
   owasp: "A05:2021"
@@ -134,10 +140,13 @@
   confidence: 0.80
 
 - id: csp-missing-base-uri
+  languages: []
   patterns:
-  - regex: '(?i)Content-Security-Policy(?![^''"\n]*base-uri)'
+    - regex: '(?i)Content-Security-Policy[^\\n]*'
+  negative_patterns:
+    - regex: '(?i)base-uri'
   severity: medium
-  description: "The CSP lacks a base-uri directive. Attackers can inject a <base> tag to hijack all relative URLs on the page, including relative script endpoints and form actions."
+  description: "CSP header missing base-uri directive — base tag injection can redirect all relative URLs."
   remediation: "Add base-uri 'none' or base-uri 'self' to your CSP policy to block unauthorized <base> tag injection."
   cwe: "CWE-693"
   owasp: "A05:2021"
@@ -154,10 +163,13 @@
   confidence: 0.70
 
 - id: csp-missing-form-action
+  languages: []
   patterns:
-  - regex: '(?i)Content-Security-Policy(?![^''"\n]*form-action)'
+    - regex: '(?i)Content-Security-Policy[^\\n]*'
+  negative_patterns:
+    - regex: '(?i)form-action'
   severity: medium
-  description: "The CSP lacks a form-action directive. Attackers can inject a malicious form or manipulate the DOM to submit sensitive form data to a third-party server."
+  description: "CSP header missing form-action directive — forms can POST to arbitrary domains."
   remediation: "Implement form-action 'self' to strictly enforce that forms can only submit data back to your own origin."
   cwe: "CWE-693"
   owasp: "A05:2021"

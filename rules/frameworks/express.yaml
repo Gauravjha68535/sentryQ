@@ -12,17 +12,6 @@
   owasp: "A04:2021-Insecure Design"
   confidence: 0.8
 
-- id: express-missing-helmet
-  languages: [javascript, typescript]
-  patterns:
-    - regex: 'app\s*=\s*express\s*\(\s*\)'
-  severity: low
-  description: "Express app initialized without helmet middleware — security-relevant HTTP headers may be missing"
-  remediation: "Add 'const helmet = require(\"helmet\"); app.use(helmet());' immediately after app initialization."
-  cwe: "CWE-693"
-  owasp: "A05:2021-Security Misconfiguration"
-  confidence: 0.5
-
 - id: express-open-redirect
   languages: [javascript, typescript]
   patterns:

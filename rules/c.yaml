@@ -1,3203 +1,3498 @@
 - id: c-buffer-overflow-strcpy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strcpy\s*\(\s*[^,]+,\s*[^)]+\]'
+  - regex: strcpy\s*\(\s*[^,]+,\s*[^)]+\]
   severity: critical
-  description: "strcpy() performs unbounded copy - buffer overflow vulnerability"
-  remediation: "Use strncpy() with explicit size limit, strlcpy(), or snprintf()"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: strcpy() performs unbounded copy - buffer overflow vulnerability
+  remediation: Use strncpy() with explicit size limit, strlcpy(), or snprintf()
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-strcat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strcat\s*\('
+  - regex: strcat\s*\(
   severity: critical
-  description: "strcat() performs unbounded concatenation - buffer overflow risk"
-  remediation: "Use strncat() or strlcat() with explicit destination size"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: strcat() performs unbounded concatenation - buffer overflow risk
+  remediation: Use strncat() or strlcat() with explicit destination size
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-sprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sprintf\s*\(\s*[^,]+,\s*[^)]+\]'
+  - regex: sprintf\s*\(\s*[^,]+,\s*[^)]+\]
   severity: critical
-  description: "sprintf() writes unbounded output - buffer overflow"
-  remediation: "Use snprintf() with explicit buffer size limit"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: sprintf() writes unbounded output - buffer overflow
+  remediation: Use snprintf() with explicit buffer size limit
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-vsprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'vsprintf\s*\('
+  - regex: vsprintf\s*\(
   severity: critical
-  description: "vsprintf() writes unbounded output - buffer overflow"
-  remediation: "Use vsnprintf() with explicit buffer size limit"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: vsprintf() writes unbounded output - buffer overflow
+  remediation: Use vsnprintf() with explicit buffer size limit
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-gets
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\bgets\s*\('
+  - regex: \bgets\s*\(
   severity: critical
-  description: "gets() is inherently unsafe - no bounds checking"
-  remediation: "Use fgets() with explicit buffer size or getline()"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: gets() is inherently unsafe - no bounds checking
+  remediation: Use fgets() with explicit buffer size or getline()
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-scanf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'scanf\s*\(\s*[''\\"]%[^0-9]*(?:s|\[)[^''\\"]*[''\\"]'
+  - regex: scanf\s*\(\s*['\\"]%[^0-9]*(?:s|\[)[^'\\"]*['\\"]
   severity: critical
-  description: "scanf %s without width specifier - unbounded input"
-  remediation: "Use width specifier: scanf(\"%255s\", buf) or use fgets()"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: scanf %s without width specifier - unbounded input
+  remediation: 'Use width specifier: scanf("%255s", buf) or use fgets()'
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-sscanf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sscanf\s*\([^,]+,\s*[''\\"][^''\\"]*%[^0-9]*(?:s|\[)[^''\\"]*[''\\"]'
+  - regex: sscanf\s*\([^,]+,\s*['\\"][^'\\"]*%[^0-9]*(?:s|\[)[^'\\"]*['\\"]
   severity: high
-  description: "sscanf with %s without width - may overflow destination"
-  remediation: "Use width specifier: sscanf(src, \"%255s\", dst)"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: sscanf with %s without width - may overflow destination
+  remediation: 'Use width specifier: sscanf(src, "%255s", dst)'
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-fscanf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fscanf\s*\([^,]+,\s*[''\\"][^''\\"]*%[^0-9]*(?:s|\[)[^''\\"]*[''\\"]'
+  - regex: fscanf\s*\([^,]+,\s*['\\"][^'\\"]*%[^0-9]*(?:s|\[)[^'\\"]*['\\"]
   severity: high
-  description: "fscanf with %s without width - buffer overflow risk"
-  remediation: "Use width specifier: fscanf(file, \"%255s\", buf)"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: fscanf with %s without width - buffer overflow risk
+  remediation: 'Use width specifier: fscanf(file, "%255s", buf)'
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-realpath
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'realpath\s*\([^,]+,\s*NULL\s*\)'
+  - regex: realpath\s*\([^,]+,\s*NULL\s*\)
   severity: high
-  description: "realpath with NULL second argument - POSIX extension may allocate"
-  remediation: "Use realpath with user-provided buffer of PATH_MAX size"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: realpath with NULL second argument - POSIX extension may allocate
+  remediation: Use realpath with user-provided buffer of PATH_MAX size
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-getcwd
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getcwd\s*\(\s*NULL\s*,'
+  - regex: getcwd\s*\(\s*NULL\s*,
   severity: high
-  description: "getcwd with NULL buffer - POSIX extension may allocate"
-  remediation: "Use getcwd with user-provided buffer of PATH_MAX size"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: getcwd with NULL buffer - POSIX extension may allocate
+  remediation: Use getcwd with user-provided buffer of PATH_MAX size
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-readlink
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'readlink\s*\([^,]+,\s*[^,]+,\s*[^)]*\]'
+  - regex: readlink\s*\([^,]+,\s*[^,]+,\s*[^)]*\]
   severity: high
-  description: "readlink may not null-terminate the buffer"
-  remediation: "Use readlink with explicit size and manually add null terminator"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: readlink may not null-terminate the buffer
+  remediation: Use readlink with explicit size and manually add null terminator
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-strncpy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strncpy\s*\([^,]+,\s*[^,]+,\s*[^)]+\)'
+  - regex: strncpy\s*\([^,]+,\s*[^,]+,\s*[^)]+\)
   severity: high
-  description: "strncpy may not null-terminate when size equals buffer length"
+  description: strncpy may not null-terminate when size equals buffer length
   remediation: "Ensure null-termination: dest[size-1] = '\0'"
-  cwe: "CWE-170"
-  owasp: "A06:2021"
-
+  cwe: CWE-170
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-strncat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strncat\s*\([^,]+,\s*[^,]+,\s*[^)]+\]'
+  - regex: strncat\s*\([^,]+,\s*[^,]+,\s*[^)]+\]
   severity: medium
-  description: "strncat size parameter may be miscalculated"
-  remediation: "Calculate remaining space: strncat(dest, src, sizeof(dest)-strlen(dest)-1)"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: strncat size parameter may be miscalculated
+  remediation: 'Calculate remaining space: strncat(dest, src, sizeof(dest)-strlen(dest)-1)'
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-buffer-overflow-memcpy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'memcpy\s*\([^,]+,\s*[^,]+,\s*[^)]*user|memcpy\s*\([^,]+,\s*[^,]+,\s*[^)]*\$'
+  - regex: memcpy\s*\([^,]+,\s*[^,]+,\s*[^)]*user|memcpy\s*\([^,]+,\s*[^,]+,\s*[^)]*\$
   severity: high
-  description: "memcpy with user-controlled length - buffer overflow"
-  remediation: "Validate length parameter against destination buffer size"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: memcpy with user-controlled length - buffer overflow
+  remediation: Validate length parameter against destination buffer size
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-memmove
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'memmove\s*\([^,]+,\s*[^,]+,\s*[^)]*user'
+  - regex: memmove\s*\([^,]+,\s*[^,]+,\s*[^)]*user
   severity: high
-  description: "memmove with user-controlled length - buffer overflow"
-  remediation: "Validate length parameter against destination buffer size"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: memmove with user-controlled length - buffer overflow
+  remediation: Validate length parameter against destination buffer size
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-strcpy-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'while\s*\([^)]*\)\s*\{[^}]*\*[^\s]+\s*=\s*\*[^\s]+\s*;\s*[^\s]+\s*\+\+\s*;'
+  - regex: while\s*\([^)]*\)\s*\{[^}]*\*[^\s]+\s*=\s*\*[^\s]+\s*;\s*[^\s]+\s*\+\+\s*;
   severity: high
-  description: "Manual string copy loop without bounds checking"
-  remediation: "Use bounded functions or add explicit length check"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: Manual string copy loop without bounds checking
+  remediation: Use bounded functions or add explicit length check
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-buffer-overflow-wcscpy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'wcscpy\s*\('
+  - regex: wcscpy\s*\(
   severity: high
-  description: "wcscpy() performs unbounded wide string copy"
-  remediation: "Use wcsncpy() with explicit size limit"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: wcscpy() performs unbounded wide string copy
+  remediation: Use wcsncpy() with explicit size limit
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-wcscat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'wcscat\s*\('
+  - regex: wcscat\s*\(
   severity: high
-  description: "wcscat() performs unbounded wide string concatenation"
-  remediation: "Use wcsncat() with explicit size limit"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: wcscat() performs unbounded wide string concatenation
+  remediation: Use wcsncat() with explicit size limit
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-stpcpy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'stpcpy\s*\('
+  - regex: stpcpy\s*\(
   severity: high
-  description: "stpcpy() performs unbounded copy - buffer overflow"
-  remediation: "Use stpncpy() with explicit size limit"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: stpcpy() performs unbounded copy - buffer overflow
+  remediation: Use stpncpy() with explicit size limit
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-getwd
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getwd\s*\('
+  - regex: getwd\s*\(
   severity: high
-  description: "getwd() writes up to PATH_MAX bytes without size check"
-  remediation: "Use getcwd() with explicit buffer size"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: getwd() writes up to PATH_MAX bytes without size check
+  remediation: Use getcwd() with explicit buffer size
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-confstr
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'confstr\s*\([^,]+,\s*[^,]+,\s*[^)]*\]'
+  - regex: confstr\s*\([^,]+,\s*[^,]+,\s*[^)]*\]
   severity: medium
-  description: "confstr may overflow if buffer size is insufficient"
-  remediation: "Check return value and ensure buffer is large enough"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: confstr may overflow if buffer size is insufficient
+  remediation: Check return value and ensure buffer is large enough
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-buffer-overflow-ttyname-unsafe
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'ttyname\s*\('
+  - regex: ttyname\s*\(
   severity: high
-  description: "ttyname() returns pointer to static data - not thread-safe"
-  remediation: "Use ttyname_r() with explicit buffer"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: ttyname() returns pointer to static data - not thread-safe
+  remediation: Use ttyname_r() with explicit buffer
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-buffer-overflow-gethostname
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'gethostname\s*\([^,]+,\s*[^)]+\]'
+  - regex: gethostname\s*\([^,]+,\s*[^)]+\]
   severity: medium
-  description: "gethostname may not null-terminate on truncation"
-  remediation: "Ensure buffer is large enough and manually null-terminate"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: gethostname may not null-terminate on truncation
+  remediation: Ensure buffer is large enough and manually null-terminate
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-buffer-overflow-getdomainname
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getdomainname\s*\([^,]+,\s*[^)]+\]'
+  - regex: getdomainname\s*\([^,]+,\s*[^)]+\]
   severity: medium
-  description: "getdomainname may not null-terminate on truncation"
-  remediation: "Ensure buffer is large enough and manually null-terminate"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: getdomainname may not null-terminate on truncation
+  remediation: Ensure buffer is large enough and manually null-terminate
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-buffer-overflow-sigabbrev
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sigabbrev_np\s*\([^)]*\]'
+  - regex: sigabbrev_np\s*\([^)]*\]
   severity: low
-  description: "GNU-specific function returns string constant"
-  remediation: "Safe as long as result not modified"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: GNU-specific function returns string constant
+  remediation: Safe as long as result not modified
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.5
 - id: c-buffer-overflow-sigdescr
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sigdescr_np\s*\([^)]*\]'
+  - regex: sigdescr_np\s*\([^)]*\]
   severity: low
-  description: "GNU-specific function returns string constant"
-  remediation: "Safe as long as result not modified"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: GNU-specific function returns string constant
+  remediation: Safe as long as result not modified
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.5
 - id: c-buffer-overflow-strerror
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strerror\s*\('
+  - regex: strerror\s*\(
   severity: medium
-  description: "strerror() not thread-safe, may return pointer to static data"
-  remediation: "Use strerror_r() with explicit buffer"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: strerror() not thread-safe, may return pointer to static data
+  remediation: Use strerror_r() with explicit buffer
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-buffer-overflow-strsignal
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strsignal\s*\('
+  - regex: strsignal\s*\(
   severity: medium
-  description: "strsignal() not thread-safe, may return pointer to static data"
-  remediation: "Use strsignal_r() if available or strerror-like approach"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
-# ======================== FORMAT STRING ATTACKS (31-60) ========================
-
+  description: strsignal() not thread-safe, may return pointer to static data
+  remediation: Use strsignal_r() if available or strerror-like approach
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-format-string-printf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'printf\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: printf\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "printf called with variable format string - format string vulnerability"
-  remediation: "Always use printf(\"%s\", string) instead of printf(string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: printf called with variable format string - format string vulnerability
+  remediation: Always use printf("%s", string) instead of printf(string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-fprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fprintf\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: fprintf\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "fprintf with variable format string - format string vulnerability"
-  remediation: "Use fprintf(stream, \"%s\", string) instead of fprintf(stream, string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: fprintf with variable format string - format string vulnerability
+  remediation: Use fprintf(stream, "%s", string) instead of fprintf(stream, string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-sprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sprintf\s*\(\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: sprintf\s*\(\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: critical
-  description: "sprintf with variable format string - format string vulnerability"
-  remediation: "Use sprintf(buf, \"%s\", string) instead of sprintf(buf, string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: sprintf with variable format string - format string vulnerability
+  remediation: Use sprintf(buf, "%s", string) instead of sprintf(buf, string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-format-string-snprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'snprintf\s*\(\s*[^,]+,\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: snprintf\s*\(\s*[^,]+,\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "snprintf with variable format string - format string vulnerability"
-  remediation: "Use snprintf(buf, size, \"%s\", string) instead of snprintf(buf, size, string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: snprintf with variable format string - format string vulnerability
+  remediation: Use snprintf(buf, size, "%s", string) instead of snprintf(buf, size, string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-format-string-vprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'vprintf\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,'
+  - regex: vprintf\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,
   severity: high
-  description: "vprintf with variable format string - format string vulnerability"
-  remediation: "Use vprintf(\"%s\", args) instead of vprintf(string, args)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: vprintf with variable format string - format string vulnerability
+  remediation: Use vprintf("%s", args) instead of vprintf(string, args)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-vfprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'vfprintf\s*\(\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,'
+  - regex: vfprintf\s*\(\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,
   severity: high
-  description: "vfprintf with variable format string - format string vulnerability"
-  remediation: "Use vfprintf(stream, \"%s\", args) instead of vfprintf(stream, string, args)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: vfprintf with variable format string - format string vulnerability
+  remediation: Use vfprintf(stream, "%s", args) instead of vfprintf(stream, string, args)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-vsprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'vsprintf\s*\(\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,'
+  - regex: vsprintf\s*\(\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,
   severity: critical
-  description: "vsprintf with variable format string - format string vulnerability"
-  remediation: "Use vsprintf(buf, \"%s\", args) instead of vsprintf(buf, string, args)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: vsprintf with variable format string - format string vulnerability
+  remediation: Use vsprintf(buf, "%s", args) instead of vsprintf(buf, string, args)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-format-string-vsnprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'vsnprintf\s*\(\s*[^,]+,\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,'
+  - regex: vsnprintf\s*\(\s*[^,]+,\s*[^,]+,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*,
   severity: high
-  description: "vsnprintf with variable format string - format string vulnerability"
-  remediation: "Use vsnprintf(buf, size, \"%s\", args) instead of vsnprintf(buf, size, string, args)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: vsnprintf with variable format string - format string vulnerability
+  remediation: Use vsnprintf(buf, size, "%s", args) instead of vsnprintf(buf, size, string, args)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-format-string-syslog
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'syslog\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: syslog\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "syslog with variable format string - format string vulnerability"
-  remediation: "Use syslog(priority, \"%s\", string) instead of syslog(priority, string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: syslog with variable format string - format string vulnerability
+  remediation: Use syslog(priority, "%s", string) instead of syslog(priority, string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-err
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'err\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: err\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "err() with variable format string - format string vulnerability"
-  remediation: "Use err(eval, \"%s\", string) instead of err(eval, string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: err() with variable format string - format string vulnerability
+  remediation: Use err(eval, "%s", string) instead of err(eval, string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-errx
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'errx\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: errx\s*\(\s*\w+\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "errx() with variable format string - format string vulnerability"
-  remediation: "Use errx(eval, \"%s\", string) instead of errx(eval, string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: errx() with variable format string - format string vulnerability
+  remediation: Use errx(eval, "%s", string) instead of errx(eval, string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-warn
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'warn\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: warn\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "warn() with variable format string - format string vulnerability"
-  remediation: "Use warn(\"%s\", string) instead of warn(string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: warn() with variable format string - format string vulnerability
+  remediation: Use warn("%s", string) instead of warn(string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-warnx
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'warnx\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)'
+  - regex: warnx\s*\(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\)
   severity: high
-  description: "warnx() with variable format string - format string vulnerability"
-  remediation: "Use warnx(\"%s\", string) instead of warnx(string)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: warnx() with variable format string - format string vulnerability
+  remediation: Use warnx("%s", string) instead of warnx(string)
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-perror-format
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'perror\s*\(\s*[^)]*%'
+  - regex: perror\s*\(\s*[^)]*%
   severity: high
-  description: "perror with format specifiers - perror does not support formatting"
-  remediation: "Use fprintf(stderr, \"%s: \", prefix); perror(NULL);"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: perror with format specifiers - perror does not support formatting
+  remediation: 'Use fprintf(stderr, "%s: ", prefix); perror(NULL);'
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-format-string-printf-percent-n
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '%[^%]*n'
+  - regex: '%[^%]*n'
   severity: high
-  description: "Format string with %n writes to memory - can overwrite arbitrary memory"
-  remediation: "Never use %n specifier, especially with user-controlled format strings"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: Format string with %n writes to memory - can overwrite arbitrary memory
+  remediation: Never use %n specifier, especially with user-controlled format strings
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.65
 - id: c-format-string-printf-positional
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '%[0-9]+\$'
+  - regex: '%[0-9]+\$'
   severity: high
-  description: "Positional parameters in format string can be exploited"
-  remediation: "Avoid positional parameters with user-controlled format strings"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: Positional parameters in format string can be exploited
+  remediation: Avoid positional parameters with user-controlled format strings
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.65
 - id: c-format-string-printf-wide
-  fields: [c]
+  fields:
+  - c
   patterns:
-    - regex: '%[0-9]+s'
+  - regex: '%[0-9]+s'
   severity: low
-  description: "Format string with width specifier - may cause buffer overflow"
-  remediation: "Ensure width does not exceed destination buffer size"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: Format string with width specifier - may cause buffer overflow
+  remediation: Ensure width does not exceed destination buffer size
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.45
 - id: c-format-string-printf-precision
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\.[0-9]+s'
+  - regex: \.[0-9]+s
   severity: low
-  description: "Format string with precision - ensure buffer is large enough"
-  remediation: "Verify that destination buffer can hold specified precision"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: Format string with precision - ensure buffer is large enough
+  remediation: Verify that destination buffer can hold specified precision
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.45
 - id: c-format-string-scanf-percent-n
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '%[^%]*n'
+  - regex: '%[^%]*n'
   severity: high
-  description: "scanf with %n specifier writes to memory - can overwrite variables"
-  remediation: "Never use %n specifier in scanf format strings"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: scanf with %n specifier writes to memory - can overwrite variables
+  remediation: Never use %n specifier in scanf format strings
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.65
 - id: c-format-string-printf-stack-leak
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '%[0-9]*x|%[0-9]*p'
+  - regex: '%[0-9]*x|%[0-9]*p'
   severity: high
-  description: "Format specifiers that can leak stack contents"
-  remediation: "Avoid %x and %p with user-controlled format strings"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Format specifiers that can leak stack contents
+  remediation: Avoid %x and %p with user-controlled format strings
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: c-format-string-dynamic-construction
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'asprintf\s*\([^,]+,\s*[^,]+\)'
+  - regex: asprintf\s*\([^,]+,\s*[^,]+\)
   severity: high
-  description: "asprintf with variable format string - memory allocation"
-  remediation: "Use asprintf(\"%s\", string) format for user input"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: asprintf with variable format string - memory allocation
+  remediation: Use asprintf("%s", string) format for user input
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-use-after-free-simple
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*\s*[->[*(]'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*\s*[->[*(]
   severity: critical
-  description: "Pointer used after being freed - use-after-free vulnerability"
-  remediation: "Set pointer to NULL after free and check for NULL before use"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Pointer used after being freed - use-after-free vulnerability
+  remediation: Set pointer to NULL after free and check for NULL before use
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-use-after-free-function
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*\w+\s*\(\s*.*\s*\)'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*\w+\s*\(\s*.*\s*\)
   severity: critical
-  description: "Freed pointer passed to function - use-after-free"
-  remediation: "Set pointer to NULL after free and check before function calls"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Freed pointer passed to function - use-after-free
+  remediation: Set pointer to NULL after free and check before function calls
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-use-after-free-return
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*return\s+.*'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*return\s+.*
   severity: critical
-  description: "Returning freed pointer - use-after-free in caller"
-  remediation: "Never return freed pointers, set to NULL and return NULL"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Returning freed pointer - use-after-free in caller
+  remediation: Never return freed pointers, set to NULL and return NULL
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-use-after-free-assign
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*\s*='
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*\s*=
   severity: high
-  description: "Assigning to freed pointer without reallocation"
-  remediation: "Only assign after reallocation or set to NULL"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Assigning to freed pointer without reallocation
+  remediation: Only assign after reallocation or set to NULL
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-use-after-free-struct
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*->'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*->
   severity: critical
-  description: "Accessing struct member after free - use-after-free"
-  remediation: "Free only after all accesses, set to NULL after free"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Accessing struct member after free - use-after-free
+  remediation: Free only after all accesses, set to NULL after free
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-use-after-free-array
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*\s*\[\]'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*.*\s*\[\]
   severity: critical
-  description: "Accessing array index after free - use-after-free"
-  remediation: "Free only after array accesses, set to NULL after free"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Accessing array index after free - use-after-free
+  remediation: Free only after array accesses, set to NULL after free
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-use-after-free-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*while\s*\([^)]*.*'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*while\s*\([^)]*.*
   severity: critical
-  description: "Freed pointer used in loop condition - use-after-free"
-  remediation: "Ensure pointer not used after free, even in loop conditions"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Freed pointer used in loop condition - use-after-free
+  remediation: Ensure pointer not used after free, even in loop conditions
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-use-after-free-realloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '(\w+)\s*=\s*realloc\s*\(\s*.*,\s*[^)]+\]'
+  - regex: (\w+)\s*=\s*realloc\s*\(\s*.*,\s*[^)]+\]
   severity: high
-  description: "realloc may free pointer on failure - use-after-free"
-  remediation: "Use temporary variable: tmp = realloc(ptr, size); if (!tmp) handle_error();"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: realloc may free pointer on failure - use-after-free
+  remediation: 'Use temporary variable: tmp = realloc(ptr, size); if (!tmp) handle_error();'
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-use-after-free-dangling-pointer
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*=\s*\w+\s*;\s*free\s*\(\s*\w+\s*\)\s*;[^}]*\w+\s*->'
+  - regex: \w+\s*=\s*\w+\s*;\s*free\s*\(\s*\w+\s*\)\s*;[^}]*\w+\s*->
   severity: critical
-  description: "Dangling pointer created and used - use-after-free"
-  remediation: "Ensure all pointers to freed memory are set to NULL"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Dangling pointer created and used - use-after-free
+  remediation: Ensure all pointers to freed memory are set to NULL
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-double-free
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*free\s*\(\s*.*\s*\)'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*free\s*\(\s*.*\s*\)
   severity: high
-  description: "Double free vulnerability - heap corruption"
-  remediation: "Set pointer to NULL after first free and check before second free"
-  cwe: "CWE-415"
-  owasp: "A06:2021"
-
+  description: Double free vulnerability - heap corruption
+  remediation: Set pointer to NULL after first free and check before second free
+  cwe: CWE-415
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-double-free-function
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*\w+\s*\(\s*.*\s*\)[^;]*free'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*\w+\s*\(\s*.*\s*\)[^;]*free
   severity: high
-  description: "Double free via function that may free again"
-  remediation: "Track ownership clearly, set to NULL after free"
-  cwe: "CWE-415"
-  owasp: "A06:2021"
-
+  description: Double free via function that may free again
+  remediation: Track ownership clearly, set to NULL after free
+  cwe: CWE-415
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-double-free-error-path
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;[^}]*if\s*\([^)]*\)\s*\{[^}]*free\s*\(\s*.*\s*\]'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;[^}]*if\s*\([^)]*\)\s*\{[^}]*free\s*\(\s*.*\s*\]
   severity: high
-  description: "Potential double free in error path"
-  remediation: "Use consistent cleanup pattern with NULL checks"
-  cwe: "CWE-415"
-  owasp: "A06:2021"
-
+  description: Potential double free in error path
+  remediation: Use consistent cleanup pattern with NULL checks
+  cwe: CWE-415
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-free-not-nulling
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*(\w+)\s*\)\s*;\s*'
+  - regex: free\s*\(\s*(\w+)\s*\)\s*;\s*
   severity: high
-  description: "Pointer not set to NULL after free - dangling pointer risk"
-  remediation: "Set pointer to NULL after free: free(ptr); ptr = NULL;"
-  cwe: "CWE-416"
-  owasp: "A06:2021"
-
+  description: Pointer not set to NULL after free - dangling pointer risk
+  remediation: 'Set pointer to NULL after free: free(ptr); ptr = NULL;'
+  cwe: CWE-416
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-free-stack-array
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*&\s*\w+\s*\)'
+  - regex: free\s*\(\s*&\s*\w+\s*\)
   severity: high
-  description: "Attempting to free stack-allocated memory - undefined behavior"
-  remediation: "Never free stack-allocated variables"
-  cwe: "CWE-590"
-  owasp: "A06:2021"
-
+  description: Attempting to free stack-allocated memory - undefined behavior
+  remediation: Never free stack-allocated variables
+  cwe: CWE-590
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-free-non-heap
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'free\s*\(\s*\w+\s*\)\s*;\s*'
+  - regex: free\s*\(\s*\w+\s*\)\s*;\s*
   severity: high
-  description: "free called without clear allocation source - may free stack memory"
-  remediation: "Ensure pointer was allocated with malloc/calloc/realloc"
-  cwe: "CWE-590"
-  owasp: "A06:2021"
-
+  description: free called without clear allocation source - may free stack memory
+  remediation: Ensure pointer was allocated with malloc/calloc/realloc
+  cwe: CWE-590
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-use-after-scope
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\[?\s*=\s*&\s*\w+\s*;\s*\}[^}]*\w+'
+  - regex: \w+\s*\[?\s*=\s*&\s*\w+\s*;\s*\}[^}]*\w+
   severity: high
-  description: "Pointer to stack variable used after scope exit - use-after-scope"
-  remediation: "Allocate on heap if needed outside scope, or copy data"
-  cwe: "CWE-562"
-  owasp: "A06:2021"
-
+  description: Pointer to stack variable used after scope exit - use-after-scope
+  remediation: Allocate on heap if needed outside scope, or copy data
+  cwe: CWE-562
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-return-local-address
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'return\s+&\s*\w+\s*;\s*\}'
+  - regex: return\s+&\s*\w+\s*;\s*\}
   severity: high
-  description: "Returning address of local variable - stack use after return"
-  remediation: "Allocate on heap and return pointer, or use static/global"
-  cwe: "CWE-562"
-  owasp: "A06:2021"
-
+  description: Returning address of local variable - stack use after return
+  remediation: Allocate on heap and return pointer, or use static/global
+  cwe: CWE-562
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-return-local-array
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'return\s+\w+\s*;\s*\}.*\w+\s+\w+\s*\[[^\]]+\]'
+  - regex: return\s+\w+\s*;\s*\}.*\w+\s+\w+\s*\[[^\]]+\]
   severity: high
-  description: "Returning local array (decays to pointer) - stack use after return"
-  remediation: "Allocate array on heap and return pointer"
-  cwe: "CWE-562"
-  owasp: "A06:2021"
-
+  description: Returning local array (decays to pointer) - stack use after return
+  remediation: Allocate array on heap and return pointer
+  cwe: CWE-562
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-alloca-stack-overflow
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'alloca\s*\(\s*[^)]+\*\)|alloca\s*\(\s*[^)]+\+[^)]+\]'
+  - regex: alloca\s*\(\s*[^)]+\*\)|alloca\s*\(\s*[^)]+\+[^)]+\]
   severity: high
-  description: "alloca with arithmetic - potential stack overflow"
-  remediation: "Use malloc for large or variable-sized allocations"
-  cwe: "CWE-770"
-  owasp: "A06:2021"
-
+  description: alloca with arithmetic - potential stack overflow
+  remediation: Use malloc for large or variable-sized allocations
+  cwe: CWE-770
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-alloca-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'for\s*\([^;]+;[^;]+;[^)]*\)\s*\{[^}]*alloca'
+  - regex: for\s*\([^;]+;[^;]+;[^)]*\)\s*\{[^}]*alloca
   severity: high
-  description: "alloca in loop - can exhaust stack quickly"
-  remediation: "Use malloc in loops and free after iteration"
-  cwe: "CWE-770"
-  owasp: "A06:2021"
-
+  description: alloca in loop - can exhaust stack quickly
+  remediation: Use malloc in loops and free after iteration
+  cwe: CWE-770
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-alloca-while
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'while\s*\([^)]*\)\s*\{[^}]*alloca'
+  - regex: while\s*\([^)]*\)\s*\{[^}]*alloca
   severity: high
-  description: "alloca in while loop - unbounded stack allocation"
-  remediation: "Use malloc and free in loop body"
-  cwe: "CWE-770"
-  owasp: "A06:2021"
-
+  description: alloca in while loop - unbounded stack allocation
+  remediation: Use malloc and free in loop body
+  cwe: CWE-770
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-alloca-recursive
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'alloca\s*\([^)]+\)[^}]*\w+\s*\([^)]*\]'
+  - regex: alloca\s*\([^)]+\)[^}]*\w+\s*\([^)]*\]
   severity: high
-  description: "alloca in recursive function - rapid stack exhaustion"
-  remediation: "Use malloc and free in recursive functions"
-  cwe: "CWE-770"
-  owasp: "A06:2021"
-
-# ======================== INTEGER OVERFLOW (91-120) ========================
-
+  description: alloca in recursive function - rapid stack exhaustion
+  remediation: Use malloc and free in recursive functions
+  cwe: CWE-770
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-integer-overflow-malloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\(\s*[^)]*\*[^)]+\]'
+  - regex: malloc\s*\(\s*[^)]*\*[^)]+\]
   severity: high
-  description: "malloc with multiplication - potential integer overflow"
-  remediation: "Check for overflow: if (a > SIZE_MAX / b) return NULL;"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: malloc with multiplication - potential integer overflow
+  remediation: 'Check for overflow: if (a > SIZE_MAX / b) return NULL;'
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-integer-overflow-calloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'calloc\s*\(\s*[^,]+,\s*[^)]+\*[^)]+\]'
+  - regex: calloc\s*\(\s*[^,]+,\s*[^)]+\*[^)]+\]
   severity: medium
-  description: "calloc already checks for overflow - this multiplication is unnecessary"
-  remediation: "Remove redundant multiplication, pass counts directly"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: calloc already checks for overflow - this multiplication is unnecessary
+  remediation: Remove redundant multiplication, pass counts directly
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-integer-overflow-realloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'realloc\s*\(\s*[^,]+,\s*[^)]*\*[^)]+\]'
+  - regex: realloc\s*\(\s*[^,]+,\s*[^)]*\*[^)]+\]
   severity: high
-  description: "realloc with multiplication - potential integer overflow"
-  remediation: "Check overflow before multiplication"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: realloc with multiplication - potential integer overflow
+  remediation: Check overflow before multiplication
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-integer-overflow-array-index
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\[\s*\w+\s*\+\s*\w+\s*\]|\w+\s*\[\s*\w+\s*\*\s*\w+\s*\]'
+  - regex: \w+\s*\[\s*\w+\s*\+\s*\w+\s*\]|\w+\s*\[\s*\w+\s*\*\s*\w+\s*\]
   severity: high
-  description: "Array index with addition/multiplication - integer overflow may cause OOB"
-  remediation: "Check for overflow before array access"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Array index with addition/multiplication - integer overflow may cause OOB
+  remediation: Check for overflow before array access
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-integer-overflow-ptr-arithmetic
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\+\s*\w+\s*\*\s*sizeof|\w+\s*\+\s*\w+\s*\+\s*\w+'
+  - regex: \w+\s*\+\s*\w+\s*\*\s*sizeof|\w+\s*\+\s*\w+\s*\+\s*\w+
   severity: high
-  description: "Pointer arithmetic with addition/multiplication - overflow risk"
-  remediation: "Check for overflow before pointer arithmetic"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Pointer arithmetic with addition/multiplication - overflow risk
+  remediation: Check for overflow before pointer arithmetic
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-integer-overflow-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'for\s*\(\s*\w+\s*=\s*[^;]+;\s*\w+\s*<\s*[^;]+\*[^;]+;'
+  - regex: for\s*\(\s*\w+\s*=\s*[^;]+;\s*\w+\s*<\s*[^;]+\*[^;]+;
   severity: medium
-  description: "Loop condition with multiplication - potential overflow"
-  remediation: "Use separate variable for limit or check overflow"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Loop condition with multiplication - potential overflow
+  remediation: Use separate variable for limit or check overflow
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-integer-overflow-cast
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\(\s*(?:unsigned\s+)?(?:int|short|char)\s*\)\s*\w+\s*\*\s*\w+'
+  - regex: \(\s*(?:unsigned\s+)?(?:int|short|char)\s*\)\s*\w+\s*\*\s*\w+
   severity: high
-  description: "Multiplication result cast to smaller type - truncation"
-  remediation: "Perform bounds check before casting"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Multiplication result cast to smaller type - truncation
+  remediation: Perform bounds check before casting
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-integer-overflow-assign
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*=\s*\w+\s*\*\s*\w+\s*;'
+  - regex: \w+\s*=\s*\w+\s*\*\s*\w+\s*;
   severity: medium
-  description: "Multiplication without overflow check"
-  remediation: "Use checked arithmetic: if (__builtin_mul_overflow(a, b, &result)) error()"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Multiplication without overflow check
+  remediation: 'Use checked arithmetic: if (__builtin_mul_overflow(a, b, &result)) error()'
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-integer-overflow-add
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*=\s*\w+\s*\+\s*\w+\s*;'
+  - regex: \w+\s*=\s*\w+\s*\+\s*\w+\s*;
   severity: medium
-  description: "Addition without overflow check"
-  remediation: "Use checked addition: if (__builtin_add_overflow(a, b, &result)) error()"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Addition without overflow check
+  remediation: 'Use checked addition: if (__builtin_add_overflow(a, b, &result)) error()'
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-integer-overflow-sub
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*=\s*\w+\s*-\s*\w+\s*;'
+  - regex: \w+\s*=\s*\w+\s*-\s*\w+\s*;
   severity: medium
-  description: "Subtraction without underflow check"
-  remediation: "Use checked subtraction: if (__builtin_sub_overflow(a, b, &result)) error()"
-  cwe: "CWE-191"
-  owasp: "A06:2021"
-
+  description: Subtraction without underflow check
+  remediation: 'Use checked subtraction: if (__builtin_sub_overflow(a, b, &result)) error()'
+  cwe: CWE-191
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-integer-overflow-neg
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '-\s*\w+'
+  - regex: -\s*\w+
   severity: low
-  description: "Unary negation - may underflow for unsigned"
-  remediation: "Ensure operand is signed and not at minimum value"
-  cwe: "CWE-191"
-  owasp: "A06:2021"
-
+  description: Unary negation - may underflow for unsigned
+  remediation: Ensure operand is signed and not at minimum value
+  cwe: CWE-191
+  owasp: A06:2021
+  confidence: 0.45
 - id: c-integer-overflow-shift
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*<<\s*\w+|\w+\s*>>\s*\w+'
+  - regex: \w+\s*<<\s*\w+|\w+\s*>>\s*\w+
   severity: high
-  description: "Shift with variable shift count - undefined behavior if too large"
-  remediation: "Ensure shift count < bit width of type"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Shift with variable shift count - undefined behavior if too large
+  remediation: Ensure shift count < bit width of type
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-integer-overflow-shift-by-type
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*<<\s*\d{3,}|\w+\s*<<\s*\d+\s*[^;]'
+  - regex: \w+\s*<<\s*\d{3,}|\w+\s*<<\s*\d+\s*[^;]
   severity: high
-  description: "Shift by large constant - may exceed type width"
-  remediation: "Ensure shift count < bit width of type"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Shift by large constant - may exceed type width
+  remediation: Ensure shift count < bit width of type
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-integer-overflow-sizeof-multiplication
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sizeof\s*\([^)]+\)\s*\*\s*\w+'
+  - regex: sizeof\s*\([^)]+\)\s*\*\s*\w+
   severity: low
-  description: "sizeof multiplication - ensure result doesn't overflow"
-  remediation: "Use calloc which handles multiplication safely"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: sizeof multiplication - ensure result doesn't overflow
+  remediation: Use calloc which handles multiplication safely
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.5
 - id: c-integer-overflow-signed-unsigned
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\(\s*unsigned\s+int\s*\)\s*-\d+'
+  - regex: \(\s*unsigned\s+int\s*\)\s*-\d+
   severity: medium
-  description: "Cast of negative value to unsigned - large positive result"
-  remediation: "Avoid casting signed negatives to unsigned"
-  cwe: "CWE-195"
-  owasp: "A06:2021"
-
+  description: Cast of negative value to unsigned - large positive result
+  remediation: Avoid casting signed negatives to unsigned
+  cwe: CWE-195
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-integer-overflow-sign-comparison
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*(?:<|>|<=|>=|==)\s*\w+\s*;'
+  - regex: \w+\s*(?:<|>|<=|>=|==)\s*\w+\s*;
   severity: medium
-  description: "Comparison of signed and unsigned values - may give unexpected results"
-  remediation: "Cast to same signedness or ensure values in appropriate range"
-  cwe: "CWE-196"
-  owasp: "A06:2021"
-
+  description: Comparison of signed and unsigned values - may give unexpected results
+  remediation: Cast to same signedness or ensure values in appropriate range
+  cwe: CWE-196
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-integer-overflow-array-size
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\[\s*\w+\s*\]\s*;'
+  - regex: \w+\s*\[\s*\w+\s*\]\s*;
   severity: low
-  description: "Variable-length array - ensure size doesn't overflow stack"
-  remediation: "Check size against reasonable limit"
-  cwe: "CWE-770"
-  owasp: "A06:2021"
-
+  description: Variable-length array - ensure size doesn't overflow stack
+  remediation: Check size against reasonable limit
+  cwe: CWE-770
+  owasp: A06:2021
+  confidence: 0.45
 - id: c-integer-overflow-division
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '/\s*\w+|%\s*\w+'
+  - regex: /\s*\w+|%\s*\w+
   severity: high
-  description: "Division/modulo by variable - check for zero and overflow"
-  remediation: "Check divisor != 0 and ensure no INT_MIN/-1 overflow"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: Division/modulo by variable - check for zero and overflow
+  remediation: Check divisor != 0 and ensure no INT_MIN/-1 overflow
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-integer-overflow-division-constant
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '/\s*0|%\s*0'
+  - regex: /\s*0|%\s*0
   severity: high
-  description: "Division by zero constant - undefined behavior"
-  remediation: "Never divide by zero"
-  cwe: "CWE-369"
-  owasp: "A06:2021"
-
+  description: Division by zero constant - undefined behavior
+  remediation: Never divide by zero
+  cwe: CWE-369
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-integer-overflow-abs
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'abs\s*\(\s*INT_MIN\s*\)|abs\s*\(\s*-?2147483648\s*\)'
+  - regex: abs\s*\(\s*INT_MIN\s*\)|abs\s*\(\s*-?2147483648\s*\)
   severity: high
-  description: "abs(INT_MIN) overflows - undefined behavior"
-  remediation: "Check for INT_MIN before calling abs"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: abs(INT_MIN) overflows - undefined behavior
+  remediation: Check for INT_MIN before calling abs
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-integer-overflow-check-missing
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'if\s*\(\s*\w+\s*<\s*\w+\s*\*\s*\w+\s*\)'
+  - regex: if\s*\(\s*\w+\s*<\s*\w+\s*\*\s*\w+\s*\)
   severity: high
-  description: "Multiplication in condition without overflow check"
-  remediation: "Check for overflow before multiplication in condition"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
-# ======================== COMMAND INJECTION (121-150) ========================
-
+  description: Multiplication in condition without overflow check
+  remediation: Check for overflow before multiplication in condition
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-command-injection-system
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'system\s*\(\s*[^)]*user|system\s*\(\s*[^)]*\+[^)]+\)|system\s*\(\s*[^)]*\$'
+  - regex: system\s*\(\s*[^)]*user|system\s*\(\s*[^)]*\+[^)]+\)|system\s*\(\s*[^)]*\$
   severity: critical
-  description: "system() with user input - command injection"
-  remediation: "Use execve with explicit argument array, never shell with user input"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: system() with user input - command injection
+  remediation: Use execve with explicit argument array, never shell with user input
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.8
 - id: c-command-injection-popen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'popen\s*\(\s*[^)]*user|popen\s*\(\s*[^)]*\+[^)]+\]'
+  - regex: popen\s*\(\s*[^)]*user|popen\s*\(\s*[^)]*\+[^)]+\]
   severity: critical
-  description: "popen() with user input - command injection"
-  remediation: "Use pipe + fork + exec pattern with argument arrays"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: popen() with user input - command injection
+  remediation: Use pipe + fork + exec pattern with argument arrays
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-execl
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'execl[pe]?\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]*user'
+  - regex: execl[pe]?\s*\(\s*[^,]+,\s*[^,]+,\s*[^)]*user
   severity: high
-  description: "execl* with user input as argument - argument injection"
-  remediation: "Validate and sanitize all arguments passed to exec functions"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: execl* with user input as argument - argument injection
+  remediation: Validate and sanitize all arguments passed to exec functions
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-command-injection-execv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'execv[pe]?\s*\([^,]+,\s*[^)]*user'
+  - regex: execv[pe]?\s*\([^,]+,\s*[^)]*user
   severity: high
-  description: "execv* with user input in argument array - argument injection"
-  remediation: "Validate all arguments, ensure array is properly terminated"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: execv* with user input in argument array - argument injection
+  remediation: Validate all arguments, ensure array is properly terminated
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-command-injection-posix-spawn
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'posix_spawn\s*\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^)]*user'
+  - regex: posix_spawn\s*\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^)]*user
   severity: critical
-  description: "posix_spawn with user input - argument injection"
-  remediation: "Validate all arguments and file actions"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: posix_spawn with user input - argument injection
+  remediation: Validate all arguments and file actions
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.8
 - id: c-command-injection-shell-construction
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sn?printf\s*\([^,]+,\s*[^,]+,\s*[''\\\"]\s*\w+\s*[''\\\"],\s*[^)]*user'
+  - regex: sn?printf\s*\([^,]+,\s*[^,]+,\s*['\\\"]\s*\w+\s*['\\\"],\s*[^)]*user
   severity: high
-  description: "Constructing shell command with user input"
-  remediation: "Use exec family directly, avoid shell string construction"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Constructing shell command with user input
+  remediation: Use exec family directly, avoid shell string construction
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-system-concat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'system\s*\(\s*[^)]*\+[^)]+\]'
+  - regex: system\s*\(\s*[^)]*\+[^)]+\]
   severity: critical
-  description: "system() with string concatenation - likely includes user input"
-  remediation: "Never use system() with concatenated strings containing user input"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: system() with string concatenation - likely includes user input
+  remediation: Never use system() with concatenated strings containing user input
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-popen-concat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'popen\s*\(\s*[^)]*\+[^)]+\]'
+  - regex: popen\s*\(\s*[^)]*\+[^)]+\]
   severity: critical
-  description: "popen() with string concatenation - command injection"
-  remediation: "Avoid popen with user input, use fork/exec instead"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: popen() with string concatenation - command injection
+  remediation: Avoid popen with user input, use fork/exec instead
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-sprintf-cmd
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sprintf\s*\(\s*\w+,\s*[''\\"](?:[^''\\"]*)(?:%s|%d)[^''\\"]*[''\\"],\s*[^)]*user'
+  - regex: sprintf\s*\(\s*\w+,\s*['\\"](?:[^'\\"]*)(?:%s|%d)[^'\\"]*['\\"],\s*[^)]*user
   severity: high
-  description: "Building command string with sprintf and user input"
-  remediation: "Use exec family directly with argument arrays"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Building command string with sprintf and user input
+  remediation: Use exec family directly with argument arrays
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-asprintf-cmd
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'asprintf\s*\([^,]+,\s*[''\\\"][^''\\\"]*%[^''\\\"]*[''\\\"],\s*[^)]*user'
+  - regex: asprintf\s*\([^,]+,\s*['\\\"][^'\\\"]*%[^'\\\"]*['\\\"],\s*[^)]*user
   severity: high
-  description: "Dynamically allocating command string with user input"
-  remediation: "Avoid dynamic command construction, use exec directly"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Dynamically allocating command string with user input
+  remediation: Avoid dynamic command construction, use exec directly
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-env-tainted
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'execv[pe]?\s*\([^,]+,\s*[^,]+,\s*[^)]*user'
+  - regex: execv[pe]?\s*\([^,]+,\s*[^,]+,\s*[^)]*user
   severity: critical
-  description: "execve with user-controlled environment - environment injection"
-  remediation: "Never allow user to control environment variables passed to exec"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: execve with user-controlled environment - environment injection
+  remediation: Never allow user to control environment variables passed to exec
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-escapeshellarg-missing
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'system\s*\([^)]*user|popen\s*\([^)]*user'
+  - regex: system\s*\([^)]*user|popen\s*\([^)]*user
   severity: critical
-  description: "Shell command with user input without escaping"
-  remediation: "Never use user input in shell commands. Use exec family instead."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Shell command with user input without escaping
+  remediation: Never use user input in shell commands. Use exec family instead.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-shell-var
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'putenv\s*\([^)]*user|setenv\s*\([^,]+,\s*[^,]+,\s*[^)]*user'
+  - regex: putenv\s*\([^)]*user|setenv\s*\([^,]+,\s*[^,]+,\s*[^)]*user
   severity: high
-  description: "Setting environment variables with user input - may affect shell"
-  remediation: "Avoid setting environment variables from user input"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Setting environment variables with user input - may affect shell
+  remediation: Avoid setting environment variables from user input
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-command-injection-shell-metachar
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'system\s*\([^)]*[;&|`$(){}<>][^)]*\]'
+  - regex: system\s*\([^)]*[;&|`$(){}<>][^)]*\]
   severity: critical
-  description: "system() with shell metacharacters - potential injection"
-  remediation: "Never pass user data to system() regardless of escaping"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: system() with shell metacharacters - potential injection
+  remediation: Never pass user data to system() regardless of escaping
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-command-injection-popen-metachar
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'popen\s*\([^)]*[;&|`$(){}<>][^)]*\]'
+  - regex: popen\s*\([^)]*[;&|`$(){}<>][^)]*\]
   severity: critical
-  description: "popen() with shell metacharacters - command injection"
-  remediation: "Use pipe/fork/exec instead of popen"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: popen() with shell metacharacters - command injection
+  remediation: Use pipe/fork/exec instead of popen
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-path-traversal-fopen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fopen\s*\(\s*[^)]*user|fopen\s*\(\s*[^)]*\+[^)]+\]'
+  - regex: fopen\s*\(\s*[^)]*user|fopen\s*\(\s*[^)]*\+[^)]+\]
   severity: high
-  description: "fopen with user input - path traversal risk"
-  remediation: "Validate path with realpath and check against base directory"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: fopen with user input - path traversal risk
+  remediation: Validate path with realpath and check against base directory
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-open
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'open\s*\(\s*[^)]*user|open\s*\(\s*[^)]*\+[^)]+\]'
+  - regex: open\s*\(\s*[^)]*user|open\s*\(\s*[^)]*\+[^)]+\]
   severity: high
-  description: "open with user input - path traversal risk"
-  remediation: "Use openat with trusted directory fd, validate final path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: open with user input - path traversal risk
+  remediation: Use openat with trusted directory fd, validate final path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-openat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'openat\s*\(\s*[^,]+,\s*[^)]*user'
+  - regex: openat\s*\(\s*[^,]+,\s*[^)]*user
   severity: high
-  description: "openat with user-controlled path relative to directory fd"
-  remediation: "Ensure directory fd is trusted and validate final path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: openat with user-controlled path relative to directory fd
+  remediation: Ensure directory fd is trusted and validate final path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-mkdir
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'mkdir\s*\(\s*[^)]*user'
+  - regex: mkdir\s*\(\s*[^)]*user
   severity: high
-  description: "mkdir with user input - directory traversal"
-  remediation: "Validate path against base directory before creation"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: mkdir with user input - directory traversal
+  remediation: Validate path against base directory before creation
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-rename
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'rename\s*\(\s*[^,]+,\s*[^)]*user'
+  - regex: rename\s*\(\s*[^,]+,\s*[^)]*user
   severity: high
-  description: "rename with user-controlled destination - path traversal"
-  remediation: "Validate both source and destination paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: rename with user-controlled destination - path traversal
+  remediation: Validate both source and destination paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-remove
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'remove\s*\(\s*[^)]*user|unlink\s*\(\s*[^)]*user'
+  - regex: remove\s*\(\s*[^)]*user|unlink\s*\(\s*[^)]*user
   severity: high
-  description: "remove/unlink with user input - arbitrary file deletion"
-  remediation: "Never allow user input in file deletion operations"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: remove/unlink with user input - arbitrary file deletion
+  remediation: Never allow user input in file deletion operations
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-chdir
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chdir\s*\(\s*[^)]*user'
+  - regex: chdir\s*\(\s*[^)]*user
   severity: high
-  description: "chdir with user input - directory traversal"
-  remediation: "Validate path and ensure it's within allowed directories"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: chdir with user input - directory traversal
+  remediation: Validate path and ensure it's within allowed directories
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-chroot
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chroot\s*\(\s*[^)]*user'
+  - regex: chroot\s*\(\s*[^)]*user
   severity: high
-  description: "chroot with user input - escape possible"
-  remediation: "Never allow user input in chroot, chroot is not security boundary"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: chroot with user input - escape possible
+  remediation: Never allow user input in chroot, chroot is not security boundary
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-symlink
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'symlink\s*\(\s*[^,]+,\s*[^)]*user'
+  - regex: symlink\s*\(\s*[^,]+,\s*[^)]*user
   severity: high
-  description: "symlink with user-controlled target - symlink attack"
-  remediation: "Validate both source and destination paths"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: symlink with user-controlled target - symlink attack
+  remediation: Validate both source and destination paths
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-link
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'link\s*\(\s*[^,]+,\s*[^)]*user'
+  - regex: link\s*\(\s*[^,]+,\s*[^)]*user
   severity: high
-  description: "link with user-controlled target - hard link attack"
-  remediation: "Validate both paths, ensure target is within allowed directories"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: link with user-controlled target - hard link attack
+  remediation: Validate both paths, ensure target is within allowed directories
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-realpath-missing
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'f?open\s*\([^)]*user[^)]*\)\s*;'
+  - regex: f?open\s*\([^)]*user[^)]*\)\s*;
   severity: high
-  description: "File open with user input without canonicalization"
-  remediation: "Use realpath to canonicalize path before opening"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File open with user input without canonicalization
+  remediation: Use realpath to canonicalize path before opening
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-basename
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'basename\s*\([^)]*user\]'
+  - regex: basename\s*\([^)]*user\]
   severity: medium
-  description: "basename on user input - may still contain .."
-  remediation: "Use realpath after basename to resolve .."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: basename on user input - may still contain ..
+  remediation: Use realpath after basename to resolve ..
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-path-traversal-dirname
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'dirname\s*\([^)]*user\]'
+  - regex: dirname\s*\([^)]*user\]
   severity: medium
-  description: "dirname on user input - directory traversal"
-  remediation: "Validate resulting directory path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: dirname on user input - directory traversal
+  remediation: Validate resulting directory path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-path-traversal-access
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'access\s*\([^)]*user\]'
+  - regex: access\s*\([^)]*user\]
   severity: high
-  description: "access with user input - symlink race"
-  remediation: "Use faccessat with AT_EACCESS and trusted directory fd"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: access with user input - symlink race
+  remediation: Use faccessat with AT_EACCESS and trusted directory fd
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-stat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'stat\s*\([^)]*user\)|lstat\s*\([^)]*user\]'
+  - regex: stat\s*\([^)]*user\)|lstat\s*\([^)]*user\]
   severity: high
-  description: "stat with user input - may follow symlinks"
-  remediation: "Use fstatat with trusted directory fd"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: stat with user input - may follow symlinks
+  remediation: Use fstatat with trusted directory fd
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-chmod
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chmod\s*\(\s*[^)]*user'
+  - regex: chmod\s*\(\s*[^)]*user
   severity: high
-  description: "chmod with user input - permission changes on attacker-controlled files"
-  remediation: "Validate path, use fchmod on opened file descriptor"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: chmod with user input - permission changes on attacker-controlled files
+  remediation: Validate path, use fchmod on opened file descriptor
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-chown
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chown\s*\(\s*[^)]*user'
+  - regex: chown\s*\(\s*[^)]*user
   severity: high
-  description: "chown with user input - ownership changes on attacker-controlled files"
-  remediation: "Use fchown on opened file descriptor"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: chown with user input - ownership changes on attacker-controlled files
+  remediation: Use fchown on opened file descriptor
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-truncate
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'truncate\s*\(\s*[^)]*user'
+  - regex: truncate\s*\(\s*[^)]*user
   severity: high
-  description: "truncate with user input - file size manipulation"
-  remediation: "Use ftruncate on opened file descriptor"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: truncate with user input - file size manipulation
+  remediation: Use ftruncate on opened file descriptor
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-path-traversal-dotdot
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\.\.'
+  - regex: \.\.
   severity: low
-  description: "Potential path traversal sequence in code"
-  remediation: "If in string literal, ensure not used with file operations"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Potential path traversal sequence in code
+  remediation: If in string literal, ensure not used with file operations
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.5
 - id: c-path-traversal-absolute
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '^\s*[''\\\"]\\\/[''\\\"]'
+  - regex: ^\s*['\\\"]\\\/['\\\"]
   severity: low
-  description: "Absolute path in code - may need validation"
-  remediation: "Ensure absolute paths are safe and permissions are correct"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Absolute path in code - may need validation
+  remediation: Ensure absolute paths are safe and permissions are correct
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.45
 - id: c-path-traversal-tmp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '/tmp|/var/tmp'
+  - regex: /tmp|/var/tmp
   severity: low
-  description: "Temporary directory usage - ensure secure temp file creation"
-  remediation: "Use mkstemp for creating secure temporary files"
-  cwe: "CWE-377"
-  owasp: "A01:2021"
-
-# ======================== RACE CONDITIONS (181-210) ========================
-
+  description: Temporary directory usage - ensure secure temp file creation
+  remediation: Use mkstemp for creating secure temporary files
+  cwe: CWE-377
+  owasp: A01:2021
+  confidence: 0.45
 - id: c-race-toctou-access-open
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'access\s*\([^)]*\)\s*;[^}]*open\s*\([^)]*\]'
+  - regex: access\s*\([^)]*\)\s*;[^}]*open\s*\([^)]*\]
   severity: high
-  description: "TOCTOU race condition: check with access then open"
-  remediation: "Open file first, then use fstat to verify properties"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race condition: check with access then open'
+  remediation: Open file first, then use fstat to verify properties
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-race-toctou-stat-open
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'stat\s*\([^)]*\)\s*;[^}]*open\s*\([^)]*\]'
+  - regex: stat\s*\([^)]*\)\s*;[^}]*open\s*\([^)]*\]
   severity: high
-  description: "TOCTOU race condition: stat then open"
-  remediation: "Open file first, then use fstat on the file descriptor"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race condition: stat then open'
+  remediation: Open file first, then use fstat on the file descriptor
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-race-toctou-access-mkstemp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'access\s*\([^)]*tmp[^)]*\)\s*;[^}]*mkstemp'
+  - regex: access\s*\([^)]*tmp[^)]*\)\s*;[^}]*mkstemp
   severity: high
-  description: "TOCTOU race in temp file creation"
-  remediation: "Use mkstemp directly without prior access check"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: TOCTOU race in temp file creation
+  remediation: Use mkstemp directly without prior access check
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-race-toctou-exists-open
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '(?:stat|access|e?uidaccess)\s*\([^)]*\)\s*;[^}]*(?:open|fopen|creat)'
+  - regex: (?:stat|access|e?uidaccess)\s*\([^)]*\)\s*;[^}]*(?:open|fopen|creat)
   severity: high
-  description: "TOCTOU race: file existence check before open"
-  remediation: "Attempt open directly and handle ENOENT gracefully"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race: file existence check before open'
+  remediation: Attempt open directly and handle ENOENT gracefully
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.75
 - id: c-race-toctou-mkdir-chdir
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'mkdir\s*\([^)]*\)\s*;[^}]*chdir\s*\([^)]*\]'
+  - regex: mkdir\s*\([^)]*\)\s*;[^}]*chdir\s*\([^)]*\]
   severity: medium
-  description: "TOCTOU race: create directory then chdir into it"
-  remediation: "Use open directory descriptor and fchdir"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race: create directory then chdir into it'
+  remediation: Use open directory descriptor and fchdir
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-race-toctou-symlink-lstat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'symlink\s*\([^)]*\)\s*;[^}]*lstat\s*\([^)]*\]'
+  - regex: symlink\s*\([^)]*\)\s*;[^}]*lstat\s*\([^)]*\]
   severity: medium
-  description: "TOCTOU race: create symlink then stat it"
-  remediation: "Check symlink target at creation time"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race: create symlink then stat it'
+  remediation: Check symlink target at creation time
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-race-toctou-rename
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '(?:stat|access)\s*\([^)]*\)\s*;[^}]*rename\s*\([^)]*\]'
+  - regex: (?:stat|access)\s*\([^)]*\)\s*;[^}]*rename\s*\([^)]*\]
   severity: high
-  description: "TOCTOU race: check file then rename"
-  remediation: "Use rename directly and handle errors"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race: check file then rename'
+  remediation: Use rename directly and handle errors
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-race-toctou-unlink
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '(?:stat|access)\s*\([^)]*\)\s*;[^}]*unlink\s*\([^)]*\]'
+  - regex: (?:stat|access)\s*\([^)]*\)\s*;[^}]*unlink\s*\([^)]*\]
   severity: high
-  description: "TOCTOU race: check file then unlink"
-  remediation: "Use unlink directly and handle ENOENT gracefully"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race: check file then unlink'
+  remediation: Use unlink directly and handle ENOENT gracefully
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-race-toctou-chmod
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '(?:stat|access)\s*\([^)]*\)\s*;[^}]*chmod\s*\([^)]*\]'
+  - regex: (?:stat|access)\s*\([^)]*\)\s*;[^}]*chmod\s*\([^)]*\]
   severity: high
-  description: "TOCTOU race: check permissions then chmod"
-  remediation: "Use fchmod on opened file descriptor"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race: check permissions then chmod'
+  remediation: Use fchmod on opened file descriptor
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-race-toctou-chown
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '(?:stat|access)\s*\([^)]*\)\s*;[^}]*chown\s*\([^)]*\]'
+  - regex: (?:stat|access)\s*\([^)]*\)\s*;[^}]*chown\s*\([^)]*\]
   severity: high
-  description: "TOCTOU race: check ownership then chown"
-  remediation: "Use fchown on opened file descriptor"
-  cwe: "CWE-367"
-  owasp: "A01:2021"
-
+  description: 'TOCTOU race: check ownership then chown'
+  remediation: Use fchown on opened file descriptor
+  cwe: CWE-367
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-race-signal-handler-unsafe
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\s*\([^,]+,\s*[^)]*\w+\s*\)[^}]*static[^}]*volatile'
+  - regex: signal\s*\([^,]+,\s*[^)]*\w+\s*\)[^}]*static[^}]*volatile
   severity: high
-  description: "Signal handler with non-volatile static data - race condition"
-  remediation: "Use volatile sig_atomic_t for flags, avoid complex handlers"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: Signal handler with non-volatile static data - race condition
+  remediation: Use volatile sig_atomic_t for flags, avoid complex handlers
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-race-signal-handler-reentrant
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\s*\([^,]+,\s*[^)]*malloc|signal\s*\([^,]+,\s*[^)]*free'
+  - regex: signal\s*\([^,]+,\s*[^)]*malloc|signal\s*\([^,]+,\s*[^)]*free
   severity: high
-  description: "Signal handler calls non-reentrant function"
-  remediation: "Only use async-signal-safe functions in signal handlers"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: Signal handler calls non-reentrant function
+  remediation: Only use async-signal-safe functions in signal handlers
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-race-fork-exec-unsafe
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fork\(\)\s*;[^}]*malloc|fork\(\)\s*;[^}]*free'
+  - regex: fork\(\)\s*;[^}]*malloc|fork\(\)\s*;[^}]*free
   severity: high
-  description: "Memory allocation after fork - may cause deadlocks"
-  remediation: "Call only async-signal-safe functions between fork and exec"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Memory allocation after fork - may cause deadlocks
+  remediation: Call only async-signal-safe functions between fork and exec
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-race-fork-file-descriptor
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fork\(\)\s*;[^}]*close\([^)]*\)[^}]*execl'
+  - regex: fork\(\)\s*;[^}]*close\([^)]*\)[^}]*execl
   severity: medium
-  description: "File descriptor handling after fork - may leak descriptors"
-  remediation: "Set FD_CLOEXEC on file descriptors or close them in child"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: File descriptor handling after fork - may leak descriptors
+  remediation: Set FD_CLOEXEC on file descriptors or close them in child
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-race-pthread-create-shared
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_create\s*\([^,]+,\s*NULL,\s*[^,]+,\s*&\w+\)'
+  - regex: pthread_create\s*\([^,]+,\s*NULL,\s*[^,]+,\s*&\w+\)
   severity: medium
-  description: "Passing pointer to local variable to thread - race condition"
-  remediation: "Pass by value or ensure variable lifetime exceeds thread"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Passing pointer to local variable to thread - race condition
+  remediation: Pass by value or ensure variable lifetime exceeds thread
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-race-pthread-mutex-init
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_mutex_init\s*\(&\w+,\s*NULL\)\s*;[^}]*pthread_create'
+  - regex: pthread_mutex_init\s*\(&\w+,\s*NULL\)\s*;[^}]*pthread_create
   severity: low
-  description: "Mutex initialized before threads created - ensure proper ordering"
-  remediation: "Initialize synchronization primitives before creating threads"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Mutex initialized before threads created - ensure proper ordering
+  remediation: Initialize synchronization primitives before creating threads
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.5
 - id: c-race-pthread-mutex-destroy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_mutex_destroy\s*\(&\w+\)\s*;[^}]*'
+  - regex: pthread_mutex_destroy\s*\(&\w+\)\s*;[^}]*
   severity: high
-  description: "Mutex destroyed while threads may still be using it"
-  remediation: "Join all threads before destroying synchronization primitives"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Mutex destroyed while threads may still be using it
+  remediation: Join all threads before destroying synchronization primitives
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-race-double-check-locking
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'if\s*\(\s*!\w+\s*\)\s*\{[^}]*lock[^}]*if\s*\(\s*!\w+\s*\)'
+  - regex: if\s*\(\s*!\w+\s*\)\s*\{[^}]*lock[^}]*if\s*\(\s*!\w+\s*\)
   severity: medium
-  description: "Double-checked locking pattern - may be unsafe in C"
-  remediation: "Use pthread_once or C11 call_once for one-time initialization"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Double-checked locking pattern - may be unsafe in C
+  remediation: Use pthread_once or C11 call_once for one-time initialization
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-race-atomic-operation-missing
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\+\+|\w+--|\w+\s*=\s*\w+\s*\+\s*1'
+  - regex: \w+\+\+|\w+--|\w+\s*=\s*\w+\s*\+\s*1
   severity: medium
-  description: "Non-atomic increment on shared variable - race condition"
-  remediation: "Use atomic builtins: __sync_add_and_fetch or C11 atomics"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Non-atomic increment on shared variable - race condition
+  remediation: 'Use atomic builtins: __sync_add_and_fetch or C11 atomics'
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-race-temp-file-unsafe
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'tmpnam|tempnam|mktemp'
+  - regex: tmpnam|tempnam|mktemp
   severity: high
-  description: "Insecure temporary file creation - race condition"
-  remediation: "Use mkstemp instead"
-  cwe: "CWE-377"
-  owasp: "A01:2021"
-
+  description: Insecure temporary file creation - race condition
+  remediation: Use mkstemp instead
+  cwe: CWE-377
+  owasp: A01:2021
+  confidence: 0.65
 - id: c-race-temp-file-unsafe-check
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'tmpnam|tempnam|mktemp'
+  - regex: tmpnam|tempnam|mktemp
   severity: high
-  description: "Insecure temporary file name generation - race condition"
-  remediation: "Replace with mkstemp which creates and opens atomically"
-  cwe: "CWE-377"
-  owasp: "A01:2021"
-
-# ======================== NULL POINTER DEREFERENCE (211-240) ========================
-
+  description: Insecure temporary file name generation - race condition
+  remediation: Replace with mkstemp which creates and opens atomically
+  cwe: CWE-377
+  owasp: A01:2021
+  confidence: 0.65
 - id: c-null-deref-malloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\([^)]+\)\s*;\s*'
+  - regex: malloc\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "malloc return not checked for NULL"
-  remediation: "Always check malloc/calloc/realloc return for NULL"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: malloc return not checked for NULL
+  remediation: Always check malloc/calloc/realloc return for NULL
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-calloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'calloc\s*\([^)]+\)\s*;\s*'
+  - regex: calloc\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "calloc return not checked for NULL"
-  remediation: "Always check allocation return values"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: calloc return not checked for NULL
+  remediation: Always check allocation return values
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-realloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'realloc\s*\([^)]+\)\s*;\s*'
+  - regex: realloc\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "realloc return not checked for NULL"
-  remediation: "Always check realloc return - it can return NULL on failure"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: realloc return not checked for NULL
+  remediation: Always check realloc return - it can return NULL on failure
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-strdup
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strdup\s*\([^)]+\)\s*;\s*'
+  - regex: strdup\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "strdup return not checked for NULL"
-  remediation: "Check strdup return - it allocates memory and can fail"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: strdup return not checked for NULL
+  remediation: Check strdup return - it allocates memory and can fail
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-strndup
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strndup\s*\([^)]+\)\s*;\s*'
+  - regex: strndup\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "strndup return not checked for NULL"
-  remediation: "Always check allocation function returns"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: strndup return not checked for NULL
+  remediation: Always check allocation function returns
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-asprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'asprintf\s*\([^)]+\)\s*;\s*'
+  - regex: asprintf\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "asprintf return not checked - negative indicates failure"
-  remediation: "Check asprintf return value (negative on failure)"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: asprintf return not checked - negative indicates failure
+  remediation: Check asprintf return value (negative on failure)
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-vasprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'vasprintf\s*\([^)]+\)\s*;\s*'
+  - regex: vasprintf\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "vasprintf return not checked - negative indicates failure"
-  remediation: "Check return value for allocation failure"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: vasprintf return not checked - negative indicates failure
+  remediation: Check return value for allocation failure
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-fopen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fopen\s*\([^)]+\)\s*;\s*'
+  - regex: fopen\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "fopen return not checked for NULL"
-  remediation: "Always check file open operations for NULL"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: fopen return not checked for NULL
+  remediation: Always check file open operations for NULL
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-freopen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'freopen\s*\([^)]+\)\s*;\s*'
+  - regex: freopen\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "freopen return not checked for NULL"
-  remediation: "Always check file operation returns"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: freopen return not checked for NULL
+  remediation: Always check file operation returns
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-fdopen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fdopen\s*\([^)]+\)\s*;\s*'
+  - regex: fdopen\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "fdopen return not checked for NULL"
-  remediation: "Check fdopen return - it can fail on invalid fd"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: fdopen return not checked for NULL
+  remediation: Check fdopen return - it can fail on invalid fd
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-popen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'popen\s*\([^)]+\)\s*;\s*'
+  - regex: popen\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "popen return not checked for NULL"
-  remediation: "Always check popen return - it can fail"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: popen return not checked for NULL
+  remediation: Always check popen return - it can fail
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-getenv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\([^)]+\)\s*;\s*'
+  - regex: getenv\s*\([^)]+\)\s*;\s*
   severity: medium
-  description: "getenv return not checked for NULL"
-  remediation: "Always check if environment variable exists"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: getenv return not checked for NULL
+  remediation: Always check if environment variable exists
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-null-deref-sysconf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sysconf\s*\([^)]+\)\s*;\s*'
+  - regex: sysconf\s*\([^)]+\)\s*;\s*
   severity: low
-  description: "sysconf return not checked for -1"
-  remediation: "Check sysconf return for errors"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: sysconf return not checked for -1
+  remediation: Check sysconf return for errors
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.5
 - id: c-null-deref-return-value
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'return\s+[^;]+;\s*\}\s*\w+\s*->|return\s+[^;]+;\s*\}\s*\w+\s*\[\]'
+  - regex: return\s+[^;]+;\s*\}\s*\w+\s*->|return\s+[^;]+;\s*\}\s*\w+\s*\[\]
   severity: high
-  description: "Returned pointer used without NULL check"
-  remediation: "Check return value for NULL before dereferencing"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: Returned pointer used without NULL check
+  remediation: Check return value for NULL before dereferencing
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-function-argument
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\(\s*\w+\s*\)\s*;\s*\w+\s*->'
+  - regex: \w+\s*\(\s*\w+\s*\)\s*;\s*\w+\s*->
   severity: high
-  description: "Function return used directly without NULL check"
-  remediation: "Store result in variable and check for NULL before use"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: Function return used directly without NULL check
+  remediation: Store result in variable and check for NULL before use
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-conditional
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'if\s*\(\s*!\w+\s*\)\s*\{[^}]*\}\s*\w+\s*->'
+  - regex: if\s*\(\s*!\w+\s*\)\s*\{[^}]*\}\s*\w+\s*->
   severity: high
-  description: "NULL check exists but pointer still used in NULL path"
-  remediation: "Ensure pointer is not dereferenced after NULL check"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: NULL check exists but pointer still used in NULL path
+  remediation: Ensure pointer is not dereferenced after NULL check
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-null-deref-assignment
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*=\s*NULL\s*;\s*[^}]*\w+\s*->'
+  - regex: \w+\s*=\s*NULL\s*;\s*[^}]*\w+\s*->
   severity: high
-  description: "Pointer set to NULL then dereferenced"
-  remediation: "Check for NULL before dereferencing"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: Pointer set to NULL then dereferenced
+  remediation: Check for NULL before dereferencing
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-null-deref-ternary
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*=\s*\?\s*NULL\s*:'
+  - regex: '\w+\s*=\s*\?\s*NULL\s*:'
   severity: high
-  description: "Ternary operator may set pointer to NULL"
-  remediation: "Add NULL check before using pointer"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: Ternary operator may set pointer to NULL
+  remediation: Add NULL check before using pointer
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-null-deref-array-of-pointers
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\[\w+\]\s*->'
+  - regex: \w+\[\w+\]\s*->
   severity: medium
-  description: "Array of pointers used without NULL check"
-  remediation: "Check each pointer before dereferencing"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: Array of pointers used without NULL check
+  remediation: Check each pointer before dereferencing
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-null-deref-struct-member
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+->\w+\s*->'
+  - regex: \w+->\w+\s*->
   severity: high
-  description: "Chained pointer dereference without NULL checks"
-  remediation: "Check each pointer in chain for NULL"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
-# ======================== WEAK CRYPTOGRAPHY (241-270) ========================
-
+  description: Chained pointer dereference without NULL checks
+  remediation: Check each pointer in chain for NULL
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-weak-crypto-md5
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'MD5_Init|MD5_Update|MD5_Final|MD5'
+  - regex: MD5_Init|MD5_Update|MD5_Final|MD5
   severity: high
-  description: "Use of broken MD5 hash function"
-  remediation: "Use SHA-256 or SHA-3 via OpenSSL EVP interface"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Use of broken MD5 hash function
+  remediation: Use SHA-256 or SHA-3 via OpenSSL EVP interface
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-sha1
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'SHA1_Init|SHA1_Update|SHA1_Final|SHA1'
+  - regex: SHA1_Init|SHA1_Update|SHA1_Final|SHA1
   severity: high
-  description: "Use of broken SHA-1 hash function"
-  remediation: "Use SHA-256 or stronger hash functions"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Use of broken SHA-1 hash function
+  remediation: Use SHA-256 or stronger hash functions
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-des
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'DES_|des_|DES_crypt'
+  - regex: DES_|des_|DES_crypt
   severity: high
-  description: "Use of broken DES encryption"
-  remediation: "Use AES-GCM or ChaCha20-Poly1305"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Use of broken DES encryption
+  remediation: Use AES-GCM or ChaCha20-Poly1305
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-rc4
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'RC4|EVP_rc4|EVP_rc4_40'
+  - regex: RC4|EVP_rc4|EVP_rc4_40
   severity: high
-  description: "Use of broken RC4 stream cipher"
-  remediation: "Use AES-GCM or ChaCha20-Poly1305"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Use of broken RC4 stream cipher
+  remediation: Use AES-GCM or ChaCha20-Poly1305
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-blowfish
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'BF_|EVP_bf_'
+  - regex: BF_|EVP_bf_
   severity: high
-  description: "Use of Blowfish - considered weak for modern use"
-  remediation: "Use AES with 256-bit keys"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Use of Blowfish - considered weak for modern use
+  remediation: Use AES with 256-bit keys
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-ecb-mode
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'EVP_(aes|des|bf|cast)_ecb|EVP_ecb_mode'
+  - regex: EVP_(aes|des|bf|cast)_ecb|EVP_ecb_mode
   severity: high
-  description: "ECB mode encryption - leaks patterns"
-  remediation: "Use GCM or CBC with random IV"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: ECB mode encryption - leaks patterns
+  remediation: Use GCM or CBC with random IV
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-fixed-iv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'EVP_EncryptInit_ex.*\{[^}]*\}\s*,\s*[^,]+\s*,\s*NULL'
+  - regex: EVP_EncryptInit_ex.*\{[^}]*\}\s*,\s*[^,]+\s*,\s*NULL
   severity: high
-  description: "Fixed IV or NULL IV in encryption - insecure"
-  remediation: "Generate random IV for each encryption"
-  cwe: "CWE-323"
-  owasp: "A02:2021"
-
+  description: Fixed IV or NULL IV in encryption - insecure
+  remediation: Generate random IV for each encryption
+  cwe: CWE-323
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-zero-iv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'unsigned\s+char\s+iv\[.*\]\s*=\s*\{0\}'
+  - regex: unsigned\s+char\s+iv\[.*\]\s*=\s*\{0\}
   severity: high
-  description: "All-zero initialization vector - completely insecure"
-  remediation: "Generate cryptographically random IV"
-  cwe: "CWE-323"
-  owasp: "A02:2021"
-
+  description: All-zero initialization vector - completely insecure
+  remediation: Generate cryptographically random IV
+  cwe: CWE-323
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-hardcoded-key
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'unsigned\s+char\s+key\[.*\]\s*=\s*\{[0-9a-fxA-F]+\}'
+  - regex: unsigned\s+char\s+key\[.*\]\s*=\s*\{[0-9a-fxA-F]+\}
   severity: high
-  description: "Hardcoded encryption key in source"
-  remediation: "Store keys in secure key storage, derive from password"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded encryption key in source
+  remediation: Store keys in secure key storage, derive from password
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: c-weak-crypto-short-key
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'AES_set_encrypt_key.*128|EVP_aes_128'
+  - regex: AES_set_encrypt_key.*128|EVP_aes_128
   severity: medium
-  description: "AES-128 key size - consider 256-bit"
-  remediation: "Use AES-256 for better security margin"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: AES-128 key size - consider 256-bit
+  remediation: Use AES-256 for better security margin
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.55
 - id: c-weak-crypto-rsa-small-key
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'RSA_generate_key_ex.*512|RSA_generate_key.*512'
+  - regex: RSA_generate_key_ex.*512|RSA_generate_key.*512
   severity: high
-  description: "RSA key size 512 bits - extremely weak"
-  remediation: "Use RSA with 2048-bit minimum"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: RSA key size 512 bits - extremely weak
+  remediation: Use RSA with 2048-bit minimum
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-rsa-1024
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'RSA_generate_key.*1024'
+  - regex: RSA_generate_key.*1024
   severity: high
-  description: "RSA key size 1024 bits - considered weak"
-  remediation: "Use RSA 2048-bit or higher"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: RSA key size 1024 bits - considered weak
+  remediation: Use RSA 2048-bit or higher
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-dh-small
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'DH_generate_parameters.*512|DH_generate_parameters.*768|DH_generate_parameters.*1024'
+  - regex: DH_generate_parameters.*512|DH_generate_parameters.*768|DH_generate_parameters.*1024
   severity: high
-  description: "Diffie-Hellman parameters too small"
-  remediation: "Use DH with 2048-bit parameters or ECDH"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: Diffie-Hellman parameters too small
+  remediation: Use DH with 2048-bit parameters or ECDH
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.7
 - id: c-weak-crypto-dsa-small
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'DSA_generate_parameters.*512|DSA_generate_parameters.*768|DSA_generate_parameters.*1024'
+  - regex: DSA_generate_parameters.*512|DSA_generate_parameters.*768|DSA_generate_parameters.*1024
   severity: high
-  description: "DSA parameters too small"
-  remediation: "Use DSA with 2048-bit parameters or ECDSA"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: DSA parameters too small
+  remediation: Use DSA with 2048-bit parameters or ECDSA
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.7
 - id: c-weak-crypto-no-padding
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'RSA_NO_PADDING|RSA_padding_check_none'
+  - regex: RSA_NO_PADDING|RSA_padding_check_none
   severity: high
-  description: "RSA with no padding - extremely insecure"
-  remediation: "Use RSA_PKCS1_OAEP_PADDING for encryption"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: RSA with no padding - extremely insecure
+  remediation: Use RSA_PKCS1_OAEP_PADDING for encryption
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-rand-weak
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'rand|srand'
+  - regex: rand|srand
   severity: high
-  description: "Use of weak pseudo-random number generator"
-  remediation: "Use arc4random, getrandom, or /dev/urandom"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Use of weak pseudo-random number generator
+  remediation: Use arc4random, getrandom, or /dev/urandom
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.65
 - id: c-weak-crypto-rand-fixed-seed
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'srand\s*\(\s*\d+\s*\)|srand\s*\(\s*time\s*\(\s*NULL\s*\)\s*\)'
+  - regex: srand\s*\(\s*\d+\s*\)|srand\s*\(\s*time\s*\(\s*NULL\s*\)\s*\)
   severity: high
-  description: "Fixed or predictable random seed"
-  remediation: "Use cryptographically secure random generator"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Fixed or predictable random seed
+  remediation: Use cryptographically secure random generator
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.75
 - id: c-symlink-attack-open-no-follow
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'open\s*\([^)]*[^)]+\]'
+  - regex: open\s*\([^)]*[^)]+\]
   severity: high
-  description: "open without O_NOFOLLOW - vulnerable to symlink attacks"
-  remediation: "Add O_NOFOLLOW flag when opening files in world-writable directories"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: open without O_NOFOLLOW - vulnerable to symlink attacks
+  remediation: Add O_NOFOLLOW flag when opening files in world-writable directories
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-open-no-follow-tmp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'open\s*\([^)]*tmp[^)]*[^)]+\]'
+  - regex: open\s*\([^)]*tmp[^)]*[^)]+\]
   severity: high
-  description: "open in temp directory without O_NOFOLLOW - symlink attack risk"
-  remediation: "Always use O_NOFOLLOW and O_CREAT with O_EXCL for temp files"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: open in temp directory without O_NOFOLLOW - symlink attack risk
+  remediation: Always use O_NOFOLLOW and O_CREAT with O_EXCL for temp files
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-rename
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'rename\s*\([^,]+,\s*[^)]*\]'
+  - regex: rename\s*\([^,]+,\s*[^)]*\]
   severity: high
-  description: "rename may follow symlinks - symlink attack"
-  remediation: "Use renameat2 with RENAME_NOREPLACE if available"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: rename may follow symlinks - symlink attack
+  remediation: Use renameat2 with RENAME_NOREPLACE if available
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-unlink
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'unlink\s*\([^)]*\]'
+  - regex: unlink\s*\([^)]*\]
   severity: high
-  description: "unlink follows symlinks - may delete wrong file"
-  remediation: "Use fstatat with AT_SYMLINK_NOFOLLOW before unlink"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: unlink follows symlinks - may delete wrong file
+  remediation: Use fstatat with AT_SYMLINK_NOFOLLOW before unlink
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-chown
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chown\s*\([^)]*\]'
+  - regex: chown\s*\([^)]*\]
   severity: high
-  description: "chown follows symlinks - privilege escalation"
-  remediation: "Use lchown or fchownat with AT_SYMLINK_NOFOLLOW"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: chown follows symlinks - privilege escalation
+  remediation: Use lchown or fchownat with AT_SYMLINK_NOFOLLOW
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-chmod
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chmod\s*\([^)]*\]'
+  - regex: chmod\s*\([^)]*\]
   severity: high
-  description: "chmod follows symlinks - may change permissions of unintended files"
-  remediation: "Use fchmodat with AT_SYMLINK_NOFOLLOW"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: chmod follows symlinks - may change permissions of unintended files
+  remediation: Use fchmodat with AT_SYMLINK_NOFOLLOW
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-stat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'stat\s*\([^)]*\]'
+  - regex: stat\s*\([^)]*\]
   severity: medium
-  description: "stat follows symlinks - may report on link target"
-  remediation: "Use lstat for symlinks, or fstatat with AT_SYMLINK_NOFOLLOW"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: stat follows symlinks - may report on link target
+  remediation: Use lstat for symlinks, or fstatat with AT_SYMLINK_NOFOLLOW
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-symlink-attack-access
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'access\s*\([^)]*\]'
+  - regex: access\s*\([^)]*\]
   severity: high
-  description: "access follows symlinks - race condition"
-  remediation: "Use faccessat with AT_EACCESS"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: access follows symlinks - race condition
+  remediation: Use faccessat with AT_EACCESS
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-fopen-no-follow
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fopen\s*\([^)]+\]'
+  - regex: fopen\s*\([^)]+\]
   severity: high
-  description: "fopen has no O_NOFOLLOW equivalent - vulnerable to symlink attacks"
-  remediation: "Use open + fdopen with O_NOFOLLOW instead"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: fopen has no O_NOFOLLOW equivalent - vulnerable to symlink attacks
+  remediation: Use open + fdopen with O_NOFOLLOW instead
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-fopen-tmp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fopen\s*\([^)]*tmp[^)]+\]'
+  - regex: fopen\s*\([^)]*tmp[^)]+\]
   severity: high
-  description: "fopen in temp directory - symlink attack vulnerability"
-  remediation: "Use open with O_NOFOLLOW and O_CREAT|O_EXCL + fdopen"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: fopen in temp directory - symlink attack vulnerability
+  remediation: Use open with O_NOFOLLOW and O_CREAT|O_EXCL + fdopen
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-symlink
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'symlink\s*\([^)]*\]'
+  - regex: symlink\s*\([^)]*\]
   severity: medium
-  description: "Creating symlinks - ensure target is within allowed paths"
-  remediation: "Validate symlink target path"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: Creating symlinks - ensure target is within allowed paths
+  remediation: Validate symlink target path
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-symlink-attack-link
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'link\s*\([^)]*\]'
+  - regex: link\s*\([^)]*\]
   severity: high
-  description: "Creating hard links - can link to sensitive files"
-  remediation: "Validate source and target paths, ensure appropriate permissions"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: Creating hard links - can link to sensitive files
+  remediation: Validate source and target paths, ensure appropriate permissions
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-symlink-attack-readlink
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'readlink\s*\([^)]*\]'
+  - regex: readlink\s*\([^)]*\]
   severity: low
-  description: "readlink is safe - reads symlink content, not target"
-  remediation: "Safe operation"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: readlink is safe - reads symlink content, not target
+  remediation: Safe operation
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.5
 - id: c-symlink-attack-tmpnam
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'tmpnam|tempnam|mktemp'
+  - regex: tmpnam|tempnam|mktemp
   severity: high
-  description: "tmpnam/tempnam/mktemp generate predictable names - symlink attack risk"
-  remediation: "Use mkstemp instead"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
-# ======================== SIGNAL HANDLING (301-330) ========================
-
+  description: tmpnam/tempnam/mktemp generate predictable names - symlink attack risk
+  remediation: Use mkstemp instead
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.65
 - id: c-signal-unsafe-function
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\s*\([^,]+,\s*[^)]*printf|signal\s*\([^,]+,\s*[^)]*malloc|signal\s*\([^,]+,\s*[^)]*free'
+  - regex: signal\s*\([^,]+,\s*[^)]*printf|signal\s*\([^,]+,\s*[^)]*malloc|signal\s*\([^,]+,\s*[^)]*free
   severity: high
-  description: "Signal handler calling non-async-signal-safe function"
-  remediation: "Only use async-signal-safe functions in signal handlers"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: Signal handler calling non-async-signal-safe function
+  remediation: Only use async-signal-safe functions in signal handlers
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-signal-reentrant-function
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\s*\([^,]+,\s*[^)]*strlen|signal\s*\([^,]+,\s*[^)]*strcpy'
+  - regex: signal\s*\([^,]+,\s*[^)]*strlen|signal\s*\([^,]+,\s*[^)]*strcpy
   severity: high
-  description: "Signal handler calling non-reentrant function"
-  remediation: "Use only async-signal-safe functions in handlers"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: Signal handler calling non-reentrant function
+  remediation: Use only async-signal-safe functions in handlers
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-signal-handler-volatile
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\s*\([^,]+,\s*[^)]*\w+\s*\)[^}]*int\s+\w+'
+  - regex: signal\s*\([^,]+,\s*[^)]*\w+\s*\)[^}]*int\s+\w+
   severity: high
-  description: "Signal handler accessing non-volatile global variable"
-  remediation: "Use volatile sig_atomic_t for global flags in handlers"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: Signal handler accessing non-volatile global variable
+  remediation: Use volatile sig_atomic_t for global flags in handlers
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-signal-handler-longjmp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\s*\([^,]+,\s*[^)]*longjmp'
+  - regex: signal\s*\([^,]+,\s*[^)]*longjmp
   severity: high
-  description: "longjmp from signal handler - may leave program in inconsistent state"
-  remediation: "Avoid longjmp in signal handlers, use siglongjmp with sigsetjmp"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: longjmp from signal handler - may leave program in inconsistent state
+  remediation: Avoid longjmp in signal handlers, use siglongjmp with sigsetjmp
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-signal-handler-siglongjmp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\s*\([^,]+,\s*[^)]*siglongjmp'
+  - regex: signal\s*\([^,]+,\s*[^)]*siglongjmp
   severity: high
-  description: "siglongjmp from signal handler - use with caution"
-  remediation: "Ensure sigsetjmp saved signal mask appropriately"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: siglongjmp from signal handler - use with caution
+  remediation: Ensure sigsetjmp saved signal mask appropriately
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-signal-handler-multiple-signals
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'signal\(SIGINT[^)]*\).*signal\(SIGTERM[^)]*\).*signal\(SIGQUIT'
+  - regex: signal\(SIGINT[^)]*\).*signal\(SIGTERM[^)]*\).*signal\(SIGQUIT
   severity: low
-  description: "Multiple signal handlers - ensure they're all safe"
-  remediation: "Check all signal handlers for async-signal-safety"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: Multiple signal handlers - ensure they're all safe
+  remediation: Check all signal handlers for async-signal-safety
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.5
 - id: c-signal-handler-sigaction-sa-resethand
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sigaction.*SA_RESETHAND'
+  - regex: sigaction.*SA_RESETHAND
   severity: low
-  description: "sigaction with SA_RESETHAND - handler reset after first invocation"
-  remediation: "Ensure handler reinstalls itself if needed"
-  cwe: "CWE-479"
-  owasp: "A06:2021"
-
+  description: sigaction with SA_RESETHAND - handler reset after first invocation
+  remediation: Ensure handler reinstalls itself if needed
+  cwe: CWE-479
+  owasp: A06:2021
+  confidence: 0.45
 - id: c-signal-raise
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'raise|kill'
+  - regex: raise|kill
   severity: medium
-  description: "Sending signals - ensure PID/tid is valid"
-  remediation: "Validate process/thread ID before sending"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== PRIVILEGE MANAGEMENT (331-360) ========================
-
+  description: Sending signals - ensure PID/tid is valid
+  remediation: Validate process/thread ID before sending
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: c-privilege-setuid-root
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setuid\s*\(\s*0\s*\)'
+  - regex: setuid\s*\(\s*0\s*\)
   severity: high
-  description: "Setting UID to root - elevating privileges"
-  remediation: "Avoid running as root, drop privileges early"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Setting UID to root - elevating privileges
+  remediation: Avoid running as root, drop privileges early
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-setgid-root
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setgid\s*\(\s*0\s*\)'
+  - regex: setgid\s*\(\s*0\s*\)
   severity: high
-  description: "Setting GID to root - elevating privileges"
-  remediation: "Avoid running with root group, drop privileges"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Setting GID to root - elevating privileges
+  remediation: Avoid running with root group, drop privileges
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-setreuid
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setreuid\s*\('
+  - regex: setreuid\s*\(
   severity: high
-  description: "Swapping real and effective UIDs - ensure proper ordering"
-  remediation: "Drop privileges permanently when possible"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Swapping real and effective UIDs - ensure proper ordering
+  remediation: Drop privileges permanently when possible
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-setregid
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setregid\s*\('
+  - regex: setregid\s*\(
   severity: high
-  description: "Swapping real and effective GIDs - ensure proper ordering"
-  remediation: "Drop group privileges permanently when possible"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Swapping real and effective GIDs - ensure proper ordering
+  remediation: Drop group privileges permanently when possible
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-setresuid
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setresuid\s*\('
+  - regex: setresuid\s*\(
   severity: medium
-  description: "Setting all three UIDs - ensure proper ordering"
-  remediation: "Use to set real, effective, and saved UIDs"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Setting all three UIDs - ensure proper ordering
+  remediation: Use to set real, effective, and saved UIDs
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-privilege-setresgid
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setresgid\s*\('
+  - regex: setresgid\s*\(
   severity: medium
-  description: "Setting all three GIDs - ensure proper ordering"
-  remediation: "Use to set real, effective, and saved GIDs"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Setting all three GIDs - ensure proper ordering
+  remediation: Use to set real, effective, and saved GIDs
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-privilege-setuid-check
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setuid\s*\([^)]+\)\s*;\s*'
+  - regex: setuid\s*\([^)]+\)\s*;\s*
   severity: high
-  description: "setuid return value not checked - may fail"
-  remediation: "Always check setuid/setgid return values"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: setuid return value not checked - may fail
+  remediation: Always check setuid/setgid return values
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-privilege-chroot
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chroot\s*\('
+  - regex: chroot\s*\(
   severity: high
-  description: "chroot usage - not a complete security boundary"
-  remediation: "chroot + chdir to new root, then drop privileges"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: chroot usage - not a complete security boundary
+  remediation: chroot + chdir to new root, then drop privileges
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-chroot-no-chdir
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chroot\s*\([^)]+\)\s*;'
+  - regex: chroot\s*\([^)]+\)\s*;
   severity: high
-  description: "chroot without chdir to new root - can escape"
-  remediation: "Always chdir after chroot: chroot(path); chdir(\"/\");"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: chroot without chdir to new root - can escape
+  remediation: 'Always chdir after chroot: chroot(path); chdir("/");'
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-chroot-no-drop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chroot\s*\([^)]+\)\s*;[^{]*'
+  - regex: chroot\s*\([^)]+\)\s*;[^{]*
   severity: high
-  description: "chroot without dropping privileges - may still be root"
-  remediation: "Drop privileges after chroot: setuid(nobody)"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: chroot without dropping privileges - may still be root
+  remediation: 'Drop privileges after chroot: setuid(nobody)'
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-setgroups
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setgroups\s*\('
+  - regex: setgroups\s*\(
   severity: medium
-  description: "Setting supplementary groups - ensure proper groups"
-  remediation: "Call setgroups before setgid when dropping privileges"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Setting supplementary groups - ensure proper groups
+  remediation: Call setgroups before setgid when dropping privileges
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-privilege-initgroups
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'initgroups\s*\('
+  - regex: initgroups\s*\(
   severity: medium
-  description: "Initialize supplementary groups from group file"
-  remediation: "Call after dropping to user with valid group entries"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Initialize supplementary groups from group file
+  remediation: Call after dropping to user with valid group entries
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.6
 - id: c-privilege-getuid-check
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getuid\(\)\s*==\s*0'
+  - regex: getuid\(\)\s*==\s*0
   severity: high
-  description: "Checking if running as root"
-  remediation: "Consider using capabilities instead of root checks"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Checking if running as root
+  remediation: Consider using capabilities instead of root checks
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.65
 - id: c-privilege-geteuid-check
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'geteuid\(\)\s*==\s*0'
+  - regex: geteuid\(\)\s*==\s*0
   severity: high
-  description: "Checking effective UID for root"
-  remediation: "Consider using capabilities instead"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Checking effective UID for root
+  remediation: Consider using capabilities instead
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.65
 - id: c-privilege-umask
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'umask\s*\(\s*0\s*\)'
+  - regex: umask\s*\(\s*0\s*\)
   severity: high
-  description: "Setting umask to 0 - world-writable files by default"
-  remediation: "Set restrictive umask: umask(077) or umask(027)"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Setting umask to 0 - world-writable files by default
+  remediation: 'Set restrictive umask: umask(077) or umask(027)'
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-chmod-world-writable
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chmod\s*\([^,]+,\s*0?666\)|chmod\s*\([^,]+,\s*0?777\)'
+  - regex: chmod\s*\([^,]+,\s*0?666\)|chmod\s*\([^,]+,\s*0?777\)
   severity: high
-  description: "Setting world-writable permissions - security risk"
-  remediation: "Use restrictive permissions (0644 for files, 0755 for directories)"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Setting world-writable permissions - security risk
+  remediation: Use restrictive permissions (0644 for files, 0755 for directories)
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-chmod-suid
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chmod\s*\([^,]+,\s*0?4[0-9][0-9]0'
+  - regex: chmod\s*\([^,]+,\s*0?4[0-9][0-9]0
   severity: high
-  description: "Setting SUID bit - privilege escalation risk"
-  remediation: "Avoid SUID binaries, use capabilities instead"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Setting SUID bit - privilege escalation risk
+  remediation: Avoid SUID binaries, use capabilities instead
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-privilege-chmod-sgid
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'chmod\s*\([^,]+,\s*0?2[0-9][0-9]0'
+  - regex: chmod\s*\([^,]+,\s*0?2[0-9][0-9]0
   severity: high
-  description: "Setting SGID bit - group privilege escalation"
-  remediation: "Use with caution, ensure proper group membership"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Setting SGID bit - group privilege escalation
+  remediation: Use with caution, ensure proper group membership
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.7
 - id: c-env-getenv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\([^)]*\]'
+  - regex: getenv\s*\([^)]*\]
   severity: medium
-  description: "Reading environment variable - may be attacker-controlled"
-  remediation: "Validate environment variable contents, provide defaults"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading environment variable - may be attacker-controlled
+  remediation: Validate environment variable contents, provide defaults
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: c-env-getenv-unchecked
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\([^)]*\)\s*;\s*'
+  - regex: getenv\s*\([^)]*\)\s*;\s*
   severity: high
-  description: "getenv result used without NULL check"
-  remediation: "Always check if getenv returned NULL"
-  cwe: "CWE-476"
-  owasp: "A06:2021"
-
+  description: getenv result used without NULL check
+  remediation: Always check if getenv returned NULL
+  cwe: CWE-476
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-env-getenv-buffer-overflow
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv[^;]*;\s*strcpy|getenv[^;]*;\s*strcat|getenv[^;]*;\s*sprintf'
+  - regex: getenv[^;]*;\s*strcpy|getenv[^;]*;\s*strcat|getenv[^;]*;\s*sprintf
   severity: high
-  description: "Copying environment variable without size check - buffer overflow"
-  remediation: "Use strncpy/strncat with bounds checking"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: Copying environment variable without size check - buffer overflow
+  remediation: Use strncpy/strncat with bounds checking
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-env-getenv-format-string
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'printf\s*\(\s*getenv[^)]*\]'
+  - regex: printf\s*\(\s*getenv[^)]*\]
   severity: high
-  description: "Using environment variable as format string - format string attack"
-  remediation: "Use printf(\"%s\", getenv(...)) instead"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: Using environment variable as format string - format string attack
+  remediation: Use printf("%s", getenv(...)) instead
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-env-putenv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'putenv\s*\([^)]*\]'
+  - regex: putenv\s*\([^)]*\]
   severity: high
-  description: "Setting environment variable - may affect child processes"
-  remediation: "Use setenv instead, validate input"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Setting environment variable - may affect child processes
+  remediation: Use setenv instead, validate input
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-env-putenv-format
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'putenv\s*\([^)]*%[^)]*\]'
+  - regex: putenv\s*\([^)]*%[^)]*\]
   severity: high
-  description: "Format string in putenv - environment injection"
-  remediation: "Use fixed format with proper arguments"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: Format string in putenv - environment injection
+  remediation: Use fixed format with proper arguments
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: c-env-setenv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setenv\s*\('
+  - regex: setenv\s*\(
   severity: medium
-  description: "Setting environment variable with setenv"
-  remediation: "Validate environment variable name and value"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Setting environment variable with setenv
+  remediation: Validate environment variable name and value
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: c-env-setenv-tainted
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'setenv\s*\([^,]+,\s*[^)]*user|setenv\s*\([^,]+,\s*[^)]*params'
+  - regex: setenv\s*\([^,]+,\s*[^)]*user|setenv\s*\([^,]+,\s*[^)]*params
   severity: high
-  description: "Setting environment variable with user input - dangerous"
-  remediation: "Never set environment variables from user input"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Setting environment variable with user input - dangerous
+  remediation: Never set environment variables from user input
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-env-unsetenv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'unsetenv\s*\('
+  - regex: unsetenv\s*\(
   severity: low
-  description: "Removing environment variable"
-  remediation: "Safe operation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Removing environment variable
+  remediation: Safe operation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: c-env-clevergetenv
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'clearenv|environ'
+  - regex: clearenv|environ
   severity: low
-  description: "Direct environ manipulation - advanced usage"
-  remediation: "Use standard functions instead of direct environ access"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct environ manipulation - advanced usage
+  remediation: Use standard functions instead of direct environ access
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: c-env-ld-preload
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]LD_PRELOAD[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]LD_PRELOAD['\\\"]
   severity: high
-  description: "Reading LD_PRELOAD - library injection detection"
-  remediation: "Ignore LD_PRELOAD in setuid/setgid programs"
-  cwe: "CWE-426"
-  owasp: "A05:2021"
-
+  description: Reading LD_PRELOAD - library injection detection
+  remediation: Ignore LD_PRELOAD in setuid/setgid programs
+  cwe: CWE-426
+  owasp: A05:2021
+  confidence: 0.7
 - id: c-env-ld-library-path
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]LD_LIBRARY_PATH[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]LD_LIBRARY_PATH['\\\"]
   severity: high
-  description: "Reading LD_LIBRARY_PATH - library search path"
-  remediation: "Ignore in setuid/setgid programs"
-  cwe: "CWE-426"
-  owasp: "A05:2021"
-
+  description: Reading LD_LIBRARY_PATH - library search path
+  remediation: Ignore in setuid/setgid programs
+  cwe: CWE-426
+  owasp: A05:2021
+  confidence: 0.7
 - id: c-env-path
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]PATH[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]PATH['\\\"]
   severity: high
-  description: "Reading PATH environment variable"
-  remediation: "Use absolute paths when executing programs"
-  cwe: "CWE-426"
-  owasp: "A05:2021"
-
+  description: Reading PATH environment variable
+  remediation: Use absolute paths when executing programs
+  cwe: CWE-426
+  owasp: A05:2021
+  confidence: 0.7
 - id: c-env-ifs
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]IFS[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]IFS['\\\"]
   severity: critical
-  description: "Reading IFS (Internal Field Separator) - shell injection risk"
-  remediation: "Never use system() with user input when IFS is set"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Reading IFS (Internal Field Separator) - shell injection risk
+  remediation: Never use system() with user input when IFS is set
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: c-env-home
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]HOME[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]HOME['\\\"]
   severity: low
-  description: "Reading HOME directory"
-  remediation: "Validate HOME path before using"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading HOME directory
+  remediation: Validate HOME path before using
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: c-env-temp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\"]TMP[''\\"]|getenv\s*\(\s*[''\\"]TEMP[''\\"]'
+  - regex: getenv\s*\(\s*['\\"]TMP['\\"]|getenv\s*\(\s*['\\"]TEMP['\\"]
   severity: medium
-  description: "Reading temp directory environment variable"
-  remediation: "Use mkstemp with fallback to /tmp"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading temp directory environment variable
+  remediation: Use mkstemp with fallback to /tmp
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: c-env-user
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\"]USER[''\\"]|getenv\s*\(\s*[''\\"]LOGNAME[''\\"]'
+  - regex: getenv\s*\(\s*['\\"]USER['\\"]|getenv\s*\(\s*['\\"]LOGNAME['\\"]
   severity: low
-  description: "Reading username from environment"
-  remediation: "Use getpwuid(getuid()) instead for accuracy"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading username from environment
+  remediation: Use getpwuid(getuid()) instead for accuracy
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: c-env-lang
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\"]LANG[''\\"]|getenv\s*\(\s*[''\\"]LC_'
+  - regex: getenv\s*\(\s*['\\"]LANG['\\"]|getenv\s*\(\s*['\\"]LC_
   severity: low
-  description: "Reading locale environment variables"
-  remediation: "Validate locale settings, handle Unicode properly"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading locale environment variables
+  remediation: Validate locale settings, handle Unicode properly
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: c-env-terms
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]TERM[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]TERM['\\\"]
   severity: low
-  description: "Reading terminal type"
-  remediation: "Validate terminal type before use"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading terminal type
+  remediation: Validate terminal type before use
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: c-env-display
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]DISPLAY[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]DISPLAY['\\\"]
   severity: low
-  description: "Reading X11 display"
-  remediation: "Validate display string"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading X11 display
+  remediation: Validate display string
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: c-env-proxy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\"]HTTP_PROXY[''\\"]|getenv\s*\(\s*[''\\"]HTTPS_PROXY'
+  - regex: getenv\s*\(\s*['\\"]HTTP_PROXY['\\"]|getenv\s*\(\s*['\\"]HTTPS_PROXY
   severity: medium
-  description: "Reading proxy environment variables"
-  remediation: "Validate proxy URLs"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Reading proxy environment variables
+  remediation: Validate proxy URLs
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: c-env-no-proxy
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'getenv\s*\(\s*[''\\\"]NO_PROXY[''\\\"]'
+  - regex: getenv\s*\(\s*['\\\"]NO_PROXY['\\\"]
   severity: low
-  description: "Reading NO_PROXY bypass list"
-  remediation: "Validate host patterns"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== MEMORY CORRUPTION (391-420) ========================
-
+  description: Reading NO_PROXY bypass list
+  remediation: Validate host patterns
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: c-memory-corruption-off-by-one
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\[\s*\w+\s*\+\s*\d+\s*\]|\[\s*\w+\s*-\s*\d+\s*\]'
+  - regex: \[\s*\w+\s*\+\s*\d+\s*\]|\[\s*\w+\s*-\s*\d+\s*\]
   severity: high
-  description: "Array index with arithmetic - potential off-by-one"
-  remediation: "Verify index bounds: if (idx >= 0 && idx < ARRAY_SIZE)"
-  cwe: "CWE-193"
-  owasp: "A06:2021"
-
+  description: Array index with arithmetic - potential off-by-one
+  remediation: 'Verify index bounds: if (idx >= 0 && idx < ARRAY_SIZE)'
+  cwe: CWE-193
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-memory-corruption-array-index-negative
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\[\s*-\s*\w+\s*\]'
+  - regex: \[\s*-\s*\w+\s*\]
   severity: high
-  description: "Negative array index - memory corruption"
-  remediation: "Ensure index is non-negative before array access"
-  cwe: "CWE-129"
-  owasp: "A06:2021"
-
+  description: Negative array index - memory corruption
+  remediation: Ensure index is non-negative before array access
+  cwe: CWE-129
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-memory-corruption-array-index-user
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\[\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\]\s*'
+  - regex: \[\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\]\s*
   severity: high
-  description: "Array index with user-controlled variable without bounds check"
-  remediation: "Always validate array indices against bounds"
-  cwe: "CWE-129"
-  owasp: "A06:2021"
-
+  description: Array index with user-controlled variable without bounds check
+  remediation: Always validate array indices against bounds
+  cwe: CWE-129
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-memory-corruption-ptr-cast
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\(struct\s+\w+\s*\*\)\s*\w+|\*\(\s*struct\s+\w+\s*\*\)'
+  - regex: \(struct\s+\w+\s*\*\)\s*\w+|\*\(\s*struct\s+\w+\s*\*\)
   severity: high
-  description: "Pointer casting - may violate strict aliasing"
-  remediation: "Use union or memcpy for type punning"
-  cwe: "CWE-704"
-  owasp: "A06:2021"
-
+  description: Pointer casting - may violate strict aliasing
+  remediation: Use union or memcpy for type punning
+  cwe: CWE-704
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-memory-corruption-alignment-cast
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\(\w+\s*\*\)\s*\w+\s*\+\s*\d+'
+  - regex: \(\w+\s*\*\)\s*\w+\s*\+\s*\d+
   severity: medium
-  description: "Casting unaligned pointer - undefined behavior"
-  remediation: "Ensure pointer is properly aligned for type"
-  cwe: "CWE-704"
-  owasp: "A06:2021"
-
+  description: Casting unaligned pointer - undefined behavior
+  remediation: Ensure pointer is properly aligned for type
+  cwe: CWE-704
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-memory-corruption-unaligned-access
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'memcpy\s*\([^,]+,\s*[^,]+,\s*sizeof\([^)]+\)\s*\]'
+  - regex: memcpy\s*\([^,]+,\s*[^,]+,\s*sizeof\([^)]+\)\s*\]
   severity: low
-  description: "Potential unaligned access - use memcpy for safe unaligned access"
-  remediation: "memcpy is safe for unaligned access, good practice"
-  cwe: "CWE-704"
-  owasp: "A06:2021"
-
+  description: Potential unaligned access - use memcpy for safe unaligned access
+  remediation: memcpy is safe for unaligned access, good practice
+  cwe: CWE-704
+  owasp: A06:2021
+  confidence: 0.5
 - id: c-memory-corruption-flexible-array-sizeof
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sizeof\s*\(\s*struct\s+\w+\s*\)\s*;\s*malloc'
+  - regex: sizeof\s*\(\s*struct\s+\w+\s*\)\s*;\s*malloc
   severity: high
-  description: "malloc for struct with flexible array member without extra space"
-  remediation: "Add space for array: sizeof(struct) + (count * element_size)"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: malloc for struct with flexible array member without extra space
+  remediation: 'Add space for array: sizeof(struct) + (count * element_size)'
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-zero-size-alloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\(\s*0\s*\)'
+  - regex: malloc\s*\(\s*0\s*\)
   severity: medium
-  description: "malloc(0) - implementation-defined behavior"
-  remediation: "Avoid zero-size allocations, handle as special case"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: malloc(0) - implementation-defined behavior
+  remediation: Avoid zero-size allocations, handle as special case
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-memory-corruption-negative-size-alloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\(\s*-\s*\d+\s*\)|malloc\s*\(\s*-\s*\w+\s*\)'
+  - regex: malloc\s*\(\s*-\s*\d+\s*\)|malloc\s*\(\s*-\s*\w+\s*\)
   severity: high
-  description: "malloc with negative size - undefined behavior"
-  remediation: "Ensure allocation size is positive"
-  cwe: "CWE-190"
-  owasp: "A06:2021"
-
+  description: malloc with negative size - undefined behavior
+  remediation: Ensure allocation size is positive
+  cwe: CWE-190
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-realloc-size-zero
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'realloc\s*\([^,]+,\s*0\s*\)'
+  - regex: realloc\s*\([^,]+,\s*0\s*\)
   severity: high
-  description: "realloc with size 0 - free behavior, error prone"
-  remediation: "Use free() explicitly when freeing, not realloc(ptr, 0)"
-  cwe: "CWE-120"
-  owasp: "A06:2021"
-
+  description: realloc with size 0 - free behavior, error prone
+  remediation: Use free() explicitly when freeing, not realloc(ptr, 0)
+  cwe: CWE-120
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-stack-buffer-overflow
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'char\s+\w+\s*\[\s*\d+\s*\]\s*;\s*strcpy|char\s+\w+\s*\[\s*\d+\s*\]\s*;\s*gets'
+  - regex: char\s+\w+\s*\[\s*\d+\s*\]\s*;\s*strcpy|char\s+\w+\s*\[\s*\d+\s*\]\s*;\s*gets
   severity: high
-  description: "Stack buffer declared and then overflowed with unsafe function"
-  remediation: "Use bounded functions: strncpy, fgets, etc."
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
+  description: Stack buffer declared and then overflowed with unsafe function
+  remediation: 'Use bounded functions: strncpy, fgets, etc.'
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-stack-buffer-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'for\s*\([^;]+;[^;]+;[^)]*\)\s*\{[^}]*\[i\]\s*=\s*[^;]+'
+  - regex: for\s*\([^;]+;[^;]+;[^)]*\)\s*\{[^}]*\[i\]\s*=\s*[^;]+
   severity: high
-  description: "Manual stack buffer fill loop - potential overflow"
-  remediation: "Add bounds check: if (i < sizeof(buffer)/sizeof(buffer[0]))"
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
+  description: Manual stack buffer fill loop - potential overflow
+  remediation: 'Add bounds check: if (i < sizeof(buffer)/sizeof(buffer[0]))'
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-heap-buffer-overflow
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\(\s*\d+\s*\)\s*;\s*[^}]*\[\d+\]\s*='
+  - regex: malloc\s*\(\s*\d+\s*\)\s*;\s*[^}]*\[\d+\]\s*=
   severity: high
-  description: "Heap buffer allocated with fixed size - potential overflow"
-  remediation: "Check index against allocation size"
-  cwe: "CWE-122"
-  owasp: "A06:2021"
-
+  description: Heap buffer allocated with fixed size - potential overflow
+  remediation: Check index against allocation size
+  cwe: CWE-122
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-heap-buffer-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\(\s*\w+\s*\)\s*;\s*for.*\[i\]'
+  - regex: malloc\s*\(\s*\w+\s*\)\s*;\s*for.*\[i\]
   severity: high
-  description: "Heap buffer fill in loop - potential overflow"
-  remediation: "Ensure loop limit <= allocation size"
-  cwe: "CWE-122"
-  owasp: "A06:2021"
-
+  description: Heap buffer fill in loop - potential overflow
+  remediation: Ensure loop limit <= allocation size
+  cwe: CWE-122
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-gets
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'gets\s*\('
+  - regex: gets\s*\(
   severity: critical
-  description: "gets() - no bounds checking, always buffer overflow"
-  remediation: "Use fgets() with explicit buffer size"
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
+  description: gets() - no bounds checking, always buffer overflow
+  remediation: Use fgets() with explicit buffer size
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-memory-corruption-sprintf-no-bounds
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sprintf\s*\([^,]+,\s*[^)]+%[^)]*\]'
+  - regex: sprintf\s*\([^,]+,\s*[^)]+%[^)]*\]
   severity: high
-  description: "sprintf without bounds - buffer overflow"
-  remediation: "Use snprintf with explicit buffer size"
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
+  description: sprintf without bounds - buffer overflow
+  remediation: Use snprintf with explicit buffer size
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-strcat-no-bounds
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strcat\s*\([^,]+,\s*[^)]+\]'
+  - regex: strcat\s*\([^,]+,\s*[^)]+\]
   severity: high
-  description: "strcat without bounds - buffer overflow"
-  remediation: "Use strncat or strlcat with explicit size"
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
+  description: strcat without bounds - buffer overflow
+  remediation: Use strncat or strlcat with explicit size
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-memcpy-overflow
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'memcpy\s*\([^,]+,\s*[^,]+,\s*[^)]*sizeof\([^)]+\)\s*\]'
+  - regex: memcpy\s*\([^,]+,\s*[^,]+,\s*[^)]*sizeof\([^)]+\)\s*\]
   severity: high
-  description: "memcpy with sizeof destination - ensure destination is array"
-  remediation: "Use sizeof(array) for destination, not sizeof(pointer)"
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
+  description: memcpy with sizeof destination - ensure destination is array
+  remediation: Use sizeof(array) for destination, not sizeof(pointer)
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-memcpy-pointer-size
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'memcpy\s*\([^,]+,\s*[^,]+,\s*sizeof\([^)]*\*[^)]*\)\s*\]'
+  - regex: memcpy\s*\([^,]+,\s*[^,]+,\s*sizeof\([^)]*\*[^)]*\)\s*\]
   severity: high
-  description: "memcpy with sizeof(pointer) - copies wrong amount"
-  remediation: "Use sizeof(type) * count for correct size"
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
+  description: memcpy with sizeof(pointer) - copies wrong amount
+  remediation: Use sizeof(type) * count for correct size
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-memory-corruption-scanf-no-width
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'scanf\s*\(\s*[''\\\"][^0-9]*%s[^''\\\"]*[''\\\"]'
+  - regex: scanf\s*\(\s*['\\\"][^0-9]*%s[^'\\\"]*['\\\"]
   severity: critical
-  description: "scanf %s without width - buffer overflow"
-  remediation: "Use scanf with width: scanf(\"%255s\", buffer)"
-  cwe: "CWE-121"
-  owasp: "A06:2021"
-
-# ======================== RESOURCE LEAKS (421-450) ========================
-
+  description: scanf %s without width - buffer overflow
+  remediation: 'Use scanf with width: scanf("%255s", buffer)'
+  cwe: CWE-121
+  owasp: A06:2021
+  confidence: 0.75
 - id: c-resource-leak-malloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\([^)]+\)\s*;[^}]*'
+  - regex: malloc\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Memory allocated with malloc but never freed"
-  remediation: "Free memory when no longer needed, use RAII patterns"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: Memory allocated with malloc but never freed
+  remediation: Free memory when no longer needed, use RAII patterns
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-calloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'calloc\s*\([^)]+\)\s*;[^}]*'
+  - regex: calloc\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Memory allocated with calloc but never freed"
-  remediation: "Free memory, track allocations"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: Memory allocated with calloc but never freed
+  remediation: Free memory, track allocations
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-realloc
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'realloc\s*\([^)]+\)\s*;[^}]*'
+  - regex: realloc\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Memory allocated/reallocated but never freed"
-  remediation: "Free memory when done, use temporary for realloc"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: Memory allocated/reallocated but never freed
+  remediation: Free memory when done, use temporary for realloc
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-strdup
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'strdup\s*\([^)]+\)\s*;[^}]*'
+  - regex: strdup\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "strdup allocated memory but never freed"
-  remediation: "Free the duplicated string"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: strdup allocated memory but never freed
+  remediation: Free the duplicated string
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-asprintf
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'asprintf\s*\([^)]+\)\s*;[^}]*'
+  - regex: asprintf\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "asprintf allocated memory but never freed"
-  remediation: "Free the allocated string"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: asprintf allocated memory but never freed
+  remediation: Free the allocated string
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-fopen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fopen\s*\([^)]+\)\s*;[^}]*'
+  - regex: fopen\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "File opened but never closed"
-  remediation: "Close file with fclose when done"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: File opened but never closed
+  remediation: Close file with fclose when done
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-freopen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'freopen\s*\([^)]+\)\s*;[^}]*'
+  - regex: freopen\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "File reopened but never closed"
-  remediation: "Close file when done"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: File reopened but never closed
+  remediation: Close file when done
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-fdopen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'fdopen\s*\([^)]+\)\s*;[^}]*'
+  - regex: fdopen\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "File descriptor wrapped in FILE* but never closed"
-  remediation: "Close with fclose (closes underlying fd)"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: File descriptor wrapped in FILE* but never closed
+  remediation: Close with fclose (closes underlying fd)
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-popen
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'popen\s*\([^)]+\)\s*;[^}]*'
+  - regex: popen\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Pipe opened but never closed"
-  remediation: "Close with pclose when done"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Pipe opened but never closed
+  remediation: Close with pclose when done
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-open
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'open\s*\([^)]+\)\s*;[^}]*'
+  - regex: open\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "File descriptor opened but never closed"
-  remediation: "Close fd with close() when done"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: File descriptor opened but never closed
+  remediation: Close fd with close() when done
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-socket
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'socket\s*\([^)]+\)\s*;[^}]*'
+  - regex: socket\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Socket created but never closed"
-  remediation: "Close socket with close()"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Socket created but never closed
+  remediation: Close socket with close()
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-accept
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'accept\s*\([^)]+\)\s*;[^}]*'
+  - regex: accept\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Accepted socket never closed"
-  remediation: "Close client socket after use"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Accepted socket never closed
+  remediation: Close client socket after use
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-opendir
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'opendir\s*\([^)]+\)\s*;[^}]*'
+  - regex: opendir\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Directory opened but never closed"
-  remediation: "Close directory with closedir"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Directory opened but never closed
+  remediation: Close directory with closedir
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-mkstemp
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'mkstemp\s*\([^)]+\)\s*;[^}]*'
+  - regex: mkstemp\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Temporary file descriptor not closed"
-  remediation: "Close temp file after use and unlink"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Temporary file descriptor not closed
+  remediation: Close temp file after use and unlink
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-posix-memalign
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'posix_memalign\s*\([^)]+\)\s*;[^}]*'
+  - regex: posix_memalign\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Aligned memory never freed"
-  remediation: "Free aligned memory with free()"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: Aligned memory never freed
+  remediation: Free aligned memory with free()
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-mmapped
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'mmap\s*\([^)]+\)\s*;[^}]*'
+  - regex: mmap\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Memory mapped but never unmapped"
-  remediation: "Unmap with munmap when done"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: Memory mapped but never unmapped
+  remediation: Unmap with munmap when done
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-shmat
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'shmat\s*\([^)]+\)\s*;[^}]*'
+  - regex: shmat\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Shared memory attached but never detached"
-  remediation: "Detach with shmdt"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: Shared memory attached but never detached
+  remediation: Detach with shmdt
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-semaphore
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sem_open\s*\([^)]+\)\s*;[^}]*'
+  - regex: sem_open\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Semaphore opened but never closed"
-  remediation: "Close semaphore with sem_close"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Semaphore opened but never closed
+  remediation: Close semaphore with sem_close
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-mq-open
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'mq_open\s*\([^)]+\)\s*;[^}]*'
+  - regex: mq_open\s*\([^)]+\)\s*;[^}]*
   severity: high
-  description: "Message queue opened but never closed"
-  remediation: "Close message queue with mq_close"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Message queue opened but never closed
+  remediation: Close message queue with mq_close
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-sched
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'sched_getscheduler|sched_setscheduler'
+  - regex: sched_getscheduler|sched_setscheduler
   severity: low
-  description: "Scheduler operations - no resource leak"
-  remediation: "Safe"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Scheduler operations - no resource leak
+  remediation: Safe
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.45
 - id: c-resource-leak-error-path
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'if\s*\([^)]*\)\s*\{[^}]*return[^}]*\}[^}]*free'
+  - regex: if\s*\([^)]*\)\s*\{[^}]*return[^}]*\}[^}]*free
   severity: high
-  description: "Free only on success path - leak on error path"
-  remediation: "Use goto cleanup pattern to free on all paths"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
+  description: Free only on success path - leak on error path
+  remediation: Use goto cleanup pattern to free on all paths
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-resource-leak-fd-leak-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'for.*open.*[^}]*\}[^}]*'
+  - regex: for.*open.*[^}]*\}[^}]*
   severity: high
-  description: "Opening files in loop without closing - fd leak"
-  remediation: "Close each file descriptor inside loop"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Opening files in loop without closing - fd leak
+  remediation: Close each file descriptor inside loop
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-resource-leak-mem-leak-loop
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'for.*malloc.*[^}]*\}[^}]*'
+  - regex: for.*malloc.*[^}]*\}[^}]*
   severity: high
-  description: "Allocating in loop without freeing - memory leak"
-  remediation: "Free each allocation in loop or after use"
-  cwe: "CWE-401"
-  owasp: "A06:2021"
-
-# ======================== UNINITIALIZED MEMORY (451-480) ========================
-
+  description: Allocating in loop without freeing - memory leak
+  remediation: Free each allocation in loop or after use
+  cwe: CWE-401
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-local-var
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'int\s+\w+\s*;\s*[^{]*\w+\s*='
+  - regex: int\s+\w+\s*;\s*[^{]*\w+\s*=
   severity: high
-  description: "Local variable used without initialization"
-  remediation: "Initialize variables when declared"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Local variable used without initialization
+  remediation: Initialize variables when declared
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-pointer
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\*\s*\w+\s*;\s*[^=]*\*\w+'
+  - regex: \w+\s*\*\s*\w+\s*;\s*[^=]*\*\w+
   severity: high
-  description: "Pointer used without initialization"
-  remediation: "Initialize pointer to NULL and check before use"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Pointer used without initialization
+  remediation: Initialize pointer to NULL and check before use
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-struct
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'struct\s+\w+\s+\w+\s*;\s*[^=]*\w+\.\w+'
+  - regex: struct\s+\w+\s+\w+\s*;\s*[^=]*\w+\.\w+
   severity: high
-  description: "Struct member accessed without struct initialization"
-  remediation: "Initialize struct with = {0} or memset"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Struct member accessed without struct initialization
+  remediation: Initialize struct with = {0} or memset
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-array
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s+\w+\s*\[\d+\]\s*;\s*\w+\s*\[\d+\]'
+  - regex: \w+\s+\w+\s*\[\d+\]\s*;\s*\w+\s*\[\d+\]
   severity: high
-  description: "Array element accessed before initialization"
-  remediation: "Initialize arrays when declared or with memset"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Array element accessed before initialization
+  remediation: Initialize arrays when declared or with memset
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-malloc-mem
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'malloc\s*\([^)]+\)\s*;\s*[^=]*\*\w+'
+  - regex: malloc\s*\([^)]+\)\s*;\s*[^=]*\*\w+
   severity: high
-  description: "Heap memory used without initialization"
-  remediation: "Use calloc or memset after malloc"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Heap memory used without initialization
+  remediation: Use calloc or memset after malloc
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-uninit-realloc-mem
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'realloc\s*\([^)]+\)\s*;\s*[^=]*\*\w+'
+  - regex: realloc\s*\([^)]+\)\s*;\s*[^=]*\*\w+
   severity: high
-  description: "realloc may not preserve content of new memory"
-  remediation: "Initialize newly allocated space"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: realloc may not preserve content of new memory
+  remediation: Initialize newly allocated space
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-uninit-stack-array
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'char\s+\w+\s*\[\d+\]\s*;\s*[^}]*strcpy|strcat'
+  - regex: char\s+\w+\s*\[\d+\]\s*;\s*[^}]*strcpy|strcat
   severity: high
-  description: "Stack array used without initialization"
+  description: Stack array used without initialization
   remediation: "Initialize array with memset or set first char to '\0'"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-conditional
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'if\s*\([^)]*\)\s*\{[^}]*\}\s*else\s*\{[^}]*\}\s*\w+'
+  - regex: if\s*\([^)]*\)\s*\{[^}]*\}\s*else\s*\{[^}]*\}\s*\w+
   severity: medium
-  description: "Variable potentially uninitialized in one branch"
-  remediation: "Initialize variable before conditional or in both branches"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Variable potentially uninitialized in one branch
+  remediation: Initialize variable before conditional or in both branches
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-uninit-pointer-to-local
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*=\s*&\s*\w+\s*;\s*\}'
+  - regex: \w+\s*=\s*&\s*\w+\s*;\s*\}
   severity: high
-  description: "Pointer to local variable - use after return"
-  remediation: "Don't store pointers to local variables"
-  cwe: "CWE-562"
-  owasp: "A06:2021"
-
+  description: Pointer to local variable - use after return
+  remediation: Don't store pointers to local variables
+  cwe: CWE-562
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-union
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'union\s+\w+\s+\w+\s*;\s*\w+\.\w+'
+  - regex: union\s+\w+\s+\w+\s*;\s*\w+\.\w+
   severity: high
-  description: "Union member accessed without initialization"
-  remediation: "Initialize union before use"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Union member accessed without initialization
+  remediation: Initialize union before use
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-bitfield
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'struct\s+\w+\s*\{[^}]*:\d+[^}]*\}\s*\w+\s*;\s*\w+\.\w+'
+  - regex: struct\s+\w+\s*\{[^}]*:\d+[^}]*\}\s*\w+\s*;\s*\w+\.\w+
   severity: medium
-  description: "Bitfield accessed without initialization"
-  remediation: "Initialize entire struct before use"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Bitfield accessed without initialization
+  remediation: Initialize entire struct before use
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-uninit-function-param-out
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\(\s*&\s*\w+\s*\)\s*;\s*[^=]*\w+'
+  - regex: \w+\s*\(\s*&\s*\w+\s*\)\s*;\s*[^=]*\w+
   severity: high
-  description: "Function called with output parameter, variable used before check"
-  remediation: "Check function return value before using output"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Function called with output parameter, variable used before check
+  remediation: Check function return value before using output
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-uninit-function-param-inout
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: '\w+\s*\([^,]+,\s*&\s*\w+\s*\)\s*;\s*[^=]*\w+'
+  - regex: \w+\s*\([^,]+,\s*&\s*\w+\s*\)\s*;\s*[^=]*\w+
   severity: high
-  description: "In-out parameter used after call without checking"
-  remediation: "Check function success before using parameter"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: In-out parameter used after call without checking
+  remediation: Check function success before using parameter
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.7
 - id: c-uninit-errno-check
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'if\s*\(\s*\w+\s*==\s*-1\s*\)\s*\{[^}]*\}\s*[^=]*\w+'
+  - regex: if\s*\(\s*\w+\s*==\s*-1\s*\)\s*\{[^}]*\}\s*[^=]*\w+
   severity: medium
-  description: "Variable may be uninitialized if function failed"
-  remediation: "Only use variable if function succeeded"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Variable may be uninitialized if function failed
+  remediation: Only use variable if function succeeded
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.6
 - id: c-uninit-struct-member
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'struct\s+\w+\s+\w+\s*;\s*\w+\.\w+\s*='
+  - regex: struct\s+\w+\s+\w+\s*;\s*\w+\.\w+\s*=
   severity: high
-  description: "Struct member assigned without struct initialization"
-  remediation: "Initialize struct before assigning members"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
+  description: Struct member assigned without struct initialization
+  remediation: Initialize struct before assigning members
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-uninit-struct-ptr-member
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'struct\s+\w+\s*\*\s*\w+\s*;\s*\w+->\w+\s*='
+  - regex: struct\s+\w+\s*\*\s*\w+\s*;\s*\w+->\w+\s*=
   severity: high
-  description: "Pointer to struct used without allocation"
-  remediation: "Allocate and initialize struct before use"
-  cwe: "CWE-457"
-  owasp: "A06:2021"
-
-# ======================== CONCURRENT PROGRAMMING (481-500) ========================
-
+  description: Pointer to struct used without allocation
+  remediation: Allocate and initialize struct before use
+  cwe: CWE-457
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-mutex-unlock-error
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_mutex_lock.*if.*return.*'
+  - regex: pthread_mutex_lock.*if.*return.*
   severity: high
-  description: "Early return without unlocking mutex - deadlock"
-  remediation: "Unlock mutex before all return paths"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: Early return without unlocking mutex - deadlock
+  remediation: Unlock mutex before all return paths
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-mutex-double-lock
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_mutex_lock.*pthread_mutex_lock'
+  - regex: pthread_mutex_lock.*pthread_mutex_lock
   severity: high
-  description: "Mutex locked twice - deadlock"
-  remediation: "Don't lock mutex twice in same thread"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: Mutex locked twice - deadlock
+  remediation: Don't lock mutex twice in same thread
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-mutex-destroy-locked
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_mutex_destroy.*while.*locked'
+  - regex: pthread_mutex_destroy.*while.*locked
   severity: high
-  description: "Mutex destroyed while locked - undefined behavior"
-  remediation: "Ensure mutex is unlocked before destroying"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: Mutex destroyed while locked - undefined behavior
+  remediation: Ensure mutex is unlocked before destroying
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-cond-wait-no-lock
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_cond_wait[^;]*;'
+  - regex: pthread_cond_wait[^;]*;
   severity: high
-  description: "pthread_cond_wait called without mutex lock"
-  remediation: "Always lock mutex before pthread_cond_wait"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: pthread_cond_wait called without mutex lock
+  remediation: Always lock mutex before pthread_cond_wait
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-cond-signal-no-lock
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_cond_signal[^;]*;[^}]*'
+  - regex: pthread_cond_signal[^;]*;[^}]*
   severity: high
-  description: "pthread_cond_signal without mutex - may lose wakeups"
-  remediation: "Signal while holding mutex"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: pthread_cond_signal without mutex - may lose wakeups
+  remediation: Signal while holding mutex
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-cond-broadcast-no-lock
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_cond_broadcast[^;]*;[^}]*'
+  - regex: pthread_cond_broadcast[^;]*;[^}]*
   severity: high
-  description: "pthread_cond_broadcast without mutex - may lose wakeups"
-  remediation: "Broadcast while holding mutex"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: pthread_cond_broadcast without mutex - may lose wakeups
+  remediation: Broadcast while holding mutex
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-cond-wait-spurious
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_cond_wait[^;]*;'
+  - regex: pthread_cond_wait[^;]*;
   severity: high
-  description: "pthread_cond_wait without loop for predicate - spurious wakeups"
-  remediation: "Always use while(predicate) { pthread_cond_wait(...); }"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: pthread_cond_wait without loop for predicate - spurious wakeups
+  remediation: Always use while(predicate) { pthread_cond_wait(...); }
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-attr-leak
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_attr_init[^;]*;'
+  - regex: pthread_attr_init[^;]*;
   severity: medium
-  description: "Thread attributes not destroyed - resource leak"
-  remediation: "Destroy attributes after use"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Thread attributes not destroyed - resource leak
+  remediation: Destroy attributes after use
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.55
 - id: c-thread-join-missing
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_create[^;]*;'
+  - regex: pthread_create[^;]*;
   severity: high
-  description: "Thread created but not joined or detached - resource leak"
-  remediation: "Join or detach all threads"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Thread created but not joined or detached - resource leak
+  remediation: Join or detach all threads
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-cancel-async
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_setcanceltype.*PTHREAD_CANCEL_ASYNCHRONOUS'
+  - regex: pthread_setcanceltype.*PTHREAD_CANCEL_ASYNCHRONOUS
   severity: high
-  description: "Async cancellation - dangerous, can leave state inconsistent"
-  remediation: "Use deferred cancellation or avoid cancellation"
-  cwe: "CWE-667"
-  owasp: "A06:2021"
-
+  description: Async cancellation - dangerous, can leave state inconsistent
+  remediation: Use deferred cancellation or avoid cancellation
+  cwe: CWE-667
+  owasp: A06:2021
+  confidence: 0.65
 - id: c-thread-key-leak
-  languages: [c]
+  languages:
+  - c
   patterns:
-    - regex: 'pthread_key_create[^;]*;'
+  - regex: pthread_key_create[^;]*;
   severity: medium
-  description: "Thread-specific data key not deleted - resource leak"
-  remediation: "Delete keys when no longer needed"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
+  description: Thread-specific data key not deleted - resource leak
+  remediation: Delete keys when no longer needed
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.55

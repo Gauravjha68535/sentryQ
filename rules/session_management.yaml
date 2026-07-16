@@ -4,11 +4,11 @@
 - id: session-cookie-secure-false
   languages: [javascript, typescript, python, java, php, go, ruby]
   patterns:
-    - regex: '(?i)cookie\s*:\s*\{[^}]*secure\s*:\s*false'
-    - regex: '(?i)Set-Cookie:.*(?![sS]ecure)'
-    - regex: '(?i)session\s*\(\s*\{[^}]*secure\s*:\s*False'
+    - regex: '(?i)(?:Set-Cookie|setCookie|set_cookie)\s*[^;\\n]*(?:session|auth|token)'
+  negative_patterns:
+    - regex: '(?i)Secure|secure=true|secure:\s*true'
   severity: high
-  description: "Session cookie configured without the 'Secure' flag. The browser will transmit this cookie over unencrypted HTTP connections, making it trivial for network attackers to intercept the session token."
+  description: "Session cookie set without Secure flag — cookie transmitted over HTTP, susceptible to interception."
   remediation: "Always set the 'Secure' flag to true for authentication and session cookies. Ensure your application is served exclusively over HTTPS."
   cwe: "CWE-614"
   owasp: "A05:2021-Security Misconfiguration"

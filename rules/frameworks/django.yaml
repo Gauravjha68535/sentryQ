@@ -1,1552 +1,1686 @@
-# ============================================================================
-# DJANGO SECURITY RULES - EXPANDED (150 NEW RULES)
-# ============================================================================
-# Excludes all existing rules from uploaded django.yaml
-# Categories: ORM, Templates, Authentication, Middleware, Settings,
-#             Cache, Files, Email, Admin, Forms, Sessions, Signals
-# ============================================================================
-
-# --- DJANGO ORM (1-20) ---
 - id: django-orm-filter-injection
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.filter\s*\(\s*\*\*request\.'
+  - regex: (?i)\.filter\s*\(\s*\*\*request\.
   severity: critical
-  description: "Django ORM filter with request data - potential injection"
-  remediation: "Validate and sanitize filter parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django ORM filter with request data - potential injection
+  remediation: Validate and sanitize filter parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: django-orm-exclude-injection
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.exclude\s*\(\s*\*\*request\.'
+  - regex: (?i)\.exclude\s*\(\s*\*\*request\.
   severity: critical
-  description: "Django ORM exclude with request data"
-  remediation: "Validate exclude parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django ORM exclude with request data
+  remediation: Validate exclude parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: django-orm-get-injection
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.get\s*\(\s*\*\*request\.'
+  - regex: (?i)\.get\s*\(\s*\*\*request\.
   severity: critical
-  description: "Django ORM get with request data"
-  remediation: "Validate get parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django ORM get with request data
+  remediation: Validate get parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: django-orm-extra-injection
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.extra\s*\(\s*where'
+  - regex: (?i)\.extra\s*\(\s*where
   severity: high
-  description: "Django ORM extra() with raw SQL"
-  remediation: "Use annotate() or aggregate() instead"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django ORM extra() with raw SQL
+  remediation: Use annotate() or aggregate() instead
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: django-orm-raw-injection
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.raw\s*\(\s*f[''\\\"]'
+  - regex: (?i)\.raw\s*\(\s*f['\\\"]
   severity: high
-  description: "Django ORM raw() with f-string"
-  remediation: "Use parameterized raw queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django ORM raw() with f-string
+  remediation: Use parameterized raw queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: django-orm-bulk-create
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)bulk_create\s*\('
+  - regex: (?i)bulk_create\s*\(
   severity: low
-  description: "Django bulk_create operation"
-  remediation: "Validate bulk data before creation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django bulk_create operation
+  remediation: Validate bulk data before creation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-orm-bulk-update
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)bulk_update\s*\('
+  - regex: (?i)bulk_update\s*\(
   severity: low
-  description: "Django bulk_update operation"
-  remediation: "Validate bulk update data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django bulk_update operation
+  remediation: Validate bulk update data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-orm-select-related
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)select_related\s*\('
+  - regex: (?i)select_related\s*\(
   severity: low
-  description: "Django select_related for optimization"
-  remediation: "Ensure related objects don't expose sensitive data"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django select_related for optimization
+  remediation: Ensure related objects don't expose sensitive data
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-orm-prefetch-related
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)prefetch_related\s*\('
+  - regex: (?i)prefetch_related\s*\(
   severity: low
-  description: "Django prefetch_related for optimization"
-  remediation: "Ensure prefetched data is safe"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django prefetch_related for optimization
+  remediation: Ensure prefetched data is safe
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-orm-only
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.only\s*\('
+  - regex: (?i)\.only\s*\(
   severity: low
-  description: "Django only() for field selection"
-  remediation: "Ensure only necessary fields are selected"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django only() for field selection
+  remediation: Ensure only necessary fields are selected
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-orm-defer
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.defer\s*\('
+  - regex: (?i)\.defer\s*\(
   severity: low
-  description: "Django defer() for field deferral"
-  remediation: "Ensure deferred fields don't contain sensitive data"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django defer() for field deferral
+  remediation: Ensure deferred fields don't contain sensitive data
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-orm-annotate
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.annotate\s*\('
+  - regex: (?i)\.annotate\s*\(
   severity: low
-  description: "Django annotate() for aggregation"
-  remediation: "Validate annotation expressions"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django annotate() for aggregation
+  remediation: Validate annotation expressions
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-orm-aggregate
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.aggregate\s*\('
+  - regex: (?i)\.aggregate\s*\(
   severity: low
-  description: "Django aggregate() operation"
-  remediation: "Validate aggregate expressions"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django aggregate() operation
+  remediation: Validate aggregate expressions
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-orm-update-or-create
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)update_or_create\s*\('
+  - regex: (?i)update_or_create\s*\(
   severity: medium
-  description: "Django update_or_create operation"
-  remediation: "Validate update parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django update_or_create operation
+  remediation: Validate update parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: django-orm-get-or-create
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)get_or_create\s*\('
+  - regex: (?i)get_or_create\s*\(
   severity: medium
-  description: "Django get_or_create operation"
-  remediation: "Validate creation parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django get_or_create operation
+  remediation: Validate creation parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: django-orm-transactions
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)transaction\.atomic|@transaction\.atomic'
+  - regex: (?i)transaction\.atomic|@transaction\.atomic
   severity: low
-  description: "Django transaction.atomic usage"
-  remediation: "Ensure proper transaction handling"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Django transaction.atomic usage
+  remediation: Ensure proper transaction handling
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.5
 - id: django-orm-select-for-update
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)select_for_update\s*\('
+  - regex: (?i)select_for_update\s*\(
   severity: low
-  description: "Django select_for_update for locking"
-  remediation: "Use appropriate lock settings"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Django select_for_update for locking
+  remediation: Use appropriate lock settings
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.5
 - id: django-orm-connection-close
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)connection\.close\s*\('
+  - regex: (?i)connection\.close\s*\(
   severity: low
-  description: "Django database connection close"
-  remediation: "Ensure connections are properly managed"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Django database connection close
+  remediation: Ensure connections are properly managed
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.5
 - id: django-orm-cursor-execution
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cursor\.execute\s*\('
+  - regex: (?i)cursor\.execute\s*\(
   severity: medium
-  description: "Django cursor execution"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Django cursor execution
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.6
 - id: django-orm-cursor-executemany
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cursor\.executemany\s*\('
+  - regex: (?i)cursor\.executemany\s*\(
   severity: medium
-  description: "Django cursor executemany"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
-# --- DJANGO TEMPLATES (21-40) ---
+  description: Django cursor executemany
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.6
 - id: django-template-autoescape-off
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*autoescape\s+off\s*%}'
+  - regex: (?i){%\s*autoescape\s+off\s*%}
   severity: high
-  description: "Django template autoescape disabled"
-  remediation: "Enable autoescape or manually escape content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django template autoescape disabled
+  remediation: Enable autoescape or manually escape content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: django-template-safe-filter
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\|\s*safe\s*%}'
+  - regex: (?i)\|\s*safe\s*%}
   severity: high
-  description: "Django template safe filter used"
-  remediation: "Ensure content is properly sanitized"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django template safe filter used
+  remediation: Ensure content is properly sanitized
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: django-template-escape-filter
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\|\s*escape\s*%}'
+  - regex: (?i)\|\s*escape\s*%}
   severity: low
-  description: "Django template escape filter"
-  remediation: "Good practice for escaping"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django template escape filter
+  remediation: Good practice for escaping
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-include-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*include\s+'
+  - regex: (?i){%\s*include\s+
   severity: low
-  description: "Django template include tag"
-  remediation: "Ensure included templates are safe"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Django template include tag
+  remediation: Ensure included templates are safe
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-extends-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*extends\s+'
+  - regex: (?i){%\s*extends\s+
   severity: low
-  description: "Django template extends tag"
-  remediation: "Ensure parent templates are safe"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Django template extends tag
+  remediation: Ensure parent templates are safe
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-block-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*block\s+'
+  - regex: (?i){%\s*block\s+
   severity: low
-  description: "Django template block tag"
-  remediation: "Ensure block content is safe"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django template block tag
+  remediation: Ensure block content is safe
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-for-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*for\s+'
+  - regex: (?i){%\s*for\s+
   severity: low
-  description: "Django template for loop"
-  remediation: "Ensure loop data is safe"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django template for loop
+  remediation: Ensure loop data is safe
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-if-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*if\s+'
+  - regex: (?i){%\s*if\s+
   severity: low
-  description: "Django template if statement"
-  remediation: "Ensure condition is safe"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django template if statement
+  remediation: Ensure condition is safe
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-templatetag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*templatetag\s+'
+  - regex: (?i){%\s*templatetag\s+
   severity: low
-  description: "Django templatetag usage"
-  remediation: "Ensure tag output is safe"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django templatetag usage
+  remediation: Ensure tag output is safe
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-load-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*load\s+'
+  - regex: (?i){%\s*load\s+
   severity: low
-  description: "Django template load tag"
-  remediation: "Ensure loaded tags are safe"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django template load tag
+  remediation: Ensure loaded tags are safe
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-template-custom-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)register\.simple_tag|@register\.inclusion_tag'
+  - regex: (?i)register\.simple_tag|@register\.inclusion_tag
   severity: medium
-  description: "Django custom template tag"
-  remediation: "Ensure custom tags escape output"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django custom template tag
+  remediation: Ensure custom tags escape output
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: django-template-custom-filter
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)register\.filter|@register\.filter'
+  - regex: (?i)register\.filter|@register\.filter
   severity: medium
-  description: "Django custom template filter"
-  remediation: "Ensure custom filters escape output"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django custom template filter
+  remediation: Ensure custom filters escape output
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: django-template-render-to-string
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)render_to_string\s*\('
+  - regex: (?i)render_to_string\s*\(
   severity: medium
-  description: "Django render_to_string usage"
-  remediation: "Ensure context is safe"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django render_to_string usage
+  remediation: Ensure context is safe
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: django-template-loader
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)template\.loader|get_template'
+  - regex: (?i)template\.loader|get_template
   severity: low
-  description: "Django template loader"
-  remediation: "Ensure template sources are trusted"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Django template loader
+  remediation: Ensure template sources are trusted
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-engine
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)Engine\s*\(|django\.template\.Engine'
+  - regex: (?i)Engine\s*\(|django\.template\.Engine
   severity: low
-  description: "Django template engine"
-  remediation: "Configure engine securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django template engine
+  remediation: Configure engine securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-template-context
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)Context\s*\(|RequestContext'
+  - regex: (?i)Context\s*\(|RequestContext
   severity: low
-  description: "Django template context"
-  remediation: "Ensure context doesn't contain sensitive data"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django template context
+  remediation: Ensure context doesn't contain sensitive data
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-template-context-processor
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)context_processor|context_processors'
+  - regex: (?i)context_processor|context_processors
   severity: low
-  description: "Django context processor"
-  remediation: "Review context processors"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django context processor
+  remediation: Review context processors
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-template-form-render
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){{\s*form\s*\.\s*%}'
+  - regex: (?i){{\s*form\s*\.\s*%}
   severity: low
-  description: "Django form rendering"
-  remediation: "Ensure form is properly validated"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django form rendering
+  remediation: Ensure form is properly validated
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-field-render
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){{\s*\w+\.\w+\s*%}'
+  - regex: (?i){{\s*\w+\.\w+\s*%}
   severity: low
-  description: "Django field rendering"
-  remediation: "Ensure field data is safe"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Django field rendering
+  remediation: Ensure field data is safe
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-template-static-tag
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*static\s+'
+  - regex: (?i){%\s*static\s+
   severity: low
-  description: "Django static tag"
-  remediation: "Ensure static files are served securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- DJANGO AUTHENTICATION (41-60) ---
+  description: Django static tag
+  remediation: Ensure static files are served securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-auth-login-view
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)LoginView|login\s*\('
+  - regex: (?i)LoginView|login\s*\(
   severity: low
-  description: "Django login view"
-  remediation: "Implement rate limiting and MFA"
-  cwe: "CWE-307"
-  owasp: "A07:2021"
-
+  description: Django login view
+  remediation: Implement rate limiting and MFA
+  cwe: CWE-307
+  owasp: A07:2021
+  confidence: 0.5
 - id: django-auth-logout-view
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)LogoutView|logout\s*\('
+  - regex: (?i)LogoutView|logout\s*\(
   severity: low
-  description: "Django logout view"
-  remediation: "Ensure session is properly cleared"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Django logout view
+  remediation: Ensure session is properly cleared
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-auth-password-reset
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)PasswordResetView|password_reset'
+  - regex: (?i)PasswordResetView|password_reset
   severity: medium
-  description: "Django password reset"
-  remediation: "Implement rate limiting and secure tokens"
-  cwe: "CWE-640"
-  owasp: "A01:2021"
-
+  description: Django password reset
+  remediation: Implement rate limiting and secure tokens
+  cwe: CWE-640
+  owasp: A01:2021
+  confidence: 0.55
 - id: django-auth-password-change
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)PasswordChangeView|password_change'
+  - regex: (?i)PasswordChangeView|password_change
   severity: low
-  description: "Django password change"
-  remediation: "Require current password verification"
-  cwe: "CWE-521"
-  owasp: "A07:2021"
-
+  description: Django password change
+  remediation: Require current password verification
+  cwe: CWE-521
+  owasp: A07:2021
+  confidence: 0.45
 - id: django-auth-user-creation
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)UserCreationForm|create_user'
+  - regex: (?i)UserCreationForm|create_user
   severity: low
-  description: "Django user creation"
-  remediation: "Validate user input properly"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django user creation
+  remediation: Validate user input properly
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-auth-user-model
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)AbstractUser|AbstractBaseUser'
+  - regex: (?i)AbstractUser|AbstractBaseUser
   severity: low
-  description: "Custom user model"
-  remediation: "Ensure custom model is secure"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Custom user model
+  remediation: Ensure custom model is secure
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-permission-required
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)@permission_required|PermissionRequiredMixin'
+  - regex: (?i)@permission_required|PermissionRequiredMixin
   severity: low
-  description: "Django permission requirement"
-  remediation: "Ensure permissions are properly defined"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Django permission requirement
+  remediation: Ensure permissions are properly defined
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-login-required
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)@login_required|LoginRequiredMixin'
+  - regex: (?i)@login_required|LoginRequiredMixin
   severity: low
-  description: "Django login requirement"
-  remediation: "Ensure login is properly enforced"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Django login requirement
+  remediation: Ensure login is properly enforced
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-user-passes-test
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)@user_passes_test|UserPassesTestMixin'
+  - regex: (?i)@user_passes_test|UserPassesTestMixin
   severity: low
-  description: "Django custom test decorator"
-  remediation: "Ensure test function is secure"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Django custom test decorator
+  remediation: Ensure test function is secure
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-group-management
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)Group\s*\(|add_to_group'
+  - regex: (?i)Group\s*\(|add_to_group
   severity: low
-  description: "Django group management"
-  remediation: "Review group assignments"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Django group management
+  remediation: Review group assignments
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-auth-token-auth
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)TokenAuthentication|AuthToken'
+  - regex: (?i)TokenAuthentication|AuthToken
   severity: medium
-  description: "Django token authentication"
-  remediation: "Implement token rotation"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Django token authentication
+  remediation: Implement token rotation
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: django-auth-session-auth
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SessionAuthentication|SessionBackend'
+  - regex: (?i)SessionAuthentication|SessionBackend
   severity: low
-  description: "Django session authentication"
-  remediation: "Configure session security"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Django session authentication
+  remediation: Configure session security
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-remote-user
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)RemoteUserBackend|REMOTE_USER'
+  - regex: (?i)RemoteUserBackend|REMOTE_USER
   severity: medium
-  description: "Django remote user authentication"
-  remediation: "Ensure proxy authentication is secure"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Django remote user authentication
+  remediation: Ensure proxy authentication is secure
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.55
 - id: django-auth-model-backend
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)ModelBackend|auth\.backends'
+  - regex: (?i)ModelBackend|auth\.backends
   severity: low
-  description: "Django model backend"
-  remediation: "Review authentication backends"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Django model backend
+  remediation: Review authentication backends
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-allow-all-users
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)AllowAllUsersModelBackend'
+  - regex: (?i)AllowAllUsersModelBackend
   severity: high
-  description: "Django allow all users backend"
-  remediation: "Use with caution in production"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Django allow all users backend
+  remediation: Use with caution in production
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.65
 - id: django-auth-ldap-backend
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)LDAPBackend|ldap\.auth'
+  - regex: (?i)LDAPBackend|ldap\.auth
   severity: medium
-  description: "Django LDAP authentication"
-  remediation: "Secure LDAP connection"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Django LDAP authentication
+  remediation: Secure LDAP connection
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.55
 - id: django-auth-social-auth
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)social_django|python-social-auth'
+  - regex: (?i)social_django|python-social-auth
   severity: low
-  description: "Django social authentication"
-  remediation: "Configure OAuth properly"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Django social authentication
+  remediation: Configure OAuth properly
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-two-factor
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)django-otp|two_factor'
+  - regex: (?i)django-otp|two_factor
   severity: low
-  description: "Django two-factor authentication"
-  remediation: "Enforce 2FA for sensitive operations"
-  cwe: "CWE-308"
-  owasp: "A01:2021"
-
+  description: Django two-factor authentication
+  remediation: Enforce 2FA for sensitive operations
+  cwe: CWE-308
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-cas-auth
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)django-cas-ng|CASBackend'
+  - regex: (?i)django-cas-ng|CASBackend
   severity: low
-  description: "Django CAS authentication"
-  remediation: "Secure CAS configuration"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Django CAS authentication
+  remediation: Secure CAS configuration
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-auth-saml-auth
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)djangosaml2|SAML2Backend'
+  - regex: (?i)djangosaml2|SAML2Backend
   severity: low
-  description: "Django SAML authentication"
-  remediation: "Secure SAML configuration"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
-# --- DJANGO MIDDLEWARE (61-80) ---
+  description: Django SAML authentication
+  remediation: Secure SAML configuration
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-middleware-security
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SecurityMiddleware|security\.middleware'
+  - regex: (?i)SecurityMiddleware|security\.middleware
   severity: low
-  description: "Django security middleware"
-  remediation: "Ensure security middleware is enabled"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django security middleware
+  remediation: Ensure security middleware is enabled
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-middleware-csrf
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)CsrfViewMiddleware|csrf\.middleware'
+  - regex: (?i)CsrfViewMiddleware|csrf\.middleware
   severity: low
-  description: "Django CSRF middleware"
-  remediation: "Ensure CSRF middleware is enabled"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Django CSRF middleware
+  remediation: Ensure CSRF middleware is enabled
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-middleware-clickjacking
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)XFrameOptionsMiddleware'
+  - regex: (?i)XFrameOptionsMiddleware
   severity: low
-  description: "Django clickjacking middleware"
-  remediation: "Ensure clickjacking protection is enabled"
-  cwe: "CWE-1021"
-  owasp: "A05:2021"
-
+  description: Django clickjacking middleware
+  remediation: Ensure clickjacking protection is enabled
+  cwe: CWE-1021
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-middleware-ssl-redirect
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SSLRedirectMiddleware|SECURE_SSL_REDIRECT'
+  - regex: (?i)SSLRedirectMiddleware|SECURE_SSL_REDIRECT
   severity: low
-  description: "Django SSL redirect"
-  remediation: "Enable SSL redirect in production"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Django SSL redirect
+  remediation: Enable SSL redirect in production
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: django-middleware-hsts
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SECURE_HSTS_SECONDS|HSTS'
+  - regex: (?i)SECURE_HSTS_SECONDS|HSTS
   severity: low
-  description: "Django HSTS configuration"
-  remediation: "Enable HSTS with appropriate max-age"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Django HSTS configuration
+  remediation: Enable HSTS with appropriate max-age
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: django-middleware-content-type
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SECURE_CONTENT_TYPE_NOSNIFF'
+  - regex: (?i)SECURE_CONTENT_TYPE_NOSNIFF
   severity: low
-  description: "Django content type nosniff"
-  remediation: "Enable content type nosniff"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django content type nosniff
+  remediation: Enable content type nosniff
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-middleware-referrer-policy
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SECURE_REFERRER_POLICY'
+  - regex: (?i)SECURE_REFERRER_POLICY
   severity: low
-  description: "Django referrer policy"
-  remediation: "Configure appropriate referrer policy"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django referrer policy
+  remediation: Configure appropriate referrer policy
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-middleware-session
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SessionMiddleware|session\.middleware'
+  - regex: (?i)SessionMiddleware|session\.middleware
   severity: low
-  description: "Django session middleware"
-  remediation: "Configure session security"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Django session middleware
+  remediation: Configure session security
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-middleware-auth
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)AuthenticationMiddleware|auth\.middleware'
+  - regex: (?i)AuthenticationMiddleware|auth\.middleware
   severity: low
-  description: "Django authentication middleware"
-  remediation: "Ensure auth middleware is enabled"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Django authentication middleware
+  remediation: Ensure auth middleware is enabled
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-middleware-messages
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)MessageMiddleware|messages\.middleware'
+  - regex: (?i)MessageMiddleware|messages\.middleware
   severity: low
-  description: "Django messages middleware"
-  remediation: "Ensure messages don't contain sensitive data"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django messages middleware
+  remediation: Ensure messages don't contain sensitive data
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-middleware-common
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)CommonMiddleware|common\.middleware'
+  - regex: (?i)CommonMiddleware|common\.middleware
   severity: low
-  description: "Django common middleware"
-  remediation: "Review common middleware settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django common middleware
+  remediation: Review common middleware settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-middleware-locale
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)LocaleMiddleware|locale\.middleware'
+  - regex: (?i)LocaleMiddleware|locale\.middleware
   severity: low
-  description: "Django locale middleware"
-  remediation: "Ensure locale doesn't affect security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django locale middleware
+  remediation: Ensure locale doesn't affect security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-middleware-custom
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)class\s+\w+Middleware'
+  - regex: (?i)class\s+\w+Middleware
   severity: medium
-  description: "Custom Django middleware"
-  remediation: "Review custom middleware security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Custom Django middleware
+  remediation: Review custom middleware security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: django-middleware-process-request
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)process_request\s*\('
+  - regex: (?i)process_request\s*\(
   severity: low
-  description: "Middleware process_request"
-  remediation: "Ensure request processing is safe"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Middleware process_request
+  remediation: Ensure request processing is safe
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-middleware-process-response
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)process_response\s*\('
+  - regex: (?i)process_response\s*\(
   severity: low
-  description: "Middleware process_response"
-  remediation: "Ensure response processing is safe"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Middleware process_response
+  remediation: Ensure response processing is safe
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-middleware-process-exception
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)process_exception\s*\('
+  - regex: (?i)process_exception\s*\(
   severity: low
-  description: "Middleware process_exception"
-  remediation: "Ensure exception handling is safe"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Middleware process_exception
+  remediation: Ensure exception handling is safe
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: django-middleware-process-template
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)process_template_response\s*\('
+  - regex: (?i)process_template_response\s*\(
   severity: low
-  description: "Middleware process_template_response"
-  remediation: "Ensure template processing is safe"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Middleware process_template_response
+  remediation: Ensure template processing is safe
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-middleware-process-view
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)process_view\s*\('
+  - regex: (?i)process_view\s*\(
   severity: low
-  description: "Middleware process_view"
-  remediation: "Ensure view processing is safe"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Middleware process_view
+  remediation: Ensure view processing is safe
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-middleware-decorator
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)@middleware\s*\(|middleware_decorator'
+  - regex: (?i)@middleware\s*\(|middleware_decorator
   severity: low
-  description: "Middleware decorator"
-  remediation: "Ensure decorator is secure"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Middleware decorator
+  remediation: Ensure decorator is secure
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-middleware-order
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)MIDDLEWARE\s*=\s*\['
+  - regex: (?i)MIDDLEWARE\s*=\s*\[
   severity: low
-  description: "Middleware order configuration"
-  remediation: "Ensure correct middleware order"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- DJANGO SETTINGS (81-100) ---
+  description: Middleware order configuration
+  remediation: Ensure correct middleware order
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-debug
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)DEBUG\s*=\s*True'
+  - regex: (?i)DEBUG\s*=\s*True
   severity: high
-  description: "Django DEBUG mode enabled"
-  remediation: "Set DEBUG = False in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Django DEBUG mode enabled
+  remediation: Set DEBUG = False in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.65
 - id: django-settings-secret-key
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SECRET_KEY\s*=\s*[''\\\"]'
+  - regex: (?i)SECRET_KEY\s*=\s*['\\\"]
   severity: critical
-  description: "Django SECRET_KEY in code"
-  remediation: "Use environment variable for SECRET_KEY"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Django SECRET_KEY in code
+  remediation: Use environment variable for SECRET_KEY
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: django-settings-allowed-hosts
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)ALLOWED_HOSTS\s*=\s*\[\s*[''\\\"]\*[''\\\"]'
+  - regex: (?i)ALLOWED_HOSTS\s*=\s*\[\s*['\\\"]\*['\\\"]
   severity: high
-  description: "Django ALLOWED_HOSTS wildcard"
-  remediation: "Specify explicit allowed hosts"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Django ALLOWED_HOSTS wildcard
+  remediation: Specify explicit allowed hosts
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: django-settings-database
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)DATABASES\s*=\s*\{'
+  - regex: (?i)DATABASES\s*=\s*\{
   severity: medium
-  description: "Django database configuration"
-  remediation: "Use environment variables for credentials"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Django database configuration
+  remediation: Use environment variables for credentials
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.55
 - id: django-settings-email
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)EMAIL_HOST_PASSWORD|EMAIL.*PASSWORD'
+  - regex: (?i)EMAIL_HOST_PASSWORD|EMAIL.*PASSWORD
   severity: high
-  description: "Email password in settings"
-  remediation: "Use environment variable for email password"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Email password in settings
+  remediation: Use environment variable for email password
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: django-settings-cache
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)CACHES\s*=\s*\{'
+  - regex: (?i)CACHES\s*=\s*\{
   severity: low
-  description: "Django cache configuration"
-  remediation: "Secure cache backend"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache configuration
+  remediation: Secure cache backend
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-session-engine
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SESSION_ENGINE\s*='
+  - regex: (?i)SESSION_ENGINE\s*=
   severity: low
-  description: "Django session engine"
-  remediation: "Use database or cache sessions"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Django session engine
+  remediation: Use database or cache sessions
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-settings-session-cookie
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)SESSION_COOKIE_SECURE|SESSION_COOKIE_HTTPONLY'
+  - regex: (?i)SESSION_COOKIE_SECURE|SESSION_COOKIE_HTTPONLY
   severity: low
-  description: "Django session cookie settings"
-  remediation: "Enable secure and httponly flags"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Django session cookie settings
+  remediation: Enable secure and httponly flags
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-settings-csrf-cookie
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)CSRF_COOKIE_SECURE|CSRF_COOKIE_HTTPONLY'
+  - regex: (?i)CSRF_COOKIE_SECURE|CSRF_COOKIE_HTTPONLY
   severity: low
-  description: "Django CSRF cookie settings"
-  remediation: "Enable secure CSRF cookies"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Django CSRF cookie settings
+  remediation: Enable secure CSRF cookies
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-settings-language-code
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)LANGUAGE_CODE\s*='
+  - regex: (?i)LANGUAGE_CODE\s*=
   severity: low
-  description: "Django language code"
-  remediation: "Review language settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django language code
+  remediation: Review language settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-time-zone
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)TIME_ZONE\s*='
+  - regex: (?i)TIME_ZONE\s*=
   severity: low
-  description: "Django time zone"
-  remediation: "Review timezone settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django time zone
+  remediation: Review timezone settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-use-i18n
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)USE_I18N\s*=\s*True'
+  - regex: (?i)USE_I18N\s*=\s*True
   severity: low
-  description: "Django i18n enabled"
-  remediation: "Review i18n settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django i18n enabled
+  remediation: Review i18n settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-use-l10n
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)USE_L10N\s*=\s*True'
+  - regex: (?i)USE_L10N\s*=\s*True
   severity: low
-  description: "Django l10n enabled"
-  remediation: "Review l10n settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django l10n enabled
+  remediation: Review l10n settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-use-tz
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)USE_TZ\s*=\s*True'
+  - regex: (?i)USE_TZ\s*=\s*True
   severity: low
-  description: "Django timezone support"
-  remediation: "Review timezone settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django timezone support
+  remediation: Review timezone settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-static-root
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)STATIC_ROOT\s*=|STATIC_URL\s*='
+  - regex: (?i)STATIC_ROOT\s*=|STATIC_URL\s*=
   severity: low
-  description: "Django static files"
-  remediation: "Ensure static files are served securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django static files
+  remediation: Ensure static files are served securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-media-root
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)MEDIA_ROOT\s*=|MEDIA_URL\s*='
+  - regex: (?i)MEDIA_ROOT\s*=|MEDIA_URL\s*=
   severity: medium
-  description: "Django media files"
-  remediation: "Secure media file uploads"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Django media files
+  remediation: Secure media file uploads
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.55
 - id: django-settings-templates
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)TEMPLATES\s*=\s*\['
+  - regex: (?i)TEMPLATES\s*=\s*\[
   severity: low
-  description: "Django templates configuration"
-  remediation: "Review template settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django templates configuration
+  remediation: Review template settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-installed-apps
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)INSTALLED_APPS\s*=\s*\['
+  - regex: (?i)INSTALLED_APPS\s*=\s*\[
   severity: low
-  description: "Django installed apps"
-  remediation: "Review installed apps for security"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Django installed apps
+  remediation: Review installed apps for security
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: django-settings-root-urlconf
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)ROOT_URLCONF\s*='
+  - regex: (?i)ROOT_URLCONF\s*=
   severity: low
-  description: "Django root URLconf"
-  remediation: "Review URL configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django root URLconf
+  remediation: Review URL configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-settings-wsgi
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)WSGI_APPLICATION\s*='
+  - regex: (?i)WSGI_APPLICATION\s*=
   severity: low
-  description: "Django WSGI application"
-  remediation: "Secure WSGI configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- DJANGO CACHE (101-120) ---
+  description: Django WSGI application
+  remediation: Secure WSGI configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-cache-backend
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)locmem\.LocMemCache|filebased\.FileBasedCache'
+  - regex: (?i)locmem\.LocMemCache|filebased\.FileBasedCache
   severity: low
-  description: "Django local/file cache backend"
-  remediation: "Use Redis or Memcached for production"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django local/file cache backend
+  remediation: Use Redis or Memcached for production
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-cache-redis
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)redis\.RedisCache|redis://'
+  - regex: (?i)redis\.RedisCache|redis://
   severity: low
-  description: "Django Redis cache"
-  remediation: "Secure Redis connection"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Django Redis cache
+  remediation: Secure Redis connection
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: django-cache-memcached
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)memcached\.PyMemcacheCache|memcached://'
+  - regex: (?i)memcached\.PyMemcacheCache|memcached://
   severity: low
-  description: "Django Memcached cache"
-  remediation: "Secure Memcached connection"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Django Memcached cache
+  remediation: Secure Memcached connection
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: django-cache-database
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)database\.DatabaseCache|dbcache://'
+  - regex: (?i)database\.DatabaseCache|dbcache://
   severity: low
-  description: "Django database cache"
-  remediation: "Ensure cache table is secure"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django database cache
+  remediation: Ensure cache table is secure
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-cache-timeout
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.set.*timeout|CACHE_TIMEOUT'
+  - regex: (?i)cache\.set.*timeout|CACHE_TIMEOUT
   severity: low
-  description: "Django cache timeout"
-  remediation: "Set appropriate cache timeout"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Django cache timeout
+  remediation: Set appropriate cache timeout
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-cache-version
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.get.*version|CACHE_VERSION'
+  - regex: (?i)cache\.get.*version|CACHE_VERSION
   severity: low
-  description: "Django cache version"
-  remediation: "Use cache versioning"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache version
+  remediation: Use cache versioning
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-cache-prefix
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)KEY_PREFIX|cache_key_prefix'
+  - regex: (?i)KEY_PREFIX|cache_key_prefix
   severity: low
-  description: "Django cache key prefix"
-  remediation: "Use cache key prefixing"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache key prefix
+  remediation: Use cache key prefixing
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-cache-get
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.get\s*\('
+  - regex: (?i)cache\.get\s*\(
   severity: low
-  description: "Django cache get"
-  remediation: "Validate cached data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django cache get
+  remediation: Validate cached data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-cache-set
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.set\s*\('
+  - regex: (?i)cache\.set\s*\(
   severity: low
-  description: "Django cache set"
-  remediation: "Don't cache sensitive data"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Django cache set
+  remediation: Don't cache sensitive data
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: django-cache-delete
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.delete\s*\('
+  - regex: (?i)cache\.delete\s*\(
   severity: low
-  description: "Django cache delete"
-  remediation: "Ensure proper cache invalidation"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache delete
+  remediation: Ensure proper cache invalidation
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-cache-clear
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.clear\s*\('
+  - regex: (?i)cache\.clear\s*\(
   severity: low
-  description: "Django cache clear"
-  remediation: "Monitor cache clearing"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache clear
+  remediation: Monitor cache clearing
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-cache-add
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.add\s*\('
+  - regex: (?i)cache\.add\s*\(
   severity: low
-  description: "Django cache add"
-  remediation: "Validate cache addition"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django cache add
+  remediation: Validate cache addition
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-cache-get-or-set
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.get_or_set\s*\('
+  - regex: (?i)cache\.get_or_set\s*\(
   severity: low
-  description: "Django cache get_or_set"
-  remediation: "Validate cached data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django cache get_or_set
+  remediation: Validate cached data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-cache-increment
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.increment\s*\('
+  - regex: (?i)cache\.increment\s*\(
   severity: low
-  description: "Django cache increment"
-  remediation: "Monitor cache increments"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache increment
+  remediation: Monitor cache increments
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-cache-decrement
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.decrement\s*\('
+  - regex: (?i)cache\.decrement\s*\(
   severity: low
-  description: "Django cache decrement"
-  remediation: "Monitor cache decrements"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache decrement
+  remediation: Monitor cache decrements
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-cache-touch
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.touch\s*\('
+  - regex: (?i)cache\.touch\s*\(
   severity: low
-  description: "Django cache touch"
-  remediation: "Monitor cache touches"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django cache touch
+  remediation: Monitor cache touches
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-cache-close
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cache\.close\s*\('
+  - regex: (?i)cache\.close\s*\(
   severity: low
-  description: "Django cache close"
-  remediation: "Ensure proper cache closing"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Django cache close
+  remediation: Ensure proper cache closing
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.5
 - id: django-cache-per-view
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)@cache_page|cache_page\s*\('
+  - regex: (?i)@cache_page|cache_page\s*\(
   severity: low
-  description: "Django per-view cache"
-  remediation: "Ensure cached views don't expose sensitive data"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django per-view cache
+  remediation: Ensure cached views don't expose sensitive data
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-cache-template-fragment
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i){%\s*cache\s+'
+  - regex: (?i){%\s*cache\s+
   severity: low
-  description: "Django template fragment cache"
-  remediation: "Ensure cached fragments are safe"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django template fragment cache
+  remediation: Ensure cached fragments are safe
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-cache-low-level
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)from django\.core\.cache import cache'
+  - regex: (?i)from django\.core\.cache import cache
   severity: low
-  description: "Django low-level cache API"
-  remediation: "Use cache API securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- DJANGO FILES (121-135) ---
+  description: Django low-level cache API
+  remediation: Use cache API securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: django-file-upload-handler
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)FileUploadHandler|upload_handlers'
+  - regex: (?i)FileUploadHandler|upload_handlers
   severity: medium
-  description: "Django file upload handler"
-  remediation: "Validate file uploads properly"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Django file upload handler
+  remediation: Validate file uploads properly
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.55
 - id: django-file-storage
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)FileSystemStorage|DefaultStorage'
+  - regex: (?i)FileSystemStorage|DefaultStorage
   severity: low
-  description: "Django file storage"
-  remediation: "Secure file storage configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django file storage
+  remediation: Secure file storage configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-file-s3-storage
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)S3Boto3Storage|s3boto'
+  - regex: (?i)S3Boto3Storage|s3boto
   severity: low
-  description: "Django S3 storage"
-  remediation: "Configure S3 bucket securely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Django S3 storage
+  remediation: Configure S3 bucket securely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-file-azure-storage
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)AzureStorage|azure\.storage'
+  - regex: (?i)AzureStorage|azure\.storage
   severity: low
-  description: "Django Azure storage"
-  remediation: "Configure Azure storage securely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Django Azure storage
+  remediation: Configure Azure storage securely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-file-gcs-storage
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)GoogleCloudStorage|gcs\.storage'
+  - regex: (?i)GoogleCloudStorage|gcs\.storage
   severity: low
-  description: "Django GCS storage"
-  remediation: "Configure GCS bucket securely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Django GCS storage
+  remediation: Configure GCS bucket securely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-file-field
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)FileField|ImageField'
+  - regex: (?i)FileField|ImageField
   severity: low
-  description: "Django file field"
-  remediation: "Validate file uploads"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Django file field
+  remediation: Validate file uploads
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.45
 - id: django-file-upload-to
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)upload_to\s*=\s*\w+'
+  - regex: (?i)upload_to\s*=\s*\w+
   severity: low
-  description: "Django upload_to parameter"
-  remediation: "Validate upload path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Django upload_to parameter
+  remediation: Validate upload path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.45
 - id: django-file-storage-path
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)storage\.path\s*\(|file\.path'
+  - regex: (?i)storage\.path\s*\(|file\.path
   severity: low
-  description: "Django file path access"
-  remediation: "Validate file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Django file path access
+  remediation: Validate file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-file-open
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.open\s*\(|\.file\.open'
+  - regex: (?i)file\.open\s*\(|\.file\.open
   severity: low
-  description: "Django file open"
-  remediation: "Validate file before opening"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Django file open
+  remediation: Validate file before opening
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-file-read
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.read\s*\(|\.file\.read'
+  - regex: (?i)file\.read\s*\(|\.file\.read
   severity: low
-  description: "Django file read"
-  remediation: "Validate file before reading"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Django file read
+  remediation: Validate file before reading
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-file-write
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.write\s*\(|\.file\.write'
+  - regex: (?i)file\.write\s*\(|\.file\.write
   severity: low
-  description: "Django file write"
-  remediation: "Validate file before writing"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Django file write
+  remediation: Validate file before writing
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-file-delete
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.delete\s*\(|\.file\.delete'
+  - regex: (?i)file\.delete\s*\(|\.file\.delete
   severity: low
-  description: "Django file delete"
-  remediation: "Validate file before deleting"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Django file delete
+  remediation: Validate file before deleting
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-file-save
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.save\s*\(|\.file\.save'
+  - regex: (?i)file\.save\s*\(|\.file\.save
   severity: low
-  description: "Django file save"
-  remediation: "Validate file before saving"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Django file save
+  remediation: Validate file before saving
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-file-url
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.url|\.file\.url'
+  - regex: (?i)file\.url|\.file\.url
   severity: low
-  description: "Django file URL"
-  remediation: "Ensure file URLs are secure"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Django file URL
+  remediation: Ensure file URLs are secure
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.5
 - id: django-file-name
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.name|\.file\.name'
+  - regex: (?i)file\.name|\.file\.name
   severity: low
-  description: "Django file name"
-  remediation: "Validate file names"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# --- DJANGO EMAIL (136-150) ---
+  description: Django file name
+  remediation: Validate file names
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-email-send
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)send_mail\s*\(|send_mass_mail'
+  - regex: (?i)send_mail\s*\(|send_mass_mail
   severity: low
-  description: "Django email sending"
-  remediation: "Validate email content"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django email sending
+  remediation: Validate email content
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-email-backend
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)EMAIL_BACKEND\s*='
+  - regex: (?i)EMAIL_BACKEND\s*=
   severity: low
-  description: "Django email backend"
-  remediation: "Configure email backend securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django email backend
+  remediation: Configure email backend securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-email-console
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)console\.EmailBackend'
+  - regex: (?i)console\.EmailBackend
   severity: low
-  description: "Django console email backend"
-  remediation: "Don't use console backend in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Django console email backend
+  remediation: Don't use console backend in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-email-smtp
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)smtp\.EmailBackend|EMAIL_HOST'
+  - regex: (?i)smtp\.EmailBackend|EMAIL_HOST
   severity: low
-  description: "Django SMTP email"
-  remediation: "Use TLS for SMTP"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Django SMTP email
+  remediation: Use TLS for SMTP
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: django-email-file
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)file\.EmailBackend'
+  - regex: (?i)file\.EmailBackend
   severity: low
-  description: "Django file email backend"
-  remediation: "Secure email file storage"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Django file email backend
+  remediation: Secure email file storage
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-email-locmem
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)locmem\.EmailBackend'
+  - regex: (?i)locmem\.EmailBackend
   severity: low
-  description: "Django locmem email backend"
-  remediation: "Don't use locmem in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Django locmem email backend
+  remediation: Don't use locmem in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-email-custom-backend
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)class\s+\w+EmailBackend'
+  - regex: (?i)class\s+\w+EmailBackend
   severity: medium
-  description: "Custom Django email backend"
-  remediation: "Review custom backend security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Custom Django email backend
+  remediation: Review custom backend security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: django-email-message
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)EmailMessage\s*\(|EmailMultiAlternatives'
+  - regex: (?i)EmailMessage\s*\(|EmailMultiAlternatives
   severity: low
-  description: "Django email message"
-  remediation: "Validate email content"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django email message
+  remediation: Validate email content
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: django-email-attachment
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)\.attach\s*\(|\.attach_file'
+  - regex: (?i)\.attach\s*\(|\.attach_file
   severity: low
-  description: "Django email attachment"
-  remediation: "Validate email attachments"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Django email attachment
+  remediation: Validate email attachments
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.5
 - id: django-email-headers
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)extra_headers|email.*header'
+  - regex: (?i)extra_headers|email.*header
   severity: low
-  description: "Django email headers"
-  remediation: "Validate email headers"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django email headers
+  remediation: Validate email headers
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-email-cc
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)cc_myself|cc.*email'
+  - regex: (?i)cc_myself|cc.*email
   severity: low
-  description: "Django email CC"
-  remediation: "Review CC recipients"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django email CC
+  remediation: Review CC recipients
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-email-bcc
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)bcc.*email|bcc_myself'
+  - regex: (?i)bcc.*email|bcc_myself
   severity: low
-  description: "Django email BCC"
-  remediation: "Review BCC recipients"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Django email BCC
+  remediation: Review BCC recipients
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: django-email-reply-to
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)reply_to|reply-to'
+  - regex: (?i)reply_to|reply-to
   severity: low
-  description: "Django email reply-to"
-  remediation: "Validate reply-to addresses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Django email reply-to
+  remediation: Validate reply-to addresses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: django-email-fail-silently
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)fail_silently\s*=\s*True'
+  - regex: (?i)fail_silently\s*=\s*True
   severity: low
-  description: "Django email fail silently"
-  remediation: "Handle email failures properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Django email fail silently
+  remediation: Handle email failures properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: django-email-connection
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: '(?i)get_connection\s*\(|email.*connection'
+  - regex: (?i)get_connection\s*\(|email.*connection
   severity: low
-  description: "Django email connection"
-  remediation: "Manage email connections properly"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
-# Django Security Rules
+  description: Django email connection
+  remediation: Manage email connections properly
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.5
 - id: django-csrf-exempt
-  name: "Django: @csrf_exempt used"
-  description: "Disabling CSRF protection on a view can allow attackers to perform Cross-Site Request Forgery attacks."
-  severity: "high"
+  name: 'Django: @csrf_exempt used'
+  description: Disabling CSRF protection on a view can allow attackers to perform Cross-Site Request Forgery attacks.
+  severity: high
   patterns:
-    - regex: '@csrf_exempt'
-  cwe: "CWE-352"
-  owasp: "A01:2021-Broken Access Control"
-
+  - regex: '@csrf_exempt'
+  cwe: CWE-352
+  owasp: A01:2021-Broken Access Control
+  confidence: 0.65
 - id: django-debug-true
-  name: "Django: DEBUG = True in production"
-  description: "Running Django with DEBUG=True can leak sensitive internal configuration and source code to attackers."
-  severity: "critical"
+  name: 'Django: DEBUG = True in production'
+  description: Running Django with DEBUG=True can leak sensitive internal configuration and source code to attackers.
+  severity: critical
   patterns:
-    - regex: 'DEBUG\s*=\s*True'
-  cwe: "CWE-489"
-  owasp: "A05:2021-Security Misconfiguration"
-
+  - regex: DEBUG\s*=\s*True
+  cwe: CWE-489
+  owasp: A05:2021-Security Misconfiguration
+  confidence: 0.7
 - id: django-raw-sql
-  name: "Django: Raw SQL Query Execution"
-  description: "Using raw() or execute() opens the application to SQL injection if user input is not properly parameterized."
-  severity: "high"
+  name: 'Django: Raw SQL Query Execution'
+  description: Using raw() or execute() opens the application to SQL injection if user input is not properly parameterized.
+  severity: high
   patterns:
-    - regex: '\.(raw|execute)\s*\(.*%'
-  cwe: "CWE-89"
-  owasp: "A03:2021-Injection"
-
+  - regex: \.(raw|execute)\s*\(.*%
+  cwe: CWE-89
+  owasp: A03:2021-Injection
+  confidence: 0.7
 - id: django-unsafe-template-render
-  name: "Django: Unsafe Template Rendering"
-  description: "Rendering templates from raw strings with user input can lead to Server-Side Template Injection (SSTI)."
-  severity: "high"
+  name: 'Django: Unsafe Template Rendering'
+  description: Rendering templates from raw strings with user input can lead to Server-Side Template Injection (SSTI).
+  severity: high
   patterns:
-    - regex: 'render_template_string\s*\('
-  cwe: "CWE-1336"
-  owasp: "A03:2021-Injection"
+  - regex: render_template_string\s*\(
+  cwe: CWE-1336
+  owasp: A03:2021-Injection
+  confidence: 0.7

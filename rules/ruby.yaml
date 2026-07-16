@@ -1,3567 +1,3948 @@
 - id: ruby-kernel-open
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\bopen\s*\(\s*[^)]*\|'
+  - regex: \bopen\s*\(\s*[^)]*\|
   severity: high
-  description: "Kernel#open with pipe allows command injection"
-  remediation: "Use File.open for files, URI.open for URIs. Never use open with user input."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Kernel#open with pipe allows command injection
+  remediation: Use File.open for files, URI.open for URIs. Never use open with user input.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-kernel-open-pipe
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'open\s*\(\s*["\x27]\|'
+  - regex: open\s*\(\s*["\x27]\|
   severity: critical
-  description: "Kernel#open with pipe executes commands"
-  remediation: "Use Open3.capture or Process.spawn instead of open with pipe."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Kernel#open with pipe executes commands
+  remediation: Use Open3.capture or Process.spawn instead of open with pipe.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-kernel-open-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'open\s*\(\s*.*params\[|open\s*\(\s*.*request|open\s*\(\s*.*user'
+  - regex: open\s*\(\s*.*params\[|open\s*\(\s*.*request|open\s*\(\s*.*user
   severity: high
-  description: "Kernel#open with user input - command injection"
-  remediation: "Never pass user input to open. Use safe alternatives."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Kernel#open with user input - command injection
+  remediation: Never pass user input to open. Use safe alternatives.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-kernel-open-pipe-params
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'open\s*\(\s*[^)]*\|.*params'
+  - regex: open\s*\(\s*[^)]*\|.*params
   severity: critical
-  description: "Kernel#open with pipe and params - command injection"
-  remediation: "Use Process.spawn with arguments array instead."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Kernel#open with pipe and params - command injection
+  remediation: Use Process.spawn with arguments array instead.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-uri-open
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'URI\.open\s*\('
+  - regex: URI\.open\s*\(
   severity: high
-  description: "URI.open can open local files and remote URIs"
-  remediation: "Use URI.open with user input carefully - validate URIs."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: URI.open can open local files and remote URIs
+  remediation: Use URI.open with user input carefully - validate URIs.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-uri-open-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'URI\.open\s*\(\s*.*params\[|URI\.open\s*\(\s*.*request'
+  - regex: URI\.open\s*\(\s*.*params\[|URI\.open\s*\(\s*.*request
   severity: high
-  description: "URI.open with user input - SSRF and file inclusion"
-  remediation: "Validate URIs against allowlist, block local file access."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: URI.open with user input - SSRF and file inclusion
+  remediation: Validate URIs against allowlist, block local file access.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-uri-open-local-file
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'URI\.open\s*\(\s*[''"]file://'
+  - regex: URI\.open\s*\(\s*['"]file://
   severity: high
-  description: "URI.open with file:// - local file inclusion"
-  remediation: "Use File.open for local files, not URI.open."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: URI.open with file:// - local file inclusion
+  remediation: Use File.open for local files, not URI.open.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-uri-open-private-ip
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'URI\.open.*192\.168|URI\.open.*10\.|URI\.open.*172\.1[6-9]'
+  - regex: URI\.open.*192\.168|URI\.open.*10\.|URI\.open.*172\.1[6-9]
   severity: high
-  description: "URI.open accessing private IP range - SSRF risk"
-  remediation: "Block access to private IP ranges."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: URI.open accessing private IP range - SSRF risk
+  remediation: Block access to private IP ranges.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-uri-open-localhost
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'URI\.open.*localhost|URI\.open.*127\.0\.0\.1'
+  - regex: URI\.open.*localhost|URI\.open.*127\.0\.0\.1
   severity: high
-  description: "URI.open accessing localhost - SSRF risk"
-  remediation: "Block access to localhost and loopback addresses."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: URI.open accessing localhost - SSRF risk
+  remediation: Block access to localhost and loopback addresses.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-open3-popen2
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Open3\.popen2|Open3\.popen2e|Open3\.popen3'
+  - regex: Open3\.popen2|Open3\.popen2e|Open3\.popen3
   severity: high
-  description: "Open3.popen* - ensure command arguments are safe"
-  remediation: "Use array form for command and arguments to avoid injection."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Open3.popen* - ensure command arguments are safe
+  remediation: Use array form for command and arguments to avoid injection.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-open3-capture
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Open3\.capture2|Open3\.capture2e|Open3\.capture3'
+  - regex: Open3\.capture2|Open3\.capture2e|Open3\.capture3
   severity: high
-  description: "Open3.capture* - command injection risk"
-  remediation: "Use array form: Open3.capture2(['ls', '-la'], ...)"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Open3.capture* - command injection risk
+  remediation: 'Use array form: Open3.capture2([''ls'', ''-la''], ...)'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-open3-pipeline
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Open3\.pipeline|Open3\.pipeline_r|Open3\.pipeline_w'
+  - regex: Open3\.pipeline|Open3\.pipeline_r|Open3\.pipeline_w
   severity: high
-  description: "Open3.pipeline* - complex command pipelines"
-  remediation: "Validate all command components."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Open3.pipeline* - complex command pipelines
+  remediation: Validate all command components.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-process-spawn
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Process\.spawn'
+  - regex: Process\.spawn
   severity: high
-  description: "Process.spawn - command injection risk"
-  remediation: "Use array form: Process.spawn('ls', '-la')"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Process.spawn - command injection risk
+  remediation: 'Use array form: Process.spawn(''ls'', ''-la'')'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-process-spawn-shell
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Process\.spawn\([^)]*\|[^)]*\]'
+  - regex: Process\.spawn\([^)]*\|[^)]*\]
   severity: critical
-  description: "Process.spawn with shell metacharacters - injection"
-  remediation: "Use array form to avoid shell interpretation."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Process.spawn with shell metacharacters - injection
+  remediation: Use array form to avoid shell interpretation.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-io-popen
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'IO\.popen'
+  - regex: IO\.popen
   severity: critical
-  description: "IO.popen executes commands - command injection"
-  remediation: "Use Open3.capture with array arguments instead."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: IO.popen executes commands - command injection
+  remediation: Use Open3.capture with array arguments instead.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-exec-system
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'exec\s+|system\s+'
+  - regex: exec\s+|system\s+
   severity: critical
-  description: "exec/system - command injection risk"
-  remediation: "Use system with array arguments: system('ls', '-la')"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: exec/system - command injection risk
+  remediation: 'Use system with array arguments: system(''ls'', ''-la'')'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-backtick-operator
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '`[^`]*#\{.*\}[^`]*`'
+  - regex: '`[^`]*#\{.*\}[^`]*`'
   severity: critical
-  description: "Backtick operator with interpolation - command injection"
-  remediation: "Use system with array arguments or Open3.capture."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Backtick operator with interpolation - command injection
+  remediation: Use system with array arguments or Open3.capture.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-backtick-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '`[^`]*params\[|`[^`]*request[^`]*`'
+  - regex: '`[^`]*params\[|`[^`]*request[^`]*`'
   severity: critical
-  description: "Backtick operator with user input - command injection"
-  remediation: "Never use backticks with user input."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Backtick operator with user input - command injection
+  remediation: Never use backticks with user input.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-percent-x-command
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '%x\[.*#\{.*\}.*\]'
+  - regex: '%x\[.*#\{.*\}.*\]'
   severity: high
-  description: "%x command execution with interpolation - injection"
-  remediation: "Use system with array arguments."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: '%x command execution with interpolation - injection'
+  remediation: Use system with array arguments.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-percent-x-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '%x\[.*params\[|%x\[.*request'
+  - regex: '%x\[.*params\[|%x\[.*request'
   severity: high
-  description: "%x with user input - command injection"
-  remediation: "Never use %x with user input."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: '%x with user input - command injection'
+  remediation: Never use %x with user input.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-shell-words-escape
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Shellwords\.escape'
+  - regex: Shellwords\.escape
   severity: medium
-  description: "Shellwords.escape - may not cover all injection vectors"
-  remediation: "Prefer array arguments instead of escaping."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Shellwords.escape - may not cover all injection vectors
+  remediation: Prefer array arguments instead of escaping.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: ruby-shell-words-join
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Shellwords\.join'
+  - regex: Shellwords\.join
   severity: medium
-  description: "Shellwords.join builds command strings - injection risk"
-  remediation: "Use array arguments directly with system/exec."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-# ======================== SEND METHOD INJECTION (26-50) ========================
-
+  description: Shellwords.join builds command strings - injection risk
+  remediation: Use array arguments directly with system/exec.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: ruby-send-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.send\s*\(\s*params\[|\.send\s*\(\s*request|'
+  - regex: \.send\s*\(\s*params\[|\.send\s*\(\s*request|
   severity: high
-  description: "send with user input - arbitrary method invocation"
-  remediation: "Use allowlist of permitted methods before send."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: send with user input - arbitrary method invocation
+  remediation: Use allowlist of permitted methods before send.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-send-unsafe-method
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.send\s*\(\s*[''"][^''"]*(?:exec|system|eval|send)'
+  - regex: \.send\s*\(\s*['"][^'"]*(?:exec|system|eval|send)
   severity: high
-  description: "send calling dangerous methods - RCE"
-  remediation: "Never allow user input to select method names."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: send calling dangerous methods - RCE
+  remediation: Never allow user input to select method names.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-public-send-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.public_send\s*\(\s*params\['
+  - regex: \.public_send\s*\(\s*params\[
   severity: high
-  description: "public_send with user input - arbitrary public method invocation"
-  remediation: "Validate method names against allowlist."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: public_send with user input - arbitrary public method invocation
+  remediation: Validate method names against allowlist.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-send-method-missing
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'method_missing\s*\([^)]*\]'
+  - regex: method_missing\s*\([^)]*\]
   severity: high
-  description: "method_missing can be exploited with send"
-  remediation: "Ensure method_missing doesn't forward to send with user input."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: method_missing can be exploited with send
+  remediation: Ensure method_missing doesn't forward to send with user input.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-define-method-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'define_method\s*\(\s*params\['
+  - regex: define_method\s*\(\s*params\[
   severity: high
-  description: "define_method with user input - dynamic method definition"
-  remediation: "Never define methods based on user input."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: define_method with user input - dynamic method definition
+  remediation: Never define methods based on user input.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-class-eval-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'class_eval\s*\(\s*params\[|module_eval\s*\(\s*params\['
+  - regex: class_eval\s*\(\s*params\[|module_eval\s*\(\s*params\[
   severity: high
-  description: "class_eval/module_eval with user input - code injection"
-  remediation: "Never use eval family with user input."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: class_eval/module_eval with user input - code injection
+  remediation: Never use eval family with user input.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-instance-eval-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'instance_eval\s*\(\s*params\['
+  - regex: instance_eval\s*\(\s*params\[
   severity: high
-  description: "instance_eval with user input - code injection"
-  remediation: "Never use instance_eval with user input."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: instance_eval with user input - code injection
+  remediation: Never use instance_eval with user input.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-method-missing-delegation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'method_missing.*send.*params|method_missing.*__send__.*params'
+  - regex: method_missing.*send.*params|method_missing.*__send__.*params
   severity: high
-  description: "method_missing delegating to send with user input"
-  remediation: "Never pass user input through method_missing to send."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: method_missing delegating to send with user input
+  remediation: Never pass user input through method_missing to send.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-const-get-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'const_get\s*\(\s*params\['
+  - regex: const_get\s*\(\s*params\[
   severity: high
-  description: "const_get with user input - arbitrary constant access"
-  remediation: "Validate constant names against allowlist."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: const_get with user input - arbitrary constant access
+  remediation: Validate constant names against allowlist.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-const-missing
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'const_missing\s*\([^)]*\]'
+  - regex: const_missing\s*\([^)]*\]
   severity: high
-  description: "const_missing can be exploited"
-  remediation: "Ensure const_missing doesn't load arbitrary constants."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: const_missing can be exploited
+  remediation: Ensure const_missing doesn't load arbitrary constants.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-constantize-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.constantize\s*(?:$|[\s\.])|\bsafe_constantize\s*\(\s*params\[\]'
+  - regex: \.constantize\s*(?:$|[\s\.])|\bsafe_constantize\s*\(\s*params\[\]
   severity: high
-  description: "constantize with user input - arbitrary class loading"
-  remediation: "Use allowlist of permitted class names."
-  cwe: "CWE-470"
-  owasp: "A03:2021"
-
+  description: constantize with user input - arbitrary class loading
+  remediation: Use allowlist of permitted class names.
+  cwe: CWE-470
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-autoload-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'autoload\s*\(\s*params\['
+  - regex: autoload\s*\(\s*params\[
   severity: high
-  description: "autoload with user input - arbitrary file loading"
-  remediation: "Never use autoload with user input."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: autoload with user input - arbitrary file loading
+  remediation: Never use autoload with user input.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-require-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'require\s*\(\s*params\[|load\s*\(\s*params\['
+  - regex: require\s*\(\s*params\[|load\s*\(\s*params\[
   severity: high
-  description: "require/load with user input - arbitrary file inclusion"
-  remediation: "Never use require/load with user input."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: require/load with user input - arbitrary file inclusion
+  remediation: Never use require/load with user input.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-require-dynamic
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'require\s*.*\+.*params|load\s*.*\+.*params'
+  - regex: require\s*.*\+.*params|load\s*.*\+.*params
   severity: high
-  description: "Dynamic require/load with user input - file inclusion"
-  remediation: "Use static require statements only."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Dynamic require/load with user input - file inclusion
+  remediation: Use static require statements only.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-autoload-dynamic
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'autoload\s*\([^,]+,\s*[^)]*params'
+  - regex: autoload\s*\([^,]+,\s*[^)]*params
   severity: high
-  description: "Dynamic autoload path with user input - file inclusion"
-  remediation: "Use fixed autoload paths."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Dynamic autoload path with user input - file inclusion
+  remediation: Use fixed autoload paths.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-require-relative-user
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'require_relative\s*\(\s*params\['
+  - regex: require_relative\s*\(\s*params\[
   severity: high
-  description: "require_relative with user input - path traversal"
-  remediation: "Never use require_relative with user input."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: require_relative with user input - path traversal
+  remediation: Never use require_relative with user input.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-load-path-modify
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\$LOAD_PATH <<|\$: <<'
+  - regex: '\$LOAD_PATH <<|\$: <<'
   severity: medium
-  description: "Modifying LOAD_PATH - ensure paths are trusted"
-  remediation: "Only add trusted directories to LOAD_PATH."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Modifying LOAD_PATH - ensure paths are trusted
+  remediation: Only add trusted directories to LOAD_PATH.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.55
 - id: ruby-load-path-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\$LOAD_PATH <<.*params|\$: <<.*params'
+  - regex: '\$LOAD_PATH <<.*params|\$: <<.*params'
   severity: high
-  description: "LOAD_PATH modified with user input - arbitrary code loading"
-  remediation: "Never use user input in LOAD_PATH."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: LOAD_PATH modified with user input - arbitrary code loading
+  remediation: Never use user input in LOAD_PATH.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-gem-loading
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'gem\s*\(\s*params\['
+  - regex: gem\s*\(\s*params\[
   severity: high
-  description: "gem loading with user input - arbitrary gem activation"
-  remediation: "Never load gems based on user input."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
-# ======================== YAML UNSAFE LOAD (51-75) ========================
-
+  description: gem loading with user input - arbitrary gem activation
+  remediation: Never load gems based on user input.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-yaml-load
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'YAML\.load\s*\([^)]*\]'
+  - regex: YAML\.load\s*\([^)]*\]
   severity: critical
-  description: "YAML.load can deserialize arbitrary objects - RCE"
-  remediation: "Use YAML.safe_load with permitted_classes."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML.load can deserialize arbitrary objects - RCE
+  remediation: Use YAML.safe_load with permitted_classes.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: ruby-yaml-load-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'YAML\.load\s*\(\s*params\[|YAML\.load\s*\(\s*request'
+  - regex: YAML\.load\s*\(\s*params\[|YAML\.load\s*\(\s*request
   severity: critical
-  description: "YAML.load with user input - remote code execution"
-  remediation: "Never use YAML.load on user input. Use YAML.safe_load."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML.load with user input - remote code execution
+  remediation: Never use YAML.load on user input. Use YAML.safe_load.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: ruby-yaml-load-file
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'YAML\.load_file\s*\([^)]*\]'
+  - regex: YAML\.load_file\s*\([^)]*\]
   severity: high
-  description: "YAML.load_file - ensure file is trusted"
-  remediation: "Use YAML.safe_load_file for untrusted YAML files."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML.load_file - ensure file is trusted
+  remediation: Use YAML.safe_load_file for untrusted YAML files.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.7
 - id: ruby-yaml-load-stream
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'YAML\.load_stream\s*\([^)]*\]'
+  - regex: YAML\.load_stream\s*\([^)]*\]
   severity: high
-  description: "YAML.load_stream - multiple documents, all deserialized"
-  remediation: "Use YAML.safe_load_stream with permitted classes."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML.load_stream - multiple documents, all deserialized
+  remediation: Use YAML.safe_load_stream with permitted classes.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.7
 - id: ruby-yaml-safe-load-aliases
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'aliases:\s*true'
+  - regex: aliases:\s*true
   severity: medium
-  description: "YAML aliases enabled - may allow entity expansion attacks"
-  remediation: "Disable aliases unless needed."
-  cwe: "CWE-776"
-  owasp: "A04:2023"
-
+  description: YAML aliases enabled - may allow entity expansion attacks
+  remediation: Disable aliases unless needed.
+  cwe: CWE-776
+  owasp: A04:2023
+  confidence: 0.55
 - id: ruby-yaml-permitted-classes
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'YAML\.safe_load.*\[\s*\]'
+  - regex: YAML\.safe_load.*\[\s*\]
   severity: high
-  description: "YAML.safe_load with empty permitted_classes - only basic types"
-  remediation: "Add any required classes to permitted_classes."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML.safe_load with empty permitted_classes - only basic types
+  remediation: Add any required classes to permitted_classes.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-yaml-deserialize-gadgets
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Gem::Specification|Gem::Requirement|Gem::Dependency'
+  - regex: Gem::Specification|Gem::Requirement|Gem::Dependency
   severity: high
-  description: "YAML deserialization of gem objects - known gadget chains"
-  remediation: "Never allow these classes in YAML deserialization."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML deserialization of gem objects - known gadget chains
+  remediation: Never allow these classes in YAML deserialization.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-yaml-psych-gadgets
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Psych::|ActiveSupport::'
+  - regex: 'Psych::|ActiveSupport::'
   severity: high
-  description: "YAML deserialization of Psych or ActiveSupport objects - RCE"
-  remediation: "Use YAML.safe_load and disallow these classes."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML deserialization of Psych or ActiveSupport objects - RCE
+  remediation: Use YAML.safe_load and disallow these classes.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-yaml-erb-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '!ruby/object:ERB'
+  - regex: '!ruby/object:ERB'
   severity: high
-  description: "YAML loading ERB objects - can execute arbitrary ERB"
-  remediation: "Never allow ERB class in YAML deserialization."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: YAML loading ERB objects - can execute arbitrary ERB
+  remediation: Never allow ERB class in YAML deserialization.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-yaml-date-gadgets
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Date|DateTime|Time'
+  - regex: Date|DateTime|Time
   severity: medium
-  description: "Date/DateTime/Time objects in YAML - potential DoS"
-  remediation: "Only allow if needed, set limits."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Date/DateTime/Time objects in YAML - potential DoS
+  remediation: Only allow if needed, set limits.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: ruby-yaml-symbols
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '!ruby/symbol'
+  - regex: '!ruby/symbol'
   severity: high
-  description: "YAML loading symbols - memory exhaustion risk"
-  remediation: "Use permitted_symbols: [\\\\] to restrict symbols."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: YAML loading symbols - memory exhaustion risk
+  remediation: 'Use permitted_symbols: [\\] to restrict symbols.'
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: ruby-psych-unsafe
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Psych\.load|Psych\.load_file|Psych\.load_stream'
+  - regex: Psych\.load|Psych\.load_file|Psych\.load_stream
   severity: critical
-  description: "Psych.load is unsafe like YAML.load"
-  remediation: "Use Psych.safe_load with permitted_classes."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Psych.load is unsafe like YAML.load
+  remediation: Use Psych.safe_load with permitted_classes.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: ruby-psych-parse
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Psych\.parse|Psych\.parse_file|Psych\.parse_stream'
+  - regex: Psych\.parse|Psych\.parse_file|Psych\.parse_stream
   severity: medium
-  description: "Psych.parse returns a Psych::Nodes::Document - safer"
-  remediation: "Use parse and walk tree manually for safety."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Psych.parse returns a Psych::Nodes::Document - safer
+  remediation: Use parse and walk tree manually for safety.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.6
 - id: ruby-json-parse-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JSON\.parse\s*\(\s*params\['
+  - regex: JSON\.parse\s*\(\s*params\[
   severity: high
-  description: "JSON.parse with user input - potential DoS via large JSON"
-  remediation: "Limit JSON size before parsing."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: JSON.parse with user input - potential DoS via large JSON
+  remediation: Limit JSON size before parsing.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.7
 - id: ruby-json-parse-symbol-names
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JSON\.parse.*symbolize_names:\s*true'
+  - regex: JSON\.parse.*symbolize_names:\s*true
   severity: high
-  description: "JSON parsing with symbolization - memory exhaustion risk"
-  remediation: "Use symbolize_names: false or limit JSON size."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: JSON parsing with symbolization - memory exhaustion risk
+  remediation: 'Use symbolize_names: false or limit JSON size.'
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: ruby-oj-load
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Oj\.load|Oj\.object_load'
+  - regex: Oj\.load|Oj\.object_load
   severity: high
-  description: "Oj.load can deserialize arbitrary objects - RCE"
-  remediation: "Use Oj.safe_load with :mode => :strict."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Oj.load can deserialize arbitrary objects - RCE
+  remediation: Use Oj.safe_load with :mode => :strict.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.7
 - id: ruby-oj-compat-mode
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Oj\.load.*mode:\s*:compat'
+  - regex: Oj\.load.*mode:\s*:compat
   severity: medium
-  description: "Oj.load in compat mode - may deserialize objects"
-  remediation: "Use strict mode for untrusted data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Oj.load in compat mode - may deserialize objects
+  remediation: Use strict mode for untrusted data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.55
 - id: ruby-oj-object-mode
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Oj\.load.*mode:\s*:object'
+  - regex: Oj\.load.*mode:\s*:object
   severity: high
-  description: "Oj.load in object mode - arbitrary object creation"
-  remediation: "Never use object mode with untrusted data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Oj.load in object mode - arbitrary object creation
+  remediation: Never use object mode with untrusted data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-marshal-load
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Marshal\.load|Marshal\.restore'
+  - regex: Marshal\.load|Marshal\.restore
   severity: critical
-  description: "Marshal.load can execute arbitrary code - RCE"
-  remediation: "Never use Marshal.load on untrusted data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
-# ======================== ERB TEMPLATE INJECTION (76-100) ========================
-
+  description: Marshal.load can execute arbitrary code - RCE
+  remediation: Never use Marshal.load on untrusted data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: ruby-erb-new-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'ERB\.new\s*\(\s*params\[|ERB\.new\s*\(\s*request'
+  - regex: ERB\.new\s*\(\s*params\[|ERB\.new\s*\(\s*request
   severity: high
-  description: "ERB.new with user input - template injection, RCE"
-  remediation: "Never create templates from user input. Use render with variables."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: ERB.new with user input - template injection, RCE
+  remediation: Never create templates from user input. Use render with variables.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-erb-new-tainted
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'ERB\.new\s*\(\s*[^)]*\+.*params|ERB\.new\s*\(\s*[^)]*#\{'
+  - regex: ERB\.new\s*\(\s*[^)]*\+.*params|ERB\.new\s*\(\s*[^)]*#\{
   severity: high
-  description: "ERB template built with string concatenation - injection"
-  remediation: "Use static templates with variable substitution only."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: ERB template built with string concatenation - injection
+  remediation: Use static templates with variable substitution only.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-render-inline-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+inline:\s*params\[|render\s+inline:\s*request'
+  - regex: render\s+inline:\s*params\[|render\s+inline:\s*request
   severity: high
-  description: "Rails render inline with user input - SSTI, RCE"
-  remediation: "Never render inline with user input. Use partials and locals."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: Rails render inline with user input - SSTI, RCE
+  remediation: Never render inline with user input. Use partials and locals.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-inline-concat
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+inline:\s*[^)]*\+.*params'
+  - regex: render\s+inline:\s*[^)]*\+.*params
   severity: high
-  description: "Rails render inline with concatenation - SSTI"
-  remediation: "Use static templates with locals."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: Rails render inline with concatenation - SSTI
+  remediation: Use static templates with locals.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-html-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+html:\s*params\['
+  - regex: render\s+html:\s*params\[
   severity: high
-  description: "Rails render html with user input - XSS"
-  remediation: "Escape user input before rendering HTML."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Rails render html with user input - XSS
+  remediation: Escape user input before rendering HTML.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-text-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+text:\s*params\['
+  - regex: render\s+text:\s*params\[
   severity: high
-  description: "Rails render text with user input - XSS if used in HTML context"
-  remediation: "Use render html with escaping or render json."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Rails render text with user input - XSS if used in HTML context
+  remediation: Use render html with escaping or render json.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-body-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+body:\s*params\['
+  - regex: render\s+body:\s*params\[
   severity: high
-  description: "Rails render body with user input - raw response"
-  remediation: "Avoid rendering raw user input."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Rails render body with user input - raw response
+  remediation: Avoid rendering raw user input.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-js-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+js:\s*params\['
+  - regex: render\s+js:\s*params\[
   severity: high
-  description: "Rails render js with user input - XSS, code injection"
-  remediation: "Never render JavaScript from user input."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Rails render js with user input - XSS, code injection
+  remediation: Never render JavaScript from user input.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-xml-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+xml:\s*params\['
+  - regex: render\s+xml:\s*params\[
   severity: high
-  description: "Rails render xml with user input - XXE risk"
-  remediation: "Use safe XML building libraries."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: Rails render xml with user input - XXE risk
+  remediation: Use safe XML building libraries.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-render-json-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+json:\s*params\['
+  - regex: render\s+json:\s*params\[
   severity: medium
-  description: "Rails render json with user input - potential XSS"
-  remediation: "Rails JSON escaping protects against XSS."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Rails render json with user input - potential XSS
+  remediation: Rails JSON escaping protects against XSS.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.55
 - id: ruby-render-action-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+action:\s*params\['
+  - regex: render\s+action:\s*params\[
   severity: high
-  description: "Rails render action with user input - template injection"
-  remediation: "Never use user input to select actions."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: Rails render action with user input - template injection
+  remediation: Never use user input to select actions.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-template-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+template:\s*params\['
+  - regex: render\s+template:\s*params\[
   severity: high
-  description: "Rails render template with user input - file inclusion"
-  remediation: "Use allowlist of allowed templates."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Rails render template with user input - file inclusion
+  remediation: Use allowlist of allowed templates.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-file-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+file:\s*params\['
+  - regex: render\s+file:\s*params\[
   severity: high
-  description: "Rails render file with user input - path traversal"
-  remediation: "Never render files based on user input."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Rails render file with user input - path traversal
+  remediation: Never render files based on user input.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-render-partial-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+partial:\s*params\[|render.*collection:\s*params\['
+  - regex: render\s+partial:\s*params\[|render.*collection:\s*params\[
   severity: high
-  description: "Rails render partial with user input - template injection"
-  remediation: "Use allowlist of allowed partials."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Rails render partial with user input - template injection
+  remediation: Use allowlist of allowed partials.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-layout-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+layout:\s*params\['
+  - regex: render\s+layout:\s*params\[
   severity: high
-  description: "Rails render layout with user input - template injection"
-  remediation: "Use static layout names."
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Rails render layout with user input - template injection
+  remediation: Use static layout names.
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-render-options-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s*\(?.*params\[[^]]*\\\\'
+  - regex: render\s*\(?.*params\[[^]]*\\\\
   severity: high
-  description: "Rails render with params - ensure safe usage"
-  remediation: "Only use user input in locals, not in template selection."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: Rails render with params - ensure safe usage
+  remediation: Only use user input in locals, not in template selection.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-slim-template-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Slim::Template\.new.*params|Slim::Template\.new.*request'
+  - regex: Slim::Template\.new.*params|Slim::Template\.new.*request
   severity: high
-  description: "Slim template with user input - SSTI, RCE"
-  remediation: "Never create templates from user input."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: Slim template with user input - SSTI, RCE
+  remediation: Never create templates from user input.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-haml-template-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Haml::Engine\.new.*params|Haml::Engine\.new.*request'
+  - regex: Haml::Engine\.new.*params|Haml::Engine\.new.*request
   severity: high
-  description: "Haml template with user input - SSTI, RCE"
-  remediation: "Never create templates from user input."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
-# ======================== RAILS ACTIVE RECORD INJECTION (101-125) ========================
-
+  description: Haml template with user input - SSTI, RCE
+  remediation: Never create templates from user input.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ar-where-interpolation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'where\(\s*["''].*#\{.*\}.*["'']'
+  - regex: where\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "ActiveRecord where with string interpolation - SQL injection"
-  remediation: "Use parameterized where: where('name = ?', name)"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord where with string interpolation - SQL injection
+  remediation: 'Use parameterized where: where(''name = ?'', name)'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ar-order-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'order\(\s*params\[|order\(\s*["''].*#\{.*\}.*["'']'
+  - regex: order\(\s*params\[|order\(\s*["'].*#\{.*\}.*["']
   severity: high
-  description: "ActiveRecord order with user input - SQL injection"
-  remediation: "Use allowlist of allowed sort columns."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord order with user input - SQL injection
+  remediation: Use allowlist of allowed sort columns.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-group-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'group\(\s*params\[|group\(\s*["''].*#\{.*\}.*["'']'
+  - regex: group\(\s*params\[|group\(\s*["'].*#\{.*\}.*["']
   severity: high
-  description: "ActiveRecord group with user input - SQL injection"
-  remediation: "Use allowlist of allowed group columns."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord group with user input - SQL injection
+  remediation: Use allowlist of allowed group columns.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-having-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'having\(\s*["''].*#\{.*\}.*["'']'
+  - regex: having\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "ActiveRecord having with string interpolation - SQL injection"
-  remediation: "Use parameterized having: having('count > ?', 5)"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord having with string interpolation - SQL injection
+  remediation: 'Use parameterized having: having(''count > ?'', 5)'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ar-joins-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'joins\(\s*params\[|joins\(\s*["''].*#\{.*\}.*["'']'
+  - regex: joins\(\s*params\[|joins\(\s*["'].*#\{.*\}.*["']
   severity: high
-  description: "ActiveRecord joins with user input - SQL injection"
-  remediation: "Use association joins or allowlist."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord joins with user input - SQL injection
+  remediation: Use association joins or allowlist.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-select-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'select\(\s*params\[|select\(\s*["''].*#\{.*\}.*["'']'
+  - regex: select\(\s*params\[|select\(\s*["'].*#\{.*\}.*["']
   severity: high
-  description: "ActiveRecord select with user input - column injection"
-  remediation: "Use allowlist of allowed columns."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord select with user input - column injection
+  remediation: Use allowlist of allowed columns.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-pluck-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'pluck\(\s*params\[|pluck\(\s*["''].*#\{.*\}.*["'']'
+  - regex: pluck\(\s*params\[|pluck\(\s*["'].*#\{.*\}.*["']
   severity: high
-  description: "ActiveRecord pluck with user input - column injection"
-  remediation: "Use allowlist of allowed columns."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord pluck with user input - column injection
+  remediation: Use allowlist of allowed columns.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-calculate-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'calculate\([^,]+,\s*params\[\]'
+  - regex: calculate\([^,]+,\s*params\[\]
   severity: high
-  description: "ActiveRecord calculate with user input - column injection"
-  remediation: "Use allowlist of allowed columns."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord calculate with user input - column injection
+  remediation: Use allowlist of allowed columns.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-from-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'from\(\s*params\[|from\(\s*["''].*#\{.*\}.*["'']'
+  - regex: from\(\s*params\[|from\(\s*["'].*#\{.*\}.*["']
   severity: high
-  description: "ActiveRecord from with user input - table injection"
-  remediation: "Never use user input in from clause."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord from with user input - table injection
+  remediation: Never use user input in from clause.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-find-by-sql
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'find_by_sql\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: find_by_sql\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "ActiveRecord find_by_sql with interpolation - SQL injection"
-  remediation: "Use parameterized array: find_by_sql(['SELECT ?', value])"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord find_by_sql with interpolation - SQL injection
+  remediation: 'Use parameterized array: find_by_sql([''SELECT ?'', value])'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-execute-sql
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'execute\(\s*["''].*#\{.*\}.*["'']|exec_query.*["''].*#\{'
+  - regex: execute\(\s*["'].*#\{.*\}.*["']|exec_query.*["'].*#\{
   severity: critical
-  description: "ActiveRecord execute with interpolation - SQL injection"
-  remediation: "Use parameterized: execute(['SELECT ?', value])"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ActiveRecord execute with interpolation - SQL injection
+  remediation: 'Use parameterized: execute([''SELECT ?'', value])'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.9
 - id: ruby-ar-connection-select
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.select.*["''].*#\{.*\}.*["'']'
+  - regex: connection\.select.*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL select with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL select with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ar-connection-insert
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.insert.*["''].*#\{.*\}.*["'']'
+  - regex: connection\.insert.*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL insert with interpolation - SQL injection"
-  remediation: "Use ActiveRecord create instead."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL insert with interpolation - SQL injection
+  remediation: Use ActiveRecord create instead.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ar-connection-update
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.update.*["''].*#\{.*\}.*["'']'
+  - regex: connection\.update.*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL update with interpolation - SQL injection"
-  remediation: "Use ActiveRecord update instead."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL update with interpolation - SQL injection
+  remediation: Use ActiveRecord update instead.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ar-connection-delete
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.delete.*["''].*#\{.*\}.*["'']'
+  - regex: connection\.delete.*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL delete with interpolation - SQL injection"
-  remediation: "Use ActiveRecord destroy instead."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL delete with interpolation - SQL injection
+  remediation: Use ActiveRecord destroy instead.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ar-connection-execute
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.execute.*["''].*#\{.*\}.*["'']'
+  - regex: connection\.execute.*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL execute with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL execute with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-mass-assignment-update
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'update\(\s*params\[|update_attributes\(\s*params\['
+  - regex: update\(\s*params\[|update_attributes\(\s*params\[
   severity: high
-  description: "Mass assignment with params - vulnerability"
-  remediation: "Use strong parameters: update(params.require(:user).permit(:name, :email))"
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Mass assignment with params - vulnerability
+  remediation: 'Use strong parameters: update(params.require(:user).permit(:name, :email))'
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-mass-assignment-create
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'create\(\s*params\[|create!\(\s*params\[|new\(\s*params\['
+  - regex: create\(\s*params\[|create!\(\s*params\[|new\(\s*params\[
   severity: high
-  description: "Mass assignment in create - vulnerability"
-  remediation: "Use strong parameters: User.create(user_params)"
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Mass assignment in create - vulnerability
+  remediation: 'Use strong parameters: User.create(user_params)'
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-mass-assignment-assign-attributes
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'assign_attributes\(\s*params\['
+  - regex: assign_attributes\(\s*params\[
   severity: high
-  description: "Mass assignment with assign_attributes"
-  remediation: "Use strong parameters: user.assign_attributes(user_params)"
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Mass assignment with assign_attributes
+  remediation: 'Use strong parameters: user.assign_attributes(user_params)'
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-strong-parameters-permit-all
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'permit!|permit\(\*\*\)'
+  - regex: permit!|permit\(\*\*\)
   severity: high
-  description: "Permitting all parameters - mass assignment vulnerability"
-  remediation: "Never use permit! or permit(**). Explicitly list allowed params."
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Permitting all parameters - mass assignment vulnerability
+  remediation: Never use permit! or permit(**). Explicitly list allowed params.
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-strong-parameters-empty-permit
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'permit\(\s*\)'
+  - regex: permit\(\s*\)
   severity: high
-  description: "Empty permit - allows no parameters, may break functionality"
-  remediation: "Specify allowed parameters explicitly."
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Empty permit - allows no parameters, may break functionality
+  remediation: Specify allowed parameters explicitly.
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-attr-accessible
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'attr_accessible|attr_protected'
+  - regex: attr_accessible|attr_protected
   severity: high
-  description: "attr_accessible/attr_protected - deprecated"
-  remediation: "Use strong parameters instead."
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: attr_accessible/attr_protected - deprecated
+  remediation: Use strong parameters instead.
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-attr-accessible-all
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'attr_accessible.*:all'
+  - regex: attr_accessible.*:all
   severity: high
-  description: "attr_accessible :all - all attributes mass-assignable"
-  remediation: "Use strong parameters and list allowed attributes."
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: attr_accessible :all - all attributes mass-assignable
+  remediation: Use strong parameters and list allowed attributes.
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-attr-protected-none
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'attr_protected.*\[\s*\]'
+  - regex: attr_protected.*\[\s*\]
   severity: high
-  description: "attr_protected empty array - protects nothing"
-  remediation: "Use strong parameters instead."
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: attr_protected empty array - protects nothing
+  remediation: Use strong parameters instead.
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-nested-attributes-allow-destroy
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'allow_destroy:\s*true'
+  - regex: allow_destroy:\s*true
   severity: medium
-  description: "Allow destroy in nested attributes - ensure authorized"
-  remediation: "Check user permissions before allowing destroy."
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Allow destroy in nested attributes - ensure authorized
+  remediation: Check user permissions before allowing destroy.
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: ruby-role-mass-assignment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[:user\]\[:role\]|params\[:admin\]'
+  - regex: params\[:user\]\[:role\]|params\[:admin\]
   severity: high
-  description: "Role field in params - privilege escalation"
-  remediation: "Never allow role/permission fields in mass assignment."
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Role field in params - privilege escalation
+  remediation: Never allow role/permission fields in mass assignment.
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-admin-mass-assignment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[:admin\]|params\[:is_admin\]'
+  - regex: params\[:admin\]|params\[:is_admin\]
   severity: high
-  description: "Admin flag in params - privilege escalation"
-  remediation: "Never allow admin flag in mass assignment."
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Admin flag in params - privilege escalation
+  remediation: Never allow admin flag in mass assignment.
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-password-mass-assignment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[:password\]'
+  - regex: params\[:password\]
   severity: high
-  description: "Password field in params - ensure proper handling"
-  remediation: "Only allow password in specific actions, hash before saving."
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Password field in params - ensure proper handling
+  remediation: Only allow password in specific actions, hash before saving.
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-id-mass-assignment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[:id\]|params\[:user_id\]'
+  - regex: params\[:id\]|params\[:user_id\]
   severity: high
-  description: "ID field in params - IDOR risk"
-  remediation: "Never allow ID in mass assignment, use current user scoping."
-  cwe: "CWE-639"
-  owasp: "A01:2021"
-
+  description: ID field in params - IDOR risk
+  remediation: Never allow ID in mass assignment, use current user scoping.
+  cwe: CWE-639
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-json-api-mass-assignment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'ActiveModelSerializers|JSONAPI::Resource'
+  - regex: ActiveModelSerializers|JSONAPI::Resource
   severity: high
-  description: "JSON API serialization - ensure attributes are filtered"
-  remediation: "Use attributes method to expose only intended fields."
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: JSON API serialization - ensure attributes are filtered
+  remediation: Use attributes method to expose only intended fields.
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-graphql-mass-assignment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'GraphQL::Schema::InputObject'
+  - regex: GraphQL::Schema::InputObject
   severity: high
-  description: "GraphQL input types - mass assignment risk"
-  remediation: "Define allowed inputs explicitly in GraphQL types."
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: GraphQL input types - mass assignment risk
+  remediation: Define allowed inputs explicitly in GraphQL types.
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-graphql-resolve-params
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'resolve.*params\['
+  - regex: resolve.*params\[
   severity: high
-  description: "GraphQL resolver using params - use args instead"
-  remediation: "Use GraphQL arguments, not request params."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: GraphQL resolver using params - use args instead
+  remediation: Use GraphQL arguments, not request params.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-grape-mass-assignment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Grape::API.*params.*Hash|params.*permit.*all'
+  - regex: Grape::API.*params.*Hash|params.*permit.*all
   severity: high
-  description: "Grape API mass assignment"
-  remediation: "Explicitly declare and validate all parameters."
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Grape API mass assignment
+  remediation: Explicitly declare and validate all parameters.
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.85
 - id: ruby-file-open-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.open\s*\(\s*params\[|File\.open\s*\(\s*request'
+  - regex: File\.open\s*\(\s*params\[|File\.open\s*\(\s*request
   severity: high
-  description: "File.open with user input - path traversal"
-  remediation: "Validate file path against base directory."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File.open with user input - path traversal
+  remediation: Validate file path against base directory.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-file-read-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.read\s*\(\s*params\[|File\.readlines\s*\(\s*params\['
+  - regex: File\.read\s*\(\s*params\[|File\.readlines\s*\(\s*params\[
   severity: high
-  description: "File.read with user input - path traversal"
-  remediation: "Validate file path, use basename only."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File.read with user input - path traversal
+  remediation: Validate file path, use basename only.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-file-write-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.write\s*\(\s*params\[|File\.open.*w.*params'
+  - regex: File\.write\s*\(\s*params\[|File\.open.*w.*params
   severity: high
-  description: "File.write with user input - arbitrary file write"
-  remediation: "Never allow user input for file write paths."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File.write with user input - arbitrary file write
+  remediation: Never allow user input for file write paths.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-file-delete-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.delete\s*\(\s*params\[|File\.unlink\s*\(\s*params\['
+  - regex: File\.delete\s*\(\s*params\[|File\.unlink\s*\(\s*params\[
   severity: high
-  description: "File.delete with user input - arbitrary file deletion"
-  remediation: "Never allow user input for file deletion."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File.delete with user input - arbitrary file deletion
+  remediation: Never allow user input for file deletion.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-file-rename-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.rename\s*\([^,]+,\s*[^)]*params'
+  - regex: File\.rename\s*\([^,]+,\s*[^)]*params
   severity: high
-  description: "File.rename with user input - arbitrary rename"
-  remediation: "Validate both source and destination paths."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File.rename with user input - arbitrary rename
+  remediation: Validate both source and destination paths.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-file-chmod-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.chmod\s*\([^,]+,\s*[^)]*params'
+  - regex: File\.chmod\s*\([^,]+,\s*[^)]*params
   severity: high
-  description: "File.chmod with user input - permission changes"
-  remediation: "Use fixed permissions, never from user input."
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: File.chmod with user input - permission changes
+  remediation: Use fixed permissions, never from user input.
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-file-chown-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.chown\s*\([^,]+,\s*[^,]+,\s*[^)]*params'
+  - regex: File\.chown\s*\([^,]+,\s*[^,]+,\s*[^)]*params
   severity: high
-  description: "File.chown with user input - ownership changes"
-  remediation: "Never allow user input for file ownership."
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: File.chown with user input - ownership changes
+  remediation: Never allow user input for file ownership.
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-dir-mkdir-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Dir\.mkdir\s*\(\s*params\['
+  - regex: Dir\.mkdir\s*\(\s*params\[
   severity: high
-  description: "Dir.mkdir with user input - directory traversal"
-  remediation: "Validate directory path, use base directory."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Dir.mkdir with user input - directory traversal
+  remediation: Validate directory path, use base directory.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-dir-rmdir-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Dir\.rmdir\s*\(\s*params\[|Dir\.delete\s*\(\s*params\['
+  - regex: Dir\.rmdir\s*\(\s*params\[|Dir\.delete\s*\(\s*params\[
   severity: high
-  description: "Dir.rmdir with user input - directory deletion"
-  remediation: "Never allow user input for directory deletion."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Dir.rmdir with user input - directory deletion
+  remediation: Never allow user input for directory deletion.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-dir-glob-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Dir\.glob\s*\(\s*params\[|Dir\[\s*params\['
+  - regex: Dir\.glob\s*\(\s*params\[|Dir\[\s*params\[
   severity: high
-  description: "Dir.glob with user input - path traversal"
-  remediation: "Validate glob patterns, restrict to allowed directories."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Dir.glob with user input - path traversal
+  remediation: Validate glob patterns, restrict to allowed directories.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-dir-entries-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Dir\.entries\s*\(\s*params\[|Dir\.foreach\s*\(\s*params\['
+  - regex: Dir\.entries\s*\(\s*params\[|Dir\.foreach\s*\(\s*params\[
   severity: high
-  description: "Dir.entries with user input - directory listing"
-  remediation: "Validate directory path, restrict to allowed dirs."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Dir.entries with user input - directory listing
+  remediation: Validate directory path, restrict to allowed dirs.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-find-find-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Find\.find\s*\(\s*params\['
+  - regex: Find\.find\s*\(\s*params\[
   severity: high
-  description: "Find.find with user input - directory traversal"
-  remediation: "Validate directory path before traversing."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Find.find with user input - directory traversal
+  remediation: Validate directory path before traversing.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-path-traversal-join
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.join\(\s*Rails\.root,\s*[''"]public[''"],\s*params\[\]'
+  - regex: File\.join\(\s*Rails\.root,\s*['"]public['"],\s*params\[\]
   severity: high
-  description: "File.join with user input - path traversal"
-  remediation: "Use File.expand_path and validate."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File.join with user input - path traversal
+  remediation: Use File.expand_path and validate.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-path-traversal-join-relative
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.join\(\s*[''"][^''"]*[''"],\s*params\[\]'
+  - regex: File\.join\(\s*['"][^'"]*['"],\s*params\[\]
   severity: high
-  description: "File.join with relative path and user input"
-  remediation: "Validate full path after join."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File.join with relative path and user input
+  remediation: Validate full path after join.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-send-file-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'send_file\s*\(\s*params\['
+  - regex: send_file\s*\(\s*params\[
   severity: high
-  description: "send_file with user input - path traversal"
-  remediation: "Use send_file with fixed path, or validate against allowlist."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: send_file with user input - path traversal
+  remediation: Use send_file with fixed path, or validate against allowlist.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-send-data-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'send_data\s*\(\s*[^,]+,\s*filename:\s*params\[\]'
+  - regex: send_data\s*\(\s*[^,]+,\s*filename:\s*params\[\]
   severity: medium
-  description: "send_data filename from user input"
-  remediation: "Sanitize filename, remove path separators."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: send_data filename from user input
+  remediation: Sanitize filename, remove path separators.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: ruby-download-options-path
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'send_file.*:filename.*params\['
+  - regex: send_file.*:filename.*params\[
   severity: high
-  description: "send_file with user-specified filename"
-  remediation: "Use fixed filename, or sanitize thoroughly."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: send_file with user-specified filename
+  remediation: Use fixed filename, or sanitize thoroughly.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-zip-entry-name
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Zip::File\.open.*\.\.\\\/'
+  - regex: Zip::File\.open.*\.\.\\\/
   severity: high
-  description: "Zip extraction with .. in entry names - Zip Slip"
-  remediation: "Validate entry names, reject those containing .."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Zip extraction with .. in entry names - Zip Slip
+  remediation: Validate entry names, reject those containing ..
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-zip-extract-to
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Zip::File\.open.*extract.*entry\.name'
+  - regex: Zip::File\.open.*extract.*entry\.name
   severity: high
-  description: "Zip extraction - validate entry names before extraction"
-  remediation: "Check entry.name for path traversal."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Zip extraction - validate entry names before extraction
+  remediation: Check entry.name for path traversal.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-tar-entry-name
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Gem::Package::TarReader.*entry\.full_name'
+  - regex: Gem::Package::TarReader.*entry\.full_name
   severity: high
-  description: "Tar extraction - validate entry names"
-  remediation: "Reject entries with .. in path."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
-# ======================== HTML SAFE & XSS (176-200) ========================
-
+  description: Tar extraction - validate entry names
+  remediation: Reject entries with .. in path.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-html-safe
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.html_safe'
+  - regex: \.html_safe
   severity: high
-  description: "html_safe marks string as safe - bypasses escaping"
-  remediation: "Only use html_safe on trusted strings, never on user input."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: html_safe marks string as safe - bypasses escaping
+  remediation: Only use html_safe on trusted strings, never on user input.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-html-safe-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.html_safe.*params\[|params\[.*\.html_safe'
+  - regex: \.html_safe.*params\[|params\[.*\.html_safe
   severity: high
-  description: "html_safe on user input - XSS vulnerability"
-  remediation: "Never call html_safe on user input."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: html_safe on user input - XSS vulnerability
+  remediation: Never call html_safe on user input.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-raw-output
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'raw\s*\(\s*params\[|raw\s*\(\s*request'
+  - regex: raw\s*\(\s*params\[|raw\s*\(\s*request
   severity: high
-  description: "raw with user input - XSS vulnerability"
-  remediation: "Use sanitize or escape helpers instead of raw."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: raw with user input - XSS vulnerability
+  remediation: Use sanitize or escape helpers instead of raw.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-concat-output
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'concat\s*\(\s*params\['
+  - regex: concat\s*\(\s*params\[
   severity: high
-  description: "concat with user input - XSS if used in views"
-  remediation: "Use <%= %> with escaping instead."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: concat with user input - XSS if used in views
+  remediation: Use <%= %> with escaping instead.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-json-escape
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'to_json.*html_safe'
+  - regex: to_json.*html_safe
   severity: high
-  description: "JSON with html_safe - may break escaping"
-  remediation: "Avoid html_safe on JSON output."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: JSON with html_safe - may break escaping
+  remediation: Avoid html_safe on JSON output.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-link-to-unsafe-url
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'link_to.*url:\s*params\[|link_to.*href:\s*params\['
+  - regex: link_to.*url:\s*params\[|link_to.*href:\s*params\[
   severity: high
-  description: "link_to with user-controlled URL - open redirect"
-  remediation: "Validate URLs or use named routes."
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: link_to with user-controlled URL - open redirect
+  remediation: Validate URLs or use named routes.
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-link-to-user-params
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'link_to.*params\['
+  - regex: link_to.*params\[
   severity: medium
-  description: "link_to with user parameters - XSS in link text"
-  remediation: "Rails escapes link text by default, but verify."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: link_to with user parameters - XSS in link text
+  remediation: Rails escapes link text by default, but verify.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.55
 - id: ruby-button-to-unsafe-url
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'button_to.*params\['
+  - regex: button_to.*params\[
   severity: high
-  description: "button_to with user parameters - CSRF risk"
-  remediation: "Ensure CSRF token is present."
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: button_to with user parameters - CSRF risk
+  remediation: Ensure CSRF token is present.
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-redirect-to-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'redirect_to\s*\(?\s*params\['
+  - regex: redirect_to\s*\(?\s*params\[
   severity: high
-  description: "redirect_to with user input - open redirect"
-  remediation: "Validate redirect URL against allowlist."
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: redirect_to with user input - open redirect
+  remediation: Validate redirect URL against allowlist.
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-redirect-back
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'redirect_back|redirect_to :back'
+  - regex: redirect_back|redirect_to :back
   severity: high
-  description: "redirect_back - open redirect via Referer"
-  remediation: "Use fallback location and validate Referer."
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: redirect_back - open redirect via Referer
+  remediation: Use fallback location and validate Referer.
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-url-for-params
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'url_for\s*\(?\s*params\['
+  - regex: url_for\s*\(?\s*params\[
   severity: medium
-  description: "url_for with params - may generate unsafe URLs"
-  remediation: "Use named routes instead of dynamic params."
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: url_for with params - may generate unsafe URLs
+  remediation: Use named routes instead of dynamic params.
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.6
 - id: ruby-image-tag-src
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'image_tag\(\s*params\['
+  - regex: image_tag\(\s*params\[
   severity: high
-  description: "image_tag with user-controlled src - may load external images"
-  remediation: "Validate image paths, restrict to trusted sources."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: image_tag with user-controlled src - may load external images
+  remediation: Validate image paths, restrict to trusted sources.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-javascript-tag
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'javascript_tag\s*\(\s*params\['
+  - regex: javascript_tag\s*\(\s*params\[
   severity: high
-  description: "javascript_tag with user input - XSS, code injection"
-  remediation: "Never inject user input into JavaScript tags."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: javascript_tag with user input - XSS, code injection
+  remediation: Never inject user input into JavaScript tags.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-content-tag
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'content_tag\([^,]+,\s*params\[\]'
+  - regex: content_tag\([^,]+,\s*params\[\]
   severity: high
-  description: "content_tag with user content - XSS if not escaped"
-  remediation: "Rails escapes content by default, but verify."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: content_tag with user content - XSS if not escaped
+  remediation: Rails escapes content by default, but verify.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-tag-attribute
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'tag\([^,]+,\s*[^,]+,\s*escape:\s*false'
+  - regex: tag\([^,]+,\s*[^,]+,\s*escape:\s*false
   severity: high
-  description: "tag with escaping disabled - XSS risk"
-  remediation: "Never disable escaping with user input."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: tag with escaping disabled - XSS risk
+  remediation: Never disable escaping with user input.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-cdata-section
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'cdata_section.*params\['
+  - regex: cdata_section.*params\[
   severity: medium
-  description: "cdata_section with user input - ensure escaping"
-  remediation: "Escape CDATA content properly."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# ============================================================================
-# RUBY SECURITY RULES - ADDITIONAL CATEGORIES (200+ NEW RULES)
-# ============================================================================
-
-# ======================== SQL INJECTION DEEP DIVE (201-225) ========================
-
+  description: cdata_section with user input - ensure escaping
+  remediation: Escape CDATA content properly.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.55
 - id: ruby-ar-connection-select-all
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.select_all\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.select_all\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL select_all with interpolation - SQL injection"
-  remediation: "Use parameterized queries: connection.select_all(['SELECT ?', value])"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL select_all with interpolation - SQL injection
+  remediation: 'Use parameterized queries: connection.select_all([''SELECT ?'', value])'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-select-one
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.select_one\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.select_one\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL select_one with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL select_one with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-select-value
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.select_value\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.select_value\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL select_value with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL select_value with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-select-rows
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.select_rows\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.select_rows\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL select_rows with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL select_rows with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-insert-sql
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.insert_sql\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.insert_sql\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL insert_sql with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL insert_sql with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-update-sql
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.update_sql\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.update_sql\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL update_sql with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL update_sql with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-delete-sql
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.delete_sql\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.delete_sql\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL delete_sql with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL delete_sql with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-exec-query
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.exec_query\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.exec_query\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL exec_query with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL exec_query with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-exec-update
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.exec_update\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.exec_update\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL exec_update with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL exec_update with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-exec-insert
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.exec_insert\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.exec_insert\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL exec_insert with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL exec_insert with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-connection-exec-delete
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'connection\.exec_delete\s*\(\s*["''].*#\{.*\}.*["'']'
+  - regex: connection\.exec_delete\s*\(\s*["'].*#\{.*\}.*["']
   severity: critical
-  description: "Raw SQL exec_delete with interpolation - SQL injection"
-  remediation: "Use parameterized queries."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw SQL exec_delete with interpolation - SQL injection
+  remediation: Use parameterized queries.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: ruby-ar-scope-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'scope\s*:\s*params\[|scope\s*:\s*->\s*\{[^}]*params\[\]'
+  - regex: scope\s*:\s*params\[|scope\s*:\s*->\s*\{[^}]*params\[\]
   severity: high
-  description: "Scope with dynamic params - SQL injection"
-  remediation: "Use lambdas with safe parameters."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Scope with dynamic params - SQL injection
+  remediation: Use lambdas with safe parameters.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-unscoped-usage
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'unscoped\.'
+  - regex: unscoped\.
   severity: medium
-  description: "unscoped bypasses default scopes - ensure authorization checks"
-  remediation: "Verify authorization before using unscoped."
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: unscoped bypasses default scopes - ensure authorization checks
+  remediation: Verify authorization before using unscoped.
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: ruby-ar-extending-module
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'extending\([^)]*params\[\]'
+  - regex: extending\([^)]*params\[\]
   severity: high
-  description: "extending with dynamic module - code injection"
-  remediation: "Use fixed module names."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: extending with dynamic module - code injection
+  remediation: Use fixed module names.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-preload-associations
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'preload\(\s*params\[|eager_load\(\s*params\['
+  - regex: preload\(\s*params\[|eager_load\(\s*params\[
   severity: high
-  description: "Preloading associations from params - injection"
-  remediation: "Validate association names against allowlist."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Preloading associations from params - injection
+  remediation: Validate association names against allowlist.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-includes-associations
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'includes\(\s*params\['
+  - regex: includes\(\s*params\[
   severity: high
-  description: "Includes with params - association injection"
-  remediation: "Use allowlist of allowed associations."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Includes with params - association injection
+  remediation: Use allowlist of allowed associations.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-references-associations
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'references\(\s*params\['
+  - regex: references\(\s*params\[
   severity: high
-  description: "References with params - table injection"
-  remediation: "Use allowlist of allowed tables."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: References with params - table injection
+  remediation: Use allowlist of allowed tables.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-optimizer-hints
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'optimizer_hints\(\s*params\['
+  - regex: optimizer_hints\(\s*params\[
   severity: high
-  description: "Optimizer hints from params - SQL injection"
-  remediation: "Never use params in optimizer hints."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Optimizer hints from params - SQL injection
+  remediation: Never use params in optimizer hints.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-lock-option
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'lock\(\s*params\['
+  - regex: lock\(\s*params\[
   severity: high
-  description: "Lock option from params - injection"
-  remediation: "Use fixed lock clauses."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Lock option from params - injection
+  remediation: Use fixed lock clauses.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ar-merge-conditions
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'merge\([^)]*params\[\]'
+  - regex: merge\([^)]*params\[\]
   severity: high
-  description: "merge with params - scope injection"
-  remediation: "Validate merged scopes."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== NOSQL INJECTION (226-245) ========================
-
+  description: merge with params - scope injection
+  remediation: Validate merged scopes.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-criteria
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Mongoid::Document.*where\([^)]*params\[\]'
+  - regex: Mongoid::Document.*where\([^)]*params\[\]
   severity: critical
-  description: "MongoDB query with params - NoSQL injection"
-  remediation: "Use field-specific query methods, sanitize input."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: MongoDB query with params - NoSQL injection
+  remediation: Use field-specific query methods, sanitize input.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-mongoid-elem-match
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.elem_match\([^)]*params\[\]'
+  - regex: \.elem_match\([^)]*params\[\]
   severity: high
-  description: "MongoDB $elemMatch with params - injection"
-  remediation: "Validate query structure before execution."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: MongoDB $elemMatch with params - injection
+  remediation: Validate query structure before execution.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-where-operator
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.where\(.*\$.*params\['
+  - regex: \.where\(.*\$.*params\[
   severity: high
-  description: "MongoDB query operators from params - injection"
-  remediation: "Block query operators in user input."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: MongoDB query operators from params - injection
+  remediation: Block query operators in user input.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-nin-operator
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.nin\([^)]*params\[\]'
+  - regex: \.nin\([^)]*params\[\]
   severity: high
-  description: "MongoDB $nin with params - injection"
-  remediation: "Validate array contents."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: MongoDB $nin with params - injection
+  remediation: Validate array contents.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-in-operator
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.in\([^)]*params\[\]'
+  - regex: \.in\([^)]*params\[\]
   severity: high
-  description: "MongoDB $in with params - injection"
-  remediation: "Validate array contents, limit array size."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: MongoDB $in with params - injection
+  remediation: Validate array contents, limit array size.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-regex-operator
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.where\(.*\$regex.*params\['
+  - regex: \.where\(.*\$regex.*params\[
   severity: high
-  description: "MongoDB regex from params - ReDoS risk"
-  remediation: "Use fixed regex patterns, not from user input."
-  cwe: "CWE-1333"
-  owasp: "A06:2021"
-
+  description: MongoDB regex from params - ReDoS risk
+  remediation: Use fixed regex patterns, not from user input.
+  cwe: CWE-1333
+  owasp: A06:2021
+  confidence: 0.65
 - id: ruby-mongoid-where-raw
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'collection\.find\([^)]*params\[\]'
+  - regex: collection\.find\([^)]*params\[\]
   severity: high
-  description: "Raw MongoDB query with params - injection"
-  remediation: "Use Mongoid query methods instead of raw find."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: Raw MongoDB query with params - injection
+  remediation: Use Mongoid query methods instead of raw find.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-map-reduce
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'map_reduce.*params\[|out.*params\['
+  - regex: map_reduce.*params\[|out.*params\[
   severity: high
-  description: "MapReduce with params - code injection"
-  remediation: "Never pass user input to map/reduce functions."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: MapReduce with params - code injection
+  remediation: Never pass user input to map/reduce functions.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-aggregate-pipeline
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.aggregate\([^)]*params\[\]'
+  - regex: \.aggregate\([^)]*params\[\]
   severity: high
-  description: "Aggregation pipeline with params - injection"
-  remediation: "Use fixed pipeline stages, validate input."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: Aggregation pipeline with params - injection
+  remediation: Use fixed pipeline stages, validate input.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-mongoid-text-search
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '\.text_search\(\s*params\['
+  - regex: \.text_search\(\s*params\[
   severity: high
-  description: "Text search with params - NoSQL injection"
-  remediation: "Escape search terms properly."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: Text search with params - NoSQL injection
+  remediation: Escape search terms properly.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-elasticsearch-query
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Elasticsearch::Client.*search.*params\['
+  - regex: Elasticsearch::Client.*search.*params\[
   severity: high
-  description: "Elasticsearch query with params - injection"
-  remediation: "Use query builders, sanitize input."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: Elasticsearch query with params - injection
+  remediation: Use query builders, sanitize input.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-elasticsearch-query-string
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'query_string.*query.*params\['
+  - regex: query_string.*query.*params\[
   severity: high
-  description: "Elasticsearch query_string with params - injection"
-  remediation: "Use term queries instead of query_string."
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: Elasticsearch query_string with params - injection
+  remediation: Use term queries instead of query_string.
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.85
 - id: ruby-elasticsearch-script
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'script:.*params\['
+  - regex: script:.*params\[
   severity: high
-  description: "Elasticsearch script with params - code injection"
-  remediation: "Use script parameters instead of inline."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Elasticsearch script with params - code injection
+  remediation: Use script parameters instead of inline.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-redis-eval
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Redis\.new\.eval\([^)]*params\[\]'
+  - regex: Redis\.new\.eval\([^)]*params\[\]
   severity: high
-  description: "Redis EVAL with params - Lua injection"
-  remediation: "Use Redis commands with parameterization."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Redis EVAL with params - Lua injection
+  remediation: Use Redis commands with parameterization.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-redis-script
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'script\\:load.*params|evalsha.*params'
+  - regex: script\\:load.*params|evalsha.*params
   severity: high
-  description: "Redis script loading with params - injection"
-  remediation: "Load scripts from files, not user input."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
-# ======================== COMMAND INJECTION DEEP DIVE (246-270) ========================
-
+  description: Redis script loading with params - injection
+  remediation: Load scripts from files, not user input.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-shellwords-escape-unsafe
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Shellwords\.escape.*params\['
+  - regex: Shellwords\.escape.*params\[
   severity: high
-  description: "Shellwords.escape on user input - still potentially unsafe"
-  remediation: "Use array arguments instead of escaping."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Shellwords.escape on user input - still potentially unsafe
+  remediation: Use array arguments instead of escaping.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-backtick-operator-array
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '`.*\[.*\]`'
+  - regex: '`.*\[.*\]`'
   severity: low
-  description: "Backtick operator with array interpolation - may be safe"
-  remediation: "Prefer system with array arguments."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Backtick operator with array interpolation - may be safe
+  remediation: Prefer system with array arguments.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.45
 - id: ruby-percent-x-array
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '%x\[.*\[.*\].*\]'
+  - regex: '%x\[.*\[.*\].*\]'
   severity: low
-  description: "%x with array interpolation - may be safe"
-  remediation: "Prefer system with array arguments."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: '%x with array interpolation - may be safe'
+  remediation: Prefer system with array arguments.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.45
 - id: ruby-io-popen-environment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'IO\.popen.*\{.*\}'
+  - regex: IO\.popen.*\{.*\}
   severity: high
-  description: "IO.popen with environment hash - ensure env is safe"
-  remediation: "Validate environment variables."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: IO.popen with environment hash - ensure env is safe
+  remediation: Validate environment variables.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-open3-popen2-environment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Open3\.popen2.*\{.*params'
+  - regex: Open3\.popen2.*\{.*params
   severity: high
-  description: "Open3.popen2 with environment from params - injection"
-  remediation: "Never pass user input to environment."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Open3.popen2 with environment from params - injection
+  remediation: Never pass user input to environment.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-process-spawn-environment
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Process\.spawn.*\{[^}]*params\[\]'
+  - regex: Process\.spawn.*\{[^}]*params\[\]
   severity: critical
-  description: "Process.spawn with environment from params - injection"
-  remediation: "Never use user input in environment."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Process.spawn with environment from params - injection
+  remediation: Never use user input in environment.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-posix-spawn
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'POSIX::Spawn\.(spawn|system|popen4)'
+  - regex: POSIX::Spawn\.(spawn|system|popen4)
   severity: high
-  description: "POSIX::Spawn command execution - injection risk"
-  remediation: "Use array arguments."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: POSIX::Spawn command execution - injection risk
+  remediation: Use array arguments.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-terraform-command
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'terraform\s+.*params\['
+  - regex: terraform\s+.*params\[
   severity: high
-  description: "Terraform command with user input - injection"
-  remediation: "Use API instead of command line."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Terraform command with user input - injection
+  remediation: Use API instead of command line.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-ansible-command
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'ansible-playbook.*params\['
+  - regex: ansible-playbook.*params\[
   severity: high
-  description: "Ansible command with user input - injection"
-  remediation: "Use Ansible API or validate inputs."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Ansible command with user input - injection
+  remediation: Use Ansible API or validate inputs.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-docker-command
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'docker\s+.*params\['
+  - regex: docker\s+.*params\[
   severity: high
-  description: "Docker command with user input - injection"
-  remediation: "Use Docker API gem instead."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Docker command with user input - injection
+  remediation: Use Docker API gem instead.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-kubectl-command
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'kubectl\s+.*params\['
+  - regex: kubectl\s+.*params\[
   severity: high
-  description: "kubectl command with user input - injection"
-  remediation: "Use Kubernetes API client."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: kubectl command with user input - injection
+  remediation: Use Kubernetes API client.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-helm-command
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'helm\s+.*params\['
+  - regex: helm\s+.*params\[
   severity: high
-  description: "Helm command with user input - injection"
-  remediation: "Use Helm Go client or API."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-# ======================== SSRF DEEP DIVE (271-290) ========================
-
+  description: Helm command with user input - injection
+  remediation: Use Helm Go client or API.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-net-http-get
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Net::HTTP\.get\(\s*params\['
+  - regex: Net::HTTP\.get\(\s*params\[
   severity: high
-  description: "Net::HTTP.get with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Net::HTTP.get with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-net-http-post
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Net::HTTP\.post_form\(\s*params\['
+  - regex: Net::HTTP\.post_form\(\s*params\[
   severity: high
-  description: "Net::HTTP.post_form with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Net::HTTP.post_form with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-net-http-start
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Net::HTTP\.start\([^,]+,\s*[^)]*params\[\]'
+  - regex: Net::HTTP\.start\([^,]+,\s*[^)]*params\[\]
   severity: high
-  description: "Net::HTTP.start with user input - SSRF"
-  remediation: "Validate host and port against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Net::HTTP.start with user input - SSRF
+  remediation: Validate host and port against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-httpclient
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'HTTPClient\.new\.(get|post|put|delete)\(\s*params\['
+  - regex: HTTPClient\.new\.(get|post|put|delete)\(\s*params\[
   severity: high
-  description: "HTTPClient with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: HTTPClient with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-httparty
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'HTTParty\.(get|post|put|delete)\(\s*params\['
+  - regex: HTTParty\.(get|post|put|delete)\(\s*params\[
   severity: high
-  description: "HTTParty with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: HTTParty with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-rest-client
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'RestClient\.(get|post|put|delete)\(\s*params\['
+  - regex: RestClient\.(get|post|put|delete)\(\s*params\[
   severity: high
-  description: "RestClient with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: RestClient with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-faraday
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Faraday\.(get|post|put|delete)\(\s*params\['
+  - regex: Faraday\.(get|post|put|delete)\(\s*params\[
   severity: high
-  description: "Faraday with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Faraday with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-excon
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Excon\.(get|post|put|delete)\(\s*params\['
+  - regex: Excon\.(get|post|put|delete)\(\s*params\[
   severity: high
-  description: "Excon with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Excon with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-typhoeus
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Typhoeus\.(get|post|put|delete)\(\s*params\['
+  - regex: Typhoeus\.(get|post|put|delete)\(\s*params\[
   severity: high
-  description: "Typhoeus with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Typhoeus with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-mechanize
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Mechanize\.new\.(get|post)\(\s*params\['
+  - regex: Mechanize\.new\.(get|post)\(\s*params\[
   severity: high
-  description: "Mechanize with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Mechanize with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-watir
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Watir::Browser\.new\.goto\(\s*params\['
+  - regex: Watir::Browser\.new\.goto\(\s*params\[
   severity: high
-  description: "Watir with user input - SSRF via browser"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Watir with user input - SSRF via browser
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-selenium
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Selenium::WebDriver\.for\.get\(\s*params\['
+  - regex: Selenium::WebDriver\.for\.get\(\s*params\[
   severity: high
-  description: "Selenium with user input - SSRF via browser"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Selenium with user input - SSRF via browser
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-capybara
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Capybara\.visit\(\s*params\['
+  - regex: Capybara\.visit\(\s*params\[
   severity: high
-  description: "Capybara with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Capybara with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-poltergeist
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Capybara\.poltergeist\.visit\(\s*params\['
+  - regex: Capybara\.poltergeist\.visit\(\s*params\[
   severity: high
-  description: "Poltergeist with user input - SSRF"
-  remediation: "Validate URL against allowlist."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Poltergeist with user input - SSRF
+  remediation: Validate URL against allowlist.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-aws-sdk
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Aws::S3::Client.*endpoint.*params\['
+  - regex: Aws::S3::Client.*endpoint.*params\[
   severity: high
-  description: "AWS SDK endpoint from user input - SSRF"
-  remediation: "Use fixed endpoints, not from user input."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
-# ======================== DESERIALIZATION GADGETS (291-310) ========================
-
+  description: AWS SDK endpoint from user input - SSRF
+  remediation: Use fixed endpoints, not from user input.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-marshal-dump
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Marshal\.dump.*params\['
+  - regex: Marshal\.dump.*params\[
   severity: high
-  description: "Marshal.dump of user data - may expose internals"
-  remediation: "Use JSON for serializing user data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Marshal.dump of user data - may expose internals
+  remediation: Use JSON for serializing user data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-json-dump-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JSON\.dump.*params\[|to_json.*params\['
+  - regex: JSON\.dump.*params\[|to_json.*params\[
   severity: medium
-  description: "JSON serialization of user data - ensure no objects"
-  remediation: "Use to_json only on safe data structures."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: JSON serialization of user data - ensure no objects
+  remediation: Use to_json only on safe data structures.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.55
 - id: ruby-psych-dump
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Psych\.dump.*params\['
+  - regex: Psych\.dump.*params\[
   severity: high
-  description: "Psych.dump of user data - YAML serialization"
-  remediation: "Use JSON instead of YAML for user data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Psych.dump of user data - YAML serialization
+  remediation: Use JSON instead of YAML for user data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-yaml-dump
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'YAML\.dump.*params\['
+  - regex: YAML\.dump.*params\[
   severity: high
-  description: "YAML.dump of user data - unsafe serialization"
-  remediation: "Use JSON for user data serialization."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: YAML.dump of user data - unsafe serialization
+  remediation: Use JSON for user data serialization.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-oj-dump
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Oj\.dump.*params\[.*mode:\s*:object'
+  - regex: Oj\.dump.*params\[.*mode:\s*:object
   severity: high
-  description: "Oj.dump in object mode - serializes objects"
-  remediation: "Use strict or compat mode for user data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Oj.dump in object mode - serializes objects
+  remediation: Use strict or compat mode for user data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-messagepack-unpack
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'MessagePack\.unpack\(\s*params\['
+  - regex: MessagePack\.unpack\(\s*params\[
   severity: high
-  description: "MessagePack.unpack with user input - code execution"
-  remediation: "Use MessagePack.unpack with safe option if available."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: MessagePack.unpack with user input - code execution
+  remediation: Use MessagePack.unpack with safe option if available.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-cbor-unpack
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'CBOR\.decode\(\s*params\['
+  - regex: CBOR\.decode\(\s*params\[
   severity: high
-  description: "CBOR decode with user input - object injection"
-  remediation: "Use JSON for untrusted data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: CBOR decode with user input - object injection
+  remediation: Use JSON for untrusted data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-bson-deserialize
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'BSON\.deserialize\(\s*params\['
+  - regex: BSON\.deserialize\(\s*params\[
   severity: high
-  description: "BSON deserialize with user input - object injection"
-  remediation: "Use safe BSON parsing options."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: BSON deserialize with user input - object injection
+  remediation: Use safe BSON parsing options.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-protobuf-decode
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Protobuf\.decode\([^)]*params\[\]'
+  - regex: Protobuf\.decode\([^)]*params\[\]
   severity: high
-  description: "Protobuf decode with user input - schema mismatch"
-  remediation: "Validate protobuf schema before decoding."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Protobuf decode with user input - schema mismatch
+  remediation: Validate protobuf schema before decoding.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-oj-load-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Oj\.load\(\s*params\[.*mode:\s*:object'
+  - regex: Oj\.load\(\s*params\[.*mode:\s*:object
   severity: high
-  description: "Oj.load in object mode with user input - RCE"
-  remediation: "Never use object mode with user input."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
-# ======================== AUTHENTICATION & SESSION (311-335) ========================
-
+  description: Oj.load in object mode with user input - RCE
+  remediation: Never use object mode with user input.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-session-secret
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'secret_key_base.*[''\\\"][a-zA-Z0-9]{1,32}[''\\\"]'
+  - regex: secret_key_base.*['\\\"][a-zA-Z0-9]{1,32}['\\\"]
   severity: high
-  description: "Weak or hardcoded session secret"
-  remediation: "Use environment variable with long random string."
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Weak or hardcoded session secret
+  remediation: Use environment variable with long random string.
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-session-cookie-httponly
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.session_options.*httponly\s*=\s*false'
+  - regex: config\.session_options.*httponly\s*=\s*false
   severity: high
-  description: "HttpOnly cookie disabled - XSS can steal session"
-  remediation: "Set httponly: true in session options."
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: HttpOnly cookie disabled - XSS can steal session
+  remediation: 'Set httponly: true in session options.'
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-session-cookie-secure
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.session_options.*secure\s*=\s*false'
+  - regex: config\.session_options.*secure\s*=\s*false
   severity: high
-  description: "Secure cookie disabled - session over HTTP"
-  remediation: "Set secure: true in production."
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Secure cookie disabled - session over HTTP
+  remediation: 'Set secure: true in production.'
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-session-cookie-samesite
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.session_options.*same_site\s*=\s*nil|:none'
+  - regex: config\.session_options.*same_site\s*=\s*nil|:none
   severity: high
-  description: "SameSite cookie disabled - CSRF risk"
-  remediation: "Set same_site: :lax or :strict."
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: SameSite cookie disabled - CSRF risk
+  remediation: 'Set same_site: :lax or :strict.'
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-session-cookie-expiry
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.session_options.*expire_after\s*=\s*[6-9]\d{6,}'
+  - regex: config\.session_options.*expire_after\s*=\s*[6-9]\d{6,}
   severity: medium
-  description: "Session cookie expires too far in future"
-  remediation: "Set reasonable expiry time (hours to days)."
-  cwe: "CWE-613"
-  owasp: "A07:2021"
-
+  description: Session cookie expires too far in future
+  remediation: Set reasonable expiry time (hours to days).
+  cwe: CWE-613
+  owasp: A07:2021
+  confidence: 0.55
 - id: ruby-session-cookie-domain
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.session_options.*domain\s*=\s*''.*\..*\..*'''
+  - regex: config\.session_options.*domain\s*=\s*'.*\..*\..*'
   severity: medium
-  description: "Session cookie domain too broad"
-  remediation: "Restrict cookie domain to specific subdomain."
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Session cookie domain too broad
+  remediation: Restrict cookie domain to specific subdomain.
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: ruby-session-cookie-path
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.session_options.*path\s*=\s*''/'''
+  - regex: config\.session_options.*path\s*=\s*'/'
   severity: low
-  description: "Session cookie path set to root"
-  remediation: "Restrict to application path if possible."
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Session cookie path set to root
+  remediation: Restrict to application path if possible.
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: ruby-session-fixation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'reset_session'
+  - regex: reset_session
   severity: high
-  description: "Session not reset after login - fixation risk"
-  remediation: "Call reset_session after successful login."
-  cwe: "CWE-384"
-  owasp: "A01:2021"
-
+  description: Session not reset after login - fixation risk
+  remediation: Call reset_session after successful login.
+  cwe: CWE-384
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-cookies-permanent
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'cookies\.permanent'
+  - regex: cookies\.permanent
   severity: high
-  description: "Permanent cookies - persist across sessions"
-  remediation: "Use with caution, not for sensitive data."
-  cwe: "CWE-613"
-  owasp: "A07:2021"
-
+  description: Permanent cookies - persist across sessions
+  remediation: Use with caution, not for sensitive data.
+  cwe: CWE-613
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-cookies-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'cookies\[.*\]\s*=\s*params\['
+  - regex: cookies\[.*\]\s*=\s*params\[
   severity: high
-  description: "Setting cookies from user input - injection"
-  remediation: "Validate cookie values before setting."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Setting cookies from user input - injection
+  remediation: Validate cookie values before setting.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-cookie-value-size
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'cookies\[.*\]\s*=\s*[^;]{1000,}'
+  - regex: cookies\[.*\]\s*=\s*[^;]{1000,}
   severity: medium
-  description: "Very large cookie value - header overflow"
-  remediation: "Keep cookies small (<4KB)."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Very large cookie value - header overflow
+  remediation: Keep cookies small (<4KB).
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: ruby-token-comparison
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'token\s*==\s*.*params|token\s*==\s*.*request'
+  - regex: token\s*==\s*.*params|token\s*==\s*.*request
   severity: high
-  description: "Token comparison with == - timing attack"
-  remediation: "Use ActiveSupport::SecurityUtils.secure_compare."
-  cwe: "CWE-208"
-  owasp: "A02:2021"
-
+  description: Token comparison with == - timing attack
+  remediation: Use ActiveSupport::SecurityUtils.secure_compare.
+  cwe: CWE-208
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-password-length
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'validates.*password.*length.*[1-5]'
+  - regex: validates.*password.*length.*[1-5]
   severity: high
-  description: "Password length validation too short"
-  remediation: "Require minimum 8+ characters for passwords."
-  cwe: "CWE-521"
-  owasp: "A07:2021"
-
+  description: Password length validation too short
+  remediation: Require minimum 8+ characters for passwords.
+  cwe: CWE-521
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-upload-original-filename
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'original_filename.*user|uploaded_file\.original_filename'
+  - regex: original_filename.*user|uploaded_file\.original_filename
   severity: high
-  description: "Using original filename - path traversal risk"
-  remediation: "Generate random filename, never use original."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Using original filename - path traversal risk
+  remediation: Generate random filename, never use original.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-upload-content-type
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'content_type.*user|uploaded_file\.content_type'
+  - regex: content_type.*user|uploaded_file\.content_type
   severity: medium
-  description: "Using client-provided content type"
-  remediation: "Validate actual file type, don't trust header."
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Using client-provided content type
+  remediation: Validate actual file type, don't trust header.
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.55
 - id: ruby-upload-size-validation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'upload.*'
+  - regex: upload.*
   severity: high
-  description: "File upload without size validation"
-  remediation: "Validate file size to prevent DoS."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: File upload without size validation
+  remediation: Validate file size to prevent DoS.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: ruby-upload-file-type-validation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'upload.*'
+  - regex: upload.*
   severity: high
-  description: "File upload without type validation"
-  remediation: "Validate file extensions and content types."
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: File upload without type validation
+  remediation: Validate file extensions and content types.
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.65
 - id: ruby-upload-mime-type
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'mime\.type.*params|Mime::Type.*params'
+  - regex: mime\.type.*params|Mime::Type.*params
   severity: high
-  description: "MIME type from user input - spoofing"
-  remediation: "Detect MIME type from file content, not user."
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: MIME type from user input - spoofing
+  remediation: Detect MIME type from file content, not user.
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.65
 - id: ruby-upload-file-ext
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'File\.extname.*params|params.*extension'
+  - regex: File\.extname.*params|params.*extension
   severity: high
-  description: "File extension from user input - injection"
-  remediation: "Validate extension against allowlist."
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: File extension from user input - injection
+  remediation: Validate extension against allowlist.
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.85
 - id: ruby-upload-image-magick
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'MiniMagick|ImageMagick|MIME::Types.*upload'
+  - regex: MiniMagick|ImageMagick|MIME::Types.*upload
   severity: high
-  description: "Image processing on upload - RCE risk"
-  remediation: "Use image processing with safety limits."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Image processing on upload - RCE risk
+  remediation: Use image processing with safety limits.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-upload-pdf-parser
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'PDF::Reader|Origami|CombinePDF'
+  - regex: PDF::Reader|Origami|CombinePDF
   severity: high
-  description: "PDF parsing on upload - XXE, RCE risks"
-  remediation: "Validate PDFs before parsing."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: PDF parsing on upload - XXE, RCE risks
+  remediation: Validate PDFs before parsing.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-upload-xml-parser
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Nokogiri.*upload|REXML.*upload'
+  - regex: Nokogiri.*upload|REXML.*upload
   severity: high
-  description: "XML parsing on upload - XXE risk"
-  remediation: "Disable external entities in XML parser."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: XML parsing on upload - XXE risk
+  remediation: Disable external entities in XML parser.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-upload-csv-parser
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'CSV\.read.*upload|CSV\.parse.*upload'
+  - regex: CSV\.read.*upload|CSV\.parse.*upload
   severity: high
-  description: "CSV parsing on upload - formula injection"
-  remediation: "Sanitize CSV cells starting with =, +, -, @."
-  cwe: "CWE-74"
-  owasp: "A03:2021"
-
+  description: CSV parsing on upload - formula injection
+  remediation: Sanitize CSV cells starting with =, +, -, @.
+  cwe: CWE-74
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-upload-aws-s3
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Aws::S3.*upload|s3.*put_object'
+  - regex: Aws::S3.*upload|s3.*put_object
   severity: medium
-  description: "Upload to S3 - ensure public access blocked"
-  remediation: "Set proper bucket permissions."
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Upload to S3 - ensure public access blocked
+  remediation: Set proper bucket permissions.
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.55
 - id: ruby-upload-multiple
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'multiple.*files.*upload|upload.*\[\]'
+  - regex: multiple.*files.*upload|upload.*\[\]
   severity: high
-  description: "Multiple file upload - DoS risk"
-  remediation: "Limit number and total size of files."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Multiple file upload - DoS risk
+  remediation: Limit number and total size of files.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: ruby-upload-parallel
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'concurrent.*upload|parallel.*upload'
+  - regex: concurrent.*upload|parallel.*upload
   severity: high
-  description: "Parallel file upload - resource exhaustion"
-  remediation: "Limit concurrent uploads per user."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-# ======================== XXE & XML (356-375) ========================
-
+  description: Parallel file upload - resource exhaustion
+  remediation: Limit concurrent uploads per user.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: ruby-nokogiri-xxe
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Nokogiri::XML\.parse.*'
+  - regex: Nokogiri::XML\.parse.*
   severity: high
-  description: "Nokogiri XML parse without disabling entities - XXE"
-  remediation: "Use Nokogiri::XML.parse(file, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)"
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: Nokogiri XML parse without disabling entities - XXE
+  remediation: Use Nokogiri::XML.parse(file, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-nokogiri-dtdload
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Nokogiri::XML::ParseOptions::DTDLOAD'
+  - regex: Nokogiri::XML::ParseOptions::DTDLOAD
   severity: high
-  description: "Nokogiri DTDLOAD option enabled - XXE risk"
-  remediation: "Remove DTDLOAD from parse options."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: Nokogiri DTDLOAD option enabled - XXE risk
+  remediation: Remove DTDLOAD from parse options.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-nokogiri-noent
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Nokogiri::XML::ParseOptions::NOENT'
+  - regex: Nokogiri::XML::ParseOptions::NOENT
   severity: high
-  description: "Nokogiri NOENT option enabled - entity substitution"
-  remediation: "Remove NOENT from parse options."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: Nokogiri NOENT option enabled - entity substitution
+  remediation: Remove NOENT from parse options.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-nokogiri-xslt
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Nokogiri::XSLT\.parse.*user|Nokogiri::XSLT.*params'
+  - regex: Nokogiri::XSLT\.parse.*user|Nokogiri::XSLT.*params
   severity: high
-  description: "Nokogiri XSLT with user input - code injection"
-  remediation: "Never use user input in XSLT."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Nokogiri XSLT with user input - code injection
+  remediation: Never use user input in XSLT.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-rexml-document
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'REXML::Document\.new.*params|REXML::Document.*File'
+  - regex: REXML::Document\.new.*params|REXML::Document.*File
   severity: high
-  description: "REXML document parsing - XXE vulnerable"
-  remediation: "Use Nokogiri with safe options instead."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: REXML document parsing - XXE vulnerable
+  remediation: Use Nokogiri with safe options instead.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-libxml-ruby
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'LibXML::XML::Parser\.new'
+  - regex: LibXML::XML::Parser\.new
   severity: high
-  description: "libxml-ruby parser - XXE risk"
-  remediation: "Configure parser to disable entities."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: libxml-ruby parser - XXE risk
+  remediation: Configure parser to disable entities.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-libxml-options
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'options:.*LibXML::XML::Parser::Options::NOENT'
+  - regex: options:.*LibXML::XML::Parser::Options::NOENT
   severity: high
-  description: "libxml-ruby NOENT option - entity substitution"
-  remediation: "Use NOBLANKS option only."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: libxml-ruby NOENT option - entity substitution
+  remediation: Use NOBLANKS option only.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-ox-parse
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Ox\.parse.*params|Ox\.load.*params'
+  - regex: Ox\.parse.*params|Ox\.load.*params
   severity: high
-  description: "Ox XML/JSON parsing with user input"
-  remediation: "Ox is generally safe, but validate input."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Ox XML/JSON parsing with user input
+  remediation: Ox is generally safe, but validate input.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-ox-mode
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Ox\.parse.*mode:\s*:object'
+  - regex: Ox\.parse.*mode:\s*:object
   severity: high
-  description: "Ox object mode - object deserialization"
-  remediation: "Use :hash or :generic mode for untrusted data."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Ox object mode - object deserialization
+  remediation: Use :hash or :generic mode for untrusted data.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-xmlrpc-client
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'XMLRPC::Client|XMLRPC::Server'
+  - regex: XMLRPC::Client|XMLRPC::Server
   severity: high
-  description: "XML-RPC client/server - XXE risk"
-  remediation: "Use JSON-RPC or REST instead."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: XML-RPC client/server - XXE risk
+  remediation: Use JSON-RPC or REST instead.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-xmlrpc-call
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'call\([^,]+,\s*params\[\]'
+  - regex: call\([^,]+,\s*params\[\]
   severity: high
-  description: "XML-RPC call with user input - injection"
-  remediation: "Validate XML-RPC method and parameters."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: XML-RPC call with user input - injection
+  remediation: Validate XML-RPC method and parameters.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-soap-client
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'SOAP::Client|Savon\.client'
+  - regex: SOAP::Client|Savon\.client
   severity: high
-  description: "SOAP client - XXE risk"
-  remediation: "Configure XML parser to disable entities."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: SOAP client - XXE risk
+  remediation: Configure XML parser to disable entities.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-savon-request
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Savon\.client\([^)]*\)\.call.*params'
+  - regex: Savon\.client\([^)]*\)\.call.*params
   severity: high
-  description: "Savon SOAP call with user input - injection"
-  remediation: "Validate SOAP operation and parameters."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Savon SOAP call with user input - injection
+  remediation: Validate SOAP operation and parameters.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-jwt-none-algorithm
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'algorithm:\s*''none''|JWT\.decode.*none'
+  - regex: algorithm:\s*'none'|JWT\.decode.*none
   severity: high
-  description: "JWT none algorithm allows signature bypass"
-  remediation: "Always specify a secure algorithm (HS256, RS256)."
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: JWT none algorithm allows signature bypass
+  remediation: Always specify a secure algorithm (HS256, RS256).
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-jwt-hardcoded-secret
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.encode.*[''"][a-zA-Z0-9]{1,32}[''"]'
+  - regex: JWT\.encode.*['"][a-zA-Z0-9]{1,32}['"]
   severity: high
-  description: "Hardcoded JWT secret in code"
-  remediation: "Use environment variable for JWT secret."
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded JWT secret in code
+  remediation: Use environment variable for JWT secret.
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-jwt-weak-secret
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'ENV\[[''"]JWT_SECRET[''"\]]{1,15}'
+  - regex: ENV\[['"]JWT_SECRET['"\]]{1,15}
   severity: high
-  description: "Weak JWT secret (less than 16 chars)"
-  remediation: "Use 32+ character random secret."
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: Weak JWT secret (less than 16 chars)
+  remediation: Use 32+ character random secret.
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-jwt-no-expiration
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.encode.*'
+  - regex: JWT\.encode.*
   severity: high
-  description: "JWT created without expiration"
-  remediation: "Add exp claim with short expiry."
-  cwe: "CWE-613"
-  owasp: "A07:2021"
-
+  description: JWT created without expiration
+  remediation: Add exp claim with short expiry.
+  cwe: CWE-613
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-jwt-issuer-validation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*'
+  - regex: JWT\.decode.*
   severity: high
-  description: "JWT without issuer validation"
-  remediation: "Add iss claim and verify it."
-  cwe: "CWE-287"
-  owasp: "A07:2021"
-
+  description: JWT without issuer validation
+  remediation: Add iss claim and verify it.
+  cwe: CWE-287
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-jwt-audience-validation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*'
+  - regex: JWT\.decode.*
   severity: high
-  description: "JWT without audience validation"
-  remediation: "Add aud claim and verify it."
-  cwe: "CWE-287"
-  owasp: "A07:2021"
-
+  description: JWT without audience validation
+  remediation: Add aud claim and verify it.
+  cwe: CWE-287
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-jwt-iat-validation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*'
+  - regex: JWT\.decode.*
   severity: medium
-  description: "JWT without issued-at validation"
-  remediation: "Verify iat to prevent replay of old tokens."
-  cwe: "CWE-613"
-  owasp: "A07:2021"
-
+  description: JWT without issued-at validation
+  remediation: Verify iat to prevent replay of old tokens.
+  cwe: CWE-613
+  owasp: A07:2021
+  confidence: 0.55
 - id: ruby-jwt-leeway
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'leeway:\s*[6-9]\d{2,}'
+  - regex: leeway:\s*[6-9]\d{2,}
   severity: medium
-  description: "Excessive JWT leeway (60+ seconds)"
-  remediation: "Keep leeway to 30-60 seconds."
-  cwe: "CWE-613"
-  owasp: "A07:2021"
-
+  description: Excessive JWT leeway (60+ seconds)
+  remediation: Keep leeway to 30-60 seconds.
+  cwe: CWE-613
+  owasp: A07:2021
+  confidence: 0.55
 - id: ruby-jwt-kid-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*kid.*params'
+  - regex: JWT\.decode.*kid.*params
   severity: high
-  description: "JWT kid from user input - injection"
-  remediation: "Validate kid against allowlist of keys."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: JWT kid from user input - injection
+  remediation: Validate kid against allowlist of keys.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-jwt-jku-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*jku.*params'
+  - regex: JWT\.decode.*jku.*params
   severity: high
-  description: "JWT jku header from user input - SSRF"
-  remediation: "Disable jku header or validate URLs."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: JWT jku header from user input - SSRF
+  remediation: Disable jku header or validate URLs.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-jwt-x5u-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*x5u.*params'
+  - regex: JWT\.decode.*x5u.*params
   severity: high
-  description: "JWT x5u header from user input - SSRF"
-  remediation: "Disable x5u header or validate URLs."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: JWT x5u header from user input - SSRF
+  remediation: Disable x5u header or validate URLs.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: ruby-jwt-algorithm-confusion
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'algorithm:\s*''HS256''.*verify.*public_key'
+  - regex: algorithm:\s*'HS256'.*verify.*public_key
   severity: high
-  description: "Algorithm confusion - HS256 with public key"
-  remediation: "Ensure algorithm matches key type."
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Algorithm confusion - HS256 with public key
+  remediation: Ensure algorithm matches key type.
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-jwt-compression
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'zip|compression.*JWT'
+  - regex: zip|compression.*JWT
   severity: medium
-  description: "JWT compression - CRIME attack risk"
-  remediation: "Disable compression for sensitive JWTs."
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: JWT compression - CRIME attack risk
+  remediation: Disable compression for sensitive JWTs.
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-jwt-encryption-weak
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'encryption:\s*''A128GCM'''
+  - regex: encryption:\s*'A128GCM'
   severity: medium
-  description: "Weak JWT encryption (AES-128)"
-  remediation: "Use AES-256-GCM for stronger encryption."
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: Weak JWT encryption (AES-128)
+  remediation: Use AES-256-GCM for stronger encryption.
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.55
 - id: ruby-jwt-decoding-without-verify
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*'
+  - regex: JWT\.decode.*
   severity: high
-  description: "JWT decode without verification"
-  remediation: "Always use verify option in decode."
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: JWT decode without verification
+  remediation: Always use verify option in decode.
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-jwt-subject-validation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'JWT\.decode.*'
+  - regex: JWT\.decode.*
   severity: medium
-  description: "JWT without subject claim"
-  remediation: "Add sub claim and validate it."
-  cwe: "CWE-287"
-  owasp: "A07:2021"
-
-# ======================== LOG INJECTION & MONITORING (396-415) ========================
-
+  description: JWT without subject claim
+  remediation: Add sub claim and validate it.
+  cwe: CWE-287
+  owasp: A07:2021
+  confidence: 0.55
 - id: ruby-logger-format-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'logger\.(info|debug|warn|error)\s*\([^)]*params\[\]'
+  - regex: logger\.(info|debug|warn|error)\s*\([^)]*params\[\]
   severity: high
-  description: "User input in log messages - log injection"
-  remediation: "Sanitize user input, remove newlines and control chars."
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: User input in log messages - log injection
+  remediation: Sanitize user input, remove newlines and control chars.
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.7
 - id: ruby-logger-json-injection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'logger\.(info|debug|warn|error)\s*\(.*params.to_json'
+  - regex: logger\.(info|debug|warn|error)\s*\(.*params.to_json
   severity: medium
-  description: "JSON logging with params - may expose sensitive data"
-  remediation: "Filter sensitive parameters before logging."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: JSON logging with params - may expose sensitive data
+  remediation: Filter sensitive parameters before logging.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.8
 - id: ruby-rails-logger-params
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Rails\.logger\.(info|debug).*params\['
+  - regex: Rails\.logger\.(info|debug).*params\[
   severity: high
-  description: "Logging request params - sensitive data exposure"
-  remediation: "Use filter_parameters to hide sensitive data."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Logging request params - sensitive data exposure
+  remediation: Use filter_parameters to hide sensitive data.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.7
 - id: ruby-rails-filter-params-missing
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Rails\.application\.config\.filter_parameters'
+  - regex: Rails\.application\.config\.filter_parameters
   severity: high
-  description: "Missing filter for sensitive parameters"
-  remediation: "Add password, token, secret to filter_parameters."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Missing filter for sensitive parameters
+  remediation: Add password, token, secret to filter_parameters.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.7
 - id: ruby-log-injection-newline
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[.*\].*\+.*''\n''|params\[.*\].*\+.*''\r'''
+  - regex: params\[.*\].*\+.*'\n'|params\[.*\].*\+.*'\r'
   severity: high
-  description: "User input with newlines - log injection"
-  remediation: "Strip newlines and carriage returns."
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: User input with newlines - log injection
+  remediation: Strip newlines and carriage returns.
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.65
 - id: ruby-log-injection-color
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[.*\].*\x1b\['
+  - regex: params\[.*\].*\x1b\[
   severity: medium
-  description: "User input with ANSI escape codes - terminal injection"
-  remediation: "Strip ANSI escape sequences from logs."
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: User input with ANSI escape codes - terminal injection
+  remediation: Strip ANSI escape sequences from logs.
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.55
 - id: ruby-puts-sensitive
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'puts\s+.*password|puts\s+.*token|puts\s+.*secret'
+  - regex: puts\s+.*password|puts\s+.*token|puts\s+.*secret
   severity: high
-  description: "Sensitive data printed to console"
-  remediation: "Remove debug prints containing secrets."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Sensitive data printed to console
+  remediation: Remove debug prints containing secrets.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-p-sensitive
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'p\s+.*password|pp\s+.*token'
+  - regex: p\s+.*password|pp\s+.*token
   severity: high
-  description: "Sensitive data printed with p/pp"
-  remediation: "Remove debug prints with sensitive data."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Sensitive data printed with p/pp
+  remediation: Remove debug prints with sensitive data.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-puts-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'puts\s+.*params\['
+  - regex: puts\s+.*params\[
   severity: medium
-  description: "Printing user input - debug only"
-  remediation: "Remove in production."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Printing user input - debug only
+  remediation: Remove in production.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-ap-user-input
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'ap\s+.*params\['
+  - regex: ap\s+.*params\[
   severity: medium
-  description: "Awesome print of user input - debug only"
-  remediation: "Remove in production."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Awesome print of user input - debug only
+  remediation: Remove in production.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-stack-trace-logging
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'logger\.error.*backtrace|logger\.error.*exception'
+  - regex: logger\.error.*backtrace|logger\.error.*exception
   severity: low
-  description: "Logging stack traces - may expose internals"
-  remediation: "Log only error messages, not full traces."
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Logging stack traces - may expose internals
+  remediation: Log only error messages, not full traces.
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: ruby-stderr-output
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'STDERR\.puts|warn\s+'
+  - regex: STDERR\.puts|warn\s+
   severity: low
-  description: "Output to stderr - may expose info"
-  remediation: "Use proper logging in production."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Output to stderr - may expose info
+  remediation: Use proper logging in production.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: ruby-stack-trace-ui
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render.*status:.*backtrace|show_detailed_exceptions'
+  - regex: render.*status:.*backtrace|show_detailed_exceptions
   severity: high
-  description: "Showing stack traces to users"
-  remediation: "Disable detailed exceptions in production."
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Showing stack traces to users
+  remediation: Disable detailed exceptions in production.
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-web-console
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'gem [''\\"]web-console[''\\"]|WebConsole'
+  - regex: gem ['\\"]web-console['\\"]|WebConsole
   severity: high
-  description: "web-console gem in production - RCE risk"
-  remediation: "Only include web-console in development group."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: web-console gem in production - RCE risk
+  remediation: Only include web-console in development group.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-better-errors
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'better_errors|binding_of_caller'
+  - regex: better_errors|binding_of_caller
   severity: high
-  description: "better_errors in production - code execution"
-  remediation: "Only use better_errors in development."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: better_errors in production - code execution
+  remediation: Only use better_errors in development.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-pry-rails
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'pry-rails|binding\.pry'
+  - regex: pry-rails|binding\.pry
   severity: high
-  description: "Pry debugging in production - code execution"
-  remediation: "Remove Pry from production Gemfile."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Pry debugging in production - code execution
+  remediation: Remove Pry from production Gemfile.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-byebug
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'byebug|debugger'
+  - regex: byebug|debugger
   severity: high
-  description: "Debugger breakpoint in production"
-  remediation: "Remove debugger calls in production."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
-# ======================== RACK & MIDDLEWARE (416-435) ========================
-
+  description: Debugger breakpoint in production
+  remediation: Remove debugger calls in production.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-rack-cors-origin-all
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'origins.*\*|allow do.*\*'
+  - regex: origins.*\*|allow do.*\*
   severity: medium
-  description: "CORS allowing all origins - security risk"
-  remediation: "Restrict origins to specific domains."
-  cwe: "CWE-942"
-  owasp: "A05:2021"
-
+  description: CORS allowing all origins - security risk
+  remediation: Restrict origins to specific domains.
+  cwe: CWE-942
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-rack-cors-credentials
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'resource.*headers.*:.*\*.*credentials.*true'
+  - regex: resource.*headers.*:.*\*.*credentials.*true
   severity: high
-  description: "CORS wildcard with credentials - insecure"
-  remediation: "Specify exact origins when using credentials."
-  cwe: "CWE-942"
-  owasp: "A05:2021"
-
+  description: CORS wildcard with credentials - insecure
+  remediation: Specify exact origins when using credentials.
+  cwe: CWE-942
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-rack-rewrite
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Rack::Rewrite.*params'
+  - regex: Rack::Rewrite.*params
   severity: high
-  description: "Rack rewrite with user input - open redirect"
-  remediation: "Avoid user input in rewrite rules."
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Rack rewrite with user input - open redirect
+  remediation: Avoid user input in rewrite rules.
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-rack-static
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Rack::Static'
+  - regex: Rack::Static
   severity: low
-  description: "Static file serving - ensure paths are safe"
-  remediation: "Restrict static files to public directory."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Static file serving - ensure paths are safe
+  remediation: Restrict static files to public directory.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.45
 - id: ruby-rack-static-root
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'root:.*[''"]\.\.["'']'
+  - regex: root:.*['"]\.\.["']
   severity: high
-  description: "Rack static root outside public directory"
-  remediation: "Keep static files in public directory."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Rack static root outside public directory
+  remediation: Keep static files in public directory.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-rack-method-override
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Rack::MethodOverride'
+  - regex: Rack::MethodOverride
   severity: medium
-  description: "HTTP method override enabled - CSRF risk"
-  remediation: "Ensure proper CSRF protection."
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: HTTP method override enabled - CSRF risk
+  remediation: Ensure proper CSRF protection.
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: ruby-rack-show-exceptions
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Rack::ShowExceptions'
+  - regex: Rack::ShowExceptions
   severity: medium
-  description: "Show exceptions in production - info leak"
-  remediation: "Disable in production, use custom error pages."
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Show exceptions in production - info leak
+  remediation: Disable in production, use custom error pages.
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-sidekiq-args
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Sidekiq::Client\.push.*params\['
+  - regex: Sidekiq::Client\.push.*params\[
   severity: high
-  description: "Sidekiq job with user params - serialization risk"
-  remediation: "Use IDs instead of full objects."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Sidekiq job with user params - serialization risk
+  remediation: Use IDs instead of full objects.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-sidekiq-web
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'mount Sidekiq::Web|Sidekiq\.Web'
+  - regex: mount Sidekiq::Web|Sidekiq\.Web
   severity: high
-  description: "Sidekiq web interface without authentication"
-  remediation: "Protect Sidekiq::Web with authentication."
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Sidekiq web interface without authentication
+  remediation: Protect Sidekiq::Web with authentication.
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-sidekiq-cron
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Sidekiq::Cron::Job.*params'
+  - regex: Sidekiq::Cron::Job.*params
   severity: high
-  description: "Sidekiq cron from params - code injection"
-  remediation: "Never create cron jobs from user input."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sidekiq cron from params - code injection
+  remediation: Never create cron jobs from user input.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-resque-web
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Resque::Server|mount Resque'
+  - regex: Resque::Server|mount Resque
   severity: high
-  description: "Resque web interface without authentication"
-  remediation: "Protect Resque web with authentication."
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Resque web interface without authentication
+  remediation: Protect Resque web with authentication.
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-delayed-job-web
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'DelayedJobWeb|mount DelayedJob'
+  - regex: DelayedJobWeb|mount DelayedJob
   severity: high
-  description: "Delayed Job web interface without authentication"
-  remediation: "Protect Delayed Job web with authentication."
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Delayed Job web interface without authentication
+  remediation: Protect Delayed Job web with authentication.
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-active-job-params
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'perform_later.*params\['
+  - regex: perform_later.*params\[
   severity: high
-  description: "ActiveJob with user params - serialization risk"
-  remediation: "Use IDs instead of full objects."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: ActiveJob with user params - serialization risk
+  remediation: Use IDs instead of full objects.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-active-job-globalid
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'GlobalID|GlobalID::Locator'
+  - regex: GlobalID|GlobalID::Locator
   severity: medium
-  description: "GlobalID deserialization - ensure model access"
-  remediation: "Authorize access to deserialized models."
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: GlobalID deserialization - ensure model access
+  remediation: Authorize access to deserialized models.
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: ruby-sidekiq-redis-hardcoded
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'redis:\s*\{.*url:.*[''"][^''"]+[''"]'
+  - regex: redis:\s*\{.*url:.*['"][^'"]+['"]
   severity: high
-  description: "Hardcoded Redis URL in Sidekiq config"
-  remediation: "Use environment variables for Redis."
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded Redis URL in Sidekiq config
+  remediation: Use environment variables for Redis.
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-sidekiq-schedule
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Sidekiq\.schedule.*params'
+  - regex: Sidekiq\.schedule.*params
   severity: high
-  description: "Sidekiq schedule from user input - code injection"
-  remediation: "Never allow user input in job schedules."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sidekiq schedule from user input - code injection
+  remediation: Never allow user input in job schedules.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-resque-schedule
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Resque\.schedule.*params'
+  - regex: Resque\.schedule.*params
   severity: high
-  description: "Resque schedule from user input - code injection"
-  remediation: "Never allow user input in job schedules."
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Resque schedule from user input - code injection
+  remediation: Never allow user input in job schedules.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-que-web
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Que::Web|mount Que'
+  - regex: Que::Web|mount Que
   severity: high
-  description: "Que web interface without authentication"
-  remediation: "Protect Que web with authentication."
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Que web interface without authentication
+  remediation: Protect Que web with authentication.
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-good-job-web
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'GoodJob::Engine|mount GoodJob'
+  - regex: GoodJob::Engine|mount GoodJob
   severity: high
-  description: "GoodJob web interface without authentication"
-  remediation: "Protect GoodJob web with authentication."
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: GoodJob web interface without authentication
+  remediation: Protect GoodJob web with authentication.
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-job-data-size
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'perform.*[^,]{1000,}'
+  - regex: perform.*[^,]{1000,}
   severity: medium
-  description: "Very large job data - memory issues"
-  remediation: "Keep job data small, use IDs for large objects."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Very large job data - memory issues
+  remediation: Keep job data small, use IDs for large objects.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.75
 - id: ruby-job-deserialization
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'YAML\.load.*job|Marshal\.load.*job'
+  - regex: YAML\.load.*job|Marshal\.load.*job
   severity: high
-  description: "Unsafe deserialization in job"
-  remediation: "Use JSON or safe serialization for jobs."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Unsafe deserialization in job
+  remediation: Use JSON or safe serialization for jobs.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.7
 - id: ruby-job-retry-infinite
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'retry:\s*true|retry_count:\s*[6-9]\d+'
+  - regex: retry:\s*true|retry_count:\s*[6-9]\d+
   severity: medium
-  description: "Infinite or excessive job retries - DoS"
-  remediation: "Limit retries with exponential backoff."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Infinite or excessive job retries - DoS
+  remediation: Limit retries with exponential backoff.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: ruby-job-queue-name
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'queue:\s*params\[|sidekiq_options.*queue.*params'
+  - regex: queue:\s*params\[|sidekiq_options.*queue.*params
   severity: high
-  description: "Queue name from user input - injection"
-  remediation: "Use fixed queue names, not from params."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== API SECURITY (456-475) ========================
-
+  description: Queue name from user input - injection
+  remediation: Use fixed queue names, not from params.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-api-json-response
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+json:\s*.*params'
+  - regex: render\s+json:\s*.*params
   severity: medium
-  description: "JSON response from params - ensure no sensitive data"
-  remediation: "Use serializers to filter sensitive fields."
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: JSON response from params - ensure no sensitive data
+  remediation: Use serializers to filter sensitive fields.
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-api-xml-response
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'render\s+xml:\s*.*params'
+  - regex: render\s+xml:\s*.*params
   severity: high
-  description: "XML response from params - XXE risk"
-  remediation: "Use JSON instead of XML for APIs."
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: XML response from params - XXE risk
+  remediation: Use JSON instead of XML for APIs.
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-api-jsonp-callback
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[:callback\]|JSONP'
+  - regex: params\[:callback\]|JSONP
   severity: high
-  description: "JSONP callback from params - XSS risk"
-  remediation: "Use CORS instead of JSONP."
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: JSONP callback from params - XSS risk
+  remediation: Use CORS instead of JSONP.
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-api-api-key-header
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'headers\[.*api_key|params\[:api_key\]'
+  - regex: headers\[.*api_key|params\[:api_key\]
   severity: high
-  description: "API key in headers/params - ensure secure storage"
-  remediation: "Store API keys securely, use HTTPS."
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: API key in headers/params - ensure secure storage
+  remediation: Store API keys securely, use HTTPS.
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-api-api-key-hardcoded
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'API_KEY = [''\\\"][a-zA-Z0-9]+[''\\\"]'
+  - regex: API_KEY = ['\\\"][a-zA-Z0-9]+['\\\"]
   severity: high
-  description: "Hardcoded API key in code"
-  remediation: "Use environment variables for API keys."
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded API key in code
+  remediation: Use environment variables for API keys.
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-api-version-param
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[:version\]|version: params'
+  - regex: 'params\[:version\]|version: params'
   severity: low
-  description: "API version from params - check allowlist"
-  remediation: "Validate version against allowlist."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: API version from params - check allowlist
+  remediation: Validate version against allowlist.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: ruby-api-format-param
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'params\[:format\]|respond_to.*format'
+  - regex: params\[:format\]|respond_to.*format
   severity: low
-  description: "Format parameter - check for injection"
-  remediation: "Restrict allowed formats."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Format parameter - check for injection
+  remediation: Restrict allowed formats.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: ruby-api-graphql-query
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'GraphQL.*query.*params\['
+  - regex: GraphQL.*query.*params\[
   severity: high
-  description: "GraphQL query from params - complexity limits"
-  remediation: "Implement query depth and complexity limits."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: GraphQL query from params - complexity limits
+  remediation: Implement query depth and complexity limits.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.85
 - id: ruby-api-graphql-mutation
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'GraphQL.*mutation.*params\['
+  - regex: GraphQL.*mutation.*params\[
   severity: high
-  description: "GraphQL mutation from params - CSRF risk"
-  remediation: "Use CSRF tokens for mutations."
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: GraphQL mutation from params - CSRF risk
+  remediation: Use CSRF tokens for mutations.
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-api-graphql-introspection
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '__schema|__type'
+  - regex: __schema|__type
   severity: high
-  description: "GraphQL introspection - disable in production"
-  remediation: "Disable introspection in production."
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: GraphQL introspection - disable in production
+  remediation: Disable introspection in production.
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-api-oauth2-public-client
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'public.*client.*secret'
+  - regex: public.*client.*secret
   severity: high
-  description: "Public client with secret - insecure"
-  remediation: "Public clients should not have secrets."
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Public client with secret - insecure
+  remediation: Public clients should not have secrets.
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-api-oauth2-refresh-token
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'refresh_token.*expires.*never'
+  - regex: refresh_token.*expires.*never
   severity: high
-  description: "Refresh token never expires - security risk"
-  remediation: "Set expiration on refresh tokens."
-  cwe: "CWE-613"
-  owasp: "A07:2021"
-
+  description: Refresh token never expires - security risk
+  remediation: Set expiration on refresh tokens.
+  cwe: CWE-613
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-api-saml2-acs
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'assertion_consumer_service_url.*params'
+  - regex: assertion_consumer_service_url.*params
   severity: high
-  description: "SAML ACS from params - open redirect"
-  remediation: "Use fixed ACS URL, not from params."
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: SAML ACS from params - open redirect
+  remediation: Use fixed ACS URL, not from params.
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-api-json-webhook
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'webhook.*params|webhook.*JSON'
+  - regex: webhook.*params|webhook.*JSON
   severity: high
-  description: "Webhook with user input - injection"
-  remediation: "Validate webhook signatures."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Webhook with user input - injection
+  remediation: Validate webhook signatures.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-api-webhook-https
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'webhook.*http://'
+  - regex: webhook.*http://
   severity: high
-  description: "Webhook using HTTP - MITM risk"
-  remediation: "Always use HTTPS for webhooks."
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
-# ======================== CONFIGURATION (476-495) ========================
-
+  description: Webhook using HTTP - MITM risk
+  remediation: Always use HTTPS for webhooks.
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-rails-cache
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'Rails\.cache.*params'
+  - regex: Rails\.cache.*params
   severity: high
-  description: "Cache keys from params - cache poisoning"
-  remediation: "Validate cache keys, don't use raw params."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Cache keys from params - cache poisoning
+  remediation: Validate cache keys, don't use raw params.
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-rails-cache-store
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.cache_store\s*=\s*:file_store'
+  - regex: config\.cache_store\s*=\s*:file_store
   severity: medium
-  description: "File cache store - file system access"
-  remediation: "Use Redis or Memcached in production."
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: File cache store - file system access
+  remediation: Use Redis or Memcached in production.
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-rails-cache-expiry
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'expires_in:\s*[6-9]\d{5,}'
+  - regex: expires_in:\s*[6-9]\d{5,}
   severity: medium
-  description: "Very long cache expiry"
-  remediation: "Set reasonable cache expiration times."
-  cwe: "CWE-524"
-  owasp: "A05:2021"
-
+  description: Very long cache expiry
+  remediation: Set reasonable cache expiration times.
+  cwe: CWE-524
+  owasp: A05:2021
+  confidence: 0.55
 - id: ruby-rails-force-ssl-missing
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.force_ssl\s*=\s*false'
+  - regex: config\.force_ssl\s*=\s*false
   severity: high
-  description: "Force SSL disabled - MITM risk"
-  remediation: "Enable force_ssl in production."
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Force SSL disabled - MITM risk
+  remediation: Enable force_ssl in production.
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-rails-log-level
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.log_level\s*=\s*:debug'
+  - regex: config\.log_level\s*=\s*:debug
   severity: high
-  description: "Debug logging in production"
-  remediation: "Set log level to :info or :warn in production."
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Debug logging in production
+  remediation: Set log level to :info or :warn in production.
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.65
 - id: ruby-rails-assets-compile
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'config\.assets\.compile\s*=\s*true'
+  - regex: config\.assets\.compile\s*=\s*true
   severity: medium
-  description: "Asset compilation in production - performance"
-  remediation: "Precompile assets in production."
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Asset compilation in production - performance
+  remediation: Precompile assets in production.
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: ruby-rails-i18n
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'I18n\.t\s*\(\s*params\['
+  - regex: I18n\.t\s*\(\s*params\[
   severity: high
-  description: "I18n translation key from params - path traversal"
-  remediation: "Validate translation keys against allowlist."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: I18n translation key from params - path traversal
+  remediation: Validate translation keys against allowlist.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: ruby-rails-i18n-locale
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'I18n\.locale\s*=\s*params\['
+  - regex: I18n\.locale\s*=\s*params\[
   severity: high
-  description: "Locale from params - path traversal"
-  remediation: "Validate locale against allowlist."
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Locale from params - path traversal
+  remediation: Validate locale against allowlist.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.65
 - id: ruby-rails-database-config
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'database.yml.*password.*[^\s]+'
+  - regex: database.yml.*password.*[^\s]+
   severity: high
-  description: "Database password in config file"
-  remediation: "Use ENV variables for database password."
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Database password in config file
+  remediation: Use ENV variables for database password.
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: ruby-gemfile-source
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'source [''\\\"]http://rubygems.org[''\\\"]'
+  - regex: source ['\\\"]http://rubygems.org['\\\"]
   severity: high
-  description: "Gem source over HTTP - MITM risk"
-  remediation: "Use HTTPS: https://rubygems.org"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Gem source over HTTP - MITM risk
+  remediation: 'Use HTTPS: https://rubygems.org'
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-gemfile-git
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'gem [''"]\w+[''"],\s*git:|github:|:git'
+  - regex: gem ['"]\w+['"],\s*git:|github:|:git
   severity: medium
-  description: "Git gem dependency - ensure trusted source"
-  remediation: "Pin to specific commit SHA for security."
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: Git gem dependency - ensure trusted source
+  remediation: Pin to specific commit SHA for security.
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.55
 - id: ruby-gemfile-path
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'gem [''"]\w+[''"],\s*path:'
+  - regex: 'gem [''"]\w+[''"],\s*path:'
   severity: low
-  description: "Local path dependency - ensure path is secure"
-  remediation: "Use versioned gems from RubyGems.org."
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: Local path dependency - ensure path is secure
+  remediation: Use versioned gems from RubyGems.org.
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.45
 - id: ruby-gemfile-version-latest
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: 'gem [''"]\w+[''"],\s*[''"]>=[''"]|gem [''"]\w+[''"]$'
+  - regex: gem ['"]\w+['"],\s*['"]>=['"]|gem ['"]\w+['"]$
   severity: medium
-  description: "Unpinned gem version - unexpected updates"
-  remediation: "Pin to specific versions: '~> 1.2.3'"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Unpinned gem version - unexpected updates
+  remediation: 'Pin to specific versions: ''~> 1.2.3'''
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.55
 - id: ruby-erb-ssti
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '(?i)(?:render\s+inline:|ERB\.new\().*params\['
+  - regex: (?i)(?:render\s+inline:|ERB\.new\().*params\[
   severity: critical
-  description: "Server-Side Template Injection (SSTI) in ERB or render inline via unvalidated user input."
-  remediation: "Never pass unsanitized user input directly into template engines like ERB or `render inline`."
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: Server-Side Template Injection (SSTI) in ERB or render inline via unvalidated user input.
+  remediation: Never pass unsanitized user input directly into template engines like ERB or `render inline`.
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-unsafe-deserialization-params
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '(?i)(?:YAML|Marshal)\.load\s*\(\s*params\['
+  - regex: (?i)(?:YAML|Marshal)\.load\s*\(\s*params\[
   severity: critical
-  description: "Unsafe deserialization of user input directly from params."
-  remediation: "Do not use YAML.load or Marshal.load on untrusted data. Use JSON.parse instead."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Unsafe deserialization of user input directly from params.
+  remediation: Do not use YAML.load or Marshal.load on untrusted data. Use JSON.parse instead.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: ruby-array-join-sqli
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '(?i)(?:where|find_by_sql)\s*\(\s*["''].*#\{.*params\[.*\.join\([''"]'
+  - regex: (?i)(?:where|find_by_sql)\s*\(\s*["'].*#\{.*params\[.*\.join\(['"]
   severity: critical
-  description: "SQL Injection via Array.join on user input interpolated directly into SQL query strings (e.g., `where(\"id IN (#{params[:ids].join(',')})\")`)."
-  remediation: "Use Active Record's built-in array passing: `where(id: params[:ids])` instead of manual string interpolation."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL Injection via Array.join on user input interpolated directly into SQL query strings (e.g., `where("id IN
+    (#{params[:ids].join(',')})")`).
+  remediation: 'Use Active Record''s built-in array passing: `where(id: params[:ids])` instead of manual string interpolation.'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.8
 - id: ruby-trailing-comment-sqli
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-  - regex: '(?i)\.where\(\s*["''].*=\s*[''"]#\{[^}]+\}[''"]'
+  - regex: (?i)\.where\(\s*["'].*=\s*['"]#\{[^}]+\}['"]
   severity: critical
-  description: "Direct string interpolation into a SQL WHERE clause allows trailing-comment (-- or #) authentication bypass."
-  remediation: "Always use parameterized queries (e.g., .where('username = ?', username))."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: 'Direct string interpolation into a SQL WHERE clause allows trailing-comment (-- or #) authentication bypass.'
+  remediation: Always use parameterized queries (e.g., .where('username = ?', username)).
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-oauth-provider-ssrf
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-  - regex: '(?i)https://oauth\.#\{.*(?:params|request).*\}.*/token'
+  - regex: (?i)https://oauth\.#\{.*(?:params|request).*\}.*/token
   severity: critical
-  description: "OAuth provider URL constructed from user input allows redirection to attacker-controlled domains (SSRF/Token Leak)."
-  remediation: "Strictly validate the OAuth provider against an allowlist before constructing the token endpoint URL."
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: OAuth provider URL constructed from user input allows redirection to attacker-controlled domains (SSRF/Token
+    Leak).
+  remediation: Strictly validate the OAuth provider against an allowlist before constructing the token endpoint URL.
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: ruby-backtick-os-execution
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-  - regex: '(?i)`[^`]*#\{[^}]+\}[^`]*`'
+  - regex: (?i)`[^`]*#\{[^}]+\}[^`]*`
   severity: high
-  description: "Backtick OS command execution with string interpolation. Extremely vulnerable to command injection."
-  remediation: "Avoid backticks. Use Open3.capture3 or system() with discrete, un-concatenated argument arrays."
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Backtick OS command execution with string interpolation. Extremely vulnerable to command injection.
+  remediation: Avoid backticks. Use Open3.capture3 or system() with discrete, un-concatenated argument arrays.
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: ruby-marshal-dump-leak
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-  - regex: '(?i)(?:render|send_data)\s+Marshal\.dump'
+  - regex: (?i)(?:render|send_data)\s+Marshal\.dump
   severity: high
-  description: "Exporting raw Marshal.dump data directly to clients establishes a future deserialization attack vector."
-  remediation: "Never transmit Ruby-specific Marshal encodings to untrusted clients. Use JSON or MessagePack."
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Exporting raw Marshal.dump data directly to clients establishes a future deserialization attack vector.
+  remediation: Never transmit Ruby-specific Marshal encodings to untrusted clients. Use JSON or MessagePack.
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: ruby-html-safe-bypass
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-  - regex: '(?i)render\s+html:\s*.*\.html_safe'
+  - regex: (?i)render\s+html:\s*.*\.html_safe
   severity: critical
-  description: "Explicitly instructing Rails to render strings with .html_safe completely bypasses native XSS and SSTI controls."
-  remediation: "Remove .html_safe and rely on native Rails output encoding, or strictly sanitize before tagging as safe."
-  cwe: "CWE-116"
-  owasp: "A03:2021"
-
+  description: Explicitly instructing Rails to render strings with .html_safe completely bypasses native XSS and SSTI controls.
+  remediation: Remove .html_safe and rely on native Rails output encoding, or strictly sanitize before tagging as safe.
+  cwe: CWE-116
+  owasp: A03:2021
+  confidence: 0.7
 - id: ruby-csv-unvalidated-ingestion
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-  - regex: '(?i)CSV\.parse\([A-Za-z_]+\.read.?.?\s+do'
+  - regex: (?i)CSV\.parse\([A-Za-z_]+\.read.?.?\s+do
   severity: high
-  description: "Unvalidated CSV ingestion. If parsed rows are later supplied to object deserializers, it establishes a Stored payload trigger."
-  remediation: "Validate CSV MIME types, enforce structured mapping, and strictly sanitize all row fields prior to database operations."
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Unvalidated CSV ingestion. If parsed rows are later supplied to object deserializers, it establishes a Stored
+    payload trigger.
+  remediation: Validate CSV MIME types, enforce structured mapping, and strictly sanitize all row fields prior to database
+    operations.
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.7
 - id: ruby-md5-over-bcrypt
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-  - regex: '(?i)Digest::(?:MD5|SHA1)\.hexdigest.*password'
+  - regex: (?i)Digest::(?:MD5|SHA1)\.hexdigest.*password
   severity: high
-  description: "Using fundamentally broken hash algorithms (MD5/SHA1) for password digests, bypassing Rails has_secure_password."
-  remediation: "Remove manual Digest imports and utilize Rails native `has_secure_password` which securely wraps bcrypt out-of-the-box."
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
-
-
+  description: Using fundamentally broken hash algorithms (MD5/SHA1) for password digests, bypassing Rails has_secure_password.
+  remediation: Remove manual Digest imports and utilize Rails native `has_secure_password` which securely wraps bcrypt out-of-the-box.
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.65
 - id: ruby-webhook-sig-bypass
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '(?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:params|request\.headers)[\s\S]{0,500}Marshal\.load\s*\('
+  - regex: (?s)(?:sig|signature|X-Signature|X-Hub-Signature)\s*=\s*(?:params|request\.headers)[\s\S]{0,500}Marshal\.load\s*\(
   severity: critical
-  description: "Potential signature bypass: Webhook signature is read but Marshal.load follows. Ensure signature is verified and execution is aborted on mismatch."
-  remediation: "Verify HMAC signature before calling Marshal.load(). Use OpenSSL::HMAC.hexdigest and hmac_compare to prevent timing attacks."
-  cwe: "CWE-347"
-  owasp: "A07:2021"
+  description: 'Potential signature bypass: Webhook signature is read but Marshal.load follows. Ensure signature is verified
+    and execution is aborted on mismatch.'
+  remediation: Verify HMAC signature before calling Marshal.load(). Use OpenSSL::HMAC.hexdigest and hmac_compare to prevent
+    timing attacks.
+  cwe: CWE-347
+  confidence: 0.8
+- id: ruby-sqli-source-params-where
+  languages:
+  - ruby
+  patterns:
+  - regex: (?i)\.where\s*\(\s*[\"'][^\"']*\#\{(?:params|request\.params)[^}]+\}
+  - regex: (?i)\.where\s*\(\s*[\"'][^\"']*[\"']\s*\+\s*params\[
+  - regex: (?i)(?:find_by_sql|execute|exec_query)\s*\(\s*[\"'][^\"']*\#\{params\[
+  negative_patterns:
+  - regex: (?i)where\s*\(\s*[\"'][^\"']*[\"']\s*,\s*(?:params|request\.params)
+  - regex: (?i)where\s*\(\s*\{[^}]+:\s*params
+  severity: critical
+  description: 'SQL injection via ActiveRecord: User params interpolated into raw SQL. Attacker can manipulate query structure.'
+  remediation: 'Use parameterized conditions: Model.where(''column = ?'', params[:value]) or Model.where(column: params[:value])'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.97
+- id: ruby-cmdi-source-params
+  languages:
+  - ruby
+  patterns:
+  - regex: (?i)(?:system|exec|IO\.popen|Open3\.popen\w+)\s*\([^)]*\#\{params\[
+  - regex: (?i)(?:system|exec)\s*\([\"'][^\"']*[\"']\s*\+\s*params\[
+  negative_patterns:
+  - regex: (?i)Shellwords\.(?:escape|shellescape)\s*\(
+  severity: critical
+  description: 'Command injection: User params interpolated into shell command. Attacker can execute arbitrary OS commands.'
+  remediation: 'Use system() with an argument array: system(''cmd'', params[:arg]). Avoid backtick interpolation with user
+    input.'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.97
+- id: ruby-ssti-source-erb-params
+  languages:
+  - ruby
+  patterns:
+  - regex: (?i)ERB\.new\s*\(\s*params\[
+  - regex: (?i)ERB\.new\s*\([^)]*\#\{params\[
+  severity: critical
+  description: 'SSTI: User-controlled params used as ERB template string. Attacker can execute arbitrary Ruby code.'
+  remediation: Never pass user input as ERB template string. Use a fixed template file and pass user data as local variables.
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.98
+- id: ruby-path-traversal-source-params
+  languages:
+  - ruby
+  patterns:
+  - regex: (?i)(?:File\.read|File\.open|IO\.read)\s*\([^)]*\#\{params\[
+  - regex: (?i)(?:File\.read|File\.open)\s*\(\s*params\[
+  - regex: (?i)send_file\s*\([^)]*params\[
+  negative_patterns:
+  - regex: (?i)File\.expand_path\s*\(
+  - regex: (?i)start_with\?\s*\([^)]*(?:root|base_path|upload_dir)
+  severity: high
+  description: 'Path traversal: User params used directly in file read/send. Attacker can read arbitrary server files using
+    ../ sequences.'
+  remediation: Use File.expand_path and verify it starts within an allowed base directory.
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.95

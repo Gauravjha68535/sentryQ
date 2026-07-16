@@ -12,37 +12,46 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// PatternEntry holds one regex pattern with its pre-compiled form.
+type PatternEntry struct {
+	Regex         string         `yaml:"regex"`
+	CompiledRegex *regexp.Regexp `yaml:"-"`
+}
+
 // Rule represents a single vulnerability pattern
 type Rule struct {
-	ID        string   `yaml:"id"`
-	Languages []string `yaml:"languages"`
-	Patterns  []struct {
-		Regex         string         `yaml:"regex"`
-		CompiledRegex *regexp.Regexp `yaml:"-"` // Added for performance (ignored by yaml)
-	} `yaml:"patterns"`
-	Severity    string  `yaml:"severity"`
-	Description string  `yaml:"description"`
-	Remediation string  `yaml:"remediation"`
-	CWE         string  `yaml:"cwe"`
-	OWASP       string  `yaml:"owasp"`
-	Confidence  float64 `yaml:"confidence"`
-	Framework   string  `yaml:"framework"` // Tag for framework-specific rules
+	ID               string         `yaml:"id"`
+	Languages        []string       `yaml:"languages"`
+	Patterns         []PatternEntry `yaml:"patterns"`
+	// NegativePatterns suppress a match when ANY of these patterns are found
+	// within a ±10 line context window around the match. Use this to teach the
+	// engine about sanitizers, safe API variants, and parameterized equivalents
+	// so those code paths are never flagged as false positives.
+	NegativePatterns []PatternEntry `yaml:"negative_patterns"`
+	Severity         string         `yaml:"severity"`
+	Description      string         `yaml:"description"`
+	Remediation      string         `yaml:"remediation"`
+	CWE              string         `yaml:"cwe"`
+	OWASP            string         `yaml:"owasp"`
+	Confidence       float64        `yaml:"confidence"`
+	Framework        string         `yaml:"framework"`
 }
 
 // flexRule is a more tolerant intermediate representation that handles
 // both map and list formats for "patterns", plus a singular "pattern" key.
 type flexRule struct {
-	ID          string      `yaml:"id"`
-	Languages   []string    `yaml:"languages"`
-	Patterns    interface{} `yaml:"patterns"` // can be a list or a map
-	Pattern     string      `yaml:"pattern"`  // some files use singular "pattern"
-	Severity    string      `yaml:"severity"`
-	Description string      `yaml:"description"`
-	Remediation string      `yaml:"remediation"`
-	CWE         string      `yaml:"cwe"`
-	OWASP       string      `yaml:"owasp"`
-	Confidence  float64     `yaml:"confidence"`
-	Framework   string      `yaml:"framework"`
+	ID               string      `yaml:"id"`
+	Languages        []string    `yaml:"languages"`
+	Patterns         interface{} `yaml:"patterns"`          // can be a list or a map
+	Pattern          string      `yaml:"pattern"`           // some files use singular "pattern"
+	NegativePatterns interface{} `yaml:"negative_patterns"` // same flexible parsing as patterns
+	Severity         string      `yaml:"severity"`
+	Description      string      `yaml:"description"`
+	Remediation      string      `yaml:"remediation"`
+	CWE              string      `yaml:"cwe"`
+	OWASP            string      `yaml:"owasp"`
+	Confidence       float64     `yaml:"confidence"`
+	Framework        string      `yaml:"framework"`
 }
 
 // normalizeRule converts a flexRule to a strict Rule
@@ -59,44 +68,39 @@ func normalizeRule(fr flexRule) Rule {
 		Framework:   fr.Framework,
 	}
 
-	switch p := fr.Patterns.(type) {
+	r.Patterns = parsePatternField(fr.Patterns)
+
+	// Fallback: if "pattern" (singular) was used
+	if len(r.Patterns) == 0 && fr.Pattern != "" {
+		r.Patterns = append(r.Patterns, PatternEntry{Regex: fr.Pattern})
+	}
+
+	r.NegativePatterns = parsePatternField(fr.NegativePatterns)
+
+	return r
+}
+
+// parsePatternField converts the flexible YAML pattern field (list, map, or string)
+// into a slice of PatternEntry. Shared by both Patterns and NegativePatterns.
+func parsePatternField(raw interface{}) []PatternEntry {
+	var out []PatternEntry
+	switch p := raw.(type) {
 	case []interface{}:
-		// Standard list format: patterns: [- regex: "..."]
 		for _, item := range p {
 			if m, ok := item.(map[string]interface{}); ok {
 				if regexVal, ok := m["regex"].(string); ok {
-					r.Patterns = append(r.Patterns, struct {
-						Regex         string         `yaml:"regex"`
-						CompiledRegex *regexp.Regexp `yaml:"-"`
-					}{Regex: regexVal})
+					out = append(out, PatternEntry{Regex: regexVal})
 				}
 			}
 		}
 	case map[string]interface{}:
-		// Map format: patterns: {regex: "..."}
 		if regexVal, ok := p["regex"].(string); ok {
-			r.Patterns = append(r.Patterns, struct {
-				Regex         string         `yaml:"regex"`
-				CompiledRegex *regexp.Regexp `yaml:"-"`
-			}{Regex: regexVal})
+			out = append(out, PatternEntry{Regex: regexVal})
 		}
 	case string:
-		// Single string format: patterns: "some_regex"
-		r.Patterns = append(r.Patterns, struct {
-			Regex         string         `yaml:"regex"`
-			CompiledRegex *regexp.Regexp `yaml:"-"`
-		}{Regex: p})
+		out = append(out, PatternEntry{Regex: p})
 	}
-
-	// Fallback: if "pattern" (singular) was used
-	if len(r.Patterns) == 0 && fr.Pattern != "" {
-		r.Patterns = append(r.Patterns, struct {
-			Regex         string         `yaml:"regex"`
-			CompiledRegex *regexp.Regexp `yaml:"-"`
-		}{Regex: fr.Pattern})
-	}
-
-	return r
+	return out
 }
 
 // LoadRulesFile loads rules from a single YAML file with maximum tolerance
@@ -274,29 +278,17 @@ func tryParseChunk(chunk string) *Rule {
 	return nil
 }
 
-// compilePatterns pre-compiles regexes for all rules and removes any rule
-// that ends up with zero compilable patterns so it never silently no-ops.
+// compilePatterns pre-compiles regexes for all rules (both positive patterns and
+// negative_patterns) and removes any rule that ends up with zero compilable
+// positive patterns so it never silently no-ops.
 func compilePatterns(rules []Rule) []Rule {
-	valid := rules[:0] // reuse backing array; no allocation
+	valid := rules[:0]
 	for i := range rules {
-		compiledAny := false
-		for j := range rules[i].Patterns {
-			if rules[i].Patterns[j].Regex == "" {
-				// Empty regex matches everything — skip to avoid flooding results.
-				utils.LogWarn(fmt.Sprintf("Rule %s has an empty regex pattern — skipping that pattern", rules[i].ID))
-				continue
-			}
-			r, err := regexp.Compile(rules[i].Patterns[j].Regex)
-			if err != nil {
-				utils.LogWarn(fmt.Sprintf("Invalid regex in rule %s: %v — skipping pattern", rules[i].ID, err))
-			} else {
-				rules[i].Patterns[j].CompiledRegex = r
-				compiledAny = true
-			}
-		}
+		compiledAny := compileEntries(rules[i].Patterns, rules[i].ID, false)
+		// Negative patterns are optional — a compile failure is a warning, not a rule drop.
+		compileEntries(rules[i].NegativePatterns, rules[i].ID, true)
+
 		if !compiledAny {
-			// All patterns in this rule are either empty or invalid — drop the
-			// rule entirely so it doesn't appear in rule counts misleadingly.
 			if rules[i].ID != "" {
 				utils.LogWarn(fmt.Sprintf("Rule %s has no valid patterns and will be skipped", rules[i].ID))
 			}
@@ -307,11 +299,41 @@ func compilePatterns(rules []Rule) []Rule {
 	return valid
 }
 
+// compileEntries compiles regexes in a slice of PatternEntry in-place.
+// Returns true if at least one pattern compiled successfully.
+// isNegative controls the log prefix for clarity.
+func compileEntries(entries []PatternEntry, ruleID string, isNegative bool) bool {
+	kind := "pattern"
+	if isNegative {
+		kind = "negative_pattern"
+	}
+	compiledAny := false
+	for j := range entries {
+		if entries[j].Regex == "" {
+			utils.LogWarn(fmt.Sprintf("Rule %s has an empty %s — skipping", ruleID, kind))
+			continue
+		}
+		re, err := regexp.Compile(entries[j].Regex)
+		if err != nil {
+			utils.LogWarn(fmt.Sprintf("Invalid regex in %s for rule %s: %v — skipping", kind, ruleID, err))
+		} else {
+			entries[j].CompiledRegex = re
+			compiledAny = true
+		}
+	}
+	return compiledAny
+}
+
 // langToRuleFiles maps a detected language name to the rule YAML file(s) it should load.
 // Most languages follow the "{lang}.yaml" convention; exceptions are listed explicitly.
 // Languages that map to multiple files (e.g. yaml infra files) return a slice.
 var langToRuleFiles = map[string][]string{
 	"dockerfile":    {"docker.yaml"},
+	// Mobile languages — only load mobile security rules when mobile files are detected
+	"java":   {"java.yaml", "android_security.yaml"},
+	"kotlin": {"kotlin.yaml", "android_security.yaml"},
+	"swift":  {"swift.yaml", "ios_security.yaml"},
+	"dart":   {"dart.yaml", "flutter_security.yaml"},
 	"objective-c":   {"objective-c.yaml"},
 	"objective-cpp": {"cpp.yaml"},
 	// yaml files may be k8s/ansible/helm/cloud manifests — load all infra rule sets
@@ -381,9 +403,8 @@ var alwaysLoadRuleFiles = []string{
 	"sidechannel_timing.yaml",
 	"nosql_graphdb.yaml",
 	"aiml.yaml",
-	"android_security.yaml",
-	"ios_security.yaml",
-	"flutter_security.yaml",
+	"llm_security.yaml",
+	"cloud_metadata.yaml",
 }
 
 // LoadRulesForLanguages loads only the rule files relevant to the detected languages,

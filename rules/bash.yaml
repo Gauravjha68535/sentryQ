@@ -1,3292 +1,3545 @@
 - id: bash-eval-usage
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.beval\s+'
+  - regex: \.beval\s+
   severity: high
-  description: "Use of eval can execute arbitrary code"
-  remediation: "Avoid eval. Use arrays and proper quoting for dynamic commands"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Use of eval can execute arbitrary code
+  remediation: Avoid eval. Use arrays and proper quoting for dynamic commands
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-unquoted-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.$\.{?[A-Za-z_][A-Za-z0-9_]*\.}?(?:[^\.''])'
+  - regex: \.$\.{?[A-Za-z_][A-Za-z0-9_]*\.}?(?:[^\.'])
   severity: medium
-  description: "Unquoted variable expansion may cause word splitting and globbing"
-  remediation: "Always quote variable expansions: \"$variable\" instead of $variable"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Unquoted variable expansion may cause word splitting and globbing
+  remediation: 'Always quote variable expansions: "$variable" instead of $variable'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-backtick-command
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '`[^`]+`'
+  - regex: '`[^`]+`'
   severity: low
-  description: "Backtick command substitution is harder to read and nest"
-  remediation: "Use $(command) syntax instead of backticks for command substitution"
-  cwe: "N/A"
-  owasp: "N/A"
-
-# ======================== Hardcoded Secrets ========================
+  description: Backtick command substitution is harder to read and nest
+  remediation: Use $(command) syntax instead of backticks for command substitution
+  cwe: N/A
+  owasp: N/A
+  confidence: 0.45
 - id: bash-hardcoded-password
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)(PASSWORD|PASSWD|DB_PASS|MYSQL_PASSWORD)\s*=\s*[''\.][^''\.]{8,}[''\.]'
+  - regex: (?i)(PASSWORD|PASSWD|DB_PASS|MYSQL_PASSWORD)\s*=\s*['\.][^'\.]{8,}['\.]
   severity: high
-  description: "Hardcoded password in shell script"
-  remediation: "Use environment variables, .env files with restricted permissions, or a secrets manager"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded password in shell script
+  remediation: Use environment variables, .env files with restricted permissions, or a secrets manager
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.75
 - id: bash-hardcoded-api-key
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)(API_KEY|SECRET_KEY|ACCESS_TOKEN)\s*=\s*[''\.][a-zA-Z0-9]{16,}[''\.]'
+  - regex: (?i)(API_KEY|SECRET_KEY|ACCESS_TOKEN)\s*=\s*['\.][a-zA-Z0-9]{16,}['\.]
   severity: high
-  description: "Hardcoded API key or token in shell script"
-  remediation: "Pass secrets via environment variables or secrets manager"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded API key or token in shell script
+  remediation: Pass secrets via environment variables or secrets manager
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.75
 - id: bash-aws-credentials
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'AKIA[0-9A-Z]{16}|(?i)AWS_SECRET_ACCESS_KEY\s*=\s*[''\.][^''\.]+[''\.]'
+  - regex: (?i)AWS_ACCESS_KEY_ID\s*=\s*[\"']?AKIA[0-9A-Z]{16}
+  - regex: (?i)AWS_SECRET_ACCESS_KEY\s*=\s*[\"'][a-zA-Z0-9/+=]{40}[\"']
   severity: critical
-  description: "AWS credentials detected in shell script"
-  remediation: "Use IAM roles, AWS CLI profiles, or environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
-# ======================== Insecure File Operations ========================
+  description: AWS credentials detected in shell script
+  remediation: Use IAM roles, AWS CLI profiles, or environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: bash-world-writable-chmod
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'chmod\s+(777|666|o\.+w)'
+  - regex: chmod\s+(777|666|o\.+w)
   severity: high
-  description: "Setting world-writable permissions is a security risk"
-  remediation: "Use restrictive permissions: chmod 750 for dirs, chmod 640 for files"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Setting world-writable permissions is a security risk
+  remediation: 'Use restrictive permissions: chmod 750 for dirs, chmod 640 for files'
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-insecure-temp-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)/tmp/[a-zA-Z0-9_]+'
+  - regex: (?i)/tmp/[a-zA-Z0-9_]+
   severity: medium
-  description: "Predictable temp file name — vulnerable to symlink attacks"
-  remediation: "Use mktemp for secure temp file creation: tmpfile=$(mktemp)"
-  cwe: "CWE-377"
-  owasp: "N/A"
-
-# ======================== Insecure Network ========================
+  description: Predictable temp file name — vulnerable to symlink attacks
+  remediation: 'Use mktemp for secure temp file creation: tmpfile=$(mktemp)'
+  cwe: CWE-377
+  owasp: N/A
+  confidence: 0.55
 - id: bash-curl-insecure
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'curl\s+.*(-k|--insecure)'
+  - regex: curl\s+.*(-k|--insecure)
   severity: high
-  description: "curl with --insecure flag disables SSL certificate verification"
-  remediation: "Remove -k/--insecure flag. Fix certificate issues instead"
-  cwe: "CWE-295"
-  owasp: "A07:2021"
-
+  description: curl with --insecure flag disables SSL certificate verification
+  remediation: Remove -k/--insecure flag. Fix certificate issues instead
+  cwe: CWE-295
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-wget-no-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'wget\s+.*--no-check-certificate'
+  - regex: wget\s+.*--no-check-certificate
   severity: high
-  description: "wget with --no-check-certificate disables SSL verification"
-  remediation: "Remove --no-check-certificate. Install proper CA certificates"
-  cwe: "CWE-295"
-  owasp: "A07:2021"
-
+  description: wget with --no-check-certificate disables SSL verification
+  remediation: Remove --no-check-certificate. Install proper CA certificates
+  cwe: CWE-295
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-pipe-to-shell
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'curl\s+.*\.|\s*(bash|sh|zsh)|wget\s+.*-O\s*-\s*\.|\s*(bash|sh)'
+  - regex: curl\s+.*\.|\s*(bash|sh|zsh)|wget\s+.*-O\s*-\s*\.|\s*(bash|sh)
   severity: critical
-  description: "Piping remote content directly to shell is extremely dangerous"
-  remediation: "Download script first, inspect it, then execute: curl -o script.sh URL && bash script.sh"
-  cwe: "CWE-94"
-  owasp: "A08:2021"
-
-# ======================== SQL via CLI ========================
+  description: Piping remote content directly to shell is extremely dangerous
+  remediation: 'Download script first, inspect it, then execute: curl -o script.sh URL && bash script.sh'
+  cwe: CWE-94
+  owasp: A08:2021
+  confidence: 0.8
 - id: bash-sql-injection-cli
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)(mysql|psql|sqlite3)\s+.*-e\s+[''\.].*\.$'
+  - regex: (?i)(mysql|psql|sqlite3)\s+.*-e\s+['\.].*\.$
   severity: critical
-  description: "SQL injection via variable interpolation in CLI database commands"
-  remediation: "Use parameterized queries or properly escape variables"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
-# ======================== Privilege Escalation ========================
+  description: SQL injection via variable interpolation in CLI database commands
+  remediation: Use parameterized queries or properly escape variables
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-suid-binary
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'chmod\s+[u+]?s\.s|chmod\s+4[0-7]{3}\.s'
+  - regex: chmod\s+[u+]?s\.s|chmod\s+4[0-7]{3}\.s
   severity: high
-  description: "Setting SUID bit can lead to privilege escalation"
-  remediation: "Avoid SUID. Use capabilities or sudoers for specific permissions"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Setting SUID bit can lead to privilege escalation
+  remediation: Avoid SUID. Use capabilities or sudoers for specific permissions
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: bash-variable-in-command
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\$\{?\w+\}?\s*[|;&]'
+  - regex: \$\{?\w+\}?\s*[|;&]
   severity: high
-  description: "Variable in command chain — injection if user-controlled"
-  remediation: "Quote variables: \"$var\". Validate all user input"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Variable in command chain — injection if user-controlled
+  remediation: 'Quote variables: "$var". Validate all user input'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-unquoted-variable-in-test
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)if\s+\[\s+\$\w+\s+'
+  - regex: (?i)if\s+\[\s+\$\w+\s+
   severity: medium
-  description: "Unquoted variable in test — word splitting and globbing"
-  remediation: "Always quote: if [ \"$var\" = ... ]"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Unquoted variable in test — word splitting and globbing
+  remediation: 'Always quote: if [ "$var" = ... ]'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-curl-output-exec
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'curl.*\|\s*(bash|sh|sudo)'
+  - regex: curl.*\|\s*(bash|sh|sudo)
   severity: critical
-  description: "Piping curl to shell — remote code execution"
-  remediation: "Download first, verify checksum, then execute"
-  cwe: "CWE-829"
-  owasp: "A08:2021"
-
+  description: Piping curl to shell — remote code execution
+  remediation: Download first, verify checksum, then execute
+  cwe: CWE-829
+  owasp: A08:2021
+  confidence: 0.7
 - id: bash-wget-exec
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'wget.*-O\s*-\s*\|\s*(bash|sh)'
+  - regex: wget.*-O\s*-\s*\|\s*(bash|sh)
   severity: critical
-  description: "Piping wget to shell — remote code execution"
-  remediation: "Download first, inspect, verify integrity, then execute"
-  cwe: "CWE-829"
-  owasp: "A08:2021"
-
+  description: Piping wget to shell — remote code execution
+  remediation: Download first, inspect, verify integrity, then execute
+  cwe: CWE-829
+  owasp: A08:2021
+  confidence: 0.7
 - id: bash-mysql-password-cli
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'mysql\s+.*-p\S+'
+  - regex: mysql\s+.*-p\S+
   severity: high
-  description: "MySQL password in command line — visible in process list"
-  remediation: "Use mysql_config_editor or .my.cnf for credentials"
-  cwe: "CWE-214"
-  owasp: "A07:2021"
-
+  description: MySQL password in command line — visible in process list
+  remediation: Use mysql_config_editor or .my.cnf for credentials
+  cwe: CWE-214
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-source-untrusted
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)(source|\.)\s+\$'
+  - regex: (?i)(source|\.)\s+\$
   severity: high
-  description: "Sourcing file from variable — code injection risk"
-  remediation: "Validate file path before sourcing"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
-# ============================================================================
-# BASH/SHELL SCRIPT EXPANDED SECURITY RULES (100+ ADDITIONAL RULES)
-# ============================================================================
-# Note: These rules EXCLUDE the 21 existing rules from bash.yaml
-# Categories: Command Injection, File Security, Network, Credentials,
-#             Privilege, Input Validation, Error Handling, Process,
-#             Environment, Container, CI/CD, Cryptography, Logging,
-#             Race Conditions, Path Security, Permissions, Services,
-#             Packages, Configuration, Backup, Cleanup
-# ============================================================================
-
-# --- COMMAND INJECTION VARIATIONS (1-15) ---
-
+  description: Sourcing file from variable — code injection risk
+  remediation: Validate file path before sourcing
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-awk-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)awk\s+''[^'']*\.$\.{'
+  - regex: (?i)awk\s+'[^']*\.$\.{
   severity: high
-  description: "AWK command with variable interpolation may allow injection"
-  remediation: "Pass variables via -v option: awk -v var=\"$value\""
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: AWK command with variable interpolation may allow injection
+  remediation: 'Pass variables via -v option: awk -v var="$value"'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-sed-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)sed\s+''[^'']*\.$[A-Za-z_]'
+  - regex: (?i)sed\s+'[^']*\.$[A-Za-z_]
   severity: high
-  description: "SED command with variable interpolation may allow injection"
-  remediation: "Use proper quoting and escape special characters"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: SED command with variable interpolation may allow injection
+  remediation: Use proper quoting and escape special characters
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-grep-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)grep\s+.*\.$\.{?[A-Za-z_]'
+  - regex: (?i)grep\s+.*\.$\.{?[A-Za-z_]
   severity: medium
-  description: "GREP with variable may allow regex injection"
-  remediation: "Use grep -F for fixed strings or escape regex metacharacters"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: GREP with variable may allow regex injection
+  remediation: Use grep -F for fixed strings or escape regex metacharacters
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-find-exec-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)find\s+.*-exec\s+.*\.$'
+  - regex: (?i)find\s+.*-exec\s+.*\.$
   severity: high
-  description: "FIND -exec with variable may allow command injection"
-  remediation: "Use -exec with {} properly quoted or use -execdir"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: FIND -exec with variable may allow command injection
+  remediation: Use -exec with {} properly quoted or use -execdir
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-xargs-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)xargs\s+.*\.$|xargs\s+-I'
+  - regex: (?i)xargs\s+.*\.$|xargs\s+-I
   severity: high
-  description: "XARGS with variable may allow command injection"
-  remediation: "Use xargs -0 with proper quoting"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: XARGS with variable may allow command injection
+  remediation: Use xargs -0 with proper quoting
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-cut-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)cut\s+.*\.$\.{'
+  - regex: (?i)cut\s+.*\.$\.{
   severity: medium
-  description: "CUT command with variable interpolation"
-  remediation: "Validate field numbers before using in cut command"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: CUT command with variable interpolation
+  remediation: Validate field numbers before using in cut command
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-tr-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)tr\s+.*\.$[A-Za-z_]'
+  - regex: (?i)tr\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "TR command with variable may allow injection"
-  remediation: "Validate character sets before using in tr command"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: TR command with variable may allow injection
+  remediation: Validate character sets before using in tr command
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-sort-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)sort\s+.*-k\s+\.$'
+  - regex: (?i)sort\s+.*-k\s+\.$
   severity: low
-  description: "SORT with variable key may allow injection"
-  remediation: "Validate sort key numbers"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: SORT with variable key may allow injection
+  remediation: Validate sort key numbers
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-head-tail-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)(head|tail)\s+.*-n\s+\.$'
+  - regex: (?i)(head|tail)\s+.*-n\s+\.$
   severity: low
-  description: "HEAD/TAIL with variable line count"
-  remediation: "Validate numeric input before using"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: HEAD/TAIL with variable line count
+  remediation: Validate numeric input before using
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-printf-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)printf\s+''[^'']*\.$\.{'
+  - regex: (?i)printf\s+'[^']*\.$\.{
   severity: medium
-  description: "PRINTF with variable may allow format string injection"
-  remediation: "Use printf '%s' \"$var\" instead of interpolation"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: PRINTF with variable may allow format string injection
+  remediation: Use printf '%s' "$var" instead of interpolation
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-echo-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)echo\s+.*-e.*\.$'
+  - regex: (?i)echo\s+.*-e.*\.$
   severity: medium
-  description: "ECHO -e with variable may interpret escape sequences"
-  remediation: "Use printf instead of echo -e"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: ECHO -e with variable may interpret escape sequences
+  remediation: Use printf instead of echo -e
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-read-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)read\s+.*\.$\.{?IFS'
+  - regex: (?i)read\s+.*\.$\.{?IFS
   severity: medium
-  description: "READ with modified IFS may cause word splitting"
+  description: READ with modified IFS may cause word splitting
   remediation: "Reset IFS after use: IFS=$'\n\t'"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-case-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)case\s+\.$.*in.*\.*'
+  - regex: (?i)case\s+\.$.*in.*\.*
   severity: low
-  description: "CASE statement with wildcard may match unexpectedly"
-  remediation: "Use specific patterns instead of wildcards"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: CASE statement with wildcard may match unexpectedly
+  remediation: Use specific patterns instead of wildcards
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.5
 - id: bash-select-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)select\s+.*in\s+\.$'
+  - regex: (?i)select\s+.*in\s+\.$
   severity: medium
-  description: "SELECT menu with variable options"
-  remediation: "Validate menu options before presenting"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: SELECT menu with variable options
+  remediation: Validate menu options before presenting
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-timeout-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)timeout\s+.*\.$[A-Za-z_]'
+  - regex: (?i)timeout\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "TIMEOUT command with variable may allow injection"
-  remediation: "Validate timeout value is numeric"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-# --- FILE OPERATION SECURITY (16-30) ---
-
+  description: TIMEOUT command with variable may allow injection
+  remediation: Validate timeout value is numeric
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-rm-recursive
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)rm\s+.*-rf\s+/|rm\s+.*-fr\s+/'
+  - regex: (?i)rm\s+.*-rf\s+/|rm\s+.*-fr\s+/
   severity: critical
-  description: "Recursive delete on root or system directories"
-  remediation: "Never use rm -rf on system directories. Add safety checks"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Recursive delete on root or system directories
+  remediation: Never use rm -rf on system directories. Add safety checks
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: bash-rm-variable-path
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)rm\s+.*\.$[A-Za-z_]*\s*$'
+  - regex: (?i)rm\s+.*\.$[A-Za-z_]*\s*$
   severity: high
-  description: "RM with variable path may delete unintended files"
-  remediation: "Validate path before deletion. Use -i for interactive"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: RM with variable path may delete unintended files
+  remediation: Validate path before deletion. Use -i for interactive
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-cp-overwrite
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)cp\s+.*-f\s+.*\.$'
+  - regex: (?i)cp\s+.*-f\s+.*\.$
   severity: medium
-  description: "CP with force flag may overwrite important files"
-  remediation: "Remove -f flag or validate destination before copying"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: CP with force flag may overwrite important files
+  remediation: Remove -f flag or validate destination before copying
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-mv-overwrite
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)mv\s+.*-f\s+.*\.$'
+  - regex: (?i)mv\s+.*-f\s+.*\.$
   severity: medium
-  description: "MV with force flag may overwrite important files"
-  remediation: "Remove -f flag or validate destination before moving"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: MV with force flag may overwrite important files
+  remediation: Remove -f flag or validate destination before moving
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-cat-variable-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)cat\s+.*\.$[A-Za-z_]*\s*$'
+  - regex: (?i)cat\s+.*\.$[A-Za-z_]*\s*$
   severity: medium
-  description: "CAT with variable may read sensitive files"
-  remediation: "Validate file path against allowlist"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: CAT with variable may read sensitive files
+  remediation: Validate file path against allowlist
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-tac-variable-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)tac\s+.*\.$[A-Za-z_]'
+  - regex: (?i)tac\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "TAC with variable may read sensitive files"
-  remediation: "Validate file path against allowlist"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: TAC with variable may read sensitive files
+  remediation: Validate file path against allowlist
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-less-more-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)(less|more)\s+.*\.$[A-Za-z_]'
+  - regex: (?i)(less|more)\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "LESS/MORE with variable may expose sensitive files"
-  remediation: "Validate file path before viewing"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: LESS/MORE with variable may expose sensitive files
+  remediation: Validate file path before viewing
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-tail-follow-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)tail\s+.*-f\s+.*\.$'
+  - regex: (?i)tail\s+.*-f\s+.*\.$
   severity: medium
-  description: "TAIL -f with variable may follow sensitive logs"
-  remediation: "Validate log file path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: TAIL -f with variable may follow sensitive logs
+  remediation: Validate log file path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-touch-variable-path
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)touch\s+.*\.$[A-Za-z_]'
+  - regex: (?i)touch\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "TOUCH with variable may create files in sensitive locations"
-  remediation: "Validate file path before creating"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: TOUCH with variable may create files in sensitive locations
+  remediation: Validate file path before creating
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-mkdir-variable-path
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)mkdir\s+.*-p\s+.*\.$'
+  - regex: (?i)mkdir\s+.*-p\s+.*\.$
   severity: medium
-  description: "MKDIR with variable may create directories in sensitive locations"
-  remediation: "Validate directory path before creating"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: MKDIR with variable may create directories in sensitive locations
+  remediation: Validate directory path before creating
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-rmdir-variable-path
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)rmdir\s+.*\.$[A-Za-z_]'
+  - regex: (?i)rmdir\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "RMDIR with variable may remove important directories"
-  remediation: "Validate directory path before removing"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: RMDIR with variable may remove important directories
+  remediation: Validate directory path before removing
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-ln-symbolic
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)ln\s+.*-s\s+.*\.$'
+  - regex: (?i)ln\s+.*-s\s+.*\.$
   severity: high
-  description: "Symbolic link with variable may create security bypass"
-  remediation: "Validate link target and avoid symlinks in sensitive areas"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: Symbolic link with variable may create security bypass
+  remediation: Validate link target and avoid symlinks in sensitive areas
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-chown-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)chown\s+.*\.$[A-Za-z_]'
+  - regex: (?i)chown\s+.*\.$[A-Za-z_]
   severity: high
-  description: "CHOWN with variable may change ownership incorrectly"
-  remediation: "Validate owner/group before changing"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: CHOWN with variable may change ownership incorrectly
+  remediation: Validate owner/group before changing
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-chgrp-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)chgrp\s+.*\.$[A-Za-z_]'
+  - regex: (?i)chgrp\s+.*\.$[A-Za-z_]
   severity: high
-  description: "CHGRP with variable may change group incorrectly"
-  remediation: "Validate group before changing"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: CHGRP with variable may change group incorrectly
+  remediation: Validate group before changing
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-stat-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)stat\s+.*\.$[A-Za-z_]'
+  - regex: (?i)stat\s+.*\.$[A-Za-z_]
   severity: low
-  description: "STAT with variable may leak file metadata"
-  remediation: "Validate file path before stat"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
-# --- NETWORK SECURITY (31-45) ---
-
+  description: STAT with variable may leak file metadata
+  remediation: Validate file path before stat
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-nc-netcat-listen
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)nc\s+.*-l|netcat\s+.*-l'
+  - regex: (?i)nc\s+.*-l|netcat\s+.*-l
   severity: high
-  description: "Netcat listening mode may create backdoor"
-  remediation: "Avoid netcat listen in production scripts"
-  cwe: "CWE-501"
-  owasp: "A08:2021"
-
+  description: Netcat listening mode may create backdoor
+  remediation: Avoid netcat listen in production scripts
+  cwe: CWE-501
+  owasp: A08:2021
+  confidence: 0.65
 - id: bash-nc-connect-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)nc\s+.*\.$[A-Za-z_]|netcat\s+.*\.$'
+  - regex: (?i)nc\s+.*\.$[A-Za-z_]|netcat\s+.*\.$
   severity: high
-  description: "Netcat with variable host may connect to malicious server"
-  remediation: "Validate host and port before connecting"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Netcat with variable host may connect to malicious server
+  remediation: Validate host and port before connecting
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: bash-ssh-no-host-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)ssh\s+.*-o\s+StrictHostKeyChecking=no'
+  - regex: (?i)ssh\s+.*-o\s+StrictHostKeyChecking=no
   severity: high
-  description: "SSH with disabled host key checking is vulnerable to MITM"
-  remediation: "Use StrictHostKeyChecking=yes with known_hosts"
-  cwe: "CWE-295"
-  owasp: "A07:2021"
-
+  description: SSH with disabled host key checking is vulnerable to MITM
+  remediation: Use StrictHostKeyChecking=yes with known_hosts
+  cwe: CWE-295
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-ssh-password-cli
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)sshpass\s+.*-p|ssh.*PasswordAuthentication'
+  - regex: (?i)sshpass\s+.*-p|ssh.*PasswordAuthentication
   severity: high
-  description: "SSH password in command line is visible in process list"
-  remediation: "Use SSH keys instead of passwords"
-  cwe: "CWE-214"
-  owasp: "A07:2021"
-
+  description: SSH password in command line is visible in process list
+  remediation: Use SSH keys instead of passwords
+  cwe: CWE-214
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-scp-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)scp\s+.*\.$[A-Za-z_]'
+  - regex: (?i)scp\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "SCP with variable may transfer to/from unintended locations"
-  remediation: "Validate source and destination paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: SCP with variable may transfer to/from unintended locations
+  remediation: Validate source and destination paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-rsync-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)rsync\s+.*\.$[A-Za-z_]'
+  - regex: (?i)rsync\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "RSYNC with variable may sync unintended files"
-  remediation: "Validate source and destination paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: RSYNC with variable may sync unintended files
+  remediation: Validate source and destination paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-ftp-anonymous
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)ftp\s+.*anonymous|lftp\s+.*anonymous'
+  - regex: (?i)ftp\s+.*anonymous|lftp\s+.*anonymous
   severity: medium
-  description: "Anonymous FTP access detected"
-  remediation: "Use authenticated FTP or SFTP instead"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Anonymous FTP access detected
+  remediation: Use authenticated FTP or SFTP instead
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-telnet-usage
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)telnet\s+'
+  - regex: (?i)telnet\s+
   severity: high
-  description: "Telnet transmits data in plaintext"
-  remediation: "Use SSH instead of Telnet"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Telnet transmits data in plaintext
+  remediation: Use SSH instead of Telnet
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: bash-nslookup-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)nslookup\s+.*\.$[A-Za-z_]'
+  - regex: (?i)nslookup\s+.*\.$[A-Za-z_]
   severity: low
-  description: "NSLOOKUP with variable may leak internal DNS info"
-  remediation: "Validate DNS query input"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: NSLOOKUP with variable may leak internal DNS info
+  remediation: Validate DNS query input
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-dig-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)dig\s+.*\.$[A-Za-z_]'
+  - regex: (?i)dig\s+.*\.$[A-Za-z_]
   severity: low
-  description: "DIG with variable may leak internal DNS info"
-  remediation: "Validate DNS query input"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: DIG with variable may leak internal DNS info
+  remediation: Validate DNS query input
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-ping-flood
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)ping\s+.*-f|ping\s+.*flood'
+  - regex: (?i)ping\s+.*-f|ping\s+.*flood
   severity: medium
-  description: "Ping flood may be used for DoS"
-  remediation: "Avoid ping flood in scripts"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Ping flood may be used for DoS
+  remediation: Avoid ping flood in scripts
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: bash-traceroute-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)(traceroute|tracepath)\s+.*\.$'
+  - regex: (?i)(traceroute|tracepath)\s+.*\.$
   severity: low
-  description: "Traceroute with variable may leak network topology"
-  remediation: "Validate target before tracing"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Traceroute with variable may leak network topology
+  remediation: Validate target before tracing
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-nmap-scan
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)nmap\s+.*-sS|nmap\s+.*-sV'
+  - regex: (?i)nmap\s+.*-sS|nmap\s+.*-sV
   severity: medium
-  description: "Nmap scanning detected — may be unauthorized"
-  remediation: "Ensure scanning is authorized and logged"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Nmap scanning detected — may be unauthorized
+  remediation: Ensure scanning is authorized and logged
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-wget-recursive
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)wget\s+.*-r|wget\s+.*--recursive'
+  - regex: (?i)wget\s+.*-r|wget\s+.*--recursive
   severity: medium
-  description: "Recursive wget may download unintended content"
-  remediation: "Limit recursion depth and validate URLs"
-  cwe: "CWE-434"
-  owasp: "A01:2021"
-
+  description: Recursive wget may download unintended content
+  remediation: Limit recursion depth and validate URLs
+  cwe: CWE-434
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-curl-post-data
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)curl\s+.*-d\s+.*\.$|curl\s+.*--data'
+  - regex: (?i)curl\s+.*-d\s+.*\.$|curl\s+.*--data
   severity: medium
-  description: "CURL POST with variable may send sensitive data"
-  remediation: "Validate data before sending. Use HTTPS"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
-# --- CREDENTIAL & SECRET MANAGEMENT (46-60) ---
-
+  description: CURL POST with variable may send sensitive data
+  remediation: Validate data before sending. Use HTTPS
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.55
 - id: bash-gpg-passphrase-cli
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)gpg\s+.*--passphrase\s+'
+  - regex: (?i)gpg\s+.*--passphrase\s+
   severity: high
-  description: "GPG passphrase on command line is visible"
-  remediation: "Use gpg-agent or passphrase file with restricted permissions"
-  cwe: "CWE-214"
-  owasp: "A07:2021"
-
+  description: GPG passphrase on command line is visible
+  remediation: Use gpg-agent or passphrase file with restricted permissions
+  cwe: CWE-214
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-openssl-passwd-cli
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)openssl\s+.*-pass\s+pass:'
+  - regex: '(?i)openssl\s+.*-pass\s+pass:'
   severity: high
-  description: "OpenSSL password on command line is visible"
-  remediation: "Use password file or environment variable"
-  cwe: "CWE-214"
-  owasp: "A07:2021"
-
+  description: OpenSSL password on command line is visible
+  remediation: Use password file or environment variable
+  cwe: CWE-214
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-git-credential-store
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)git\s+.*credential\..store'
+  - regex: (?i)git\s+.*credential\..store
   severity: medium
-  description: "Git credential store may save passwords in plaintext"
-  remediation: "Use credential helper with encryption"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Git credential store may save passwords in plaintext
+  remediation: Use credential helper with encryption
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-docker-login-password
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)docker\s+login\s+.*-p|docker.*--password'
+  - regex: (?i)docker\s+login\s+.*-p|docker.*--password
   severity: critical
-  description: "Docker password on command line is visible"
-  remediation: "Use docker login with stdin or credential helper"
-  cwe: "CWE-214"
-  owasp: "A07:2021"
-
+  description: Docker password on command line is visible
+  remediation: Use docker login with stdin or credential helper
+  cwe: CWE-214
+  owasp: A07:2021
+  confidence: 0.7
 - id: bash-kubectl-token
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)kubectl\s+.*--token\s+'
+  - regex: (?i)kubectl\s+.*--token\s+
   severity: high
-  description: "Kubernetes token on command line is visible"
-  remediation: "Use kubeconfig file with proper permissions"
-  cwe: "CWE-214"
-  owasp: "A07:2021"
-
+  description: Kubernetes token on command line is visible
+  remediation: Use kubeconfig file with proper permissions
+  cwe: CWE-214
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-vault-token-env
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)VAULT_TOKEN\s*=|vault\s+.*-token'
+  - regex: (?i)VAULT_TOKEN\s*=|vault\s+.*-token
   severity: medium
-  description: "Vault token in environment may be leaked"
-  remediation: "Use Vault agent or short-lived tokens"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Vault token in environment may be leaked
+  remediation: Use Vault agent or short-lived tokens
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-npm-token
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)NPM_TOKEN|//registry\..npmjs\..org/:_authToken'
+  - regex: (?i)NPM_TOKEN|//registry\..npmjs\..org/:_authToken
   severity: high
-  description: "NPM token detected in script or config"
-  remediation: "Use environment variables or .npmrc with restricted permissions"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: NPM token detected in script or config
+  remediation: Use environment variables or .npmrc with restricted permissions
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: bash-pip-token
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)pypi\..python\..org.*:auth|PIP_INDEX_URL.*@'
+  - regex: (?i)pypi\..python\..org.*:auth|PIP_INDEX_URL.*@
   severity: high
-  description: "PyPI token in pip configuration"
-  remediation: "Use pip config with restricted permissions"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: PyPI token in pip configuration
+  remediation: Use pip config with restricted permissions
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: bash-composer-token
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)github\..com.*oauth_token|composer.*auth'
+  - regex: (?i)github\..com.*oauth_token|composer.*auth
   severity: high
-  description: "Composer/GitHub token detected"
-  remediation: "Use composer config with restricted permissions"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Composer/GitHub token detected
+  remediation: Use composer config with restricted permissions
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-bearer-token-header
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)Authorization:\s*Bearer\s+\.$'
+  - regex: (?i)Authorization:\s*Bearer\s+\.$
   severity: medium
-  description: "Bearer token in script may be logged"
-  remediation: "Mask tokens in logs. Use short-lived tokens"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Bearer token in script may be logged
+  remediation: Mask tokens in logs. Use short-lived tokens
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-basic-auth-header
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)Authorization:\s*Basic\s+'
+  - regex: (?i)Authorization:\s*Basic\s+
   severity: high
-  description: "Basic auth credentials may be base64 decoded"
-  remediation: "Use token-based auth instead of Basic"
-  cwe: "CWE-523"
-  owasp: "A01:2021"
-
+  description: Basic auth credentials may be base64 decoded
+  remediation: Use token-based auth instead of Basic
+  cwe: CWE-523
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-jwt-in-script
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)eyJ[A-Za-z0-9_-]{20,}'
+  - regex: (?i)eyJ[A-Za-z0-9_-]{20,}
   severity: high
-  description: "JWT token hardcoded in script"
-  remediation: "Generate tokens dynamically. Never hardcode"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: JWT token hardcoded in script
+  remediation: Generate tokens dynamically. Never hardcode
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-private-key-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)\..pem|\..key|id_rsa|id_ed25519'
+  - regex: (?i)\..pem|\..key|id_rsa|id_ed25519
   severity: critical
-  description: "Private key file referenced in script"
-  remediation: "Ensure private keys have 600 permissions. Use SSH agent"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Private key file referenced in script
+  remediation: Ensure private keys have 600 permissions. Use SSH agent
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: bash-certificate-password
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)\..p12|\..pfx|cert.*password'
+  - regex: (?i)\..p12|\..pfx|cert.*password
   severity: high
-  description: "Certificate with password may be exposed"
-  remediation: "Use certificate without password or protect with secrets manager"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Certificate with password may be exposed
+  remediation: Use certificate without password or protect with secrets manager
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: bash-database-url-password
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)postgresql://.*:.*@|mysql://.*:.*@|mongodb://.*:.*@'
+  - regex: (?i)postgresql://.*:.*@|mysql://.*:.*@|mongodb://.*:.*@
   severity: critical
-  description: "Database connection URL with embedded password"
-  remediation: "Use environment variables or secrets manager"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
-# --- PRIVILEGE ESCALATION (61-75) ---
-
+  description: Database connection URL with embedded password
+  remediation: Use environment variables or secrets manager
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: bash-su-without-password
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)su\s+-\s*$|su\s+root\s*$'
+  - regex: (?i)su\s+-\s*$|su\s+root\s*$
   severity: high
-  description: "SU to root without proper authentication"
-  remediation: "Use sudo with proper configuration instead"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: SU to root without proper authentication
+  remediation: Use sudo with proper configuration instead
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-sudo-all-commands
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)sudo\s+.*\.(ALL\.)\s+ALL'
+  - regex: (?i)sudo\s+.*\.(ALL\.)\s+ALL
   severity: high
-  description: "Sudo configured for all commands"
-  remediation: "Limit sudo to specific commands"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Sudo configured for all commands
+  remediation: Limit sudo to specific commands
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.7
 - id: bash-setuid-script
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)chmod\s+[u+]?s.*\..sh|\..bash'
+  - regex: (?i)chmod\s+[u+]?s.*\..sh|\..bash
   severity: critical
-  description: "SUID bit on shell script is ignored but dangerous"
-  remediation: "Never set SUID on scripts. Use compiled binaries"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: SUID bit on shell script is ignored but dangerous
+  remediation: Never set SUID on scripts. Use compiled binaries
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.75
 - id: bash-setgid-script
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)chmod\s+[g+]?s.*\..sh|\..bash'
+  - regex: (?i)chmod\s+[g+]?s.*\..sh|\..bash
   severity: high
-  description: "SGID bit on shell script may cause issues"
-  remediation: "Avoid SGID on scripts"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: SGID bit on shell script may cause issues
+  remediation: Avoid SGID on scripts
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: bash-chroot-escape
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)chroot\s+.*\.$'
+  - regex: (?i)chroot\s+.*\.$
   severity: high
-  description: "Chroot with variable may allow escape"
-  remediation: "Chroot is not security boundary. Use containers"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Chroot with variable may allow escape
+  remediation: Chroot is not security boundary. Use containers
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-capabilities-set
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)setcap\s+|getcap\s+'
+  - regex: (?i)setcap\s+|getcap\s+
   severity: medium
-  description: "Linux capabilities manipulation detected"
-  remediation: "Audit capability assignments carefully"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Linux capabilities manipulation detected
+  remediation: Audit capability assignments carefully
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-pam-configuration
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)/etc/pam\..d/|pam_.*\..so'
+  - regex: (?i)/etc/pam\..d/|pam_.*\..so
   severity: medium
-  description: "PAM configuration modification detected"
-  remediation: "Ensure PAM changes are reviewed and tested"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: PAM configuration modification detected
+  remediation: Ensure PAM changes are reviewed and tested
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.6
 - id: bash-sudoers-modification
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)/etc/sudoers|visudo|sudoers\..d'
+  - regex: (?i)/etc/sudoers|visudo|sudoers\..d
   severity: high
-  description: "Sudoers file modification detected"
-  remediation: "Use visudo and audit all changes"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Sudoers file modification detected
+  remediation: Use visudo and audit all changes
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-passwd-file-access
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)/etc/passwd|/etc/shadow'
+  - regex: (?i)/etc/passwd|/etc/shadow
   severity: medium
-  description: "Password file access detected"
-  remediation: "Ensure proper permissions on shadow file"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Password file access detected
+  remediation: Ensure proper permissions on shadow file
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-cron-root
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)crontab\s+-u\s+root|/etc/cron\..d/'
+  - regex: (?i)crontab\s+-u\s+root|/etc/cron\..d/
   severity: medium
-  description: "Root cron job modification detected"
-  remediation: "Audit cron jobs for security issues"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Root cron job modification detected
+  remediation: Audit cron jobs for security issues
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-at-job
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)at\s+.*-f|atq|atrm'
+  - regex: (?i)at\s+.*-f|atq|atrm
   severity: medium
-  description: "AT job scheduling detected"
-  remediation: "Audit scheduled jobs for security"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: AT job scheduling detected
+  remediation: Audit scheduled jobs for security
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-systemd-service
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)systemctl\s+.*\..service|/etc/systemd/'
+  - regex: (?i)systemctl\s+.*\..service|/etc/systemd/
   severity: medium
-  description: "Systemd service manipulation detected"
-  remediation: "Audit service files for security issues"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Systemd service manipulation detected
+  remediation: Audit service files for security issues
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-init-script
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)/etc/init\..d/|service\s+'
+  - regex: (?i)/etc/init\..d/|service\s+
   severity: medium
-  description: "Init script manipulation detected"
-  remediation: "Audit init scripts for security issues"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Init script manipulation detected
+  remediation: Audit init scripts for security issues
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-kernel-module
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)insmod|modprobe|rmmod'
+  - regex: (?i)insmod|modprobe|rmmod
   severity: high
-  description: "Kernel module manipulation detected"
-  remediation: "Restrict kernel module loading"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Kernel module manipulation detected
+  remediation: Restrict kernel module loading
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-selinux-apparmor
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)setenforce\s+0|aa-disable|getenforce'
+  - regex: (?i)setenforce\s+0|aa-disable|getenforce
   severity: high
-  description: "Security module disabled detected"
-  remediation: "Keep SELinux/AppArmor enabled in enforcing mode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- INPUT VALIDATION & SANITIZATION (76-85) ---
-
+  description: Security module disabled detected
+  remediation: Keep SELinux/AppArmor enabled in enforcing mode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.65
 - id: bash-getopts-missing-validation
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)getopts\s+.*\.$[A-Za-z_]'
+  - regex: (?i)getopts\s+.*\.$[A-Za-z_]
   severity: medium
-  description: "GETOPTS with variable may allow injection"
-  remediation: "Validate all option values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: GETOPTS with variable may allow injection
+  remediation: Validate all option values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-shift-usage
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)shift\s+[0-9]+'
+  - regex: (?i)shift\s+[0-9]+
   severity: low
-  description: "SHIFT usage may cause argument confusion"
-  remediation: "Document argument positions clearly"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: SHIFT usage may cause argument confusion
+  remediation: Document argument positions clearly
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.45
 - id: bash-getarg-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/bin/(bash|sh)\s*$'
+  - regex: ^#!/bin/(bash|sh)\s*$
   severity: medium
-  description: "Script may not validate command line arguments"
-  remediation: "Add argument validation at script start"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Script may not validate command line arguments
+  remediation: Add argument validation at script start
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-regex-validation-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)if\s+\.[\.[\s+.*=~]'
+  - regex: (?i)if\s+\.[\.[\s+.*=~]
   severity: low
-  description: "Regex validation detected — ensure it's comprehensive"
-  remediation: "Use strict regex patterns for validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Regex validation detected — ensure it's comprehensive
+  remediation: Use strict regex patterns for validation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: bash-numeric-validation-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)\.$[A-Za-z_]*\s*-eq|\.$[A-Za-z_]*\s*-gt'
+  - regex: (?i)\.$[A-Za-z_]*\s*-eq|\.$[A-Za-z_]*\s*-gt
   severity: medium
-  description: "Numeric comparison without validation"
-  remediation: "Validate input is numeric before comparison"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Numeric comparison without validation
+  remediation: Validate input is numeric before comparison
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-array-index-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)\.$\.{[A-Za-z_]*\.[.*\.$\.}]'
+  - regex: (?i)\.$\.{[A-Za-z_]*\.[.*\.$\.}]
   severity: high
-  description: "Array index with variable may allow injection"
-  remediation: "Validate array index is numeric"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Array index with variable may allow injection
+  remediation: Validate array index is numeric
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-associative-array
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)declare\s+-A|\.[.*\.]='
+  - regex: (?i)declare\s+-A|\.[.*\.]=
   severity: low
-  description: "Associative array usage detected"
-  remediation: "Validate keys before array access"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Associative array usage detected
+  remediation: Validate keys before array access
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: bash-here-document-injection
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)<<\s*EOF.*\.$|<<-.*\.$'
+  - regex: (?i)<<\s*EOF.*\.$|<<-.*\.$
   severity: medium
-  description: "Here document with variable interpolation"
-  remediation: "Quote EOF delimiter to prevent expansion: <<'EOF'"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Here document with variable interpolation
+  remediation: 'Quote EOF delimiter to prevent expansion: <<''EOF'''
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-process-substitution
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)<\.(.*\.)|>\.(.*\.)'
+  - regex: (?i)<\.(.*\.)|>\.(.*\.)
   severity: medium
-  description: "Process substitution may allow injection"
-  remediation: "Validate commands in process substitution"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Process substitution may allow injection
+  remediation: Validate commands in process substitution
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-command-substitution-nested
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)\.$\.(.*\.$\.(.*\.)\.)'
+  - regex: (?i)\.$\.(.*\.$\.(.*\.)\.)
   severity: medium
-  description: "Nested command substitution may be hard to audit"
-  remediation: "Break into separate commands for clarity"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
-# --- ERROR HANDLING & LOGGING (86-95) ---
-
+  description: Nested command substitution may be hard to audit
+  remediation: Break into separate commands for clarity
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.6
 - id: bash-trap-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/bin/(bash|sh)\s*$'
+  - regex: ^#!/bin/(bash|sh)\s*$
   severity: medium
-  description: "Script missing trap for cleanup on exit"
-  remediation: "Add trap for cleanup: trap cleanup EXIT INT TERM"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Script missing trap for cleanup on exit
+  remediation: 'Add trap for cleanup: trap cleanup EXIT INT TERM'
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.55
 - id: bash-exit-code-ignored
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)\.|\.|\s*true|\.|\.|\s*:'
+  - regex: '(?i)\.|\.|\s*true|\.|\.|\s*:'
   severity: medium
-  description: "Exit code ignored with || true pattern"
-  remediation: "Handle errors properly instead of ignoring"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Exit code ignored with || true pattern
+  remediation: Handle errors properly instead of ignoring
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.6
 - id: bash-pipeline-status
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)pipefail|set\s+-o\s+pipefail'
+  - regex: (?i)pipefail|set\s+-o\s+pipefail
   severity: low
-  description: "Pipeline status handling detected"
-  remediation: "Ensure pipefail is set for proper error handling"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Pipeline status handling detected
+  remediation: Ensure pipefail is set for proper error handling
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.45
 - id: bash-logger-syslog
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)logger\s+'
+  - regex: (?i)logger\s+
   severity: low
-  description: "Syslog logging detected — verify log content"
-  remediation: "Don't log sensitive data to syslog"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Syslog logging detected — verify log content
+  remediation: Don't log sensitive data to syslog
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-tee-output
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)tee\s+'
+  - regex: (?i)tee\s+
   severity: low
-  description: "TEE output detected — verify file permissions"
-  remediation: "Ensure tee output files have proper permissions"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: TEE output detected — verify file permissions
+  remediation: Ensure tee output files have proper permissions
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.45
 - id: bash-redirect-overwrite
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)>\s*\.$|>>\s*\.$'
+  - regex: (?i)>\s*\.$|>>\s*\.$
   severity: medium
-  description: "Redirect to variable path may overwrite files"
-  remediation: "Validate file path before redirecting"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Redirect to variable path may overwrite files
+  remediation: Validate file path before redirecting
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.6
 - id: bash-exec-redirect
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)exec\s+.*>\s*|exec\s+.*<\s*'
+  - regex: (?i)exec\s+.*>\s*|exec\s+.*<\s*
   severity: medium
-  description: "EXEC with file redirect changes file descriptors"
-  remediation: "Restore file descriptors after use"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: EXEC with file redirect changes file descriptors
+  remediation: Restore file descriptors after use
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.55
 - id: bash-fd-leak
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)/dev/fd/|/proc/self/fd/'
+  - regex: (?i)/dev/fd/|/proc/self/fd/
   severity: low
-  description: "File descriptor access detected"
-  remediation: "Close file descriptors when done"
-  cwe: "CWE-775"
-  owasp: "N/A"
-
+  description: File descriptor access detected
+  remediation: Close file descriptors when done
+  cwe: CWE-775
+  owasp: N/A
+  confidence: 0.45
 - id: bash-signal-handler
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)trap\s+.*SIG|trap\s+.*INT|trap\s+.*TERM'
+  - regex: (?i)trap\s+.*SIG|trap\s+.*INT|trap\s+.*TERM
   severity: low
-  description: "Signal handler detected — verify cleanup"
-  remediation: "Ensure signal handlers clean up resources"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Signal handler detected — verify cleanup
+  remediation: Ensure signal handlers clean up resources
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.45
 - id: bash-timeout-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)while\s+true|for\s+.*do'
+  - regex: (?i)while\s+true|for\s+.*do
   severity: medium
-  description: "Infinite loop detected — may hang without timeout"
-  remediation: "Add timeout or iteration limit to loops"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-# --- CONTAINER & CI/CD SECURITY (96-110) ---
-
+  description: Infinite loop detected — may hang without timeout
+  remediation: Add timeout or iteration limit to loops
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: bash-docker-privileged
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)docker\s+run\s+.*--privileged'
+  - regex: (?i)docker\s+run\s+.*--privileged
   severity: critical
-  description: "Docker container running in privileged mode"
-  remediation: "Remove --privileged. Use specific capabilities instead"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Docker container running in privileged mode
+  remediation: Remove --privileged. Use specific capabilities instead
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: bash-docker-socket-mount
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)-v\s+/var/run/docker\..sock|docker\..sock'
+  - regex: (?i)-v\s+/var/run/docker\..sock|docker\..sock
   severity: critical
-  description: "Docker socket mounted in container — allows container escape"
-  remediation: "Never mount Docker socket in containers"
-  cwe: "CWE-659"
-  owasp: "A08:2021"
-
+  description: Docker socket mounted in container — allows container escape
+  remediation: Never mount Docker socket in containers
+  cwe: CWE-659
+  owasp: A08:2021
+  confidence: 0.75
 - id: bash-docker-root-user
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)USER\s+root|docker.*--user\s+root'
+  - regex: (?i)USER\s+root|docker.*--user\s+root
   severity: high
-  description: "Container running as root user"
-  remediation: "Use non-root user in containers"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Container running as root user
+  remediation: Use non-root user in containers
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-kubernetes-secret-env
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)kubectl\s+.*secret|K8S_SECRET'
+  - regex: (?i)kubectl\s+.*secret|K8S_SECRET
   severity: medium
-  description: "Kubernetes secret handling detected"
-  remediation: "Use sealed secrets or external secrets manager"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Kubernetes secret handling detected
+  remediation: Use sealed secrets or external secrets manager
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-ci-cd-token
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)CI_TOKEN|GITHUB_TOKEN|GITLAB_TOKEN|PIPELINE_TOKEN'
+  - regex: (?i)CI_TOKEN|GITHUB_TOKEN|GITLAB_TOKEN|PIPELINE_TOKEN
   severity: high
-  description: "CI/CD token in script may be exposed"
-  remediation: "Use CI/CD secret variables. Rotate tokens regularly"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: CI/CD token in script may be exposed
+  remediation: Use CI/CD secret variables. Rotate tokens regularly
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-jenkins-credential
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)JENKINS.*PASSWORD|JENKINS.*TOKEN|withCredentials'
+  - regex: (?i)JENKINS.*PASSWORD|JENKINS.*TOKEN|withCredentials
   severity: high
-  description: "Jenkins credential handling detected"
-  remediation: "Use Jenkins credential binding properly"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Jenkins credential handling detected
+  remediation: Use Jenkins credential binding properly
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-travis-env-var
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)TRAVIS_.*|encrypted_.*'
+  - regex: (?i)TRAVIS_.*|encrypted_.*
   severity: medium
-  description: "Travis CI environment variable detected"
-  remediation: "Encrypt sensitive variables in Travis config"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Travis CI environment variable detected
+  remediation: Encrypt sensitive variables in Travis config
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-circleci-context
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)CIRCLE_.*|circleci.*context'
+  - regex: (?i)CIRCLE_.*|circleci.*context
   severity: medium
-  description: "CircleCI context variable detected"
-  remediation: "Use CircleCI contexts for secrets"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: CircleCI context variable detected
+  remediation: Use CircleCI contexts for secrets
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-github-action-secret
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)\.$\.{\.{\s*secrets\..|GITHUB_TOKEN'
+  - regex: (?i)\.$\.{\.{\s*secrets\..|GITHUB_TOKEN
   severity: medium
-  description: "GitHub Actions secret usage detected"
-  remediation: "Use GitHub secrets properly. Don't print secrets"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: GitHub Actions secret usage detected
+  remediation: Use GitHub secrets properly. Don't print secrets
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.6
 - id: bash-ansible-vault
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)ansible-vault|ANSIBLE_VAULT_PASSWORD'
+  - regex: (?i)ansible-vault|ANSIBLE_VAULT_PASSWORD
   severity: medium
-  description: "Ansible vault usage detected"
-  remediation: "Use ansible-vault for sensitive data"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Ansible vault usage detected
+  remediation: Use ansible-vault for sensitive data
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-terraform-state
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)terraform\..tfstate|TF_STATE'
+  - regex: (?i)terraform\..tfstate|TF_STATE
   severity: high
-  description: "Terraform state file may contain secrets"
-  remediation: "Use remote state with encryption. Never commit state"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Terraform state file may contain secrets
+  remediation: Use remote state with encryption. Never commit state
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-helm-secret
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)helm\s+.*--set.*secret|helm.*values.*yaml'
+  - regex: (?i)helm\s+.*--set.*secret|helm.*values.*yaml
   severity: medium
-  description: "Helm chart with secrets detected"
-  remediation: "Use Helm secrets plugin or external secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Helm chart with secrets detected
+  remediation: Use Helm secrets plugin or external secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.55
 - id: bash-registry-credential
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)docker.*registry.*auth|REGISTRY_PASSWORD'
+  - regex: (?i)docker.*registry.*auth|REGISTRY_PASSWORD
   severity: high
-  description: "Container registry credentials detected"
-  remediation: "Use credential helpers. Rotate credentials regularly"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Container registry credentials detected
+  remediation: Use credential helpers. Rotate credentials regularly
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: bash-artifact-upload
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)aws\s+s3.*cp|gsutil.*cp|azure.*upload'
+  - regex: (?i)aws\s+s3.*cp|gsutil.*cp|azure.*upload
   severity: medium
-  description: "Artifact upload to cloud storage detected"
-  remediation: "Ensure artifacts don't contain secrets"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Artifact upload to cloud storage detected
+  remediation: Ensure artifacts don't contain secrets
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-build-cache-poison
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '(?i)docker.*build.*--cache-from|BUILD_CACHE'
+  - regex: (?i)docker.*build.*--cache-from|BUILD_CACHE
   severity: medium
-  description: "Build cache may be poisoned in CI/CD"
-  remediation: "Use isolated build environments. Clear cache regularly"
-  cwe: "CWE-345"
-  owasp: "A08:2021"
-
-  # ============================================================================
-# BASH/SHELL SCRIPT SECURITY RULES - EXPANDED (200+ RULES)
-# ============================================================================
-
-# ======================== GLOBBING & PATH EXPANSION (1-20) ========================
-
+  description: Build cache may be poisoned in CI/CD
+  remediation: Use isolated build environments. Clear cache regularly
+  cwe: CWE-345
+  owasp: A08:2021
+  confidence: 0.55
 - id: bash-globbing-unquoted
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.*\s+\.$|\.?\s+\.$|\.[.*\.]\s+\.$'
+  - regex: \.*\s+\.$|\.?\s+\.$|\.[.*\.]\s+\.$
   severity: high
-  description: "Unquoted globbing characters with variables (unexpected expansion)"
-  remediation: "Quote variables: \"$var\" or use set -f to disable globbing"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Unquoted globbing characters with variables (unexpected expansion)
+  remediation: 'Quote variables: "$var" or use set -f to disable globbing'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-globbing-rm-rf
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'rm\s+.*\.*.*\./|rm\s+.*\.?.*\./'
+  - regex: rm\s+.*\.*.*\./|rm\s+.*\.?.*\./
   severity: critical
-  description: "Globbing with rm command (accidental deletion)"
-  remediation: "Use explicit paths, never use globs with rm -rf"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Globbing with rm command (accidental deletion)
+  remediation: Use explicit paths, never use globs with rm -rf
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.75
 - id: bash-globbing-star
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.*\s+[^\.'']|\.*\s*$'
+  - regex: \.*\s+[^\.']|\.*\s*$
   severity: medium
-  description: "Unquoted * in command (may expand unexpectedly)"
-  remediation: "Quote glob patterns: \"*\" or use set -f"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Unquoted * in command (may expand unexpectedly)
+  remediation: 'Quote glob patterns: "*" or use set -f'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-globbing-question
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.?\s+[^\.'']|\.?\s*$'
+  - regex: \.?\s+[^\.']|\.?\s*$
   severity: medium
-  description: "Unquoted ? in command (may expand unexpectedly)"
-  remediation: "Quote glob patterns: \"?\" or use set -f"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Unquoted ? in command (may expand unexpectedly)
+  remediation: 'Quote glob patterns: "?" or use set -f'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-globbing-brackets
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\\.\[[^.]]*\]\s+[^.'']'
+  - regex: \\.\[[^.]]*\]\s+[^.']
   severity: medium
-  description: "Unquoted character class in command (may expand)"
-  remediation: "Quote glob patterns: \"[a-z]\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Unquoted character class in command (may expand)
+  remediation: 'Quote glob patterns: "[a-z]"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-globbing-find-exec
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'find.*-exec.*\.{\.}\s*;'
+  - regex: find.*-exec.*\.{\.}\s*;
   severity: low
-  description: "find -exec with {} (may have unexpected results)"
-  remediation: "Use -execdir instead of -exec"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: find -exec with {} (may have unexpected results)
+  remediation: Use -execdir instead of -exec
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: bash-globbing-find-print0
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'find.*-print0\s*\.|\s*xargs\s*-0'
+  - regex: find.*-print0\s*\.|\s*xargs\s*-0
   severity: low
-  description: "find -print0 with xargs -0 (good for special chars)"
-  remediation: "Good practice for handling filenames with spaces"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: find -print0 with xargs -0 (good for special chars)
+  remediation: Good practice for handling filenames with spaces
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-globbing-find-exec-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'find.*-exec.*?\.{\.}\s*\.+'
+  - regex: find.*-exec.*?\.{\.}\s*\.+
   severity: low
-  description: "find -exec with + (more efficient)"
-  remediation: "Good for batch operations"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: find -exec with + (more efficient)
+  remediation: Good for batch operations
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: bash-globbing-array-expansion
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.$\.{[^}]*\.[\.*\.]\.}|\.$\.{[^}]*\.[@\.]\.}'
+  - regex: \.$\.{[^}]*\.[\.*\.]\.}|\.$\.{[^}]*\.[@\.]\.}
   severity: low
-  description: "Array expansion (may have many elements)"
-  remediation: "Quote array expansions: \"${array[@]}\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Array expansion (may have many elements)
+  remediation: 'Quote array expansions: "${array[@]}"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: bash-globbing-array-star
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.$\.{[^}]*\.[\.*\.]\.}'
+  - regex: \.$\.{[^}]*\.[\.*\.]\.}
   severity: medium
-  description: "Array expansion with [*] (concatenates elements)"
-  remediation: "Use [@] for separate elements, [*] for concatenation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Array expansion with [*] (concatenates elements)
+  remediation: Use [@] for separate elements, [*] for concatenation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-globbing-word-splitting
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'IFS=\s*[^\.n]*\s*\.$|for\s+\w+\s+in\s+\.$[^\.'']'
+  - regex: IFS=\s*[^\.n]*\s*\.$|for\s+\w+\s+in\s+\.$[^\.']
   severity: high
-  description: "Word splitting vulnerability (IFS changed or unquoted)"
-  remediation: "Quote variables: \"$var\", reset IFS after use"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Word splitting vulnerability (IFS changed or unquoted)
+  remediation: 'Quote variables: "$var", reset IFS after use'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-globbing-ifs-change
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'IFS\s*=\s*[^\.n]+'
+  - regex: IFS\s*=\s*[^\.n]+
   severity: medium
-  description: "IFS changed (affects word splitting)"
-  remediation: "Save and restore IFS: oldIFS=$IFS; IFS=...; ...; IFS=$oldIFS"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: IFS changed (affects word splitting)
+  remediation: 'Save and restore IFS: oldIFS=$IFS; IFS=...; ...; IFS=$oldIFS'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-globbing-ifs-unset
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'unset\s+IFS'
+  - regex: unset\s+IFS
   severity: medium
-  description: "IFS unset (defaults to whitespace)"
-  remediation: "Explicitly set IFS to desired value"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: IFS unset (defaults to whitespace)
+  remediation: Explicitly set IFS to desired value
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-globbing-for-loop-unquoted
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+\w+\s+in\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s*;'
+  - regex: for\s+\w+\s+in\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s*;
   severity: high
-  description: "For loop over unquoted variable (word splitting)"
-  remediation: "Quote: for item in \"$list\""
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: For loop over unquoted variable (word splitting)
+  remediation: 'Quote: for item in "$list"'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-globbing-while-read
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'while\s+read\s+\w+\s*;'
+  - regex: while\s+read\s+\w+\s*;
   severity: low
-  description: "while read loop (good for line-by-line)"
-  remediation: "Use IFS= to preserve leading/trailing whitespace"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: while read loop (good for line-by-line)
+  remediation: Use IFS= to preserve leading/trailing whitespace
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-globbing-while-read-ifs
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'while\s+IFS\s*=\s*\s+read'
+  - regex: while\s+IFS\s*=\s*\s+read
   severity: low
-  description: "while read with IFS set (preserves whitespace)"
-  remediation: "Good practice: while IFS= read -r line"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: while read with IFS set (preserves whitespace)
+  remediation: 'Good practice: while IFS= read -r line'
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-globbing-read-r
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'read\s+'
+  - regex: read\s+
   severity: medium
-  description: "read without -r (backslash escapes interpreted)"
-  remediation: "Use read -r for raw input"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: read without -r (backslash escapes interpreted)
+  remediation: Use read -r for raw input
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-globbing-mapfile
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'mapfile|readarray'
+  - regex: mapfile|readarray
   severity: low
-  description: "mapfile/readarray usage (good for reading lines)"
-  remediation: "Good alternative to while read"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: mapfile/readarray usage (good for reading lines)
+  remediation: Good alternative to while read
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-globbing-pathname-expansion
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+\.-o\s+noglob|set\s+\.-f'
+  - regex: set\s+\.-o\s+noglob|set\s+\.-f
   severity: low
-  description: "Globbing disabled (good for literal strings)"
-  remediation: "Good practice when working with special characters"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Globbing disabled (good for literal strings)
+  remediation: Good practice when working with special characters
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: bash-globbing-case-pattern
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'case\s+\.$[a-zA-Z_]+\s+in\s+\.*[^)]*\.*'
+  - regex: case\s+\.$[a-zA-Z_]+\s+in\s+\.*[^)]*\.*
   severity: low
-  description: "Case pattern with wildcards (may match unexpectedly)"
-  remediation: "Use specific patterns, quote variable expansions"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== WORD SPLITTING & QUOTING (21-40) ========================
-
+  description: Case pattern with wildcards (may match unexpectedly)
+  remediation: Use specific patterns, quote variable expansions
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: bash-word-splitting-unquoted-var
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '[^\.'']\.$[a-zA-Z_][a-zA-Z0-9_]*[^\.'']'
+  - regex: '[^\.'']\.$[a-zA-Z_][a-zA-Z0-9_]*[^\.'']'
   severity: high
-  description: "Unquoted variable expansion (word splitting risk)"
-  remediation: "Always quote: \"$var\""
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Unquoted variable expansion (word splitting risk)
+  remediation: 'Always quote: "$var"'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-word-splitting-array-element
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.$\.{[a-zA-Z_][a-zA-Z0-9_]*\.[[0-9]+\.]\.}'
+  - regex: \.$\.{[a-zA-Z_][a-zA-Z0-9_]*\.[[0-9]+\.]\.}
   severity: high
-  description: "Array element without quotes (word splitting)"
-  remediation: "Quote array elements: \"${array[0]}\""
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Array element without quotes (word splitting)
+  remediation: 'Quote array elements: "${array[0]}"'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-word-splitting-command-substitution
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '[^\.'']\.$\.([^)]+\.)[^\.'']'
+  - regex: '[^\.'']\.$\.([^)]+\.)[^\.'']'
   severity: high
-  description: "Unquoted command substitution (word splitting)"
-  remediation: "Quote command substitution: \"$(command)\""
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-- id: bash-word-splitting-arithmetic
-  languages: [bash]
-  patterns:
-    - regex: '\.$?\.(\.([^)]+\.)\.)'
-  severity: low
-  description: "Arithmetic expansion (safe from word splitting)"
-  remediation: "Arithmetic is safe, but still good to quote"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Unquoted command substitution (word splitting)
+  remediation: 'Quote command substitution: "$(command)"'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-word-splitting-assign
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: \w+=\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "Assignment without quotes (preserves internal spaces?)"
-  remediation: "Quote: var=\"$value\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Assignment without quotes (preserves internal spaces?)
+  remediation: 'Quote: var="$value"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-word-splitting-export
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'export\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: export\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: high
-  description: "Export without quotes (environment variable issues)"
-  remediation: "Quote: export VAR=\"$value\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Export without quotes (environment variable issues)
+  remediation: 'Quote: export VAR="$value"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-word-splitting-local
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'local\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: local\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "Local variable without quotes"
-  remediation: "Quote: local var=\"$value\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Local variable without quotes
+  remediation: 'Quote: local var="$value"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-word-splitting-readonly
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'readonly\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: readonly\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "Readonly variable without quotes"
-  remediation: "Quote: readonly var=\"$value\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Readonly variable without quotes
+  remediation: 'Quote: readonly var="$value"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-word-splitting-declare
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'declare\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: declare\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "Declare without quotes"
-  remediation: "Quote: declare var=\"$value\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Declare without quotes
+  remediation: 'Quote: declare var="$value"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-word-splitting-typeset
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'typeset\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: typeset\s+\w+=\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "Typeset without quotes"
-  remediation: "Quote: typeset var=\"$value\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Typeset without quotes
+  remediation: 'Quote: typeset var="$value"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-word-splitting-printf-format
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'printf\s+[^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: printf\s+[^\.']*\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: high
-  description: "printf format string with variable (format injection)"
-  remediation: "Use printf '%s' \"$var\" instead of interpolating"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: printf format string with variable (format injection)
+  remediation: Use printf '%s' "$var" instead of interpolating
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-word-splitting-printf-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'printf\s+[''\.][^''\.]*[''\.]\s+\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: printf\s+['\.][^'\.]*['\.]\s+\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "printf with variable as argument (good)"
-  remediation: "Good practice"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: printf with variable as argument (good)
+  remediation: Good practice
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.6
 - id: bash-word-splitting-echo
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'echo\s+[^-][^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: echo\s+[^-][^\.']*\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "echo with unquoted variable (may interpret options)"
-  remediation: "Use printf '%s\n' \"$var\" instead of echo"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
+  description: echo with unquoted variable (may interpret options)
+  remediation: 'Use printf ''%s
 
+    '' "$var" instead of echo'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-word-splitting-echo-e
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'echo\s+-e\s+.*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: echo\s+-e\s+.*\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: high
-  description: "echo -e with variable (escape sequence injection)"
-  remediation: "Use printf instead of echo -e"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: echo -e with variable (escape sequence injection)
+  remediation: Use printf instead of echo -e
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-word-splitting-test
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.[\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s+'
+  - regex: \.[\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s+
   severity: critical
-  description: "Test [ ] with unquoted variable (syntax error if empty)"
-  remediation: "Quote in tests: [ \"$var\" = \"value\" ]"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Test [ ] with unquoted variable (syntax error if empty)
+  remediation: 'Quote in tests: [ "$var" = "value" ]'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-word-splitting-test-operator
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.[\s+[^\.'']*\.$[a-zA-Z_][a-zA-Z0-9_]*[^\.'']*\s+'
+  - regex: \.[\s+[^\.']*\.$[a-zA-Z_][a-zA-Z0-9_]*[^\.']*\s+
   severity: critical
-  description: "Test with unquoted variable (word splitting)"
-  remediation: "Always quote variables in [ ] tests"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Test with unquoted variable (word splitting)
+  remediation: Always quote variables in [ ] tests
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-word-splitting-double-bracket
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.[\.[\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s+'
+  - regex: \.[\.[\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s+
   severity: low
-  description: "Double bracket [[ ]] with variable (safer)"
-  remediation: "Double brackets handle empty variables better"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Double bracket [[ ]] with variable (safer)
+  remediation: Double brackets handle empty variables better
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: bash-word-splitting-here-doc
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '<<\s*\w+\s*.*\.$'
+  - regex: <<\s*\w+\s*.*\.$
   severity: medium
-  description: "Here document with variable expansion"
-  remediation: "Quote delimiter: <<'EOF' to prevent expansion"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Here document with variable expansion
+  remediation: 'Quote delimiter: <<''EOF'' to prevent expansion'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-word-splitting-here-string
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '<<<\s*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: <<<\s*\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "Here string with variable (word splitting)"
-  remediation: "Quote: <<< \"$var\""
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Here string with variable (word splitting)
+  remediation: 'Quote: <<< "$var"'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-word-splitting-process-substitution
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '<\.(.*\.$[a-zA-Z_][a-zA-Z0-9_]*\.)'
+  - regex: <\.(.*\.$[a-zA-Z_][a-zA-Z0-9_]*\.)
   severity: high
-  description: "Process substitution with variable (command injection)"
-  remediation: "Quote variables in process substitution"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-# ======================== RACE CONDITIONS (41-55) ========================
-
+  description: Process substitution with variable (command injection)
+  remediation: Quote variables in process substitution
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-race-temp-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\./tmp\./[^/]+\..?[^/]*'
+  - regex: \./tmp\./[^/]+\..?[^/]*
   severity: high
-  description: "Predictable temp file path (race condition risk)"
-  remediation: "Use mktemp: tmpfile=$(mktemp)"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: Predictable temp file path (race condition risk)
+  remediation: 'Use mktemp: tmpfile=$(mktemp)'
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.7
 - id: bash-race-mktemp-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '>\s*\./tmp\./[^/]+'
+  - regex: '>\s*\./tmp\./[^/]+'
   severity: high
-  description: "Creating file in /tmp without mktemp"
-  remediation: "Use mktemp for secure temp file creation"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: Creating file in /tmp without mktemp
+  remediation: Use mktemp for secure temp file creation
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.7
 - id: bash-race-mktemp-usage
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'mktemp\s+[^|;]+'
+  - regex: mktemp\s+[^|;]+
   severity: low
-  description: "mktemp usage (good for temp files)"
-  remediation: "Good practice"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: mktemp usage (good for temp files)
+  remediation: Good practice
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-race-mktemp-d
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'mktemp\s+-d'
+  - regex: mktemp\s+-d
   severity: low
-  description: "mktemp -d for temp directory"
-  remediation: "Good practice"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: mktemp -d for temp directory
+  remediation: Good practice
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-race-mktemp-trap
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'mktemp.*?trap.*rm.*EXIT'
+  - regex: mktemp.*?trap.*rm.*EXIT
   severity: low
-  description: "mktemp with cleanup trap (good)"
-  remediation: "Always clean up temp files"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: mktemp with cleanup trap (good)
+  remediation: Always clean up temp files
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-race-temp-file-cleanup
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\./tmp\./[^/]+'
+  - regex: \./tmp\./[^/]+
   severity: medium
-  description: "Temp file without cleanup trap"
-  remediation: "Add trap to clean up temp files"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: Temp file without cleanup trap
+  remediation: Add trap to clean up temp files
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.6
 - id: bash-race-lock-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\./var\./lock\./|\./run\./lock\./'
+  - regex: \./var\./lock\./|\./run\./lock\./
   severity: medium
-  description: "Lock file usage (race condition risk)"
-  remediation: "Use flock for atomic locking"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Lock file usage (race condition risk)
+  remediation: Use flock for atomic locking
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.6
 - id: bash-race-flock
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'flock\s+'
+  - regex: flock\s+
   severity: low
-  description: "flock usage (good for file locking)"
-  remediation: "Good practice for concurrent access"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: flock usage (good for file locking)
+  remediation: Good practice for concurrent access
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-race-flock-fd
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'exec\s+\.d+>\s*[^;]+;\s*flock'
+  - regex: exec\s+\.d+>\s*[^;]+;\s*flock
   severity: low
-  description: "flock with file descriptor (good)"
-  remediation: "Good for atomic operations"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: flock with file descriptor (good)
+  remediation: Good for atomic operations
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-race-check-then-act
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'if\s+\.[\s+\.!\s+-[ef]\s+[^]]+\.]\s*;\s*then\s*.*?\s+>\s*\.1'
+  - regex: if\s+\.[\s+\.!\s+-[ef]\s+[^]]+\.]\s*;\s*then\s*.*?\s+>\s*\.1
   severity: critical
-  description: "TOCTOU race: check if file exists, then create"
-  remediation: "Use atomic operations: set -o noclobber, flock"
-  cwe: "CWE-367"
-  owasp: "A06:2021"
-
+  description: 'TOCTOU race: check if file exists, then create'
+  remediation: 'Use atomic operations: set -o noclobber, flock'
+  cwe: CWE-367
+  owasp: A06:2021
+  confidence: 0.75
 - id: bash-race-mkdir-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'if\s+\.[\s+\.!\s+-d\s+[^]]+\.]\s*;\s*then\s*mkdir'
+  - regex: if\s+\.[\s+\.!\s+-d\s+[^]]+\.]\s*;\s*then\s*mkdir
   severity: high
-  description: "Check if directory exists, then create (race)"
-  remediation: "Use mkdir directly, it's atomic"
-  cwe: "CWE-367"
-  owasp: "A06:2021"
-
+  description: Check if directory exists, then create (race)
+  remediation: Use mkdir directly, it's atomic
+  cwe: CWE-367
+  owasp: A06:2021
+  confidence: 0.7
 - id: bash-race-symlink
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'ln\s+-s\s+[^;]+'
+  - regex: ln\s+-s\s+[^;]+
   severity: medium
-  description: "Symlink creation (may be race condition)"
-  remediation: "Use ln -sf to force overwrite"
-  cwe: "CWE-59"
-  owasp: "A01:2021"
-
+  description: Symlink creation (may be race condition)
+  remediation: Use ln -sf to force overwrite
+  cwe: CWE-59
+  owasp: A01:2021
+  confidence: 0.55
 - id: bash-race-symlink-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'if\s+\.[\s+\.!\s+-L\s+[^]]+\.]\s*;\s*then\s*ln'
+  - regex: if\s+\.[\s+\.!\s+-L\s+[^]]+\.]\s*;\s*then\s*ln
   severity: high
-  description: "Check symlink then create (race)"
-  remediation: "Use ln -sf directly"
-  cwe: "CWE-367"
-  owasp: "A06:2021"
-
+  description: Check symlink then create (race)
+  remediation: Use ln -sf directly
+  cwe: CWE-367
+  owasp: A06:2021
+  confidence: 0.7
 - id: bash-race-pid-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\./var\./run\./.*\..pid'
+  - regex: \./var\./run\./.*\..pid
   severity: medium
-  description: "PID file usage (race condition risk)"
-  remediation: "Use flock with PID file"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: PID file usage (race condition risk)
+  remediation: Use flock with PID file
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.6
 - id: bash-race-kill-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'if\s+kill\s+-0\s+\.$PID.*?then.*?kill\s+\.$PID'
+  - regex: if\s+kill\s+-0\s+\.$PID.*?then.*?kill\s+\.$PID
   severity: medium
-  description: "Check if process exists then kill (race)"
-  remediation: "Just kill, it handles non-existent processes"
-  cwe: "CWE-367"
-  owasp: "A06:2021"
-
-# ======================== UNSAFE SOURCE & INCLUDE (56-70) ========================
-
+  description: Check if process exists then kill (race)
+  remediation: Just kill, it handles non-existent processes
+  cwe: CWE-367
+  owasp: A06:2021
+  confidence: 0.6
 - id: bash-source-variable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+\$[a-zA-Z_][a-zA-Z0-9_]*|\.\s+\$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: source\s+\$[a-zA-Z_][a-zA-Z0-9_]*|\.\s+\$[a-zA-Z_][a-zA-Z0-9_]*
   severity: critical
-  description: "Sourcing file from variable (code injection risk)"
-  remediation: "Validate path before sourcing, use absolute paths"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing file from variable (code injection risk)
+  remediation: Validate path before sourcing, use absolute paths
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-source-user-input
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+.*\.$\.{?[A-Za-z_][A-Za-z0-9_]*\.}?.*?\.|.*?source'
+  - regex: source\s+.*\.$\.{?[A-Za-z_][A-Za-z0-9_]*\.}?.*?\.|.*?source
   severity: critical
-  description: "Sourcing file with user input (arbitrary code execution)"
-  remediation: "Never source files based on user input"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing file with user input (arbitrary code execution)
+  remediation: Never source files based on user input
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-source-relative
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+[\.'']?\..\./[\.'']?'
+  - regex: source\s+[\.']?\..\./[\.']?
   severity: medium
-  description: "Sourcing relative path (depends on current directory)"
-  remediation: "Use absolute paths: source \"$(dirname \"$0\")/file.sh\""
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Sourcing relative path (depends on current directory)
+  remediation: 'Use absolute paths: source "$(dirname "$0")/file.sh"'
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.6
 - id: bash-source-absolute
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+[\.'']?\./[\.'']?[^\.'']+'
+  - regex: source\s+[\.']?\./[\.']?[^\.']+
   severity: low
-  description: "Sourcing absolute path (safer)"
-  remediation: "Good practice"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing absolute path (safer)
+  remediation: Good practice
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.5
 - id: bash-source-without-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+[^;]+'
+  - regex: source\s+[^;]+
   severity: high
-  description: "Sourcing file without checking existence"
-  remediation: "Check file exists: [ -f \"$file\" ] && source \"$file\""
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Sourcing file without checking existence
+  remediation: 'Check file exists: [ -f "$file" ] && source "$file"'
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.65
 - id: bash-source-multiple
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+\w+\s+in\s+[^;]+;\s+do\s+source'
+  - regex: for\s+\w+\s+in\s+[^;]+;\s+do\s+source
   severity: high
-  description: "Loop sourcing multiple files (may include unexpected files)"
-  remediation: "Use explicit list of files to source"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Loop sourcing multiple files (may include unexpected files)
+  remediation: Use explicit list of files to source
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-source-wildcard
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+\.*'
+  - regex: source\s+\.*
   severity: critical
-  description: "Sourcing all files with wildcard (code injection)"
-  remediation: "Never use wildcards with source"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing all files with wildcard (code injection)
+  remediation: Never use wildcards with source
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-source-dir
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+\./etc\./profile\..d\./\.*'
+  - regex: source\s+\./etc\./profile\..d\./\.*
   severity: critical
-  description: "Sourcing directory contents (unpredictable)"
-  remediation: "Source specific files only"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing directory contents (unpredictable)
+  remediation: Source specific files only
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-source-bashrc
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+~?\./\..bashrc|source\s+~?\./\..profile'
+  - regex: source\s+~?\./\..bashrc|source\s+~?\./\..profile
   severity: medium
-  description: "Sourcing user profile files (may have unexpected aliases)"
-  remediation: "Avoid in scripts meant for production"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing user profile files (may have unexpected aliases)
+  remediation: Avoid in scripts meant for production
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.6
 - id: bash-source-return-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+[^;]+\s*;\s*\.[\.[\s*\.$\.?\s*\.-ne\s*0]'
+  - regex: source\s+[^;]+\s*;\s*\.[\.[\s*\.$\.?\s*\.-ne\s*0]
   severity: low
-  description: "Checking source return value (good)"
-  remediation: "Good practice"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Checking source return value (good)
+  remediation: Good practice
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: bash-source-in-function
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'function\s+\w+\s*{\s*source\s+'
+  - regex: function\s+\w+\s*{\s*source\s+
   severity: high
-  description: "Sourcing inside function (modifies function scope)"
-  remediation: "Source outside functions or use subshell"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing inside function (modifies function scope)
+  remediation: Source outside functions or use subshell
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-source-subshell
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.(\s*source\s+)'
+  - regex: \.(\s*source\s+)
   severity: low
-  description: "Sourcing in subshell (isolates changes)"
-  remediation: "Good practice to avoid side effects"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Sourcing in subshell (isolates changes)
+  remediation: Good practice to avoid side effects
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-source-exported-function
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'export\s+-f\s+'
+  - regex: export\s+-f\s+
   severity: medium
-  description: "Exporting functions (security risk in environment)"
-  remediation: "Avoid exporting functions"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Exporting functions (security risk in environment)
+  remediation: Avoid exporting functions
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-source-command-not-found
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'command-not-found'
+  - regex: command-not-found
   severity: low
-  description: "Command-not-found handler (may leak info)"
-  remediation: "Disable in scripts"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Command-not-found handler (may leak info)
+  remediation: Disable in scripts
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-source-bash-completion
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'source\s+.*bash_completion'
+  - regex: source\s+.*bash_completion
   severity: low
-  description: "Sourcing bash completion (slow, may have issues)"
-  remediation: "Disable in scripts unless needed"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-# ======================== EVAL & DYNAMIC CODE EXECUTION (71-85) ========================
-
+  description: Sourcing bash completion (slow, may have issues)
+  remediation: Disable in scripts unless needed
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: bash-eval-command
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'eval\s+\.$'
+  - regex: eval\s+\.$
   severity: critical
-  description: "eval with variable (arbitrary code execution)"
-  remediation: "Avoid eval entirely, use arrays and proper quoting"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval with variable (arbitrary code execution)
+  remediation: Avoid eval entirely, use arrays and proper quoting
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-eval-user-input
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'eval\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s*\.|'
+  - regex: eval\s+\.$[a-zA-Z_][a-zA-Z0-9_]*\s*\.|
   severity: critical
-  description: "eval with user input (remote code execution)"
-  remediation: "Never eval user input"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval with user input (remote code execution)
+  remediation: Never eval user input
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-eval-command-substitution
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'eval\s+`[^`]+`|eval\s+\.$\.([^)]+\.)'
+  - regex: eval\s+`[^`]+`|eval\s+\.$\.([^)]+\.)
   severity: critical
-  description: "eval with command substitution (double evaluation)"
-  remediation: "Avoid eval, use command substitution directly"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval with command substitution (double evaluation)
+  remediation: Avoid eval, use command substitution directly
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-eval-here-doc
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'eval\s+<<'
+  - regex: eval\s+<<
   severity: critical
-  description: "eval with here document (code injection)"
-  remediation: "Don't eval, use file or variable directly"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval with here document (code injection)
+  remediation: Don't eval, use file or variable directly
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-eval-printf
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'eval\s+\.$\.(printf)'
+  - regex: eval\s+\.$\.(printf)
   severity: critical
-  description: "eval with printf (format string injection)"
-  remediation: "Avoid eval, use printf directly"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
+  description: eval with printf (format string injection)
+  remediation: Avoid eval, use printf directly
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-eval-argument
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'eval\s+\.$\.d+'
+  - regex: eval\s+\.$\.d+
   severity: critical
-  description: "eval with script argument (code injection)"
-  remediation: "Validate arguments instead of evaling"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval with script argument (code injection)
+  remediation: Validate arguments instead of evaling
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-eval-array
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'eval\s+\.$\.{[^}]+\.}'
+  - regex: eval\s+\.$\.{[^}]+\.}
   severity: critical
-  description: "eval with array (code injection)"
-  remediation: "Use array directly, not eval"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval with array (code injection)
+  remediation: Use array directly, not eval
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: bash-eval-in-function
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'function\s+\w+\s*{\s*eval\s+'
+  - regex: function\s+\w+\s*{\s*eval\s+
   severity: critical
-  description: "eval inside function (dangerous)"
-  remediation: "Restructure to avoid eval"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval inside function (dangerous)
+  remediation: Restructure to avoid eval
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-eval-loop
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+\w+\s+in.*?;\s*do\s*eval'
+  - regex: for\s+\w+\s+in.*?;\s*do\s*eval
   severity: critical
-  description: "eval in loop (multiple code injection opportunities)"
-  remediation: "Restructure to avoid eval"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval in loop (multiple code injection opportunities)
+  remediation: Restructure to avoid eval
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-eval-trap
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap\s+[''\.]eval'
+  - regex: trap\s+['\.]eval
   severity: critical
-  description: "eval in trap handler (dangerous)"
-  remediation: "Use functions in trap, not eval"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval in trap handler (dangerous)
+  remediation: Use functions in trap, not eval
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-builtin-declare
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'declare\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+  - regex: declare\s+\.$[a-zA-Z_][a-zA-Z0-9_]*=
   severity: high
-  description: "declare with variable name (dynamic variable creation)"
-  remediation: "Use associative arrays instead"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: declare with variable name (dynamic variable creation)
+  remediation: Use associative arrays instead
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-builtin-export-dynamic
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'export\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+  - regex: export\s+\.$[a-zA-Z_][a-zA-Z0-9_]*=
   severity: high
-  description: "export with variable name (dynamic environment)"
-  remediation: "Use fixed environment variable names"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: export with variable name (dynamic environment)
+  remediation: Use fixed environment variable names
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-builtin-readonly-dynamic
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'readonly\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+  - regex: readonly\s+\.$[a-zA-Z_][a-zA-Z0-9_]*=
   severity: high
-  description: "readonly with variable name (dynamic)"
-  remediation: "Use fixed variable names"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: readonly with variable name (dynamic)
+  remediation: Use fixed variable names
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-builtin-local-dynamic
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'local\s+\.$[a-zA-Z_][a-zA-Z0-9_]*='
+  - regex: local\s+\.$[a-zA-Z_][a-zA-Z0-9_]*=
   severity: high
-  description: "local with variable name (dynamic)"
-  remediation: "Use fixed variable names"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: local with variable name (dynamic)
+  remediation: Use fixed variable names
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-printf-variable-varname
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'printf\s+-v\s+\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: printf\s+-v\s+\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: high
-  description: "printf -v with variable variable name"
-  remediation: "Use fixed variable names"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
-# ======================== ENVIRONMENT VARIABLE INJECTION (86-100) ========================
-
+  description: printf -v with variable variable name
+  remediation: Use fixed variable names
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-env-ld-preload
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'LD_PRELOAD|LD_LIBRARY_PATH'
+  - regex: LD_PRELOAD|LD_LIBRARY_PATH
   severity: high
-  description: "LD_PRELOAD/LD_LIBRARY_PATH manipulation (library injection)"
-  remediation: "Avoid setting these in scripts"
-  cwe: "CWE-426"
-  owasp: "A05:2021"
-
+  description: LD_PRELOAD/LD_LIBRARY_PATH manipulation (library injection)
+  remediation: Avoid setting these in scripts
+  cwe: CWE-426
+  owasp: A05:2021
+  confidence: 0.65
 - id: bash-env-path
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'PATH\s*=\s*[^:]*\..:'
+  - regex: 'PATH\s*=\s*[^:]*\..:'
   severity: critical
-  description: "PATH includes current directory (command hijacking)"
-  remediation: "Remove . from PATH, use ./command explicitly"
-  cwe: "CWE-426"
-  owasp: "A05:2021"
-
+  description: PATH includes current directory (command hijacking)
+  remediation: Remove . from PATH, use ./command explicitly
+  cwe: CWE-426
+  owasp: A05:2021
+  confidence: 0.7
 - id: bash-env-path-empty
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'PATH\s*=\s*::|PATH\s*=\s*:'
+  - regex: 'PATH\s*=\s*::|PATH\s*=\s*:'
   severity: critical
-  description: "PATH contains empty entry (current directory)"
-  remediation: "Remove empty entries from PATH"
-  cwe: "CWE-426"
-  owasp: "A05:2021"
-
+  description: PATH contains empty entry (current directory)
+  remediation: Remove empty entries from PATH
+  cwe: CWE-426
+  owasp: A05:2021
+  confidence: 0.7
 - id: bash-env-path-relative
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'PATH\s*=\s*[^:]*\..\..[^:]'
+  - regex: PATH\s*=\s*[^:]*\..\..[^:]
   severity: high
-  description: "PATH contains relative paths (security risk)"
-  remediation: "Use absolute paths in PATH"
-  cwe: "CWE-426"
-  owasp: "A05:2021"
-
+  description: PATH contains relative paths (security risk)
+  remediation: Use absolute paths in PATH
+  cwe: CWE-426
+  owasp: A05:2021
+  confidence: 0.7
 - id: bash-env-ifs
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'IFS\s*=\s*[^\.n]+'
+  - regex: IFS\s*=\s*[^\.n]+
   severity: high
-  description: "IFS modification (affects word splitting)"
-  remediation: "Save and restore IFS"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: IFS modification (affects word splitting)
+  remediation: Save and restore IFS
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-env-ps1
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'PS1\s*='
+  - regex: PS1\s*=
   severity: low
-  description: "PS1 modification (command prompt)"
-  remediation: "Avoid in scripts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: PS1 modification (command prompt)
+  remediation: Avoid in scripts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-env-bash-env
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'BASH_ENV|ENV'
+  - regex: BASH_ENV|ENV
   severity: high
-  description: "BASH_ENV/ENV variable (executes file on startup)"
-  remediation: "Don't set in scripts"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: BASH_ENV/ENV variable (executes file on startup)
+  remediation: Don't set in scripts
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-env-tmpdir
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'TMPDIR\s*=\s*[^:]+'
+  - regex: TMPDIR\s*=\s*[^:]+
   severity: low
-  description: "TMPDIR setting (temp directory)"
-  remediation: "Ensure directory exists and is writable"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: TMPDIR setting (temp directory)
+  remediation: Ensure directory exists and is writable
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-env-umask
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'umask\s+[0-7]{3,4}'
+  - regex: umask\s+[0-7]{3,4}
   severity: low
-  description: "umask setting (file creation mask)"
-  remediation: "Set restrictive umask: umask 077"
-  cwe: "CWE-732"
-  owasp: "A05:2021"
-
+  description: umask setting (file creation mask)
+  remediation: 'Set restrictive umask: umask 077'
+  cwe: CWE-732
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-env-umask-weak
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'umask\s+0?(000|111|222|333|444|555|666)'
+  - regex: umask\s+0?(000|111|222|333|444|555|666)
   severity: high
-  description: "Weak umask (world-writable files)"
-  remediation: "Set umask 077 for security"
-  cwe: "CWE-732"
-  owasp: "A05:2021"
-
+  description: Weak umask (world-writable files)
+  remediation: Set umask 077 for security
+  cwe: CWE-732
+  owasp: A05:2021
+  confidence: 0.65
 - id: bash-env-language
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'LANG|LC_'
+  - regex: LANG|LC_
   severity: low
-  description: "Locale environment variable"
-  remediation: "Set to C for predictable behavior"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Locale environment variable
+  remediation: Set to C for predictable behavior
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-trap-cleanup
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*rm.*EXIT|trap.*cleanup.*EXIT'
+  - regex: trap.*rm.*EXIT|trap.*cleanup.*EXIT
   severity: low
-  description: "Trap for cleanup on exit (good)"
-  remediation: "Good practice"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Trap for cleanup on exit (good)
+  remediation: Good practice
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-missing-dup1
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^.*\./tmp\./[^\.s]+'
+  - regex: ^.*\./tmp\./[^\.s]+
   severity: medium
-  description: "Temp file without cleanup trap"
-  remediation: "Add trap to clean up temp files"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Temp file without cleanup trap
+  remediation: Add trap to clean up temp files
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.6
 - id: bash-trap-signal
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*INT|trap.*TERM'
+  - regex: trap.*INT|trap.*TERM
   severity: low
-  description: "Signal handler installed (good)"
-  remediation: "Good for graceful shutdown"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Signal handler installed (good)
+  remediation: Good for graceful shutdown
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-ignore
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap\s+[''\.]\s*[''\.]\s+SIG|trap\s+[''\.]\s*[''\.]\s+INT'
+  - regex: trap\s+['\.]\s*['\.]\s+SIG|trap\s+['\.]\s*['\.]\s+INT
   severity: high
-  description: "Ignoring signals (may prevent cleanup)"
-  remediation: "Handle signals properly, don't ignore"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Ignoring signals (may prevent cleanup)
+  remediation: Handle signals properly, don't ignore
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.7
 - id: bash-trap-debug
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*DEBUG'
+  - regex: trap.*DEBUG
   severity: medium
-  description: "DEBUG trap (executes on every command)"
-  remediation: "Use only for debugging, remove in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: DEBUG trap (executes on every command)
+  remediation: Use only for debugging, remove in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-trap-err
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*ERR'
+  - regex: trap.*ERR
   severity: low
-  description: "ERR trap (error handler)"
-  remediation: "Good for error handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: ERR trap (error handler)
+  remediation: Good for error handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-return
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*RETURN'
+  - regex: trap.*RETURN
   severity: low
-  description: "RETURN trap (function return handler)"
-  remediation: "Use with caution"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: RETURN trap (function return handler)
+  remediation: Use with caution
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-exit
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*EXIT'
+  - regex: trap.*EXIT
   severity: low
-  description: "EXIT trap (good for cleanup)"
-  remediation: "Good practice"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: EXIT trap (good for cleanup)
+  remediation: Good practice
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-override
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*EXIT.*trap.*EXIT'
+  - regex: trap.*EXIT.*trap.*EXIT
   severity: low
-  description: "Multiple EXIT traps (overrides previous)"
-  remediation: "Combine handlers in one trap"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Multiple EXIT traps (overrides previous)
+  remediation: Combine handlers in one trap
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-subshell
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.(.*trap.*\.)'
+  - regex: \.(.*trap.*\.)
   severity: low
-  description: "Trap in subshell (isolated)"
-  remediation: "Good for isolating signal handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Trap in subshell (isolated)
+  remediation: Good for isolating signal handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: bash-trap-kill
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*KILL'
+  - regex: trap.*KILL
   severity: low
-  description: "KILL signal trap (cannot be trapped)"
-  remediation: "KILL cannot be caught, use TERM"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: KILL signal trap (cannot be trapped)
+  remediation: KILL cannot be caught, use TERM
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-stop
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*STOP|trap.*TSTP'
+  - regex: trap.*STOP|trap.*TSTP
   severity: low
-  description: "STOP/TSTP signal trap (cannot be trapped)"
-  remediation: "These signals cannot be caught"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: STOP/TSTP signal trap (cannot be trapped)
+  remediation: These signals cannot be caught
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-pipefail
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-o\s+pipefail.*trap'
+  - regex: set\s+-o\s+pipefail.*trap
   severity: low
-  description: "pipefail with trap (good)"
-  remediation: "Good for pipeline error handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: pipefail with trap (good)
+  remediation: Good for pipeline error handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-e
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-e.*trap'
+  - regex: set\s+-e.*trap
   severity: low
-  description: "set -e with trap (good)"
-  remediation: "Good for error handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: set -e with trap (good)
+  remediation: Good for error handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-trap-u
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-u.*trap'
+  - regex: set\s+-u.*trap
   severity: low
-  description: "set -u with trap (good)"
-  remediation: "Good for unset variable errors"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
-# ======================== SET BUILTIN OPTIONS (116-130) ========================
-
+  description: set -u with trap (good)
+  remediation: Good for unset variable errors
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-set-e
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-e|set\s+-o\s+errexit'
+  - regex: set\s+-e|set\s+-o\s+errexit
   severity: low
-  description: "set -e (exit on error) - good"
-  remediation: "Good practice"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: set -e (exit on error) - good
+  remediation: Good practice
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-set-e-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/bin/(bash|sh)'
+  - regex: ^#!/bin/(bash|sh)
   severity: medium
-  description: "set -e missing (errors may be ignored)"
-  remediation: "Add set -e at the top of scripts"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: set -e missing (errors may be ignored)
+  remediation: Add set -e at the top of scripts
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.55
 - id: bash-set-u
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-u|set\s+-o\s+nounset'
+  - regex: set\s+-u|set\s+-o\s+nounset
   severity: low
-  description: "set -u (error on unset variables) - good"
-  remediation: "Good practice"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: set -u (error on unset variables) - good
+  remediation: Good practice
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-set-u-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/bin/(bash|sh)'
+  - regex: ^#!/bin/(bash|sh)
   severity: medium
-  description: "set -u missing (unset variables may be used)"
-  remediation: "Add set -u at the top of scripts"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: set -u missing (unset variables may be used)
+  remediation: Add set -u at the top of scripts
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-set-o-pipefail
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-o\s+pipefail'
+  - regex: set\s+-o\s+pipefail
   severity: low
-  description: "set -o pipefail (pipeline error detection) - good"
-  remediation: "Good practice with set -e"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: set -o pipefail (pipeline error detection) - good
+  remediation: Good practice with set -e
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-set-o-pipefail-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.|.*\.|'
+  - regex: \.|.*\.|
   severity: medium
-  description: "Pipelines without pipefail (errors ignored)"
-  remediation: "Add set -o pipefail"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Pipelines without pipefail (errors ignored)
+  remediation: Add set -o pipefail
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.6
 - id: bash-set-x
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-x|set\s+-o\s+xtrace'
+  - regex: set\s+-x|set\s+-o\s+xtrace
   severity: medium
-  description: "set -x (debug mode) - may leak sensitive data"
-  remediation: "Remove in production, use conditionally"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
+  description: set -x (debug mode) - may leak sensitive data
+  remediation: Remove in production, use conditionally
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.55
 - id: bash-set-v
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-v|set\s+-o\s+verbose'
+  - regex: set\s+-v|set\s+-o\s+verbose
   severity: medium
-  description: "set -v (verbose mode) - may leak information"
-  remediation: "Remove in production"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
+  description: set -v (verbose mode) - may leak information
+  remediation: Remove in production
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.55
 - id: bash-set-n
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-n'
+  - regex: set\s+-n
   severity: low
-  description: "set -n (no execution) - syntax check only"
-  remediation: "Good for testing"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: set -n (no execution) - syntax check only
+  remediation: Good for testing
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-set-f
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-f|set\s+-o\s+noglob'
+  - regex: set\s+-f|set\s+-o\s+noglob
   severity: low
-  description: "set -f (disable globbing) - good for literal strings"
-  remediation: "Good when working with special characters"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: set -f (disable globbing) - good for literal strings
+  remediation: Good when working with special characters
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-set-c
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-c'
+  - regex: set\s+-c
   severity: low
-  description: "set -c (prevent overwriting files)"
-  remediation: "Good for safety"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: set -c (prevent overwriting files)
+  remediation: Good for safety
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.45
 - id: bash-set-b
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-b'
+  - regex: set\s+-b
   severity: low
-  description: "set -b (notify of background job completion)"
-  remediation: "Not a security issue"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: set -b (notify of background job completion)
+  remediation: Not a security issue
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-set-h
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-h|set\s+-o\s+hashall'
+  - regex: set\s+-h|set\s+-o\s+hashall
   severity: low
-  description: "set -h (command hashing)"
-  remediation: "Default behavior"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: set -h (command hashing)
+  remediation: Default behavior
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-set-euo
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'set\s+-euo\s+pipefail|set\s+-euxo\s+pipefail'
+  - regex: set\s+-euo\s+pipefail|set\s+-euxo\s+pipefail
   severity: low
-  description: "set -euo pipefail (comprehensive error handling) - best practice"
-  remediation: "Recommended for all scripts"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: set -euo pipefail (comprehensive error handling) - best practice
+  remediation: Recommended for all scripts
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-set-euo-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/bin/(bash|sh)'
+  - regex: ^#!/bin/(bash|sh)
   severity: medium
-  description: "Missing comprehensive error handling"
-  remediation: "Add set -euo pipefail"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
-# ======================== SHOPT OPTIONS (131-145) ========================
-
+  description: Missing comprehensive error handling
+  remediation: Add set -euo pipefail
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.55
 - id: bash-shopt-dotglob
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+dotglob'
+  - regex: shopt\s+-s\s+dotglob
   severity: medium
-  description: "dotglob enabled (includes dot files in globs)"
-  remediation: "Be careful when globbing, may include . and .."
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: dotglob enabled (includes dot files in globs)
+  remediation: Be careful when globbing, may include . and ..
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-shopt-nullglob
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+nullglob'
+  - regex: shopt\s+-s\s+nullglob
   severity: low
-  description: "nullglob enabled (empty glob expands to nothing)"
-  remediation: "Good for avoiding literal * when no matches"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: nullglob enabled (empty glob expands to nothing)
+  remediation: Good for avoiding literal * when no matches
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-shopt-failglob
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+failglob'
+  - regex: shopt\s+-s\s+failglob
   severity: low
-  description: "failglob enabled (error if no matches)"
-  remediation: "Good for catching missing files"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: failglob enabled (error if no matches)
+  remediation: Good for catching missing files
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-shopt-extglob
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+extglob'
+  - regex: shopt\s+-s\s+extglob
   severity: low
-  description: "extglob enabled (extended pattern matching)"
-  remediation: "Use with caution, may be complex"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: extglob enabled (extended pattern matching)
+  remediation: Use with caution, may be complex
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-shopt-nocaseglob
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+nocaseglob'
+  - regex: shopt\s+-s\s+nocaseglob
   severity: low
-  description: "nocaseglob enabled (case-insensitive globbing)"
-  remediation: "Be aware of case sensitivity"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: nocaseglob enabled (case-insensitive globbing)
+  remediation: Be aware of case sensitivity
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-shopt-globstar
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+globstar'
+  - regex: shopt\s+-s\s+globstar
   severity: low
-  description: "globstar enabled (** matches recursively)"
-  remediation: "Be careful with deep directories"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: globstar enabled (** matches recursively)
+  remediation: Be careful with deep directories
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: bash-shopt-histsize
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'HISTSIZE|HISTFILESIZE'
+  - regex: HISTSIZE|HISTFILESIZE
   severity: medium
-  description: "Command history size set (may leak commands)"
-  remediation: "Set to 0 in scripts"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Command history size set (may leak commands)
+  remediation: Set to 0 in scripts
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-shopt-histappend
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+histappend'
+  - regex: shopt\s+-s\s+histappend
   severity: low
-  description: "histappend enabled (appends history)"
-  remediation: "Not relevant for scripts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: histappend enabled (appends history)
+  remediation: Not relevant for scripts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-shopt-cdspell
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+cdspell'
+  - regex: shopt\s+-s\s+cdspell
   severity: low
-  description: "cdspell enabled (auto-corrects cd typos)"
-  remediation: "Not recommended for scripts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: cdspell enabled (auto-corrects cd typos)
+  remediation: Not recommended for scripts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-shopt-checkhash
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+checkhash'
+  - regex: shopt\s+-s\s+checkhash
   severity: low
-  description: "checkhash enabled (verifies command hash)"
-  remediation: "Good for security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: checkhash enabled (verifies command hash)
+  remediation: Good for security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-shopt-checkwinsize
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+checkwinsize'
+  - regex: shopt\s+-s\s+checkwinsize
   severity: low
-  description: "checkwinsize enabled (updates LINES/COLUMNS)"
-  remediation: "Not a security issue"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: checkwinsize enabled (updates LINES/COLUMNS)
+  remediation: Not a security issue
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-shopt-cmdhist
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+cmdhist'
+  - regex: shopt\s+-s\s+cmdhist
   severity: low
-  description: "cmdhist enabled (saves multi-line commands)"
-  remediation: "Not relevant for scripts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: cmdhist enabled (saves multi-line commands)
+  remediation: Not relevant for scripts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-shopt-lithist
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'shopt\s+-s\s+lithist'
+  - regex: shopt\s+-s\s+lithist
   severity: low
-  description: "lithist enabled (preserves newlines in history)"
-  remediation: "Not relevant for scripts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# ======================== FUNCTION SECURITY (146-160) ========================
-
+  description: lithist enabled (preserves newlines in history)
+  remediation: Not relevant for scripts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-export
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'export\s+-f'
+  - regex: export\s+-f
   severity: high
-  description: "Exporting functions (security risk in environment)"
-  remediation: "Avoid exporting functions"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Exporting functions (security risk in environment)
+  remediation: Avoid exporting functions
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: bash-function-readonly
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'readonly\s+-f'
+  - regex: readonly\s+-f
   severity: low
-  description: "Readonly function (good)"
-  remediation: "Good for preventing modification"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Readonly function (good)
+  remediation: Good for preventing modification
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-declare
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'declare\s+-f|declare\s+-F'
+  - regex: declare\s+-f|declare\s+-F
   severity: low
-  description: "declare with function options"
-  remediation: "Normal function operations"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: declare with function options
+  remediation: Normal function operations
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-unset
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'unset\s+-f'
+  - regex: unset\s+-f
   severity: low
-  description: "Unsetting functions (cleanup)"
-  remediation: "Good practice"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Unsetting functions (cleanup)
+  remediation: Good practice
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-type
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'type\s+\w+'
+  - regex: type\s+\w+
   severity: low
-  description: "type command (information disclosure)"
-  remediation: "Avoid in production scripts"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: type command (information disclosure)
+  remediation: Avoid in production scripts
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-command
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'command\s+\w+'
+  - regex: command\s+\w+
   severity: low
-  description: "command builtin (bypasses functions)"
-  remediation: "Good for using builtins instead of functions"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: command builtin (bypasses functions)
+  remediation: Good for using builtins instead of functions
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-builtin
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'builtin\s+\w+'
+  - regex: builtin\s+\w+
   severity: low
-  description: "builtin command (forces builtin usage)"
-  remediation: "Good for avoiding aliases"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: builtin command (forces builtin usage)
+  remediation: Good for avoiding aliases
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-enable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'enable\s+'
+  - regex: enable\s+
   severity: low
-  description: "enable command (enables/disables builtins)"
-  remediation: "Use with caution"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: enable command (enables/disables builtins)
+  remediation: Use with caution
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-alias
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'alias\s+'
+  - regex: alias\s+
   severity: medium
-  description: "alias usage (may hide commands)"
-  remediation: "Use functions instead of aliases in scripts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: alias usage (may hide commands)
+  remediation: Use functions instead of aliases in scripts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-function-alias-unalias
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'unalias\s+-a'
+  - regex: unalias\s+-a
   severity: low
-  description: "unalias -a (removes all aliases) - good"
-  remediation: "Good for scripts to ensure clean environment"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: unalias -a (removes all aliases) - good
+  remediation: Good for scripts to ensure clean environment
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-return
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'return\s+[0-9]+'
+  - regex: return\s+[0-9]+
   severity: low
-  description: "return with exit code (good)"
-  remediation: "Always return meaningful exit codes"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: return with exit code (good)
+  remediation: Always return meaningful exit codes
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-function-return-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'function\s+\w+\s*{\s*[^}]*}'
+  - regex: function\s+\w+\s*{\s*[^}]*}
   severity: medium
-  description: "Function without return (uses last command exit code)"
-  remediation: "Add explicit return statements"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Function without return (uses last command exit code)
+  remediation: Add explicit return statements
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.55
 - id: bash-function-local-var
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'function\s+\w+\s*{\s*[^}]*\.$[a-zA-Z_][a-zA-Z0-9_]*'
+  - regex: function\s+\w+\s*{\s*[^}]*\.$[a-zA-Z_][a-zA-Z0-9_]*
   severity: medium
-  description: "Function using global variables (side effects)"
-  remediation: "Use local variables with local keyword"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Function using global variables (side effects)
+  remediation: Use local variables with local keyword
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-function-local-keyword
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'local\s+\w+='
+  - regex: local\s+\w+=
   severity: low
-  description: "local variable in function (good)"
-  remediation: "Good practice"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: local variable in function (good)
+  remediation: Good practice
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-function-redefine
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'function\s+\w+\s*{\s*[^}]*}\s*function\s+\.1'
+  - regex: function\s+\w+\s*{\s*[^}]*}\s*function\s+\.1
   severity: low
-  description: "Function redefinition (may be intentional)"
-  remediation: "Ensure this is intended"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# ======================== EXIT CODES & ERROR HANDLING (161-175) ========================
-
+  description: Function redefinition (may be intentional)
+  remediation: Ensure this is intended
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-exit-code-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.$\.?|\.$PIPESTATUS'
+  - regex: \.$\.?|\.$PIPESTATUS
   severity: low
-  description: "Exit code checking (good)"
-  remediation: "Always check exit codes"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Exit code checking (good)
+  remediation: Always check exit codes
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: bash-exit-code-ignored-dup1
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'command\s+[^;]+;\s*'
+  - regex: command\s+[^;]+;\s*
   severity: high
-  description: "Command without exit code check"
-  remediation: "Check exit codes or use set -e"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Command without exit code check
+  remediation: Check exit codes or use set -e
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.65
 - id: bash-exit-code-or
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.|\.|\s+true|\.|\.|\s*:'
+  - regex: '\.|\.|\s+true|\.|\.|\s*:'
   severity: high
-  description: "Ignoring errors with || true"
-  remediation: "Handle errors properly, don't ignore"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Ignoring errors with || true
+  remediation: Handle errors properly, don't ignore
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.7
 - id: bash-exit-code-and
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '&&\s+exit'
+  - regex: '&&\s+exit'
   severity: low
-  description: "Exit on error with && (limited)"
-  remediation: "Use set -e for better coverage"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Exit on error with && (limited)
+  remediation: Use set -e for better coverage
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-exit-code-pipefail
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.|.*\.|'
+  - regex: \.|.*\.|
   severity: medium
-  description: "Pipeline without pipefail (middle errors ignored)"
-  remediation: "Set -o pipefail"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Pipeline without pipefail (middle errors ignored)
+  remediation: Set -o pipefail
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.6
 - id: bash-exit-code-pipestatus
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '\.$PIPESTATUS'
+  - regex: \.$PIPESTATUS
   severity: low
-  description: "PIPESTATUS array (checking individual pipe exit codes)"
-  remediation: "Good for complex pipelines"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: PIPESTATUS array (checking individual pipe exit codes)
+  remediation: Good for complex pipelines
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-exit-code-trap-err
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'trap.*ERR.*exit'
+  - regex: trap.*ERR.*exit
   severity: low
-  description: "ERR trap with exit (good)"
-  remediation: "Good for error handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: ERR trap with exit (good)
+  remediation: Good for error handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-exit-code-exit
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'exit\s+[0-9]+'
+  - regex: exit\s+[0-9]+
   severity: low
-  description: "exit with specific code (good)"
-  remediation: "Use meaningful exit codes"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: exit with specific code (good)
+  remediation: Use meaningful exit codes
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-exit-code-exit-0
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'exit\s+0'
+  - regex: exit\s+0
   severity: low
-  description: "exit 0 (success)"
-  remediation: "Good for normal completion"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: exit 0 (success)
+  remediation: Good for normal completion
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-exit-code-exit-1
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'exit\s+1'
+  - regex: exit\s+1
   severity: low
-  description: "exit 1 (general error)"
-  remediation: "Use specific codes for different errors"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: exit 1 (general error)
+  remediation: Use specific codes for different errors
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-exit-code-custom
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'exit\s+[2-9][0-9]*'
+  - regex: exit\s+[2-9][0-9]*
   severity: low
-  description: "exit with custom code (good)"
-  remediation: "Document custom exit codes"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: exit with custom code (good)
+  remediation: Document custom exit codes
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-exit-code-missing
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^'
+  - regex: ^
   severity: medium
-  description: "Script without exit (uses last command's exit code)"
-  remediation: "Add explicit exit with appropriate code"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Script without exit (uses last command's exit code)
+  remediation: Add explicit exit with appropriate code
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.55
 - id: bash-exit-code-success-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'if\s+\.[\s+\.$\.?\s+-eq\s+0]'
+  - regex: if\s+\.[\s+\.$\.?\s+-eq\s+0]
   severity: low
-  description: "Explicit success check (good)"
-  remediation: "Good practice"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Explicit success check (good)
+  remediation: Good practice
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: bash-exit-code-failure-check
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'if\s+\.[\s+\.$\.?\s+-ne\s+0]'
+  - regex: if\s+\.[\s+\.$\.?\s+-ne\s+0]
   severity: low
-  description: "Explicit failure check (good)"
-  remediation: "Good practice"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Explicit failure check (good)
+  remediation: Good practice
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: bash-exit-code-conditional
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'exit\s+\.$\.?'
+  - regex: exit\s+\.$\.?
   severity: low
-  description: "exit with previous exit code (good)"
-  remediation: "Preserves error status"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
-# ======================== SECURE DEFAULT OPTIONS (176-185) ========================
-
+  description: exit with previous exit code (good)
+  remediation: Preserves error status
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: bash-secure-shebang
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/bin/bash|^#!/bin/sh'
+  - regex: ^#!/bin/bash|^#!/bin/sh
   severity: low
-  description: "Shebang line (good)"
-  remediation: "Use #!/bin/bash for bash features, #!/bin/sh for POSIX"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Shebang line (good)
+  remediation: 'Use #!/bin/bash for bash features, #!/bin/sh for POSIX'
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-secure-shebang-env
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/usr/bin/env bash|^#!/usr/bin/env sh'
+  - regex: ^#!/usr/bin/env bash|^#!/usr/bin/env sh
   severity: low
-  description: "env shebang (more portable)"
-  remediation: "Good for portability"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: env shebang (more portable)
+  remediation: Good for portability
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-secure-options-header
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '^#!/bin/bash\s*\.n(set\s+-[euo]+\s*pipefail|set\s+-euo)'
+  - regex: ^#!/bin/bash\s*\.n(set\s+-[euo]+\s*pipefail|set\s+-euo)
   severity: low
-  description: "Script with secure options (good)"
-  remediation: "Best practice"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Script with secure options (good)
+  remediation: Best practice
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: bash-secure-execution-bit
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '-rwxr-xr-x'
+  - regex: -rwxr-xr-x
   severity: low
-  description: "Script with execute permission (good)"
-  remediation: "Set execute permission: chmod +x script.sh"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Script with execute permission (good)
+  remediation: 'Set execute permission: chmod +x script.sh'
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-secure-world-writable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '-rw-rw-rw-|-rwxrwxrwx'
+  - regex: -rw-rw-rw-|-rwxrwxrwx
   severity: high
-  description: "World-writable script (security risk)"
-  remediation: "chmod 755 script.sh or 750"
-  cwe: "CWE-732"
-  owasp: "A05:2021"
-
+  description: World-writable script (security risk)
+  remediation: chmod 755 script.sh or 750
+  cwe: CWE-732
+  owasp: A05:2021
+  confidence: 0.65
 - id: bash-secure-group-writable
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '-rw-rw-r--|-rwxrwxr-x'
+  - regex: -rw-rw-r--|-rwxrwxr-x
   severity: medium
-  description: "Group-writable script (ensure trusted group)"
-  remediation: "chmod 755 or 750"
-  cwe: "CWE-732"
-  owasp: "A05:2021"
-
+  description: Group-writable script (ensure trusted group)
+  remediation: chmod 755 or 750
+  cwe: CWE-732
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-secure-suid
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '-rwsr-xr-x|-rwsr-sr-x'
+  - regex: -rwsr-xr-x|-rwsr-sr-x
   severity: critical
-  description: "SUID on shell script (ignored, but dangerous)"
-  remediation: "Remove SUID bit from scripts"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: SUID on shell script (ignored, but dangerous)
+  remediation: Remove SUID bit from scripts
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.7
 - id: bash-secure-sgid
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '-rwxr-sr-x'
+  - regex: -rwxr-sr-x
   severity: high
-  description: "SGID on shell script (ignored, but dangerous)"
-  remediation: "Remove SGID bit from scripts"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: SGID on shell script (ignored, but dangerous)
+  remediation: Remove SGID bit from scripts
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.65
 - id: bash-secure-sticky-bit
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: '-rwxr-xr-t'
+  - regex: -rwxr-xr-t
   severity: low
-  description: "Sticky bit on script (unusual)"
-  remediation: "Remove sticky bit if not needed"
-  cwe: "CWE-732"
-  owasp: "A05:2021"
-
+  description: Sticky bit on script (unusual)
+  remediation: Remove sticky bit if not needed
+  cwe: CWE-732
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-secure-owner-root
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'root\s+root'
+  - regex: root\s+root
   severity: medium
-  description: "Script owned by root (ensure permissions are tight)"
-  remediation: "chmod 750 for root-owned scripts"
-  cwe: "CWE-732"
-  owasp: "A05:2021"
-
-# ======================== LOOP SAFETY (186-200) ========================
-
+  description: Script owned by root (ensure permissions are tight)
+  remediation: chmod 750 for root-owned scripts
+  cwe: CWE-732
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-loop-infinite
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'while\s+true|while\s*:\s*;|for\s*\.(\s*;\s*;\s*\.)'
+  - regex: while\s+true|while\s*:\s*;|for\s*\.(\s*;\s*;\s*\.)
   severity: medium
-  description: "Infinite loop (may hang)"
-  remediation: "Add exit conditions or timeouts"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Infinite loop (may hang)
+  remediation: Add exit conditions or timeouts
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: bash-loop-while-read
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'while\s+read\s+-r\s+line'
+  - regex: while\s+read\s+-r\s+line
   severity: low
-  description: "while read loop (good)"
-  remediation: "Good for processing files"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: while read loop (good)
+  remediation: Good for processing files
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-loop-for-file
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+file\s+in\s+\.*'
+  - regex: for\s+file\s+in\s+\.*
   severity: medium
-  description: "for file in * (may include unexpected files)"
-  remediation: "Check if file is regular: [ -f \"$file\" ]"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: for file in * (may include unexpected files)
+  remediation: 'Check if file is regular: [ -f "$file" ]'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: bash-loop-for-array
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+item\s+in\s+\.$\.{[^}]+\.[@\.]\.}'
+  - regex: for\s+item\s+in\s+\.$\.{[^}]+\.[@\.]\.}
   severity: low
-  description: "for loop over array (good)"
-  remediation: "Good practice"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: for loop over array (good)
+  remediation: Good practice
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: bash-loop-for-command
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+item\s+in\s+\.$\.([^)]+\.)'
+  - regex: for\s+item\s+in\s+\.$\.([^)]+\.)
   severity: high
-  description: "for loop over command output (word splitting risk)"
-  remediation: "Use while read loop for command output"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: for loop over command output (word splitting risk)
+  remediation: Use while read loop for command output
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-loop-break
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'break\s+[0-9]+'
+  - regex: break\s+[0-9]+
   severity: low
-  description: "break with level (good)"
-  remediation: "Good for nested loops"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: break with level (good)
+  remediation: Good for nested loops
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-loop-continue
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'continue\s+[0-9]+'
+  - regex: continue\s+[0-9]+
   severity: low
-  description: "continue with level (good)"
-  remediation: "Good for nested loops"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: continue with level (good)
+  remediation: Good for nested loops
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-loop-select
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'select\s+\w+\s+in'
+  - regex: select\s+\w+\s+in
   severity: medium
-  description: "select menu (interactive)"
-  remediation: "Avoid in non-interactive scripts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: select menu (interactive)
+  remediation: Avoid in non-interactive scripts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: bash-loop-until
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'until\s+'
+  - regex: until\s+
   severity: low
-  description: "until loop (opposite of while)"
-  remediation: "Use when condition should become true"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: until loop (opposite of while)
+  remediation: Use when condition should become true
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-loop-arithmetic
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+\.(\s*\.(\s*[a-zA-Z_]+=0))'
+  - regex: for\s+\.(\s*\.(\s*[a-zA-Z_]+=0))
   severity: low
-  description: "C-style for loop"
-  remediation: "Good for arithmetic loops"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: C-style for loop
+  remediation: Good for arithmetic loops
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: bash-loop-command-sub
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'for\s+\w+\s+in\s+\.$\.(find)'
+  - regex: for\s+\w+\s+in\s+\.$\.(find)
   severity: high
-  description: "for loop over find output (pathname expansion risk)"
-  remediation: "Use find -print0 | while IFS= read -r -d ''"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: for loop over find output (pathname expansion risk)
+  remediation: Use find -print0 | while IFS= read -r -d ''
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: bash-loop-find-while
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'find.*-print0\s*\.|\s*while\s+IFS= read\s+-r\s+-d'
+  - regex: find.*-print0\s*\.|\s*while\s+IFS= read\s+-r\s+-d
   severity: low
-  description: "find with while read (good for filenames with spaces)"
-  remediation: "Best practice"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: find with while read (good for filenames with spaces)
+  remediation: Best practice
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-loop-while-ifs
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'while\s+IFS= read\s+-r'
+  - regex: while\s+IFS= read\s+-r
   severity: low
-  description: "while read with IFS= (preserves whitespace) - good"
-  remediation: "Good practice"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: while read with IFS= (preserves whitespace) - good
+  remediation: Good practice
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-loop-while-redirect
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'while.*?do.*?done\s*<'
+  - regex: while.*?do.*?done\s*<
   severity: low
-  description: "while loop with input redirection (good)"
-  remediation: "Good for file processing"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: while loop with input redirection (good)
+  remediation: Good for file processing
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: bash-loop-while-pipe
-  languages: [bash]
+  languages:
+  - bash
   patterns:
-    - regex: 'while.*?do.*?done\s*\.|'
+  - regex: while.*?do.*?done\s*\.|
   severity: medium
-  description: "while loop in pipeline (subshell, variable scope issues)"
-  remediation: "Use process substitution: while ... done < <(command)"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-
-
+  description: while loop in pipeline (subshell, variable scope issues)
+  remediation: 'Use process substitution: while ... done < <(command)'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
