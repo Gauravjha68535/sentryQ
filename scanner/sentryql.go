@@ -137,31 +137,33 @@ func RunSentryQL(q *SentryQLQuery, filePath, content string) []int {
 	return matchingLines
 }
 
+// Package-level compiled regexes for sentryqlScopeMatch — compiled once, not per-line.
+var (
+	sentryqlFuncScopeRe   = regexp.MustCompile(`(?i)(func |def |function |public |private |protected )`)
+	sentryqlClassScopeRe  = regexp.MustCompile(`(?i)(class |struct |interface )`)
+	sentryqlImportScopeRe = regexp.MustCompile(`(?i)^(import |require\(|from |use |#include)`)
+)
+
 // sentryqlScopeMatch returns true if line belongs to the requested scope.
-// This is a heuristic implementation that works for the most common cases.
 func sentryqlScopeMatch(scope, line string, lines []string, idx int) bool {
 	switch scope {
 	case "function":
-		// Check if we're inside a function: look backward for a function definition
 		for j := idx; j >= 0 && j > idx-30; j-- {
-			l := strings.TrimSpace(lines[j])
-			if regexp.MustCompile(`(?i)(func |def |function |public |private |protected )`).MatchString(l) {
+			if sentryqlFuncScopeRe.MatchString(strings.TrimSpace(lines[j])) {
 				return true
 			}
 		}
 		return false
 	case "class":
 		for j := idx; j >= 0 && j > idx-50; j-- {
-			l := strings.TrimSpace(lines[j])
-			if regexp.MustCompile(`(?i)(class |struct |interface )`).MatchString(l) {
+			if sentryqlClassScopeRe.MatchString(strings.TrimSpace(lines[j])) {
 				return true
 			}
 		}
 		return false
 	case "import":
-		l := strings.TrimSpace(line)
-		return regexp.MustCompile(`(?i)^(import |require\(|from |use |#include)`).MatchString(l)
-	default: // "source" or anything else — match everywhere
+		return sentryqlImportScopeRe.MatchString(strings.TrimSpace(line))
+	default:
 		return true
 	}
 }

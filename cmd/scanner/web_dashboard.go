@@ -407,6 +407,13 @@ func StartWebServer(port int) {
 		return
 	}
 
+	// Initialize multi-user auth — must run before routes are registered so
+	// the users map is populated before the first request arrives.
+	if os.Getenv("SENTRYQ_MULTI_USER") == "1" {
+		initMultiUser()
+		utils.LogInfo("Multi-user mode enabled (SENTRYQ_MULTI_USER=1)")
+	}
+
 	// Initialize embedded static filesystem (lazy, with graceful fallback)
 	staticFSOnce.Do(func() {
 		staticFS, staticFSError = ui.StaticFS()
@@ -1574,7 +1581,7 @@ func handleRulesList(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		var rules []YAMLRule
-		if parseErr := yaml3Unmarshal(data, &rules); parseErr != nil {
+		if parseErr := yaml.Unmarshal(data, &rules); parseErr != nil {
 			utils.LogWarn(fmt.Sprintf("handleRulesList: failed to parse %s: %v", e.Name(), parseErr))
 		}
 		files = append(files, RuleFileSummary{Filename: e.Name(), RuleCount: len(rules)})
@@ -1610,7 +1617,7 @@ func handleRulesFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var rules []YAMLRule
-		if parseErr := yaml3Unmarshal(data, &rules); parseErr != nil {
+		if parseErr := yaml.Unmarshal(data, &rules); parseErr != nil {
 			utils.LogWarn(fmt.Sprintf("handleRulesFile GET: failed to parse %s: %v", filename, parseErr))
 		}
 		if rules == nil {
@@ -1633,13 +1640,13 @@ func handleRulesFile(w http.ResponseWriter, r *http.Request) {
 		var rules []YAMLRule
 		data, err := os.ReadFile(rulesPath)
 		if err == nil {
-			if parseErr := yaml3Unmarshal(data, &rules); parseErr != nil {
+			if parseErr := yaml.Unmarshal(data, &rules); parseErr != nil {
 				http.Error(w, "Failed to parse existing rules file: "+parseErr.Error(), http.StatusInternalServerError)
 				return
 			}
 		}
 		rules = append(rules, newRule)
-		out, err := yaml3Marshal(rules)
+		out, err := yaml.Marshal(rules)
 		if err != nil {
 			http.Error(w, "Failed to serialize rules: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -1711,15 +1718,6 @@ func handleRulesTest(w http.ResponseWriter, r *http.Request) {
 		"valid":   true,
 		"matches": matches,
 	})
-}
-
-// yaml3Unmarshal is a thin wrapper around gopkg.in/yaml.v3
-func yaml3Unmarshal(data []byte, v interface{}) error {
-	return yaml.Unmarshal(data, v)
-}
-
-func yaml3Marshal(v interface{}) ([]byte, error) {
-	return yaml.Marshal(v)
 }
 
 // ──────────────────────────────────────────────────────────

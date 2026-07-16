@@ -18,7 +18,8 @@ import (
 )
 
 func main() {
-	utils.PrintBanner()
+	// ── Version flag ──────────────────────────────────────────────────────────
+	versionFlag   := flag.Bool("version", false, "Print version and exit")
 
 	// ── Server / Ollama flags ──────────────────────────────────────────────────
 	portPtr       := flag.Int("port", 5336, "Web server port")
@@ -78,6 +79,13 @@ func main() {
 	} else {
 		fmt.Println("🔗 Ollama: localhost:11434")
 	}
+
+	// ── Version / banner ─────────────────────────────────────────────────────
+	if *versionFlag {
+		fmt.Println(getVersion())
+		return
+	}
+	utils.PrintBanner()
 
 	// ── Subcommands ───────────────────────────────────────────────────────────
 	if flag.NArg() > 0 {

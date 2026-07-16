@@ -578,8 +578,10 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		return
 	}
 	wsHub.BroadcastProgress(scanID, "Taint Analysis", 40)
-	wsHub.BroadcastLog(scanID, "Running taint analyzer...", "phase")
+	wsHub.BroadcastLog(scanID, "Running taint analyzer (building cross-file index)...", "phase")
 	taintAnalyzer := scanner.NewTaintAnalyzer()
+	crossFileIdx := taintAnalyzer.BuildCrossFileIndex(targetDir)
+	utils.LogInfo(fmt.Sprintf("Cross-file taint index: %d tainted functions indexed", len(crossFileIdx.TaintedFunctions)))
 	for _, files := range result.FilePaths {
 		if ctx.Err() != nil {
 			return
@@ -588,7 +590,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			if ctx.Err() != nil {
 				return
 			}
-			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
+			findings, err := taintAnalyzer.AnalyzeTaintFlowWithIndex(file, crossFileIdx)
 			if err == nil {
 				allFindings = append(allFindings, findings...)
 			} else {
@@ -646,21 +648,6 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			allFindings = append(allFindings, scFindings...)
 		}
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Supply chain analysis complete (%d total findings)", len(allFindings)), "info")
-
-		// OSV.dev SCA Scanner
-		if scanner.CheckOSVCliInstalled() {
-			wsHub.BroadcastProgress(scanID, "OSV SCA Scan", 60)
-			wsHub.BroadcastLog(scanID, "Running OSV.dev SCA vulnerability scan...", "phase")
-			osvFindings, osvErr := scanner.RunOSVCli(ctx, targetDir)
-			if osvErr == nil && len(osvFindings) > 0 {
-				allFindings = append(allFindings, osvFindings...)
-				wsHub.BroadcastLog(scanID, fmt.Sprintf("OSV SCA found %d known CVEs", len(osvFindings)), "success")
-			} else if osvErr != nil {
-				wsHub.BroadcastLog(scanID, fmt.Sprintf("OSV SCA scan skipped: %v", osvErr), "warning")
-			}
-		} else {
-			wsHub.BroadcastLog(scanID, "OSV scanner not installed, skipping SCA", "info")
-		}
 
 		// Container Scanning (now part of Deep Scan)
 		wsHub.BroadcastProgress(scanID, "Container Scanning", 62)
@@ -875,10 +862,8 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			utils.LogWarn("ML FP reducer: failed to load history: " + err.Error())
 		}
 		allFindings = reducer.FilterFindingsByFPProbability(allFindings, 0.8)
-		if err := reducer.SaveHistory(); err != nil {
-			utils.LogWarn("ML FP reducer: failed to save history: " + err.Error())
-		}
-		wsHub.BroadcastLog(scanID, "ML False Positive reduction complete", "info")
+		// SaveHistory skipped — filter adds no feedback; feedback comes from UI triage
+		wsHub.BroadcastLog(scanID, "FP history filter complete", "info")
 	}
 
 	// ── Finalize ──────────────────────────────────────────────
@@ -1102,12 +1087,10 @@ func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDi
 		utils.LogWarn(fmt.Sprintf("Failed to write SARIF report for scan %s: %v", scanID, err))
 	}
 
-	// CycloneDX SBOM — always written (or when explicitly requested)
-	if cfg.GenerateSBOM || true {
-		sbomPath := filepath.Join(reportsDir, "sbom.cdx.json")
-		if err := reporter.GenerateSBOM(sbomPath, findings, filepath.Base(targetDir)); err != nil {
-			utils.LogWarn(fmt.Sprintf("Failed to write SBOM for scan %s: %v", scanID, err))
-		}
+	// CycloneDX SBOM — generated for every scan (used in ReportViewer download)
+	sbomPath := filepath.Join(reportsDir, "sbom.cdx.json")
+	if err := reporter.GenerateSBOM(sbomPath, findings, filepath.Base(targetDir)); err != nil {
+		utils.LogWarn(fmt.Sprintf("Failed to write SBOM for scan %s: %v", scanID, err))
 	}
 
 	// Compliance reports — OWASP Top 10 JSON + HTML, PCI DSS JSON
@@ -1204,7 +1187,7 @@ func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
 	var pass1 []reporter.Finding
 
 	for _, f := range findings {
-		line := parseStartLine(f.LineNumber)
+		line := utils.ParseStartLine(f.LineNumber)
 		// Findings with no parseable line number (e.g. "N/A (Package Lockfile)" from
 		// OSV/SCA) must never be grouped under line:0, which would incorrectly merge
 		// distinct vulnerabilities from different packages into a single finding.
@@ -1253,7 +1236,7 @@ func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
 		}
 
 		sort.Slice(group, func(i, j int) bool {
-			return parseStartLine(group[i].LineNumber) < parseStartLine(group[j].LineNumber)
+			return utils.ParseStartLine(group[i].LineNumber) < utils.ParseStartLine(group[j].LineNumber)
 		})
 
 		// Proximity threshold: 0 for secrets (exact only), 15 for everything else
@@ -1266,8 +1249,8 @@ func webDeduplicateFindings(findings []reporter.Finding) []reporter.Finding {
 		clusters := [][]reporter.Finding{{group[0]}}
 		for _, f := range group[1:] {
 			lastCluster := &clusters[len(clusters)-1]
-			lastLine := parseStartLine((*lastCluster)[len(*lastCluster)-1].LineNumber)
-			thisLine := parseStartLine(f.LineNumber)
+			lastLine := utils.ParseStartLine((*lastCluster)[len(*lastCluster)-1].LineNumber)
+			thisLine := utils.ParseStartLine(f.LineNumber)
 			if thisLine-lastLine <= prox {
 				*lastCluster = append(*lastCluster, f)
 			} else {
@@ -1490,20 +1473,6 @@ func recalibrateSeverities(findings []reporter.Finding, targetDir string) []repo
 	return findings
 }
 
-// parseStartLine extracts the first (start) line number from a line reference like "12" or "12-18".
-// Uses the same manual digit-scan approach as parseLineNum in fp_suppressor.go so both
-// implementations are consistent and neither relies on fmt.Sscanf (which silently returns 0).
-func parseStartLine(lineRef string) int {
-	parts := strings.Split(lineRef, "-")
-	n := 0
-	for _, ch := range parts[0] {
-		if ch >= '0' && ch <= '9' {
-			n = n*10 + int(ch-'0')
-		}
-	}
-	return n
-}
-
 // isTrivialLine returns true for lines that are blank, pure comments, or lone braces/brackets.
 // Used to detect when the AI pointed to a non-meaningful line so we can shift the marker.
 func isTrivialLine(line string) bool {
@@ -1603,7 +1572,7 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 	indicesByFile := make(map[string][]int)
 
 	for i := range findings {
-		lineNum := parseStartLine(findings[i].LineNumber)
+		lineNum := utils.ParseStartLine(findings[i].LineNumber)
 		if lineNum <= 0 {
 			continue
 		}
@@ -1624,7 +1593,7 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 		lines := strings.Split(utils.NormalizeNewlines(string(content)), "\n")
 
 		for _, idx := range indices {
-			lineNum := parseStartLine(findings[idx].LineNumber)
+			lineNum := utils.ParseStartLine(findings[idx].LineNumber)
 
 			preferredIdx := lineNum - 1 // 0-indexed
 
@@ -1777,16 +1746,18 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 		}
 	}
 
-	// Taint Analysis
+	// Taint Analysis with cross-file index
 	wsHub.BroadcastProgress(scanID, "Phase 1: Taint Analysis", 12)
-	wsHub.BroadcastLog(scanID, "Running taint analyzer...", "info")
+	wsHub.BroadcastLog(scanID, "Running taint analyzer (cross-file mode)...", "info")
 	taintAnalyzer := scanner.NewTaintAnalyzer()
+	crossIdx := taintAnalyzer.BuildCrossFileIndex(targetDir)
+	utils.LogInfo(fmt.Sprintf("Cross-file taint index: %d functions indexed", len(crossIdx.TaintedFunctions)))
 	for _, files := range result.FilePaths {
 		for _, file := range files {
 			if ctx.Err() != nil {
 				break
 			}
-			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
+			findings, err := taintAnalyzer.AnalyzeTaintFlowWithIndex(file, crossIdx)
 			if err == nil {
 				staticFindings = append(staticFindings, findings...)
 			} else {
@@ -1827,15 +1798,6 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	scFindings, err := supplyChainScanner.ScanSupplyChain(ctx, targetDir)
 	if err == nil {
 		staticFindings = append(staticFindings, scFindings...)
-	}
-
-	// OSV SCA
-	if scanner.CheckOSVCliInstalled() {
-		wsHub.BroadcastProgress(scanID, "Phase 1: OSV SCA Scan", 30)
-		osvFindings, osvErr := scanner.RunOSVCli(ctx, targetDir)
-		if osvErr == nil && len(osvFindings) > 0 {
-			staticFindings = append(staticFindings, osvFindings...)
-		}
 	}
 
 	// Container Scanning
@@ -1999,10 +1961,8 @@ fileContentsDone:
 			utils.LogWarn("ML FP reducer: failed to load history: " + err.Error())
 		}
 		allFindings = reducer.FilterFindingsByFPProbability(allFindings, 0.8)
-		if err := reducer.SaveHistory(); err != nil {
-			utils.LogWarn("ML FP reducer: failed to save history: " + err.Error())
-		}
-		wsHub.BroadcastLog(scanID, "ML False Positive reduction complete", "info")
+		// SaveHistory skipped — filter adds no feedback; feedback comes from UI triage
+		wsHub.BroadcastLog(scanID, "FP history filter complete", "info")
 	}
 
 	// ── Finalize ──────────────────────────────────────────────
