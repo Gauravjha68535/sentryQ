@@ -10,6 +10,9 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.75
+  negative_patterns: &id001
+  - regex: Object\.create\s*\(\s*null\s*\)
+  - regex: (?i)(hasOwnProperty|Object\.prototype\.hasOwnProperty\.call|Object\.keys\(|structuredClone\()
 - id: js-prototype-pollution-assign
   languages:
   - javascript
@@ -22,6 +25,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.75
+  negative_patterns: *id001
 - id: js-prototype-pollution-recursive-merge
   languages:
   - javascript
@@ -34,6 +38,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.75
+  negative_patterns: *id001
 - id: js-prototype-pollution-set
   languages:
   - javascript
@@ -46,6 +51,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.75
+  negative_patterns: *id001
 - id: js-prototype-pollution-deep-assign
   languages:
   - javascript
@@ -58,6 +64,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.75
+  negative_patterns: *id001
 - id: js-prototype-pollution-clone
   languages:
   - javascript
@@ -70,6 +77,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.75
+  negative_patterns: *id001
 - id: js-prototype-pollution-parse-query
   languages:
   - javascript
@@ -147,6 +155,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: js-prototype-pollution-nested-property
   languages:
   - javascript
@@ -207,6 +216,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: js-prototype-pollution-object-define-property
   languages:
   - javascript
@@ -219,6 +229,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.8
+  negative_patterns: *id001
 - id: js-prototype-pollution-reflect-set
   languages:
   - javascript
@@ -231,6 +242,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.8
+  negative_patterns: *id001
 - id: js-prototype-pollution-proxy
   languages:
   - javascript
@@ -243,6 +255,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: js-prototype-pollution-copy
   languages:
   - javascript
@@ -255,6 +268,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: js-prototype-pollution-extend
   languages:
   - javascript
@@ -267,6 +281,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.75
+  negative_patterns: *id001
 - id: js-prototype-pollution-clone-dup1
   languages:
   - javascript
@@ -315,6 +330,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: js-prototype-pollution-jquery-extend
   languages:
   - javascript
@@ -327,6 +343,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: js-prototype-pollution-merge-options
   languages:
   - javascript
@@ -795,6 +812,9 @@
   cwe: CWE-312
   owasp: A07:2021
   confidence: 0.75
+  negative_patterns: &id002
+  - regex: (?i)(os\.environ|os\.getenv|process\.env|dotenv|secretsmanager)
+  - regex: (?i)(test|mock|example|placeholder|dummy|fake|changeme)
 - id: js-service-worker-crypto
   languages:
   - javascript
@@ -1067,8 +1087,7 @@
   - regex: eval\s*\(\s*([^'\\"\s]|['\\"].*[\+\$])
   severity: critical
   description: Direct eval usage with dynamic input - remote code execution risk
-  remediation: Never use eval with dynamic data. Use JSON.parse for data, Function constructor if absolutely needed for static
-    code
+  remediation: Never use eval with dynamic data. Use JSON.parse for data, Function constructor if absolutely needed for static code
   cwe: CWE-94
   owasp: A03:2021
   confidence: 0.75
@@ -1324,6 +1343,7 @@
   cwe: CWE-200
   owasp: A05:2021
   confidence: 0.75
+  negative_patterns: *id002
 - id: js-fetch-cors-wildcard
   languages:
   - javascript
@@ -1384,6 +1404,7 @@
   cwe: CWE-200
   owasp: A05:2021
   confidence: 0.65
+  negative_patterns: *id002
 - id: js-xhr-response-type
   languages:
   - javascript
@@ -3492,8 +3513,7 @@
   - regex: (?s)(?:sig|signature|X-Signature|X-Hub-Signature)[\s\S]{0,500}if\s*\([^)]*!==[\s\S]{0,100}console\.(?:log|error)[\s\S]{0,200}\.(?:unserialize|deserialize)
   severity: critical
   description: 'Potential signature bypass: Webhook signature mismatch is logged but execution continues into dangerous deserialization.'
-  remediation: Ensure the process exits or returns immediately upon signature mismatch. Use 'return' or 'res.status(401).send()'
-    after logging.
+  remediation: Ensure the process exits or returns immediately upon signature mismatch. Use 'return' or 'res.status(401).send()' after logging.
   cwe: CWE-347
   owasp: A07:2021
   confidence: 0.8
@@ -4685,6 +4705,10 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.75
+  negative_patterns: &id003
+  - regex: (?i)(os\.environ|os\.getenv|getenv|environ\.get|System\.getenv|process\.env|dotenv|config\[|settings\.|secretsmanager|vault|KeyVault)
+  - regex: (?i)(#.*(test|mock|example|sample|placeholder|dummy|fake)|^\s*(import|from)\s.*(test|mock)|def\s+test_|class\s+Test|REPLACE_ME|YOUR_[A-Z]|<[A-Z_]+>|changeme)
+  - regex: (?i)(#.*secret|#.*password|#.*api.?key)
 - id: js-env-default-fallback
   languages:
   - javascript
@@ -5171,8 +5195,7 @@
   - regex: (?i)(var|let|const)\s+[a-zA-Z0-9_]+\s*=\s*(location\.(hash|search|pathname)|document\.(URL|referrer|documentURI)).*(innerHTML|outerHTML|document\.write)
   severity: high
   description: 'DOM XSS: Unsafe assignment of client-side source to HTML sink'
-  remediation: Use innerText or textContent instead of innerHTML. Sanitize all URL-based variables before reflecting them
-    in the DOM.
+  remediation: Use innerText or textContent instead of innerHTML. Sanitize all URL-based variables before reflecting them in the DOM.
   cwe: CWE-79
   owasp: A03:2021
   confidence: 0.75
@@ -5215,6 +5238,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: js-react-dynamic-script-src
   languages:
   - javascript
@@ -5265,6 +5289,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: js-prototype-pollution-merge-dup1
   languages:
   - javascript
@@ -5277,6 +5302,7 @@
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.8
+  negative_patterns: *id001
 - id: js-dom-xss-innerhtml-reflection
   languages:
   - javascript
@@ -5386,8 +5412,7 @@
   patterns:
   - regex: (?i)parseString\([^,]+,\s*
   severity: critical
-  description: xml2js parsing untrusted XML without disabling external entities allows Server-Side Request Forgery and XXE
-    Local File Read.
+  description: xml2js parsing untrusted XML without disabling external entities allows Server-Side Request Forgery and XXE Local File Read.
   remediation: Configure xml2js parser to reject external DTDs or explicitly use safer XML parsers.
   cwe: CWE-611
   owasp: A05:2021
@@ -5399,10 +5424,8 @@
   patterns:
   - regex: (?i)diskStorage.*destination.*req\.body\.
   severity: critical
-  description: Accessing req.body in a multer diskStorage callback before streams finish parsing allows an attacker to dictate
-    the file destination.
-  remediation: Never rely on req.body for upload destinaton routing directly. Save files to isolation first, then move them
-    post-parse.
+  description: Accessing req.body in a multer diskStorage callback before streams finish parsing allows an attacker to dictate the file destination.
+  remediation: Never rely on req.body for upload destinaton routing directly. Save files to isolation first, then move them post-parse.
   cwe: CWE-434
   owasp: A01:2021
   confidence: 0.75
@@ -5413,13 +5436,12 @@
   patterns:
   - regex: (?i)express\.urlencoded\(\{.*extended:\s*true.*\}\)
   severity: high
-  description: Enabling extended urlencoded parsing utilizes the 'qs' library, which enables complex object parsing making
-    prototype poisoning attacks trivial.
-  remediation: 'Use express.urlencoded({ extended: false }) unless nested object queries are absolutely necessary, and implement
-    strict ''__proto__'' blocking filters.'
+  description: Enabling extended urlencoded parsing utilizes the 'qs' library, which enables complex object parsing making prototype poisoning attacks trivial.
+  remediation: 'Use express.urlencoded({ extended: false }) unless nested object queries are absolutely necessary, and implement strict ''__proto__'' blocking filters.'
   cwe: CWE-1321
   owasp: A08:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: js-axios-header-forwarding-leak
   languages:
   - javascript
@@ -5427,8 +5449,7 @@
   patterns:
   - regex: (?i)axios\.(?:get|post|put)\([^,]+,\s*\{.*headers:\s*req\.headers
   severity: critical
-  description: Unrestricted header forwarding to backend services proxies Authorization tokens, Hosts, and Cookies natively
-    via request spoofing.
+  description: Unrestricted header forwarding to backend services proxies Authorization tokens, Hosts, and Cookies natively via request spoofing.
   remediation: Explicitly map and forward only required headers. Do not proxy req.headers directly.
   cwe: CWE-200
   owasp: A01:2021
@@ -5440,8 +5461,7 @@
   patterns:
   - regex: (?i)router\.[A-Za-z]+\(['"]/[^:]+/:id/.*authMiddleware(?:.|\n)*req\.params\.id
   severity: high
-  description: Authentication middleware protects the route, but logic uses req.params.id instead of req.user.id without ownership
-    verification (IDOR).
+  description: Authentication middleware protects the route, but logic uses req.params.id instead of req.user.id without ownership verification (IDOR).
   remediation: Ensure that sensitive account retrievals strictly validate req.params.id === req.user.id.
   cwe: CWE-639
   owasp: A01:2021
@@ -5453,8 +5473,7 @@
   patterns:
   - regex: (?i)res\.redirect\(\s*parseInt\([\sA-Za-z0-9.]*(?:query|body)\.[a-zA-Z]+
   severity: critical
-  description: HTTP status code directly controlled by user input enables Response Splitting, HTTP smuggling, and caching
-    manipulation.
+  description: HTTP status code directly controlled by user input enables Response Splitting, HTTP smuggling, and caching manipulation.
   remediation: Never allow users to dynamically define HTTP status codes natively. Force standard redirection codes (301/302).
   cwe: CWE-113
   confidence: 0.8
@@ -5496,8 +5515,7 @@
   negative_patterns:
   - regex: (?i)\.query\s*\(\s*[\"'`][^\"'`]*[\"'`]\s*,\s*\[
   severity: critical
-  description: 'SQL injection: HTTP request data interpolated into SQL query. Attacker can manipulate query structure or dump
-    the database.'
+  description: 'SQL injection: HTTP request data interpolated into SQL query. Attacker can manipulate query structure or dump the database.'
   remediation: 'Use parameterized queries: db.query(''SELECT * FROM t WHERE id = $1'', [req.params.id])'
   cwe: CWE-89
   owasp: A03:2021

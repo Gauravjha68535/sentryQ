@@ -198,7 +198,7 @@ export default function ReportViewer() {
                     <h1>Security Report</h1>
                     <p>{scanInfo?.target || 'Scan'} — {findings.length} findings</p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <a href={`/api/scan/${id}/report/html`} download className="btn btn-secondary btn-sm">
                         <Download size={14} /> HTML
                     </a>
@@ -210,6 +210,18 @@ export default function ReportViewer() {
                     </a>
                     <a href={`/api/scan/${id}/report/sarif`} download className="btn btn-secondary btn-sm">
                         <Download size={14} /> SARIF
+                    </a>
+                    <a href={`/api/scan/${id}/report/sbom`} download={`sentryq-sbom-${id}.cdx.json`} className="btn btn-secondary btn-sm" title="CycloneDX SBOM">
+                        <Download size={14} /> SBOM
+                    </a>
+                    <a href={`/api/scan/${id}/report/compliance-owasp`} download={`compliance-owasp-${id}.html`} className="btn btn-secondary btn-sm" title="OWASP Top 10 Compliance Report">
+                        <Download size={14} /> OWASP
+                    </a>
+                    <a href={`/api/scan/compliance?id=${id}&framework=pci`} download={`compliance-pci-${id}.json`} className="btn btn-secondary btn-sm" title="PCI DSS Compliance Report">
+                        <Download size={14} /> PCI
+                    </a>
+                    <a href={`/api/scan/${id}/report/all`} download={`sentryq-full-report-${id}.zip`} className="btn btn-primary btn-sm">
+                        <Download size={14} /> All (ZIP)
                     </a>
                 </div>
             </div>

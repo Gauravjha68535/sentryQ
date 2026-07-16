@@ -7,6 +7,10 @@
   description: Hardcoded password detected in Java source code
   remediation: Use environment variables or Java system properties. Consider using a secrets manager
   confidence: 0.65
+  negative_patterns: &id001
+  - regex: (?i)(os\.environ|os\.getenv|getenv|environ\.get|System\.getenv|process\.env|dotenv|config\[|settings\.|secretsmanager|vault|KeyVault)
+  - regex: (?i)(#.*(test|mock|example|sample|placeholder|dummy|fake)|^\s*(import|from)\s.*(test|mock)|def\s+test_|class\s+Test|REPLACE_ME|YOUR_[A-Z]|<[A-Z_]+>|changeme)
+  - regex: (?i)(#.*secret|#.*password|#.*api.?key)
 - id: java-hardcoded-api-key
   languages:
   - java
@@ -16,6 +20,7 @@
   description: Hardcoded API key detected in Java source code
   remediation: Store API keys in environment variables or use AWS Secrets Manager/HashiCorp Vault
   confidence: 0.65
+  negative_patterns: *id001
 - id: java-hardcoded-aws-credentials
   languages:
   - java
@@ -25,6 +30,7 @@
   description: AWS Access Key ID detected in Java source code
   remediation: Remove AWS credentials from code. Use IAM roles or AWS Secrets Manager
   confidence: 0.7
+  negative_patterns: *id001
 - id: java-hardcoded-jdbc
   languages:
   - java
@@ -34,6 +40,7 @@
   description: Database credentials in JDBC connection string
   remediation: Use environment variables or JNDI for database credentials. Never hardcode passwords
   confidence: 0.65
+  negative_patterns: *id001
 - id: java-sql-injection
   languages:
   - java
@@ -56,6 +63,10 @@
   description: SQL injection via Statement instead of PreparedStatement
   remediation: Replace Statement with PreparedStatement and use parameterized queries
   confidence: 0.8
+  negative_patterns: &id002
+  - regex: (?i)(cursor\.(execute|executemany)|db\.(execute|query)|session\.execute)\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*[\(\[]
+  - regex: \?\s*\}|\$\d+|%s\s*,|\bprepare\b|\bprepared_statement\b|\bPreparedStatement\b
+  - regex: (?i)(parameterized|bind_param|bindValue|addBatch)
 - id: java-hibernate-hql-injection
   languages:
   - java
@@ -122,6 +133,7 @@
   description: Hardcoded encryption key in SecretKeySpec
   remediation: Generate keys using KeyGenerator and store in KeyStore
   confidence: 0.75
+  negative_patterns: *id001
 - id: java-insecure-random
   languages:
   - java
@@ -149,6 +161,9 @@
   description: Potential path traversal vulnerability
   remediation: Validate and sanitize file paths. Use allowlists for permitted directories
   confidence: 0.75
+  negative_patterns:
+  - regex: (?i)(os\.path\.realpath|abspath|safe_join|ALLOWED_DIRS|BASE_DIR|restrict_path)
+  - regex: (?i)(\.startswith\(base|Path\(.*resolve\(\))
 - id: java-ssrf
   languages:
   - java
@@ -167,6 +182,7 @@
   description: SQL injection in Spring JdbcTemplate via string concatenation
   remediation: Use parameterized queries with ? placeholders in JdbcTemplate
   confidence: 0.8
+  negative_patterns: *id002
 - id: java-spring-open-redirect
   languages:
   - java
@@ -277,6 +293,7 @@
   cwe: CWE-943
   owasp: A03:2021
   confidence: 0.97
+  negative_patterns: *id002
 - id: java-redos
   languages:
   - java
@@ -2315,10 +2332,8 @@
   - regex: (?i)getCanonicalPath\s*\(\s*\)
   - regex: (?i)\.startsWith\s*\([^)]*(?:basePath|BASE_DIR|rootPath)
   severity: high
-  description: 'Path traversal: HTTP request parameter directly used to construct File path. Attacker can read files outside
-    intended directory.'
-  remediation: 'Canonicalize: File f = new File(base, input).getCanonicalFile(); verify f.getPath().startsWith(base) before
-    use.'
+  description: 'Path traversal: HTTP request parameter directly used to construct File path. Attacker can read files outside intended directory.'
+  remediation: 'Canonicalize: File f = new File(base, input).getCanonicalFile(); verify f.getPath().startsWith(base) before use.'
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.95
@@ -2329,10 +2344,8 @@
   - regex: (?i)Runtime\.getRuntime\s*\(\s*\)\s*\.exec\s*\([^)]*request\.getParameter[^)]*\)
   - regex: (?i)new\s+ProcessBuilder\s*\([^)]*request\.getParameter[^)]*\)
   severity: critical
-  description: 'Command injection: HTTP request parameter passed to Runtime.exec or ProcessBuilder. Attacker can execute arbitrary
-    OS commands.'
-  remediation: Use ProcessBuilder with a fixed executable and validated arguments list. Never pass user input directly to
-    exec().
+  description: 'Command injection: HTTP request parameter passed to Runtime.exec or ProcessBuilder. Attacker can execute arbitrary OS commands.'
+  remediation: Use ProcessBuilder with a fixed executable and validated arguments list. Never pass user input directly to exec().
   cwe: CWE-78
   owasp: A03:2021
   confidence: 0.97
@@ -2345,8 +2358,7 @@
   - regex: (?i)(?:escapeHtml|htmlEscape|StringEscapeUtils\.escapeHtml)\s*\(
   - regex: (?i)encodeForHTML\s*\(
   severity: high
-  description: 'Reflected XSS: HTTP request parameter written directly to HTTP response without encoding. Attacker injects
-    arbitrary HTML/JavaScript.'
+  description: 'Reflected XSS: HTTP request parameter written directly to HTTP response without encoding. Attacker injects arbitrary HTML/JavaScript.'
   remediation: 'HTML-encode output: response.getWriter().write(StringEscapeUtils.escapeHtml4(request.getParameter(''q'')));'
   cwe: CWE-79
   owasp: A03:2021

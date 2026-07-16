@@ -24,6 +24,10 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: &id001
+  - regex: (?i)(os\.environ|os\.getenv|getenv|environ\.get|System\.getenv|process\.env|dotenv|config\[|settings\.|secretsmanager|vault|KeyVault)
+  - regex: (?i)(#.*(test|mock|example|sample|placeholder|dummy|fake)|^\s*(import|from)\s.*(test|mock)|def\s+test_|class\s+Test|REPLACE_ME|YOUR_[A-Z]|<[A-Z_]+>|changeme)
+  - regex: (?i)(#.*secret|#.*password|#.*api.?key)
 - id: py-hardcoded-aws-credentials
   languages:
   - python
@@ -35,6 +39,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-sql-injection
   languages:
   - python
@@ -271,6 +276,10 @@
   description: SQL injection via string formatting in SQLAlchemy
   remediation: 'Use parameterized queries: Model.query.filter(Model.field == value)'
   confidence: 0.75
+  negative_patterns: &id002
+  - regex: (?i)(cursor\.(execute|executemany)|db\.(execute|query)|session\.execute)\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*[\(\[]
+  - regex: \?\s*\}|\$\d+|%s\s*,|\bprepare\b|\bprepared_statement\b|\bPreparedStatement\b
+  - regex: (?i)(parameterized|bind_param|bindValue|addBatch)
 - id: py-django-insecure-signing
   languages:
   - python
@@ -336,6 +345,7 @@
   cwe: CWE-89
   owasp: A03:2021
   confidence: 0.75
+  negative_patterns: *id002
 - id: py-dangerous-input-eval
   languages:
   - python
@@ -402,6 +412,9 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.75
+  negative_patterns: &id003
+  - regex: (?i)(os\.path\.realpath|abspath|safe_join|ALLOWED_DIRS|BASE_DIR|restrict_path)
+  - regex: (?i)(\.startswith\(base|Path\(.*resolve\(\))
 - id: py-zip-slip
   languages:
   - python
@@ -435,6 +448,7 @@
   cwe: CWE-943
   owasp: A03:2021
   confidence: 0.8
+  negative_patterns: *id002
 - id: py-redos
   languages:
   - python
@@ -485,8 +499,7 @@
   patterns:
   - regex: (?s)(?:signature|X-Signature|X-Hub-Signature)\s*=\s*request\.(?:headers|args|form)[\s\S]{0,500}pickle\.(?:load|loads)
   severity: critical
-  description: 'Potential signature bypass: Webhook signature is read but dangerous deserialization (pickle) follows. Ensure
-    signature is verified and execution is aborted on mismatch.'
+  description: 'Potential signature bypass: Webhook signature is read but dangerous deserialization (pickle) follows. Ensure signature is verified and execution is aborted on mismatch.'
   remediation: Verify HMAC signature before calling pickle.loads(). Use hmac.compare_digest() and abort(403) on failure.
   cwe: CWE-347
   owasp: A07:2021
@@ -1283,6 +1296,7 @@
   cwe: CWE-89
   owasp: A03:2021
   confidence: 0.75
+  negative_patterns: *id002
 - id: py-pandas-json-normalize
   languages:
   - python
@@ -2273,6 +2287,9 @@
   cwe: CWE-90
   owasp: A03:2021
   confidence: 0.7
+  negative_patterns: &id004
+  - regex: (?i)(os\.environ|os\.getenv|process\.env|dotenv|secretsmanager)
+  - regex: (?i)(test|mock|example|placeholder|dummy|fake|changeme)
 - id: py-ldap-wildcard
   languages:
   - python
@@ -2878,6 +2895,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.75
+  negative_patterns: *id003
 - id: py-path-traversal-join
   languages:
   - python
@@ -2889,6 +2907,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-join-relative
   languages:
   - python
@@ -2900,6 +2919,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.75
+  negative_patterns: *id003
 - id: py-path-traversal-abspath
   languages:
   - python
@@ -2977,6 +2997,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.75
+  negative_patterns: *id003
 - id: py-path-traversal-glob
   languages:
   - python
@@ -2988,6 +3009,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.75
+  negative_patterns: *id003
 - id: py-path-traversal-fnmatch
   languages:
   - python
@@ -3010,6 +3032,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-scandir
   languages:
   - python
@@ -3021,6 +3044,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-listdir
   languages:
   - python
@@ -3032,6 +3056,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-makedirs
   languages:
   - python
@@ -3043,6 +3068,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-remove
   languages:
   - python
@@ -3054,6 +3080,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-rmdir
   languages:
   - python
@@ -3065,6 +3092,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-rename
   languages:
   - python
@@ -3076,6 +3104,7 @@
   cwe: CWE-22
   owasp: A01:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-chmod
   languages:
   - python
@@ -3087,6 +3116,7 @@
   cwe: CWE-732
   owasp: A05:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-path-traversal-chown
   languages:
   - python
@@ -3098,6 +3128,7 @@
   cwe: CWE-732
   owasp: A05:2021
   confidence: 0.7
+  negative_patterns: *id003
 - id: py-upload-flask-file
   languages:
   - python
@@ -3494,6 +3525,7 @@
   cwe: CWE-918
   owasp: A10:2021
   confidence: 0.7
+  negative_patterns: *id004
 - id: py-ssrf-aws-task-role
   languages:
   - python
@@ -3648,6 +3680,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-api-key-dup1
   languages:
   - python
@@ -3659,6 +3692,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-aws-key
   languages:
   - python
@@ -3670,6 +3704,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-aws-secret
   languages:
   - python
@@ -3681,6 +3716,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-gcp-key
   languages:
   - python
@@ -3692,6 +3728,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-azure-key
   languages:
   - python
@@ -3703,6 +3740,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-jwt-secret
   languages:
   - python
@@ -3714,6 +3752,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-oauth-secret
   languages:
   - python
@@ -3725,6 +3764,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-stripe-key
   languages:
   - python
@@ -3736,6 +3776,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-twilio-key
   languages:
   - python
@@ -3747,6 +3788,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-sendgrid-key
   languages:
   - python
@@ -3758,6 +3800,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-github-token
   languages:
   - python
@@ -3769,6 +3812,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-slack-token
   languages:
   - python
@@ -3780,6 +3824,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-discord-token
   languages:
   - python
@@ -3791,6 +3836,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-telegram-token
   languages:
   - python
@@ -3802,6 +3848,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-connection-string
   languages:
   - python
@@ -3813,6 +3860,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-private-key
   languages:
   - python
@@ -3824,6 +3872,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.7
+  negative_patterns: *id001
 - id: py-hardcoded-certificate
   languages:
   - python
@@ -3835,6 +3884,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-encryption-key
   languages:
   - python
@@ -3846,6 +3896,7 @@
   cwe: CWE-321
   owasp: A02:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-hardcoded-salt
   languages:
   - python
@@ -3857,6 +3908,7 @@
   cwe: CWE-759
   owasp: A02:2021
   confidence: 0.65
+  negative_patterns: *id001
 - id: py-crlf-injection
   languages:
   - python
@@ -3864,8 +3916,7 @@
   - regex: (?i)response\.headers\[.*\]\s*=\s*f?["'].*[\r\n]+.*["']
   severity: high
   description: CRLF Injection via HTTP Response Headers (HTTP Response Splitting)
-  remediation: "Ensure response headers do not contain unvalidated newline characters (\r or \n). Sanitize user input before\
-    \ setting headers."
+  remediation: "Ensure response headers do not contain unvalidated newline characters (\r or \n). Sanitize user input before setting headers."
   cwe: CWE-113
   owasp: A03:2021
   confidence: 0.65
@@ -3887,8 +3938,7 @@
   - regex: (?i)jwt\.(encode|decode)\(.*(secret|key|12345|password)['"]\)
   severity: high
   description: Using default or weak JWT secret
-  remediation: Never use weak or hardcoded secrets for JWT signing. Load secrets from secure environment variables or vault
-    services.
+  remediation: Never use weak or hardcoded secrets for JWT signing. Load secrets from secure environment variables or vault services.
   cwe: CWE-310
   owasp: A02:2025
   confidence: 0.7
@@ -3903,6 +3953,7 @@
   cwe: CWE-798
   owasp: A07:2021
   confidence: 0.75
+  negative_patterns: *id001
 - id: py-jwt-algorithm-confusion
   languages:
   - python
@@ -3980,6 +4031,9 @@
   cwe: CWE-89
   owasp: A03:2021
   confidence: 0.75
+  negative_patterns: &id005
+  - regex: (?i)(cursor\.(execute|executemany)|db\.(execute|query))\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*[\(\[]
+  - regex: \?\s*\}|\$\d+|%s\s*,|\bprepare\b|\bprepared_statement\b
 - id: py-log-command-injection
   languages:
   - python
@@ -3991,14 +4045,16 @@
   cwe: CWE-78
   owasp: A03:2021
   confidence: 0.75
+  negative_patterns:
+  - regex: (?i)(shlex\.quote\(|shlex\.split\(|shell=False|subprocess\.run\([^)]+\[)
+  - regex: (?i)(allowlist|whitelist|validate_command|sanitize_input)
 - id: py-arbitrary-file-upload-traversal
   languages:
   - python
   patterns:
   - regex: (?i)\.save\(os\.path\.join\([^,]+,\s*(?:request\.form\.get|request\.files)
   severity: high
-  description: Saving an uploaded file using a client-controlled destination directory without path traversal limitations
-    or role checks.
+  description: Saving an uploaded file using a client-controlled destination directory without path traversal limitations or role checks.
   remediation: Validate the destination directory and strictly enforce Werkzeug's secure_filename() on all client uploads.
   cwe: CWE-22
   owasp: A01:2021
@@ -4009,8 +4065,7 @@
   patterns:
   - regex: (?i)requests\.(?:get|post)\(.*verify\s*=\s*False\)(?:.|\n)*return.*response\.headers
   severity: high
-  description: Fetching an internal or untrusted URL with TLS verification disabled and returning raw backend headers to the
-    caller (SSRF/Leak).
+  description: Fetching an internal or untrusted URL with TLS verification disabled and returning raw backend headers to the caller (SSRF/Leak).
   remediation: Enforce verify=True. Filter internal infrastructure headers before proxying responses back to clients.
   cwe: CWE-918
   confidence: 0.75
@@ -4040,6 +4095,7 @@
   cwe: CWE-89
   owasp: A03:2021
   confidence: 0.97
+  negative_patterns: *id005
 - id: py-cmdi-source-fstring-request
   languages:
   - python

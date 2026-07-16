@@ -888,7 +888,7 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 					archive := zip.NewWriter(zipFile)
 					defer archive.Close()
 
-					filesToZip := []string{"report.html", "report.csv", "report.pdf", "report.sarif"}
+					filesToZip := []string{"report.html", "report.csv", "report.pdf", "report.sarif", "sbom.cdx.json", "compliance-owasp.html", "compliance-pci.json"}
 					for _, fileName := range filesToZip {
 						filePathToZip := filepath.Join(reportsDir, fileName)
 						if _, err := os.Stat(filePathToZip); os.IsNotExist(err) {
@@ -963,6 +963,21 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 			contentType = "application/pdf"
 		case "sarif":
 			filePath = filepath.Join(reportsDir, "report.sarif")
+			contentType = "application/json"
+		case "sbom":
+			filePath = filepath.Join(reportsDir, "sbom.cdx.json")
+			contentType = "application/json"
+		case "compliance-owasp":
+			filePath = filepath.Join(reportsDir, "compliance-owasp.html")
+			contentType = "text/html"
+		case "compliance-pci":
+			filePath = filepath.Join(reportsDir, "compliance-pci.json")
+			contentType = "application/json"
+		case "compliance-nist":
+			// Generate on demand since it's less common
+			findings, _ := GetFindingsForScan(scanID)
+			filePath = filepath.Join(reportsDir, "compliance-nist.json")
+			reporter.GenerateComplianceReport(filePath, scanID, findings, reporter.FrameworkNIST800)
 			contentType = "application/json"
 		default:
 			http.NotFound(w, r)
