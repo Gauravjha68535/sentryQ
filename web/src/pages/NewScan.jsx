@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GitBranch, FolderUp, Play, Shield, Lock, Brain, Globe, Sparkles, FolderOpen, Layers } from 'lucide-react'
+import { GitBranch, FolderUp, Play, Shield, Lock, Brain, Globe, Sparkles, FolderOpen, Layers, ChevronDown, AlertTriangle, GitPullRequest, Bell, GitMerge } from 'lucide-react'
 
 const defaultConfig = {
     enableDeepScan: false,
@@ -14,7 +14,68 @@ const defaultConfig = {
     judgeOllamaHost: '',
     enableMLFPReduction: false,
     customRulesDir: '',
+    // Policy gates
+    policyFailOn: '',
+    maxCritical: -1,
+    maxHigh: -1,
+    maxMedium: -1,
+    maxTotal: -1,
+    // PR/MR decoration
+    prProvider: '',
+    prToken: '',
+    prRepo: '',
+    prNumber: 0,
+    mrIid: 0,
+    // Notifications
+    webhookUrls: '',
+    generateSbom: false,
+    // Incremental scan
+    incrementalScan: false,
+    baseBranch: 'main',
 }
+
+function CollapsibleSection({ title, icon, open, onToggle, children }) {
+    return (
+        <div style={{
+            border: '1px solid var(--border-primary)',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            marginTop: '12px',
+        }}>
+            <button
+                type="button"
+                onClick={onToggle}
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    background: 'var(--bg-secondary)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                }}
+            >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {icon}
+                    {title}
+                </span>
+                <ChevronDown size={16} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            </button>
+            {open && (
+                <div style={{ padding: '16px', background: 'var(--bg-card)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {children}
+                </div>
+            )}
+        </div>
+    )
+}
+
+const labelStyle = { fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }
+const hintStyle = { fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }
 
 export default function NewScan() {
     const [tab, setTab] = useState('upload')
@@ -26,6 +87,12 @@ export default function NewScan() {
     const [availableModels, setAvailableModels] = useState([])
     const [loadingModels, setLoadingModels] = useState(true)
     const navigate = useNavigate()
+
+    // Collapsible section state
+    const [policyOpen, setPolicyOpen] = useState(false)
+    const [prOpen, setPrOpen] = useState(false)
+    const [notifOpen, setNotifOpen] = useState(false)
+    const [incrOpen, setIncrOpen] = useState(false)
 
     React.useEffect(() => {
         const ac = new AbortController()
@@ -54,25 +121,16 @@ export default function NewScan() {
 
     const fetchInstalledModels = async (explicitHost = null, signal = null) => {
         setLoadingModels(true)
-        if (explicitHost) setAvailableModels([]) // Indicate refresh
+        if (explicitHost) setAvailableModels([])
         try {
             let modelUrl = ''
             let hostStr = ''
-
-            // If explicitHost is passed, it means user clicked refresh on a specific input
-            // Otherwise, we use the provider from settings on initial load
             const isCustomAPI = config.aiProvider === 'openai'
 
             if (isCustomAPI) {
                 hostStr = explicitHost || config.customApiUrl
-                if (!hostStr) {
-                    setLoadingModels(false)
-                    return
-                }
-                const params = new URLSearchParams({
-                    url: hostStr,
-                    api_key: config.customApiKey || ''
-                })
+                if (!hostStr) { setLoadingModels(false); return }
+                const params = new URLSearchParams({ url: hostStr, api_key: config.customApiKey || '' })
                 modelUrl = `/api/custom-endpoint/models?${params}`
             } else {
                 hostStr = explicitHost || config.ollamaHost
@@ -83,14 +141,8 @@ export default function NewScan() {
             if (res.ok) {
                 const data = await res.json()
                 const models = data.models || []
-                
-                // If the custom API returned an error string in JSON
-                if (data.error) {
-                    throw new Error(data.error)
-                }
-
+                if (data.error) throw new Error(data.error)
                 setAvailableModels(models)
-
                 if (models.length > 0) {
                     setConfig(prev => {
                         const newConfig = { ...prev }
@@ -117,15 +169,12 @@ export default function NewScan() {
     const handleDrop = (e) => {
         e.preventDefault()
         setDragover(false)
-        const items = e.dataTransfer.items
-        if (items && items.length > 0) {
+        if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
             setFiles(e.dataTransfer.files)
         }
     }
 
-    const handleFileSelect = (e) => {
-        setFiles(e.target.files)
-    }
+    const handleFileSelect = (e) => { setFiles(e.target.files) }
 
     const startScan = async () => {
         setUploading(true)
@@ -134,8 +183,6 @@ export default function NewScan() {
             if (tab === 'upload' && files) {
                 const formData = new FormData()
                 for (let i = 0; i < files.length; i++) {
-                    // Use webkitRelativePath so the server can reconstruct the full folder structure.
-                    // Falls back to the plain filename if the browser doesn't provide a relative path.
                     const relativePath = files[i].webkitRelativePath || files[i].name
                     formData.append('files', files[i], relativePath)
                 }
@@ -240,8 +287,7 @@ export default function NewScan() {
                         {/* Deep Scan Toggle */}
                         <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            padding: '16px', borderRadius: '10px',
-                            transition: 'all 0.2s ease',
+                            padding: '16px', borderRadius: '10px', transition: 'all 0.2s ease',
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{
@@ -258,19 +304,14 @@ export default function NewScan() {
                                     </div>
                                 </div>
                             </div>
-                            <input
-                                type="checkbox"
-                                className="checkbox-custom"
-                                checked={config.enableDeepScan}
-                                onChange={() => setConfig(prev => ({ ...prev, enableDeepScan: !prev.enableDeepScan }))}
-                            />
+                            <input type="checkbox" className="checkbox-custom" checked={config.enableDeepScan}
+                                onChange={() => setConfig(prev => ({ ...prev, enableDeepScan: !prev.enableDeepScan }))} />
                         </div>
 
                         {/* AI-Powered Toggle */}
                         <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            padding: '16px', borderRadius: '10px',
-                            transition: 'all 0.2s ease',
+                            padding: '16px', borderRadius: '10px', transition: 'all 0.2s ease',
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{
@@ -287,19 +328,14 @@ export default function NewScan() {
                                     </div>
                                 </div>
                             </div>
-                            <input
-                                type="checkbox"
-                                className="checkbox-custom"
-                                checked={config.enableAI}
-                                onChange={() => setConfig(prev => ({ ...prev, enableAI: !prev.enableAI }))}
-                            />
+                            <input type="checkbox" className="checkbox-custom" checked={config.enableAI}
+                                onChange={() => setConfig(prev => ({ ...prev, enableAI: !prev.enableAI }))} />
                         </div>
 
                         {/* Ensemble Audit Toggle */}
                         <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            padding: '16px', borderRadius: '10px',
-                            transition: 'all 0.2s ease'
+                            padding: '16px', borderRadius: '10px', transition: 'all 0.2s ease'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{
@@ -318,26 +354,20 @@ export default function NewScan() {
                                     </div>
                                 </div>
                             </div>
-                            <input
-                                type="checkbox"
-                                className="checkbox-custom"
-                                checked={config.enableEnsemble}
+                            <input type="checkbox" className="checkbox-custom" checked={config.enableEnsemble}
                                 onChange={() => setConfig(prev => ({
                                     ...prev,
                                     enableEnsemble: !prev.enableEnsemble,
                                     enableDeepScan: !prev.enableEnsemble ? true : prev.enableDeepScan,
                                     enableAI: !prev.enableEnsemble ? true : prev.enableAI
-                                }))}
-                            />
+                                }))} />
                         </div>
                     </div>
 
                     {/* AI Provider Host Configuration */}
-                    <div style={{ 
-                        marginTop: '8px', 
-                        padding: '16px', 
-                        borderRadius: '12px', 
-                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)', 
+                    <div style={{
+                        marginTop: '8px', padding: '16px', borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)',
                         border: '2px solid rgba(99, 102, 241, 0.25)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                     }}>
@@ -347,22 +377,19 @@ export default function NewScan() {
                             </label>
                             {loadingModels && <span className="animate-spin" style={{ fontSize: '0.75rem', color: '#6366f1' }}>⏳</span>}
                         </div>
-                        
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <input
                                 className="input"
                                 type="text"
                                 value={config.aiProvider === 'openai' ? config.customApiUrl : config.ollamaHost}
                                 onChange={(e) => {
-                                    if (config.aiProvider !== 'openai') {
-                                        setConfig(prev => ({ ...prev, ollamaHost: e.target.value }))
-                                    }
+                                    if (config.aiProvider !== 'openai') setConfig(prev => ({ ...prev, ollamaHost: e.target.value }))
                                 }}
                                 disabled={config.aiProvider === 'openai'}
                                 placeholder="localhost:11434 or 192.168.1.100:11434"
-                                style={{ 
-                                    flex: 1, fontSize: '0.95rem', padding: '10px 12px', 
-                                    background: config.aiProvider === 'openai' ? 'var(--bg-tertiary)' : 'var(--bg-primary)', 
+                                style={{
+                                    flex: 1, fontSize: '0.95rem', padding: '10px 12px',
+                                    background: config.aiProvider === 'openai' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
                                     border: '1px solid rgba(99, 102, 241, 0.2)',
                                     opacity: config.aiProvider === 'openai' ? 0.7 : 1
                                 }}
@@ -372,93 +399,49 @@ export default function NewScan() {
                                 className="btn btn-primary"
                                 onClick={() => fetchInstalledModels(config.aiProvider === 'openai' ? config.customApiUrl : config.ollamaHost)}
                                 disabled={loadingModels || (config.aiProvider === 'openai' ? !config.customApiUrl : !config.ollamaHost)}
-                                style={{ 
-                                    background: 'var(--accent-primary)', 
-                                    padding: '0 20px', 
-                                    height: '42px', 
-                                    fontWeight: 800, 
-                                    fontSize: '0.82rem', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: '8px',
-                                    whiteSpace: 'nowrap',
-                                    minWidth: '150px',
-                                    boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)'
+                                style={{
+                                    background: 'var(--accent-primary)', padding: '0 20px', height: '42px',
+                                    fontWeight: 800, fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '8px',
+                                    whiteSpace: 'nowrap', minWidth: '150px', boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)'
                                 }}
                             >
                                 <Play size={14} fill="currentColor" /> REFRESH MODELS
                             </button>
                         </div>
                         <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '10px', lineHeight: 1.4 }}>
-                            {config.aiProvider === 'openai' 
-                                ? 'Using the Custom API configured in Settings.' 
-                                : 'Enter your host (e.g., your friend\'s <b>IP:11434</b>) and click refresh to load available models.'}
+                            {config.aiProvider === 'openai'
+                                ? 'Using the Custom API configured in Settings.'
+                                : "Enter your host (e.g., your friend's IP:11434) and click refresh to load available models."}
                         </p>
                     </div>
 
-                    {/* AI Model Selections (visible when AI or Ensemble enabled) */}
+                    {/* AI Model Selections */}
                     {(config.enableAI || config.enableEnsemble) && (
                         <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.3s ease' }}>
                             <div>
-                                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                                    Discovery & Validation Model
-                                </label>
+                                <label style={labelStyle}>Discovery & Validation Model</label>
                                 {availableModels.length > 0 ? (
-                                    <select
-                                        className="input"
-                                        value={config.aiModel}
-                                        onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))}
-                                        style={{ appearance: 'auto' }}
-                                    >
-                                        {availableModels.map(model => (
-                                            <option key={model} value={model}>{model}</option>
-                                        ))}
+                                    <select className="input" value={config.aiModel} onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))} style={{ appearance: 'auto' }}>
+                                        {availableModels.map(model => <option key={model} value={model}>{model}</option>)}
                                     </select>
                                 ) : (
-                                    <input
-                                        className="input"
-                                        type="text"
-                                        value={config.aiModel}
-                                        onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))}
-                                        placeholder="e.g. qwen2.5-coder:7b"
-                                    />
+                                    <input className="input" type="text" value={config.aiModel}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, aiModel: e.target.value }))} placeholder="e.g. qwen2.5-coder:7b" />
                                 )}
                             </div>
-
                             <div>
-                                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                                    Final Consolidation Model (Larger LLM)
-                                </label>
+                                <label style={labelStyle}>Final Consolidation Model (Larger LLM)</label>
                                 {availableModels.length > 0 ? (
-                                    <select
-                                        className="input"
-                                        value={config.consolidationModel}
-                                        onChange={(e) => setConfig(prev => ({ ...prev, consolidationModel: e.target.value }))}
-                                        style={{ appearance: 'auto' }}
-                                    >
-                                        {availableModels.map(model => (
-                                            <option key={`consol-${model}`} value={model}>{model}</option>
-                                        ))}
+                                    <select className="input" value={config.consolidationModel} onChange={(e) => setConfig(prev => ({ ...prev, consolidationModel: e.target.value }))} style={{ appearance: 'auto' }}>
+                                        {availableModels.map(model => <option key={`consol-${model}`} value={model}>{model}</option>)}
                                     </select>
                                 ) : (
-                                    <input
-                                        className="input"
-                                        type="text"
-                                        value={config.consolidationModel}
-                                        onChange={(e) => setConfig(prev => ({ ...prev, consolidationModel: e.target.value }))}
-                                        placeholder="e.g. qwen2.5-coder:14b"
-                                    />
+                                    <input className="input" type="text" value={config.consolidationModel}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, consolidationModel: e.target.value }))} placeholder="e.g. qwen2.5-coder:14b" />
                                 )}
                             </div>
-
                             {config.enableEnsemble && (
-                                <div style={{ 
-                                    padding: '16px', 
-                                    borderRadius: '12px', 
-                                    background: 'rgba(99, 102, 241, 0.04)', 
-                                    border: '1px solid rgba(99, 102, 241, 0.12)',
-                                    marginTop: '8px'
-                                }}>
+                                <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.04)', border: '1px solid rgba(99, 102, 241, 0.12)', marginTop: '8px' }}>
                                     <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                         <Layers size={14} /> Judge Model Configuration
                                     </label>
@@ -466,62 +449,33 @@ export default function NewScan() {
                                         The Judge LLM merges independent scan reports into a single consolidated finding.
                                     </div>
                                     {availableModels.length > 0 ? (
-                                        <select
-                                            className="input"
-                                            value={config.judgeModel || config.consolidationModel}
-                                            onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))}
-                                            style={{ appearance: 'auto', background: 'var(--bg-secondary)' }}
-                                        >
-                                            {availableModels.map(model => (
-                                                <option key={`judge-${model}`} value={model}>{model}</option>
-                                            ))}
+                                        <select className="input" value={config.judgeModel || config.consolidationModel}
+                                            onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))} style={{ appearance: 'auto', background: 'var(--bg-secondary)' }}>
+                                            {availableModels.map(model => <option key={`judge-${model}`} value={model}>{model}</option>)}
                                         </select>
                                     ) : (
-                                        <input
-                                            className="input"
-                                            type="text"
-                                            value={config.judgeModel}
-                                            onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))}
-                                            placeholder="e.g. llama3.1:8b"
-                                            style={{ background: 'var(--bg-secondary)' }}
-                                        />
+                                        <input className="input" type="text" value={config.judgeModel}
+                                            onChange={(e) => setConfig(prev => ({ ...prev, judgeModel: e.target.value }))} placeholder="e.g. llama3.1:8b" style={{ background: 'var(--bg-secondary)' }} />
                                     )}
                                 </div>
                             )}
                         </div>
                     )}
 
-
-
-
-                    {/* ML FP Reduction Toggle (only when AI or Ensemble enabled) */}
+                    {/* ML FP Reduction Toggle */}
                     {(config.enableAI || config.enableEnsemble) && (
-                        <div style={{
-                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            padding: '16px', borderRadius: '10px',
-                            transition: 'all 0.2s ease', animation: 'fadeIn 0.3s ease'
-                        }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '10px', transition: 'all 0.2s ease', animation: 'fadeIn 0.3s ease' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{
-                                    width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    background: config.enableMLFPReduction ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
-                                    color: config.enableMLFPReduction ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s'
-                                }}>
+                                <div style={{ width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: config.enableMLFPReduction ? 'var(--accent-primary)' : 'var(--bg-tertiary)', color: config.enableMLFPReduction ? '#fff' : 'var(--text-muted)', transition: 'all 0.2s' }}>
                                     <Sparkles size={18} />
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>ML False Positive Reduction</div>
-                                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>
-                                        Filter likely false positives using historical similarity analysis
-                                    </div>
+                                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '2px' }}>Filter likely false positives using historical similarity analysis</div>
                                 </div>
                             </div>
-                            <input
-                                type="checkbox"
-                                className="checkbox-custom"
-                                checked={config.enableMLFPReduction}
-                                onChange={() => setConfig(prev => ({ ...prev, enableMLFPReduction: !prev.enableMLFPReduction }))}
-                            />
+                            <input type="checkbox" className="checkbox-custom" checked={config.enableMLFPReduction}
+                                onChange={() => setConfig(prev => ({ ...prev, enableMLFPReduction: !prev.enableMLFPReduction }))} />
                         </div>
                     )}
 
@@ -530,18 +484,174 @@ export default function NewScan() {
                         <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <FolderOpen size={14} /> Custom Rules Directory
                         </label>
-                        <input
-                            className="input"
-                            type="text"
-                            value={config.customRulesDir}
-                            onChange={(e) => setConfig(prev => ({ ...prev, customRulesDir: e.target.value }))}
-                            placeholder="rules (default)"
-                            style={{ width: '100%' }}
-                        />
-                        <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                            Leave empty to use the built-in rules directory
-                        </p>
+                        <input className="input" type="text" value={config.customRulesDir}
+                            onChange={(e) => setConfig(prev => ({ ...prev, customRulesDir: e.target.value }))} placeholder="rules (default)" style={{ width: '100%' }} />
+                        <p style={hintStyle}>Leave empty to use the built-in rules directory</p>
                     </div>
+
+                    {/* ── Section 1: CI Policy Gates ── */}
+                    <CollapsibleSection
+                        title="CI Policy Gates"
+                        icon={<AlertTriangle size={15} />}
+                        open={policyOpen}
+                        onToggle={() => setPolicyOpen(o => !o)}
+                    >
+                        <div>
+                            <label style={labelStyle}>Fail On Severity</label>
+                            <select className="input" value={config.policyFailOn} onChange={(e) => setConfig(prev => ({ ...prev, policyFailOn: e.target.value }))} style={{ appearance: 'auto' }}>
+                                <option value="">None (no gate)</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                            <p style={hintStyle}>Fail the scan if any finding meets or exceeds this severity</p>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <div>
+                                <label style={labelStyle}>Max Critical</label>
+                                <input className="input" type="number" min="-1"
+                                    value={config.maxCritical === -1 ? '' : config.maxCritical}
+                                    placeholder="No limit"
+                                    onChange={(e) => setConfig(prev => ({ ...prev, maxCritical: e.target.value === '' ? -1 : parseInt(e.target.value) || -1 }))} />
+                            </div>
+                            <div>
+                                <label style={labelStyle}>Max High</label>
+                                <input className="input" type="number" min="-1"
+                                    value={config.maxHigh === -1 ? '' : config.maxHigh}
+                                    placeholder="No limit"
+                                    onChange={(e) => setConfig(prev => ({ ...prev, maxHigh: e.target.value === '' ? -1 : parseInt(e.target.value) || -1 }))} />
+                            </div>
+                            <div>
+                                <label style={labelStyle}>Max Medium</label>
+                                <input className="input" type="number" min="-1"
+                                    value={config.maxMedium === -1 ? '' : config.maxMedium}
+                                    placeholder="No limit"
+                                    onChange={(e) => setConfig(prev => ({ ...prev, maxMedium: e.target.value === '' ? -1 : parseInt(e.target.value) || -1 }))} />
+                            </div>
+                            <div>
+                                <label style={labelStyle}>Max Total</label>
+                                <input className="input" type="number" min="-1"
+                                    value={config.maxTotal === -1 ? '' : config.maxTotal}
+                                    placeholder="No limit"
+                                    onChange={(e) => setConfig(prev => ({ ...prev, maxTotal: e.target.value === '' ? -1 : parseInt(e.target.value) || -1 }))} />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    {/* ── Section 2: PR/MR Decoration ── */}
+                    <CollapsibleSection
+                        title="PR / MR Decoration"
+                        icon={<GitPullRequest size={15} />}
+                        open={prOpen}
+                        onToggle={() => setPrOpen(o => !o)}
+                    >
+                        <div>
+                            <label style={labelStyle}>Provider</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                {['', 'github', 'gitlab'].map(p => (
+                                    <button key={p} type="button"
+                                        onClick={() => setConfig(prev => ({ ...prev, prProvider: p }))}
+                                        style={{
+                                            padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600,
+                                            border: '1px solid var(--border-primary)', cursor: 'pointer',
+                                            background: config.prProvider === p ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                                            color: config.prProvider === p ? '#fff' : 'var(--text-secondary)',
+                                        }}
+                                    >
+                                        {p === '' ? 'None' : p === 'github' ? 'GitHub' : 'GitLab'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        {config.prProvider !== '' && (
+                            <>
+                                <div>
+                                    <label style={labelStyle}>Token</label>
+                                    <input className="input" type="password" value={config.prToken}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, prToken: e.target.value }))}
+                                        placeholder="ghp_... or glpat-..." />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Repository (owner/repo)</label>
+                                    <input className="input" type="text" value={config.prRepo}
+                                        onChange={(e) => setConfig(prev => ({ ...prev, prRepo: e.target.value }))}
+                                        placeholder="myorg/myrepo" />
+                                </div>
+                                {config.prProvider === 'github' && (
+                                    <div>
+                                        <label style={labelStyle}>PR Number</label>
+                                        <input className="input" type="number" min="1" value={config.prNumber || ''}
+                                            onChange={(e) => setConfig(prev => ({ ...prev, prNumber: parseInt(e.target.value) || 0 }))}
+                                            placeholder="42" />
+                                    </div>
+                                )}
+                                {config.prProvider === 'gitlab' && (
+                                    <div>
+                                        <label style={labelStyle}>MR IID</label>
+                                        <input className="input" type="number" min="1" value={config.mrIid || ''}
+                                            onChange={(e) => setConfig(prev => ({ ...prev, mrIid: parseInt(e.target.value) || 0 }))}
+                                            placeholder="12" />
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </CollapsibleSection>
+
+                    {/* ── Section 3: Notifications ── */}
+                    <CollapsibleSection
+                        title="Notifications"
+                        icon={<Bell size={15} />}
+                        open={notifOpen}
+                        onToggle={() => setNotifOpen(o => !o)}
+                    >
+                        <div>
+                            <label style={labelStyle}>Webhook URLs</label>
+                            <textarea
+                                className="input"
+                                rows={3}
+                                value={config.webhookUrls}
+                                onChange={(e) => setConfig(prev => ({ ...prev, webhookUrls: e.target.value }))}
+                                placeholder="https://hooks.slack.com/..., https://discord.com/api/webhooks/..."
+                                style={{ resize: 'vertical', fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}
+                            />
+                            <p style={hintStyle}>Comma-separated list of webhook endpoints. A JSON payload is POSTed on scan completion.</p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <input type="checkbox" className="checkbox-custom" checked={config.generateSbom}
+                                onChange={() => setConfig(prev => ({ ...prev, generateSbom: !prev.generateSbom }))} />
+                            <div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Generate SBOM (CycloneDX)</div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Writes sbom.cdx.json alongside other report files</div>
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    {/* ── Section 4: Incremental Scan ── */}
+                    <CollapsibleSection
+                        title="Incremental Scan"
+                        icon={<GitMerge size={15} />}
+                        open={incrOpen}
+                        onToggle={() => setIncrOpen(o => !o)}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <input type="checkbox" className="checkbox-custom" checked={config.incrementalScan}
+                                onChange={() => setConfig(prev => ({ ...prev, incrementalScan: !prev.incrementalScan }))} />
+                            <div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Scan only changed files (git diff)</div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Restricts analysis to files changed relative to the base branch</div>
+                            </div>
+                        </div>
+                        {config.incrementalScan && (
+                            <div>
+                                <label style={labelStyle}>Base Branch</label>
+                                <input className="input" type="text" value={config.baseBranch}
+                                    onChange={(e) => setConfig(prev => ({ ...prev, baseBranch: e.target.value }))}
+                                    placeholder="main" />
+                                <p style={hintStyle}>The branch to diff against when computing changed files</p>
+                            </div>
+                        )}
+                    </CollapsibleSection>
 
                     {/* Always-on info */}
                     <div style={{

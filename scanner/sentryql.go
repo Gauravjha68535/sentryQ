@@ -1,298 +1,187 @@
 package scanner
 
-// SentryQL — a minimal declarative query language for expressing vulnerability patterns.
-//
-// Syntax:
-//   FIND <target> WHERE <condition> [AND <condition>...] [REPORT AS <severity>] [MESSAGE <text>]
-//
-// Targets:
-//   function_call(<name>)   — any call to the named function
-//   variable(<name>)        — any variable with this name pattern
-//   string_literal          — any string literal
-//   file(<ext>)             — restrict to files with this extension
-//
-// Conditions:
-//   tainted_by(<source>)            — argument flows from HTTP/user input
-//   not_sanitized_by(<func>)        — argument did NOT pass through sanitizer func
-//   matches(<regex>)                — snippet matches the regex
-//   in_file(<ext>)                  — file has this extension
-//   severity(<level>)               — only when finding severity >= level
-//
-// Example:
-//   FIND function_call(execute) WHERE tainted_by(request) AND not_sanitized_by(escape)
-//       REPORT AS critical MESSAGE "Unsanitized SQL execution"
-
 import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"SentryQ/reporter"
-	"SentryQ/utils"
 )
 
-// SentryQLQuery is a parsed SentryQL query.
+// SentryQLQuery is a parsed SentryQL query ready for execution.
+// SentryQL is a lightweight declarative query language for expressing
+// multi-condition vulnerability patterns:
+//
+//	FIND <pattern> IN <scope> [WHERE <condition>] [AND NOT <negation>]
+//
+// Scopes: "source", "function", "class", "import"
+// Conditions are regex patterns applied to the matched line or its ±5-line context.
 type SentryQLQuery struct {
-	Target     SentryQLTarget
-	Conditions []SentryQLCondition
-	ReportAs   string
-	Message    string
-	ID         string
+	FindPattern  *regexp.Regexp
+	Scope        string
+	WherePattern *regexp.Regexp // optional filter condition
+	NotPattern   *regexp.Regexp // optional negation condition
+	raw          string
 }
 
-type SentryQLTarget struct {
-	Kind string // "function_call", "variable", "string_literal", "file"
-	Name string // function/variable name pattern (may be a regex)
-}
-
-type SentryQLCondition struct {
-	Type  string // "tainted_by", "not_sanitized_by", "matches", "in_file"
-	Value string
-}
-
-// sentryqlTokenRe matches keyword:value pairs.
-var (
-	sentryqlFindRe    = regexp.MustCompile(`(?i)^FIND\s+(\w+)\(([^)]*)\)`)
-	sentryqlWhereRe   = regexp.MustCompile(`(?i)WHERE\s+(.+?)(?:REPORT|MESSAGE|$)`)
-	sentryqlReportRe  = regexp.MustCompile(`(?i)REPORT\s+AS\s+(\w+)`)
-	sentryqlMessageRe = regexp.MustCompile(`(?i)MESSAGE\s+"([^"]+)"`)
-	sentryqlCondRe    = regexp.MustCompile(`(?i)(tainted_by|not_sanitized_by|matches|in_file)\(([^)]+)\)`)
-)
-
-// ParseSentryQL parses a SentryQL query string into a structured query.
-func ParseSentryQL(id, query string) (*SentryQLQuery, error) {
-	q := &SentryQLQuery{ID: id, ReportAs: "medium"}
-
-	findM := sentryqlFindRe.FindStringSubmatch(query)
-	if findM == nil {
-		return nil, fmt.Errorf("SentryQL: missing FIND clause in query %q", id)
-	}
-	q.Target = SentryQLTarget{
-		Kind: strings.ToLower(findM[1]),
-		Name: strings.TrimSpace(findM[2]),
+// ParseSentryQL parses a SentryQL query string and returns a compiled query.
+// Returns an error if the query cannot be parsed or patterns cannot be compiled.
+//
+// Grammar (case-insensitive):
+//
+//	FIND <regex> [IN source|function|class|import] [WHERE <regex>] [AND NOT <regex>]
+func ParseSentryQL(query string) (*SentryQLQuery, error) {
+	if query == "" {
+		return nil, fmt.Errorf("sentryql: empty query")
 	}
 
-	whereM := sentryqlWhereRe.FindStringSubmatch(query)
-	if whereM != nil {
-		condMatches := sentryqlCondRe.FindAllStringSubmatch(whereM[1], -1)
-		for _, cm := range condMatches {
-			q.Conditions = append(q.Conditions, SentryQLCondition{
-				Type:  strings.ToLower(cm[1]),
-				Value: strings.TrimSpace(cm[2]),
-			})
+	q := &SentryQLQuery{raw: query}
+	rest := strings.TrimSpace(query)
+
+	// Extract FIND pattern (mandatory)
+	upper := strings.ToUpper(rest)
+	if !strings.HasPrefix(upper, "FIND ") {
+		return nil, fmt.Errorf("sentryql: query must start with FIND, got: %q", query)
+	}
+	rest = rest[5:] // skip "FIND "
+
+	// Extract optional "AND NOT <pattern>" suffix first (so it doesn't confuse IN/WHERE)
+	notIdx := indexCaseInsensitive(rest, " AND NOT ")
+	if notIdx >= 0 {
+		notPat := strings.TrimSpace(rest[notIdx+9:])
+		rest = strings.TrimSpace(rest[:notIdx])
+		re, err := regexp.Compile("(?i)" + notPat)
+		if err != nil {
+			return nil, fmt.Errorf("sentryql: invalid AND NOT pattern %q: %w", notPat, err)
 		}
+		q.NotPattern = re
 	}
 
-	if m := sentryqlReportRe.FindStringSubmatch(query); m != nil {
-		q.ReportAs = strings.ToLower(m[1])
+	// Extract optional "WHERE <pattern>"
+	whereIdx := indexCaseInsensitive(rest, " WHERE ")
+	if whereIdx >= 0 {
+		wherePat := strings.TrimSpace(rest[whereIdx+7:])
+		rest = strings.TrimSpace(rest[:whereIdx])
+		re, err := regexp.Compile("(?i)" + wherePat)
+		if err != nil {
+			return nil, fmt.Errorf("sentryql: invalid WHERE pattern %q: %w", wherePat, err)
+		}
+		q.WherePattern = re
 	}
-	if m := sentryqlMessageRe.FindStringSubmatch(query); m != nil {
-		q.Message = m[1]
+
+	// Extract optional "IN <scope>"
+	inIdx := indexCaseInsensitive(rest, " IN ")
+	if inIdx >= 0 {
+		scope := strings.TrimSpace(rest[inIdx+4:])
+		rest = strings.TrimSpace(rest[:inIdx])
+		q.Scope = strings.ToLower(scope)
+	} else {
+		q.Scope = "source" // default scope
 	}
+
+	// The remaining text is the FIND pattern
+	findPat := strings.TrimSpace(rest)
+	if findPat == "" {
+		return nil, fmt.Errorf("sentryql: FIND pattern is empty in query: %q", query)
+	}
+	re, err := regexp.Compile("(?i)" + findPat)
+	if err != nil {
+		return nil, fmt.Errorf("sentryql: invalid FIND pattern %q: %w", findPat, err)
+	}
+	q.FindPattern = re
 
 	return q, nil
 }
 
-// RunSentryQL executes a parsed SentryQL query against the contents of a file
-// and returns any findings.
-func RunSentryQL(q *SentryQLQuery, filePath string, lines []string, crossFileIdx *CrossFileIndex) []reporter.Finding {
-	// Check file extension condition first
-	for _, c := range q.Conditions {
-		if c.Type == "in_file" {
-			ext := strings.ToLower(strings.TrimPrefix(c.Value, "."))
-			fileExt := strings.ToLower(strings.TrimPrefix(getFileExt(filePath), "."))
-			if fileExt != ext {
-				return nil
-			}
-		}
-	}
-
-	// Determine target pattern
-	targetRe, err := buildTargetRegex(q.Target)
-	if err != nil {
-		utils.LogWarn(fmt.Sprintf("SentryQL %s: invalid target pattern: %v", q.ID, err))
+// RunSentryQL executes a compiled SentryQL query against file content and returns
+// the (1-based) line numbers of matching lines. The caller is responsible for
+// converting these to reporter.Finding values.
+func RunSentryQL(q *SentryQLQuery, filePath, content string) []int {
+	if q == nil || q.FindPattern == nil {
 		return nil
 	}
 
-	// Build sanitizer patterns from not_sanitized_by conditions
-	var sanitizerRes []*regexp.Regexp
-	for _, c := range q.Conditions {
-		if c.Type == "not_sanitized_by" {
-			if re, err := regexp.Compile(`(?i)` + regexp.QuoteMeta(c.Value) + `\s*\(`); err == nil {
-				sanitizerRes = append(sanitizerRes, re)
-			}
-		}
-	}
+	lines := strings.Split(content, "\n")
+	var matchingLines []int
 
-	// Build taint sources from tainted_by conditions
-	var taintSources []string
-	for _, c := range q.Conditions {
-		if c.Type == "tainted_by" {
-			taintSources = append(taintSources, strings.ToLower(c.Value))
-		}
-	}
+	for i, line := range lines {
+		lineNum := i + 1
 
-	// Build extra regex from matches conditions
-	var matchRes []*regexp.Regexp
-	for _, c := range q.Conditions {
-		if c.Type == "matches" {
-			if re, err := regexp.Compile(`(?i)` + c.Value); err == nil {
-				matchRes = append(matchRes, re)
-			}
-		}
-	}
-
-	var findings []reporter.Finding
-	reachableTaint := make(map[string]bool)
-
-	for lineNum, line := range lines {
-		// Check if this line has a taint source assignment
-		for _, src := range taintSources {
-			if strings.Contains(strings.ToLower(line), src) {
-				// Extract variable being assigned
-				if varName := extractAssignedVar(line); varName != "" {
-					reachableTaint[varName] = true
-				}
-			}
-		}
-
-		// Check if cross-file tainted functions appear on this line
-		if crossFileIdx != nil {
-			for fn := range crossFileIdx.TaintedFunctions {
-				if strings.Contains(line, fn+"(") {
-					if varName := extractAssignedVar(line); varName != "" {
-						reachableTaint[varName] = true
-					}
-				}
-			}
-		}
-
-		// Check if the target pattern matches
-		if !targetRe.MatchString(line) {
+		// Apply scope filter
+		if !sentryqlScopeMatch(q.Scope, line, lines, i) {
 			continue
 		}
 
-		// Check matches conditions
-		allMatchesPass := true
-		for _, re := range matchRes {
-			if !re.MatchString(line) {
-				allMatchesPass = false
-				break
-			}
-		}
-		if !allMatchesPass {
+		// Apply FIND pattern
+		if !q.FindPattern.MatchString(line) {
 			continue
 		}
 
-		// Check taint condition: at least one tainted variable appears in line
-		if len(taintSources) > 0 {
-			hasTaint := false
-			// Direct taint source in the same line
-			for _, src := range taintSources {
-				if strings.Contains(strings.ToLower(line), src) {
-					hasTaint = true
-					break
-				}
-			}
-			// Previously tainted variable appears in line
-			if !hasTaint {
-				for varName := range reachableTaint {
-					if strings.Contains(line, varName) {
-						hasTaint = true
-						break
-					}
-				}
-			}
-			if !hasTaint {
+		// Apply WHERE condition (must ALSO match within ±5 line context)
+		if q.WherePattern != nil {
+			ctx := contextWindow(lines, i, 5)
+			if !q.WherePattern.MatchString(ctx) {
 				continue
 			}
 		}
 
-		// Check not_sanitized_by: if any sanitizer appears in ±5 line context, skip
-		if len(sanitizerRes) > 0 {
-			contextStart := lineNum - 5
-			if contextStart < 0 {
-				contextStart = 0
-			}
-			contextEnd := lineNum + 5
-			if contextEnd > len(lines) {
-				contextEnd = len(lines)
-			}
-			context := strings.Join(lines[contextStart:contextEnd], "\n")
-			sanitized := false
-			for _, re := range sanitizerRes {
-				if re.MatchString(context) {
-					sanitized = true
-					break
-				}
-			}
-			if sanitized {
-				continue
+		// Apply AND NOT negation (must NOT match in ±5 line context)
+		if q.NotPattern != nil {
+			ctx := contextWindow(lines, i, 5)
+			if q.NotPattern.MatchString(ctx) {
+				continue // suppressed by negation
 			}
 		}
 
-		msg := q.Message
-		if msg == "" {
-			msg = fmt.Sprintf("SentryQL rule %s matched", q.ID)
+		matchingLines = append(matchingLines, lineNum)
+	}
+
+	return matchingLines
+}
+
+// sentryqlScopeMatch returns true if line belongs to the requested scope.
+// This is a heuristic implementation that works for the most common cases.
+func sentryqlScopeMatch(scope, line string, lines []string, idx int) bool {
+	switch scope {
+	case "function":
+		// Check if we're inside a function: look backward for a function definition
+		for j := idx; j >= 0 && j > idx-30; j-- {
+			l := strings.TrimSpace(lines[j])
+			if regexp.MustCompile(`(?i)(func |def |function |public |private |protected )`).MatchString(l) {
+				return true
+			}
 		}
-
-		findings = append(findings, reporter.Finding{
-			IssueName:   q.ID,
-			RuleID:      "sentryql-" + q.ID,
-			FilePath:    filePath,
-			LineNumber:  fmt.Sprintf("%d", lineNum+1),
-			Severity:    normalizeSentryQLSeverity(q.ReportAs),
-			Description: msg,
-			Source:      "sentryql",
-			Confidence:  0.75,
-			CodeSnippet: strings.TrimSpace(line),
-		})
-	}
-
-	return findings
-}
-
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-func buildTargetRegex(t SentryQLTarget) (*regexp.Regexp, error) {
-	pattern := ""
-	switch t.Kind {
-	case "function_call":
-		pattern = `(?i)` + regexp.QuoteMeta(t.Name) + `\s*\(`
-	case "variable":
-		pattern = `(?i)\b` + regexp.QuoteMeta(t.Name) + `\b`
-	case "string_literal":
-		pattern = `(?i)["']` + regexp.QuoteMeta(t.Name) + `["']`
-	case "file":
-		pattern = `.*` // file-level: always match, rely on in_file condition
-	default:
-		pattern = `(?i)` + t.Name
-	}
-	return regexp.Compile(pattern)
-}
-
-func extractAssignedVar(line string) string {
-	// Matches: var = ..., var := ..., let var = ..., const var = ...
-	re := regexp.MustCompile(`(?:var\s+|let\s+|const\s+)?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?::=|=)\s*`)
-	if m := re.FindStringSubmatch(strings.TrimSpace(line)); len(m) > 1 {
-		return m[1]
-	}
-	return ""
-}
-
-func normalizeSentryQLSeverity(s string) string {
-	switch strings.ToLower(s) {
-	case "critical", "high", "medium", "low", "info":
-		return strings.ToLower(s)
-	default:
-		return "medium"
+		return false
+	case "class":
+		for j := idx; j >= 0 && j > idx-50; j-- {
+			l := strings.TrimSpace(lines[j])
+			if regexp.MustCompile(`(?i)(class |struct |interface )`).MatchString(l) {
+				return true
+			}
+		}
+		return false
+	case "import":
+		l := strings.TrimSpace(line)
+		return regexp.MustCompile(`(?i)^(import |require\(|from |use |#include)`).MatchString(l)
+	default: // "source" or anything else — match everywhere
+		return true
 	}
 }
 
-func getFileExt(path string) string {
-	idx := strings.LastIndex(path, ".")
-	if idx < 0 {
-		return ""
+// contextWindow returns a string of lines[max(0,idx-n) .. min(len,idx+n+1)] joined by newlines.
+func contextWindow(lines []string, idx, n int) string {
+	start := idx - n
+	if start < 0 {
+		start = 0
 	}
-	return path[idx:]
+	end := idx + n + 1
+	if end > len(lines) {
+		end = len(lines)
+	}
+	return strings.Join(lines[start:end], "\n")
+}
+
+// indexCaseInsensitive returns the first index of substr in s (case-insensitive), or -1.
+func indexCaseInsensitive(s, substr string) int {
+	sUp := strings.ToUpper(s)
+	subUp := strings.ToUpper(substr)
+	return strings.Index(sUp, subUp)
 }

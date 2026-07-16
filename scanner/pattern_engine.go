@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -45,9 +46,75 @@ func getDefaultConfidence(severity string) float64 {
 	}
 }
 
-// blockedRuleIDs is kept as an escape hatch for suppressing specific rules at runtime
-// without editing YAML files. Populate when a rule causes a false-positive flood.
-var blockedRuleIDs = map[string]bool{}
+// logBlockedOnce ensures the suppression list is printed exactly once per process.
+var logBlockedOnce sync.Once
+
+// blockedRuleIDs contains rules that are known to produce overwhelming false positives.
+// These are skipped during scanning rather than deleted from YAML (easier to undo).
+var blockedRuleIDs = map[string]bool{
+	"js-json-escape":               true, // fires on require() statements, 108+ false findings
+	"js-redos-html-tag-regex":       true, // fires on HTML template strings, not regex
+	"js-redos-long-regex":           true, // fires on multi-line template literals
+	"js-redos-alternation-overlap":  true, // matches entire file scope incorrectly
+	"js-browser-clipboard-read":     true, // fires on server-side Node.js (no clipboard API)
+	"gql-perf-unbatched-resolvers":  true, // fires on non-GraphQL Express apps
+	"dart-environment-config":       true, // Dart rule fires on generic .env files
+	"js-type-coercion-equals":       true, // code quality linting, not security
+	// Supply chain YAML rules that duplicate or fabricate findings:
+	"supplychain-typosquatting-npm":     true, // fires on every require() — Go Levenshtein checker handles this properly
+	"supplychain-typosquatting-pip":     true, // fires on every import — Go Levenshtein checker handles this properly
+	"supplychain-typosquatting-general": true, // matches "react", "express" etc literally in any context
+	"supplychain-known-vulnerable-deps": true, // fabricates findings without actual CVE data from OSV
+	"supplychain-missing-lockfile":      true, // fires on any requirements.txt / package.json
+	"js-type-coercion-boolean":          true, // code quality noise
+	"js-type-coercion-plus":             true, // code quality noise
+	"generic-missing-security-headers":  true, // too noisy for targeted security reports
+	"ts-api-key-security":               true, // fires on process.env access
+	
+	// Rule False Positives reported by user
+	"ts-secrets-management":       true, // flags process.env as hardcoded secret
+	"lambda-high-timeout":         true, // flags general requests.get timeout as lambda timeout
+	"js-crypto-constant-time":     true, // flags typeof comparisons
+	"ts-timeout":                  true, // flags Math.random() as session timeout risk
+	"py-ssrf-timeout-missing":     true, // flags explicitly provided timeouts if it doesn't parse args perfectly
+	"java-servlet-http-servlet":   true, // flags basic usage of HttpServlet
+	"js-timing-attack-index-of":   true, // flags path prefix checks with startsWith
+	"gql-auth-jwt-weak-secret":    true, // misfires on strongly-typed long secrets
+	"gql-auth-jwt-no-expiry":      true, // misfires despite explicit expiresIn config
+	"js-error-file-path":          true, // flags path.resolve out of error contexts
+
+	// "Good practice" JS rules mislabeled as security findings
+	// These patterns indicate SAFE/defensive coding, not vulnerabilities.
+	"js-prototype-pollution-deep-freeze": true, // Object.freeze/seal is a GOOD defensive measure
+	"js-prototype-pollution-map-set":     true, // Map/WeakMap is IMMUNE to prototype pollution
+	"js-prototype-pollution-immutable":   true, // Immutable.js usage is IMMUNE to prototype pollution
+
+	// Overly broad supply chain rules not in the blocked list yet
+	// (the typosquatting-npm/pip/general variants are blocked above;
+	// these additionally broad patterns fire on nearly every project)
+	"supplychain-pip-internal-public":   true, // pattern 2 fires on ANY `pip install name-with-hyphen`
+	"supplychain-gem-internal-public":   true, // pattern 2 fires on ANY hyphenated gem name
+	"supplychain-nuget-internal-public": true, // pattern 1 fires on ANY CamelCase NuGet package
+
+	// Overly broad race-condition rules that fire on common code patterns
+	"race-token-generation-concurrent":    true, // fires on ANY function that generates a token
+	"race-singleton-not-thread-safe":      true, // fires on ANY getInstance/Singleton naming
+	"race-coupon-redeem-concurrent":       true, // fires on any decrement or balance update without full race proof
+	"race-lazy-init-without-sync":         true, // fires on simple null/nil checks — too broad for general use
+	"race-db-increment-without-lock":      true, // fires on any UPDATE counter += 1 query, including correct DB-atomic ops
+	"race-double-checked-locking-unsafe":  true, // fires on any double-check pattern even in GC-safe languages
+	"race-db-read-modify-write":           true, // alternation matches any standalone UPDATE/INSERT/DELETE
+	"race-payment-concurrent-transaction": true, // tautology — same word twice on same line
+	"race-auth-check-then-act":            true, // fires on correct auth middleware in single-threaded runtimes
+
+	// Express framework rules with patterns that fire on every route definition
+	"express-missing-helmet":   true, // pattern app\.use\( fires on helmet itself — cannot detect absence
+	"express-no-rate-limiting": true, // pattern app\.post\( fires on every POST route regardless of rate limiting
+
+	// Over-broad supply chain HTTP/version rules
+	"supplychain-http-url":        true, // pattern "http://" matches ANY URL in comments, strings, docs
+	"supplychain-version-wildcard": true, // pattern ">= 0" matches too broadly across non-manifest files
+}
 
 // Pre-compiled regexes for framework detection (avoid recompiling per scan)
 var frameworkDetectors = map[string]*regexp.Regexp{
@@ -140,6 +207,17 @@ var localFrameworkDetectors = map[string]*regexp.Regexp{
 // RunPatternScan performs multi-threaded pattern scanning across all files.
 // It respects ctx cancellation: workers stop picking up new jobs once ctx is done.
 func RunPatternScan(ctx context.Context, result *ScanResult, baseRules []config.Rule, rulesDir string) []reporter.Finding {
+	// Log the suppression list once so operators know which rules are silenced.
+	logBlockedOnce.Do(func() {
+		ids := make([]string, 0, len(blockedRuleIDs))
+		for id := range blockedRuleIDs {
+			ids = append(ids, id)
+		}
+		sort.Strings(ids)
+		utils.LogInfo(fmt.Sprintf("Pattern engine: %d rules suppressed (known FP generators): %s",
+			len(ids), strings.Join(ids, ", ")))
+	})
+
 	// Detect frameworks and load specific rules
 	detectedFrameworks := detectFrameworks(result)
 	rules := append([]config.Rule(nil), baseRules...) // Copy base rules
@@ -308,12 +386,11 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 				continue
 			}
 
+			// Search against the clean source (comments replaced by spaces)
 			matches := pattern.CompiledRegex.FindAllStringIndex(cleanSource, -1)
 			for _, match := range matches {
 				// Negative pattern check: extract a ±10-line context window around
 				// the match and suppress the finding if any negative pattern hits it.
-				// This is how the engine learns about sanitizers, safe API variants,
-				// and parameterized query patterns without requiring full taint tracking.
 				if hasNegatives {
 					ctx := extractContextWindow(cleanSource, newlineIndices, match[0], match[1], 10)
 					if matchesAnyNegative(ctx, rule.NegativePatterns) {
@@ -330,8 +407,7 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 					confidence = getDefaultConfidence(rule.Severity)
 				}
 
-				// Cap severity for very low-confidence rules to avoid drowning
-				// high-priority queues with speculative findings.
+				// Cap severity for very low-confidence rules
 				effectiveSeverity := normalizeSeverity(rule)
 				if confidence < 0.3 && effectiveSeverity != "info" {
 					effectiveSeverity = "info"
@@ -356,14 +432,45 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 				})
 			}
 		}
+
+		// SentryQL: execute the rule's SentryQL query (if any).
+		if rule.SentryQL != "" {
+			q, parseErr := ParseSentryQL(rule.SentryQL)
+			if parseErr != nil {
+				utils.LogWarn(fmt.Sprintf("SentryQL parse error for rule %s: %v", rule.ID, parseErr))
+			} else {
+				lineNums := RunSentryQL(q, filePath, originalSource)
+				for _, lineNum := range lineNums {
+					confidence := rule.Confidence
+					if confidence == 0 {
+						confidence = getDefaultConfidence(rule.Severity)
+					}
+					srNo := int(atomic.AddInt64(counter, 1))
+					findings = append(findings, reporter.Finding{
+						SrNo:        srNo,
+						IssueName:   rule.ID,
+						FilePath:    filePath,
+						Description: rule.Description,
+						Severity:    normalizeSeverity(rule),
+						LineNumber:  fmt.Sprintf("%d", lineNum),
+						AiValidated: "No",
+						Remediation: rule.Remediation,
+						RuleID:      rule.ID,
+						Source:      "pattern-engine,sentryql",
+						CWE:         rule.CWE,
+						OWASP:       rule.OWASP,
+						Confidence:  confidence,
+					})
+				}
+			}
+		}
 	}
 
 	return findings
 }
 
-// extractContextWindow returns the substring of source that covers the lines
+// extractContextWindow returns the substring of source covering the lines
 // containing [matchStart, matchEnd] expanded by ±windowLines on each side.
-// This is used for negative-pattern checking without scanning the whole file.
 func extractContextWindow(source string, newlineIdx []int, matchStart, matchEnd, windowLines int) string {
 	startLine := getLineNumber(newlineIdx, matchStart)
 	endLine := getLineNumber(newlineIdx, matchEnd)
@@ -374,23 +481,25 @@ func extractContextWindow(source string, newlineIdx []int, matchStart, matchEnd,
 	}
 	ctxEndLine := endLine + windowLines
 
-	// Convert line numbers back to byte offsets.
-	// newlineIdx[i] is the byte position of the i-th newline (0-indexed).
-	// Line N starts right after newlineIdx[N-2] (or at 0 for line 1).
-	byteStart := 0
+	// Find byte offsets for context lines
+	startByte := 0
 	if ctxStartLine > 1 && ctxStartLine-2 < len(newlineIdx) {
-		byteStart = newlineIdx[ctxStartLine-2] + 1
+		startByte = newlineIdx[ctxStartLine-2] + 1
 	}
-
-	byteEnd := len(source)
+	endByte := len(source)
 	if ctxEndLine-1 < len(newlineIdx) {
-		byteEnd = newlineIdx[ctxEndLine-1] + 1
+		endByte = newlineIdx[ctxEndLine-1]
 	}
-
-	if byteStart > byteEnd || byteStart >= len(source) {
-		return source[matchStart:matchEnd]
+	if startByte > len(source) {
+		startByte = len(source)
 	}
-	return source[byteStart:byteEnd]
+	if endByte > len(source) {
+		endByte = len(source)
+	}
+	if startByte > endByte {
+		return ""
+	}
+	return source[startByte:endByte]
 }
 
 // matchesAnyNegative returns true if any compiled negative pattern matches the context string.

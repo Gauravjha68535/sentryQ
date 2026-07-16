@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Settings, Shield, PlusCircle, Code, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Settings, Shield, PlusCircle, Code, Menu, X, GitCompare, FileCheck } from 'lucide-react'
 
 export default function Sidebar({ isOpen, onToggle }) {
 
@@ -8,10 +8,12 @@ export default function Sidebar({ isOpen, onToggle }) {
             section: 'Main', items: [
                 { to: '/', icon: <LayoutDashboard />, label: 'Dashboard' },
                 { to: '/scan/new', icon: <PlusCircle />, label: 'New Scan' },
+                { to: '/compare', icon: <GitCompare />, label: 'Compare Scans' },
             ]
         },
         {
             section: 'Manage', items: [
+                { to: '/compliance', icon: <FileCheck />, label: 'Compliance' },
                 { to: '/rules', icon: <Code />, label: 'Rule Builder' },
                 { to: '/settings', icon: <Settings />, label: 'Settings' },
             ]

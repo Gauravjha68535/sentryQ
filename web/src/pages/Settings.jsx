@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Save, RefreshCw, Cpu, Server, CheckCircle2, XCircle, Play, List, ExternalLink } from 'lucide-react'
+import { Save, RefreshCw, Cpu, Server, CheckCircle2, XCircle, Play, List, ExternalLink, Bell } from 'lucide-react'
 
 const CLAUDE_MODELS = [
     'claude-opus-4-7',
@@ -45,6 +45,7 @@ export default function Settings() {
         claude_model: 'claude-sonnet-4-6',
         gemini_api_key: '',
         gemini_model: 'gemini-2.0-flash',
+        webhook_urls: '',
     })
     const [keySet, setKeySet] = useState({ custom: false, claude: false, gemini: false })
     const [saved, setSaved] = useState(false)
@@ -89,6 +90,7 @@ export default function Settings() {
                 claude_model: data.claude_model || 'claude-sonnet-4-6',
                 gemini_api_key: '',
                 gemini_model: data.gemini_model || 'gemini-2.0-flash',
+                webhook_urls: data.webhook_urls || '',
             }))
         } catch (e) {
             console.warn('[Settings] Failed to fetch settings:', e)
@@ -404,6 +406,34 @@ export default function Settings() {
 
                     <button className="btn btn-primary" onClick={saveSettings}>
                         <Save size={16} /> {saved ? '✓ Saved!' : 'Save Settings'}
+                    </button>
+                </div>
+
+                {/* Notifications */}
+                <div className="card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                        <Bell size={20} style={{ color: 'var(--accent-primary-hover)' }} />
+                        <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Notifications</h3>
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                        <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                            Webhook URLs
+                        </label>
+                        <textarea
+                            className="input"
+                            name="webhook_urls"
+                            rows={4}
+                            value={settings.webhook_urls}
+                            onChange={handleChange}
+                            placeholder="https://hooks.slack.com/..., https://discord.com/api/webhooks/..."
+                            style={{ resize: 'vertical', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', width: '100%' }}
+                        />
+                        <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                            Comma-separated webhook URLs. A JSON payload is POSTed after every scan completes.
+                        </p>
+                    </div>
+                    <button className="btn btn-primary" onClick={saveSettings}>
+                        <Save size={16} /> {saved ? '✓ Saved!' : 'Save Notifications'}
                     </button>
                 </div>
 
