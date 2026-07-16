@@ -95,7 +95,7 @@ func NewASTAnalyzer() *ASTAnalyzer {
 // ctx is the scan's cancellation context — if it is cancelled the parse is
 // aborted immediately so the goroutine can be cleaned up without delay.
 func (aa *ASTAnalyzer) AnalyzeFile(ctx context.Context, filePath string) ([]reporter.Finding, error) {
-	lang := getLanguageFromPath(filePath)
+	lang := utils.GetLanguage(filepath.Ext(filePath))
 	if lang == "" || aa.parsers[lang] == nil {
 		return nil, nil // Skip unsupported languages
 	}
@@ -441,39 +441,6 @@ func (aa *ASTAnalyzer) checkJSAssignment(node *treeSitter.Node, content []byte, 
 	}
 
 	return findings
-}
-
-// Helper functions (non-redundant ones)
-func getLanguageFromPath(filePath string) string {
-	ext := filepath.Ext(filePath)
-	switch ext {
-	case ".py":
-		return "python"
-	case ".js", ".jsx", ".mjs":
-		return "javascript"
-	case ".ts", ".tsx":
-		return "typescript"
-	case ".java", ".jsp":
-		return "java"
-	case ".kt", ".kts":
-		return "kotlin"
-	case ".php":
-		return "php"
-	case ".go":
-		return "go"
-	case ".rb":
-		return "ruby"
-	case ".cs":
-		return "csharp"
-	case ".c", ".h":
-		return "c"
-	case ".cpp", ".cc", ".cxx", ".hpp":
-		return "cpp"
-	case ".sh", ".bash":
-		return "bash"
-	default:
-		return ""
-	}
 }
 
 // ============================================================================
@@ -834,7 +801,7 @@ func (aa *ASTAnalyzer) BuildReachabilityCache(targetDir string) {
 				return nil
 			}
 
-			lang := getLanguageFromPath(path)
+			lang := utils.GetLanguage(filepath.Ext(path))
 			if lang == "" || aa.parsers[lang] == nil {
 				return nil
 			}

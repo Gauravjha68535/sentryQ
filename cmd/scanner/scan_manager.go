@@ -747,6 +747,9 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		//               (2) obvious FPs (safe patterns) skip expensive AI calls
 		wsHub.BroadcastLog(scanID, "Pre-validation: recalibrating severities...", "info")
 		combinedForValidation = recalibrateSeverities(combinedForValidation, targetDir)
+		// Pre-AI suppression: avoids sending obvious FPs (safe patterns, test files)
+		// to the expensive AI validation step. A second pass runs post-AI at line ~879
+		// to catch any regressions introduced by AI-phase merging.
 		wsHub.BroadcastLog(scanID, "Pre-validation: suppressing known safe patterns...", "info")
 		combinedForValidation = scanner.SuppressFalsePositives(combinedForValidation, targetDir)
 
