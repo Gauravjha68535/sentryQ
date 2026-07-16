@@ -41,20 +41,21 @@ func DecoratePR(cfg PRConfig, scanID string, findings []reporter.Finding) {
 	switch strings.ToLower(cfg.Provider) {
 	case "github":
 		if cfg.PRNumber <= 0 {
-			utils.LogWarn("pr-decorator: github requires --pr-number")
+			utils.LogWarn("pr-decorator: github requires pr-number")
 			return
 		}
 		postGitHubPRComment(cfg, summary)
 		postGitHubReviewComments(cfg, findings)
 	case "gitlab":
 		if cfg.MRID <= 0 {
-			utils.LogWarn("pr-decorator: gitlab requires --mr-iid")
+			utils.LogWarn("pr-decorator: gitlab requires mr-iid")
 			return
 		}
 		if cfg.GitLabURL == "" {
 			cfg.GitLabURL = "https://gitlab.com"
 		}
 		postGitLabMRNote(cfg, summary)
+		postGitLabInlineComments(cfg, findings)
 	default:
 		utils.LogWarn(fmt.Sprintf("pr-decorator: unknown provider %q (use 'github' or 'gitlab')", cfg.Provider))
 	}
@@ -157,7 +158,6 @@ func postGitHubReviewComments(cfg PRConfig, findings []reporter.Finding) {
 		maxC = 20
 	}
 
-	// Get the latest commit SHA for the PR so we can anchor comments
 	sha := getGitHubPRHeadSHA(cfg)
 	if sha == "" {
 		return
@@ -212,7 +212,6 @@ func postGitHubReviewComments(cfg PRConfig, findings []reporter.Finding) {
 		return
 	}
 
-	// Create a review with all inline comments in one API call
 	type reviewPayload struct {
 		CommitID string          `json:"commit_id"`
 		Body     string          `json:"body"`
@@ -297,6 +296,142 @@ func postGitLabMRNote(cfg PRConfig, body string) {
 		return
 	}
 	utils.LogInfo(fmt.Sprintf("pr-decorator: posted summary note to GitLab MR !%d", cfg.MRID))
+}
+
+// postGitLabInlineComments posts inline diff comments (discussions) on a GitLab MR
+// for each critical/high finding. Uses the GitLab Discussions API with position type "text".
+func postGitLabInlineComments(cfg PRConfig, findings []reporter.Finding) {
+	maxC := cfg.MaxComments
+	if maxC <= 0 {
+		maxC = 20
+	}
+
+	type positionType struct {
+		BaseSHA      string `json:"base_sha"`
+		StartSHA     string `json:"start_sha"`
+		HeadSHA      string `json:"head_sha"`
+		PositionType string `json:"position_type"`
+		NewPath      string `json:"new_path"`
+		NewLine      int    `json:"new_line"`
+	}
+	type discussionPayload struct {
+		Body     string       `json:"body"`
+		Position positionType `json:"position"`
+	}
+
+	// Retrieve MR diff refs (base/head SHAs) needed to anchor inline comments.
+	baseSHA, headSHA := getGitLabMRSHAs(cfg)
+	if headSHA == "" {
+		utils.LogWarn("pr-decorator: could not retrieve GitLab MR SHAs — skipping inline comments")
+		return
+	}
+	if baseSHA == "" {
+		baseSHA = headSHA
+	}
+
+	seen := map[string]bool{}
+	posted := 0
+
+	for _, f := range findings {
+		if posted >= maxC {
+			break
+		}
+		if strings.ToLower(f.Severity) != "critical" && strings.ToLower(f.Severity) != "high" {
+			continue
+		}
+		if f.Status == "false_positive" || f.Status == "ignored" {
+			continue
+		}
+		line := parseFirstLine(f.LineNumber)
+		if line <= 0 {
+			continue
+		}
+		key := fmt.Sprintf("%s:%d", f.FilePath, line)
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+
+		body := fmt.Sprintf("**SentryQ %s: %s**\n\n%s\n\n**Remediation:** %s\n\n_Rule: `%s` | %s_",
+			strings.ToUpper(f.Severity), f.IssueName,
+			f.Description,
+			f.Remediation,
+			f.RuleID, f.CWE,
+		)
+
+		dp := discussionPayload{
+			Body: body,
+			Position: positionType{
+				BaseSHA:      baseSHA,
+				StartSHA:     baseSHA,
+				HeadSHA:      headSHA,
+				PositionType: "text",
+				NewPath:      f.FilePath,
+				NewLine:      line,
+			},
+		}
+
+		payload, _ := json.Marshal(dp)
+		apiURL := fmt.Sprintf("%s/api/v4/projects/%s/merge_requests/%d/discussions",
+			strings.TrimRight(cfg.GitLabURL, "/"),
+			urlEncodeRepo(cfg.Repo),
+			cfg.MRID,
+		)
+		req, err := http.NewRequest("POST", apiURL, bytes.NewReader(payload))
+		if err != nil {
+			utils.LogWarn(fmt.Sprintf("pr-decorator: GitLab discussion request build failed: %v", err))
+			continue
+		}
+		req.Header.Set("Private-Token", cfg.Token)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("User-Agent", "SentryQ/"+reporter.Version)
+
+		resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
+		if err != nil {
+			utils.LogWarn(fmt.Sprintf("pr-decorator: GitLab discussion POST failed: %v", err))
+			continue
+		}
+		b, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if resp.StatusCode >= 300 {
+			utils.LogWarn(fmt.Sprintf("pr-decorator: GitLab discussion HTTP %d: %s", resp.StatusCode, string(b)))
+			continue
+		}
+		posted++
+	}
+
+	if posted > 0 {
+		utils.LogInfo(fmt.Sprintf("pr-decorator: posted %d inline discussion(s) on GitLab MR !%d", posted, cfg.MRID))
+	}
+}
+
+// getGitLabMRSHAs retrieves the base and head commit SHAs for a GitLab MR.
+func getGitLabMRSHAs(cfg PRConfig) (baseSHA, headSHA string) {
+	apiURL := fmt.Sprintf("%s/api/v4/projects/%s/merge_requests/%d",
+		strings.TrimRight(cfg.GitLabURL, "/"),
+		urlEncodeRepo(cfg.Repo),
+		cfg.MRID,
+	)
+	req, _ := http.NewRequest("GET", apiURL, nil)
+	req.Header.Set("Private-Token", cfg.Token)
+	req.Header.Set("User-Agent", "SentryQ/"+reporter.Version)
+
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	if err != nil || resp.StatusCode != 200 {
+		return "", ""
+	}
+	defer resp.Body.Close()
+
+	var mr struct {
+		DiffRefs struct {
+			BaseSHA string `json:"base_sha"`
+			HeadSHA string `json:"head_sha"`
+		} `json:"diff_refs"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&mr); err != nil {
+		return "", ""
+	}
+	return mr.DiffRefs.BaseSHA, mr.DiffRefs.HeadSHA
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────

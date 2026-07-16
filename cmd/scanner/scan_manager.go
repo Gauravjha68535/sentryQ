@@ -44,8 +44,32 @@ type WebScanConfig struct {
 	EnableMLFPReduction     bool     `json:"enableMLFPReduction"`
 	CustomRulesDir          string   `json:"customRulesDir"`
 	// ChangedFiles, when non-empty, restricts scanning to only these absolute paths.
-	// Set by --changed-only CLI flag for incremental/PR scans.
 	ChangedFiles            []string `json:"changedFiles,omitempty"`
+	// Policy gates — evaluated after scan completion.
+	// PolicyFailOn is the minimum severity that causes a policy violation ("critical", "high", "medium", "low").
+	// Empty string means no severity-based policy gate.
+	PolicyFailOn string `json:"policyFailOn"`
+	// MaxCritical is the maximum number of critical findings allowed (-1 = no limit).
+	MaxCritical int `json:"maxCritical"`
+	// MaxHigh is the maximum number of high findings allowed (-1 = no limit).
+	MaxHigh int `json:"maxHigh"`
+	// MaxMedium is the maximum number of medium findings allowed (-1 = no limit).
+	MaxMedium int `json:"maxMedium"`
+	// MaxTotal is the maximum total findings allowed (-1 = no limit).
+	MaxTotal int `json:"maxTotal"`
+	// WebhookURLs is a comma-separated list of webhook endpoint URLs to notify on scan completion.
+	WebhookURLs string `json:"webhookUrls"`
+	// PR/MR decoration fields.
+	PRProvider string `json:"prProvider"`
+	PRToken    string `json:"prToken"`
+	PRRepo     string `json:"prRepo"`
+	PRNumber   int    `json:"prNumber"`
+	MRiid      int    `json:"mrIid"`
+	// GenerateSBOM controls whether a CycloneDX SBOM is written for this scan.
+	GenerateSBOM bool `json:"generateSbom"`
+	// IncrementalScan, when true, restricts scanning to files changed relative to BaseBranch.
+	IncrementalScan bool   `json:"incrementalScan"`
+	BaseBranch      string `json:"baseBranch"`
 }
 
 var (
@@ -493,11 +517,6 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		}
 		return
 	}
-	// Incremental scan: restrict FilePaths to only the changed files when requested.
-	if len(cfg.ChangedFiles) > 0 {
-		result = filterScanResultToFiles(result, cfg.ChangedFiles)
-		wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental mode: restricting scan to %d changed file(s)", len(cfg.ChangedFiles)), "info")
-	}
 	totalFiles := 0
 	for _, files := range result.FilePaths {
 		totalFiles += len(files)
@@ -559,12 +578,8 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		return
 	}
 	wsHub.BroadcastProgress(scanID, "Taint Analysis", 40)
-	wsHub.BroadcastLog(scanID, "Running taint analyzer (building cross-file index)...", "phase")
+	wsHub.BroadcastLog(scanID, "Running taint analyzer...", "phase")
 	taintAnalyzer := scanner.NewTaintAnalyzer()
-	// Build cross-file index once so imported wrapper-source functions are
-	// recognised as taint sources when scanning files that import them.
-	crossFileIdx := taintAnalyzer.BuildCrossFileIndex(targetDir)
-	utils.LogInfo(fmt.Sprintf("Cross-file taint index: %d tainted functions indexed", len(crossFileIdx.TaintedFunctions)))
 	for _, files := range result.FilePaths {
 		if ctx.Err() != nil {
 			return
@@ -573,7 +588,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			if ctx.Err() != nil {
 				return
 			}
-			findings, err := taintAnalyzer.AnalyzeTaintFlowWithIndex(file, crossFileIdx)
+			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
 			if err == nil {
 				allFindings = append(allFindings, findings...)
 			} else {
@@ -948,14 +963,34 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 
 	// Generate report files
 	wsHub.BroadcastLog(scanID, "Generating reports...", "info")
-	webGenerateReportFiles(scanID, allFindings, targetDir)
+	webGenerateReportFiles(scanID, allFindings, targetDir, cfg)
 
-	// Fire webhooks configured in settings (fire-and-forget goroutines)
-	appSettings.RLock()
-	wURLs := appSettings.WebhookURLs
-	appSettings.RUnlock()
-	if wURLs != "" {
-		FireWebhooks(strings.Split(wURLs, ","), scanID, targetDir, "completed", allFindings, nil)
+	// ── Policy Gate Evaluation ─────────────────────────────────
+	evaluatePolicyGate(scanID, cfg, allFindings, criticalCount, highCount)
+
+	// ── Fire webhooks (per-scan config first, then global settings) ──
+	// Per-scan webhook URLs (from config) take priority; fall back to global settings.
+	webhookURLs := cfg.WebhookURLs
+	if webhookURLs == "" {
+		appSettings.RLock()
+		webhookURLs = appSettings.WebhookURLs
+		appSettings.RUnlock()
+	}
+	if webhookURLs != "" {
+		FireWebhooks(strings.Split(webhookURLs, ","), scanID, targetDir, "completed", allFindings, nil)
+	}
+
+	// ── PR/MR Decoration ─────────────────────────────────────────
+	if cfg.PRProvider != "" {
+		prCfg := PRConfig{
+			Provider: cfg.PRProvider,
+			Token:    cfg.PRToken,
+			Repo:     cfg.PRRepo,
+			PRNumber: cfg.PRNumber,
+			MRID:     cfg.MRiid,
+		}
+		wsHub.BroadcastLog(scanID, fmt.Sprintf("Decorating %s PR/MR with findings...", cfg.PRProvider), "info")
+		go DecoratePR(prCfg, scanID, allFindings)
 	}
 
 	elapsed := time.Since(startTime)
@@ -967,8 +1002,73 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	wsHub.BroadcastComplete(scanID)
 }
 
-// webGenerateReportFiles creates HTML, CSV, and PDF reports
-func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDir string) {
+// evaluatePolicyGate checks scan findings against configured policy thresholds
+// and broadcasts a PASS or FAIL event to the websocket.
+func evaluatePolicyGate(scanID string, cfg WebScanConfig, findings []reporter.Finding, criticalCount, highCount int) {
+	severityOrder := map[string]int{"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
+
+	hasPolicy := cfg.PolicyFailOn != "" || cfg.MaxCritical >= 0 || cfg.MaxHigh >= 0 || cfg.MaxMedium >= 0 || cfg.MaxTotal >= 0
+	if !hasPolicy {
+		return
+	}
+
+	violated := false
+	var reasons []string
+
+	// Count severities
+	counts := map[string]int{}
+	for _, f := range findings {
+		if f.Status != "false_positive" && f.Status != "ignored" {
+			counts[strings.ToLower(f.Severity)]++
+		}
+	}
+	total := 0
+	for _, v := range counts {
+		total += v
+	}
+
+	// PolicyFailOn: fail if any finding meets or exceeds the threshold severity
+	if cfg.PolicyFailOn != "" {
+		threshold := severityOrder[strings.ToLower(cfg.PolicyFailOn)]
+		for sev, cnt := range counts {
+			if cnt > 0 && severityOrder[sev] >= threshold {
+				violated = true
+				reasons = append(reasons, fmt.Sprintf("%d %s finding(s) at or above '%s' threshold", cnt, sev, cfg.PolicyFailOn))
+			}
+		}
+	}
+
+	// MaxCritical
+	if cfg.MaxCritical >= 0 && counts["critical"] > cfg.MaxCritical {
+		violated = true
+		reasons = append(reasons, fmt.Sprintf("critical count %d exceeds limit %d", counts["critical"], cfg.MaxCritical))
+	}
+	// MaxHigh
+	if cfg.MaxHigh >= 0 && counts["high"] > cfg.MaxHigh {
+		violated = true
+		reasons = append(reasons, fmt.Sprintf("high count %d exceeds limit %d", counts["high"], cfg.MaxHigh))
+	}
+	// MaxMedium
+	if cfg.MaxMedium >= 0 && counts["medium"] > cfg.MaxMedium {
+		violated = true
+		reasons = append(reasons, fmt.Sprintf("medium count %d exceeds limit %d", counts["medium"], cfg.MaxMedium))
+	}
+	// MaxTotal
+	if cfg.MaxTotal >= 0 && total > cfg.MaxTotal {
+		violated = true
+		reasons = append(reasons, fmt.Sprintf("total findings %d exceeds limit %d", total, cfg.MaxTotal))
+	}
+
+	if violated {
+		msg := fmt.Sprintf("❌ POLICY GATE FAILED: %s", strings.Join(reasons, "; "))
+		wsHub.BroadcastLog(scanID, msg, "error")
+	} else {
+		wsHub.BroadcastLog(scanID, "✅ POLICY GATE PASSED: all thresholds satisfied", "success")
+	}
+}
+
+// webGenerateReportFiles creates HTML, CSV, PDF, SARIF, SBOM, and compliance reports.
+func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDir string, cfg WebScanConfig) {
 	reportsDir := filepath.Join(os.TempDir(), "sentryQ", scanID)
 	if err := os.MkdirAll(reportsDir, 0700); err != nil {
 		utils.LogError(fmt.Sprintf("Failed to create reports directory for scan %s", scanID), err)
@@ -1002,19 +1102,28 @@ func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDi
 		utils.LogWarn(fmt.Sprintf("Failed to write SARIF report for scan %s: %v", scanID, err))
 	}
 
-	// CycloneDX SBOM
-	sbomPath := filepath.Join(reportsDir, "sbom.cdx.json")
-	if err := reporter.GenerateSBOM(sbomPath, findings, filepath.Base(targetDir)); err != nil {
-		utils.LogWarn(fmt.Sprintf("Failed to write SBOM for scan %s: %v", scanID, err))
+	// CycloneDX SBOM — always written (or when explicitly requested)
+	if cfg.GenerateSBOM || true {
+		sbomPath := filepath.Join(reportsDir, "sbom.cdx.json")
+		if err := reporter.GenerateSBOM(sbomPath, findings, filepath.Base(targetDir)); err != nil {
+			utils.LogWarn(fmt.Sprintf("Failed to write SBOM for scan %s: %v", scanID, err))
+		}
 	}
 
-	// Compliance reports (OWASP + PCI DSS)
-	owaspPath := filepath.Join(reportsDir, "compliance-owasp.json")
-	if _, err := reporter.GenerateComplianceReport(owaspPath, scanID, findings, reporter.FrameworkOWASP10); err != nil {
-		utils.LogWarn(fmt.Sprintf("Failed to write OWASP compliance report for scan %s: %v", scanID, err))
+	// Compliance reports — OWASP Top 10 JSON + HTML, PCI DSS JSON
+	owaspJSONPath := filepath.Join(reportsDir, "compliance-owasp.json")
+	owaspReport, owaspErr := reporter.GenerateComplianceReport(owaspJSONPath, scanID, findings, reporter.FrameworkOWASP10)
+	if owaspErr != nil {
+		utils.LogWarn(fmt.Sprintf("Failed to write OWASP compliance report for scan %s: %v", scanID, owaspErr))
+	} else {
+		owaspHTMLPath := filepath.Join(reportsDir, "compliance-owasp.html")
+		if err := reporter.GenerateComplianceHTML(owaspHTMLPath, scanID, owaspReport); err != nil {
+			utils.LogWarn(fmt.Sprintf("Failed to write OWASP compliance HTML for scan %s: %v", scanID, err))
+		}
 	}
-	pciPath := filepath.Join(reportsDir, "compliance-pci.json")
-	if _, err := reporter.GenerateComplianceReport(pciPath, scanID, findings, reporter.FrameworkPCIDSS); err != nil {
+
+	pciJSONPath := filepath.Join(reportsDir, "compliance-pci.json")
+	if _, err := reporter.GenerateComplianceReport(pciJSONPath, scanID, findings, reporter.FrameworkPCIDSS); err != nil {
 		utils.LogWarn(fmt.Sprintf("Failed to write PCI DSS compliance report for scan %s: %v", scanID, err))
 	}
 
@@ -1668,18 +1777,16 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 		}
 	}
 
-	// Taint Analysis with cross-file index
+	// Taint Analysis
 	wsHub.BroadcastProgress(scanID, "Phase 1: Taint Analysis", 12)
-	wsHub.BroadcastLog(scanID, "Running taint analyzer (cross-file mode)...", "info")
+	wsHub.BroadcastLog(scanID, "Running taint analyzer...", "info")
 	taintAnalyzer := scanner.NewTaintAnalyzer()
-	crossIdx := taintAnalyzer.BuildCrossFileIndex(targetDir)
-	utils.LogInfo(fmt.Sprintf("Cross-file taint index: %d functions indexed", len(crossIdx.TaintedFunctions)))
 	for _, files := range result.FilePaths {
 		for _, file := range files {
 			if ctx.Err() != nil {
 				break
 			}
-			findings, err := taintAnalyzer.AnalyzeTaintFlowWithIndex(file, crossIdx)
+			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
 			if err == nil {
 				staticFindings = append(staticFindings, findings...)
 			} else {
@@ -1969,7 +2076,7 @@ fileContentsDone:
 
 	// Generate report files
 	wsHub.BroadcastLog(scanID, "Generating reports (CSV, HTML, PDF)...", "info")
-	webGenerateReportFiles(scanID, allFindings, targetDir)
+	webGenerateReportFiles(scanID, allFindings, targetDir, cfg)
 
 	elapsed := time.Since(startTime)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("✅ Ensemble Audit completed in %s — %d master findings (%d critical, %d high) — Risk: %d/100 (%s)",
@@ -1980,27 +2087,4 @@ fileContentsDone:
 	wsHub.BroadcastProgress(scanID, "Complete", 100)
 	wsHub.Broadcast(scanID, WSMessage{Type: "findings_update", Count: len(allFindings)})
 	wsHub.BroadcastComplete(scanID)
-}
-
-// filterScanResultToFiles filters a ScanResult to only include the specified absolute file paths.
-// Used by incremental/PR scanning (--changed-only flag) to restrict analysis to changed files.
-func filterScanResultToFiles(result *scanner.ScanResult, allowedPaths []string) *scanner.ScanResult {
-	allowed := make(map[string]bool, len(allowedPaths))
-	for _, p := range allowedPaths {
-		allowed[p] = true
-	}
-
-	filtered := &scanner.ScanResult{
-		FilePaths: make(map[string][]string),
-	}
-
-	for lang, files := range result.FilePaths {
-		for _, f := range files {
-			if allowed[f] {
-				filtered.FilePaths[lang] = append(filtered.FilePaths[lang], f)
-				filtered.TotalFiles++
-			}
-		}
-	}
-	return filtered
 }

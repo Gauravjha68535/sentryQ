@@ -165,8 +165,8 @@ var (
 		// Gemini (Google)
 		GeminiAPIKey string `json:"gemini_api_key"`
 		GeminiModel  string `json:"gemini_model"`
-		// Webhook URLs (comma-separated) — notified on scan completion
-		WebhookURLs  string `json:"webhook_urls"`
+		// Notifications
+		WebhookURLs string `json:"webhook_urls"`
 	}{
 		AIProvider:    "ollama",
 		DefaultModel:  "qwen2.5-coder:7b",
@@ -263,7 +263,7 @@ func loadSettings() {
 }
 
 // recordMLFeedback records a user triage decision into the ML FP history file
-// so the FPHistoryCache can learn from it on future scans.
+// so the MLFPReducer can learn from it on future scans.
 // Only "false_positive" and "resolved" statuses are meaningful signals;
 // "open" and "ignored" are skipped since they carry no FP/TP information.
 func recordMLFeedback(f reporter.Finding, status string) {
@@ -407,12 +407,6 @@ func StartWebServer(port int) {
 		return
 	}
 
-	// Initialize multi-user auth (no-op unless SENTRYQ_MULTI_USER=1)
-	if os.Getenv("SENTRYQ_MULTI_USER") == "1" {
-		initMultiUser()
-		utils.LogInfo("Multi-user mode enabled (SENTRYQ_MULTI_USER=1)")
-	}
-
 	// Initialize embedded static filesystem (lazy, with graceful fallback)
 	staticFSOnce.Do(func() {
 		staticFS, staticFSError = ui.StaticFS()
@@ -442,19 +436,10 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/rules/", handleRulesFile)
 	mux.HandleFunc("/api/custom-endpoint/test", handleCustomEndpointTest)
 	mux.HandleFunc("/api/custom-endpoint/models", handleCustomEndpointModels)
-	mux.HandleFunc("/api/scans/diff", handleScanDiff)
-	mux.HandleFunc("/api/scan/compliance", handleComplianceReport)
-	// Auth routes (always available; enforced only when SENTRYQ_MULTI_USER=1)
-	mux.HandleFunc("/api/auth/login", handleLogin)
-	mux.HandleFunc("/api/auth/users", RequireRole(RoleAdmin, func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			handleListUsers(w, r)
-		} else {
-			handleCreateUser(w, r)
-		}
-	}))
 
 	// Dynamic scan routes (manual routing for path params)
+	mux.HandleFunc("/api/scan/compliance", handleScanCompliance)
+	mux.HandleFunc("/api/scans/diff", handleScansDiff)
 	mux.HandleFunc("/api/scan/", handleScanRoutes)
 	mux.HandleFunc("/ws/scan/", handleWebSocketRoute)
 
@@ -989,7 +974,7 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 				if scanRec, recErr := GetScan(scanID); recErr == nil {
 					targetName = scanRec.Target
 				}
-				webGenerateReportFiles(scanID, findings, targetName)
+				webGenerateReportFiles(scanID, findings, targetName, WebScanConfig{})
 			}
 		}
 
@@ -1058,6 +1043,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 			ClaudeModel   string `json:"claude_model"`
 			GeminiAPIKey  string `json:"gemini_api_key"`
 			GeminiModel   string `json:"gemini_model"`
+			WebhookURLs   string `json:"webhook_urls"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
 			http.Error(w, "Invalid body", http.StatusBadRequest)
@@ -1106,6 +1092,8 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 			if s.GeminiModel != "" {
 				appSettings.GeminiModel = s.GeminiModel
 			}
+			// WebhookURLs: always overwrite (empty = cleared)
+			appSettings.WebhookURLs = s.WebhookURLs
 		}()
 
 		// Apply side-effects outside the lock
@@ -1169,6 +1157,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 		"gemini_api_key":      maskedGeminiKey,
 		"gemini_api_key_set":  len(appSettings.GeminiAPIKey) > 0,
 		"gemini_model":        appSettings.GeminiModel,
+		"webhook_urls":        appSettings.WebhookURLs,
 	})
 }
 
@@ -1809,6 +1798,125 @@ func cleanOrphanedScanDirs(maxAge time.Duration) {
 	}
 }
 
+// handleScanCompliance handles GET /api/scan/compliance?id=<scanID>&framework=owasp|pci|nist
+func handleScanCompliance(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	scanID := r.URL.Query().Get("id")
+	if scanID == "" {
+		httpJSON(w, http.StatusBadRequest, map[string]string{"error": "id parameter required"})
+		return
+	}
+	fw := r.URL.Query().Get("framework")
+
+	findings, err := GetFindingsForScan(scanID)
+	if err != nil {
+		httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	var framework reporter.ComplianceFramework
+	switch strings.ToLower(fw) {
+	case "pci":
+		framework = reporter.FrameworkPCIDSS
+	case "nist":
+		framework = reporter.FrameworkNIST800
+	default:
+		framework = reporter.FrameworkOWASP10
+	}
+
+	// Generate in-memory (no file write needed for API response)
+	tmpFile := filepath.Join(os.TempDir(), "sentryQ", scanID, "compliance-api-"+fw+".json")
+	_ = os.MkdirAll(filepath.Dir(tmpFile), 0700)
+	report, err := reporter.GenerateComplianceReport(tmpFile, scanID, findings, framework)
+	if err != nil && report == nil {
+		httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	httpJSON(w, http.StatusOK, report)
+}
+
+// handleScansDiff handles GET /api/scans/diff?a=<scanID>&b=<scanID>
+func handleScansDiff(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	idA := r.URL.Query().Get("a")
+	idB := r.URL.Query().Get("b")
+	if idA == "" || idB == "" {
+		httpJSON(w, http.StatusBadRequest, map[string]string{"error": "a and b parameters required"})
+		return
+	}
+
+	findingsA, err := GetFindingsForScan(idA)
+	if err != nil {
+		httpJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to load scan A: " + err.Error()})
+		return
+	}
+	findingsB, err := GetFindingsForScan(idB)
+	if err != nil {
+		httpJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to load scan B: " + err.Error()})
+		return
+	}
+
+	// Build a fingerprint set from each scan for dedup comparison.
+	// Fingerprint = lowercase(filePath + "|" + issueName)
+	fingerprint := func(f reporter.Finding) string {
+		return strings.ToLower(f.FilePath) + "|" + strings.ToLower(f.IssueName)
+	}
+
+	setA := make(map[string]bool, len(findingsA))
+	for _, f := range findingsA {
+		setA[fingerprint(f)] = true
+	}
+	setB := make(map[string]bool, len(findingsB))
+	for _, f := range findingsB {
+		setB[fingerprint(f)] = true
+	}
+
+	var newFindings, fixedFindings, persistingFindings []reporter.Finding
+
+	for _, f := range findingsB {
+		fp := fingerprint(f)
+		if setA[fp] {
+			persistingFindings = append(persistingFindings, f)
+		} else {
+			newFindings = append(newFindings, f)
+		}
+	}
+	for _, f := range findingsA {
+		if !setB[fingerprint(f)] {
+			fixedFindings = append(fixedFindings, f)
+		}
+	}
+
+	// Count severity deltas
+	countSev := func(findings []reporter.Finding, sev string) int {
+		n := 0
+		for _, f := range findings {
+			if strings.ToLower(f.Severity) == sev {
+				n++
+			}
+		}
+		return n
+	}
+	deltaCritical := countSev(newFindings, "critical") - countSev(fixedFindings, "critical")
+	deltaHigh := countSev(newFindings, "high") - countSev(fixedFindings, "high")
+
+	httpJSON(w, http.StatusOK, map[string]interface{}{
+		"total_a":             len(findingsA),
+		"total_b":             len(findingsB),
+		"new_findings":        newFindings,
+		"fixed_findings":      fixedFindings,
+		"persisting_findings": persistingFindings,
+		"delta_critical":      deltaCritical,
+		"delta_high":          deltaHigh,
+	})
+}
+
 // checkStartupDependencies logs the availability of optional external tools.
 func checkStartupDependencies() {
 	deps := []struct {
@@ -1831,61 +1939,3 @@ func checkStartupDependencies() {
 	}
 }
 
-// handleScanDiff handles GET /api/scans/diff?a=<scanID>&b=<scanID>
-// Returns a DiffResult JSON showing new, fixed, and persisting findings.
-func handleScanDiff(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	scanA := r.URL.Query().Get("a")
-	scanB := r.URL.Query().Get("b")
-	if scanA == "" || scanB == "" {
-		http.Error(w, `{"error":"query params 'a' and 'b' are required"}`, http.StatusBadRequest)
-		return
-	}
-	diff, err := DiffScans(scanA, scanB)
-	if err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(diff)
-}
-
-
-// handleComplianceReport handles GET /api/scan/compliance?id=<scanID>&framework=owasp|pci|nist
-func handleComplianceReport(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	scanID := r.URL.Query().Get("id")
-	fw := r.URL.Query().Get("framework")
-	if scanID == "" {
-		http.Error(w, `{"error":"query param 'id' is required"}`, http.StatusBadRequest)
-		return
-	}
-	findings, err := GetFindingsForScan(scanID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
-		return
-	}
-	framework := reporter.FrameworkOWASP10
-	switch strings.ToLower(fw) {
-	case "pci", "pcidss":
-		framework = reporter.FrameworkPCIDSS
-	case "nist", "nist800":
-		framework = reporter.FrameworkNIST800
-	}
-	// Generate in-memory (no file) for API response
-	tmpFile := os.TempDir() + "/sentryq-compliance-tmp-" + scanID + ".json"
-	report, err := reporter.GenerateComplianceReport(tmpFile, scanID, findings, framework)
-	_ = os.Remove(tmpFile)
-	if err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(report)
-}
