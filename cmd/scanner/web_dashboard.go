@@ -706,12 +706,20 @@ func handleGitScan(w http.ResponseWriter, r *http.Request) {
 	httpJSON(w, http.StatusOK, map[string]string{"scan_id": scanID})
 }
 
+// validScanIDRe allows UUID v4 format AND the "cli-<uuid>" prefix used by CLI scans.
+var validScanIDRe = regexp.MustCompile(`^(?:cli-)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+
 func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/scan/")
 	parts := strings.Split(path, "/")
 	scanID := parts[0]
 	if scanID == "" {
 		http.NotFound(w, r)
+		return
+	}
+	// Validate scan ID format to prevent path traversal via crafted scan IDs.
+	if !validScanIDRe.MatchString(scanID) {
+		http.Error(w, "invalid scan ID format", http.StatusBadRequest)
 		return
 	}
 

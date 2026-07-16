@@ -108,8 +108,13 @@ func saveUsers() {
 	if err != nil {
 		return
 	}
-	_ = os.MkdirAll(filepath.Dir(usersFile), 0700)
-	_ = os.WriteFile(usersFile, data, 0600)
+	if err := os.MkdirAll(filepath.Dir(usersFile), 0700); err != nil {
+		utils.LogWarn("auth: failed to create users directory: " + err.Error())
+		return
+	}
+	if err := os.WriteFile(usersFile, data, 0600); err != nil {
+		utils.LogWarn("auth: failed to persist users file: " + err.Error())
+	}
 }
 
 // CreateUser adds a new user. Returns error if username already exists.

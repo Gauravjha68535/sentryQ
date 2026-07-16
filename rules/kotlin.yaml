@@ -7,6 +7,7 @@
   description: Hardcoded password detected in Kotlin source code
   remediation: Use environment variables or Android Keystore for sensitive credentials
   confidence: 0.7
+  cwe: CWE-798
 - id: kotlin-hardcoded-api-key
   languages:
   - kotlin
@@ -16,6 +17,7 @@
   description: Hardcoded API key detected in Kotlin source code
   remediation: Store API keys in encrypted SharedPreferences or use a secrets manager
   confidence: 0.7
+  cwe: CWE-798
 - id: kotlin-sql-injection
   languages:
   - kotlin
@@ -25,6 +27,7 @@
   description: Potential SQL injection via string concatenation
   remediation: Use parameterized queries with ? placeholders in SQLite
   confidence: 0.75
+  cwe: CWE-89
 - id: kotlin-command-injection
   languages:
   - kotlin
@@ -34,6 +37,7 @@
   description: Potential command injection via Runtime.exec
   remediation: Avoid executing shell commands. If necessary, validate all inputs
   confidence: 0.75
+  cwe: CWE-78
 - id: kotlin-insecure-webview
   languages:
   - kotlin
@@ -52,6 +56,7 @@
   description: Use of weak cryptographic hash function (MD5) or cipher (DES)
   remediation: Use SHA-256 or SHA-512. For passwords, use bcrypt or Argon2
   confidence: 0.65
+  cwe: CWE-327
 - id: kotlin-insecure-file-access
   languages:
   - kotlin
@@ -70,6 +75,7 @@
   description: Sensitive data logged in debug statements
   remediation: Remove or obfuscate sensitive data in log statements for production
   confidence: 0.6
+  cwe: CWE-209
 - id: kotlin-insecure-sharedprefs
   languages:
   - kotlin
@@ -88,6 +94,7 @@
   description: Hardcoded encryption key or IV detected
   remediation: Use Android Keystore for key generation and storage
   confidence: 0.6
+  cwe: CWE-798
 - id: kotlin-insecure-random
   languages:
   - kotlin
@@ -97,6 +104,7 @@
   description: Using insecure random number generator for security operations
   remediation: Use SecureRandom for security-sensitive random number generation
   confidence: 0.6
+  cwe: CWE-330
 - id: kotlin-exported-component
   languages:
   - kotlin

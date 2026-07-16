@@ -7,6 +7,7 @@
   description: Unbounded input with cin >> array can cause buffer overflow
   remediation: 'Use std::string or specify max width: cin.width(size)'
   confidence: 0.65
+  cwe: CWE-119
 - id: cpp-buffer-overflow-std-copy
   languages:
   - cpp
@@ -16,6 +17,7 @@
   description: std::copy without bounds checking can overflow destination
   remediation: Use std::copy_n or verify destination size before copy
   confidence: 0.6
+  cwe: CWE-119
 - id: cpp-use-after-free-delete
   languages:
   - cpp
@@ -61,6 +63,7 @@
   description: Potential command injection via system() with user input
   remediation: Avoid system(). Use posix_spawn or exec family with argument arrays
   confidence: 0.75
+  cwe: CWE-78
 - id: cpp-integer-overflow-vector
   languages:
   - cpp
@@ -79,6 +82,7 @@
   description: Use of weak cryptographic hash function (MD5) via OpenSSL
   remediation: Use EVP_sha256() or libsodium for modern cryptography
   confidence: 0.55
+  cwe: CWE-327
 - id: cpp-hardcoded-api-key
   languages:
   - cpp
@@ -88,6 +92,7 @@
   description: Hardcoded API key detected in C++ source code
   remediation: Use environment variables or secure credential storage
   confidence: 0.65
+  cwe: CWE-798
 - id: cpp-unsafe-reinterpret-cast
   languages:
   - cpp
@@ -106,6 +111,7 @@
   description: File opened with fopen() may not be properly closed
   remediation: 'Use RAII: std::fstream or wrap FILE* in a class with destructor'
   confidence: 0.6
+  cwe: CWE-22
 - id: cpp-new-delete-mismatch
   languages:
   - cpp

@@ -461,6 +461,24 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 
 		wsHub.BroadcastLog(scanID, "Repository cloned successfully", "success")
 
+		// Incremental scan: resolve changed files relative to base branch now
+		// that the repo is cloned. The tmpDir is a git repo so getChangedFiles works.
+		if webCfg.IncrementalScan && len(webCfg.ChangedFiles) == 0 {
+			base := webCfg.BaseBranch
+			if base == "" {
+				base = "main"
+			}
+			changed, err := getChangedFiles(tmpDir, base)
+			if err != nil {
+				wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental scan: git diff failed (%v) — running full scan", err), "warning")
+			} else if len(changed) == 0 {
+				wsHub.BroadcastLog(scanID, "Incremental scan: no changed files vs "+base+" — running full scan", "info")
+			} else {
+				webCfg.ChangedFiles = changed
+				wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental scan: %d changed file(s) vs %s", len(changed), base), "info")
+			}
+		}
+
 		runScan(ctx, scanID, tmpDir, webCfg)
 
 		// Handle timeout separately from user cancellation.
@@ -725,15 +743,22 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		wsHub.BroadcastProgress(scanID, "AI Validation", 78)
 		wsHub.BroadcastLog(scanID, "Preparing combined findings for AI validation...", "phase")
 
+		const maxTotalFileContentsStd = 512 * 1024 * 1024 // 512 MB cumulative cap (same as ensemble)
 		fileContents := make(map[string]string)
+		var cumulativeSizeStd int64
 		for _, files := range result.FilePaths {
 			for _, file := range files {
 				info, statErr := os.Stat(file)
 				if statErr != nil || info.Size() > maxFileContentSize {
 					continue
 				}
+				if cumulativeSizeStd+info.Size() > maxTotalFileContentsStd {
+					utils.LogWarn("fileContents map reached 512 MB cumulative cap — skipping remaining files for AI context")
+					break
+				}
 				if data, err := os.ReadFile(file); err == nil {
 					fileContents[file] = string(data)
+					cumulativeSizeStd += info.Size()
 				}
 			}
 		}

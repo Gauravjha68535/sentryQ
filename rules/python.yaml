@@ -53,6 +53,7 @@
   - regex: (?i)cursor\.(execute|executemany)\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*[\(\[]
   - regex: (?i)(prepare|prepareStatement|prepared_statement)\s*\(
   confidence: 0.9
+  cwe: CWE-89
 - id: py-sql-injection-fstring
   languages:
   - python
@@ -182,6 +183,7 @@
   description: Weak or short Flask SECRET_KEY detected
   remediation: Use os.urandom(24) or a strong 32+ character random string
   confidence: 0.7
+  cwe: CWE-798
 - id: py-jwt-algorithm-none
   languages:
   - python
@@ -213,6 +215,7 @@
   description: Hardcoded AWS credentials in boto3 client initialization
   remediation: Use IAM roles, environment variables, or AWS Secrets Manager
   confidence: 0.65
+  cwe: CWE-798
 - id: py-insecure-random-secrets
   languages:
   - python
@@ -222,6 +225,7 @@
   description: Use of random module for security-sensitive values is insecure
   remediation: 'Use secrets module: secrets.token_urlsafe(32) for tokens'
   confidence: 0.65
+  cwe: CWE-798
 - id: py-prototype-pollution-dict-update
   languages:
   - python
@@ -231,6 +235,7 @@
   description: Unvalidated dict update with user input may cause prototype pollution
   remediation: Validate and filter user input before merging into config dicts
   confidence: 0.6
+  cwe: CWE-1321
 - id: py-zip-slip-extract
   languages:
   - python
@@ -249,6 +254,7 @@
   description: Pickle deserialization of untrusted data can execute arbitrary code
   remediation: Use JSON or other safe serialization formats for untrusted data
   confidence: 0.8
+  cwe: CWE-78
 - id: py-django-debug-toolbar
   languages:
   - python
@@ -258,6 +264,7 @@
   description: Django Debug Toolbar enabled in production
   remediation: Remove debug_toolbar from INSTALLED_APPS in production settings
   confidence: 0.55
+  cwe: CWE-209
 - id: py-django-sql-raw
   languages:
   - python
@@ -280,6 +287,7 @@
   - regex: (?i)(cursor\.(execute|executemany)|db\.(execute|query)|session\.execute)\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*[\(\[]
   - regex: \?\s*\}|\$\d+|%s\s*,|\bprepare\b|\bprepared_statement\b|\bPreparedStatement\b
   - regex: (?i)(parameterized|bind_param|bindValue|addBatch)
+  cwe: CWE-89
 - id: py-django-insecure-signing
   languages:
   - python
@@ -289,6 +297,7 @@
   description: Deserializing signed data from user input
   remediation: Validate and verify signatures before deserializing user data
   confidence: 0.75
+  cwe: CWE-502
 - id: py-weak-session-cookie
   languages:
   - python
@@ -307,6 +316,7 @@
   description: CSRF protection disabled on view or globally
   remediation: Remove @csrf_exempt decorator and enable CSRF protection
   confidence: 0.65
+  cwe: CWE-352
 - id: py-open-redirect
   languages:
   - python
@@ -316,6 +326,7 @@
   description: Open redirect vulnerability via user-controlled URL
   remediation: Validate redirect URLs against allowlist. Use django.utils.http.is_safe_url
   confidence: 0.75
+  cwe: CWE-601
 - id: py-xpath-injection
   languages:
   - python
@@ -334,6 +345,7 @@
   description: LDAP injection via string concatenation
   remediation: Use parameterized LDAP queries with proper escaping
   confidence: 0.75
+  cwe: CWE-90
 - id: py-sql-injection-format
   languages:
   - python

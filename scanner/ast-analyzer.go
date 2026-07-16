@@ -781,15 +781,15 @@ func populateCacheFromNode(node *treeSitter.Node, content []byte, cache map[stri
 
 // BuildReachabilityCache scans the AST of an entire directory to build a cache of identifiers.
 // Safe for concurrent callers: only the first caller does the work; subsequent callers block until done.
-func (aa *ASTAnalyzer) BuildReachabilityCache(targetDir string) {
+// Pass the scan context so the walk is aborted when the scan is cancelled or times out.
+func (aa *ASTAnalyzer) BuildReachabilityCache(ctx context.Context, targetDir string) {
 	aa.cacheOnce.Do(func() {
 		localCache := make(map[string]bool)
 
-		// filepath.WalkDir is more efficient than filepath.Walk: it uses fs.DirEntry
-		// which avoids an extra os.Lstat per file. Directory skipping is also correct
-		// here — the old Walk version returned nil (not SkipDir) for directories, so
-		// node_modules/vendor/.git were never actually skipped.
 		filepath.WalkDir(targetDir, func(path string, d fs.DirEntry, err error) error {
+			if ctx.Err() != nil {
+				return filepath.SkipAll
+			}
 			if err != nil {
 				return nil
 			}
@@ -812,7 +812,7 @@ func (aa *ASTAnalyzer) BuildReachabilityCache(targetDir string) {
 			}
 
 			parser := aa.parsers[lang]
-			tree, err := parser.ParseCtx(context.Background(), nil, content)
+			tree, err := parser.ParseCtx(ctx, nil, content)
 			if err != nil || tree == nil {
 				return nil
 			}
@@ -831,7 +831,7 @@ func (aa *ASTAnalyzer) BuildReachabilityCache(targetDir string) {
 // IsFunctionReachable checks the AST cache to see if a specific library or function is ever called.
 // Used for SCA Reachability Analysis to reduce false positives for unused dependencies.
 func (aa *ASTAnalyzer) IsFunctionReachable(targetDir string, functionOrLibName string) bool {
-	aa.BuildReachabilityCache(targetDir)
+	aa.BuildReachabilityCache(context.Background(), targetDir)
 
 	functionOrLibName = strings.ToLower(functionOrLibName)
 
