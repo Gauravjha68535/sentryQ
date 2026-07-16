@@ -1,6 +1,7 @@
 package main
 
 import (
+	"SentryQ/utils"
 	"testing"
 )
 
@@ -59,9 +60,9 @@ func TestParseStartLine(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result := parseStartLine(tt.input)
+		result := utils.ParseStartLine(tt.input)
 		if result != tt.expected {
-			t.Errorf("parseStartLine(%q) = %d, want %d", tt.input, result, tt.expected)
+			t.Errorf("utils.ParseStartLine(%q) = %d, want %d", tt.input, result, tt.expected)
 		}
 	}
 }

@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"SentryQ/reporter"
+	"SentryQ/utils"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -63,7 +64,7 @@ func adjustLinePointer(f reporter.Finding, fileContent string) reporter.Finding 
 	if strings.Contains(f.LineNumber, "-") {
 		return f // Don't try to adjust multi-line spans
 	}
-	lineNum := parseLineNum(f.LineNumber)
+	lineNum := utils.ParseStartLine(f.LineNumber)
 	if lineNum <= 0 {
 		return f
 	}
@@ -117,7 +118,7 @@ func shouldSuppress(f reporter.Finding, fileContent string) bool {
 	}
 
 	lines := strings.Split(fileContent, "\n")
-	lineNum := parseLineNum(f.LineNumber)
+	lineNum := utils.ParseStartLine(f.LineNumber)
 
 	// Exact line (0-indexed) for single-line checks
 	var exactLine string
@@ -681,15 +682,4 @@ func normalizeForFP(f reporter.Finding) string {
 	}
 
 	return ""
-}
-
-func parseLineNum(lineRef string) int {
-	parts := strings.Split(lineRef, "-")
-	var n int
-	for _, ch := range parts[0] {
-		if ch >= '0' && ch <= '9' {
-			n = n*10 + int(ch-'0')
-		}
-	}
-	return n
 }

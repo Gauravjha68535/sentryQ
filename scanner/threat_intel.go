@@ -77,7 +77,7 @@ func (tis *ThreatIntelScanner) mapToMITRE(finding reporter.Finding) MITRETechniq
 	case strings.Contains(name, "open redirect"):
 		return tis.mitreATTACK["T1189"]
 	case strings.Contains(name, "insecure random"), strings.Contains(name, "weak random"):
-		return tis.mitreATTACK["T1040"]
+		return tis.mitreATTACK["T1552"] // Unsecured Credentials — insufficient entropy in secrets
 	}
 
 	return MITRETechnique{}
@@ -119,6 +119,13 @@ func loadMITREATTACK() map[string]MITRETechnique {
 			Description: "Adversaries may sniff network traffic to capture information about an environment",
 			Tactics:     []string{"Credential Access", "Discovery"},
 			Platforms:   []string{"Linux", "Windows", "macOS"},
+		},
+		"T1552": {
+			ID:          "T1552",
+			Name:        "Unsecured Credentials",
+			Description: "Adversaries may search for insecure credentials (e.g. hardcoded secrets or weak entropy) that can be leveraged for initial access or privilege escalation",
+			Tactics:     []string{"Credential Access"},
+			Platforms:   []string{"Linux", "Windows", "macOS", "Containers"},
 		},
 		"T1083": {
 			ID:          "T1083",

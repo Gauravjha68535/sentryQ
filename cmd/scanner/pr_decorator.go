@@ -183,7 +183,7 @@ func postGitHubReviewComments(cfg PRConfig, findings []reporter.Finding) {
 		if f.Status == "false_positive" || f.Status == "ignored" {
 			continue
 		}
-		line := parseFirstLine(f.LineNumber)
+		line := utils.ParseStartLine(f.LineNumber)
 		if line <= 0 {
 			continue
 		}
@@ -342,7 +342,7 @@ func postGitLabInlineComments(cfg PRConfig, findings []reporter.Finding) {
 		if f.Status == "false_positive" || f.Status == "ignored" {
 			continue
 		}
-		line := parseFirstLine(f.LineNumber)
+		line := utils.ParseStartLine(f.LineNumber)
 		if line <= 0 {
 			continue
 		}
@@ -436,11 +436,6 @@ func getGitLabMRSHAs(cfg PRConfig) (baseSHA, headSHA string) {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-func parseFirstLine(lineRef string) int {
-	var n int
-	fmt.Sscanf(strings.Split(lineRef, "-")[0], "%d", &n)
-	return n
-}
 
 func urlEncodeRepo(repo string) string {
 	return strings.ReplaceAll(repo, "/", "%2F")

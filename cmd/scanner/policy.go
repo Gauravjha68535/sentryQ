@@ -18,17 +18,6 @@ type PolicyConfig struct {
 	MaxTotal    int
 }
 
-// DefaultPolicyConfig returns a permissive policy (nothing fails by default).
-func DefaultPolicyConfig() PolicyConfig {
-	return PolicyConfig{
-		MaxCritical: -1,
-		MaxHigh:     -1,
-		MaxMedium:   -1,
-		MaxLow:      -1,
-		MaxTotal:    -1,
-	}
-}
-
 // PolicyViolation describes a single broken policy gate.
 type PolicyViolation struct {
 	Gate    string

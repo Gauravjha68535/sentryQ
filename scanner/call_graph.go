@@ -139,17 +139,9 @@ func PropagateCallGraphTaint(cg *CallGraph, idx *CrossFileIndex) {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-var commonKeywordsForCG = map[string]bool{
-	"if": true, "for": true, "while": true, "switch": true, "case": true,
-	"return": true, "print": true, "len": true, "make": true, "new": true,
-	"append": true, "delete": true, "panic": true, "recover": true,
-	"fmt": true, "log": true, "err": true, "error": true, "string": true,
-	"int": true, "bool": true, "float": true, "var": true, "type": true,
-	"import": true, "package": true, "class": true, "struct": true,
-}
-
+// isCGKeyword delegates to isCommonKeyword (reachability.go) — same scanner package.
 func isCGKeyword(s string) bool {
-	return commonKeywordsForCG[strings.ToLower(s)]
+	return isCommonKeyword(strings.ToLower(s))
 }
 
 func isSourceExt(ext string) bool {
