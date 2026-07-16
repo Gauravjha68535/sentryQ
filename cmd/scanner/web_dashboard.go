@@ -165,6 +165,8 @@ var (
 		// Gemini (Google)
 		GeminiAPIKey string `json:"gemini_api_key"`
 		GeminiModel  string `json:"gemini_model"`
+		// Webhook URLs (comma-separated) — notified on scan completion
+		WebhookURLs  string `json:"webhook_urls"`
 	}{
 		AIProvider:    "ollama",
 		DefaultModel:  "qwen2.5-coder:7b",
@@ -191,6 +193,7 @@ func loadSettings() {
 			ClaudeModel   string `json:"claude_model"`
 			GeminiAPIKey  string `json:"gemini_api_key"`
 			GeminiModel   string `json:"gemini_model"`
+			WebhookURLs   string `json:"webhook_urls"`
 		}
 		if err := json.Unmarshal(data, &s); err == nil {
 			// Environment variables take precedence over stored keys so that
@@ -231,6 +234,7 @@ func loadSettings() {
 			if s.GeminiModel != "" {
 				appSettings.GeminiModel = s.GeminiModel
 			}
+			appSettings.WebhookURLs = s.WebhookURLs
 			appSettings.Unlock()
 
 			// Apply all provider configs to the AI package
@@ -357,6 +361,7 @@ func saveSettings() error {
 		ClaudeModel   string `json:"claude_model"`
 		GeminiAPIKey  string `json:"gemini_api_key"`
 		GeminiModel   string `json:"gemini_model"`
+		WebhookURLs   string `json:"webhook_urls"`
 	}{
 		AIProvider:    appSettings.AIProvider,
 		DefaultModel:  appSettings.DefaultModel,
@@ -370,6 +375,7 @@ func saveSettings() error {
 		ClaudeModel:   appSettings.ClaudeModel,
 		GeminiAPIKey:  appSettings.GeminiAPIKey,
 		GeminiModel:   appSettings.GeminiModel,
+		WebhookURLs:   appSettings.WebhookURLs,
 	}
 
 	data, err := json.MarshalIndent(s, "", "  ")
@@ -401,6 +407,12 @@ func StartWebServer(port int) {
 		return
 	}
 
+	// Initialize multi-user auth (no-op unless SENTRYQ_MULTI_USER=1)
+	if os.Getenv("SENTRYQ_MULTI_USER") == "1" {
+		initMultiUser()
+		utils.LogInfo("Multi-user mode enabled (SENTRYQ_MULTI_USER=1)")
+	}
+
 	// Initialize embedded static filesystem (lazy, with graceful fallback)
 	staticFSOnce.Do(func() {
 		staticFS, staticFSError = ui.StaticFS()
@@ -430,6 +442,17 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/rules/", handleRulesFile)
 	mux.HandleFunc("/api/custom-endpoint/test", handleCustomEndpointTest)
 	mux.HandleFunc("/api/custom-endpoint/models", handleCustomEndpointModels)
+	mux.HandleFunc("/api/scans/diff", handleScanDiff)
+	mux.HandleFunc("/api/scan/compliance", handleComplianceReport)
+	// Auth routes (always available; enforced only when SENTRYQ_MULTI_USER=1)
+	mux.HandleFunc("/api/auth/login", handleLogin)
+	mux.HandleFunc("/api/auth/users", RequireRole(RoleAdmin, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			handleListUsers(w, r)
+		} else {
+			handleCreateUser(w, r)
+		}
+	}))
 
 	// Dynamic scan routes (manual routing for path params)
 	mux.HandleFunc("/api/scan/", handleScanRoutes)
@@ -1808,3 +1831,61 @@ func checkStartupDependencies() {
 	}
 }
 
+// handleScanDiff handles GET /api/scans/diff?a=<scanID>&b=<scanID>
+// Returns a DiffResult JSON showing new, fixed, and persisting findings.
+func handleScanDiff(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	scanA := r.URL.Query().Get("a")
+	scanB := r.URL.Query().Get("b")
+	if scanA == "" || scanB == "" {
+		http.Error(w, `{"error":"query params 'a' and 'b' are required"}`, http.StatusBadRequest)
+		return
+	}
+	diff, err := DiffScans(scanA, scanB)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(diff)
+}
+
+
+// handleComplianceReport handles GET /api/scan/compliance?id=<scanID>&framework=owasp|pci|nist
+func handleComplianceReport(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	scanID := r.URL.Query().Get("id")
+	fw := r.URL.Query().Get("framework")
+	if scanID == "" {
+		http.Error(w, `{"error":"query param 'id' is required"}`, http.StatusBadRequest)
+		return
+	}
+	findings, err := GetFindingsForScan(scanID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+	framework := reporter.FrameworkOWASP10
+	switch strings.ToLower(fw) {
+	case "pci", "pcidss":
+		framework = reporter.FrameworkPCIDSS
+	case "nist", "nist800":
+		framework = reporter.FrameworkNIST800
+	}
+	// Generate in-memory (no file) for API response
+	tmpFile := os.TempDir() + "/sentryq-compliance-tmp-" + scanID + ".json"
+	report, err := reporter.GenerateComplianceReport(tmpFile, scanID, findings, framework)
+	_ = os.Remove(tmpFile)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(report)
+}

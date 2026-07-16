@@ -32,17 +32,20 @@ import (
 // - EnableEnsemble: Full static scan (Report A) + Full AI scan (Report B) + Judge LLM merge
 // Secret detection, pattern scan, AST, and taint analysis run ALWAYS.
 type WebScanConfig struct {
-	EnableDeepScan          bool   `json:"enableDeepScan"`
-	EnableAI                bool   `json:"enableAI"`
-	EnableEnsemble          bool   `json:"enableEnsemble"`
-	AIModel                 string `json:"aiModel"`
-	OllamaHost              string `json:"ollamaHost"`
-	ConsolidationModel      string `json:"consolidationModel"`
-	ConsolidationOllamaHost string `json:"consolidationOllamaHost"`
-	JudgeModel              string `json:"judgeModel"`
-	JudgeOllamaHost         string `json:"judgeOllamaHost"`
-	EnableMLFPReduction     bool   `json:"enableMLFPReduction"`
-	CustomRulesDir          string `json:"customRulesDir"`
+	EnableDeepScan          bool     `json:"enableDeepScan"`
+	EnableAI                bool     `json:"enableAI"`
+	EnableEnsemble          bool     `json:"enableEnsemble"`
+	AIModel                 string   `json:"aiModel"`
+	OllamaHost              string   `json:"ollamaHost"`
+	ConsolidationModel      string   `json:"consolidationModel"`
+	ConsolidationOllamaHost string   `json:"consolidationOllamaHost"`
+	JudgeModel              string   `json:"judgeModel"`
+	JudgeOllamaHost         string   `json:"judgeOllamaHost"`
+	EnableMLFPReduction     bool     `json:"enableMLFPReduction"`
+	CustomRulesDir          string   `json:"customRulesDir"`
+	// ChangedFiles, when non-empty, restricts scanning to only these absolute paths.
+	// Set by --changed-only CLI flag for incremental/PR scans.
+	ChangedFiles            []string `json:"changedFiles,omitempty"`
 }
 
 var (
@@ -489,6 +492,11 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			utils.LogError(fmt.Sprintf("Failed to mark scan %s as failed", scanID), err)
 		}
 		return
+	}
+	// Incremental scan: restrict FilePaths to only the changed files when requested.
+	if len(cfg.ChangedFiles) > 0 {
+		result = filterScanResultToFiles(result, cfg.ChangedFiles)
+		wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental mode: restricting scan to %d changed file(s)", len(cfg.ChangedFiles)), "info")
 	}
 	totalFiles := 0
 	for _, files := range result.FilePaths {
@@ -942,6 +950,14 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	wsHub.BroadcastLog(scanID, "Generating reports...", "info")
 	webGenerateReportFiles(scanID, allFindings, targetDir)
 
+	// Fire webhooks configured in settings (fire-and-forget goroutines)
+	appSettings.RLock()
+	wURLs := appSettings.WebhookURLs
+	appSettings.RUnlock()
+	if wURLs != "" {
+		FireWebhooks(strings.Split(wURLs, ","), scanID, targetDir, "completed", allFindings, nil)
+	}
+
 	elapsed := time.Since(startTime)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("✅ Scan completed in %s — %d findings (%d critical, %d high) — Risk: %d/100 (%s)",
 		elapsed.Round(time.Second), len(allFindings), criticalCount, highCount, riskScore.Score, riskScore.Level), "success")
@@ -984,6 +1000,22 @@ func webGenerateReportFiles(scanID string, findings []reporter.Finding, targetDi
 	sarifPath := filepath.Join(reportsDir, "report.sarif")
 	if err := reporter.GenerateSARIF(sarifPath, findings); err != nil {
 		utils.LogWarn(fmt.Sprintf("Failed to write SARIF report for scan %s: %v", scanID, err))
+	}
+
+	// CycloneDX SBOM
+	sbomPath := filepath.Join(reportsDir, "sbom.cdx.json")
+	if err := reporter.GenerateSBOM(sbomPath, findings, filepath.Base(targetDir)); err != nil {
+		utils.LogWarn(fmt.Sprintf("Failed to write SBOM for scan %s: %v", scanID, err))
+	}
+
+	// Compliance reports (OWASP + PCI DSS)
+	owaspPath := filepath.Join(reportsDir, "compliance-owasp.json")
+	if _, err := reporter.GenerateComplianceReport(owaspPath, scanID, findings, reporter.FrameworkOWASP10); err != nil {
+		utils.LogWarn(fmt.Sprintf("Failed to write OWASP compliance report for scan %s: %v", scanID, err))
+	}
+	pciPath := filepath.Join(reportsDir, "compliance-pci.json")
+	if _, err := reporter.GenerateComplianceReport(pciPath, scanID, findings, reporter.FrameworkPCIDSS); err != nil {
+		utils.LogWarn(fmt.Sprintf("Failed to write PCI DSS compliance report for scan %s: %v", scanID, err))
 	}
 
 	utils.LogInfo(fmt.Sprintf("Reports saved for scan %s at %s", scanID, reportsDir))
@@ -1948,4 +1980,27 @@ fileContentsDone:
 	wsHub.BroadcastProgress(scanID, "Complete", 100)
 	wsHub.Broadcast(scanID, WSMessage{Type: "findings_update", Count: len(allFindings)})
 	wsHub.BroadcastComplete(scanID)
+}
+
+// filterScanResultToFiles filters a ScanResult to only include the specified absolute file paths.
+// Used by incremental/PR scanning (--changed-only flag) to restrict analysis to changed files.
+func filterScanResultToFiles(result *scanner.ScanResult, allowedPaths []string) *scanner.ScanResult {
+	allowed := make(map[string]bool, len(allowedPaths))
+	for _, p := range allowedPaths {
+		allowed[p] = true
+	}
+
+	filtered := &scanner.ScanResult{
+		FilePaths: make(map[string][]string),
+	}
+
+	for lang, files := range result.FilePaths {
+		for _, f := range files {
+			if allowed[f] {
+				filtered.FilePaths[lang] = append(filtered.FilePaths[lang], f)
+				filtered.TotalFiles++
+			}
+		}
+	}
+	return filtered
 }
