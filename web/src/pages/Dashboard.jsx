@@ -200,6 +200,31 @@ export default function Dashboard() {
                                         <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
                                             {scan.total_findings} findings
                                         </span>
+                                        {(() => {
+                                            try {
+                                                const cfg = typeof scan.config === 'string' ? JSON.parse(scan.config) : (scan.config || {})
+                                                const hasPolicy = cfg.policyFailOn || (cfg.maxCritical >= 0 && cfg.maxCritical !== -1) || (cfg.maxHigh >= 0 && cfg.maxHigh !== -1) || (cfg.maxTotal >= 0 && cfg.maxTotal !== -1)
+                                                if (!hasPolicy) return null
+                                                const violated = (
+                                                    (cfg.maxCritical >= 0 && scan.critical_count > cfg.maxCritical) ||
+                                                    (cfg.maxHigh >= 0 && scan.high_count > cfg.maxHigh) ||
+                                                    (cfg.maxTotal >= 0 && scan.total_findings > cfg.maxTotal) ||
+                                                    (cfg.policyFailOn === 'critical' && scan.critical_count > 0) ||
+                                                    (cfg.policyFailOn === 'high' && (scan.critical_count + scan.high_count) > 0)
+                                                )
+                                                return (
+                                                    <span style={{
+                                                        fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px',
+                                                        borderRadius: '10px', letterSpacing: '0.04em',
+                                                        background: violated ? '#7f1d1d' : '#14532d',
+                                                        color: violated ? '#fca5a5' : '#86efac',
+                                                        border: `1px solid ${violated ? '#ef4444' : '#22c55e'}`,
+                                                    }}>
+                                                        {violated ? '✗ POLICY FAIL' : '✓ POLICY PASS'}
+                                                    </span>
+                                                )
+                                            } catch { return null }
+                                        })()}
                                     </>
                                 )}
                                 {scan.status === 'running' && (
