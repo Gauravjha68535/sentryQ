@@ -1,3035 +1,3665 @@
 - id: asp-sql-injection-execute
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)(conn\..execute|rs\..open)\s*\.([^\.)]*\.&[^\.)]+\.)'
+  - regex: (?i)(conn\..execute|rs\..open)\s*\.([^\.)]*\.&[^\.)]+\.)
   severity: critical
-  description: "Potential SQL injection via string concatenation in ASP"
-  remediation: "Use parameterized queries: cmd.Parameters.Append cmd.CreateParameter(...)"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Potential SQL injection via string concatenation in ASP
+  remediation: 'Use parameterized queries: cmd.Parameters.Append cmd.CreateParameter(...)'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-command-injection-exec
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)exec\s*\.([^\.)]*\.&[^\.)]+\.)'
+  - regex: (?i)exec\s*\.([^\.)]*\.&[^\.)]+\.)
   severity: critical
-  description: "Potential command injection via Exec() with user input"
-  remediation: "Avoid Exec(). Validate and whitelist allowed commands"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Potential command injection via Exec() with user input
+  remediation: Avoid Exec(). Validate and whitelist allowed commands
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-xss-response-write
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Response\..Write\s*\.([^\.)]*Request\..)'
+  - regex: (?i)Response\..Write\s*\.([^\.)]*Request\..)
   severity: high
-  description: "Direct output of user input via Response.Write may cause XSS"
-  remediation: "Use Server.HTMLEncode() on user input before Response.Write"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Direct output of user input via Response.Write may cause XSS
+  remediation: Use Server.HTMLEncode() on user input before Response.Write
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-path-traversal-server-mappath
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Server\..MapPath\s*\.([^\.)]*Request\..)'
+  - regex: (?i)Server\..MapPath\s*\.([^\.)]*Request\..)
   severity: high
-  description: "Potential path traversal via Server.MapPath with user input"
-  remediation: "Validate file paths against allowlist. Use fixed base directories"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Potential path traversal via Server.MapPath with user input
+  remediation: Validate file paths against allowlist. Use fixed base directories
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-hardcoded-password
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)(password|passwd)\s*=\s*[''\.][^''\.]{8,}[''\.]'
+  - regex: (?i)(password|passwd)\s*=\s*['\.][^'\.]{8,}['\.]
   severity: high
-  description: "Hardcoded password detected in ASP source code"
-  remediation: "Store credentials in encrypted config files or use Windows Authentication"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded password detected in ASP source code
+  remediation: Store credentials in encrypted config files or use Windows Authentication
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: asp-weak-session-timeout
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Session\..Timeout\s*=\s*\.d{4,}'
+  - regex: (?i)Session\..Timeout\s*=\s*\.d{4,}
   severity: medium
-  description: "Excessively long session timeout increases session hijacking risk"
-  remediation: "Set Session.Timeout to 20 minutes or less for sensitive applications"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Excessively long session timeout increases session hijacking risk
+  remediation: Set Session.Timeout to 20 minutes or less for sensitive applications
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-insecure-cookie-httponly
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Response\..Cookies\.([^\.)]+\.)\s*=\s*[^;]'
+  - regex: (?i)Response\..Cookies\.([^\.)]+\.)\s*=\s*[^;]
   severity: medium
-  description: "Cookie set without HttpOnly flag is vulnerable to XSS theft"
-  remediation: "Always set HttpOnly and Secure flags: Response.Cookies(...).HttpOnly = True"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Cookie set without HttpOnly flag is vulnerable to XSS theft
+  remediation: 'Always set HttpOnly and Secure flags: Response.Cookies(...).HttpOnly = True'
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-unsafe-deserialization
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)LoadFromStream|ExecuteGlobal'
+  - regex: (?i)LoadFromStream|ExecuteGlobal
   severity: high
-  description: "Use of ExecuteGlobal or unsafe deserialization can execute arbitrary code"
-  remediation: "Avoid ExecuteGlobal. Validate and parse input safely"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Use of ExecuteGlobal or unsafe deserialization can execute arbitrary code
+  remediation: Avoid ExecuteGlobal. Validate and parse input safely
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.65
 - id: asp-debug-enabled
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)@\.sENABLED\.s=\s*[''\.]?debug[''\.]?'
+  - regex: (?i)@\.sENABLED\.s=\s*['\.]?debug['\.]?
   severity: low
-  description: "Debug mode enabled in ASP page may leak sensitive information"
-  remediation: "Disable debug mode in production: @ENABLED = False"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Debug mode enabled in ASP page may leak sensitive information
+  remediation: 'Disable debug mode in production: @ENABLED = False'
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-error-disclosure
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Response\..Write\s*\.([^\.)]*Err\..)'
+  - regex: (?i)Response\..Write\s*\.([^\.)]*Err\..)
   severity: medium
-  description: "Output of error details may leak sensitive information"
-  remediation: "Log errors server-side. Show generic error messages to users"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Output of error details may leak sensitive information
+  remediation: Log errors server-side. Show generic error messages to users
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.6
 - id: asp-request-querystring
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Request\..(QueryString|Form|Cookies|ServerVariables)\s*\.()'
+  - regex: (?i)Request\..(QueryString|Form|Cookies|ServerVariables)\s*\.()
   severity: medium
-  description: "Direct request data access — ensure sanitization"
-  remediation: "Validate and encode all user input from Request object"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct request data access — ensure sanitization
+  remediation: Validate and encode all user input from Request object
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-response-write-request
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Response\..Write\s*.*Request\..'
+  - regex: (?i)Response\..Write\s*.*Request\..
   severity: high
-  description: "Response.Write with request data — reflected XSS"
-  remediation: "Use Server.HTMLEncode() before writing user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Response.Write with request data — reflected XSS
+  remediation: Use Server.HTMLEncode() before writing user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-ldap-server
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)(LDAP|IPWorksASP\..LDAP|Server\..CreateObject.*LDAP)'
+  - regex: (?i)(LDAP|IPWorksASP\..LDAP|Server\..CreateObject.*LDAP)
   severity: high
-  description: "LDAP operations in ASP — injection risk"
-  remediation: "Sanitize all LDAP query parameters"
-  cwe: "CWE-90"
-  owasp: "A03:2021"
-
+  description: LDAP operations in ASP — injection risk
+  remediation: Sanitize all LDAP query parameters
+  cwe: CWE-90
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-server-createobject
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Server\..CreateObject\s*\.()'
+  - regex: (?i)Server\..CreateObject\s*\.()
   severity: medium
-  description: "Server.CreateObject — ensure object type is safe"
-  remediation: "Restrict allowed COM objects. Validate object names"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Server.CreateObject — ensure object type is safe
+  remediation: Restrict allowed COM objects. Validate object names
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-execute
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)(Server\..Execute|Server\..Transfer|Execute)\s*\.()'
+  - regex: (?i)(Server\..Execute|Server\..Transfer|Execute)\s*\.()
   severity: high
-  description: "Server.Execute/Transfer — file inclusion risk"
-  remediation: "Use allowlist for executed files. Never use user input"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Server.Execute/Transfer — file inclusion risk
+  remediation: Use allowlist for executed files. Never use user input
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-int32-parse-request
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Int32\..Parse\s*\.(\s*Request\..)'
+  - regex: (?i)Int32\..Parse\s*\.(\s*Request\..)
   severity: medium
-  description: "Parsing request data as integer — input validation"
-  remediation: "Use Int32.TryParse() and validate range"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Parsing request data as integer — input validation
+  remediation: Use Int32.TryParse() and validate range
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-adodb-stream-type
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Adodb\..Stream.*\..Type\s*=\s*1'
+  - regex: (?i)Adodb\..Stream.*\..Type\s*=\s*1
   severity: medium
-  description: "Adodb.Stream binary type usage may allow file upload vulnerabilities"
-  remediation: "Validate file extensions and MIME types strictly"
-  cwe: "CWE-434"
-  owasp: "A01:2021"
-
+  description: Adodb.Stream binary type usage may allow file upload vulnerabilities
+  remediation: Validate file extensions and MIME types strictly
+  cwe: CWE-434
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-fso-delete
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)FileSystemObject\..DeleteFile|\..DeleteFolder'
+  - regex: (?i)FileSystemObject\..DeleteFile|\..DeleteFolder
   severity: high
-  description: "FileSystemObject Delete operations detected"
-  remediation: "Ensure path is hardcoded or strictly validated. Never use user input"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: FileSystemObject Delete operations detected
+  remediation: Ensure path is hardcoded or strictly validated. Never use user input
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-fso-copy
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)FileSystemObject\..CopyFile|\..CopyFolder'
+  - regex: (?i)FileSystemObject\..CopyFile|\..CopyFolder
   severity: high
-  description: "FileSystemObject Copy operations detected"
-  remediation: "Validate source and destination paths strictly"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: FileSystemObject Copy operations detected
+  remediation: Validate source and destination paths strictly
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-include-virtual
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)<!--\s*#include\s+virtual=\.\\\"[^\.\\\"]*\.\\\"'
+  - regex: (?i)<!--\s*#include\s+virtual=\.\\\"[^\.\\\"]*\.\\\"
   severity: medium
-  description: "Virtual Include detected — ensure path is not user controlled"
-  remediation: "Use fixed paths for includes. Do not construct include paths dynamically"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
-# --- ASP.NET (C#) - CORE VULNERABILITIES (21-40) ---
-
+  description: Virtual Include detected — ensure path is not user controlled
+  remediation: Use fixed paths for includes. Do not construct include paths dynamically
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.6
 - id: aspnet-sql-injection-string-concat
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(ExecuteReader|ExecuteNonQuery|ExecuteScalar|SqlCommand)\s*\.([^)]\.+[^)]\.)'
+  - regex: (?i)(ExecuteReader|ExecuteNonQuery|ExecuteScalar|SqlCommand)\s*\.([^)]\.+[^)]\.)
   severity: critical
-  description: "SQL injection via string concatenation in ADO.NET"
-  remediation: "Use SqlParameter with parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via string concatenation in ADO.NET
+  remediation: Use SqlParameter with parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.8
 - id: aspnet-sql-injection-interpolation
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(SqlCommand|ExecuteReader)\s*\.(\s*\.$\.)'
+  - regex: (?i)(SqlCommand|ExecuteReader)\s*\.(\s*\.$\.)
   severity: critical
-  description: "SQL injection via C# string interpolation in SQL command"
-  remediation: "Never use string interpolation for SQL"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via C# string interpolation in SQL command
+  remediation: Never use string interpolation for SQL
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: aspnet-ef-raw-sql
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(FromSqlRaw|ExecuteSqlRaw)\s*\.(\s*\.$\.|FromSqlRaw\s*\.([^)]*\.+))'
+  - regex: (?i)(FromSqlRaw|ExecuteSqlRaw)\s*\.(\s*\.$\.|FromSqlRaw\s*\.([^)]*\.+))
   severity: critical
-  description: "Entity Framework raw SQL with user input"
-  remediation: "Use FromSqlInterpolated or parameterized FromSqlRaw"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Entity Framework raw SQL with user input
+  remediation: Use FromSqlInterpolated or parameterized FromSqlRaw
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.8
 - id: aspnet-xss-html-raw
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(Html\..Raw|MvcHtmlString\..Create|HtmlString)\s*\.()'
+  - regex: (?i)(Html\..Raw|MvcHtmlString\..Create|HtmlString)\s*\.()
   severity: high
-  description: "Html.Raw or HtmlString bypasses HTML encoding — XSS risk"
-  remediation: "Never use Html.Raw with user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Html.Raw or HtmlString bypasses HTML encoding — XSS risk
+  remediation: Never use Html.Raw with user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: aspnet-xss-response-write
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: 'Response\..Write\s*\.(\s*Request\.[)])'
+  - regex: Response\..Write\s*\.(\s*Request\.[)])
   severity: high
-  description: "XSS via direct output of request parameters"
-  remediation: "Use HttpUtility.HtmlEncode on user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via direct output of request parameters
+  remediation: Use HttpUtility.HtmlEncode on user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: aspnet-csrf-disabled
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '\.[IgnoreAntiforgeryToken\.]|ValidateAntiForgeryToken.*false'
+  - regex: \.[IgnoreAntiforgeryToken\.]|ValidateAntiForgeryToken.*false
   severity: high
-  description: "CSRF protection disabled on controller/action"
-  remediation: "Enable [ValidateAntiForgeryToken] on all POST/PUT/DELETE actions"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF protection disabled on controller/action
+  remediation: Enable [ValidateAntiForgeryToken] on all POST/PUT/DELETE actions
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: aspnet-insecure-deserialization
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(BinaryFormatter|NetDataContractSerializer|LosFormatter|SoapFormatter)'
+  - regex: (?i)(BinaryFormatter|NetDataContractSerializer|LosFormatter|SoapFormatter)
   severity: critical
-  description: "Use of insecure .NET deserialization classes can lead to RCE"
-  remediation: "Use System.Text.Json or Json.NET"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Use of insecure .NET deserialization classes can lead to RCE
+  remediation: Use System.Text.Json or Json.NET
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: aspnet-json-type-handling
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: 'TypeNameHandling\s*=\s*TypeNameHandling\..(All|Auto|Objects|Arrays)'
+  - regex: TypeNameHandling\s*=\s*TypeNameHandling\..(All|Auto|Objects|Arrays)
   severity: critical
-  description: "Json.NET TypeNameHandling enables type-based deserialization attacks"
-  remediation: "Use TypeNameHandling.None"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Json.NET TypeNameHandling enables type-based deserialization attacks
+  remediation: Use TypeNameHandling.None
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: aspnet-weak-password-policy
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: 'RequiredLength\s*=\s*[1-5]\.b|RequireDigit\s*=\.sfalse'
+  - regex: RequiredLength\s*=\s*[1-5]\.b|RequireDigit\s*=\.sfalse
   severity: medium
-  description: "Weak password policy configured in ASP.NET Identity"
-  remediation: "Require minimum 8 characters with complexity"
-  cwe: "CWE-521"
-  owasp: "A07:2021"
-
+  description: Weak password policy configured in ASP.NET Identity
+  remediation: Require minimum 8 characters with complexity
+  cwe: CWE-521
+  owasp: A07:2021
+  confidence: 0.6
 - id: aspnet-cookie-not-secure
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: 'Cookie\..SecurePolicy\s*=\.sCookieSecurePolicy\..Never'
+  - regex: Cookie\..SecurePolicy\s*=\.sCookieSecurePolicy\..Never
   severity: high
-  description: "Session cookie not marked as Secure or HttpOnly"
-  remediation: "Set Cookie.SecurePolicy = Always and HttpOnly = true"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Session cookie not marked as Secure or HttpOnly
+  remediation: Set Cookie.SecurePolicy = Always and HttpOnly = true
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.7
 - id: aspnet-command-injection
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)Process\..Start\s*\.(\s*[^)]*\.+|ProcessStartInfo.Arguments.\.+)'
+  - regex: (?i)Process\..Start\s*\.(\s*[^)]*\.+|ProcessStartInfo.Arguments.\.+)
   severity: critical
-  description: "Command injection via Process.Start with concatenated user input"
-  remediation: "Validate and sanitize inputs. Use argument arrays"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Command injection via Process.Start with concatenated user input
+  remediation: Validate and sanitize inputs. Use argument arrays
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.8
 - id: aspnet-path-traversal
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(File\..Read|File\..Open|StreamReader).*Request\.[\]]'
+  - regex: (?i)(File\..Read|File\..Open|StreamReader).*Request\.[\]]
   severity: high
-  description: "Path traversal via user-controlled file path"
-  remediation: "Validate paths with Path.GetFullPath"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Path traversal via user-controlled file path
+  remediation: Validate paths with Path.GetFullPath
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: aspnet-ssrf
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(HttpClient|WebClient|WebRequest)\..\.(\.s[^)]*Request\.[\])]])'
+  - regex: (?i)(HttpClient|WebClient|WebRequest)\..\.(\.s[^)]*Request\.[\])]])
   severity: high
-  description: "Server-Side Request Forgery via user-controlled URL"
-  remediation: "Validate URLs against an allowlist"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Server-Side Request Forgery via user-controlled URL
+  remediation: Validate URLs against an allowlist
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.75
 - id: aspnet-cors-wildcard
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: 'AllowAnyOrigin\s*\.(\.)|WithOrigins\s*\.(\s* \.\.*\. )'
+  - regex: AllowAnyOrigin\s*\.(\.)|WithOrigins\s*\.(\s* \.\.*\. )
   severity: medium
-  description: "CORS configured to allow any origin"
-  remediation: "Specify allowed origins explicitly"
-  cwe: "CWE-942"
-  owasp: "A05:2021"
-
+  description: CORS configured to allow any origin
+  remediation: Specify allowed origins explicitly
+  cwe: CWE-942
+  owasp: A05:2021
+  confidence: 0.6
 - id: aspnet-hardcoded-connection-string
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(connectionstring|ConnectionString)\s*=\s* \.[^\. ] [Pp]assword=[^\. ]\. '
+  - regex: '(?i)(connectionstring|ConnectionString)\s*=\s* \.[^\. ] [Pp]assword=[^\. ]\. '
   severity: high
-  description: "Database connection string with hardcoded password"
-  remediation: "Use Azure Key Vault or User Secrets"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Database connection string with hardcoded password
+  remediation: Use Azure Key Vault or User Secrets
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.75
 - id: aspnet-hardcoded-secret-appsettings
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(ApiKey|Secret|Password|Token)\s*[=:]\s*\.[^\.]{8,}\.'
+  - regex: (?i)(ApiKey|Secret|Password|Token)\s*[=:]\s*\.[^\.]{8,}\.
   severity: high
-  description: "Hardcoded secret detected in configuration or source code"
-  remediation: "Use environment variables or key vault"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded secret detected in configuration or source code
+  remediation: Use environment variables or key vault
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: aspnet-weak-crypto
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)(MD5|SHA1|MD5CryptoServiceProvider|SHA1CryptoServiceProvider|DES)'
+  - regex: (?i)(MD5|SHA1|MD5CryptoServiceProvider|SHA1CryptoServiceProvider|DES)
   severity: medium
-  description: "Use of weak or deprecated cryptographic algorithm"
-  remediation: "Use SHA256, SHA512, or AES"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Use of weak or deprecated cryptographic algorithm
+  remediation: Use SHA256, SHA512, or AES
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.6
 - id: aspnet-debug-enabled
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)UseDeveloperExceptionPage|app\..UseDatabaseErrorPage'
+  - regex: (?i)UseDeveloperExceptionPage|app\..UseDatabaseErrorPage
   severity: medium
-  description: "Developer exception page or detailed errors enabled"
-  remediation: "Use app.UseExceptionHandler in production"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Developer exception page or detailed errors enabled
+  remediation: Use app.UseExceptionHandler in production
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.55
 - id: aspnet-open-redirect
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: 'Redirect\s*\.(\.sRequest\.[|RedirectToAction\.s\.([^)]*returnUrl)'
+  - regex: Redirect\s*\.(\.sRequest\.[|RedirectToAction\.s\.([^)]*returnUrl)
   severity: high
-  description: "Open redirect vulnerability via user-controlled URL"
-  remediation: "Use Url.IsLocalUrl() to validate redirect URLs"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Open redirect vulnerability via user-controlled URL
+  remediation: Use Url.IsLocalUrl() to validate redirect URLs
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.75
 - id: aspnet-xxe-xml-reader
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: 'XmlReaderSettings\..DtdProcessing\.s=\.sDtdProcessing\..Parse'
+  - regex: XmlReaderSettings\..DtdProcessing\.s=\.sDtdProcessing\..Parse
   severity: high
-  description: "XML parsing may be vulnerable to XXE attacks"
-  remediation: "Set DtdProcessing = Prohibit"
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
-# --- IIS & CONFIGURATION (41-60) ---
-
+  description: XML parsing may be vulnerable to XXE attacks
+  remediation: Set DtdProcessing = Prohibit
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.75
 - id: iis-directory-browsing
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)enableDirectoryBrowsing\s*=\s*true'
+  - regex: (?i)enableDirectoryBrowsing\s*=\s*true
   severity: medium
-  description: "IIS Directory Browsing enabled"
-  remediation: "Disable directory browsing in web.config"
-  cwe: "CWE-538"
-  owasp: "A05:2021"
-
+  description: IIS Directory Browsing enabled
+  remediation: Disable directory browsing in web.config
+  cwe: CWE-538
+  owasp: A05:2021
+  confidence: 0.55
 - id: iis-trace-enabled
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)trace\..enabled\s*=\s*true'
+  - regex: (?i)trace\..enabled\s*=\s*true
   severity: medium
-  description: "IIS Trace enabled leaks diagnostic information"
-  remediation: "Disable trace in production web.config"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: IIS Trace enabled leaks diagnostic information
+  remediation: Disable trace in production web.config
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.55
 - id: iis-custom-errors-off
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)customErrors\s+mode=\s*\.\\\"Off\.\\\"'
+  - regex: (?i)customErrors\s+mode=\s*\.\\\"Off\.\\\"
   severity: high
-  description: "IIS Custom Errors disabled exposes stack traces"
-  remediation: "Set customErrors mode=RemoteOnly or On"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: IIS Custom Errors disabled exposes stack traces
+  remediation: Set customErrors mode=RemoteOnly or On
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.7
 - id: iis-webconfig-exposure
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)location\s+path=\.\\\"web\..config\.\\\"'
+  - regex: (?i)location\s+path=\.\\\"web\..config\.\\\"
   severity: high
-  description: "Potential web.config exposure or misconfiguration"
-  remediation: "Ensure IIS blocks access to web.config files"
-  cwe: "CWE-538"
-  owasp: "A05:2021"
-
+  description: Potential web.config exposure or misconfiguration
+  remediation: Ensure IIS blocks access to web.config files
+  cwe: CWE-538
+  owasp: A05:2021
+  confidence: 0.7
 - id: iis-elmah-exposure
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)elmah\..axd|Elmah\..ErrorLogPageFactory'
+  - regex: (?i)elmah\..axd|Elmah\..ErrorLogPageFactory
   severity: high
-  description: "ELMAH error logging page accessible without auth"
-  remediation: "Secure elmah.axd with authentication rules"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: ELMAH error logging page accessible without auth
+  remediation: Secure elmah.axd with authentication rules
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.7
 - id: iis-viewstate-mac-disabled
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)EnableViewStateMac\s*=\s*false'
+  - regex: (?i)EnableViewStateMac\s*=\s*false
   severity: high
-  description: "ASP.NET ViewState MAC disabled allows tampering"
-  remediation: "Set EnableViewStateMac=true"
-  cwe: "CWE-354"
-  owasp: "A08:2021"
-
+  description: ASP.NET ViewState MAC disabled allows tampering
+  remediation: Set EnableViewStateMac=true
+  cwe: CWE-354
+  owasp: A08:2021
+  confidence: 0.65
 - id: iis-event-validation-disabled
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)EnableEventValidation\s*=\s*false'
+  - regex: (?i)EnableEventValidation\s*=\s*false
   severity: medium
-  description: "ASP.NET Event Validation disabled allows postback tampering"
-  remediation: "Keep EnableEventValidation=true"
-  cwe: "CWE-354"
-  owasp: "A08:2021"
-
+  description: ASP.NET Event Validation disabled allows postback tampering
+  remediation: Keep EnableEventValidation=true
+  cwe: CWE-354
+  owasp: A08:2021
+  confidence: 0.55
 - id: iis-request-validation-disabled
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)validateRequest\s*=\s*false'
+  - regex: (?i)validateRequest\s*=\s*false
   severity: high
-  description: "ASP.NET Request Validation disabled"
-  remediation: "Enable request validation or implement custom validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: ASP.NET Request Validation disabled
+  remediation: Enable request validation or implement custom validation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: iis-http-methods-enabled
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)verbs=\.\\"\.*\.\\"|verbs=\.\\"TRACE\.\\"'
+  - regex: (?i)verbs=\.\\"\.*\.\\"|verbs=\.\\"TRACE\.\\"
   severity: medium
-  description: "Unsafe HTTP methods enabled in IIS"
-  remediation: "Disable TRACE and restrict verbs"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Unsafe HTTP methods enabled in IIS
+  remediation: Disable TRACE and restrict verbs
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.6
 - id: iis-backup-file-exposure
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)\..bak|\..old|\..backup|\..txt\..config'
+  - regex: (?i)\..bak|\..old|\..backup|\..txt\..config
   severity: high
-  description: "Potential backup file exposure"
-  remediation: "Configure IIS to block access to backup extensions"
-  cwe: "CWE-530"
-  owasp: "A05:2021"
-
+  description: Potential backup file exposure
+  remediation: Configure IIS to block access to backup extensions
+  cwe: CWE-530
+  owasp: A05:2021
+  confidence: 0.7
 - id: iis-tls-version-weak
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)SecurityProtocol\s*=\s*SecurityProtocolType\..Ssl3|Tls1\..0'
+  - regex: (?i)SecurityProtocol\s*=\s*SecurityProtocolType\..Ssl3|Tls1\..0
   severity: high
-  description: "Weak TLS version configured"
-  remediation: "Enforce TLS 1.2 or higher"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: Weak TLS version configured
+  remediation: Enforce TLS 1.2 or higher
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.75
 - id: iis-basic-auth-http
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)AuthenticationSchemes\s*=\s*Basic|Authorization\s*:\s*Basic'
+  - regex: (?i)AuthenticationSchemes\s*=\s*Basic|Authorization\s*:\s*Basic
   severity: high
-  description: "Basic Authentication over HTTP detected"
-  remediation: "Use HTTPS only or switch to Windows/Token Auth"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Basic Authentication over HTTP detected
+  remediation: Use HTTPS only or switch to Windows/Token Auth
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.7
 - id: iis-api-key-in-url
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)\.?api_key=|&apikey=|token='
+  - regex: (?i)\.?api_key=|&apikey=|token=
   severity: high
-  description: "API Key or Token passed in URL query string"
-  remediation: "Pass API keys in Headers"
-  cwe: "CWE-598"
-  owasp: "A01:2021"
-
+  description: API Key or Token passed in URL query string
+  remediation: Pass API keys in Headers
+  cwe: CWE-598
+  owasp: A01:2021
+  confidence: 0.65
 - id: iis-debug-assembly-loaded
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)DebuggableAttribute\s*\.(\s*DebuggableAttribute\..DebuggingModes\s*\.)'
+  - regex: (?i)DebuggableAttribute\s*\.(\s*DebuggableAttribute\..DebuggingModes\s*\.)
   severity: medium
-  description: "Debuggable Attribute found in compiled assembly"
-  remediation: "Compile in Release mode for production"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Debuggable Attribute found in compiled assembly
+  remediation: Compile in Release mode for production
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.65
 - id: iis-compilation-debug-true
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)compilation\s+debug=\.\\\"true\.\\\"'
+  - regex: (?i)compilation\s+debug=\.\\\"true\.\\\"
   severity: high
-  description: "Web.config compilation debug set to true"
-  remediation: "Set debug=false in production web.config"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Web.config compilation debug set to true
+  remediation: Set debug=false in production web.config
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.7
 - id: iis-stack-trace-exposure
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)Exception\..ToString\.(\.)|\..StackTrace|\..InnerException'
+  - regex: (?i)Exception\..ToString\.(\.)|\..StackTrace|\..InnerException
   severity: medium
-  description: "Stack trace details might be exposed to user"
-  remediation: "Log exceptions server-side. Show generic message"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Stack trace details might be exposed to user
+  remediation: Log exceptions server-side. Show generic message
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.65
 - id: iis-session-state-inproc
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)mode=\.\\\"InProc\.\\\"'
+  - regex: (?i)mode=\.\\\"InProc\.\\\"
   severity: low
-  description: "Session State stored InProc may be lost on recycle"
-  remediation: "Use StateServer or SQLServer mode for stability"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Session State stored InProc may be lost on recycle
+  remediation: Use StateServer or SQLServer mode for stability
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: iis-machine-key-static
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)<machineKey\s+validationKey=\.\\\"[A-F0-9]+\.\\\"'
+  - regex: (?i)<machineKey\s+validationKey=\.\\\"[A-F0-9]+\.\\\"
   severity: medium
-  description: "Static Machine Key detected — ensure it is secret"
-  remediation: "Use auto-generated keys or secure static keys"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Static Machine Key detected — ensure it is secret
+  remediation: Use auto-generated keys or secure static keys
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.6
 - id: iis-http-runtime-endpoint
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)httpRuntime\s+endpoint=\.\\\"'
+  - regex: (?i)httpRuntime\s+endpoint=\.\\\"
   severity: low
-  description: "Custom HTTP Runtime Endpoint configured"
-  remediation: "Verify endpoint security configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Custom HTTP Runtime Endpoint configured
+  remediation: Verify endpoint security configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: iis-request-filtering-hidden
-  languages: [config, xml]
+  languages:
+  - config
+  - xml
   patterns:
-    - regex: '(?i)requestFiltering\s+hiddenSegments'
+  - regex: (?i)requestFiltering\s+hiddenSegments
   severity: low
-  description: "Request Filtering Hidden Segments configured"
-  remediation: "Ensure sensitive segments are hidden"
-  cwe: "CWE-538"
-  owasp: "A05:2021"
-
-# --- AUTHENTICATION & SESSION (61-80) ---
-
+  description: Request Filtering Hidden Segments configured
+  remediation: Ensure sensitive segments are hidden
+  cwe: CWE-538
+  owasp: A05:2021
+  confidence: 0.45
 - id: auth-jwt-none-algo
-  languages: [csharp, aspnet, javascript]
+  languages:
+  - csharp
+  - aspnet
+  - javascript
   patterns:
-    - regex: '(?i)SecurityAlgorithms\..None|SigningCredentials\.(\s*null)'
+  - regex: (?i)SecurityAlgorithms\..None|SigningCredentials\.(\s*null)
   severity: critical
-  description: "JWT Token validation allows 'None' algorithm"
-  remediation: "Explicitly require specific signing algorithms"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: JWT Token validation allows 'None' algorithm
+  remediation: Explicitly require specific signing algorithms
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.75
 - id: auth-identity-cookie-settings
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)ApplicationCookie\s*\.(\s*options\s*=>\s*\.{\s*options\..Cookie\..SecurePolicy)'
+  - regex: (?i)ApplicationCookie\s*\.(\s*options\s*=>\s*\.{\s*options\..Cookie\..SecurePolicy)
   severity: medium
-  description: "ASP.NET Identity Cookie Security Configuration Check"
-  remediation: "Ensure SecurePolicy is Always"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: ASP.NET Identity Cookie Security Configuration Check
+  remediation: Ensure SecurePolicy is Always
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: auth-antiforgery-cookie-httponly
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)Antiforgery\s*\.(\s*options\s*=>\s*options\..Cookie\..HttpOnly\s*=\s*false)'
+  - regex: (?i)Antiforgery\s*\.(\s*options\s*=>\s*options\..Cookie\..HttpOnly\s*=\s*false)
   severity: high
-  description: "AntiForgery Cookie not HttpOnly"
-  remediation: "Set HttpOnly = true for AntiForgery cookies"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: AntiForgery Cookie not HttpOnly
+  remediation: Set HttpOnly = true for AntiForgery cookies
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.75
 - id: auth-ssl-redirect-missing
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)UseHttpsRedirection\s*\.(\s*\.)|RequireHttpsAttribute'
+  - regex: (?i)UseHttpsRedirection\s*\.(\s*\.)|RequireHttpsAttribute
   severity: medium
-  description: "HTTPS Redirection might be missing or disabled"
-  remediation: "Enable UseHttpsRedirection in Startup.cs"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: HTTPS Redirection might be missing or disabled
+  remediation: Enable UseHttpsRedirection in Startup.cs
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.6
 - id: auth-hsts-missing
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)UseHsts\s*\.(\s*\.)|HstsOptions'
+  - regex: (?i)UseHsts\s*\.(\s*\.)|HstsOptions
   severity: medium
-  description: "HTTP Strict Transport Security (HSTS) not configured"
-  remediation: "Enable app.UseHsts() in production"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: HTTP Strict Transport Security (HSTS) not configured
+  remediation: Enable app.UseHsts() in production
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.6
 - id: auth-csp-missing
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)Content-Security-Policy|CspOptions'
+  - regex: (?i)Content-Security-Policy|CspOptions
   severity: low
-  description: "Content Security Policy header might be missing"
-  remediation: "Add Content-Security-Policy header to responses"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Content Security Policy header might be missing
+  remediation: Add Content-Security-Policy header to responses
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: auth-x-frame-options-missing
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)X-Frame-Options|SameOrigin'
+  - regex: (?i)X-Frame-Options|SameOrigin
   severity: medium
-  description: "X-Frame-Options header might be missing (Clickjacking)"
-  remediation: "Set X-Frame-Options to DENY or SAMEORIGIN"
-  cwe: "CWE-1021"
-  owasp: "A05:2021"
-
+  description: X-Frame-Options header might be missing (Clickjacking)
+  remediation: Set X-Frame-Options to DENY or SAMEORIGIN
+  cwe: CWE-1021
+  owasp: A05:2021
+  confidence: 0.55
 - id: auth-reflector-usage
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)System\..Reflection\..*\..Invoke|Type\..InvokeMember'
+  - regex: (?i)System\..Reflection\..*\..Invoke|Type\..InvokeMember
   severity: high
-  description: "Use of Reflection Invoke may lead to insecure code execution"
-  remediation: "Avoid dynamic invocation with user-controlled types"
-  cwe: "CWE-94"
-  owasp: "A08:2021"
-
+  description: Use of Reflection Invoke may lead to insecure code execution
+  remediation: Avoid dynamic invocation with user-controlled types
+  cwe: CWE-94
+  owasp: A08:2021
+  confidence: 0.7
 - id: auth-unsafe-code-block
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)unsafe\s*\.{\s*|fixed\s*\.()'
+  - regex: (?i)unsafe\s*\.{\s*|fixed\s*\.()
   severity: medium
-  description: "Unsafe code block detected may lead to memory corruption"
-  remediation: "Avoid unsafe code unless absolutely necessary"
-  cwe: "CWE-787"
-  owasp: "A08:2021"
-
+  description: Unsafe code block detected may lead to memory corruption
+  remediation: Avoid unsafe code unless absolutely necessary
+  cwe: CWE-787
+  owasp: A08:2021
+  confidence: 0.6
 - id: auth-password-recovery-plaintext
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)passwordFormat\s*=\s*\.\\"Clear\.\\"|ClearTextPassword'
+  - regex: (?i)passwordFormat\s*=\s*\.\\"Clear\.\\"|ClearTextPassword
   severity: medium
-  description: "Passwords stored in plaintext or reversible encryption"
-  remediation: "Use Hashed password format"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Passwords stored in plaintext or reversible encryption
+  remediation: Use Hashed password format
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.6
 - id: auth-oauth-redirect-uri
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)RedirectUri\s*=\s*Request\..|redirect_uri\s*\.+'
+  - regex: (?i)RedirectUri\s*=\s*Request\..|redirect_uri\s*\.+
   severity: high
-  description: "OAuth Redirect URI constructed from user input"
-  remediation: "Validate Redirect URI against allowlist"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: OAuth Redirect URI constructed from user input
+  remediation: Validate Redirect URI against allowlist
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: auth-mass-assignment-model
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)UpdateModel\s*\.(\s*\w+\s*\.)|TryUpdateModel\s*\.(\s*\w+\s*\.)'
+  - regex: (?i)UpdateModel\s*\.(\s*\w+\s*\.)|TryUpdateModel\s*\.(\s*\w+\s*\.)
   severity: high
-  description: "ASP.NET MVC UpdateModel may allow mass assignment"
-  remediation: "Use explicit include/exclude parameters"
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: ASP.NET MVC UpdateModel may allow mass assignment
+  remediation: Use explicit include/exclude parameters
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.75
 - id: auth-identity-lockout-disabled
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)DefaultLockoutTimeSpan\s*=\s*TimeSpan\..Zero|AllowedAttempts\s*=\s*-1'
+  - regex: (?i)DefaultLockoutTimeSpan\s*=\s*TimeSpan\..Zero|AllowedAttempts\s*=\s*-1
   severity: medium
-  description: "Account Lockout disabled allows brute force"
-  remediation: "Enable lockout after failed attempts"
-  cwe: "CWE-307"
-  owasp: "A07:2021"
-
+  description: Account Lockout disabled allows brute force
+  remediation: Enable lockout after failed attempts
+  cwe: CWE-307
+  owasp: A07:2021
+  confidence: 0.6
 - id: auth-remember-me-insecure
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)RememberMe\s*=\s*true|IsPersistent\s*=\s*true'
+  - regex: (?i)RememberMe\s*=\s*true|IsPersistent\s*=\s*true
   severity: medium
-  description: "Remember Me functionality detected — check cookie security"
-  remediation: "Ensure persistent cookies are Secure, HttpOnly, and Short-lived"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Remember Me functionality detected — check cookie security
+  remediation: Ensure persistent cookies are Secure, HttpOnly, and Short-lived
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: auth-blazor-interop
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)IJSRuntime\..InvokeAsync|JSInterop'
+  - regex: (?i)IJSRuntime\..InvokeAsync|JSInterop
   severity: medium
-  description: "Blazor JS Interop detected — ensure input validation"
-  remediation: "Validate data passed between .NET and JavaScript"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Blazor JS Interop detected — ensure input validation
+  remediation: Validate data passed between .NET and JavaScript
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: auth-signalr-auth
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)HubConnectionBuilder|\..WithUrl\s*\.()'
+  - regex: (?i)HubConnectionBuilder|\..WithUrl\s*\.()
   severity: medium
-  description: "SignalR Connection detected — ensure authentication"
-  remediation: "Configure Authentication on SignalR Hubs"
-  cwe: "CWE-306"
-  owasp: "A07:2021"
-
+  description: SignalR Connection detected — ensure authentication
+  remediation: Configure Authentication on SignalR Hubs
+  cwe: CWE-306
+  owasp: A07:2021
+  confidence: 0.6
 - id: auth-xmlhttp-creation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)MSXML2\..XMLHTTP|Microsoft\..XMLHTTP'
+  - regex: (?i)MSXML2\..XMLHTTP|Microsoft\..XMLHTTP
   severity: medium
-  description: "XMLHTTP object creation — potential SSRF risk"
-  remediation: "Validate URLs before requesting. Block internal IPs"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: XMLHTTP object creation — potential SSRF risk
+  remediation: Validate URLs before requesting. Block internal IPs
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.6
 - id: auth-regex-usage
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)New\s+RegExp|\..Execute\s*\.()'
+  - regex: (?i)New\s+RegExp|\..Execute\s*\.()
   severity: low
-  description: "Regular Expression usage — check for ReDoS or injection"
-  remediation: "Validate regex patterns are not user-controlled"
-  cwe: "CWE-133"
-  owasp: "A03:2021"
-
+  description: Regular Expression usage — check for ReDoS or injection
+  remediation: Validate regex patterns are not user-controlled
+  cwe: CWE-133
+  owasp: A03:2021
+  confidence: 0.5
 - id: auth-http-verb-tampering
-  languages: [asp, aspnet]
+  languages:
+  - asp
+  - aspnet
   patterns:
-    - regex: '(?i)Request\..HttpMethod|HttpContext\..Current\..Request\..Method'
+  - regex: (?i)Request\..HttpMethod|HttpContext\..Current\..Request\..Method
   severity: medium
-  description: "HTTP Method access detected — ensure verb restrictions"
-  remediation: "Restrict allowed HTTP verbs in IIS or Controller"
-  cwe: "CWE-372"
-  owasp: "A01:2021"
-
+  description: HTTP Method access detected — ensure verb restrictions
+  remediation: Restrict allowed HTTP verbs in IIS or Controller
+  cwe: CWE-372
+  owasp: A01:2021
+  confidence: 0.65
 - id: auth-global-asa-risks
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '(?i)Global\..asa|Session_OnStart|Application_OnStart'
+  - regex: (?i)Global\..asa|Session_OnStart|Application_OnStart
   severity: low
-  description: "Global.asa event handlers detected — check for insecure init"
-  remediation: "Ensure no sensitive logic in Global.asa"
-  cwe: "CWE-118"
-  owasp: "A05:2021"
-
-# --- DATA & INJECTION (81-100) ---
-
+  description: Global.asa event handlers detected — check for insecure init
+  remediation: Ensure no sensitive logic in Global.asa
+  cwe: CWE-118
+  owasp: A05:2021
+  confidence: 0.45
 - id: data-sqli-param
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)WHERE.*\.+.*req\..|WHERE.*\.$\.{'
+  - regex: (?i)WHERE.*\.+.*req\..|WHERE.*\.$\.{
   severity: critical
-  description: "SQL Injection via concatenated query parameters"
-  remediation: "Use parameterized queries or ORM methods"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL Injection via concatenated query parameters
+  remediation: Use parameterized queries or ORM methods
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: data-nosqli-param
-  languages: [csharp, aspnet]
+  languages:
+  - csharp
+  - aspnet
   patterns:
-    - regex: '(?i)\..find\s*\.(\s*req\..query|\..find\s*\.(\s*req\..body))'
+  - regex: (?i)\..find\s*\.(\s*req\..query|\..find\s*\.(\s*req\..body))
   severity: high
-  description: "NoSQL Injection via direct request object in query"
-  remediation: "Validate and sanitize input before querying"
-  cwe: "CWE-943"
-  owasp: "A03:2021"
-
+  description: NoSQL Injection via direct request object in query
+  remediation: Validate and sanitize input before querying
+  cwe: CWE-943
+  owasp: A03:2021
+  confidence: 0.7
 - id: data-command-injection
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)exec\s*\.(\s*req\..|spawn\s*\.(\s*req\..))'
+  - regex: (?i)exec\s*\.(\s*req\..|spawn\s*\.(\s*req\..))
   severity: critical
-  description: "Command Injection via API parameters"
-  remediation: "Avoid shell commands. Use safe libraries"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Command Injection via API parameters
+  remediation: Avoid shell commands. Use safe libraries
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: data-xxe-parser
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)XMLParser|parseXML|xml\..parse'
+  - regex: (?i)XMLParser|parseXML|xml\..parse
   severity: high
-  description: "XML Parsing detected — XXE risk"
-  remediation: "Disable external entities in XML parser"
-  cwe: "CWE-611"
-  owasp: "A05:2021"
-
+  description: XML Parsing detected — XXE risk
+  remediation: Disable external entities in XML parser
+  cwe: CWE-611
+  owasp: A05:2021
+  confidence: 0.65
 - id: data-ldap-injection
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)ldap_search|ldap_query|\.(uid=)'
+  - regex: (?i)ldap_search|ldap_query|\.(uid=)
   severity: high
-  description: "LDAP Query detected — injection risk"
-  remediation: "Sanitize LDAP query parameters"
-  cwe: "CWE-90"
-  owasp: "A03:2021"
-
+  description: LDAP Query detected — injection risk
+  remediation: Sanitize LDAP query parameters
+  cwe: CWE-90
+  owasp: A03:2021
+  confidence: 0.65
 - id: data-xss-reflected
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)res\..send\s*\.(\s*req\..query|res\..json\s*\.(\s*req\..query))'
+  - regex: (?i)res\..send\s*\.(\s*req\..query|res\..json\s*\.(\s*req\..query))
   severity: high
-  description: "Reflected XSS via API response"
-  remediation: "Encode output or set Content-Type: application/json"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Reflected XSS via API response
+  remediation: 'Encode output or set Content-Type: application/json'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: data-deserialization-untrusted
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)pickle\..loads|yaml\..load|unserialize'
+  - regex: (?i)pickle\..loads|yaml\..load|unserialize
   severity: critical
-  description: "Deserialization of untrusted data"
-  remediation: "Use safe serialization formats (JSON)"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Deserialization of untrusted data
+  remediation: Use safe serialization formats (JSON)
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: data-file-upload-extension
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)\..upload\s*\.(|multipart/form-data)'
+  - regex: (?i)\..upload\s*\.(|multipart/form-data)
   severity: high
-  description: "File upload endpoint detected"
-  remediation: "Validate file extensions and MIME types"
-  cwe: "CWE-434"
-  owasp: "A01:2021"
-
+  description: File upload endpoint detected
+  remediation: Validate file extensions and MIME types
+  cwe: CWE-434
+  owasp: A01:2021
+  confidence: 0.7
 - id: data-content-type-missing
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)res\..send\s*\.(\s*\.{|res\..json)'
+  - regex: (?i)res\..send\s*\.(\s*\.{|res\..json)
   severity: low
-  description: "Ensure Content-Type is set to application/json"
-  remediation: "Explicitly set Content-Type header"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ensure Content-Type is set to application/json
+  remediation: Explicitly set Content-Type header
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: data-regex-dos
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)RegExp\s*\.(\s*[''\.].*\.+.*[''\.]|\..match\s*\.(\s*user))'
+  - regex: (?i)RegExp\s*\.(\s*['\.].*\.+.*['\.]|\..match\s*\.(\s*user))
   severity: medium
-  description: "User-controlled Regex may cause ReDoS"
-  remediation: "Avoid user-controlled regex. Set timeout limits"
-  cwe: "CWE-133"
-  owasp: "A03:2021"
-
+  description: User-controlled Regex may cause ReDoS
+  remediation: Avoid user-controlled regex. Set timeout limits
+  cwe: CWE-133
+  owasp: A03:2021
+  confidence: 0.6
 - id: data-pii-in-logs
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)console\..log\s*\.(\s*user|logger\..info\s*\.(\s*password))'
+  - regex: (?i)console\..log\s*\.(\s*user|logger\..info\s*\.(\s*password))
   severity: high
-  description: "PII or secrets logged to console/log file"
-  remediation: "Mask sensitive data in logs"
-  cwe: "CWE-532"
-  owasp: "A03:2021"
-
+  description: PII or secrets logged to console/log file
+  remediation: Mask sensitive data in logs
+  cwe: CWE-532
+  owasp: A03:2021
+  confidence: 0.75
 - id: data-credit-card-exposure
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)card_number|cc_num|credit_card'
+  - regex: (?i)card_number|cc_num|credit_card
   severity: critical
-  description: "Potential credit card field in API response"
-  remediation: "Never return full credit card numbers. Use tokens"
-  cwe: "CWE-312"
-  owasp: "A03:2021"
-
+  description: Potential credit card field in API response
+  remediation: Never return full credit card numbers. Use tokens
+  cwe: CWE-312
+  owasp: A03:2021
+  confidence: 0.7
 - id: data-ssn-exposure
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)ssn|social_security|national_id'
+  - regex: (?i)ssn|social_security|national_id
   severity: critical
-  description: "Potential SSN field in API response"
-  remediation: "Mask or omit national IDs from responses"
-  cwe: "CWE-312"
-  owasp: "A03:2021"
-
+  description: Potential SSN field in API response
+  remediation: Mask or omit national IDs from responses
+  cwe: CWE-312
+  owasp: A03:2021
+  confidence: 0.7
 - id: data-encryption-at-rest
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)db\..save|\..insert\s*\.(\s*\.{)'
+  - regex: (?i)db\..save|\..insert\s*\.(\s*\.{)
   severity: medium
-  description: "Data persistence detected — ensure encryption"
-  remediation: "Encrypt sensitive fields at rest"
-  cwe: "CWE-311"
-  owasp: "A03:2021"
-
+  description: Data persistence detected — ensure encryption
+  remediation: Encrypt sensitive fields at rest
+  cwe: CWE-311
+  owasp: A03:2021
+  confidence: 0.6
 - id: data-weak-hash
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)md5\s*\.(|sha1\s*\.())'
+  - regex: (?i)md5\s*\.(|sha1\s*\.())
   severity: high
-  description: "Weak hashing algorithm used"
-  remediation: "Use bcrypt, argon2, or PBKDF2"
-  cwe: "CWE-328"
-  owasp: "A03:2021"
-
+  description: Weak hashing algorithm used
+  remediation: Use bcrypt, argon2, or PBKDF2
+  cwe: CWE-328
+  owasp: A03:2021
+  confidence: 0.7
 - id: data-data-retention
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)delete.*user|purge.*data'
+  - regex: (?i)delete.*user|purge.*data
   severity: low
-  description: "Data deletion logic detected — verify compliance"
-  remediation: "Ensure GDPR/CCPA compliance for data deletion"
-  cwe: "CWE-693"
-  owasp: "A03:2021"
-
+  description: Data deletion logic detected — verify compliance
+  remediation: Ensure GDPR/CCPA compliance for data deletion
+  cwe: CWE-693
+  owasp: A03:2021
+  confidence: 0.45
 - id: data-cache-control
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)Cache-Control.*public|Cache-Control.*max-age'
+  - regex: (?i)Cache-Control.*public|Cache-Control.*max-age
   severity: medium
-  description: "Sensitive data may be cached by proxies"
-  remediation: "Set Cache-Control: no-store for sensitive endpoints"
-  cwe: "CWE-524"
-  owasp: "A03:2021"
-
+  description: Sensitive data may be cached by proxies
+  remediation: 'Set Cache-Control: no-store for sensitive endpoints'
+  cwe: CWE-524
+  owasp: A03:2021
+  confidence: 0.55
 - id: data-response-header-leak
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)X-Powered-By|Server.*Tomcat|Server.*Express'
+  - regex: (?i)X-Powered-By|Server.*Tomcat|Server.*Express
   severity: low
-  description: "Server information leakage via headers"
-  remediation: "Remove or obscure server version headers"
-  cwe: "CWE-200"
-  owasp: "A03:2021"
-
+  description: Server information leakage via headers
+  remediation: Remove or obscure server version headers
+  cwe: CWE-200
+  owasp: A03:2021
+  confidence: 0.45
 - id: data-error-stack-trace
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)\..stack|traceback|exception\..getStackTrace'
+  - regex: (?i)\..stack|traceback|exception\..getStackTrace
   severity: high
-  description: "Stack trace exposed in API response"
-  remediation: "Catch exceptions and return generic error messages"
-  cwe: "CWE-209"
-  owasp: "A03:2021"
-
+  description: Stack trace exposed in API response
+  remediation: Catch exceptions and return generic error messages
+  cwe: CWE-209
+  owasp: A03:2021
+  confidence: 0.7
 - id: data-pagination-limit
-  languages: [csharp, aspnet, asp]
+  languages:
+  - csharp
+  - aspnet
+  - asp
   patterns:
-    - regex: '(?i)limit.*=.*-1|limit.*=.*9999'
+  - regex: (?i)limit.*=.*-1|limit.*=.*9999
   severity: medium
-  description: "Unlimited pagination may allow data scraping"
-  remediation: "Enforce maximum page size limits"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-  # ============================================================================
-# ASP (CLASSIC ASP) SECURITY RULES - EXPANDED (200+ RULES)
-# ============================================================================
-
-# ======================== RAZOR INJECTION & VIEWSTATE (1-20) ========================
-
+  description: Unlimited pagination may allow data scraping
+  remediation: Enforce maximum page size limits
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: asp-razor-inline-expression
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<%=?\s*Request\..(QueryString|Form|Cookies|ServerVariables)'
+  - regex: <%=?\s*Request\..(QueryString|Form|Cookies|ServerVariables)
   severity: high
-  description: "Razor/ASP inline expression with user input (XSS risk)"
-  remediation: "Use Server.HTMLEncode() on all user input: <%= Server.HTMLEncode(Request.QueryString('param')) %>"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Razor/ASP inline expression with user input (XSS risk)
+  remediation: 'Use Server.HTMLEncode() on all user input: <%= Server.HTMLEncode(Request.QueryString(''param'')) %>'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-razor-html-raw
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<%=\s*Html\..Raw\s*\.()'
+  - regex: <%=\s*Html\..Raw\s*\.()
   severity: high
-  description: "Html.Raw bypasses encoding (XSS vulnerability)"
-  remediation: "Remove Html.Raw or ensure content is fully trusted"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Html.Raw bypasses encoding (XSS vulnerability)
+  remediation: Remove Html.Raw or ensure content is fully trusted
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-viewstate-mac-disabled
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'EnableViewStateMac\s*=\s*[''\.]?false[''\.]?'
+  - regex: EnableViewStateMac\s*=\s*['\.]?false['\.]?
   severity: critical
-  description: "ViewState MAC disabled allows tampering"
-  remediation: "Set EnableViewStateMac=true in web.config"
-  cwe: "CWE-354"
-  owasp: "A08:2021"
-
+  description: ViewState MAC disabled allows tampering
+  remediation: Set EnableViewStateMac=true in web.config
+  cwe: CWE-354
+  owasp: A08:2021
+  confidence: 0.75
 - id: asp-viewstate-encryption-disabled
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'ViewStateEncryptionMode\s*=\s*[''\.]?Never[''\.]?'
+  - regex: ViewStateEncryptionMode\s*=\s*['\.]?Never['\.]?
   severity: high
-  description: "ViewState encryption disabled exposes data"
-  remediation: "Set ViewStateEncryptionMode=Always"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: ViewState encryption disabled exposes data
+  remediation: Set ViewStateEncryptionMode=Always
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.7
 - id: asp-viewstate-weak-algorithm
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'validation\s*=\s*[''\.]?SHA1[''\.]?'
+  - regex: validation\s*=\s*['\.]?SHA1['\.]?
   severity: high
-  description: "Weak ViewState validation algorithm"
-  remediation: "Use SHA256 or AES for ViewState validation"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Weak ViewState validation algorithm
+  remediation: Use SHA256 or AES for ViewState validation
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.7
 - id: asp-viewstate-length
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'maxPageStateFieldLength\s*=\s*[''\.]?[0-9]{1,3}[''\.]?'
+  - regex: maxPageStateFieldLength\s*=\s*['\.]?[0-9]{1,3}['\.]?
   severity: low
-  description: "ViewState max length configured"
-  remediation: "Set appropriate limit to prevent DOS"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: ViewState max length configured
+  remediation: Set appropriate limit to prevent DOS
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: asp-request-validation-disabled
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'validateRequest\s*=\s*[''\.]?false[''\.]?'
+  - regex: validateRequest\s*=\s*['\.]?false['\.]?
   severity: high
-  description: "ASP.NET request validation disabled (XSS risk)"
-  remediation: "Enable validateRequest=true in web.config"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: ASP.NET request validation disabled (XSS risk)
+  remediation: Enable validateRequest=true in web.config
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-event-validation-disabled
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'EnableEventValidation\s*=\s*[''\.]?false[''\.]?'
+  - regex: EnableEventValidation\s*=\s*['\.]?false['\.]?
   severity: high
-  description: "Event validation disabled allows postback tampering"
-  remediation: "Enable EnableEventValidation=true"
-  cwe: "CWE-354"
-  owasp: "A08:2021"
-
+  description: Event validation disabled allows postback tampering
+  remediation: Enable EnableEventValidation=true
+  cwe: CWE-354
+  owasp: A08:2021
+  confidence: 0.7
 - id: asp-razor-html-string
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'new\s+HtmlString|MvcHtmlString\..Create'
+  - regex: new\s+HtmlString|MvcHtmlString\..Create
   severity: high
-  description: "HtmlString creation bypasses encoding"
-  remediation: "Ensure content is trusted before using HtmlString"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: HtmlString creation bypasses encoding
+  remediation: Ensure content is trusted before using HtmlString
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-razor-javascript-literal
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<script>.*?<%=.*?</script>'
+  - regex: <script>.*?<%=.*?</script>
   severity: high
-  description: "User input in JavaScript block (XSS)"
-  remediation: "Use JSON encoding: <%= HttpUtility.JavaScriptStringEncode(input) %>"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: User input in JavaScript block (XSS)
+  remediation: 'Use JSON encoding: <%= HttpUtility.JavaScriptStringEncode(input) %>'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-razor-url-parameter
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'href=[''\.]?<%=.*?Request\..'
+  - regex: href=['\.]?<%=.*?Request\..
   severity: high
-  description: "User input in href attribute (open redirect/XSS)"
-  remediation: "Validate URLs and use Url.Content()"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: User input in href attribute (open redirect/XSS)
+  remediation: Validate URLs and use Url.Content()
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-razor-event-handler
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'onclick=[''\.]?<%=|onload=[''\.]?<%=|onerror=[''\.]?<%='
+  - regex: onclick=['\.]?<%=|onload=['\.]?<%=|onerror=['\.]?<%=
   severity: high
-  description: "User input in event handler (XSS)"
-  remediation: "Avoid dynamic event handlers with user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: User input in event handler (XSS)
+  remediation: Avoid dynamic event handlers with user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-razor-css-injection
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'style=[''\.]?<%=.*?Request\..'
+  - regex: style=['\.]?<%=.*?Request\..
   severity: high
-  description: "User input in style attribute (CSS injection)"
-  remediation: "Validate and sanitize CSS input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: User input in style attribute (CSS injection)
+  remediation: Validate and sanitize CSS input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-viewstate-machine-key-static
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: '<machineKey.*?validationKey\s*=\s*[''\.][A-F0-9]{40,}[''\.]'
+  - regex: <machineKey.*?validationKey\s*=\s*['\.][A-F0-9]{40,}['\.]
   severity: medium
-  description: "Static machine key in web.config"
-  remediation: "Use auto-generated keys or store in secure location"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Static machine key in web.config
+  remediation: Use auto-generated keys or store in secure location
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.6
 - id: asp-viewstate-machine-key-missing
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: '<system\..web>.*?'
+  - regex: <system\..web>.*?
   severity: medium
-  description: "Machine key not explicitly configured"
-  remediation: "Configure machineKey for web farm scenarios"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Machine key not explicitly configured
+  remediation: Configure machineKey for web farm scenarios
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: asp-viewstate-compatibility
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'CompatibilityMode\s*=\s*[''\.]?.*[''\.]?'
+  - regex: CompatibilityMode\s*=\s*['\.]?.*['\.]?
   severity: low
-  description: "ViewState compatibility mode configured"
-  remediation: "Use latest compatibility mode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ViewState compatibility mode configured
+  remediation: Use latest compatibility mode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-viewstate-chunking
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'ViewStateChunking\s*=\s*[''\.]?true[''\.]?'
+  - regex: ViewStateChunking\s*=\s*['\.]?true['\.]?
   severity: low
-  description: "ViewState chunking enabled"
-  remediation: "Monitor for large ViewState size"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: ViewState chunking enabled
+  remediation: Monitor for large ViewState size
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: asp-request-validation-mode
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'requestValidationMode\s*=\s*[''\.]?2\..0[''\.]?'
+  - regex: requestValidationMode\s*=\s*['\.]?2\..0['\.]?
   severity: medium
-  description: "Request validation mode 2.0 (less restrictive)"
-  remediation: "Use requestValidationMode='4.5' or higher"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Request validation mode 2.0 (less restrictive)
+  remediation: Use requestValidationMode='4.5' or higher
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-razor-helper-injection
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '@helper.*?<%=.*?Request\..'
+  - regex: '@helper.*?<%=.*?Request\..'
   severity: high
-  description: "Razor helper with user input (XSS)"
-  remediation: "Encode output in helpers"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Razor helper with user input (XSS)
+  remediation: Encode output in helpers
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-razor-function-injection
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '@functions\s*\.{.*?<%=.*?Request'
+  - regex: '@functions\s*\.{.*?<%=.*?Request'
   severity: high
-  description: "Razor functions with user input (XSS)"
-  remediation: "Encode output from functions"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# ======================== REQUEST VALIDATION BYPASS (21-40) ========================
-
+  description: Razor functions with user input (XSS)
+  remediation: Encode output from functions
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-request-validation-explicit-bypass
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'ValidateInput\s*\.(\s*false)'
+  - regex: ValidateInput\s*\.(\s*false)
   severity: critical
-  description: "Explicit request validation bypass"
-  remediation: "Remove ValidateInput(false) and use proper encoding"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Explicit request validation bypass
+  remediation: Remove ValidateInput(false) and use proper encoding
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-allow-html-tags
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'AllowHtml\s*\.[|AllowHtmlAttribute]'
+  - regex: AllowHtml\s*\.[|AllowHtmlAttribute]
   severity: high
-  description: "AllowHtml attribute bypasses input validation"
-  remediation: "Use AntiXSS library or sanitize HTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: AllowHtml attribute bypasses input validation
+  remediation: Use AntiXSS library or sanitize HTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-httputility-htmlencode-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Write\s*\.([^\.)]*Request\..)'
+  - regex: Response\..Write\s*\.([^\.)]*Request\..)
   severity: high
-  description: "Response.Write with request data without HTML encoding"
-  remediation: "Always use Server.HTMLEncode() on user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Response.Write with request data without HTML encoding
+  remediation: Always use Server.HTMLEncode() on user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-url-decode-before-validation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Server\..URLDecode\.([^\.)]*Request\..)'
+  - regex: Server\..URLDecode\.([^\.)]*Request\..)
   severity: high
-  description: "URL decoding before validation may bypass filters"
-  remediation: "Validate after decoding"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: URL decoding before validation may bypass filters
+  remediation: Validate after decoding
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-html-decode-before-validation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Server\..HTMLDecode\.([^\.)]*Request\..)'
+  - regex: Server\..HTMLDecode\.([^\.)]*Request\..)
   severity: high
-  description: "HTML decoding before validation may allow injection"
-  remediation: "Validate after decoding or use whitelist"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: HTML decoding before validation may allow injection
+  remediation: Validate after decoding or use whitelist
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-request-binary-read
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..BinaryRead|Request\..TotalBytes'
+  - regex: Request\..BinaryRead|Request\..TotalBytes
   severity: high
-  description: "Binary request reading may bypass validation"
-  remediation: "Validate binary data size and content"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Binary request reading may bypass validation
+  remediation: Validate binary data size and content
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-request-form-raw
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..Form\s*\.(\s*[^)]+\.)'
+  - regex: Request\..Form\s*\.(\s*[^)]+\.)
   severity: medium
-  description: "Direct form access without validation"
-  remediation: "Validate all form values before use"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct form access without validation
+  remediation: Validate all form values before use
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-request-querystring-raw
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..QueryString\s*\.(\s*[^)]+\.)'
+  - regex: Request\..QueryString\s*\.(\s*[^)]+\.)
   severity: medium
-  description: "Direct query string access without validation"
-  remediation: "Validate all query parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct query string access without validation
+  remediation: Validate all query parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-request-cookies-raw
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..Cookies\s*\.(\s*[^)]+\.)'
+  - regex: Request\..Cookies\s*\.(\s*[^)]+\.)
   severity: medium
-  description: "Direct cookie access without validation"
-  remediation: "Validate cookie values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct cookie access without validation
+  remediation: Validate cookie values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-request-servervariables-raw
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..ServerVariables\s*\.(\s*[^)]+\.)'
+  - regex: Request\..ServerVariables\s*\.(\s*[^)]+\.)
   severity: low
-  description: "Server variables may be manipulated by client"
-  remediation: "Don't trust REMOTE_ADDR, HTTP_* headers"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Server variables may be manipulated by client
+  remediation: Don't trust REMOTE_ADDR, HTTP_* headers
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: asp-request-clientcertificate
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..ClientCertificate'
+  - regex: Request\..ClientCertificate
   severity: medium
-  description: "Client certificate access detected"
-  remediation: "Validate certificate properly"
-  cwe: "CWE-295"
-  owasp: "A07:2021"
-
+  description: Client certificate access detected
+  remediation: Validate certificate properly
+  cwe: CWE-295
+  owasp: A07:2021
+  confidence: 0.55
 - id: asp-request-headers-raw
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..Headers\s*\.(\s*[^)]+\.)'
+  - regex: Request\..Headers\s*\.(\s*[^)]+\.)
   severity: medium
-  description: "Direct header access without validation"
-  remediation: "Validate all headers, especially custom ones"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct header access without validation
+  remediation: Validate all headers, especially custom ones
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-request-content-type
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..ContentType'
+  - regex: Request\..ContentType
   severity: low
-  description: "Content-Type header may be spoofed"
-  remediation: "Don't rely on client Content-Type for security"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Content-Type header may be spoofed
+  remediation: Don't rely on client Content-Type for security
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: asp-request-content-length
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..ContentLength'
+  - regex: Request\..ContentLength
   severity: low
-  description: "Content-Length may be manipulated"
-  remediation: "Set maximum request size limits"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Content-Length may be manipulated
+  remediation: Set maximum request size limits
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: asp-request-files-collection
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..Files|Request\..Form\.(.*\.)\..File'
+  - regex: Request\..Files|Request\..Form\.(.*\.)\..File
   severity: high
-  description: "File upload detected without validation"
-  remediation: "Validate file types, sizes, and scan for malware"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: File upload detected without validation
+  remediation: Validate file types, sizes, and scan for malware
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.7
 - id: asp-request-item-raw
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\.(\s*[''\.][^''\.]+[''\.]\s*\.)'
+  - regex: Request\.(\s*['\.][^'\.]+['\.]\s*\.)
   severity: high
-  description: "Direct Request item access (combines all collections)"
-  remediation: "Access specific collections with validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct Request item access (combines all collections)
+  remediation: Access specific collections with validation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-request-totalbytes-check
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..TotalBytes\s*[><]\s*[0-9]+'
+  - regex: Request\..TotalBytes\s*[><]\s*[0-9]+
   severity: low
-  description: "Manual content length check"
-  remediation: "Use web.config limits for request size"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Manual content length check
+  remediation: Use web.config limits for request size
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: asp-request-binaryread-check
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Request\..BinaryRead.*?UBound.*?\.-1'
+  - regex: Request\..BinaryRead.*?UBound.*?\.-1
   severity: medium
-  description: "Binary read may not handle large data"
-  remediation: "Set appropriate limits on binary data"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Binary read may not handle large data
+  remediation: Set appropriate limits on binary data
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: asp-request-form-keys
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'For\s+Each\s+key\s+In\s+Request\..Form'
+  - regex: For\s+Each\s+key\s+In\s+Request\..Form
   severity: high
-  description: "Looping through all form fields (mass assignment)"
-  remediation: "Access specific fields, not all form data"
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Looping through all form fields (mass assignment)
+  remediation: Access specific fields, not all form data
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.65
 - id: asp-request-querystring-keys
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'For\s+Each\s+key\s+In\s+Request\..QueryString'
+  - regex: For\s+Each\s+key\s+In\s+Request\..QueryString
   severity: high
-  description: "Looping through all query parameters"
-  remediation: "Access specific parameters with validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== ANTI-FORGERY TOKEN (41-50) ========================
-
+  description: Looping through all query parameters
+  remediation: Access specific parameters with validation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-antiforgery-token-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'If\s+Request\..HttpMethod\s*=\s*[''\.]POST[''\.]'
+  - regex: If\s+Request\..HttpMethod\s*=\s*['\.]POST['\.]
   severity: high
-  description: "POST handler without anti-forgery token check"
-  remediation: "Implement anti-forgery token validation"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: POST handler without anti-forgery token check
+  remediation: Implement anti-forgery token validation
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-antiforgery-token-weak
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '__RequestVerificationToken.*?value\s*=\s*[''\.][a-zA-Z0-9]{1,16}[''\.]'
+  - regex: __RequestVerificationToken.*?value\s*=\s*['\.][a-zA-Z0-9]{1,16}['\.]
   severity: high
-  description: "Weak anti-forgery token (too short)"
-  remediation: "Ensure tokens are cryptographically random"
-  cwe: "CWE-330"
-  owasp: "A01:2021"
-
+  description: Weak anti-forgery token (too short)
+  remediation: Ensure tokens are cryptographically random
+  cwe: CWE-330
+  owasp: A01:2021
+  confidence: 0.75
 - id: asp-antiforgery-cookie-secure
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'RequireSsl\s*=\s*false|requireSSL\s*=\s*false'
+  - regex: RequireSsl\s*=\s*false|requireSSL\s*=\s*false
   severity: high
-  description: "Anti-forgery cookie without SSL"
-  remediation: "Set requireSSL=true for anti-forgery cookie"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Anti-forgery cookie without SSL
+  remediation: Set requireSSL=true for anti-forgery cookie
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-antiforgery-cookie-httponly
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'httpOnlyCookies\s*=\s*false'
+  - regex: httpOnlyCookies\s*=\s*false
   severity: high
-  description: "Anti-forgery cookie without HttpOnly"
-  remediation: "Set httpOnlyCookies=true"
-  cwe: "CWE-1004"
-  owasp: "A01:2021"
-
+  description: Anti-forgery cookie without HttpOnly
+  remediation: Set httpOnlyCookies=true
+  cwe: CWE-1004
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-antiforgery-same-site
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'sameSite\s*=\s*[''\.]?None[''\.]?'
+  - regex: sameSite\s*=\s*['\.]?None['\.]?
   severity: medium
-  description: "Anti-forgery cookie SameSite=None (CSRF risk)"
-  remediation: "Use SameSite=Lax or Strict"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Anti-forgery cookie SameSite=None (CSRF risk)
+  remediation: Use SameSite=Lax or Strict
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-antiforgery-session-based
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\.[[''\.]__RequestVerificationToken[''\.]\.'
+  - regex: Session\.[['\.]__RequestVerificationToken['\.]\.
   severity: medium
-  description: "Session-based anti-forgery token"
-  remediation: "Use cookie-based tokens for better scalability"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Session-based anti-forgery token
+  remediation: Use cookie-based tokens for better scalability
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-antiforgery-custom-validation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Function.*ValidateAntiForgeryToken.*End Function'
+  - regex: Function.*ValidateAntiForgeryToken.*End Function
   severity: medium
-  description: "Custom anti-forgery validation may be flawed"
-  remediation: "Use built-in anti-forgery validation"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Custom anti-forgery validation may be flawed
+  remediation: Use built-in anti-forgery validation
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-antiforgery-token-comparison
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'If\s+token1\s*=\s*token2\s+Then'
+  - regex: If\s+token1\s*=\s*token2\s+Then
   severity: medium
-  description: "Timing-vulnerable token comparison"
-  remediation: "Use constant-time comparison"
-  cwe: "CWE-208"
-  owasp: "A02:2021"
-
+  description: Timing-vulnerable token comparison
+  remediation: Use constant-time comparison
+  cwe: CWE-208
+  owasp: A02:2021
+  confidence: 0.55
 - id: asp-antiforgery-missing-form-field
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<form.*?method=[''\.]post[''\.].*?>.*?(?:__RequestVerificationToken)'
+  - regex: <form.*?method=['\.]post['\.].*?>.*?(?:__RequestVerificationToken)
   severity: high
-  description: "POST form missing anti-forgery token"
-  remediation: "Add @Html.AntiForgeryToken() to forms"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: POST form missing anti-forgery token
+  remediation: Add @Html.AntiForgeryToken() to forms
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.95
 - id: asp-antiforgery-ajax-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '\..ajax\.(|XMLHttpRequest.*?type:\s*[''\.]POST[''\.])'
+  - regex: \..ajax\.(|XMLHttpRequest.*?type:\s*['\.]POST['\.])
   severity: high
-  description: "AJAX POST without anti-forgery token"
-  remediation: "Add token to AJAX headers"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
-# ======================== SESSION MANAGEMENT (51-70) ========================
-
+  description: AJAX POST without anti-forgery token
+  remediation: Add token to AJAX headers
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.9
 - id: asp-session-timeout-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\..Timeout.*?[0-9]+'
+  - regex: Session\..Timeout.*?[0-9]+
   severity: medium
-  description: "Session timeout not configured"
-  remediation: "Set Session.Timeout to 20 minutes or less"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session timeout not configured
+  remediation: Set Session.Timeout to 20 minutes or less
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-session-timeout-long
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\..Timeout\s*=\s*[0-9]{3,}'
+  - regex: Session\..Timeout\s*=\s*[0-9]{3,}
   severity: high
-  description: "Session timeout too long (over 100 minutes)"
-  remediation: "Reduce session timeout to 20-60 minutes"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session timeout too long (over 100 minutes)
+  remediation: Reduce session timeout to 20-60 minutes
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-session-cookie-domain
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'domain\s*=\s*[''\.][^''\.]*\..[^''\.]*[''\.]'
+  - regex: domain\s*=\s*['\.][^'\.]*\..[^'\.]*['\.]
   severity: medium
-  description: "Session cookie domain set broadly"
-  remediation: "Restrict cookie domain to specific subdomain"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Session cookie domain set broadly
+  remediation: Restrict cookie domain to specific subdomain
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-session-cookie-path
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'path\s*=\s*[''\.]/[''\.]'
+  - regex: path\s*=\s*['\.]/['\.]
   severity: low
-  description: "Session cookie path set to root"
-  remediation: "Restrict cookie path to application"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Session cookie path set to root
+  remediation: Restrict cookie path to application
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.5
 - id: asp-session-cookie-httponly
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'httpOnlyCookies\s*=\s*false'
+  - regex: httpOnlyCookies\s*=\s*false
   severity: high
-  description: "Session cookies without HttpOnly flag"
-  remediation: "Set httpOnlyCookies=true in web.config"
-  cwe: "CWE-1004"
-  owasp: "A01:2021"
-
+  description: Session cookies without HttpOnly flag
+  remediation: Set httpOnlyCookies=true in web.config
+  cwe: CWE-1004
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-session-cookie-secure
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'requireSSL\s*=\s*false'
+  - regex: requireSSL\s*=\s*false
   severity: high
-  description: "Session cookies without Secure flag"
-  remediation: "Set requireSSL=true for HTTPS only"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Session cookies without Secure flag
+  remediation: Set requireSSL=true for HTTPS only
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-session-id-regeneration
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\..SessionID.*?If\s+.*?Login'
+  - regex: Session\..SessionID.*?If\s+.*?Login
   severity: high
-  description: "Session ID not regenerated after login"
-  remediation: "Call Session.Abandon() and create new session"
-  cwe: "CWE-384"
-  owasp: "A01:2021"
-
+  description: Session ID not regenerated after login
+  remediation: Call Session.Abandon() and create new session
+  cwe: CWE-384
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-session-fixation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'SessionID\s*=\s*Request\..(QueryString|Form)\.([''\.]SessionID[''\.]\.)'
+  - regex: SessionID\s*=\s*Request\..(QueryString|Form)\.(['\.]SessionID['\.]\.)
   severity: critical
-  description: "Accepting session ID from client (fixation)"
-  remediation: "Never accept session IDs from client"
-  cwe: "CWE-384"
-  owasp: "A01:2021"
-
+  description: Accepting session ID from client (fixation)
+  remediation: Never accept session IDs from client
+  cwe: CWE-384
+  owasp: A01:2021
+  confidence: 0.8
 - id: asp-session-insecure-storage
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\.([''\.]password[''\.]\.)|Session\.([''\.]credit[''\.]\.)'
+  - regex: Session\.(['\.]password['\.]\.)|Session\.(['\.]credit['\.]\.)
   severity: critical
-  description: "Sensitive data stored in session"
-  remediation: "Store minimal data, use secure session state"
-  cwe: "CWE-312"
-  owasp: "A02:2021"
-
+  description: Sensitive data stored in session
+  remediation: Store minimal data, use secure session state
+  cwe: CWE-312
+  owasp: A02:2021
+  confidence: 0.8
 - id: asp-session-state-mode
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'mode\s*=\s*[''\.]?InProc[''\.]?'
+  - regex: mode\s*=\s*['\.]?InProc['\.]?
   severity: medium
-  description: "InProc session state (lost on restart)"
-  remediation: "Use StateServer or SQLServer for production"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: InProc session state (lost on restart)
+  remediation: Use StateServer or SQLServer for production
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.6
 - id: asp-session-state-cookieless
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'cookieless\s*=\s*[''\.]?true[''\.]?'
+  - regex: cookieless\s*=\s*['\.]?true['\.]?
   severity: high
-  description: "Cookieless sessions (URL-based) expose session ID"
-  remediation: "Use cookie-based sessions"
-  cwe: "CWE-200"
-  owasp: "A01:2021"
-
+  description: Cookieless sessions (URL-based) expose session ID
+  remediation: Use cookie-based sessions
+  cwe: CWE-200
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-session-state-sql-connection
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'sqlConnectionString.*?Password\s*=\s*[^;]+'
+  - regex: sqlConnectionString.*?Password\s*=\s*[^;]+
   severity: critical
-  description: "SQL session state with password in config"
-  remediation: "Use integrated security or encrypted config"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: SQL session state with password in config
+  remediation: Use integrated security or encrypted config
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: asp-session-abandon-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Logout|SignOut.*?'
+  - regex: Logout|SignOut.*?
   severity: high
-  description: "Logout without clearing session"
-  remediation: "Call Session.Abandon() on logout"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Logout without clearing session
+  remediation: Call Session.Abandon() on logout
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-session-clear-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\..Contents\..RemoveAll'
+  - regex: Session\..Contents\..RemoveAll
   severity: low
-  description: "Session clearing detected"
-  remediation: "Good practice on logout"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session clearing detected
+  remediation: Good practice on logout
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.5
 - id: asp-session-timeout-sliding
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'slidingExpiration\s*=\s*false'
+  - regex: slidingExpiration\s*=\s*false
   severity: medium
-  description: "Sliding expiration disabled"
-  remediation: "Enable sliding expiration for better UX"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Sliding expiration disabled
+  remediation: Enable sliding expiration for better UX
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-session-user-agent-check
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'If\s+Request\..ServerVariables\.([''\.]HTTP_USER_AGENT[''\.]\.)\s*<>'
+  - regex: If\s+Request\..ServerVariables\.(['\.]HTTP_USER_AGENT['\.]\.)\s*<>
   severity: medium
-  description: "Session hijacking protection via User-Agent"
-  remediation: "Good practice to bind session to User-Agent"
-  cwe: "CWE-384"
-  owasp: "A01:2021"
-
+  description: Session hijacking protection via User-Agent
+  remediation: Good practice to bind session to User-Agent
+  cwe: CWE-384
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-session-ip-check
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'If\s+Request\..ServerVariables\.([''\.]REMOTE_ADDR[''\.]\.)\s*<>'
+  - regex: If\s+Request\..ServerVariables\.(['\.]REMOTE_ADDR['\.]\.)\s*<>
   severity: medium
-  description: "Session binding to IP (may break for mobile)"
-  remediation: "Consider using User-Agent instead"
-  cwe: "CWE-384"
-  owasp: "A01:2021"
-
+  description: Session binding to IP (may break for mobile)
+  remediation: Consider using User-Agent instead
+  cwe: CWE-384
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-session-new-on-login
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\..Abandon.*?Session\..Create'
+  - regex: Session\..Abandon.*?Session\..Create
   severity: low
-  description: "New session after login (good)"
-  remediation: "Good practice"
-  cwe: "CWE-384"
-  owasp: "A01:2021"
-
+  description: New session after login (good)
+  remediation: Good practice
+  cwe: CWE-384
+  owasp: A01:2021
+  confidence: 0.5
 - id: asp-session-persistent-cookie
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Cookies\.([''\.]ASP\..NET_SessionId[''\.]\.).*?Expires'
+  - regex: Response\..Cookies\.(['\.]ASP\..NET_SessionId['\.]\.).*?Expires
   severity: high
-  description: "Persistent session cookie (remember me)"
-  remediation: "Use short expiration for session cookies"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Persistent session cookie (remember me)
+  remediation: Use short expiration for session cookies
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.75
 - id: asp-session-validate-on-each-request
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\.([''\.]Authenticated[''\.]\.)\s*=\s*true'
+  - regex: Session\.(['\.]Authenticated['\.]\.)\s*=\s*true
   severity: medium
-  description: "Session-based authentication check"
-  remediation: "Ensure session is validated on each request"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
-# ======================== COOKIE SECURITY (71-85) ========================
-
+  description: Session-based authentication check
+  remediation: Ensure session is validated on each request
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-cookie-httponly-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Cookies\s*\.([^)]+\.)\s*='
+  - regex: Response\..Cookies\s*\.([^)]+\.)\s*=
   severity: high
-  description: "Cookie set without HttpOnly flag"
-  remediation: "Set HttpOnly=True for cookies"
-  cwe: "CWE-1004"
-  owasp: "A01:2021"
-
+  description: Cookie set without HttpOnly flag
+  remediation: Set HttpOnly=True for cookies
+  cwe: CWE-1004
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-cookie-secure-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Cookies\s*\.([^)]+\.)\s*='
+  - regex: Response\..Cookies\s*\.([^)]+\.)\s*=
   severity: high
-  description: "Cookie set without Secure flag"
-  remediation: "Set Secure=True for HTTPS-only cookies"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Cookie set without Secure flag
+  remediation: Set Secure=True for HTTPS-only cookies
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-cookie-samesite-missing
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Cookies\s*\.([^)]+\.)\s*='
+  - regex: Response\..Cookies\s*\.([^)]+\.)\s*=
   severity: medium
-  description: "Cookie without SameSite attribute"
-  remediation: "Set SameSite=Lax or Strict"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Cookie without SameSite attribute
+  remediation: Set SameSite=Lax or Strict
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-cookie-path-too-broad
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Path\s*=\s*[''\.]/[''\.]'
+  - regex: Path\s*=\s*['\.]/['\.]
   severity: low
-  description: "Cookie path set to root"
-  remediation: "Restrict cookie path to application"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Cookie path set to root
+  remediation: Restrict cookie path to application
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.5
 - id: asp-cookie-domain-too-broad
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Domain\s*=\s*[''\.][^''\.]*\..[^''\.]*[''\.]'
+  - regex: Domain\s*=\s*['\.][^'\.]*\..[^'\.]*['\.]
   severity: medium
-  description: "Cookie domain set broadly"
-  remediation: "Restrict to specific subdomain"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Cookie domain set broadly
+  remediation: Restrict to specific subdomain
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-cookie-expiration-long
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Expires\s*=\s*DateAdd.*?yyyy'
+  - regex: Expires\s*=\s*DateAdd.*?yyyy
   severity: high
-  description: "Cookie expiration too long (>1 year)"
-  remediation: "Set shorter expiration for cookies"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Cookie expiration too long (>1 year)
+  remediation: Set shorter expiration for cookies
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-cookie-sensitive-data
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Cookies\.([^)]*password|credit|ssn)'
+  - regex: Response\..Cookies\.([^)]*password|credit|ssn)
   severity: critical
-  description: "Sensitive data stored in cookie"
-  remediation: "Never store sensitive data in cookies"
-  cwe: "CWE-312"
-  owasp: "A02:2021"
-
+  description: Sensitive data stored in cookie
+  remediation: Never store sensitive data in cookies
+  cwe: CWE-312
+  owasp: A02:2021
+  confidence: 0.75
 - id: asp-cookie-encrypted-value
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'FormsAuthentication\..Encrypt|MachineKey\..Encode'
+  - regex: FormsAuthentication\..Encrypt|MachineKey\..Encode
   severity: low
-  description: "Encrypted cookie value (good)"
-  remediation: "Ensure encryption is strong"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Encrypted cookie value (good)
+  remediation: Ensure encryption is strong
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.5
 - id: asp-cookie-decrypt
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'FormsAuthentication\..Decrypt|MachineKey\..Decode'
+  - regex: FormsAuthentication\..Decrypt|MachineKey\..Decode
   severity: low
-  description: "Cookie decryption detected"
-  remediation: "Handle decryption errors properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Cookie decryption detected
+  remediation: Handle decryption errors properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: asp-cookie-validation-key
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'validationKey.*?[A-F0-9]{40,}'
+  - regex: validationKey.*?[A-F0-9]{40,}
   severity: medium
-  description: "Static cookie validation key"
-  remediation: "Use auto-generated keys"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Static cookie validation key
+  remediation: Use auto-generated keys
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.55
 - id: asp-cookie-decryption-key
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'decryptionKey.*?[A-F0-9]{40,}'
+  - regex: decryptionKey.*?[A-F0-9]{40,}
   severity: medium
-  description: "Static cookie decryption key"
-  remediation: "Use auto-generated keys"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Static cookie decryption key
+  remediation: Use auto-generated keys
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.55
 - id: asp-cookie-less-auth
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'User\..Identity\..IsAuthenticated.*?Cookie'
+  - regex: User\..Identity\..IsAuthenticated.*?Cookie
   severity: low
-  description: "Cookie-based authentication"
-  remediation: "Ensure cookies are properly secured"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Cookie-based authentication
+  remediation: Ensure cookies are properly secured
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.5
 - id: asp-cookie-persistent-login
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'PersistCookie\s*=\s*true'
+  - regex: PersistCookie\s*=\s*true
   severity: medium
-  description: "Persistent login cookie (remember me)"
-  remediation: "Use secure remember-me tokens"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Persistent login cookie (remember me)
+  remediation: Use secure remember-me tokens
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-cookie-sliding-expiration
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'slidingExpiration\s*=\s*true'
+  - regex: slidingExpiration\s*=\s*true
   severity: low
-  description: "Sliding expiration for auth cookie"
-  remediation: "Set absolute timeout as well"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Sliding expiration for auth cookie
+  remediation: Set absolute timeout as well
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: asp-cookie-absolute-expiration
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'timeout\s*=\s*[0-9]{3,}'
+  - regex: timeout\s*=\s*[0-9]{3,}
   severity: medium
-  description: "Auth cookie timeout too long"
-  remediation: "Set reasonable timeout (30-60 minutes)"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
-# ======================== SERVER-SIDE INCLUSION (86-95) ========================
-
+  description: Auth cookie timeout too long
+  remediation: Set reasonable timeout (30-60 minutes)
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-include-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<!--\s*#include\s+file\s*=\s*[''\.][^''\.]+[''\.]'
+  - regex: <!--\s*#include\s+file\s*=\s*['\.][^'\.]+['\.]
   severity: high
-  description: "Server-side include with file attribute"
-  remediation: "Use virtual include or restrict paths"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Server-side include with file attribute
+  remediation: Use virtual include or restrict paths
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-include-virtual-dup1
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<!--\s*#include\s+virtual\s*=\s*[''\.][^''\.]+[''\.]'
+  - regex: <!--\s*#include\s+virtual\s*=\s*['\.][^'\.]+['\.]
   severity: medium
-  description: "Server-side include with virtual path"
-  remediation: "Ensure included files are safe"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Server-side include with virtual path
+  remediation: Ensure included files are safe
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-include-dynamic
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<!--\s*#include.*?\.$|<!--\s*#include.*?&'
+  - regex: <!--\s*#include.*?\.$|<!--\s*#include.*?&
   severity: critical
-  description: "Dynamic server-side include (code injection)"
-  remediation: "Never use dynamic includes with user input"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Dynamic server-side include (code injection)
+  remediation: Never use dynamic includes with user input
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-include-parent
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<!--\s*#include.*?\..\../'
+  - regex: <!--\s*#include.*?\..\../
   severity: high
-  description: "Include with parent directory traversal"
-  remediation: "Restrict includes to specific directories"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Include with parent directory traversal
+  remediation: Restrict includes to specific directories
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-execute-request
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Server\..Execute\s*\.([^\.]*Request\.)'
+  - regex: Server\..Execute\s*\.([^\.]*Request\.)
   severity: critical
-  description: "Server.Execute with user input (code injection)"
-  remediation: "Never use Server.Execute with user input"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Server.Execute with user input (code injection)
+  remediation: Never use Server.Execute with user input
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-transfer-request
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Server\..Transfer\s*\.([^\.]*Request\.)'
+  - regex: Server\..Transfer\s*\.([^\.]*Request\.)
   severity: high
-  description: "Server.Transfer with user input"
-  remediation: "Validate transfer URLs"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Server.Transfer with user input
+  remediation: Validate transfer URLs
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-execute-external
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Server\..Execute\s*\.([''\.][^''\.]+\.(asp|aspx)[''\.])'
+  - regex: Server\..Execute\s*\.(['\.][^'\.]+\.(asp|aspx)['\.])
   severity: medium
-  description: "Server.Execute external file"
-  remediation: "Ensure executed file is trusted"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Server.Execute external file
+  remediation: Ensure executed file is trusted
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-transfer-external
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Server\..Transfer\s*\.([''\.][^''\.]+\.(asp|aspx)[''\.])'
+  - regex: Server\..Transfer\s*\.(['\.][^'\.]+\.(asp|aspx)['\.])
   severity: medium
-  description: "Server.Transfer external file"
-  remediation: "Validate transfer target"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Server.Transfer external file
+  remediation: Validate transfer target
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-include-absolute-path
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<!--\s*#include.*?[A-Z]:\.|<!--\s*#include.*?\.\]'
+  - regex: <!--\s*#include.*?[A-Z]:\.|<!--\s*#include.*?\.\]
   severity: high
-  description: "Include with absolute path"
-  remediation: "Use relative paths within application"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Include with absolute path
+  remediation: Use relative paths within application
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-include-environment
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '<!--\s*#include.*?\.%\w+\.%'
+  - regex: <!--\s*#include.*?\.%\w+\.%
   severity: medium
-  description: "Include with environment variable"
-  remediation: "Expand variables safely"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
-# ======================== COM OBJECT CREATION (96-110) ========================
-
+  description: Include with environment variable
+  remediation: Expand variables safely
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.6
 - id: asp-createobject-dynamic
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.][^''\.]*?\.$|CreateObject\s*\.([^\.]*Request\.))'
+  - regex: CreateObject\s*\.(\s*['\.][^'\.]*?\.$|CreateObject\s*\.([^\.]*Request\.))
   severity: critical
-  description: "Dynamic COM object creation (RCE risk)"
-  remediation: "Use static object creation, never with user input"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Dynamic COM object creation (RCE risk)
+  remediation: Use static object creation, never with user input
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.8
 - id: asp-server-createobject-dynamic
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Server\..CreateObject\s*\.(\s*[''\.][^''\.]*?\.$|Server\.CreateObject\s*\.([^\.]*Request\.))'
+  - regex: Server\..CreateObject\s*\.(\s*['\.][^'\.]*?\.$|Server\.CreateObject\s*\.([^\.]*Request\.))
   severity: critical
-  description: "Dynamic Server.CreateObject (RCE risk)"
-  remediation: "Never use user input in CreateObject"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Dynamic Server.CreateObject (RCE risk)
+  remediation: Never use user input in CreateObject
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.8
 - id: asp-fso-createobject
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]Scripting\.FileSystemObject[''\.])'
+  - regex: CreateObject\s*\.(\s*['\.]Scripting\.FileSystemObject['\.])
   severity: high
-  description: "FileSystemObject creation (file access)"
-  remediation: "Restrict file operations to specific directories"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: FileSystemObject creation (file access)
+  remediation: Restrict file operations to specific directories
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-wscript-shell
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]WScript\.Shell[''\.])'
+  - regex: CreateObject\s*\.(\s*['\.]WScript\.Shell['\.])
   severity: critical
-  description: "WScript.Shell creation (command execution)"
-  remediation: "Avoid shell access from ASP pages"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: WScript.Shell creation (command execution)
+  remediation: Avoid shell access from ASP pages
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-adodb-connection
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]ADODB\.Connection[''\.])'
+  - regex: CreateObject\s*\.(\s*['\.]ADODB\.Connection['\.])
   severity: high
-  description: "ADODB connection creation"
-  remediation: "Use connection strings from config"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ADODB connection creation
+  remediation: Use connection strings from config
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-adodb-command
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]ADODB\.Command[''\.])'
+  - regex: CreateObject\s*\.(\s*['\.]ADODB\.Command['\.])
   severity: high
-  description: "ADODB Command object (parameterized queries)"
-  remediation: "Use parameters for all queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ADODB Command object (parameterized queries)
+  remediation: Use parameters for all queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-adodb-stream
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]ADODB\.Stream[''\.])'
+  - regex: CreateObject\s*\.(\s*['\.]ADODB\.Stream['\.])
   severity: high
-  description: "ADODB.Stream for binary data"
-  remediation: "Validate data before processing"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: ADODB.Stream for binary data
+  remediation: Validate data before processing
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.7
 - id: asp-xmlhttp-creation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]MSXML2\..XMLHTTP[''\.]|CreateObject\s*\.(\s*[''\.]Microsoft\.XMLHTTP[''\.]))'
+  - regex: CreateObject\s*\.(\s*['\.]MSXML2\..XMLHTTP['\.]|CreateObject\s*\.(\s*['\.]Microsoft\.XMLHTTP['\.]))
   severity: high
-  description: "XMLHTTP object creation (SSRF risk)"
-  remediation: "Validate all requested URLs"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: XMLHTTP object creation (SSRF risk)
+  remediation: Validate all requested URLs
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.75
 - id: asp-ldap-creation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]LDAP[''\.]|CreateObject\s*\.(\s*[''\.]ADSystemInfo[''\.]))'
+  - regex: CreateObject\s*\.(\s*['\.]LDAP['\.]|CreateObject\s*\.(\s*['\.]ADSystemInfo['\.]))
   severity: high
-  description: "LDAP object creation (injection risk)"
-  remediation: "Sanitize LDAP queries"
-  cwe: "CWE-90"
-  owasp: "A03:2021"
-
+  description: LDAP object creation (injection risk)
+  remediation: Sanitize LDAP queries
+  cwe: CWE-90
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-email-creation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]CDO\.Message[''\.]|CreateObject\s*\.(\s*[''\.]JMail\.SMTPMail[''\.]))'
+  - regex: CreateObject\s*\.(\s*['\.]CDO\.Message['\.]|CreateObject\s*\.(\s*['\.]JMail\.SMTPMail['\.]))
   severity: medium
-  description: "Email object creation (SMTP injection)"
-  remediation: "Validate email headers"
-  cwe: "CWE-93"
-  owasp: "A03:2021"
-
+  description: Email object creation (SMTP injection)
+  remediation: Validate email headers
+  cwe: CWE-93
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-scriptcontrol-creation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.]ScriptControl[''\.])'
+  - regex: CreateObject\s*\.(\s*['\.]ScriptControl['\.])
   severity: critical
-  description: "ScriptControl creation (RCE)"
-  remediation: "Never use ScriptControl with user input"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: ScriptControl creation (RCE)
+  remediation: Never use ScriptControl with user input
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-unsafe-com-objects
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateObject\s*\.(\s*[''\.](Shell|WScript|ADOX|CATID))'
+  - regex: CreateObject\s*\.(\s*['\.](Shell|WScript|ADOX|CATID))
   severity: critical
-  description: "Unsafe COM object creation"
-  remediation: "Restrict COM object creation"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Unsafe COM object creation
+  remediation: Restrict COM object creation
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-com-object-cache
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Application\.([^)]*\.)\s*=\s*CreateObject'
+  - regex: Application\.([^)]*\.)\s*=\s*CreateObject
   severity: high
-  description: "COM object stored in Application cache"
-  remediation: "Don't cache COM objects in Application"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: COM object stored in Application cache
+  remediation: Don't cache COM objects in Application
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-com-object-session
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\.([^)]*\.)\s*=\s*CreateObject'
+  - regex: Session\.([^)]*\.)\s*=\s*CreateObject
   severity: high
-  description: "COM object stored in Session"
-  remediation: "Don't store COM objects in Session"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: COM object stored in Session
+  remediation: Don't store COM objects in Session
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-com-object-release
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Set\s+obj\s*=\s*Nothing'
+  - regex: Set\s+obj\s*=\s*Nothing
   severity: low
-  description: "COM object released (good)"
-  remediation: "Always release COM objects"
-  cwe: "CWE-404"
-  owasp: "A06:2021"
-
-# ======================== DATABASE SECURITY (111-130) ========================
-
+  description: COM object released (good)
+  remediation: Always release COM objects
+  cwe: CWE-404
+  owasp: A06:2021
+  confidence: 0.45
 - id: asp-sql-connection-string
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Provider\s*=\s*SQLOLEDB|Data Source|Initial Catalog'
+  - regex: Provider\s*=\s*SQLOLEDB|Data Source|Initial Catalog
   severity: high
-  description: "SQL connection string in code"
-  remediation: "Store connection strings in config files"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: SQL connection string in code
+  remediation: Store connection strings in config files
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: asp-sql-connection-password
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Password\s*=\s*[^;]+|PWD\s*=\s*[^;]+'
+  - regex: Password\s*=\s*[^;]+|PWD\s*=\s*[^;]+
   severity: critical
-  description: "Database password in connection string"
-  remediation: "Use integrated security or encrypted config"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Database password in connection string
+  remediation: Use integrated security or encrypted config
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: asp-sql-connection-config
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'ConnectionString\s*=\s*ConfigurationManager'
+  - regex: ConnectionString\s*=\s*ConfigurationManager
   severity: low
-  description: "Connection string from config (good)"
-  remediation: "Ensure config file is secure"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Connection string from config (good)
+  remediation: Ensure config file is secure
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.45
 - id: asp-sql-dynamic-query
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'SELECT.*?\.&.*?Request\..|INSERT.*?\.&.*?Request\..|UPDATE.*?\.&.*?Request\..|DELETE.*?\.&.*?Request\..'
+  - regex: SELECT.*?\.&.*?Request\..|INSERT.*?\.&.*?Request\..|UPDATE.*?\.&.*?Request\..|DELETE.*?\.&.*?Request\..
   severity: critical
-  description: "Dynamic SQL query with string concatenation"
-  remediation: "Use parameterized queries with Command object"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Dynamic SQL query with string concatenation
+  remediation: Use parameterized queries with Command object
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.8
 - id: asp-sql-injection-like
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'LIKE\s*[''\.]%[''\.]\s*\.&.*?Request'
+  - regex: LIKE\s*['\.]%['\.]\s*\.&.*?Request
   severity: high
-  description: "LIKE clause with unescaped user input"
-  remediation: "Escape % and _ characters in LIKE patterns"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: LIKE clause with unescaped user input
+  remediation: Escape % and _ characters in LIKE patterns
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-sql-injection-orderby
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'ORDER BY\s*\.&.*?Request'
+  - regex: ORDER BY\s*\.&.*?Request
   severity: high
-  description: "ORDER BY with user input"
-  remediation: "Validate column names against allowlist"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ORDER BY with user input
+  remediation: Validate column names against allowlist
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: asp-sql-command-text
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CommandText\s*=\s*[''\.]\.&.*?Request'
+  - regex: CommandText\s*=\s*['\.]\.&.*?Request
   severity: critical
-  description: "CommandText with user input concatenation"
-  remediation: "Use parameters collection"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: CommandText with user input concatenation
+  remediation: Use parameters collection
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: asp-sql-command-parameters
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Parameters\..Append|CreateParameter'
+  - regex: Parameters\..Append|CreateParameter
   severity: low
-  description: "Parameterized query (good)"
-  remediation: "Use parameters for all user input"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Parameterized query (good)
+  remediation: Use parameters for all user input
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: asp-sql-stored-procedure
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CommandType\s*=\s*adCmdStoredProc'
+  - regex: CommandType\s*=\s*adCmdStoredProc
   severity: low
-  description: "Stored procedure call (good)"
-  remediation: "Use parameters with stored procedures"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Stored procedure call (good)
+  remediation: Use parameters with stored procedures
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: asp-sql-command-execute
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '\..Execute\s*\.([^\.]*\.)'
+  - regex: \..Execute\s*\.([^\.]*\.)
   severity: medium
-  description: "SQL command execution"
-  remediation: "Handle errors properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: SQL command execution
+  remediation: Handle errors properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.6
 - id: asp-sql-recordset-open
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Recordset\..Open\s*\.([^\.]*\.)'
+  - regex: Recordset\..Open\s*\.([^\.]*\.)
   severity: medium
-  description: "Recordset open without error handling"
-  remediation: "Check for errors after opening"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Recordset open without error handling
+  remediation: Check for errors after opening
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.6
 - id: asp-sql-connection-open
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Connection\..Open\s*\.([^\.]*\.)'
+  - regex: Connection\..Open\s*\.([^\.]*\.)
   severity: medium
-  description: "Connection open without error handling"
-  remediation: "Use try-catch for connection errors"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Connection open without error handling
+  remediation: Use try-catch for connection errors
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.6
 - id: asp-sql-close-connection
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Connection\..Close'
+  - regex: Connection\..Close
   severity: low
-  description: "Connection closed (good)"
-  remediation: "Always close connections"
-  cwe: "CWE-404"
-  owasp: "A06:2021"
-
+  description: Connection closed (good)
+  remediation: Always close connections
+  cwe: CWE-404
+  owasp: A06:2021
+  confidence: 0.45
 - id: asp-sql-connection-pooling
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'Pooling\s*=\s*true'
+  - regex: Pooling\s*=\s*true
   severity: low
-  description: "Connection pooling enabled"
-  remediation: "Good for performance"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Connection pooling enabled
+  remediation: Good for performance
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: asp-sql-command-timeout
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CommandTimeout\s*=\s*[0-9]+'
+  - regex: CommandTimeout\s*=\s*[0-9]+
   severity: low
-  description: "Command timeout configured"
-  remediation: "Set appropriate timeout values"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Command timeout configured
+  remediation: Set appropriate timeout values
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: asp-sql-connection-timeout
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Connect\s*Timeout\s*=\s*[0-9]+'
+  - regex: Connect\s*Timeout\s*=\s*[0-9]+
   severity: low
-  description: "Connection timeout configured"
-  remediation: "Set appropriate timeout"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Connection timeout configured
+  remediation: Set appropriate timeout
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: asp-sql-error-handling
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'On\s+Error\s+Resume\s+Next'
+  - regex: On\s+Error\s+Resume\s+Next
   severity: medium
-  description: "On Error Resume Next may hide SQL errors"
-  remediation: "Check Err.Number after database operations"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: On Error Resume Next may hide SQL errors
+  remediation: Check Err.Number after database operations
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.55
 - id: asp-sql-injection-escape
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Replace.*?[''\.]''[''\.],\s*[''\.][''\.]'
+  - regex: Replace.*?['\.]'['\.],\s*['\.]['\.]
   severity: high
-  description: "Manual SQL escaping (often insufficient)"
-  remediation: "Use parameterized queries instead"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Manual SQL escaping (often insufficient)
+  remediation: Use parameterized queries instead
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-sql-injection-replace
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Replace.*?[''\.][''\.]\.&'
+  - regex: Replace.*?['\.]['\.]\.&
   severity: high
-  description: "SQL escaping with string concatenation"
-  remediation: "Use parameters, not string escaping"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL escaping with string concatenation
+  remediation: Use parameters, not string escaping
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-sql-server-version
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: '@@VERSION|SERVERPROPERTY'
+  - regex: '@@VERSION|SERVERPROPERTY'
   severity: low
-  description: "SQL Server version query"
-  remediation: "Don't expose version info"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
-# ======================== FILE OPERATIONS (131-150) ========================
-
+  description: SQL Server version query
+  remediation: Don't expose version info
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: asp-fso-open-textfile
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'OpenTextFile\s*\.([^\.]*Request\..)'
+  - regex: OpenTextFile\s*\.([^\.]*Request\..)
   severity: critical
-  description: "File open with user-controlled path"
-  remediation: "Validate file paths against allowlist"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File open with user-controlled path
+  remediation: Validate file paths against allowlist
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.75
 - id: asp-fso-create-textfile
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CreateTextFile\s*\.([^\.]*Request\..)'
+  - regex: CreateTextFile\s*\.([^\.]*Request\..)
   severity: critical
-  description: "File creation with user-controlled path"
-  remediation: "Never allow user input for file creation"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File creation with user-controlled path
+  remediation: Never allow user input for file creation
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.75
 - id: asp-fso-delete-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'DeleteFile\s*\.([^\.]*Request\..)'
+  - regex: DeleteFile\s*\.([^\.]*Request\..)
   severity: critical
-  description: "File deletion with user-controlled path"
-  remediation: "Never allow user input for file deletion"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File deletion with user-controlled path
+  remediation: Never allow user input for file deletion
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.75
 - id: asp-fso-copy-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'CopyFile\s*\.([^\.]*Request\..)'
+  - regex: CopyFile\s*\.([^\.]*Request\..)
   severity: high
-  description: "File copy with user-controlled path"
-  remediation: "Validate source and destination paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File copy with user-controlled path
+  remediation: Validate source and destination paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-fso-move-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'MoveFile\s*\.([^\.]*Request\..)'
+  - regex: MoveFile\s*\.([^\.]*Request\..)
   severity: high
-  description: "File move with user-controlled path"
-  remediation: "Validate source and destination"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File move with user-controlled path
+  remediation: Validate source and destination
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-fso-get-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'GetFile\s*\.([^\.]*Request\..)'
+  - regex: GetFile\s*\.([^\.]*Request\..)
   severity: high
-  description: "GetFile with user-controlled path"
-  remediation: "Validate file path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: GetFile with user-controlled path
+  remediation: Validate file path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-fso-get-folder
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'GetFolder\s*\.([^\.]*Request\..)'
+  - regex: GetFolder\s*\.([^\.]*Request\..)
   severity: high
-  description: "GetFolder with user-controlled path"
-  remediation: "Validate folder path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: GetFolder with user-controlled path
+  remediation: Validate folder path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-fso-folder-exists
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'FolderExists\s*\.([^\.]*Request\..)'
+  - regex: FolderExists\s*\.([^\.]*Request\..)
   severity: medium
-  description: "FolderExists with user input (information leak)"
-  remediation: "Don't expose file system information"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: FolderExists with user input (information leak)
+  remediation: Don't expose file system information
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.6
 - id: asp-fso-file-exists
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'FileExists\s*\.([^\.]*Request\..)'
+  - regex: FileExists\s*\.([^\.]*Request\..)
   severity: medium
-  description: "FileExists with user input (information leak)"
-  remediation: "Don't expose file existence"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: FileExists with user input (information leak)
+  remediation: Don't expose file existence
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.6
 - id: asp-fso-read-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'ReadAll\s*\.([^\.]*Request\..)'
+  - regex: ReadAll\s*\.([^\.]*Request\..)
   severity: high
-  description: "Reading file with user input"
-  remediation: "Validate file path and content"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Reading file with user input
+  remediation: Validate file path and content
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-fso-write-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'WriteLine\s*\.([^\.]*Request\..)'
+  - regex: WriteLine\s*\.([^\.]*Request\..)
   severity: high
-  description: "Writing user input to file (XSS if served)"
-  remediation: "Sanitize content and restrict paths"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Writing user input to file (XSS if served)
+  remediation: Sanitize content and restrict paths
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: asp-fso-drive-list
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Drives|GetDrive'
+  - regex: Drives|GetDrive
   severity: high
-  description: "Drive enumeration (information leak)"
-  remediation: "Remove FSO access or restrict"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Drive enumeration (information leak)
+  remediation: Remove FSO access or restrict
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: asp-fso-temporary-file
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'GetSpecialFolder\s*\.(\s*TemporaryFolder)'
+  - regex: GetSpecialFolder\s*\.(\s*TemporaryFolder)
   severity: medium
-  description: "Temporary folder access"
-  remediation: "Use GetTempName for unique files"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: Temporary folder access
+  remediation: Use GetTempName for unique files
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.55
 - id: asp-fso-get-temp-name
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'GetTempName'
+  - regex: GetTempName
   severity: low
-  description: "GetTempName usage (good)"
-  remediation: "Good for unique temp files"
-  cwe: "CWE-377"
-  owasp: "A05:2021"
-
+  description: GetTempName usage (good)
+  remediation: Good for unique temp files
+  cwe: CWE-377
+  owasp: A05:2021
+  confidence: 0.45
 - id: asp-fso-build-path
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'BuildPath\s*\.([^\.]*Request\..)'
+  - regex: BuildPath\s*\.([^\.]*Request\..)
   severity: high
-  description: "Building path with user input"
-  remediation: "Validate each path component"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Building path with user input
+  remediation: Validate each path component
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-fso-get-extension
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'GetExtensionName\s*\.([^\.]*Request\..)'
+  - regex: GetExtensionName\s*\.([^\.]*Request\..)
   severity: low
-  description: "Getting file extension from user input"
-  remediation: "Validate file extensions"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Getting file extension from user input
+  remediation: Validate file extensions
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: asp-fso-get-base-name
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'GetBaseName\s*\.([^\.]*Request\..)'
+  - regex: GetBaseName\s*\.([^\.]*Request\..)
   severity: low
-  description: "Getting base name from user input"
-  remediation: "Validate filename"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Getting base name from user input
+  remediation: Validate filename
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: asp-fso-attributes
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Attributes\s*='
+  - regex: Attributes\s*=
   severity: medium
-  description: "File attribute modification"
-  remediation: "Set proper file permissions"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: File attribute modification
+  remediation: Set proper file permissions
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-fso-date-modified
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'DateLastModified|DateCreated'
+  - regex: DateLastModified|DateCreated
   severity: low
-  description: "File date access (information leak)"
-  remediation: "Don't expose file metadata unnecessarily"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: File date access (information leak)
+  remediation: Don't expose file metadata unnecessarily
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: asp-fso-size
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Size\s*='
+  - regex: Size\s*=
   severity: low
-  description: "File size access (information leak)"
-  remediation: "Validate file size for uploads"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-# ======================== ERROR HANDLING & DEBUG (151-170) ========================
-
+  description: File size access (information leak)
+  remediation: Validate file size for uploads
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: asp-error-resume-next
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'On\s+Error\s+Resume\s+Next'
+  - regex: On\s+Error\s+Resume\s+Next
   severity: medium
-  description: "On Error Resume Next may hide critical errors"
-  remediation: "Check Err.Number after each operation"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: On Error Resume Next may hide critical errors
+  remediation: Check Err.Number after each operation
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.55
 - id: asp-error-goto-zero
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'On\s+Error\s+GoTo\s+0'
+  - regex: On\s+Error\s+GoTo\s+0
   severity: low
-  description: "Error handling reset (good)"
-  remediation: "Good after error recovery"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Error handling reset (good)
+  remediation: Good after error recovery
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: asp-error-goto-label
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'On\s+Error\s+GoTo\s+\w+'
+  - regex: On\s+Error\s+GoTo\s+\w+
   severity: medium
-  description: "On Error GoTo label may not handle all errors"
-  remediation: "Use structured error handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: On Error GoTo label may not handle all errors
+  remediation: Use structured error handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.55
 - id: asp-error-object
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Err\..Number|Err\..Description'
+  - regex: Err\..Number|Err\..Description
   severity: low
-  description: "Error object usage"
-  remediation: "Log errors, don't display to users"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Error object usage
+  remediation: Log errors, don't display to users
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-error-clear
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Err\..Clear'
+  - regex: Err\..Clear
   severity: low
-  description: "Error cleared"
-  remediation: "Clear errors after handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Error cleared
+  remediation: Clear errors after handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: asp-error-raise
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Err\..Raise'
+  - regex: Err\..Raise
   severity: low
-  description: "Custom error raised"
-  remediation: "Use appropriate error numbers"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Custom error raised
+  remediation: Use appropriate error numbers
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: asp-debug-response-write
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Write\s*\.(\s*[''\.]DEBUG:)'
+  - regex: Response\..Write\s*\.(\s*['\.]DEBUG:)
   severity: high
-  description: "Debug information written to response"
-  remediation: "Remove debug output in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Debug information written to response
+  remediation: Remove debug output in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: asp-debug-variable-dump
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'For\s+Each.*?Response\..Write.*?\.&'
+  - regex: For\s+Each.*?Response\..Write.*?\.&
   severity: high
-  description: "Dumping variables to response"
-  remediation: "Remove debug dumps"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Dumping variables to response
+  remediation: Remove debug dumps
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: asp-error-stack-trace
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Err\..Source|Err\..HelpContext'
+  - regex: Err\..Source|Err\..HelpContext
   severity: medium
-  description: "Error details may be exposed"
-  remediation: "Log errors server-side"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Error details may be exposed
+  remediation: Log errors server-side
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.6
 - id: asp-error-logging
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Write\s+#\.d+.*?\.&.*?Err'
+  - regex: Write\s+#\.d+.*?\.&.*?Err
   severity: low
-  description: "Error logging detected"
-  remediation: "Ensure logs don't contain sensitive data"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
+  description: Error logging detected
+  remediation: Ensure logs don't contain sensitive data
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.5
 - id: asp-custom-error-page
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'customErrors\s+mode\s*=\s*[''\.]?On[''\.]?'
+  - regex: customErrors\s+mode\s*=\s*['\.]?On['\.]?
   severity: low
-  description: "Custom errors enabled (good)"
-  remediation: "Set mode='RemoteOnly' or 'On'"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Custom errors enabled (good)
+  remediation: Set mode='RemoteOnly' or 'On'
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-custom-error-off
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'customErrors\s+mode\s*=\s*[''\.]?Off[''\.]?'
+  - regex: customErrors\s+mode\s*=\s*['\.]?Off['\.]?
   severity: critical
-  description: "Custom errors disabled (stack traces exposed)"
-  remediation: "Set customErrors mode='On' or 'RemoteOnly'"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Custom errors disabled (stack traces exposed)
+  remediation: Set customErrors mode='On' or 'RemoteOnly'
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.75
 - id: asp-default-error-page
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'defaultRedirect\s*=\s*[''\.][^''\.]+[''\.]'
+  - regex: defaultRedirect\s*=\s*['\.][^'\.]+['\.]
   severity: low
-  description: "Default error page configured"
-  remediation: "Ensure error page doesn't leak info"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Default error page configured
+  remediation: Ensure error page doesn't leak info
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-error-status-code
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Response\..Status\s*=\s*[''\.]404|500'
+  - regex: Response\..Status\s*=\s*['\.]404|500
   severity: low
-  description: "HTTP status code set"
-  remediation: "Use appropriate error pages"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: HTTP status code set
+  remediation: Use appropriate error pages
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-debug-compilation
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'compilation\s+debug\s*=\s*[''\.]?true[''\.]?'
+  - regex: compilation\s+debug\s*=\s*['\.]?true['\.]?
   severity: high
-  description: "Debug compilation enabled"
-  remediation: "Set debug='false' in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Debug compilation enabled
+  remediation: Set debug='false' in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.7
 - id: asp-batch-compilation
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'batch\s*=\s*[''\.]?false[''\.]?'
+  - regex: batch\s*=\s*['\.]?false['\.]?
   severity: low
-  description: "Batch compilation disabled (slower)"
-  remediation: "Enable batch for production"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Batch compilation disabled (slower)
+  remediation: Enable batch for production
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-optimize-compilation
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'optimizeCompilations\s*=\s*[''\.]?true[''\.]?'
+  - regex: optimizeCompilations\s*=\s*['\.]?true['\.]?
   severity: low
-  description: "Optimize compilations enabled"
-  remediation: "Good for performance"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Optimize compilations enabled
+  remediation: Good for performance
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: asp-debugging-enabled
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'debugging\s*=\s*[''\.]?true[''\.]?'
+  - regex: debugging\s*=\s*['\.]?true['\.]?
   severity: high
-  description: "ASP debugging enabled"
-  remediation: "Disable debugging in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: ASP debugging enabled
+  remediation: Disable debugging in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.7
 - id: asp-aspnet-error-handler
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Application_Error|Session_Error'
+  - regex: Application_Error|Session_Error
   severity: low
-  description: "Global error handler detected"
-  remediation: "Log errors globally"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Global error handler detected
+  remediation: Log errors globally
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: asp-page-error-handler
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Page_Error'
+  - regex: Page_Error
   severity: low
-  description: "Page-level error handler"
-  remediation: "Use global error handler instead"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
-# ======================== AUTHENTICATION & ACCESS (171-190) ========================
-
+  description: Page-level error handler
+  remediation: Use global error handler instead
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: asp-auth-hardcoded-credentials
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'If\s+username\s*=\s*[''\.][^''\.]+[''\.]\s+And\s+password\s*=\s*[''\.][^''\.]+'
+  - regex: If\s+username\s*=\s*['\.][^'\.]+['\.]\s+And\s+password\s*=\s*['\.][^'\.]+
   severity: critical
-  description: "Hardcoded credentials in code"
-  remediation: "Use membership provider or database"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded credentials in code
+  remediation: Use membership provider or database
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.8
 - id: asp-auth-plaintext-password
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'password\s*=\s*Request\..'
+  - regex: password\s*=\s*Request\..
   severity: high
-  description: "Plaintext password handling"
-  remediation: "Hash passwords immediately"
-  cwe: "CWE-312"
-  owasp: "A02:2021"
-
+  description: Plaintext password handling
+  remediation: Hash passwords immediately
+  cwe: CWE-312
+  owasp: A02:2021
+  confidence: 0.65
 - id: asp-auth-login-without-ssl
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'login|authenticate.*?'
+  - regex: login|authenticate.*?
   severity: high
-  description: "Login without HTTPS"
-  remediation: "Enforce HTTPS for login pages"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Login without HTTPS
+  remediation: Enforce HTTPS for login pages
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: asp-auth-role-check
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Session\.([''\.]role[''\.]\s*=\s*[''\.]admin[''\.])'
+  - regex: Session\.(['\.]role['\.]\s*=\s*['\.]admin['\.])
   severity: high
-  description: "Role check from session"
-  remediation: "Ensure roles are properly assigned"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Role check from session
+  remediation: Ensure roles are properly assigned
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-auth-admin-check
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'If\s+Session\.([''\.]isAdmin[''\.]\s*=\s*true)'
+  - regex: If\s+Session\.(['\.]isAdmin['\.]\s*=\s*true)
   severity: high
-  description: "Admin check from session"
-  remediation: "Re-validate admin status on each request"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Admin check from session
+  remediation: Re-validate admin status on each request
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: asp-auth-impersonation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'WindowsIdentity\..Impersonate|LogonUser'
+  - regex: WindowsIdentity\..Impersonate|LogonUser
   severity: high
-  description: "Windows impersonation detected"
-  remediation: "Ensure impersonation is properly scoped"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Windows impersonation detected
+  remediation: Ensure impersonation is properly scoped
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-auth-password-change
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'password.*?\s*=\s*Request\..Form'
+  - regex: password.*?\s*=\s*Request\..Form
   severity: medium
-  description: "Password change detected"
-  remediation: "Validate old password and strength"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Password change detected
+  remediation: Validate old password and strength
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: asp-auth-remember-me
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'remember.*?\s*=\s*true|persist.*?=.*?true'
+  - regex: remember.*?\s*=\s*true|persist.*?=.*?true
   severity: medium
-  description: "Remember me functionality"
-  remediation: "Use secure remember-me tokens"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Remember me functionality
+  remediation: Use secure remember-me tokens
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-auth-password-recovery
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'forgot|reset.*password'
+  - regex: forgot|reset.*password
   severity: high
-  description: "Password recovery feature"
-  remediation: "Use secure reset tokens, not emailing passwords"
-  cwe: "CWE-640"
-  owasp: "A07:2021"
-
+  description: Password recovery feature
+  remediation: Use secure reset tokens, not emailing passwords
+  cwe: CWE-640
+  owasp: A07:2021
+  confidence: 0.65
 - id: asp-auth-email-verification
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'verify.*email|email.*confirm'
+  - regex: verify.*email|email.*confirm
   severity: low
-  description: "Email verification detected"
-  remediation: "Verify email ownership before activation"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Email verification detected
+  remediation: Verify email ownership before activation
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.45
 - id: asp-auth-account-lockout
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'login.*attempt|failed.*count|lock.*account'
+  - regex: login.*attempt|failed.*count|lock.*account
   severity: medium
-  description: "Account lockout detected"
-  remediation: "Implement exponential backoff"
-  cwe: "CWE-307"
-  owasp: "A07:2021"
-
+  description: Account lockout detected
+  remediation: Implement exponential backoff
+  cwe: CWE-307
+  owasp: A07:2021
+  confidence: 0.55
 - id: asp-auth-password-strength
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'password.*Len.*?[<>]=?\s*[0-7]'
+  - regex: password.*Len.*?[<>]=?\s*[0-7]
   severity: high
-  description: "Weak password policy (<8 chars)"
-  remediation: "Require minimum 8 characters"
-  cwe: "CWE-521"
-  owasp: "A07:2021"
-
+  description: Weak password policy (<8 chars)
+  remediation: Require minimum 8 characters
+  cwe: CWE-521
+  owasp: A07:2021
+  confidence: 0.65
 - id: asp-auth-multi-factor
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'mfa|2fa|two-factor|authenticator'
+  - regex: mfa|2fa|two-factor|authenticator
   severity: low
-  description: "Multi-factor authentication detected"
-  remediation: "Ensure MFA is properly implemented"
-  cwe: "CWE-308"
-  owasp: "A01:2021"
-
+  description: Multi-factor authentication detected
+  remediation: Ensure MFA is properly implemented
+  cwe: CWE-308
+  owasp: A01:2021
+  confidence: 0.45
 - id: asp-auth-api-key-validation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'api[_-]?key.*?Request\..'
+  - regex: api[_-]?key.*?Request\..
   severity: high
-  description: "API key validation"
-  remediation: "Use secure key storage and rotation"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: API key validation
+  remediation: Use secure key storage and rotation
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: asp-auth-token-validation
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'token.*?Request\..|bearer'
+  - regex: token.*?Request\..|bearer
   severity: high
-  description: "Token validation"
-  remediation: "Validate token signatures and expiry"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Token validation
+  remediation: Validate token signatures and expiry
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-auth-oauth-callback
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'oauth|openid|code.*?Request\..'
+  - regex: oauth|openid|code.*?Request\..
   severity: medium
-  description: "OAuth callback handling"
-  remediation: "Validate state parameter"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: OAuth callback handling
+  remediation: Validate state parameter
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-auth-windows-auth
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'AUTH_USER|AUTH_TYPE|LOGON_USER'
+  - regex: AUTH_USER|AUTH_TYPE|LOGON_USER
   severity: low
-  description: "Windows authentication"
-  remediation: "Ensure proper ACLs"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Windows authentication
+  remediation: Ensure proper ACLs
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: asp-auth-forms-auth
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'FormsAuthentication\..SetAuthCookie'
+  - regex: FormsAuthentication\..SetAuthCookie
   severity: medium
-  description: "Forms authentication set"
-  remediation: "Use secure cookie settings"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Forms authentication set
+  remediation: Use secure cookie settings
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.55
 - id: asp-auth-forms-signout
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'FormsAuthentication\..SignOut'
+  - regex: FormsAuthentication\..SignOut
   severity: low
-  description: "Forms authentication sign out"
-  remediation: "Clear all authentication data"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Forms authentication sign out
+  remediation: Clear all authentication data
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: asp-auth-redirect-after-login
-  languages: [asp, vbscript]
+  languages:
+  - asp
+  - vbscript
   patterns:
-    - regex: 'Redirect.*?returnUrl.*?Request'
+  - regex: Redirect.*?returnUrl.*?Request
   severity: high
-  description: "Redirect after login with returnUrl"
-  remediation: "Validate returnUrl is local"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
-# ======================== CONFIGURATION & DEPLOYMENT (191-200) ========================
-
+  description: Redirect after login with returnUrl
+  remediation: Validate returnUrl is local
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-config-tracing-enabled
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'trace\s+enabled\s*=\s*[''\.]?true[''\.]?'
+  - regex: trace\s+enabled\s*=\s*['\.]?true['\.]?
   severity: high
-  description: "Tracing enabled (information leak)"
-  remediation: "Disable tracing in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Tracing enabled (information leak)
+  remediation: Disable tracing in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: asp-config-debug-enabled
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'debug\s*=\s*[''\.]?true[''\.]?'
+  - regex: debug\s*=\s*['\.]?true['\.]?
   severity: high
-  description: "Debug mode enabled"
-  remediation: "Disable debug in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Debug mode enabled
+  remediation: Disable debug in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.7
 - id: asp-config-session-timeout
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'timeout\s*=\s*[''\.]?[0-9]+[''\.]?'
+  - regex: timeout\s*=\s*['\.]?[0-9]+['\.]?
   severity: medium
-  description: "Session timeout configured"
-  remediation: "Set to 20 minutes or less"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session timeout configured
+  remediation: Set to 20 minutes or less
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.6
 - id: asp-config-http-only
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'httpOnlyCookies\s*=\s*false'
+  - regex: httpOnlyCookies\s*=\s*false
   severity: high
-  description: "HttpOnly cookies disabled"
-  remediation: "Enable httpOnlyCookies"
-  cwe: "CWE-1004"
-  owasp: "A01:2021"
-
+  description: HttpOnly cookies disabled
+  remediation: Enable httpOnlyCookies
+  cwe: CWE-1004
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-config-require-ssl
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'requireSSL\s*=\s*false'
+  - regex: requireSSL\s*=\s*false
   severity: high
-  description: "SSL not required for cookies"
-  remediation: "Set requireSSL=true"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: SSL not required for cookies
+  remediation: Set requireSSL=true
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: asp-config-enable-viewstate-mac
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'enableViewStateMac\s*=\s*false'
+  - regex: enableViewStateMac\s*=\s*false
   severity: critical
-  description: "ViewState MAC disabled"
-  remediation: "Enable ViewState MAC"
-  cwe: "CWE-354"
-  owasp: "A08:2021"
-
+  description: ViewState MAC disabled
+  remediation: Enable ViewState MAC
+  cwe: CWE-354
+  owasp: A08:2021
+  confidence: 0.7
 - id: asp-config-enable-viewstate-encryption
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'viewStateEncryptionMode\s*=\s*[''\.]?Never[''\.]?'
+  - regex: viewStateEncryptionMode\s*=\s*['\.]?Never['\.]?
   severity: high
-  description: "ViewState encryption disabled"
-  remediation: "Enable ViewState encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: ViewState encryption disabled
+  remediation: Enable ViewState encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.7
 - id: asp-config-max-request-length
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'maxRequestLength\s*=\s*[''\.]?[0-9]{5,}[''\.]?'
+  - regex: maxRequestLength\s*=\s*['\.]?[0-9]{5,}['\.]?
   severity: medium
-  description: "Large maxRequestLength (DoS risk)"
-  remediation: "Set reasonable request size limits"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Large maxRequestLength (DoS risk)
+  remediation: Set reasonable request size limits
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: asp-config-execution-timeout
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'executionTimeout\s*=\s*[''\.]?[0-9]{5,}[''\.]?'
+  - regex: executionTimeout\s*=\s*['\.]?[0-9]{5,}['\.]?
   severity: medium
-  description: "Long execution timeout (DoS risk)"
-  remediation: "Set reasonable timeout (90-300 seconds)"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Long execution timeout (DoS risk)
+  remediation: Set reasonable timeout (90-300 seconds)
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: asp-config-custom-errors
-  languages: [asp, vbscript, config]
+  languages:
+  - asp
+  - vbscript
+  - config
   patterns:
-    - regex: 'customErrors\s+mode\s*=\s*[''\.]?Off[''\.]?'
+  - regex: customErrors\s+mode\s*=\s*['\.]?Off['\.]?
   severity: critical
-  description: "Custom errors disabled"
-  remediation: "Enable custom errors"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
+  description: Custom errors disabled
+  remediation: Enable custom errors
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.75

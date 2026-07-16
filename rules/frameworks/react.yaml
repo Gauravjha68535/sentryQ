@@ -1,3057 +1,3756 @@
-# ============================================================================
-# REACT SECURITY RULES - COMPREHENSIVE EDITION (300+ RULES)
-# ============================================================================
-
-# ======================== DANGEROUSLYSETINNERHTML (1-25) ========================
-
 - id: react-dangerously-set-inner-html
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'dangerouslySetInnerHTML\s*='
+  - regex: dangerouslySetInnerHTML\s*=
   severity: critical
-  description: "dangerouslySetInnerHTML bypasses React's XSS protection"
-  remediation: "Avoid using dangerouslySetInnerHTML. Sanitize content with DOMPurify if absolutely necessary"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: dangerouslySetInnerHTML bypasses React's XSS protection
+  remediation: Avoid using dangerouslySetInnerHTML. Sanitize content with DOMPurify if absolutely necessary
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-user-input
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'dangerouslySetInnerHTML\s*=\s*\{\{\s*__html\s*:\s*(?:props|state|userInput|query|params)\.'
+  - regex: dangerouslySetInnerHTML\s*=\s*\{\{\s*__html\s*:\s*(?:props|state|userInput|query|params)\.
   severity: critical
-  description: "dangerouslySetInnerHTML with user-controlled props - XSS vulnerability"
-  remediation: "Never use dangerouslySetInnerHTML with user input. Sanitize with DOMPurify first"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: dangerouslySetInnerHTML with user-controlled props - XSS vulnerability
+  remediation: Never use dangerouslySetInnerHTML with user input. Sanitize with DOMPurify first
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-dangerously-set-inner-html-fetch
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'dangerouslySetInnerHTML\s*=\s*\{\{\s*__html\s*:\s*(?:response\.data|res\.data|result\.html)'
+  - regex: dangerouslySetInnerHTML\s*=\s*\{\{\s*__html\s*:\s*(?:response\.data|res\.data|result\.html)
   severity: critical
-  description: "dangerouslySetInnerHTML with fetch response data - XSS if API compromised"
-  remediation: "Sanitize all API responses before using dangerouslySetInnerHTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: dangerouslySetInnerHTML with fetch response data - XSS if API compromised
+  remediation: Sanitize all API responses before using dangerouslySetInnerHTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.8
 - id: react-dangerously-set-inner-html-sanitized
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'dangerouslySetInnerHTML\s*=\s*\{\{\s*__html\s*:\s*DOMPurify\.sanitize'
+  - regex: dangerouslySetInnerHTML\s*=\s*\{\{\s*__html\s*:\s*DOMPurify\.sanitize
   severity: info
-  description: "dangerouslySetInnerHTML with DOMPurify - ensure sanitization is secure"
-  remediation: "Continue using DOMPurify with secure configuration"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: dangerouslySetInnerHTML with DOMPurify - ensure sanitization is secure
+  remediation: Continue using DOMPurify with secure configuration
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-dangerously-set-inner-html-sanitized-config
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'DOMPurify\.sanitize\s*\([^)]*,\s*\{[^}]*ALLOWED_TAGS'
+  - regex: DOMPurify\.sanitize\s*\([^)]*,\s*\{[^}]*ALLOWED_TAGS
   severity: low
-  description: "DOMPurify with custom configuration - ensure safe tags allowed"
-  remediation: "Review ALLOWED_TAGS to prevent XSS vectors"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: DOMPurify with custom configuration - ensure safe tags allowed
+  remediation: Review ALLOWED_TAGS to prevent XSS vectors
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.5
 - id: react-dangerously-set-inner-html-xss-payload
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<img\s+src=x\s+onerror|javascript:|onload\s*=|onerror\s*='
+  - regex: <img\s+src=x\s+onerror|javascript:|onload\s*=|onerror\s*=
   severity: critical
-  description: "Potential XSS payload in dangerouslySetInnerHTML"
-  remediation: "Sanitize HTML to remove event handlers and javascript: URLs"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Potential XSS payload in dangerouslySetInnerHTML
+  remediation: 'Sanitize HTML to remove event handlers and javascript: URLs'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-svg
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<svg.*dangerouslySetInnerHTML.*</svg>'
+  - regex: <svg.*dangerouslySetInnerHTML.*</svg>
   severity: critical
-  description: "SVG with dangerouslySetInnerHTML - XSS via SVG script tags"
-  remediation: "Sanitize SVG content, remove script tags and event handlers"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: SVG with dangerouslySetInnerHTML - XSS via SVG script tags
+  remediation: Sanitize SVG content, remove script tags and event handlers
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-iframe
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe.*dangerouslySetInnerHTML.*</iframe>'
+  - regex: <iframe.*dangerouslySetInnerHTML.*</iframe>
   severity: critical
-  description: "Iframe with dangerouslySetInnerHTML - XSS and clickjacking risk"
-  remediation: "Avoid iframe with innerHTML, use src attribute with allowlist"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Iframe with dangerouslySetInnerHTML - XSS and clickjacking risk
+  remediation: Avoid iframe with innerHTML, use src attribute with allowlist
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-mathml
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<math.*dangerouslySetInnerHTML.*</math>'
+  - regex: <math.*dangerouslySetInnerHTML.*</math>
   severity: critical
-  description: "MathML with dangerouslySetInnerHTML - XSS via MathML vectors"
-  remediation: "Sanitize MathML content or avoid MathML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: MathML with dangerouslySetInnerHTML - XSS via MathML vectors
+  remediation: Sanitize MathML content or avoid MathML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-component
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'component.*dangerouslySetInnerHTML'
+  - regex: component.*dangerouslySetInnerHTML
   severity: high
-  description: "Component receiving dangerouslySetInnerHTML prop - verify usage"
-  remediation: "Document that component uses dangerouslySetInnerHTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Component receiving dangerouslySetInnerHTML prop - verify usage
+  remediation: Document that component uses dangerouslySetInnerHTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-dangerously-set-inner-html-third-party
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'import.*(quill|ckeditor|tinymce|froala).*dangerouslySetInnerHTML'
+  - regex: import.*(quill|ckeditor|tinymce|froala).*dangerouslySetInnerHTML
   severity: high
-  description: "Rich text editor using dangerouslySetInnerHTML - XSS risk"
-  remediation: "Configure editor to sanitize output, use text-only mode"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Rich text editor using dangerouslySetInnerHTML - XSS risk
+  remediation: Configure editor to sanitize output, use text-only mode
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-markdown
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'react-markdown|markdown-to-jsx.*dangerouslySetInnerHTML'
+  - regex: react-markdown|markdown-to-jsx.*dangerouslySetInnerHTML
   severity: high
-  description: "Markdown renderer using dangerouslySetInnerHTML - XSS risk"
-  remediation: "Configure markdown renderer to disallow HTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Markdown renderer using dangerouslySetInnerHTML - XSS risk
+  remediation: Configure markdown renderer to disallow HTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-dangerously-set-inner-html-base64
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'atob\s*\(.*\).*dangerouslySetInnerHTML|btoa.*dangerouslySetInnerHTML'
+  - regex: atob\s*\(.*\).*dangerouslySetInnerHTML|btoa.*dangerouslySetInnerHTML
   severity: high
-  description: "Base64 encoded content in dangerouslySetInnerHTML - obfuscated XSS"
-  remediation: "Decode and sanitize Base64 content before use"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Base64 encoded content in dangerouslySetInnerHTML - obfuscated XSS
+  remediation: Decode and sanitize Base64 content before use
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-dangerously-set-inner-html-url
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'fetch\s*\([^)]*\)\s*\.then\s*\([^)]*\)\s*.*dangerouslySetInnerHTML'
+  - regex: fetch\s*\([^)]*\)\s*\.then\s*\([^)]*\)\s*.*dangerouslySetInnerHTML
   severity: critical
-  description: "Fetching URL and using response in dangerouslySetInnerHTML - XSS"
-  remediation: "Sanitize all fetched HTML content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Fetching URL and using response in dangerouslySetInnerHTML - XSS
+  remediation: Sanitize all fetched HTML content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.8
 - id: react-dangerously-set-inner-html-localstorage
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'localStorage\.getItem.*dangerouslySetInnerHTML'
+  - regex: localStorage\.getItem.*dangerouslySetInnerHTML
   severity: critical
-  description: "Using localStorage data in dangerouslySetInnerHTML - XSS if storage poisoned"
-  remediation: "Sanitize all data from storage before use"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Using localStorage data in dangerouslySetInnerHTML - XSS if storage poisoned
+  remediation: Sanitize all data from storage before use
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-sessionstorage
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'sessionStorage\.getItem.*dangerouslySetInnerHTML'
+  - regex: sessionStorage\.getItem.*dangerouslySetInnerHTML
   severity: critical
-  description: "Using sessionStorage data in dangerouslySetInnerHTML - XSS risk"
-  remediation: "Sanitize all data from storage before use"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Using sessionStorage data in dangerouslySetInnerHTML - XSS risk
+  remediation: Sanitize all data from storage before use
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-indexeddb
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'indexedDB.*result.*dangerouslySetInnerHTML'
+  - regex: indexedDB.*result.*dangerouslySetInnerHTML
   severity: critical
-  description: "Using IndexedDB data in dangerouslySetInnerHTML - XSS risk"
-  remediation: "Sanitize all data from database before use"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Using IndexedDB data in dangerouslySetInnerHTML - XSS risk
+  remediation: Sanitize all data from database before use
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-context
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useContext.*dangerouslySetInnerHTML'
+  - regex: useContext.*dangerouslySetInnerHTML
   severity: high
-  description: "Context data used in dangerouslySetInnerHTML - XSS risk"
-  remediation: "Sanitize context data before rendering"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Context data used in dangerouslySetInnerHTML - XSS risk
+  remediation: Sanitize context data before rendering
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-dangerously-set-inner-html-redux
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useSelector.*dangerouslySetInnerHTML'
+  - regex: useSelector.*dangerouslySetInnerHTML
   severity: high
-  description: "Redux store data used in dangerouslySetInnerHTML - XSS risk"
-  remediation: "Sanitize Redux state before rendering"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Redux store data used in dangerouslySetInnerHTML - XSS risk
+  remediation: Sanitize Redux state before rendering
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-dangerously-set-inner-html-route-param
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useParams.*dangerouslySetInnerHTML|useSearchParams.*dangerouslySetInnerHTML'
+  - regex: useParams.*dangerouslySetInnerHTML|useSearchParams.*dangerouslySetInnerHTML
   severity: critical
-  description: "URL parameters used in dangerouslySetInnerHTML - reflected XSS"
-  remediation: "Never use URL params directly in dangerouslySetInnerHTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: URL parameters used in dangerouslySetInnerHTML - reflected XSS
+  remediation: Never use URL params directly in dangerouslySetInnerHTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.95
 - id: react-dangerously-set-inner-html-query-string
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'window\.location\.search.*dangerouslySetInnerHTML|window\.location\.hash.*dangerouslySetInnerHTML'
+  - regex: window\.location\.search.*dangerouslySetInnerHTML|window\.location\.hash.*dangerouslySetInnerHTML
   severity: critical
-  description: "Query string/hash used in dangerouslySetInnerHTML - reflected XSS"
-  remediation: "Never use location data directly in dangerouslySetInnerHTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Query string/hash used in dangerouslySetInnerHTML - reflected XSS
+  remediation: Never use location data directly in dangerouslySetInnerHTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.8
 - id: react-dangerously-set-inner-html-document-referrer
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'document\.referrer.*dangerouslySetInnerHTML'
+  - regex: document\.referrer.*dangerouslySetInnerHTML
   severity: high
-  description: "Document referrer used in dangerouslySetInnerHTML - XSS risk"
-  remediation: "Sanitize referrer before use"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Document referrer used in dangerouslySetInnerHTML - XSS risk
+  remediation: Sanitize referrer before use
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-dangerously-set-inner-html-cookie
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'document\.cookie.*dangerouslySetInnerHTML'
+  - regex: document\.cookie.*dangerouslySetInnerHTML
   severity: critical
-  description: "Cookie data used in dangerouslySetInnerHTML - XSS risk"
-  remediation: "Never use cookie data directly in dangerouslySetInnerHTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Cookie data used in dangerouslySetInnerHTML - XSS risk
+  remediation: Never use cookie data directly in dangerouslySetInnerHTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-dangerously-set-inner-html-multiple
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'dangerouslySetInnerHTML.*dangerouslySetInnerHTML'
+  - regex: dangerouslySetInnerHTML.*dangerouslySetInnerHTML
   severity: low
-  description: "Multiple dangerouslySetInnerHTML instances - verify each usage"
-  remediation: "Review each usage for XSS vectors"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Multiple dangerouslySetInnerHTML instances - verify each usage
+  remediation: Review each usage for XSS vectors
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: react-dangerously-set-inner-html-comment
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '//.*dangerouslySetInnerHTML|/\*.*dangerouslySetInnerHTML.*\*/'
+  - regex: //.*dangerouslySetInnerHTML|/\*.*dangerouslySetInnerHTML.*\*/
   severity: info
-  description: "Comment about dangerouslySetInnerHTML - verify security review"
-  remediation: "Ensure XSS review was performed"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# ======================== INSECURE HREF (26-50) ========================
-
+  description: Comment about dangerouslySetInnerHTML - verify security review
+  remediation: Ensure XSS review was performed
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-href-javascript-protocol
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*[''"]javascript:'
+  - regex: 'href\s*=\s*\{\s*[''"]javascript:'
   severity: critical
-  description: "Hardcoded javascript: protocol in href - XSS vulnerability"
-  remediation: "Never use javascript: URLs. Use event handlers for actions"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: 'Hardcoded javascript: protocol in href - XSS vulnerability'
+  remediation: 'Never use javascript: URLs. Use event handlers for actions'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-href-javascript-protocol-variable
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*.*\s*\+\s*[''"]javascript:|href\s*=\s*\{\s*[''"]javascript:.*\+'
+  - regex: href\s*=\s*\{\s*.*\s*\+\s*['"]javascript:|href\s*=\s*\{\s*['"]javascript:.*\+
   severity: critical
-  description: "Dynamic javascript: protocol via concatenation - XSS"
-  remediation: "Validate URL scheme, never allow javascript: protocol"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: 'Dynamic javascript: protocol via concatenation - XSS'
+  remediation: 'Validate URL scheme, never allow javascript: protocol'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-href-user-input
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*(?:props|state|userInput|query|params)\.'
+  - regex: href\s*=\s*\{\s*(?:props|state|userInput|query|params)\.
   severity: high
-  description: "User input in href - open redirect and XSS risks"
-  remediation: "Validate URL against allowlist, encode user input"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: User input in href - open redirect and XSS risks
+  remediation: Validate URL against allowlist, encode user input
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-href-data-protocol
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*[''"]data:'
+  - regex: 'href\s*=\s*\{\s*[''"]data:'
   severity: critical
-  description: "data: protocol in href - XSS via data URIs"
-  remediation: "Block data: URLs or sanitize content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: 'data: protocol in href - XSS via data URIs'
+  remediation: 'Block data: URLs or sanitize content'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-href-blob-protocol
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*[''"]blob:'
+  - regex: 'href\s*=\s*\{\s*[''"]blob:'
   severity: medium
-  description: "blob: protocol in href - may lead to XSS"
-  remediation: "Validate blob content, ensure same-origin"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: 'blob: protocol in href - may lead to XSS'
+  remediation: Validate blob content, ensure same-origin
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.55
 - id: react-href-http-without-https
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*[''"]http://[^''"]*[''"]'
+  - regex: href\s*=\s*\{\s*['"]http://[^'"]*['"]
   severity: high
-  description: "HTTP URL in href - insecure connection"
-  remediation: "Use HTTPS URLs for all external links"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: HTTP URL in href - insecure connection
+  remediation: Use HTTPS URLs for all external links
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: react-href-protocol-relative
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*[''"]//[^''"]*[''"]'
+  - regex: href\s*=\s*\{\s*['"]//[^'"]*['"]
   severity: low
-  description: "Protocol-relative URL - inherits page protocol"
-  remediation: "Specify HTTPS explicitly for external links"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Protocol-relative URL - inherits page protocol
+  remediation: Specify HTTPS explicitly for external links
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: react-href-open-redirect
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*`[^`]*\$\{.*\.[^}]*\}`'
+  - regex: href\s*=\s*\{\s*`[^`]*\$\{.*\.[^}]*\}`
   severity: high
-  description: "Dynamic href with template literal - open redirect risk"
-  remediation: "Validate final URL against allowlist"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Dynamic href with template literal - open redirect risk
+  remediation: Validate final URL against allowlist
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-href-target-blank
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'target\s*=\s*[''"]_blank[''"][^>]*href'
+  - regex: target\s*=\s*['"]_blank['"][^>]*href
   severity: high
-  description: "target=_blank without rel=noopener - reverse tabnabbing"
-  remediation: "Add rel='noopener noreferrer' to all target=_blank links"
-  cwe: "CWE-1022"
-  owasp: "N/A"
-
+  description: target=_blank without rel=noopener - reverse tabnabbing
+  remediation: Add rel='noopener noreferrer' to all target=_blank links
+  cwe: CWE-1022
+  owasp: N/A
+  confidence: 0.65
 - id: react-href-rel-noopener
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'rel\s*=\s*[''"][^''"]*noopener[^''"]*[''"]'
+  - regex: rel\s*=\s*['"][^'"]*noopener[^'"]*['"]
   severity: info
-  description: "rel=noopener present - good for security"
-  remediation: "Continue using noopener for external links"
-  cwe: "CWE-1022"
-  owasp: "N/A"
-
+  description: rel=noopener present - good for security
+  remediation: Continue using noopener for external links
+  cwe: CWE-1022
+  owasp: N/A
+  confidence: 0.35
 - id: react-href-rel-noreferrer
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'rel\s*=\s*[''"][^''"]*noreferrer[^''"]*[''"]'
+  - regex: rel\s*=\s*['"][^'"]*noreferrer[^'"]*['"]
   severity: info
-  description: "rel=noreferrer present - good for privacy"
-  remediation: "Continue using noreferrer for external links"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: rel=noreferrer present - good for privacy
+  remediation: Continue using noreferrer for external links
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-href-rel-nofollow
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'rel\s*=\s*[''"][^''"]*nofollow[^''"]*[''"]'
+  - regex: rel\s*=\s*['"][^'"]*nofollow[^'"]*['"]
   severity: info
-  description: "rel=nofollow present - SEO attribute"
-  remediation: "Good for untrusted links"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: rel=nofollow present - SEO attribute
+  remediation: Good for untrusted links
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-href-route-link
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<Link[^>]*to\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <Link[^>]*to\s*=\s*\{\s*(?:props|state|userInput)
   severity: high
-  description: "React Router Link with user input - open redirect"
-  remediation: "Validate route parameters, use named routes"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: React Router Link with user input - open redirect
+  remediation: Validate route parameters, use named routes
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-href-nav-link
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<NavLink[^>]*to\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <NavLink[^>]*to\s*=\s*\{\s*(?:props|state|userInput)
   severity: high
-  description: "NavLink with user input - open redirect"
-  remediation: "Validate route parameters against allowlist"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: NavLink with user input - open redirect
+  remediation: Validate route parameters against allowlist
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-href-redirect
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useNavigate\(\)\([^)]*userInput|history\.push\([^)]*userInput'
+  - regex: useNavigate\(\)\([^)]*userInput|history\.push\([^)]*userInput
   severity: critical
-  description: "Programmatic navigation with user input - open redirect"
-  remediation: "Validate redirect URLs against allowlist"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Programmatic navigation with user input - open redirect
+  remediation: Validate redirect URLs against allowlist
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.75
 - id: react-href-redirect-with-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useNavigate\(\)\([^)]*,\s*\{[^}]*state'
+  - regex: useNavigate\(\)\([^)]*,\s*\{[^}]*state
   severity: medium
-  description: "Navigation with state data - sensitive data exposure"
-  remediation: "Don't pass sensitive data in navigation state"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Navigation with state data - sensitive data exposure
+  remediation: Don't pass sensitive data in navigation state
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.55
 - id: react-href-window-location
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'window\.location\s*=\s*[^;]*userInput|window\.location\.href\s*=\s*[^;]*userInput'
+  - regex: window\.location\s*=\s*[^;]*userInput|window\.location\.href\s*=\s*[^;]*userInput
   severity: critical
-  description: "window.location assignment with user input - open redirect"
-  remediation: "Validate URLs before assigning to window.location"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: window.location assignment with user input - open redirect
+  remediation: Validate URLs before assigning to window.location
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.8
 - id: react-href-window-open
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'window\.open\s*\([^)]*userInput'
+  - regex: window\.open\s*\([^)]*userInput
   severity: critical
-  description: "window.open with user input - open redirect"
-  remediation: "Validate URLs before opening new windows"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: window.open with user input - open redirect
+  remediation: Validate URLs before opening new windows
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.75
 - id: react-href-iframe-src
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe[^>]*src\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <iframe[^>]*src\s*=\s*\{\s*(?:props|state|userInput)
   severity: critical
-  description: "Iframe src with user input - XSS and clickjacking"
-  remediation: "Validate iframe src against allowlist, use sandbox"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Iframe src with user input - XSS and clickjacking
+  remediation: Validate iframe src against allowlist, use sandbox
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-href-iframe-srcdoc
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe[^>]*srcdoc\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <iframe[^>]*srcdoc\s*=\s*\{\s*(?:props|state|userInput)
   severity: critical
-  description: "Iframe srcdoc with user input - XSS"
-  remediation: "Sanitize srcdoc content, avoid with user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Iframe srcdoc with user input - XSS
+  remediation: Sanitize srcdoc content, avoid with user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-href-embed-src
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<embed[^>]*src\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <embed[^>]*src\s*=\s*\{\s*(?:props|state|userInput)
   severity: high
-  description: "Embed src with user input - XSS risk"
-  remediation: "Validate embed sources"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Embed src with user input - XSS risk
+  remediation: Validate embed sources
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-href-object-data
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<object[^>]*data\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <object[^>]*data\s*=\s*\{\s*(?:props|state|userInput)
   severity: high
-  description: "Object data with user input - XSS risk"
-  remediation: "Validate object data sources"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Object data with user input - XSS risk
+  remediation: Validate object data sources
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-href-script-src
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<script[^>]*src\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <script[^>]*src\s*=\s*\{\s*(?:props|state|userInput)
   severity: critical
-  description: "Script src with user input - RCE vulnerability"
-  remediation: "Never allow user input in script src"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Script src with user input - RCE vulnerability
+  remediation: Never allow user input in script src
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-href-link-href
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<link[^>]*href\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <link[^>]*href\s*=\s*\{\s*(?:props|state|userInput)
   severity: high
-  description: "Link href with user input - may load malicious resources"
-  remediation: "Validate link href against allowlist"
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: Link href with user input - may load malicious resources
+  remediation: Validate link href against allowlist
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.65
 - id: react-href-form-action
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<form[^>]*action\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <form[^>]*action\s*=\s*\{\s*(?:props|state|userInput)
   severity: critical
-  description: "Form action with user input - CSRF and open redirect"
-  remediation: "Use static form actions or validate URL"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Form action with user input - CSRF and open redirect
+  remediation: Use static form actions or validate URL
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-href-base-href
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<base[^>]*href\s*=\s*\{\s*(?:props|state|userInput)'
+  - regex: <base[^>]*href\s*=\s*\{\s*(?:props|state|userInput)
   severity: critical
-  description: "Base href with user input - can hijack all relative URLs"
-  remediation: "Never set base href from user input"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Base href with user input - can hijack all relative URLs
+  remediation: Never set base href from user input
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-href-encoded-javascript
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'href\s*=\s*\{\s*[''"]&#[jJ]|href\s*=\s*\{\s*[''"]&#x[0-9A-F]+'
+  - regex: href\s*=\s*\{\s*['"]&#[jJ]|href\s*=\s*\{\s*['"]&#x[0-9A-F]+
   severity: critical
-  description: "Encoded javascript: protocol - XSS evasion attempt"
-  remediation: "Block all encoded javascript: URLs"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# ======================== USEEFFECT DATA LEAKS (51-75) ========================
-
+  description: 'Encoded javascript: protocol - XSS evasion attempt'
+  remediation: 'Block all encoded javascript: URLs'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-useeffect-fetch-sensitive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*fetch\s*\([^)]*\).*\}[^,]*\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*fetch\s*\([^)]*\).*\}[^,]*\]
   severity: medium
-  description: "Fetch in useEffect without cleanup - may cause memory leaks"
-  remediation: "Add AbortController to cancel fetch on unmount"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: Fetch in useEffect without cleanup - may cause memory leaks
+  remediation: Add AbortController to cancel fetch on unmount
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.65
 - id: react-useeffect-subscription
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*(?:addEventListener|subscribe|on)",\s*\[\s*\]\s*\)'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*(?:addEventListener|subscribe|on)",\s*\[\s*\]\s*\)
   severity: high
-  description: "useEffect with subscription and empty deps - no cleanup"
-  remediation: "Return cleanup function to unsubscribe"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: useEffect with subscription and empty deps - no cleanup
+  remediation: Return cleanup function to unsubscribe
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-useeffect-interval
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*setInterval[^}]*\}[^)]*\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*setInterval[^}]*\}[^)]*\]
   severity: high
-  description: "setInterval in useEffect without cleanup - memory leak"
-  remediation: "Return cleanup function with clearInterval"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: setInterval in useEffect without cleanup - memory leak
+  remediation: Return cleanup function with clearInterval
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-useeffect-timeout
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*setTimeout[^}]*\}[^)]*\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*setTimeout[^}]*\}[^)]*\]
   severity: medium
-  description: "setTimeout in useEffect without cleanup"
-  remediation: "Return cleanup function with clearTimeout"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: setTimeout in useEffect without cleanup
+  remediation: Return cleanup function with clearTimeout
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.6
 - id: react-useeffect-websocket
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*new\s+WebSocket[^}]*[^}]*\}[^)]*\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*new\s+WebSocket[^}]*[^}]*\}[^)]*\]
   severity: high
-  description: "WebSocket in useEffect without closing - connection leak"
-  remediation: "Return cleanup function to close WebSocket"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: WebSocket in useEffect without closing - connection leak
+  remediation: Return cleanup function to close WebSocket
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-useeffect-observer
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*(?:MutationObserver|ResizeObserver|IntersectionObserver)[^}]*[^}]*\}[^)]*\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*(?:MutationObserver|ResizeObserver|IntersectionObserver)[^}]*[^}]*\}[^)]*\]
   severity: high
-  description: "Observer in useEffect without disconnect - memory leak"
-  remediation: "Return cleanup function to disconnect observer"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: Observer in useEffect without disconnect - memory leak
+  remediation: Return cleanup function to disconnect observer
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-useeffect-sensitive-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*(?:password|token|key|secret|credit)\s*=[^}]*\}'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*(?:password|token|key|secret|credit)\s*=[^}]*\}
   severity: critical
-  description: "Sensitive data accessed in useEffect - may be exposed"
-  remediation: "Avoid logging or exposing sensitive data"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive data accessed in useEffect - may be exposed
+  remediation: Avoid logging or exposing sensitive data
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.8
 - id: react-useeffect-console-log
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*console\.(?:log|dir|table)'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*console\.(?:log|dir|table)
   severity: low
-  description: "console.log in useEffect - may expose data in production"
-  remediation: "Remove console.log in production"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: console.log in useEffect - may expose data in production
+  remediation: Remove console.log in production
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.55
 - id: react-useeffect-infinite-loop
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*set[A-Z][^}]*\}[^,]*\[\s*\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*set[A-Z][^}]*\}[^,]*\[\s*\]
   severity: high
-  description: "setState in useEffect with empty deps - infinite loop risk"
-  remediation: "Add dependencies or use useRef to prevent loops"
-  cwe: "CWE-835"
-  owasp: "A04:2023"
-
+  description: setState in useEffect with empty deps - infinite loop risk
+  remediation: Add dependencies or use useRef to prevent loops
+  cwe: CWE-835
+  owasp: A04:2023
+  confidence: 0.75
 - id: react-useeffect-missing-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\}'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\}
   severity: high
-  description: "useEffect without dependency array - runs on every render"
-  remediation: "Add dependency array to control execution"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: useEffect without dependency array - runs on every render
+  remediation: Add dependency array to control execution
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-useeffect-empty-deps-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*set[A-Z][^}]*\},\s*\[\s*\]\s*\)'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*set[A-Z][^}]*\},\s*\[\s*\]\s*\)
   severity: high
-  description: "setState in useEffect with empty deps - runs once, may be okay"
-  remediation: "Ensure this is intended behavior (componentDidMount)"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: setState in useEffect with empty deps - runs once, may be okay
+  remediation: Ensure this is intended behavior (componentDidMount)
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-useeffect-object-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\},\s*\[\{[^}]*\}\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\},\s*\[\{[^}]*\}\]
   severity: high
-  description: "Object literal in dependency array - runs on every render"
-  remediation: "Memoize object with useMemo or use primitives"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Object literal in dependency array - runs on every render
+  remediation: Memoize object with useMemo or use primitives
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-useeffect-array-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\},\s*\[\[.*\]\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\},\s*\[\[.*\]\]
   severity: high
-  description: "Array literal in dependency array - runs on every render"
-  remediation: "Memoize array with useMemo or use primitives"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Array literal in dependency array - runs on every render
+  remediation: Memoize array with useMemo or use primitives
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-useeffect-function-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\},\s*\[function\s*\('
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\},\s*\[function\s*\(
   severity: high
-  description: "Function in dependency array - runs on every render"
-  remediation: "Wrap function in useCallback"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Function in dependency array - runs on every render
+  remediation: Wrap function in useCallback
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-useeffect-async
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*async\s*\(\)\s*=>'
+  - regex: useEffect\s*\(\s*async\s*\(\)\s*=>
   severity: high
-  description: "Async function in useEffect - returns promise, can't cleanup"
-  remediation: "Define async function inside useEffect and call it"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Async function in useEffect - returns promise, can't cleanup
+  remediation: Define async function inside useEffect and call it
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.7
 - id: react-useeffect-promise
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\.then\s*\([^)]*\)[^}]*\}'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\.then\s*\([^)]*\)[^}]*\}
   severity: medium
-  description: "Promise in useEffect without error handling"
-  remediation: "Add .catch() for error handling"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Promise in useEffect without error handling
+  remediation: Add .catch() for error handling
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.65
 - id: react-useeffect-try-catch
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*[^}]*\}'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*[^}]*\}
   severity: low
-  description: "useEffect without try/catch - unhandled errors"
-  remediation: "Wrap async operations in try/catch"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: useEffect without try/catch - unhandled errors
+  remediation: Wrap async operations in try/catch
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: react-useeffect-localstorage
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*localStorage\.setItem'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*localStorage\.setItem
   severity: medium
-  description: "Writing to localStorage in useEffect - XSS risk"
-  remediation: "Sanitize data before storing in localStorage"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Writing to localStorage in useEffect - XSS risk
+  remediation: Sanitize data before storing in localStorage
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.6
 - id: react-useeffect-sessionstorage
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*sessionStorage\.setItem'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*sessionStorage\.setItem
   severity: medium
-  description: "Writing to sessionStorage in useEffect - XSS risk"
-  remediation: "Sanitize data before storing in sessionStorage"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Writing to sessionStorage in useEffect - XSS risk
+  remediation: Sanitize data before storing in sessionStorage
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.6
 - id: react-useeffect-indexeddb
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*indexedDB'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*indexedDB
   severity: medium
-  description: "IndexedDB operations in useEffect - error handling needed"
-  remediation: "Add error handling for IndexedDB operations"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: IndexedDB operations in useEffect - error handling needed
+  remediation: Add error handling for IndexedDB operations
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.6
 - id: react-useeffect-document-title
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*document\.title\s*='
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*document\.title\s*=
   severity: info
-  description: "Setting document.title in useEffect"
-  remediation: "Consider using react-helmet for title management"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Setting document.title in useEffect
+  remediation: Consider using react-helmet for title management
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.4
 - id: react-useeffect-event-listener
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*addEventListener[^}]*[^}]*\}'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*addEventListener[^}]*[^}]*\}
   severity: high
-  description: "addEventListener in useEffect without cleanup"
-  remediation: "Return cleanup with removeEventListener"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: addEventListener in useEffect without cleanup
+  remediation: Return cleanup with removeEventListener
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-useeffect-window-event
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*window\.addEventListener[^}]*[^}]*\}'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*window\.addEventListener[^}]*[^}]*\}
   severity: high
-  description: "window.addEventListener in useEffect without cleanup"
-  remediation: "Return cleanup with removeEventListener"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: window.addEventListener in useEffect without cleanup
+  remediation: Return cleanup with removeEventListener
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-useeffect-history-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*history\.(push|replace|go)'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*history\.(push|replace|go)
   severity: medium
-  description: "History manipulation in useEffect - may cause navigation loops"
-  remediation: "Add appropriate dependencies"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: History manipulation in useEffect - may cause navigation loops
+  remediation: Add appropriate dependencies
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.65
 - id: react-useeffect-multiple-effects
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect.*useEffect.*useEffect'
+  - regex: useEffect.*useEffect.*useEffect
   severity: info
-  description: "Multiple useEffect hooks - ensure proper separation"
-  remediation: "Group related logic in same useEffect"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Multiple useEffect hooks - ensure proper separation
+  remediation: Group related logic in same useEffect
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-useeffect-conditional
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*if\s*\('
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*if\s*\(
   severity: info
-  description: "Conditional logic in useEffect"
-  remediation: "Consider splitting into multiple effects"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
-# ======================== USESTATE SECURITY (76-100) ========================
-
+  description: Conditional logic in useEffect
+  remediation: Consider splitting into multiple effects
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.4
 - id: react-usestate-sensitive-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*[''"]?.*(?:password|token|key|secret|credit|ssn).*[''"]?\s*\)'
+  - regex: useState\s*\(\s*['"]?.*(?:password|token|key|secret|credit|ssn).*['"]?\s*\)
   severity: critical
-  description: "Storing sensitive data in useState - XSS risk"
-  remediation: "Avoid storing secrets in state, use secure storage"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Storing sensitive data in useState - XSS risk
+  remediation: Avoid storing secrets in state, use secure storage
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.8
 - id: react-usestate-password
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*[''"]?.*password.*[''"]?\s*\)'
+  - regex: useState\s*\(\s*['"]?.*password.*['"]?\s*\)
   severity: critical
-  description: "Password in useState - sensitive data exposure"
-  remediation: "Use refs or context with secure handling"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Password in useState - sensitive data exposure
+  remediation: Use refs or context with secure handling
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: react-usestate-token
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*[''"]?.*token.*[''"]?\s*\)'
+  - regex: useState\s*\(\s*['"]?.*token.*['"]?\s*\)
   severity: critical
-  description: "Auth token in useState - XSS can steal token"
-  remediation: "Store tokens in httpOnly cookies"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Auth token in useState - XSS can steal token
+  remediation: Store tokens in httpOnly cookies
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: react-usestate-localstorage-init
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*JSON\.parse\s*\(\s*localStorage\.getItem'
+  - regex: useState\s*\(\s*JSON\.parse\s*\(\s*localStorage\.getItem
   severity: high
-  description: "Initializing state from localStorage - XSS risk"
-  remediation: "Validate/sanitize data from localStorage"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Initializing state from localStorage - XSS risk
+  remediation: Validate/sanitize data from localStorage
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-usestate-sessionstorage-init
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*JSON\.parse\s*\(\s*sessionStorage\.getItem'
+  - regex: useState\s*\(\s*JSON\.parse\s*\(\s*sessionStorage\.getItem
   severity: high
-  description: "Initializing state from sessionStorage - XSS risk"
-  remediation: "Validate/sanitize data from sessionStorage"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Initializing state from sessionStorage - XSS risk
+  remediation: Validate/sanitize data from sessionStorage
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-usestate-cookie-init
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*document\.cookie'
+  - regex: useState\s*\(\s*document\.cookie
   severity: critical
-  description: "Initializing state from cookies - sensitive data exposure"
-  remediation: "Use httpOnly cookies for sensitive data"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Initializing state from cookies - sensitive data exposure
+  remediation: Use httpOnly cookies for sensitive data
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: react-usestate-url-init
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*new\s+URLSearchParams|useState\s*\(\s*window\.location'
+  - regex: useState\s*\(\s*new\s+URLSearchParams|useState\s*\(\s*window\.location
   severity: high
-  description: "Initializing state from URL - XSS via URL parameters"
-  remediation: "Validate URL parameters before using in state"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Initializing state from URL - XSS via URL parameters
+  remediation: Validate URL parameters before using in state
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-usestate-props-init
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*props\.\w+'
+  - regex: useState\s*\(\s*props\.\w+
   severity: info
-  description: "Initializing state from props - may cause sync issues"
-  remediation: "Use useEffect to update state when props change"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Initializing state from props - may cause sync issues
+  remediation: Use useEffect to update state when props change
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.4
 - id: react-usestate-derived
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*\w+\s*=>\s*\w+'
+  - regex: useState\s*\(\s*\w+\s*=>\s*\w+
   severity: info
-  description: "Lazy initialization in useState - good for expensive computations"
-  remediation: "Continue using for expensive calculations"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Lazy initialization in useState - good for expensive computations
+  remediation: Continue using for expensive calculations
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.4
 - id: react-usestate-nested-object
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*\{\s*[^}]*\{\s*[^}]*\}\s*\}\s*\)'
+  - regex: useState\s*\(\s*\{\s*[^}]*\{\s*[^}]*\}\s*\}\s*\)
   severity: medium
-  description: "Deeply nested state object - may cause mutation bugs"
-  remediation: "Use multiple useState calls or useReducer"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Deeply nested state object - may cause mutation bugs
+  remediation: Use multiple useState calls or useReducer
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: react-usestate-large-array
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*\[\s*[^]]{100,}\]\s*\)'
+  - regex: useState\s*\(\s*\[\s*[^]]{100,}\]\s*\)
   severity: medium
-  description: "Large array in useState - memory/performance issues"
-  remediation: "Use pagination or virtualization"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Large array in useState - memory/performance issues
+  remediation: Use pagination or virtualization
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: react-usestate-initializer-throw
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState\s*\(\s*\(\)\s*=>\s*\{[^}]*throw'
+  - regex: useState\s*\(\s*\(\)\s*=>\s*\{[^}]*throw
   severity: high
-  description: "State initializer throwing errors - may crash component"
-  remediation: "Handle errors in initializer or use try/catch"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: State initializer throwing errors - may crash component
+  remediation: Handle errors in initializer or use try/catch
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.7
 - id: react-usestate-setter-in-effect
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*set[A-Z][^}]*\},\s*\[\]'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*set[A-Z][^}]*\},\s*\[\]
   severity: medium
-  description: "setState in useEffect with empty deps - may be okay"
-  remediation: "Ensure this is intended componentDidMount behavior"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: setState in useEffect with empty deps - may be okay
+  remediation: Ensure this is intended componentDidMount behavior
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.6
 - id: react-usestate-setter-in-render
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'if\s*\([^)]*\)\s*set[A-Z]|\w+\s*&&\s*set[A-Z]'
+  - regex: if\s*\([^)]*\)\s*set[A-Z]|\w+\s*&&\s*set[A-Z]
   severity: critical
-  description: "setState called directly in render - infinite loop"
-  remediation: "Move setState to useEffect or event handlers"
-  cwe: "CWE-835"
-  owasp: "A04:2023"
-
+  description: setState called directly in render - infinite loop
+  remediation: Move setState to useEffect or event handlers
+  cwe: CWE-835
+  owasp: A04:2023
+  confidence: 0.75
 - id: react-usestate-setter-in-callback
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onClick=\{\s*\(\)\s*=>\s*set[A-Z]'
+  - regex: onClick=\{\s*\(\)\s*=>\s*set[A-Z]
   severity: info
-  description: "setState in event handler - correct usage"
-  remediation: "Good practice"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: setState in event handler - correct usage
+  remediation: Good practice
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.4
 - id: react-usestate-functional-update
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'set[A-Z]\s*\(\s*prev\s*=>'
+  - regex: set[A-Z]\s*\(\s*prev\s*=>
   severity: info
-  description: "Functional update in setState - good for avoiding stale closures"
-  remediation: "Continue using functional updates when state depends on previous"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Functional update in setState - good for avoiding stale closures
+  remediation: Continue using functional updates when state depends on previous
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-usestate-missing-functional-update
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'set[A-Z]\s*\(\s*\w+\s*\+\s*\w+\s*\)|set[A-Z]\s*\(\s*\w+\s*\+\s*1'
+  - regex: set[A-Z]\s*\(\s*\w+\s*\+\s*\w+\s*\)|set[A-Z]\s*\(\s*\w+\s*\+\s*1
   severity: medium
-  description: "setState with value based on current state - may use stale state"
-  remediation: "Use functional update: setCount(prev => prev + 1)"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: setState with value based on current state - may use stale state
+  remediation: 'Use functional update: setCount(prev => prev + 1)'
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-usestate-multiple-setters
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'set[A-Z][^)]*\);?\s*set[A-Z][^)]*\]'
+  - regex: set[A-Z][^)]*\);?\s*set[A-Z][^)]*\]
   severity: medium
-  description: "Multiple setState calls in sequence - may cause extra renders"
-  remediation: "Combine state updates or use useReducer"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Multiple setState calls in sequence - may cause extra renders
+  remediation: Combine state updates or use useReducer
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: react-usestate-setter-in-promise
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '\.then\s*\(\s*\(\)\s*=>\s*set[A-Z]'
+  - regex: \.then\s*\(\s*\(\)\s*=>\s*set[A-Z]
   severity: info
-  description: "setState in promise chain - ensure component still mounted"
-  remediation: "Use mounted ref to prevent setState on unmounted"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: setState in promise chain - ensure component still mounted
+  remediation: Use mounted ref to prevent setState on unmounted
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-usestate-setter-in-timeout
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'setTimeout\s*\(\s*\(\)\s*=>\s*set[A-Z]'
+  - regex: setTimeout\s*\(\s*\(\)\s*=>\s*set[A-Z]
   severity: medium
-  description: "setState in setTimeout - may execute after unmount"
-  remediation: "Clear timeout in cleanup, use mounted ref"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: setState in setTimeout - may execute after unmount
+  remediation: Clear timeout in cleanup, use mounted ref
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.6
 - id: react-usestate-setter-in-interval
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'setInterval\s*\(\s*\(\)\s*=>\s*set[A-Z]'
+  - regex: setInterval\s*\(\s*\(\)\s*=>\s*set[A-Z]
   severity: high
-  description: "setState in setInterval - memory leak risk"
-  remediation: "Clear interval in cleanup, use mounted ref"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: setState in setInterval - memory leak risk
+  remediation: Clear interval in cleanup, use mounted ref
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usestate-setter-in-websocket
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'websocket\.onmessage\s*=\s*\([^)]*\)\s*=>\s*\{[^}]*set[A-Z]'
+  - regex: websocket\.onmessage\s*=\s*\([^)]*\)\s*=>\s*\{[^}]*set[A-Z]
   severity: high
-  description: "setState in WebSocket callback - may update unmounted component"
-  remediation: "Use mounted ref to prevent updates after unmount"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: setState in WebSocket callback - may update unmounted component
+  remediation: Use mounted ref to prevent updates after unmount
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usestate-boolean-toggle
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'set[A-Z]\s*\(\s*!\w+\s*\)'
+  - regex: set[A-Z]\s*\(\s*!\w+\s*\)
   severity: info
-  description: "Boolean toggle with setState - ensure correct value"
-  remediation: "Use functional update for toggles"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== USECALLBACK & USEMEMO (101-125) ========================
-
+  description: Boolean toggle with setState - ensure correct value
+  remediation: Use functional update for toggles
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-usecallback-missing-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\}\]'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\}\]
   severity: high
-  description: "useCallback without dependency array - creates new function on each render"
-  remediation: "Add dependency array to memoize"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: useCallback without dependency array - creates new function on each render
+  remediation: Add dependency array to memoize
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usecallback-empty-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[\s*\]\s*\]'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[\s*\]\s*\]
   severity: info
-  description: "useCallback with empty deps - stable function reference"
-  remediation: "Good for functions that don't depend on props/state"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: useCallback with empty deps - stable function reference
+  remediation: Good for functions that don't depend on props/state
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.45
 - id: react-usecallback-function-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[function'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[function
   severity: high
-  description: "Function in useCallback dependency - will change on each render"
-  remediation: "Memoize the dependent function with useCallback"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Function in useCallback dependency - will change on each render
+  remediation: Memoize the dependent function with useCallback
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usecallback-object-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[\{'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[\{
   severity: high
-  description: "Object literal in useCallback deps - changes on each render"
-  remediation: "Memoize object with useMemo or use primitives"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Object literal in useCallback deps - changes on each render
+  remediation: Memoize object with useMemo or use primitives
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usecallback-array-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[\[\]'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*\},\s*\[\[\]
   severity: high
-  description: "Array literal in useCallback deps - changes on each render"
-  remediation: "Memoize array with useMemo or use primitives"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Array literal in useCallback deps - changes on each render
+  remediation: Memoize array with useMemo or use primitives
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usecallback-event-handler
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*set[A-Z]'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*set[A-Z]
   severity: info
-  description: "useCallback with event handler - good practice"
-  remediation: "Continue using for event handlers"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: useCallback with event handler - good practice
+  remediation: Continue using for event handlers
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.4
 - id: react-usecallback-sensitive-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*(?:password|token|key)[^}]*\}'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*(?:password|token|key)[^}]*\}
   severity: high
-  description: "useCallback accessing sensitive data - may be exposed"
-  remediation: "Avoid exposing sensitive data in callbacks"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: useCallback accessing sensitive data - may be exposed
+  remediation: Avoid exposing sensitive data in callbacks
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.75
 - id: react-usememo-missing-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useMemo\s*\(\s*\(\)\s*=>\s*[^,]*\)'
+  - regex: useMemo\s*\(\s*\(\)\s*=>\s*[^,]*\)
   severity: high
-  description: "useMemo without dependency array - recomputes on every render"
-  remediation: "Add dependency array to memoize"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: useMemo without dependency array - recomputes on every render
+  remediation: Add dependency array to memoize
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usememo-empty-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useMemo\s*\(\s*\(\)\s*=>\s*[^,]+,\s*\[\s*\]\s*\)'
+  - regex: useMemo\s*\(\s*\(\)\s*=>\s*[^,]+,\s*\[\s*\]\s*\)
   severity: info
-  description: "useMemo with empty deps - computes once"
-  remediation: "Good for expensive computations"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: useMemo with empty deps - computes once
+  remediation: Good for expensive computations
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.4
 - id: react-usememo-object-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useMemo\s*\(\s*\(\)\s*=>\s*[^,]+,\s*\[\{[^}]*\}\]'
+  - regex: useMemo\s*\(\s*\(\)\s*=>\s*[^,]+,\s*\[\{[^}]*\}\]
   severity: high
-  description: "Object literal in useMemo deps - recomputes on every render"
-  remediation: "Memoize object with useMemo or use primitives"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Object literal in useMemo deps - recomputes on every render
+  remediation: Memoize object with useMemo or use primitives
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usememo-array-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useMemo\s*\(\s*\(\)\s*=>\s*[^,]+,\s*\[\[.*\]\]'
+  - regex: useMemo\s*\(\s*\(\)\s*=>\s*[^,]+,\s*\[\[.*\]\]
   severity: high
-  description: "Array literal in useMemo deps - recomputes on every render"
-  remediation: "Memoize array with useMemo or use primitives"
-  cwe: "CWE-670"
-  owasp: "A05:2021"
-
+  description: Array literal in useMemo deps - recomputes on every render
+  remediation: Memoize array with useMemo or use primitives
+  cwe: CWE-670
+  owasp: A05:2021
+  confidence: 0.7
 - id: react-usememo-computation-heavy
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useMemo\s*\(\s*\(\)\s*=>\s*\{[^}]*for\s*\([^)]*\)[^}]*\}'
+  - regex: useMemo\s*\(\s*\(\)\s*=>\s*\{[^}]*for\s*\([^)]*\)[^}]*\}
   severity: info
-  description: "Heavy computation in useMemo - good optimization"
-  remediation: "Continue using for expensive calculations"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Heavy computation in useMemo - good optimization
+  remediation: Continue using for expensive calculations
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.4
 - id: react-usememo-sensitive-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useMemo\s*\(\s*\(\)\s*=>\s*[^,]*(?:password|token|key|secret)[^,]*'
+  - regex: useMemo\s*\(\s*\(\)\s*=>\s*[^,]*(?:password|token|key|secret)[^,]*
   severity: critical
-  description: "useMemo computing sensitive data - may be exposed"
-  remediation: "Avoid storing secrets in memoized values"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: useMemo computing sensitive data - may be exposed
+  remediation: Avoid storing secrets in memoized values
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.8
 - id: react-useref-mutation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useRef\([^)]*\)\s*;\s*ref\.current\s*=\s*[^;]+'
+  - regex: useRef\([^)]*\)\s*;\s*ref\.current\s*=\s*[^;]+
   severity: info
-  description: "Mutating ref.current - bypasses React state"
-  remediation: "Use for values that don't affect rendering"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Mutating ref.current - bypasses React state
+  remediation: Use for values that don't affect rendering
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-useref-dom-manipulation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useRef\([^)]*\)\s*;\s*ref\.current\.[^\s]+(?:innerHTML|value|src)'
+  - regex: useRef\([^)]*\)\s*;\s*ref\.current\.[^\s]+(?:innerHTML|value|src)
   severity: high
-  description: "Direct DOM manipulation via ref - XSS risk"
-  remediation: "Use React state and props instead"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Direct DOM manipulation via ref - XSS risk
+  remediation: Use React state and props instead
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-useref-sensitive-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useRef\([^)]*(?:password|token|key|secret)'
+  - regex: useRef\([^)]*(?:password|token|key|secret)
   severity: critical
-  description: "Storing sensitive data in ref - may be exposed"
-  remediation: "Use secure storage for sensitive data"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Storing sensitive data in ref - may be exposed
+  remediation: Use secure storage for sensitive data
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-useref-previous-value
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useRef\(\)\s*;\s*useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*ref\.current\s*=\s*\w+'
+  - regex: useRef\(\)\s*;\s*useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*ref\.current\s*=\s*\w+
   severity: info
-  description: "Storing previous value in ref - common pattern"
-  remediation: "Good for storing previous values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Storing previous value in ref - common pattern
+  remediation: Good for storing previous values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: react-useref-initialize-with-null
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useRef\(\s*null\s*\)'
+  - regex: useRef\(\s*null\s*\)
   severity: info
-  description: "useRef initialized with null - correct for DOM refs"
-  remediation: "Good practice for DOM refs"
-  cwe: "CWE-476"
-  owasp: "N/A"
-
+  description: useRef initialized with null - correct for DOM refs
+  remediation: Good practice for DOM refs
+  cwe: CWE-476
+  owasp: N/A
+  confidence: 0.35
 - id: react-useref-forward-ref
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'React\.forwardRef'
+  - regex: React\.forwardRef
   severity: info
-  description: "forwardRef usage - ensure ref is not misused"
-  remediation: "Don't expose sensitive DOM nodes via refs"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: forwardRef usage - ensure ref is not misused
+  remediation: Don't expose sensitive DOM nodes via refs
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.35
 - id: react-useimperativehandle
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useImperativeHandle\s*\('
+  - regex: useImperativeHandle\s*\(
   severity: high
-  description: "useImperativeHandle exposes methods to parent"
-  remediation: "Only expose safe methods, avoid exposing internals"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: useImperativeHandle exposes methods to parent
+  remediation: Only expose safe methods, avoid exposing internals
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-useimperativehandle-sensitive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useImperativeHandle\s*\([^,]+,\s*\(\)\s*=>\s*\(\{[^}]*\}\)'
+  - regex: useImperativeHandle\s*\([^,]+,\s*\(\)\s*=>\s*\(\{[^}]*\}\)
   severity: high
-  description: "useImperativeHandle exposing methods - ensure they're safe"
-  remediation: "Review exposed methods for security"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: useImperativeHandle exposing methods - ensure they're safe
+  remediation: Review exposed methods for security
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-uselayouteffect-blocking
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useLayoutEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\}'
+  - regex: useLayoutEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*\}
   severity: info
-  description: "useLayoutEffect usage - may block rendering"
-  remediation: "Prefer useEffect unless measuring DOM"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: useLayoutEffect usage - may block rendering
+  remediation: Prefer useEffect unless measuring DOM
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.4
 - id: react-useinsertioneffect
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useInsertionEffect\s*\('
+  - regex: useInsertionEffect\s*\(
   severity: info
-  description: "useInsertionEffect for CSS-in-JS"
-  remediation: "Use for inserting style elements only"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: useInsertionEffect for CSS-in-JS
+  remediation: Use for inserting style elements only
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-usedebugvalue
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useDebugValue\s*\('
+  - regex: useDebugValue\s*\(
   severity: info
-  description: "useDebugValue usage - may expose data in DevTools"
-  remediation: "Don't expose sensitive data in debug value"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: useDebugValue usage - may expose data in DevTools
+  remediation: Don't expose sensitive data in debug value
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.4
 - id: react-usedebugvalue-sensitive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useDebugValue\s*\([^)]*(?:password|token|key|secret)'
+  - regex: useDebugValue\s*\([^)]*(?:password|token|key|secret)
   severity: critical
-  description: "Sensitive data in useDebugValue - exposed in DevTools"
-  remediation: "Remove sensitive data from debug value"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
-# ======================== CONTEXT & PROVIDERS (126-150) ========================
-
+  description: Sensitive data in useDebugValue - exposed in DevTools
+  remediation: Remove sensitive data from debug value
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: react-context-sensitive-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createContext\s*\([^)]*(?:password|token|key|secret|jwt)'
+  - regex: createContext\s*\([^)]*(?:password|token|key|secret|jwt)
   severity: critical
-  description: "Sensitive data in Context - accessible to all consumers"
-  remediation: "Avoid storing secrets in Context"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive data in Context - accessible to all consumers
+  remediation: Avoid storing secrets in Context
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: react-context-provider-value
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<\w+\.Provider\s+value=\{\s*[^}]*(?:password|token|key|secret|jwt)'
+  - regex: <\w+\.Provider\s+value=\{\s*[^}]*(?:password|token|key|secret|jwt)
   severity: critical
-  description: "Sensitive data passed in Context Provider value"
-  remediation: "Remove sensitive data from Context"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive data passed in Context Provider value
+  remediation: Remove sensitive data from Context
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: react-context-default-value
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createContext\s*\(\s*\{\s*[^}]*\}\s*\)'
+  - regex: createContext\s*\(\s*\{\s*[^}]*\}\s*\)
   severity: low
-  description: "Context with default object value"
-  remediation: "Ensure default values are safe"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Context with default object value
+  remediation: Ensure default values are safe
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: react-context-consumer
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<\w+\.Consumer>.*</\w+\.Consumer>'
+  - regex: <\w+\.Consumer>.*</\w+\.Consumer>
   severity: info
-  description: "Context.Consumer usage"
-  remediation: "Consider using useContext hook instead"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Context.Consumer usage
+  remediation: Consider using useContext hook instead
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-usecontext
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useContext\s*\('
+  - regex: useContext\s*\(
   severity: info
-  description: "useContext hook usage"
-  remediation: "Ensure context doesn't contain sensitive data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: useContext hook usage
+  remediation: Ensure context doesn't contain sensitive data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-context-large-object
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createContext\s*\(\s*\{\s*[^}]{500,}\}\s*\)'
+  - regex: createContext\s*\(\s*\{\s*[^}]{500,}\}\s*\)
   severity: medium
-  description: "Large object in Context - performance issues"
-  remediation: "Split context into multiple contexts"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Large object in Context - performance issues
+  remediation: Split context into multiple contexts
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: react-context-frequent-updates
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'set[A-Z].*\w+Context.*useEffect.*[^}]*Context\.Provider'
+  - regex: set[A-Z].*\w+Context.*useEffect.*[^}]*Context\.Provider
   severity: medium
-  description: "Context provider updating frequently - performance issues"
-  remediation: "Use multiple contexts or state management"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Context provider updating frequently - performance issues
+  remediation: Use multiple contexts or state management
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: react-context-memoization
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useMemo\s*\(\s*\(\)\s*=>\s*\(\{\s*[^}]+\)'
+  - regex: useMemo\s*\(\s*\(\)\s*=>\s*\(\{\s*[^}]+\)
   severity: info
-  description: "useMemo for context value - good optimization"
-  remediation: "Continue memoizing context values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: useMemo for context value - good optimization
+  remediation: Continue memoizing context values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-context-missing-memo
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<\w+\.Provider\s+value=\{\s*\{\s*[^}]+\}\s*\}>'
+  - regex: <\w+\.Provider\s+value=\{\s*\{\s*[^}]+\}\s*\}>
   severity: high
-  description: "Context value object literal - causes re-renders"
-  remediation: "Memoize context value with useMemo"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Context value object literal - causes re-renders
+  remediation: Memoize context value with useMemo
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: react-context-auth-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createContext\s*\(\s*\{[^}]*(?:user|auth|session)'
+  - regex: createContext\s*\(\s*\{[^}]*(?:user|auth|session)
   severity: high
-  description: "Auth data in Context - ensure secure handling"
-  remediation: "Don't store tokens in Context"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Auth data in Context - ensure secure handling
+  remediation: Don't store tokens in Context
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-context-theme
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createContext\s*\(\s*\{[^}]*(?:theme|dark|light)'
+  - regex: createContext\s*\(\s*\{[^}]*(?:theme|dark|light)
   severity: info
-  description: "Theme context - safe usage"
-  remediation: "Good for theming"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Theme context - safe usage
+  remediation: Good for theming
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-context-multiple-providers
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<\w+\.Provider>[^<]*<\w+\.Provider>[^<]*<\w+\.Provider>'
+  - regex: <\w+\.Provider>[^<]*<\w+\.Provider>[^<]*<\w+\.Provider>
   severity: info
-  description: "Multiple Context Providers - potential nesting issues"
-  remediation: "Consider provider composition pattern"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Multiple Context Providers - potential nesting issues
+  remediation: Consider provider composition pattern
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-context-nested-consumers
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<\w+\.Consumer>[^<]*<\w+\.Consumer>[^<]*<\w+\.Consumer>'
+  - regex: <\w+\.Consumer>[^<]*<\w+\.Consumer>[^<]*<\w+\.Consumer>
   severity: low
-  description: "Nested Context Consumers - render props hell"
-  remediation: "Use useContext hook instead"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Nested Context Consumers - render props hell
+  remediation: Use useContext hook instead
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: react-context-hooks-in-conditionals
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'if\s*\([^)]*\)\s*\{\s*useContext|while\s*\([^)]*\)\s*\{\s*useContext'
+  - regex: if\s*\([^)]*\)\s*\{\s*useContext|while\s*\([^)]*\)\s*\{\s*useContext
   severity: critical
-  description: "useContext called conditionally - breaks rules of hooks"
-  remediation: "Move useContext outside conditionals"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: useContext called conditionally - breaks rules of hooks
+  remediation: Move useContext outside conditionals
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.8
 - id: react-context-hooks-in-loops
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'for\s*\([^)]*\)\s*\{\s*useContext'
+  - regex: for\s*\([^)]*\)\s*\{\s*useContext
   severity: critical
-  description: "useContext called in loop - breaks rules of hooks"
-  remediation: "Move useContext outside loops"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: useContext called in loop - breaks rules of hooks
+  remediation: Move useContext outside loops
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-context-hooks-in-functions
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'function\s+\w+\(\)\s*\{[^}]*useContext'
+  - regex: function\s+\w+\(\)\s*\{[^}]*useContext
   severity: critical
-  description: "useContext in nested function - breaks rules of hooks"
-  remediation: "Call useContext at top level of component"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: useContext in nested function - breaks rules of hooks
+  remediation: Call useContext at top level of component
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-context-with-router
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useContext.*useNavigate|useContext.*useLocation'
+  - regex: useContext.*useNavigate|useContext.*useLocation
   severity: info
-  description: "Context combined with router hooks"
-  remediation: "Ensure proper navigation handling"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Context combined with router hooks
+  remediation: Ensure proper navigation handling
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-context-with-refs
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useContext.*useRef'
+  - regex: useContext.*useRef
   severity: info
-  description: "Context combined with refs"
-  remediation: "Be careful with ref mutation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Context combined with refs
+  remediation: Be careful with ref mutation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-context-with-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useContext.*useState'
+  - regex: useContext.*useState
   severity: info
-  description: "Context combined with state"
-  remediation: "Consider local state vs context"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Context combined with state
+  remediation: Consider local state vs context
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-context-with-reducer
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useContext.*useReducer'
+  - regex: useContext.*useReducer
   severity: info
-  description: "Context with useReducer - common pattern"
-  remediation: "Good for complex state"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Context with useReducer - common pattern
+  remediation: Good for complex state
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-context-missing-default
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createContext\s*\(\s*\)'
+  - regex: createContext\s*\(\s*\)
   severity: medium
-  description: "Context created without default value"
-  remediation: "Provide default value for safety"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Context created without default value
+  remediation: Provide default value for safety
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: react-context-null-default
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createContext\s*\(\s*null\s*\)'
+  - regex: createContext\s*\(\s*null\s*\)
   severity: medium
-  description: "Context with null default - must check existence"
-  remediation: "Add null checks when using context"
-  cwe: "CWE-476"
-  owasp: "N/A"
-
-# ======================== REDUX & STATE MANAGEMENT (151-175) ========================
-
+  description: Context with null default - must check existence
+  remediation: Add null checks when using context
+  cwe: CWE-476
+  owasp: N/A
+  confidence: 0.6
 - id: react-redux-sensitive-store
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createStore.*(?:password|token|key|secret|jwt)'
+  - regex: createStore.*(?:password|token|key|secret|jwt)
   severity: critical
-  description: "Sensitive data in Redux store - accessible globally"
-  remediation: "Avoid storing secrets in Redux"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive data in Redux store - accessible globally
+  remediation: Avoid storing secrets in Redux
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-redux-persist-sensitive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'persistStore.*(?:password|token|key|secret|jwt)'
+  - regex: persistStore.*(?:password|token|key|secret|jwt)
   severity: critical
-  description: "Sensitive data persisted in Redux storage - XSS risk"
-  remediation: "Don't persist secrets in Redux"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive data persisted in Redux storage - XSS risk
+  remediation: Don't persist secrets in Redux
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-redux-action-types
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'export\s+const\s+[A-Z_]+_?(?:PASSWORD|TOKEN|SECRET|KEY)'
+  - regex: export\s+const\s+[A-Z_]+_?(?:PASSWORD|TOKEN|SECRET|KEY)
   severity: high
-  description: "Action types referencing sensitive operations"
-  remediation: "Avoid exposing sensitive action types"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Action types referencing sensitive operations
+  remediation: Avoid exposing sensitive action types
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: react-redux-action-payload
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'payload:\s*\{[^}]*(?:password|token|key|secret|jwt)'
+  - regex: payload:\s*\{[^}]*(?:password|token|key|secret|jwt)
   severity: critical
-  description: "Sensitive data in Redux action payload"
-  remediation: "Remove sensitive data from actions"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive data in Redux action payload
+  remediation: Remove sensitive data from actions
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-redux-reducer-mutation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'case\s+[A-Z_]+:\s*\{[^}]*state\.\w+\s*='
+  - regex: case\s+[A-Z_]+:\s*\{[^}]*state\.\w+\s*=
   severity: critical
-  description: "State mutation in reducer - breaks Redux"
-  remediation: "Always return new state, never mutate"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: State mutation in reducer - breaks Redux
+  remediation: Always return new state, never mutate
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-redux-reducer-side-effects
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'case\s+[A-Z_]+:\s*\{[^}]*(?:localStorage|sessionStorage|fetch|axios)'
+  - regex: case\s+[A-Z_]+:\s*\{[^}]*(?:localStorage|sessionStorage|fetch|axios)
   severity: high
-  description: "Side effects in reducer - should be in middleware"
-  remediation: "Move side effects to redux-thunk or saga"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Side effects in reducer - should be in middleware
+  remediation: Move side effects to redux-thunk or saga
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.7
 - id: react-redux-selector-sensitive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useSelector.*(?:password|token|key|secret|jwt)'
+  - regex: useSelector.*(?:password|token|key|secret|jwt)
   severity: critical
-  description: "Selecting sensitive data from Redux store"
-  remediation: "Avoid selecting secrets from store"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Selecting sensitive data from Redux store
+  remediation: Avoid selecting secrets from store
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-redux-selector-computation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useSelector\s*\(\s*state\s*=>\s*\{[^}]*\}'
+  - regex: useSelector\s*\(\s*state\s*=>\s*\{[^}]*\}
   severity: medium
-  description: "Selector returning new object - causes re-renders"
-  remediation: "Use shallowEqual or createSelector"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Selector returning new object - causes re-renders
+  remediation: Use shallowEqual or createSelector
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: react-redux-selector-missing-deps
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useSelector\s*\([^)]*\]'
+  - regex: useSelector\s*\([^)]*\]
   severity: low
-  description: "useSelector without equality function - may cause re-renders"
-  remediation: "Add shallowEqual or custom equality"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: useSelector without equality function - may cause re-renders
+  remediation: Add shallowEqual or custom equality
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: react-redux-dispatch-multiple
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'dispatch\([^)]*\).*dispatch\([^)]*\]'
+  - regex: dispatch\([^)]*\).*dispatch\([^)]*\]
   severity: medium
-  description: "Multiple dispatches in sequence - may cause extra renders"
-  remediation: "Use action batching or combine actions"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Multiple dispatches in sequence - may cause extra renders
+  remediation: Use action batching or combine actions
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: react-redux-dispatch-in-effect
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*dispatch'
+  - regex: useEffect\s*\(\s*\(\)\s*=>\s*\{[^}]*dispatch
   severity: info
-  description: "dispatch in useEffect - common pattern"
-  remediation: "Add proper dependencies"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: dispatch in useEffect - common pattern
+  remediation: Add proper dependencies
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-redux-dispatch-in-callback
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*dispatch'
+  - regex: useCallback\s*\(\s*\([^)]*\)\s*=>\s*\{[^}]*dispatch
   severity: info
-  description: "dispatch in useCallback - good for memoization"
-  remediation: "Add dispatch to dependencies"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: dispatch in useCallback - good for memoization
+  remediation: Add dispatch to dependencies
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-redux-immutable-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'import.*immutable|from\s+[''"]immutable[''"]'
+  - regex: import.*immutable|from\s+['"]immutable['"]
   severity: info
-  description: "Immutable.js with Redux - ensures immutability"
-  remediation: "Good for complex state"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Immutable.js with Redux - ensures immutability
+  remediation: Good for complex state
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-redux-reselect
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createSelector'
+  - regex: createSelector
   severity: info
-  description: "Reselect for memoized selectors - good practice"
-  remediation: "Continue using for computed data"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Reselect for memoized selectors - good practice
+  remediation: Continue using for computed data
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-redux-thunk
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'redux-thunk|thunkMiddleware'
+  - regex: redux-thunk|thunkMiddleware
   severity: info
-  description: "Redux Thunk for async actions"
-  remediation: "Handle errors in thunks"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Redux Thunk for async actions
+  remediation: Handle errors in thunks
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.35
 - id: react-redux-saga
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'redux-saga|takeEvery|takeLatest'
+  - regex: redux-saga|takeEvery|takeLatest
   severity: info
-  description: "Redux Saga for complex async flows"
-  remediation: "Handle saga errors gracefully"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Redux Saga for complex async flows
+  remediation: Handle saga errors gracefully
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.35
 - id: react-redux-observable
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'redux-observable|epic'
+  - regex: redux-observable|epic
   severity: info
-  description: "Redux Observable for reactive flows"
-  remediation: "Handle epic errors"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Redux Observable for reactive flows
+  remediation: Handle epic errors
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.35
 - id: react-redux-devtools-prod
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'Redux\s+DevTools.*production'
+  - regex: Redux\s+DevTools.*production
   severity: high
-  description: "Redux DevTools in production - exposes state"
-  remediation: "Disable DevTools in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Redux DevTools in production - exposes state
+  remediation: Disable DevTools in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: react-redux-logger-prod
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'redux-logger.*production'
+  - regex: redux-logger.*production
   severity: high
-  description: "Redux logger in production - exposes state"
-  remediation: "Remove logger in production"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Redux logger in production - exposes state
+  remediation: Remove logger in production
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.65
 - id: react-redux-middleware-order
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'applyMiddleware\([^)]*\).*applyMiddleware'
+  - regex: applyMiddleware\([^)]*\).*applyMiddleware
   severity: info
-  description: "Multiple applyMiddleware calls - only last applies"
-  remediation: "Combine all middleware in one applyMiddleware"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Multiple applyMiddleware calls - only last applies
+  remediation: Combine all middleware in one applyMiddleware
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-redux-compose-enhancers
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'compose\([^)]*applyMiddleware[^)]*applyMiddleware\]'
+  - regex: compose\([^)]*applyMiddleware[^)]*applyMiddleware\]
   severity: info
-  description: "Multiple middleware in compose - check order"
-  remediation: "Middleware order matters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Multiple middleware in compose - check order
+  remediation: Middleware order matters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-redux-persist-transform
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'persistReducer.*transform'
+  - regex: persistReducer.*transform
   severity: info
-  description: "Redux persist transforms - may modify data"
-  remediation: "Ensure transforms don't expose sensitive data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Redux persist transforms - may modify data
+  remediation: Ensure transforms don't expose sensitive data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-redux-persist-whitelist
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'whitelist:\s*\[.*\]|blacklist:\s*\[.*\]'
+  - regex: whitelist:\s*\[.*\]|blacklist:\s*\[.*\]
   severity: info
-  description: "Redux persist whitelist/blacklist"
-  remediation: "Don't persist sensitive reducers"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Redux persist whitelist/blacklist
+  remediation: Don't persist sensitive reducers
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.35
 - id: react-redux-multiple-stores
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createStore.*createStore'
+  - regex: createStore.*createStore
   severity: high
-  description: "Multiple Redux stores - anti-pattern"
-  remediation: "Use single store with reducers"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Multiple Redux stores - anti-pattern
+  remediation: Use single store with reducers
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-redux-initial-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'createStore\([^,]+,\s*\{\s*[^}]*(?:password|token|key)'
+  - regex: createStore\([^,]+,\s*\{\s*[^}]*(?:password|token|key)
   severity: critical
-  description: "Sensitive data in initial Redux state"
-  remediation: "Remove sensitive data from initial state"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
-# ======================== REACT ROUTER (176-200) ========================
-
+  description: Sensitive data in initial Redux state
+  remediation: Remove sensitive data from initial state
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.7
 - id: react-router-open-redirect
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useNavigate\(\)\([^)]*(?:params|query|state)\.[^)]*'
+  - regex: useNavigate\(\)\([^)]*(?:params|query|state)\.[^)]*
   severity: critical
-  description: "Programmatic navigation with user input - open redirect"
-  remediation: "Validate redirect URLs against allowlist"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Programmatic navigation with user input - open redirect
+  remediation: Validate redirect URLs against allowlist
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-router-param-injection
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useParams\(\)\.[^)]+\s+in\s+.*sql|useParams.*where'
+  - regex: useParams\(\)\.[^)]+\s+in\s+.*sql|useParams.*where
   severity: critical
-  description: "URL parameters used in database queries - injection risk"
-  remediation: "Validate and sanitize URL parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: URL parameters used in database queries - injection risk
+  remediation: Validate and sanitize URL parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.9
 - id: react-router-param-xss
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<\w+>[^<]*\{\s*useParams\(\)\.[^}]*\}[^<]*</\w+>'
+  - regex: <\w+>[^<]*\{\s*useParams\(\)\.[^}]*\}[^<]*</\w+>
   severity: high
-  description: "Rendering URL parameters without sanitization - XSS"
-  remediation: "Escape URL parameters before rendering"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Rendering URL parameters without sanitization - XSS
+  remediation: Escape URL parameters before rendering
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-router-search-params-xss
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useSearchParams\(\)\[0\]\.get\([^)]*\]'
+  - regex: useSearchParams\(\)\[0\]\.get\([^)]*\]
   severity: high
-  description: "Using query parameters in JSX - XSS risk"
-  remediation: "Sanitize query parameters before rendering"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Using query parameters in JSX - XSS risk
+  remediation: Sanitize query parameters before rendering
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-router-state-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useLocation\(\)\.state'
+  - regex: useLocation\(\)\.state
   severity: medium
-  description: "Navigation state data - may contain sensitive info"
-  remediation: "Don't pass sensitive data in navigation state"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Navigation state data - may contain sensitive info
+  remediation: Don't pass sensitive data in navigation state
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.55
 - id: react-router-redirect-component
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Navigate\s+to=\{\s*[^}]*(?:params|query|state)'
+  - regex: <Navigate\s+to=\{\s*[^}]*(?:params|query|state)
   severity: high
-  description: "Navigate component with user input - open redirect"
-  remediation: "Validate redirect paths"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Navigate component with user input - open redirect
+  remediation: Validate redirect paths
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-router-link-to
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Link\s+to=\{\s*[^}]*(?:params|query|state)'
+  - regex: <Link\s+to=\{\s*[^}]*(?:params|query|state)
   severity: high
-  description: "Link with user input - open redirect"
-  remediation: "Validate href before passing to Link"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Link with user input - open redirect
+  remediation: Validate href before passing to Link
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-router-replace-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useNavigate\(\)\([^,]+,\s*\{[^}]*state'
+  - regex: useNavigate\(\)\([^,]+,\s*\{[^}]*state
   severity: info
-  description: "Navigation with state data"
-  remediation: "Don't pass sensitive data in state"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Navigation with state data
+  remediation: Don't pass sensitive data in state
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-router-history-stack
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'window\.history\.(pushState|replaceState)'
+  - regex: window\.history\.(pushState|replaceState)
   severity: high
-  description: "Direct history manipulation - may bypass React Router"
-  remediation: "Use useNavigate instead"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Direct history manipulation - may bypass React Router
+  remediation: Use useNavigate instead
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-router-hash-link
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Link\s+to=\{\s*[''"]#[^''"]*[''"]'
+  - regex: <Link\s+to=\{\s*['"]#[^'"]*['"]
   severity: info
-  description: "Hash links - ensure target elements exist"
-  remediation: "Prevent XSS via hash injection"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Hash links - ensure target elements exist
+  remediation: Prevent XSS via hash injection
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-router-protected-route
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Route\s+element=\{\s*<ProtectedRoute'
+  - regex: <Route\s+element=\{\s*<ProtectedRoute
   severity: info
-  description: "Protected route pattern - good for auth"
-  remediation: "Ensure auth checks are robust"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Protected route pattern - good for auth
+  remediation: Ensure auth checks are robust
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.35
 - id: react-router-private-route
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'PrivateRoute|AuthRoute|RequireAuth'
+  - regex: PrivateRoute|AuthRoute|RequireAuth
   severity: info
-  description: "Private route component - ensure auth is checked"
-  remediation: "Redirect to login if not authenticated"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Private route component - ensure auth is checked
+  remediation: Redirect to login if not authenticated
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.35
 - id: react-router-role-based
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'user\.role.*<Route|roles\.includes.*<Route'
+  - regex: user\.role.*<Route|roles\.includes.*<Route
   severity: info
-  description: "Role-based route protection"
-  remediation: "Check roles on server side too"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Role-based route protection
+  remediation: Check roles on server side too
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.4
 - id: react-router-lazy-loading
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'React\.lazy.*import\([^)]+\]'
+  - regex: React\.lazy.*import\([^)]+\]
   severity: info
-  description: "Lazy loading routes - good for performance"
-  remediation: "Ensure lazy components are secure"
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: Lazy loading routes - good for performance
+  remediation: Ensure lazy components are secure
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.35
 - id: react-router-suspense-fallback
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Suspense\s+fallback=\{\s*<[^>]+>\s*\}>'
+  - regex: <Suspense\s+fallback=\{\s*<[^>]+>\s*\}>
   severity: info
-  description: "Suspense with lazy routes - good practice"
-  remediation: "Ensure fallback doesn't expose data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Suspense with lazy routes - good practice
+  remediation: Ensure fallback doesn't expose data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-router-error-boundary
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'componentDidCatch|getDerivedStateFromError'
+  - regex: componentDidCatch|getDerivedStateFromError
   severity: info
-  description: "Error boundary for route errors"
-  remediation: "Don't expose error details to users"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Error boundary for route errors
+  remediation: Don't expose error details to users
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-router-query-string-sql
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useSearchParams.*where|useSearchParams.*find|useSearchParams.*query'
+  - regex: useSearchParams.*where|useSearchParams.*find|useSearchParams.*query
   severity: critical
-  description: "Query params used in database queries - SQL injection"
-  remediation: "Validate and sanitize query parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Query params used in database queries - SQL injection
+  remediation: Validate and sanitize query parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.95
 - id: react-router-params-idor
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useParams\(\)\.id.*fetch|useParams\(\)\.id.*get'
+  - regex: useParams\(\)\.id.*fetch|useParams\(\)\.id.*get
   severity: critical
-  description: "Using URL ID directly in data fetch - IDOR vulnerability"
-  remediation: "Check authorization before fetching data"
-  cwe: "CWE-639"
-  owasp: "A01:2021"
-
+  description: Using URL ID directly in data fetch - IDOR vulnerability
+  remediation: Check authorization before fetching data
+  cwe: CWE-639
+  owasp: A01:2021
+  confidence: 0.75
 - id: react-router-use-blocker
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useBlocker|usePrompt'
+  - regex: useBlocker|usePrompt
   severity: info
-  description: "Navigation blocker - may prevent form loss"
-  remediation: "Use for unsaved changes"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Navigation blocker - may prevent form loss
+  remediation: Use for unsaved changes
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-router-basename
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'basename\s*=\s*[''"][^''"]*[''"]'
+  - regex: basename\s*=\s*['"][^'"]*['"]
   severity: info
-  description: "Router basename configuration"
-  remediation: "Ensure basename doesn't expose internal paths"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Router basename configuration
+  remediation: Ensure basename doesn't expose internal paths
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-router-force-refresh
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'forceRefresh\s*=\s*true'
+  - regex: forceRefresh\s*=\s*true
   severity: low
-  description: "Router force refresh enabled - may cause full page reloads"
-  remediation: "Use client-side routing when possible"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Router force refresh enabled - may cause full page reloads
+  remediation: Use client-side routing when possible
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: react-router-wildcard-route
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Route\s+path=\{\s*[''"][^''"]*\*[^''"]*[''"]'
+  - regex: <Route\s+path=\{\s*['"][^'"]*\*[^'"]*['"]
   severity: medium
-  description: "Wildcard route - may catch unintended paths"
-  remediation: "Use specific routes with 404 at end"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Wildcard route - may catch unintended paths
+  remediation: Use specific routes with 404 at end
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: react-router-relative-links
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'to=\{\s*[''"][^''"]*\\\/\\\/[^''"]*[''"]'
+  - regex: to=\{\s*['"][^'"]*\\\/\\\/[^'"]*['"]
   severity: high
-  description: "Absolute external URLs in Link - open redirect"
-  remediation: "Validate external URLs or use anchor tags"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Absolute external URLs in Link - open redirect
+  remediation: Validate external URLs or use anchor tags
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-router-target-blank
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Link[^>]*target\s*=\s*[''"]_blank[''"]'
+  - regex: <Link[^>]*target\s*=\s*['"]_blank['"]
   severity: high
-  description: "Link with target=_blank - reverse tabnabbing"
-  remediation: "Add rel='noopener noreferrer'"
-  cwe: "CWE-1022"
-  owasp: "N/A"
-
+  description: Link with target=_blank - reverse tabnabbing
+  remediation: Add rel='noopener noreferrer'
+  cwe: CWE-1022
+  owasp: N/A
+  confidence: 0.65
 - id: react-router-route-parameters
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Route[^>]*path=\{\s*[''"][^''"]*:[^''"]*[''"]'
+  - regex: <Route[^>]*path=\{\s*['"][^'"]*:[^'"]*['"]
   severity: info
-  description: "Route with parameters - ensure validation"
-  remediation: "Validate route parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== FORM HANDLING (201-225) ========================
-
+  description: Route with parameters - ensure validation
+  remediation: Validate route parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-controlled-component
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'value=\{\s*[^}]*\}\s+onChange'
+  - regex: value=\{\s*[^}]*\}\s+onChange
   severity: info
-  description: "Controlled component - good for validation"
-  remediation: "Continue using controlled components"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Controlled component - good for validation
+  remediation: Continue using controlled components
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-uncontrolled-component
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'defaultValue|defaultChecked'
+  - regex: defaultValue|defaultChecked
   severity: medium
-  description: "Uncontrolled component - no React state management"
-  remediation: "Use controlled components for better validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Uncontrolled component - no React state management
+  remediation: Use controlled components for better validation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: react-form-password-field
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'type=\{\s*[''"]password[''"]'
+  - regex: type=\{\s*['"]password['"]
   severity: info
-  description: "Password input field"
-  remediation: "Ensure password is never logged or stored in state"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Password input field
+  remediation: Ensure password is never logged or stored in state
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.35
 - id: react-form-password-state
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'useState.*password|password.*onChange'
+  - regex: useState.*password|password.*onChange
   severity: high
-  description: "Password stored in React state - may be exposed"
-  remediation: "Consider using ref for password fields"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Password stored in React state - may be exposed
+  remediation: Consider using ref for password fields
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.65
 - id: react-form-file-upload
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'type=\{\s*[''"]file[''"]'
+  - regex: type=\{\s*['"]file['"]
   severity: high
-  description: "File upload input - validate file types"
-  remediation: "Validate file type and size before upload"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: File upload input - validate file types
+  remediation: Validate file type and size before upload
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.65
 - id: react-form-file-multiple
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'multiple\s*(?:\\/|>)?'
+  - regex: multiple\s*(?:\\/|>)?
   severity: high
-  description: "Multiple file upload - DoS risk"
-  remediation: "Limit number of files on server"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Multiple file upload - DoS risk
+  remediation: Limit number of files on server
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: react-form-accept-all
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'accept=\{\s*[''"][^''"]*\*[^''"]*[''"]'
+  - regex: accept=\{\s*['"][^'"]*\*[^'"]*['"]
   severity: high
-  description: "File input accepts all types - security risk"
-  remediation: "Restrict accepted file types"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: File input accepts all types - security risk
+  remediation: Restrict accepted file types
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.65
 - id: react-form-email-validation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'type=\{\s*[''"]email[''"]'
+  - regex: type=\{\s*['"]email['"]
   severity: info
-  description: "Email input with built-in validation"
-  remediation: "Add server-side validation too"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Email input with built-in validation
+  remediation: Add server-side validation too
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-number-range
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'type=\{\s*[''"]number[''"].*min|max'
+  - regex: type=\{\s*['"]number['"].*min|max
   severity: info
-  description: "Number input with range validation"
-  remediation: "Validate on server side too"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Number input with range validation
+  remediation: Validate on server side too
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-pattern-validation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'pattern=\{\s*[''"][^''"]+[''"]'
+  - regex: pattern=\{\s*['"][^'"]+['"]
   severity: info
-  description: "Regex pattern validation"
-  remediation: "Ensure pattern is not vulnerable to ReDoS"
-  cwe: "CWE-1333"
-  owasp: "A06:2021"
-
+  description: Regex pattern validation
+  remediation: Ensure pattern is not vulnerable to ReDoS
+  cwe: CWE-1333
+  owasp: A06:2021
+  confidence: 0.35
 - id: react-form-max-length
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'maxLength=\{\s*\d+\s*\}'
+  - regex: maxLength=\{\s*\d+\s*\}
   severity: info
-  description: "Input max length validation"
-  remediation: "Validate on server side too"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Input max length validation
+  remediation: Validate on server side too
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-form-min-length
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'minLength=\{\s*\d+\s*\}'
+  - regex: minLength=\{\s*\d+\s*\}
   severity: info
-  description: "Input min length validation"
-  remediation: "Validate on server side too"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Input min length validation
+  remediation: Validate on server side too
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-required
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'required'
+  - regex: required
   severity: info
-  description: "Required field validation"
-  remediation: "Validate on server side too"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Required field validation
+  remediation: Validate on server side too
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-autocomplete-off
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'autocomplete=\{\s*[''"]off[''"]'
+  - regex: autocomplete=\{\s*['"]off['"]
   severity: info
-  description: "Autocomplete disabled - good for sensitive fields"
-  remediation: "Use for password and credit card fields"
-  cwe: "CWE-525"
-  owasp: "N/A"
-
+  description: Autocomplete disabled - good for sensitive fields
+  remediation: Use for password and credit card fields
+  cwe: CWE-525
+  owasp: N/A
+  confidence: 0.35
 - id: react-form-autocomplete-new-password
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'autocomplete=\{\s*[''"]new-password[''"]'
+  - regex: autocomplete=\{\s*['"]new-password['"]
   severity: info
-  description: "New password autocomplete - good practice"
-  remediation: "Use for password fields"
-  cwe: "CWE-525"
-  owasp: "N/A"
-
+  description: New password autocomplete - good practice
+  remediation: Use for password fields
+  cwe: CWE-525
+  owasp: N/A
+  confidence: 0.35
 - id: react-form-submit-handler
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onSubmit=\{\s*[^}]+\}'
+  - regex: onSubmit=\{\s*[^}]+\}
   severity: info
-  description: "Form submit handler"
-  remediation: "Call preventDefault() in handler"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Form submit handler
+  remediation: Call preventDefault() in handler
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-no-prevent-default
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onSubmit=\{\s*[^{]+\{[^}]*'
+  - regex: onSubmit=\{\s*[^{]+\{[^}]*
   severity: high
-  description: "Form submit handler without preventDefault - page reloads"
-  remediation: "Add e.preventDefault() to handle form with JS"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Form submit handler without preventDefault - page reloads
+  remediation: Add e.preventDefault() to handle form with JS
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-form-hidden-input-sensitive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'type=\{\s*[''"]hidden[''"]\s+value=\{\s*[^}]*(?:token|key|secret|password)'
+  - regex: type=\{\s*['"]hidden['"]\s+value=\{\s*[^}]*(?:token|key|secret|password)
   severity: critical
-  description: "Sensitive data in hidden input - exposed in HTML"
-  remediation: "Never put secrets in hidden inputs"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive data in hidden input - exposed in HTML
+  remediation: Never put secrets in hidden inputs
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.75
 - id: react-form-hidden-input-id
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'type=\{\s*[''"]hidden[''"]\s+value=\{\s*(?:props|state)\.[^}]*(?:id|userId)'
+  - regex: type=\{\s*['"]hidden['"]\s+value=\{\s*(?:props|state)\.[^}]*(?:id|userId)
   severity: high
-  description: "ID in hidden input - IDOR risk"
-  remediation: "Store IDs in state, not in hidden inputs"
-  cwe: "CWE-639"
-  owasp: "A01:2021"
-
+  description: ID in hidden input - IDOR risk
+  remediation: Store IDs in state, not in hidden inputs
+  cwe: CWE-639
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-form-csrf-token
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'name=\{\s*[''"]csrf_token[''"]|name=\{\s*[''"]_csrf[''"]'
+  - regex: name=\{\s*['"]csrf_token['"]|name=\{\s*['"]_csrf['"]
   severity: info
-  description: "CSRF token in form - good practice"
-  remediation: "Ensure CSRF token is validated server-side"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF token in form - good practice
+  remediation: Ensure CSRF token is validated server-side
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.35
 - id: react-form-missing-csrf
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<form[^>]*>.*?.*?</form>'
+  - regex: <form[^>]*>.*?.*?</form>
   severity: high
-  description: "Form without CSRF token - CSRF vulnerability"
-  remediation: "Include CSRF token in all POST forms"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Form without CSRF token - CSRF vulnerability
+  remediation: Include CSRF token in all POST forms
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-form-json-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'JSON\.stringify\s*\(\s*formData'
+  - regex: JSON\.stringify\s*\(\s*formData
   severity: info
-  description: "Form data serialized to JSON"
-  remediation: "Validate JSON on server"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Form data serialized to JSON
+  remediation: Validate JSON on server
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-form-multipart
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'encType=\{\s*[''"]multipart/form-data[''"]'
+  - regex: encType=\{\s*['"]multipart/form-data['"]
   severity: info
-  description: "Multipart form for file uploads"
-  remediation: "Validate file uploads server-side"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Multipart form for file uploads
+  remediation: Validate file uploads server-side
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.35
 - id: react-form-xss-payload
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'value=\{\s*[''"]<script|value=\{\s*[''"]javascript:'
+  - regex: 'value=\{\s*[''"]<script|value=\{\s*[''"]javascript:'
   severity: critical
-  description: "Potential XSS payload in form value"
-  remediation: "Never trust form input values"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Potential XSS payload in form value
+  remediation: Never trust form input values
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-form-callback-data
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onChange=\{\s*[^}]+\}\s+value=\{\s*[^}]+\}'
+  - regex: onChange=\{\s*[^}]+\}\s+value=\{\s*[^}]+\}
   severity: info
-  description: "Controlled component - good practice"
-  remediation: "Continue using for form validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Controlled component - good practice
+  remediation: Continue using for form validation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-form-debounce
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'debounce|_.debounce|lodash/debounce'
+  - regex: debounce|_.debounce|lodash/debounce
   severity: info
-  description: "Debounced form input - good for performance"
-  remediation: "Use for expensive operations"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-# ======================== EVENT HANDLERS (226-250) ========================
-
+  description: Debounced form input - good for performance
+  remediation: Use for expensive operations
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-event-inline-arrow
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'onClick=\{\s*\(\)\s*=>\s*[^{]+\}'
+  - regex: onClick=\{\s*\(\)\s*=>\s*[^{]+\}
   severity: info
-  description: "Inline arrow function in event handler - creates new function each render"
-  remediation: "Use useCallback to memoize event handlers"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Inline arrow function in event handler - creates new function each render
+  remediation: Use useCallback to memoize event handlers
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.4
 - id: react-event-memoized
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'onClick=\{\s*\w+\s*\}'
+  - regex: onClick=\{\s*\w+\s*\}
   severity: info
-  description: "Memoized event handler - good practice"
-  remediation: "Continue using memoized handlers"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Memoized event handler - good practice
+  remediation: Continue using memoized handlers
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-event-passive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'addEventListener\([^,]+,\s*[^,]+,\s*\{[^}]*passive:\s*true'
+  - regex: addEventListener\([^,]+,\s*[^,]+,\s*\{[^}]*passive:\s*true
   severity: info
-  description: "Passive event listener - good for scroll performance"
-  remediation: "Use for scroll/touch events"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Passive event listener - good for scroll performance
+  remediation: Use for scroll/touch events
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-event-once
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'addEventListener\([^,]+,\s*[^,]+,\s*\{[^}]*once:\s*true'
+  - regex: addEventListener\([^,]+,\s*[^,]+,\s*\{[^}]*once:\s*true
   severity: info
-  description: "One-time event listener - good for initialization"
-  remediation: "Use for events that should fire once"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: One-time event listener - good for initialization
+  remediation: Use for events that should fire once
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-capture
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'addEventListener\([^,]+,\s*[^,]+,\s*true\)'
+  - regex: addEventListener\([^,]+,\s*[^,]+,\s*true\)
   severity: info
-  description: "Event listener in capture phase"
-  remediation: "Use carefully, affects event propagation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Event listener in capture phase
+  remediation: Use carefully, affects event propagation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-window
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'window\.addEventListener'
+  - regex: window\.addEventListener
   severity: info
-  description: "Window event listener - ensure cleanup"
-  remediation: "Remove listener in cleanup"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: Window event listener - ensure cleanup
+  remediation: Remove listener in cleanup
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-event-document
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'document\.addEventListener'
+  - regex: document\.addEventListener
   severity: info
-  description: "Document event listener - ensure cleanup"
-  remediation: "Remove listener in cleanup"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: Document event listener - ensure cleanup
+  remediation: Remove listener in cleanup
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-event-global
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'global\.addEventListener'
+  - regex: global\.addEventListener
   severity: info
-  description: "Global event listener - ensure cleanup"
-  remediation: "Remove listener in cleanup"
-  cwe: "CWE-401"
-  owasp: "A05:2021"
-
+  description: Global event listener - ensure cleanup
+  remediation: Remove listener in cleanup
+  cwe: CWE-401
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-event-prevent-default
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'preventDefault\(\)'
+  - regex: preventDefault\(\)
   severity: info
-  description: "preventDefault called - good for custom behavior"
-  remediation: "Use for custom form handling"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: preventDefault called - good for custom behavior
+  remediation: Use for custom form handling
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-stop-propagation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'stopPropagation\(\)'
+  - regex: stopPropagation\(\)
   severity: info
-  description: "stopPropagation called - affects event flow"
-  remediation: "Use carefully, understand event bubbling"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: stopPropagation called - affects event flow
+  remediation: Use carefully, understand event bubbling
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-keyboard
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onKeyDown|onKeyPress|onKeyUp'
+  - regex: onKeyDown|onKeyPress|onKeyUp
   severity: info
-  description: "Keyboard event handlers"
-  remediation: "Validate key inputs"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Keyboard event handlers
+  remediation: Validate key inputs
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-mouse
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onClick|onDoubleClick|onMouseDown|onMouseUp|onMouseMove'
+  - regex: onClick|onDoubleClick|onMouseDown|onMouseUp|onMouseMove
   severity: info
-  description: "Mouse event handlers"
-  remediation: "Ensure handlers don't expose sensitive info"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Mouse event handlers
+  remediation: Ensure handlers don't expose sensitive info
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-touch
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onTouchStart|onTouchMove|onTouchEnd|onTouchCancel'
+  - regex: onTouchStart|onTouchMove|onTouchEnd|onTouchCancel
   severity: info
-  description: "Touch event handlers"
-  remediation: "Use passive option for performance"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Touch event handlers
+  remediation: Use passive option for performance
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-event-focus
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onFocus|onBlur'
+  - regex: onFocus|onBlur
   severity: info
-  description: "Focus event handlers"
-  remediation: "Use for form validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Focus event handlers
+  remediation: Use for form validation
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-change
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onChange'
+  - regex: onChange
   severity: info
-  description: "Change event handler"
-  remediation: "Validate input changes"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Change event handler
+  remediation: Validate input changes
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-input
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onInput'
+  - regex: onInput
   severity: info
-  description: "Input event handler"
-  remediation: "Validate input in real-time"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Input event handler
+  remediation: Validate input in real-time
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-submit
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onSubmit'
+  - regex: onSubmit
   severity: info
-  description: "Submit event handler"
-  remediation: "Validate form before submission"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Submit event handler
+  remediation: Validate form before submission
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-scroll
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onScroll'
+  - regex: onScroll
   severity: info
-  description: "Scroll event handler"
-  remediation: "Use passive option for performance"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Scroll event handler
+  remediation: Use passive option for performance
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-event-wheel
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onWheel'
+  - regex: onWheel
   severity: info
-  description: "Wheel event handler"
-  remediation: "Use passive option"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Wheel event handler
+  remediation: Use passive option
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-event-drag
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onDrag|onDragStart|onDragEnd|onDragEnter|onDragLeave|onDragOver|onDrop'
+  - regex: onDrag|onDragStart|onDragEnd|onDragEnter|onDragLeave|onDragOver|onDrop
   severity: info
-  description: "Drag and drop event handlers"
-  remediation: "Validate dropped content"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Drag and drop event handlers
+  remediation: Validate dropped content
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-event-clipboard
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onCopy|onCut|onPaste'
+  - regex: onCopy|onCut|onPaste
   severity: info
-  description: "Clipboard event handlers"
-  remediation: "Sanitize pasted content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Clipboard event handlers
+  remediation: Sanitize pasted content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-animation
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onAnimationStart|onAnimationEnd|onAnimationIteration'
+  - regex: onAnimationStart|onAnimationEnd|onAnimationIteration
   severity: info
-  description: "Animation event handlers"
-  remediation: "Ensure animations don't hide content"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Animation event handlers
+  remediation: Ensure animations don't hide content
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-event-transition
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'onTransitionEnd|onTransitionRun|onTransitionStart|onTransitionCancel'
+  - regex: onTransitionEnd|onTransitionRun|onTransitionStart|onTransitionCancel
   severity: info
-  description: "Transition event handlers"
-  remediation: "Ensure transitions don't hide content"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Transition event handlers
+  remediation: Ensure transitions don't hide content
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.4
 - id: react-event-touchmove-passive
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'addEventListener\([^,]+,\s*[^,]+,\s*\{[^}]*passive:\s*false'
+  - regex: addEventListener\([^,]+,\s*[^,]+,\s*\{[^}]*passive:\s*false
   severity: high
-  description: "Non-passive touchmove listener - scroll performance issues"
-  remediation: "Use passive: true for touchmove"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Non-passive touchmove listener - scroll performance issues
+  remediation: 'Use passive: true for touchmove'
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.65
 - id: react-event-resize
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'window\.addEventListener\([^,]*resize'
+  - regex: window\.addEventListener\([^,]*resize
   severity: info
-  description: "Window resize event - debounce for performance"
-  remediation: "Use debounced handler"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Window resize event - debounce for performance
+  remediation: Use debounced handler
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-event-popstate
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'window\.addEventListener\([^,]*popstate'
+  - regex: window\.addEventListener\([^,]*popstate
   severity: info
-  description: "Popstate event for history changes"
-  remediation: "Ensure proper state restoration"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== IFrame SECURITY (251-275) ========================
-
+  description: Popstate event for history changes
+  remediation: Ensure proper state restoration
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-iframe-sandbox
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe[^>]*sandbox'
+  - regex: <iframe[^>]*sandbox
   severity: info
-  description: "Iframe with sandbox attribute - good for untrusted content"
-  remediation: "Use sandbox with minimal permissions"
-  cwe: "CWE-829"
-  owasp: "A05:2021"
-
+  description: Iframe with sandbox attribute - good for untrusted content
+  remediation: Use sandbox with minimal permissions
+  cwe: CWE-829
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-iframe-no-sandbox
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe[^>]*src[^>]*'
+  - regex: <iframe[^>]*src[^>]*
   severity: high
-  description: "Iframe without sandbox - may execute scripts"
-  remediation: "Add sandbox attribute with appropriate restrictions"
-  cwe: "CWE-829"
-  owasp: "A05:2021"
-
+  description: Iframe without sandbox - may execute scripts
+  remediation: Add sandbox attribute with appropriate restrictions
+  cwe: CWE-829
+  owasp: A05:2021
+  confidence: 0.65
 - id: react-iframe-sandbox-allow-scripts
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'sandbox=\{\s*[''"][^''"]*allow-scripts[^''"]*[''"]'
+  - regex: sandbox=\{\s*['"][^'"]*allow-scripts[^'"]*['"]
   severity: high
-  description: "Iframe sandbox allows scripts - XSS risk if content untrusted"
-  remediation: "Remove allow-scripts if not needed"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Iframe sandbox allows scripts - XSS risk if content untrusted
+  remediation: Remove allow-scripts if not needed
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-iframe-sandbox-allow-same-origin
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'sandbox=\{\s*[''"][^''"]*allow-same-origin[^''"]*[''"]'
+  - regex: sandbox=\{\s*['"][^'"]*allow-same-origin[^'"]*['"]
   severity: high
-  description: "Iframe sandbox with allow-same-origin - may expose DOM"
-  remediation: "Remove if iframe content is untrusted"
-  cwe: "CWE-829"
-  owasp: "A05:2021"
-
+  description: Iframe sandbox with allow-same-origin - may expose DOM
+  remediation: Remove if iframe content is untrusted
+  cwe: CWE-829
+  owasp: A05:2021
+  confidence: 0.65
 - id: react-iframe-sandbox-allow-top-navigation
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'sandbox=\{\s*[''"][^''"]*allow-top-navigation[^''"]*[''"]'
+  - regex: sandbox=\{\s*['"][^'"]*allow-top-navigation[^'"]*['"]
   severity: critical
-  description: "Iframe can navigate top window - phishing risk"
-  remediation: "Remove allow-top-navigation"
-  cwe: "CWE-1021"
-  owasp: "A01:2021"
-
+  description: Iframe can navigate top window - phishing risk
+  remediation: Remove allow-top-navigation
+  cwe: CWE-1021
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-iframe-sandbox-allow-forms
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'sandbox=\{\s*[''"][^''"]*allow-forms[^''"]*[''"]'
+  - regex: sandbox=\{\s*['"][^'"]*allow-forms[^'"]*['"]
   severity: high
-  description: "Iframe sandbox allows forms - CSRF risk"
-  remediation: "Remove allow-forms if not needed"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Iframe sandbox allows forms - CSRF risk
+  remediation: Remove allow-forms if not needed
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-iframe-sandbox-allow-popups
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'sandbox=\{\s*[''"][^''"]*allow-popups[^''"]*[''"]'
+  - regex: sandbox=\{\s*['"][^'"]*allow-popups[^'"]*['"]
   severity: high
-  description: "Iframe can open popups - spam/phishing risk"
-  remediation: "Remove allow-popups"
-  cwe: "CWE-1021"
-  owasp: "A01:2021"
-
+  description: Iframe can open popups - spam/phishing risk
+  remediation: Remove allow-popups
+  cwe: CWE-1021
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-iframe-srcdoc
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe[^>]*srcdoc\s*='
+  - regex: <iframe[^>]*srcdoc\s*=
   severity: critical
-  description: "Iframe with srcdoc - can contain executable content"
-  remediation: "Sanitize srcdoc content, avoid with user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Iframe with srcdoc - can contain executable content
+  remediation: Sanitize srcdoc content, avoid with user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-iframe-srcdoc-user-input
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'srcdoc=\{\s*[^}]*(?:props|state|userInput)'
+  - regex: srcdoc=\{\s*[^}]*(?:props|state|userInput)
   severity: critical
-  description: "Iframe srcdoc with user input - XSS"
-  remediation: "Never use user input in srcdoc"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Iframe srcdoc with user input - XSS
+  remediation: Never use user input in srcdoc
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-iframe-src-javascript
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'src=\{\s*[''"]javascript:'
+  - regex: 'src=\{\s*[''"]javascript:'
   severity: critical
-  description: "Iframe with javascript: src - XSS"
-  remediation: "Never use javascript: URLs in iframe src"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: 'Iframe with javascript: src - XSS'
+  remediation: 'Never use javascript: URLs in iframe src'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-iframe-src-data
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'src=\{\s*[''"]data:'
+  - regex: 'src=\{\s*[''"]data:'
   severity: critical
-  description: "Iframe with data: src - XSS via data URIs"
-  remediation: "Block data: URLs in iframe src"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: 'Iframe with data: src - XSS via data URIs'
+  remediation: 'Block data: URLs in iframe src'
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-iframe-src-http
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'src=\{\s*[''"]http://[^''"]*[''"]'
+  - regex: src=\{\s*['"]http://[^'"]*['"]
   severity: high
-  description: "Iframe loading over HTTP - MITM risk"
-  remediation: "Use HTTPS URLs for iframes"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Iframe loading over HTTP - MITM risk
+  remediation: Use HTTPS URLs for iframes
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: react-iframe-allow
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe[^>]*allow\s*='
+  - regex: <iframe[^>]*allow\s*=
   severity: info
-  description: "Iframe with allow attribute - permissions policy"
-  remediation: "Restrict permissions to minimum needed"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Iframe with allow attribute - permissions policy
+  remediation: Restrict permissions to minimum needed
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.35
 - id: react-iframe-allow-camera
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'allow=\{\s*[''"][^''"]*camera[^''"]*[''"]'
+  - regex: allow=\{\s*['"][^'"]*camera[^'"]*['"]
   severity: critical
-  description: "Iframe allowed camera access - privacy risk"
-  remediation: "Remove camera permission unless absolutely needed"
-  cwe: "CWE-359"
-  owasp: "A01:2021"
-
+  description: Iframe allowed camera access - privacy risk
+  remediation: Remove camera permission unless absolutely needed
+  cwe: CWE-359
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-iframe-allow-microphone
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'allow=\{\s*[''"][^''"]*microphone[^''"]*[''"]'
+  - regex: allow=\{\s*['"][^'"]*microphone[^'"]*['"]
   severity: critical
-  description: "Iframe allowed microphone access - privacy risk"
-  remediation: "Remove microphone permission unless needed"
-  cwe: "CWE-359"
-  owasp: "A01:2021"
-
+  description: Iframe allowed microphone access - privacy risk
+  remediation: Remove microphone permission unless needed
+  cwe: CWE-359
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-iframe-allow-geolocation
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'allow=\{\s*[''"][^''"]*geolocation[^''"]*[''"]'
+  - regex: allow=\{\s*['"][^'"]*geolocation[^'"]*['"]
   severity: critical
-  description: "Iframe allowed geolocation - privacy risk"
-  remediation: "Remove geolocation permission"
-  cwe: "CWE-359"
-  owasp: "A01:2021"
-
+  description: Iframe allowed geolocation - privacy risk
+  remediation: Remove geolocation permission
+  cwe: CWE-359
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-iframe-allow-payment
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'allow=\{\s*[''"][^''"]*payment[^''"]*[''"]'
+  - regex: allow=\{\s*['"][^'"]*payment[^'"]*['"]
   severity: critical
-  description: "Iframe allowed payment API - financial fraud risk"
-  remediation: "Never allow payment in untrusted iframes"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Iframe allowed payment API - financial fraud risk
+  remediation: Never allow payment in untrusted iframes
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-iframe-allow-usb
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'allow=\{\s*[''"][^''"]*usb[^''"]*[''"]'
+  - regex: allow=\{\s*['"][^'"]*usb[^'"]*['"]
   severity: critical
-  description: "Iframe allowed USB access - security risk"
-  remediation: "Remove USB permission"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Iframe allowed USB access - security risk
+  remediation: Remove USB permission
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-iframe-allow-midi
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'allow=\{\s*[''"][^''"]*midi[^''"]*[''"]'
+  - regex: allow=\{\s*['"][^'"]*midi[^'"]*['"]
   severity: high
-  description: "Iframe allowed MIDI access"
-  remediation: "Remove if not needed"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Iframe allowed MIDI access
+  remediation: Remove if not needed
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: react-iframe-allow-fullscreen
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'allowfullscreen|webkitallowfullscreen|mozallowfullscreen'
+  - regex: allowfullscreen|webkitallowfullscreen|mozallowfullscreen
   severity: medium
-  description: "Iframe allowed fullscreen - UI redressing risk"
-  remediation: "Use with caution"
-  cwe: "CWE-1021"
-  owasp: "A01:2021"
-
+  description: Iframe allowed fullscreen - UI redressing risk
+  remediation: Use with caution
+  cwe: CWE-1021
+  owasp: A01:2021
+  confidence: 0.55
 - id: react-iframe-name
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: '<iframe[^>]*name\s*='
+  - regex: <iframe[^>]*name\s*=
   severity: info
-  description: "Iframe name attribute"
-  remediation: "Use for targeting forms/targets"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Iframe name attribute
+  remediation: Use for targeting forms/targets
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-iframe-loading
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'loading=\{\s*[''"]lazy[''"]'
+  - regex: loading=\{\s*['"]lazy['"]
   severity: info
-  description: "Lazy loading iframe - good for performance"
-  remediation: "Use for off-screen iframes"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Lazy loading iframe - good for performance
+  remediation: Use for off-screen iframes
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-iframe-referrerpolicy
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'referrerpolicy=\{\s*[''"]no-referrer[''"]'
+  - regex: referrerpolicy=\{\s*['"]no-referrer['"]
   severity: info
-  description: "Iframe with no-referrer policy - good for privacy"
-  remediation: "Continue using strict referrer policies"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Iframe with no-referrer policy - good for privacy
+  remediation: Continue using strict referrer policies
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-iframe-credentialless
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'credentialless'
+  - regex: credentialless
   severity: info
-  description: "Credentialless iframe - isolates from credentials"
-  remediation: "Good for untrusted content"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Credentialless iframe - isolates from credentials
+  remediation: Good for untrusted content
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-iframe-csp
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'csp=\{\s*[''"][^''"]*[''"]'
+  - regex: csp=\{\s*['"][^'"]*['"]
   severity: info
-  description: "Iframe with CSP attribute - restricts embedded content"
-  remediation: "Use for additional security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Iframe with CSP attribute - restricts embedded content
+  remediation: Use for additional security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-iframe-src-relative
-  languages: [javascript, typescript, jsx, tsx]
+  languages:
+  - javascript
+  - typescript
+  - jsx
+  - tsx
   patterns:
-    - regex: 'src=\{\s*[''"][^http][^''"]*[''"]'
+  - regex: src=\{\s*['"][^http][^'"]*['"]
   severity: low
-  description: "Relative iframe src - ensure path is safe"
-  remediation: "Use absolute paths for clarity"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# ======================== SCRIPT LOADING (276-300) ========================
-
+  description: Relative iframe src - ensure path is safe
+  remediation: Use absolute paths for clarity
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: react-script-dynamic-load
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'document\.createElement\s*\(\s*[''"]script[''"]'
+  - regex: document\.createElement\s*\(\s*['"]script['"]
   severity: critical
-  description: "Dynamically creating script elements - XSS risk"
-  remediation: "Use next/script or react-helmet for script loading"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Dynamically creating script elements - XSS risk
+  remediation: Use next/script or react-helmet for script loading
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-script-src-dynamic
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'script\.src\s*=\s*[^;]*userInput'
+  - regex: script\.src\s*=\s*[^;]*userInput
   severity: critical
-  description: "Dynamic script src from user input - RCE"
-  remediation: "Never load scripts from user input"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Dynamic script src from user input - RCE
+  remediation: Never load scripts from user input
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-script-innerhtml
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'script\.innerHTML\s*=\s*[^;]+'
+  - regex: script\.innerHTML\s*=\s*[^;]+
   severity: critical
-  description: "Setting script innerHTML - code injection"
-  remediation: "Never set script content dynamically"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Setting script innerHTML - code injection
+  remediation: Never set script content dynamically
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-script-text
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'script\.text\s*=\s*[^;]+'
+  - regex: script\.text\s*=\s*[^;]+
   severity: critical
-  description: "Setting script text - code injection"
-  remediation: "Never set script content dynamically"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Setting script text - code injection
+  remediation: Never set script content dynamically
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.7
 - id: react-script-append-child
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'appendChild\s*\(\s*script'
+  - regex: appendChild\s*\(\s*script
   severity: high
-  description: "Appending script to DOM - ensure script is trusted"
-  remediation: "Use trusted script sources only"
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: Appending script to DOM - ensure script is trusted
+  remediation: Use trusted script sources only
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.7
 - id: react-script-jsonp
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'jsonp|JSONP'
+  - regex: jsonp|JSONP
   severity: high
-  description: "JSONP usage - XSS risk"
-  remediation: "Use CORS instead of JSONP"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: JSONP usage - XSS risk
+  remediation: Use CORS instead of JSONP
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-script-integrity
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'integrity\s*=\s*[''"][^''"]+[''"]'
+  - regex: integrity\s*=\s*['"][^'"]+['"]
   severity: info
-  description: "Subresource Integrity for scripts - good practice"
-  remediation: "Continue using SRI for external scripts"
-  cwe: "CWE-353"
-  owasp: "A06:2021"
-
+  description: Subresource Integrity for scripts - good practice
+  remediation: Continue using SRI for external scripts
+  cwe: CWE-353
+  owasp: A06:2021
+  confidence: 0.35
 - id: react-script-crossorigin
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'crossorigin\s*='
+  - regex: crossorigin\s*=
   severity: info
-  description: "Crossorigin attribute for scripts"
-  remediation: "Use anonymous for CORS"
-  cwe: "CWE-942"
-  owasp: "A05:2021"
-
+  description: Crossorigin attribute for scripts
+  remediation: Use anonymous for CORS
+  cwe: CWE-942
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-script-async
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'async'
+  - regex: async
   severity: info
-  description: "Async script loading - good for performance"
-  remediation: "Use for non-critical scripts"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Async script loading - good for performance
+  remediation: Use for non-critical scripts
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-script-defer
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'defer'
+  - regex: defer
   severity: info
-  description: "Defer script loading - good for performance"
-  remediation: "Use for scripts that need DOM"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Defer script loading - good for performance
+  remediation: Use for scripts that need DOM
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.35
 - id: react-script-type-module
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'type=\{\s*[''"]module[''"]'
+  - regex: type=\{\s*['"]module['"]
   severity: info
-  description: "ES6 module script - modern approach"
-  remediation: "Use for modern JavaScript"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ES6 module script - modern approach
+  remediation: Use for modern JavaScript
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-script-nomodule
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'nomodule'
+  - regex: nomodule
   severity: info
-  description: "Nomodule fallback for older browsers"
-  remediation: "Use for legacy browser support"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Nomodule fallback for older browsers
+  remediation: Use for legacy browser support
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.35
 - id: react-script-https
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'src=\{\s*[''"]http://[^''"]*[''"]'
+  - regex: src=\{\s*['"]http://[^'"]*['"]
   severity: critical
-  description: "Script loaded over HTTP - MITM attack"
-  remediation: "Use HTTPS for all script sources"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Script loaded over HTTP - MITM attack
+  remediation: Use HTTPS for all script sources
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.7
 - id: react-script-localstorage
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'localStorage\.getItem.*script'
+  - regex: localStorage\.getItem.*script
   severity: high
-  description: "Loading script from localStorage - XSS risk"
-  remediation: "Never execute scripts from storage"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Loading script from localStorage - XSS risk
+  remediation: Never execute scripts from storage
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: react-script-eval
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'eval\s*\(\s*[^)]+\]'
+  - regex: eval\s*\(\s*[^)]+\]
   severity: critical
-  description: "eval in React component - code injection"
-  remediation: "Never use eval in React"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: eval in React component - code injection
+  remediation: Never use eval in React
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-script-function-constructor
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'new\s+Function\s*\('
+  - regex: new\s+Function\s*\(
   severity: critical
-  description: "Function constructor in React - code injection"
-  remediation: "Avoid dynamic function creation"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Function constructor in React - code injection
+  remediation: Avoid dynamic function creation
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-script-web-worker
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'new\s+Worker\s*\('
+  - regex: new\s+Worker\s*\(
   severity: medium
-  description: "Web Worker in React - ensure worker script is trusted"
-  remediation: "Load workers from trusted sources"
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: Web Worker in React - ensure worker script is trusted
+  remediation: Load workers from trusted sources
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.6
 - id: react-script-shared-worker
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'new\s+SharedWorker\s*\('
+  - regex: new\s+SharedWorker\s*\(
   severity: medium
-  description: "SharedWorker in React - ensure worker is trusted"
-  remediation: "Validate worker origin"
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: SharedWorker in React - ensure worker is trusted
+  remediation: Validate worker origin
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.6
 - id: react-script-service-worker
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'navigator\.serviceWorker\.register'
+  - regex: navigator\.serviceWorker\.register
   severity: high
-  description: "Service Worker registration - can intercept requests"
-  remediation: "Restrict service worker scope"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Service Worker registration - can intercept requests
+  remediation: Restrict service worker scope
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: react-script-import-map
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'import-map|importmap'
+  - regex: import-map|importmap
   severity: info
-  description: "Import map usage - module resolution"
-  remediation: "Ensure import map is trusted"
-  cwe: "CWE-829"
-  owasp: "A06:2021"
-
+  description: Import map usage - module resolution
+  remediation: Ensure import map is trusted
+  cwe: CWE-829
+  owasp: A06:2021
+  confidence: 0.35
 - id: react-script-helmet
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'import\s+.*from\s+[''"]react-helmet[''"]'
+  - regex: import\s+.*from\s+['"]react-helmet['"]
   severity: info
-  description: "React Helmet for managing head"
-  remediation: "Continue using for SEO/metadata"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: React Helmet for managing head
+  remediation: Continue using for SEO/metadata
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-script-helmet-async
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'import\s+.*from\s+[''"]react-helmet-async[''"]'
+  - regex: import\s+.*from\s+['"]react-helmet-async['"]
   severity: info
-  description: "React Helmet Async for concurrent rendering"
-  remediation: "Good for SSR apps"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: React Helmet Async for concurrent rendering
+  remediation: Good for SSR apps
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.35
 - id: react-script-document-write
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'document\.write\s*\('
+  - regex: document\.write\s*\(
   severity: critical
-  description: "document.write in React - XSS and rendering issues"
-  remediation: "Never use document.write in React"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: document.write in React - XSS and rendering issues
+  remediation: Never use document.write in React
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-script-import-dynamic
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'import\s*\(\s*[^)]*userInput'
+  - regex: import\s*\(\s*[^)]*userInput
   severity: critical
-  description: "Dynamic import with user input - code injection"
-  remediation: "Use static import paths"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Dynamic import with user input - code injection
+  remediation: Use static import paths
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-script-require-dynamic
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'require\s*\(\s*[^)]*userInput'
+  - regex: require\s*\(\s*[^)]*userInput
   severity: critical
-  description: "Dynamic require with user input - code injection"
-  remediation: "Use static require paths"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Dynamic require with user input - code injection
+  remediation: Use static require paths
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: react-script-lazy-load
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'React\.lazy\s*\('
+  - regex: React\.lazy\s*\(
   severity: info
-  description: "React.lazy for code splitting - good for performance"
-  remediation: "Continue using for bundle optimization"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: React.lazy for code splitting - good for performance
+  remediation: Continue using for bundle optimization
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.4
 - id: react-script-suspense
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '<Suspense[^>]*>.*</Suspense>'
+  - regex: <Suspense[^>]*>.*</Suspense>
   severity: info
-  description: "Suspense with lazy components"
-  remediation: "Provide meaningful fallback"
-  cwe: "CWE-20"
-  owasp: "A03:2023"
+  description: Suspense with lazy components
+  remediation: Provide meaningful fallback
+  cwe: CWE-20
+  owasp: A03:2023
+  confidence: 0.35

@@ -15,21 +15,25 @@
 - id: graphql-missing-depth-limit
   languages: [javascript, typescript, python, java, go]
   patterns:
-    - regex: '(?i)ApolloServer\s*\(\s*\{(?![^}]*validationRules[^}]*graphql-depth-limit)'
-    - regex: '(?i)graphqlHTTP\s*\(\s*\{(?![^}]*validationRules[^}]*depthLimit)'
+    - regex: '(?i)(?:graphql|GraphQL|ApolloServer|strawberry\.GraphQL|graphene\.Schema)\s*\('
+  negative_patterns:
+    - regex: '(?i)depthLimit|depth_limit|MaxDepth|max_depth|queryDepth'
+    - regex: '(?i)QueryComplexity|query_complexity'
   severity: high
-  description: "GraphQL server instantiated without a depth limit validation rule. Attackers can execute deeply nested recursive queries (e.g., User -> Friends -> User -> Friends), leading to resource exhaustion and DoS."
+  description: "GraphQL server configured without query depth limit — enables deeply nested queries that cause DoS (O(n^depth) database queries)."
   remediation: "Apply a strict GraphQL Depth Limit validation rule. In Node.js, use the 'graphql-depth-limit' library and pass it into the validationRules array of the server configuration."
   cwe: "CWE-400"
   owasp: "API4:2023-Unrestricted Resource Consumption"
-  confidence: 0.70
+  confidence: 0.7
 
 - id: graphql-missing-query-complexity
   languages: [javascript, typescript, python, java, go]
   patterns:
-    - regex: '(?i)ApolloServer\s*\(\s*\{(?![^}]*validationRules[^}]*complexity)'
+    - regex: '(?i)(?:graphql|ApolloServer|strawberry\.GraphQL|graphene\.Schema)\s*\('
+  negative_patterns:
+    - regex: '(?i)complexity|QueryComplexity|complexityLimit'
   severity: medium
-  description: "GraphQL server started without a Cost/Complexity analysis validation rule. Wide but shallow queries using many computationally expensive fields or excessive aliases can exhaust server resources."
+  description: "GraphQL server configured without query complexity limit — expensive queries can exhaust server resources."
   remediation: "Implement query complexity analysis using a library like 'graphql-query-complexity'. Assign costs to heavy resolvers and reject queries exceeding a maximum total cost score."
   cwe: "CWE-400"
   owasp: "API4:2023-Unrestricted Resource Consumption"

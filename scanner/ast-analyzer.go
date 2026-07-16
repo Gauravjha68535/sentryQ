@@ -13,10 +13,14 @@ import (
 	"SentryQ/utils"
 
 	treeSitter "github.com/smacker/go-tree-sitter"
+	golang "github.com/smacker/go-tree-sitter/golang"
 	java "github.com/smacker/go-tree-sitter/java"
 	javascript "github.com/smacker/go-tree-sitter/javascript"
 	kotlin "github.com/smacker/go-tree-sitter/kotlin"
 	python "github.com/smacker/go-tree-sitter/python"
+	ruby "github.com/smacker/go-tree-sitter/ruby"
+	rust "github.com/smacker/go-tree-sitter/rust"
+	typescript "github.com/smacker/go-tree-sitter/typescript/typescript"
 )
 
 // ASTAnalyzer performs AST-based vulnerability detection
@@ -41,15 +45,16 @@ func NewASTAnalyzer() *ASTAnalyzer {
 		parserMu:  make(map[string]*sync.Mutex),
 	}
 
-	// Register supported languages.
-	// TypeScript is intentionally omitted: the go-tree-sitter JavaScript grammar
-	// does not cover TypeScript-specific syntax (generics, decorators, type annotations).
-	// Using it for .ts/.tsx files causes silent parse failures. A dedicated
-	// github.com/smacker/go-tree-sitter/typescript grammar is needed to support TS properly.
-	analyzer.languages["python"] = python.GetLanguage()
+	// Register all supported languages.
+	// Each uses its own dedicated tree-sitter grammar from go-tree-sitter.
+	analyzer.languages["python"]     = python.GetLanguage()
 	analyzer.languages["javascript"] = javascript.GetLanguage()
-	analyzer.languages["java"] = java.GetLanguage()
-	analyzer.languages["kotlin"] = kotlin.GetLanguage()
+	analyzer.languages["typescript"] = typescript.GetLanguage()
+	analyzer.languages["java"]       = java.GetLanguage()
+	analyzer.languages["kotlin"]     = kotlin.GetLanguage()
+	analyzer.languages["go"]         = golang.GetLanguage()
+	analyzer.languages["ruby"]       = ruby.GetLanguage()
+	analyzer.languages["rust"]       = rust.GetLanguage()
 
 	// Initialize parsers and per-language mutexes.
 	// Each language gets its own mutex so different languages can be parsed
@@ -123,6 +128,12 @@ func (aa *ASTAnalyzer) AnalyzeFile(ctx context.Context, filePath string) ([]repo
 		findings = aa.analyzeJavaAST(rootNode, content, lines, filePath, &srNo)
 	case "kotlin":
 		findings = aa.analyzeKotlinAST(rootNode, content, lines, filePath, &srNo)
+	case "go":
+		findings = aa.analyzeGoAST(rootNode, content, lines, filePath, &srNo)
+	case "ruby":
+		findings = aa.analyzeRubyAST(rootNode, content, lines, filePath, &srNo)
+	case "rust":
+		findings = aa.analyzeRustAST(rootNode, content, lines, filePath, &srNo)
 	}
 
 	return findings, nil
@@ -904,6 +915,242 @@ func (aa *ASTAnalyzer) checkPIILogging(node *treeSitter.Node, content []byte, fi
 				break // One finding per logging statement
 			}
 		}
+	}
+
+	return findings
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Go AST Analysis
+// ═══════════════════════════════════════════════════════════════════════════
+
+func (aa *ASTAnalyzer) analyzeGoAST(node *treeSitter.Node, content []byte, lines []string, filePath string, srNo *int) []reporter.Finding {
+	var findings []reporter.Finding
+	nodeType := node.Type()
+	sp := node.StartPoint()
+	ep := node.EndPoint()
+	lineRef := formatLineRef(int(sp.Row+1), int(ep.Row+1))
+
+	switch nodeType {
+	case "call_expression":
+		findings = append(findings, aa.checkGoCallExpression(node, content, filePath, srNo, lineRef)...)
+	case "assignment_statement", "short_var_decl":
+		findings = append(findings, aa.checkGoAssignment(node, content, filePath, srNo, lineRef)...)
+	}
+	for i := 0; i < int(node.ChildCount()); i++ {
+		findings = append(findings, aa.analyzeGoAST(node.Child(i), content, lines, filePath, srNo)...)
+	}
+	return findings
+}
+
+func (aa *ASTAnalyzer) checkGoCallExpression(node *treeSitter.Node, content []byte, filePath string, srNo *int, lineRef string) []reporter.Finding {
+	var findings []reporter.Finding
+	t := strings.ToLower(node.Content(content))
+
+	isDB := strings.Contains(t, "db.query") || strings.Contains(t, "db.exec") ||
+		strings.Contains(t, "db.queryrow") || strings.Contains(t, "tx.query") || strings.Contains(t, "tx.exec")
+	hasSprintf := strings.Contains(t, "fmt.sprintf")
+	hasSQL := strings.Contains(t, "select ") || strings.Contains(t, "insert ") || strings.Contains(t, "update ") || strings.Contains(t, "delete ")
+
+	if isDB && (hasSprintf || (hasSQL && strings.Contains(t, "+"))) {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "SQL Injection: Go db.Query with dynamic SQL",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "db.Query/Exec called with a dynamically built SQL string. fmt.Sprintf or concatenation with user input leads to SQL injection.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Use parameterized queries: db.Query(\"SELECT * FROM t WHERE id = $1\", id)",
+			RuleID: "ast-go-sqli-db-dynamic", Source: "ast-analyzer", CWE: "CWE-89", OWASP: "A03:2021", Confidence: 0.90,
+		})
+		*srNo++
+	}
+
+	isExec := strings.Contains(t, "exec.command")
+	if isExec && hasSprintf {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "Command Injection: exec.Command with fmt.Sprintf",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "exec.Command arguments constructed with fmt.Sprintf — shell injection possible if user input flows in.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Pass arguments as separate strings, never as a single formatted string.",
+			RuleID: "ast-go-cmdi-exec-sprintf", Source: "ast-analyzer", CWE: "CWE-78", OWASP: "A03:2021", Confidence: 0.92,
+		})
+		*srNo++
+	}
+
+	isFileOp := strings.Contains(t, "os.open(") || strings.Contains(t, "os.readfile(") || strings.Contains(t, "os.create(")
+	hasReqParam := strings.Contains(t, "formvalue") || strings.Contains(t, "urlparam") || strings.Contains(t, "r.url") || strings.Contains(t, "param(")
+	if isFileOp && hasReqParam {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "Path Traversal: Go file operation with HTTP request parameter",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "os.Open/ReadFile called with a value from an HTTP request. Path traversal via '../' can expose arbitrary files.",
+			Severity: "high", AiValidated: "No",
+			Remediation: "Use filepath.Clean() and verify the path starts with an allowed base directory.",
+			RuleID: "ast-go-path-traversal", Source: "ast-analyzer", CWE: "CWE-22", OWASP: "A01:2021", Confidence: 0.90,
+		})
+		*srNo++
+	}
+
+	isTmpl := strings.Contains(t, ".parse(") && (strings.Contains(t, "template.new") || strings.Contains(t, "template.must"))
+	if isTmpl && hasReqParam {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "SSTI: Go template.Parse with HTTP request data",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "template.Parse called with user-controlled HTTP data. Go templates support function calls — SSTI leads to RCE.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Never parse user input as a template. Inject user data as template variables into a static pre-compiled template.",
+			RuleID: "ast-go-ssti-template-parse", Source: "ast-analyzer", CWE: "CWE-94", OWASP: "A03:2021", Confidence: 0.95,
+		})
+		*srNo++
+	}
+
+	return findings
+}
+
+func (aa *ASTAnalyzer) checkGoAssignment(node *treeSitter.Node, content []byte, filePath string, srNo *int, lineRef string) []reporter.Finding {
+	var findings []reporter.Finding
+	t := strings.ToLower(node.Content(content))
+	hasSQL := strings.Contains(t, "select ") || strings.Contains(t, "insert ") || strings.Contains(t, "update ") || strings.Contains(t, "delete ")
+	hasConcat := strings.Contains(t, "+")
+	hasReqParam := strings.Contains(t, "formvalue") || strings.Contains(t, "urlparam") || strings.Contains(t, "r.url") || strings.Contains(t, "param(")
+	if hasSQL && hasConcat && hasReqParam {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "SQL Injection: Go SQL string built from HTTP request data",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "SQL query string built by concatenating an HTTP request parameter. This reaches a db.Query or db.Exec call.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Use parameterized queries with placeholders ($1, ?) and pass user data as separate arguments.",
+			RuleID: "ast-go-sqli-concat-assignment", Source: "ast-analyzer", CWE: "CWE-89", OWASP: "A03:2021", Confidence: 0.88,
+		})
+		*srNo++
+	}
+	return findings
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Ruby AST Analysis
+// ═══════════════════════════════════════════════════════════════════════════
+
+func (aa *ASTAnalyzer) analyzeRubyAST(node *treeSitter.Node, content []byte, lines []string, filePath string, srNo *int) []reporter.Finding {
+	var findings []reporter.Finding
+	sp := node.StartPoint()
+	ep := node.EndPoint()
+	lineRef := formatLineRef(int(sp.Row+1), int(ep.Row+1))
+
+	switch node.Type() {
+	case "call", "method_add_arg", "command":
+		findings = append(findings, aa.checkRubyCall(node, content, filePath, srNo, lineRef)...)
+	}
+	for i := 0; i < int(node.ChildCount()); i++ {
+		findings = append(findings, aa.analyzeRubyAST(node.Child(i), content, lines, filePath, srNo)...)
+	}
+	return findings
+}
+
+func (aa *ASTAnalyzer) checkRubyCall(node *treeSitter.Node, content []byte, filePath string, srNo *int, lineRef string) []reporter.Finding {
+	var findings []reporter.Finding
+	t := strings.ToLower(node.Content(content))
+
+	isShell := strings.Contains(t, "system(") || strings.Contains(t, "exec(") || strings.Contains(t, "io.popen(")
+	hasParamInterp := strings.Contains(t, "#{params") || strings.Contains(t, "#{request")
+	if isShell && hasParamInterp {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "Command Injection: Ruby shell call with params interpolation",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "Ruby shell execution with #{params[...]} interpolation. Attacker controls shell command arguments.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Use system('cmd', params[:arg]) array form. Never interpolate params into shell strings.",
+			RuleID: "ast-ruby-cmdi-params", Source: "ast-analyzer", CWE: "CWE-78", OWASP: "A03:2021", Confidence: 0.93,
+		})
+		*srNo++
+	}
+
+	isSQL := strings.Contains(t, ".where(") || strings.Contains(t, "find_by_sql(") || strings.Contains(t, "exec_query(")
+	hasParamSQL := strings.Contains(t, "#{params") || strings.Contains(t, "+ params")
+	if isSQL && hasParamSQL {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "SQL Injection: ActiveRecord with params interpolation",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "ActiveRecord .where() or find_by_sql() with params interpolated into SQL string.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Use parameterized conditions: Model.where('col = ?', params[:val])",
+			RuleID: "ast-ruby-sqli-where", Source: "ast-analyzer", CWE: "CWE-89", OWASP: "A03:2021", Confidence: 0.92,
+		})
+		*srNo++
+	}
+
+	isEval := strings.Contains(t, "eval(") || strings.Contains(t, "class_eval(") || strings.Contains(t, "instance_eval(")
+	if isEval && (strings.Contains(t, "params") || strings.Contains(t, "request")) {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "Code Injection: Ruby eval with request data",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "Ruby eval/class_eval with HTTP request data enables arbitrary Ruby code execution.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Never use eval with user input. Use a strict allowlist of permitted operations instead.",
+			RuleID: "ast-ruby-code-injection-eval", Source: "ast-analyzer", CWE: "CWE-94", OWASP: "A03:2021", Confidence: 0.95,
+		})
+		*srNo++
+	}
+
+	return findings
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Rust AST Analysis
+// ═══════════════════════════════════════════════════════════════════════════
+
+func (aa *ASTAnalyzer) analyzeRustAST(node *treeSitter.Node, content []byte, lines []string, filePath string, srNo *int) []reporter.Finding {
+	var findings []reporter.Finding
+	sp := node.StartPoint()
+	ep := node.EndPoint()
+	lineRef := formatLineRef(int(sp.Row+1), int(ep.Row+1))
+
+	switch node.Type() {
+	case "call_expression", "macro_invocation":
+		findings = append(findings, aa.checkRustCall(node, content, filePath, srNo, lineRef)...)
+	}
+	for i := 0; i < int(node.ChildCount()); i++ {
+		findings = append(findings, aa.analyzeRustAST(node.Child(i), content, lines, filePath, srNo)...)
+	}
+	return findings
+}
+
+func (aa *ASTAnalyzer) checkRustCall(node *treeSitter.Node, content []byte, filePath string, srNo *int, lineRef string) []reporter.Finding {
+	var findings []reporter.Finding
+	t := strings.ToLower(node.Content(content))
+
+	// Command injection: Command::new with non-literal
+	if strings.Contains(t, "command::new(") {
+		argsNode := node.ChildByFieldName("arguments")
+		if argsNode != nil {
+			argText := strings.TrimSpace(strings.ToLower(argsNode.Content(content)))
+			if !strings.HasPrefix(argText, "\"") {
+				findings = append(findings, reporter.Finding{
+					SrNo: *srNo, IssueName: "Command Injection: Rust Command::new with variable",
+					FilePath: filePath, LineNumber: lineRef,
+					Description:  "std::process::Command::new called with a non-literal. If user-controlled, arbitrary binaries can be executed.",
+					Severity: "high", AiValidated: "No",
+					Remediation: "Use a fixed string literal: Command::new(\"git\"). Validate dynamic parts against an explicit allowlist.",
+					RuleID: "ast-rust-cmdi-command-new", Source: "ast-analyzer", CWE: "CWE-78", OWASP: "A03:2021", Confidence: 0.85,
+				})
+				*srNo++
+			}
+		}
+	}
+
+	// SQL injection: format! macro with SQL keywords
+	isFmt := node.Type() == "macro_invocation" && strings.Contains(t, "format!")
+	hasSQL := strings.Contains(t, "select ") || strings.Contains(t, "insert ") || strings.Contains(t, "update ") || strings.Contains(t, "delete ")
+	if isFmt && hasSQL {
+		findings = append(findings, reporter.Finding{
+			SrNo: *srNo, IssueName: "SQL Injection: Rust format! macro in SQL query",
+			FilePath: filePath, LineNumber: lineRef,
+			Description:  "format!() used to construct a SQL query. User-controlled values in the format string lead to SQL injection.",
+			Severity: "critical", AiValidated: "No",
+			Remediation: "Use parameterized queries: sqlx::query!(\"SELECT * FROM t WHERE id = ?\", id)",
+			RuleID: "ast-rust-sqli-format-macro", Source: "ast-analyzer", CWE: "CWE-89", OWASP: "A03:2021", Confidence: 0.88,
+		})
+		*srNo++
 	}
 
 	return findings

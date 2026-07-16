@@ -1,1815 +1,1958 @@
 - id: perl-hardcoded-password
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)(password|passwd|pwd)\s*=\s*[''\\"][^''\\"]{8,}[''\\"]'
+  - regex: (?i)(password|passwd|pwd)\s*=\s*['\\"][^'\\"]{8,}['\\"]
   severity: high
-  description: "Hardcoded password detected in Perl source code"
-  remediation: "Use environment variables ($ENV{PASSWORD}) or a configuration manager"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded password detected in Perl source code
+  remediation: Use environment variables ($ENV{PASSWORD}) or a configuration manager
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: perl-hardcoded-api-key
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)(api[_-]?key|apikey)\s*=\s*[''\\"][a-zA-Z0-9]{16,}[''\\"]'
+  - regex: (?i)(api[_-]?key|apikey)\s*=\s*['\\"][a-zA-Z0-9]{16,}['\\"]
   severity: high
-  description: "Hardcoded API key detected in Perl source code"
-  remediation: "Store API keys in environment variables or encrypted config"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
-# ======================== SQL Injection ========================
+  description: Hardcoded API key detected in Perl source code
+  remediation: Store API keys in environment variables or encrypted config
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: perl-sql-injection
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)(do|execute|prepare)\s*\(\s*[''\\"].*\$'
+  - regex: (?i)(do|execute|prepare)\s*\(\s*['\\"].*\$
   severity: critical
-  description: "SQL injection via variable interpolation in Perl DBI"
-  remediation: "Use DBI placeholders: $dbh->prepare('SELECT * FROM users WHERE id = ?'); $sth->execute($id)"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via variable interpolation in Perl DBI
+  remediation: 'Use DBI placeholders: $dbh->prepare(''SELECT * FROM users WHERE id = ?''); $sth->execute($id)'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: perl-sql-injection-concat
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)(do|execute)\s*\(\s*[''\\"].*\s*\.\s*\$'
+  - regex: (?i)(do|execute)\s*\(\s*['\\"].*\s*\.\s*\$
   severity: critical
-  description: "SQL injection via string concatenation in DBI query"
-  remediation: "Use parameterized queries with ? placeholders in DBI"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
-# ======================== Command Injection ========================
+  description: SQL injection via string concatenation in DBI query
+  remediation: Use parameterized queries with ? placeholders in DBI
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: perl-command-injection-system
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)system\s*\(\s*[''\\"].*\$|system\s*\(\s*\$'
+  - regex: (?i)system\s*\(\s*['\\"].*\$|system\s*\(\s*\$
   severity: critical
-  description: "Command injection via system() with variable input"
-  remediation: "Use list form of system: system('cmd', @args) or IPC::Run for safe execution"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Command injection via system() with variable input
+  remediation: 'Use list form of system: system(''cmd'', @args) or IPC::Run for safe execution'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: perl-command-injection-backtick
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '`.*\$.*`|qx/.*\$/'
+  - regex: '`.*\$.*`|qx/.*\$/'
   severity: critical
-  description: "Command injection via backticks or qx// with variable interpolation"
-  remediation: "Avoid backticks with user input. Use IPC::Run or open3 with argument lists"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Command injection via backticks or qx// with variable interpolation
+  remediation: Avoid backticks with user input. Use IPC::Run or open3 with argument lists
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.7
 - id: perl-command-injection-open
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: 'open\s*\(\s*\w+\s*,\s*[''\\"]\|.*\$|open\s*\(\s*\w+\s*,\s*[''\\"].*\$.*\|'
+  - regex: open\s*\(\s*\w+\s*,\s*['\\"]\|.*\$|open\s*\(\s*\w+\s*,\s*['\\"].*\$.*\|
   severity: critical
-  description: "Command injection via two-argument open with pipe"
-  remediation: "Use three-argument open: open(my $fh, '-|', 'cmd', @args)"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-# ======================== Code Injection ========================
+  description: Command injection via two-argument open with pipe
+  remediation: 'Use three-argument open: open(my $fh, ''-|'', ''cmd'', @args)'
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.8
 - id: perl-dangerous-eval
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '\beval\s*[{(\\\"].*\$'
+  - regex: \beval\s*[{(\\\"].*\$
   severity: high
-  description: "eval with variable input allows arbitrary code execution"
-  remediation: "Avoid eval with user input. Use Safe module or specific parsers"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
-# ======================== File Inclusion ========================
+  description: eval with variable input allows arbitrary code execution
+  remediation: Avoid eval with user input. Use Safe module or specific parsers
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: perl-file-inclusion
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)(require|do)\s+\$'
+  - regex: (?i)(require|do)\s+\$
   severity: high
-  description: "Dynamic file inclusion via variable-controlled require/do"
-  remediation: "Use allowlist of permitted modules. Never load files based on user input"
-  cwe: "CWE-98"
-  owasp: "A01:2021"
-
-# ======================== Path Traversal ========================
+  description: Dynamic file inclusion via variable-controlled require/do
+  remediation: Use allowlist of permitted modules. Never load files based on user input
+  cwe: CWE-98
+  owasp: A01:2021
+  confidence: 0.65
 - id: perl-path-traversal
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: 'open\s*\(\s*\w+\s*,\s*[''\\\"]?\s*\$'
+  - regex: open\s*\(\s*\w+\s*,\s*['\\\"]?\s*\$
   severity: high
-  description: "File open with user-controlled path — potential path traversal"
-  remediation: "Validate file paths. Use File::Spec->canonpath and check against base directory"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
-# ======================== XSS ========================
+  description: File open with user-controlled path — potential path traversal
+  remediation: Validate file paths. Use File::Spec->canonpath and check against base directory
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: perl-xss-cgi
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: 'print\s+.*\$query->param|print\s+.*param\s*\('
+  - regex: print\s+.*\$query->param|print\s+.*param\s*\(
   severity: high
-  description: "XSS via direct output of CGI parameter"
-  remediation: "Use HTML::Entities::encode_entities() to escape user input before output"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# ======================== Unsafe Deserialization ========================
+  description: XSS via direct output of CGI parameter
+  remediation: Use HTML::Entities::encode_entities() to escape user input before output
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: perl-insecure-storable
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: 'Storable::thaw|Storable::retrieve\s*\(\s*\$'
+  - regex: Storable::thaw|Storable::retrieve\s*\(\s*\$
   severity: high
-  description: "Storable deserialization of untrusted data can execute code"
-  remediation: "Use JSON or YAML for untrusted data. Never deserialize untrusted Storable data"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
-# ======================== LDAP Injection ========================
+  description: Storable deserialization of untrusted data can execute code
+  remediation: Use JSON or YAML for untrusted data. Never deserialize untrusted Storable data
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.7
 - id: perl-ldap-injection
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: 'Net::LDAP.*search\s*\(.*filter.*\$'
+  - regex: Net::LDAP.*search\s*\(.*filter.*\$
   severity: critical
-  description: "LDAP injection via user input in search filter"
-  remediation: "Use Net::LDAP::Filter for safe filter construction"
-  cwe: "CWE-90"
-  owasp: "A03:2021"
-
-# ======================== Weak Cryptography ========================
+  description: LDAP injection via user input in search filter
+  remediation: Use Net::LDAP::Filter for safe filter construction
+  cwe: CWE-90
+  owasp: A03:2021
+  confidence: 0.75
 - id: perl-weak-crypto-md5
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)(Digest::MD5|Digest::SHA1|md5_hex)'
+  - regex: (?i)(Digest::MD5|Digest::SHA1|md5_hex)
   severity: medium
-  description: "Use of weak cryptographic hash (MD5/SHA1)"
-  remediation: "Use Digest::SHA256 or Crypt::Argon2 for password hashing"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
-# ======================== Insecure Random ========================
+  description: Use of weak cryptographic hash (MD5/SHA1)
+  remediation: Use Digest::SHA256 or Crypt::Argon2 for password hashing
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.55
 - id: perl-insecure-random
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '\brand\s*\(|int\s*\(\s*rand'
+  - regex: \brand\s*\(|int\s*\(\s*rand
   severity: medium
-  description: "Perl rand() is not cryptographically secure"
-  remediation: "Use Crypt::Random or Math::Random::Secure for security-sensitive random"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
-# ======================== ReDoS ========================
+  description: Perl rand() is not cryptographically secure
+  remediation: Use Crypt::Random or Math::Random::Secure for security-sensitive random
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.6
 - id: perl-redos
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '=~\s*/.*\(\?.*\+.*\+|=~\s*/.*\{\d+,\}.*\{\d+,\}'
+  - regex: =~\s*/.*\(\?.*\+.*\+|=~\s*/.*\{\d+,\}.*\{\d+,\}
   severity: medium
-  description: "Regular expression vulnerable to ReDoS attacks"
-  remediation: "Avoid nested quantifiers. Use re2 engine for untrusted patterns"
-  cwe: "CWE-1333"
-  owasp: "N/A"
-
-# ======================== Open Redirect ========================
+  description: Regular expression vulnerable to ReDoS attacks
+  remediation: Avoid nested quantifiers. Use re2 engine for untrusted patterns
+  cwe: CWE-1333
+  owasp: N/A
+  confidence: 0.55
 - id: perl-open-redirect
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)redirect\s*\(\s*\$|print\s+.*Location:.*\$'
+  - regex: (?i)redirect\s*\(\s*\$|print\s+.*Location:.*\$
   severity: high
-  description: "Open redirect via user-controlled URL"
-  remediation: "Validate redirect URLs against allowlist"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
-# ======================== Format String ========================
+  description: Open redirect via user-controlled URL
+  remediation: Validate redirect URLs against allowlist
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: perl-format-string
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: 'sprintf\s*\(\s*\$'
+  - regex: sprintf\s*\(\s*\$
   severity: medium
-  description: "Format string vulnerability via user-controlled format"
-  remediation: "Never use user input as format string: use sprintf('%s', $input)"
-  cwe: "CWE-134"
-  owasp: "A03:2021"
-
-# ======================== Taint Mode ========================
+  description: Format string vulnerability via user-controlled format
+  remediation: 'Never use user input as format string: use sprintf(''%s'', $input)'
+  cwe: CWE-134
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-open-pipe
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: 'open\s*\(\s*\w+\s*,\s*"\s*\|'
+  - regex: open\s*\(\s*\w+\s*,\s*"\s*\|
   severity: critical
-  description: "Perl open with pipe — command injection"
-  remediation: "Use list form of open or IPC::Run for safe command execution"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Perl open with pipe — command injection
+  remediation: Use list form of open or IPC::Run for safe command execution
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: perl-backtick-variable
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '`[^`]*\$'
+  - regex: '`[^`]*\$'
   severity: high
-  description: "Backtick with variable — command injection"
-  remediation: "Use IPC::Open3 or capture() from IPC::System::Simple"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Backtick with variable — command injection
+  remediation: Use IPC::Open3 or capture() from IPC::System::Simple
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: perl-dbi-prepare-var
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\$\w+->do\s*\(\s*".*\$'
+  - regex: (?i)\$\w+->do\s*\(\s*".*\$
   severity: critical
-  description: "DBI do() with variable interpolation — SQL injection"
-  remediation: "Use placeholders: $dbh->do('INSERT ... WHERE id=?', undef, $id)"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI do() with variable interpolation — SQL injection
+  remediation: 'Use placeholders: $dbh->do(''INSERT ... WHERE id=?'', undef, $id)'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: perl-cgi-param
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\$\w+->param\s*\('
+  - regex: (?i)\$\w+->param\s*\(
   severity: low
-  description: "CGI param access — validate input"
-  remediation: "Always validate and sanitize CGI parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI param access — validate input
+  remediation: Always validate and sanitize CGI parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-storable-thaw
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)(thaw|retrieve|fd_retrieve)\s*\('
+  - regex: (?i)(thaw|retrieve|fd_retrieve)\s*\(
   severity: critical
-  description: "Storable deserialization — code execution risk"
-  remediation: "Use JSON or YAML for untrusted data"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
-  # ============================================================================
-# PERL SECURITY RULES - EXPANDED (150 NEW RULES)
-# ============================================================================
-# Excludes all existing rules from uploaded perl.yaml
-# Categories: CGI.pm, DBI, Template Toolkit, Moose/Moo, PSGI/Plack,
-#             Catalyst, Dancer, CPAN, Threads, Signals, IPC
-# ============================================================================
-
-# --- CGI.PM MODULE (1-20) ---
+  description: Storable deserialization — code execution risk
+  remediation: Use JSON or YAML for untrusted data
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: perl-cgi-param-direct
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)param\s*\(\s*[''\\\"][^''\\\"]+[''\\\"]\s*\)'
+  - regex: (?i)param\s*\(\s*['\\\"][^'\\\"]+['\\\"]\s*\)
   severity: medium
-  description: "CGI param access without validation"
-  remediation: "Validate and sanitize all CGI parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI param access without validation
+  remediation: Validate and sanitize all CGI parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-cgi-param-hash
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\$cgi->param\s*\('
+  - regex: (?i)\$cgi->param\s*\(
   severity: medium
-  description: "CGI.pm param method usage"
-  remediation: "Validate parameter values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI.pm param method usage
+  remediation: Validate parameter values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-cgi-query-object
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)CGI->new|new CGI'
+  - regex: (?i)CGI->new|new CGI
   severity: low
-  description: "CGI query object creation"
-  remediation: "Use CGI in functional mode or modern alternatives"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CGI query object creation
+  remediation: Use CGI in functional mode or modern alternatives
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-cgi-header
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)header\s*\(|->header\s*\('
+  - regex: (?i)header\s*\(|->header\s*\(
   severity: low
-  description: "CGI header generation"
-  remediation: "Set appropriate content type"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CGI header generation
+  remediation: Set appropriate content type
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-cgi-cookie
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)cookie\s*\(|->cookie\s*\('
+  - regex: (?i)cookie\s*\(|->cookie\s*\(
   severity: medium
-  description: "CGI cookie handling"
-  remediation: "Set secure and httponly flags"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: CGI cookie handling
+  remediation: Set secure and httponly flags
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.6
 - id: perl-cgi-redirect
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)redirect\s*\(|->redirect\s*\('
+  - regex: (?i)redirect\s*\(|->redirect\s*\(
   severity: medium
-  description: "CGI redirect"
-  remediation: "Validate redirect URLs"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: CGI redirect
+  remediation: Validate redirect URLs
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.6
 - id: perl-cgi-start-html
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)start_html\s*\(|->start_html\s*\('
+  - regex: (?i)start_html\s*\(|->start_html\s*\(
   severity: low
-  description: "CGI HTML generation"
-  remediation: "Escape output properly"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: CGI HTML generation
+  remediation: Escape output properly
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cgi-end-html
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)end_html\s*\(|->end_html\s*\('
+  - regex: (?i)end_html\s*\(|->end_html\s*\(
   severity: low
-  description: "CGI HTML end"
-  remediation: "Ensure proper HTML structure"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CGI HTML end
+  remediation: Ensure proper HTML structure
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-cgi-hidden
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)hidden\s*\(|->hidden\s*\('
+  - regex: (?i)hidden\s*\(|->hidden\s*\(
   severity: low
-  description: "CGI hidden field"
-  remediation: "Don't store sensitive data in hidden fields"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: CGI hidden field
+  remediation: Don't store sensitive data in hidden fields
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: perl-cgi-textfield
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)textfield\s*\(|->textfield\s*\('
+  - regex: (?i)textfield\s*\(|->textfield\s*\(
   severity: low
-  description: "CGI text field"
-  remediation: "Validate text field input"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI text field
+  remediation: Validate text field input
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cgi-password
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)password_field\s*\(|->password_field\s*\('
+  - regex: (?i)password_field\s*\(|->password_field\s*\(
   severity: low
-  description: "CGI password field"
-  remediation: "Use HTTPS for password fields"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: CGI password field
+  remediation: Use HTTPS for password fields
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.5
 - id: perl-cgi-checkbox
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)checkbox\s*\(|->checkbox\s*\('
+  - regex: (?i)checkbox\s*\(|->checkbox\s*\(
   severity: low
-  description: "CGI checkbox"
-  remediation: "Validate checkbox values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI checkbox
+  remediation: Validate checkbox values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cgi-radio
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)radio_group\s*\(|->radio_group\s*\('
+  - regex: (?i)radio_group\s*\(|->radio_group\s*\(
   severity: low
-  description: "CGI radio group"
-  remediation: "Validate radio group selection"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI radio group
+  remediation: Validate radio group selection
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cgi-popup
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)popup_menu\s*\(|->popup_menu\s*\('
+  - regex: (?i)popup_menu\s*\(|->popup_menu\s*\(
   severity: low
-  description: "CGI popup menu"
-  remediation: "Validate menu selection"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI popup menu
+  remediation: Validate menu selection
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cgi-scrolling
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)scrolling_list\s*\(|->scrolling_list\s*\('
+  - regex: (?i)scrolling_list\s*\(|->scrolling_list\s*\(
   severity: low
-  description: "CGI scrolling list"
-  remediation: "Validate list selection"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI scrolling list
+  remediation: Validate list selection
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cgi-textarea
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)textarea\s*\(|->textarea\s*\('
+  - regex: (?i)textarea\s*\(|->textarea\s*\(
   severity: low
-  description: "CGI textarea"
-  remediation: "Validate textarea content"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: CGI textarea
+  remediation: Validate textarea content
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cgi-file
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)filefield\s*\(|->filefield\s*\('
+  - regex: (?i)filefield\s*\(|->filefield\s*\(
   severity: medium
-  description: "CGI file upload field"
-  remediation: "Validate file uploads"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: CGI file upload field
+  remediation: Validate file uploads
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.6
 - id: perl-cgi-upload
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)upload\s*\(|->upload\s*\('
+  - regex: (?i)upload\s*\(|->upload\s*\(
   severity: medium
-  description: "CGI file upload"
-  remediation: "Validate uploaded files"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: CGI file upload
+  remediation: Validate uploaded files
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.6
 - id: perl-cgi-multipart
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)multipart/form-data'
+  - regex: (?i)multipart/form-data
   severity: low
-  description: "CGI multipart form"
-  remediation: "Handle multipart data securely"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: CGI multipart form
+  remediation: Handle multipart data securely
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.45
 - id: perl-cgi-deprecated
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)use CGI'
+  - regex: (?i)use CGI
   severity: low
-  description: "CGI.pm module usage (deprecated)"
-  remediation: "Consider modern alternatives like PSGI"
-  cwe: "CWE-676"
-  owasp: "A05:2021"
-
-# --- DBI MODULE (21-40) ---
+  description: CGI.pm module usage (deprecated)
+  remediation: Consider modern alternatives like PSGI
+  cwe: CWE-676
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-dbi-connect
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)DBI->connect|connect\s*\('
+  - regex: (?i)DBI->connect|connect\s*\(
   severity: medium
-  description: "DBI database connection"
-  remediation: "Use environment variables for credentials"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: DBI database connection
+  remediation: Use environment variables for credentials
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.6
 - id: perl-dbi-prepare
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)prepare\s*\(|->prepare\s*\('
+  - regex: (?i)prepare\s*\(|->prepare\s*\(
   severity: low
-  description: "DBI prepared statement"
-  remediation: "Use placeholders for parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI prepared statement
+  remediation: Use placeholders for parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-dbi-execute
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)execute\s*\(|->execute\s*\('
+  - regex: (?i)execute\s*\(|->execute\s*\(
   severity: low
-  description: "DBI statement execute"
-  remediation: "Bind parameters before execute"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI statement execute
+  remediation: Bind parameters before execute
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-dbi-fetch
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)fetchrow|->fetch\s*\('
+  - regex: (?i)fetchrow|->fetch\s*\(
   severity: low
-  description: "DBI fetch row"
-  remediation: "Validate fetched data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: DBI fetch row
+  remediation: Validate fetched data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-dbi-selectall
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)selectall_arrayref|selectall_hashref'
+  - regex: (?i)selectall_arrayref|selectall_hashref
   severity: low
-  description: "DBI select all"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI select all
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-dbi-selectrow
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)selectrow_array|selectrow_hashref'
+  - regex: (?i)selectrow_array|selectrow_hashref
   severity: low
-  description: "DBI select row"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI select row
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-dbi-do
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->do\s*\('
+  - regex: (?i)->do\s*\(
   severity: medium
-  description: "DBI do statement"
-  remediation: "Use prepare/execute for user input"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI do statement
+  remediation: Use prepare/execute for user input
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-dbi-transaction
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)begin_work|commit|rollback'
+  - regex: (?i)begin_work|commit|rollback
   severity: low
-  description: "DBI transaction"
-  remediation: "Handle transactions properly"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: DBI transaction
+  remediation: Handle transactions properly
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.45
 - id: perl-dbi-raise-error
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)RaiseError\s*=\s*1|PrintError'
+  - regex: (?i)RaiseError\s*=\s*1|PrintError
   severity: low
-  description: "DBI error handling"
-  remediation: "Configure error handling appropriately"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: DBI error handling
+  remediation: Configure error handling appropriately
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: perl-dbi-auto-commit
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)AutoCommit\s*=\s*0|AutoCommit\s*=\s*1'
+  - regex: (?i)AutoCommit\s*=\s*0|AutoCommit\s*=\s*1
   severity: low
-  description: "DBI AutoCommit setting"
-  remediation: "Configure AutoCommit appropriately"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: DBI AutoCommit setting
+  remediation: Configure AutoCommit appropriately
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.45
 - id: perl-dbi-dsn
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)DBI:|dbi:'
+  - regex: '(?i)DBI:|dbi:'
   severity: medium
-  description: "DBI DSN string"
-  remediation: "Don't hardcode DSN credentials"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: DBI DSN string
+  remediation: Don't hardcode DSN credentials
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.55
 - id: perl-dbi-mysql
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)dbi:mysql'
+  - regex: (?i)dbi:mysql
   severity: low
-  description: "DBI MySQL driver"
-  remediation: "Use MySQL prepared statements"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI MySQL driver
+  remediation: Use MySQL prepared statements
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-dbi-pg
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)dbi:Pg'
+  - regex: (?i)dbi:Pg
   severity: low
-  description: "DBI PostgreSQL driver"
-  remediation: "Use PostgreSQL prepared statements"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI PostgreSQL driver
+  remediation: Use PostgreSQL prepared statements
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-dbi-sqlite
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)dbi:SQLite'
+  - regex: (?i)dbi:SQLite
   severity: low
-  description: "DBI SQLite driver"
-  remediation: "Use SQLite prepared statements"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI SQLite driver
+  remediation: Use SQLite prepared statements
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-dbi-oracle
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)dbi:Oracle'
+  - regex: (?i)dbi:Oracle
   severity: low
-  description: "DBI Oracle driver"
-  remediation: "Use Oracle prepared statements"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI Oracle driver
+  remediation: Use Oracle prepared statements
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-dbi-disconnect
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)disconnect\s*\(|->disconnect'
+  - regex: (?i)disconnect\s*\(|->disconnect
   severity: low
-  description: "DBI disconnect"
-  remediation: "Close database connections"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: DBI disconnect
+  remediation: Close database connections
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-dbi-quote
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->quote\s*\('
+  - regex: (?i)->quote\s*\(
   severity: medium
-  description: "DBI quote method"
-  remediation: "Use placeholders instead of quote"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI quote method
+  remediation: Use placeholders instead of quote
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-dbi-bind-param
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)bind_param\s*\('
+  - regex: (?i)bind_param\s*\(
   severity: low
-  description: "DBI bind parameter"
-  remediation: "Specify parameter types"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: DBI bind parameter
+  remediation: Specify parameter types
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-dbi-rows
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->rows|rows\s*\('
+  - regex: (?i)->rows|rows\s*\(
   severity: low
-  description: "DBI rows affected"
-  remediation: "Check rows affected"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: DBI rows affected
+  remediation: Check rows affected
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-dbi-last-insert-id
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)last_insert_id|->last_insert_id'
+  - regex: (?i)last_insert_id|->last_insert_id
   severity: low
-  description: "DBI last insert ID"
-  remediation: "Use last_insert_id properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
-# --- TEMPLATE TOOLKIT (41-60) ---
+  description: DBI last insert ID
+  remediation: Use last_insert_id properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: perl-tt-process
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Template->process|->process\s*\('
+  - regex: (?i)Template->process|->process\s*\(
   severity: medium
-  description: "Template Toolkit process"
-  remediation: "Validate template variables"
-  cwe: "CWE-1336"
-  owasp: "A03:2021"
-
+  description: Template Toolkit process
+  remediation: Validate template variables
+  cwe: CWE-1336
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-tt-new
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Template->new|new Template'
+  - regex: (?i)Template->new|new Template
   severity: low
-  description: "Template Toolkit creation"
-  remediation: "Configure TT securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit creation
+  remediation: Configure TT securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-tt-config
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)INCLUDE_PATH|TEMPLATE_EXTENSION'
+  - regex: (?i)INCLUDE_PATH|TEMPLATE_EXTENSION
   severity: low
-  description: "Template Toolkit config"
-  remediation: "Secure template paths"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit config
+  remediation: Secure template paths
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-tt-plugin
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)PLUGINS\s*=|LOAD_PLUGINS'
+  - regex: (?i)PLUGINS\s*=|LOAD_PLUGINS
   severity: low
-  description: "Template Toolkit plugins"
-  remediation: "Review plugin security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit plugins
+  remediation: Review plugin security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-tt-filter
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)FILTER\s*=|FILTERS\s*='
+  - regex: (?i)FILTER\s*=|FILTERS\s*=
   severity: low
-  description: "Template Toolkit filters"
-  remediation: "Use HTML escape filter"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Template Toolkit filters
+  remediation: Use HTML escape filter
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-tt-directive
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\[%\s*\w+\s*%\]'
+  - regex: (?i)\[%\s*\w+\s*%\]
   severity: low
-  description: "Template Toolkit directive"
-  remediation: "Escape output in templates"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Template Toolkit directive
+  remediation: Escape output in templates
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-tt-variable
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\[%\s*\$\w+\s*%\]'
+  - regex: (?i)\[%\s*\$\w+\s*%\]
   severity: low
-  description: "Template Toolkit variable"
-  remediation: "Validate template variables"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Template Toolkit variable
+  remediation: Validate template variables
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-tt-loop
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\[%\s*FOREACH|FOREACH\s*\w+'
+  - regex: (?i)\[%\s*FOREACH|FOREACH\s*\w+
   severity: low
-  description: "Template Toolkit loop"
-  remediation: "Validate loop data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Template Toolkit loop
+  remediation: Validate loop data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-tt-if
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\[%\s*IF|IF\s*\w+'
+  - regex: (?i)\[%\s*IF|IF\s*\w+
   severity: low
-  description: "Template Toolkit conditional"
-  remediation: "Validate condition data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Template Toolkit conditional
+  remediation: Validate condition data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-tt-include
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\[%\s*INCLUDE|INCLUDE\s*\w+'
+  - regex: (?i)\[%\s*INCLUDE|INCLUDE\s*\w+
   severity: medium
-  description: "Template Toolkit include"
-  remediation: "Validate include paths"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Template Toolkit include
+  remediation: Validate include paths
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.55
 - id: perl-tt-process-inline
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)PROCESS\s*\w+|\[%\s*PROCESS'
+  - regex: (?i)PROCESS\s*\w+|\[%\s*PROCESS
   severity: medium
-  description: "Template Toolkit process"
-  remediation: "Validate process targets"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Template Toolkit process
+  remediation: Validate process targets
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.55
 - id: perl-tt-wrapper
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)WRAPPER\s*\w+|\[%\s*WRAPPER'
+  - regex: (?i)WRAPPER\s*\w+|\[%\s*WRAPPER
   severity: low
-  description: "Template Toolkit wrapper"
-  remediation: "Validate wrapper templates"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit wrapper
+  remediation: Validate wrapper templates
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-tt-block
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\[%\s*BLOCK|BLOCK\s*\w+'
+  - regex: (?i)\[%\s*BLOCK|BLOCK\s*\w+
   severity: low
-  description: "Template Toolkit block"
-  remediation: "Validate block content"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit block
+  remediation: Validate block content
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-tt-macro
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\[%\s*MACRO|MACRO\s*\w+'
+  - regex: (?i)\[%\s*MACRO|MACRO\s*\w+
   severity: low
-  description: "Template Toolkit macro"
-  remediation: "Validate macro definitions"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit macro
+  remediation: Validate macro definitions
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-tt-perl
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)EVAL_PERL\s*=\s*1|PERL\s*\w+'
+  - regex: (?i)EVAL_PERL\s*=\s*1|PERL\s*\w+
   severity: high
-  description: "Template Toolkit Perl evaluation"
-  remediation: "Disable EVAL_PERL in production"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Template Toolkit Perl evaluation
+  remediation: Disable EVAL_PERL in production
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.65
 - id: perl-tt-debug
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)DEBUG\s*=|debug\s*\('
+  - regex: (?i)DEBUG\s*=|debug\s*\(
   severity: medium
-  description: "Template Toolkit debug"
-  remediation: "Disable debug in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Template Toolkit debug
+  remediation: Disable debug in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.6
 - id: perl-tt-interpolate
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)INTERPOLATE\s*=|interpolate\s*\('
+  - regex: (?i)INTERPOLATE\s*=|interpolate\s*\(
   severity: low
-  description: "Template Toolkit interpolation"
-  remediation: "Review interpolation settings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit interpolation
+  remediation: Review interpolation settings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-tt-compile-dir
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)COMPILE_DIR|compile_dir'
+  - regex: (?i)COMPILE_DIR|compile_dir
   severity: low
-  description: "Template Toolkit compile dir"
-  remediation: "Secure compile directory"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Template Toolkit compile dir
+  remediation: Secure compile directory
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-tt-cache-size
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)CACHE_SIZE|cache_size'
+  - regex: (?i)CACHE_SIZE|cache_size
   severity: low
-  description: "Template Toolkit cache"
-  remediation: "Configure cache appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Template Toolkit cache
+  remediation: Configure cache appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-tt-recursion-limit
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)RECURSION|recursion_limit'
+  - regex: (?i)RECURSION|recursion_limit
   severity: low
-  description: "Template Toolkit recursion"
-  remediation: "Set recursion limit"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-# --- MOOSE/MOO (61-80) ---
+  description: Template Toolkit recursion
+  remediation: Set recursion limit
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: perl-moose-has
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)has\s+[''\\\"]\w+[''\\\"]'
+  - regex: (?i)has\s+['\\\"]\w+['\\\"]
   severity: low
-  description: "Moose attribute declaration"
-  remediation: "Validate attribute values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose attribute declaration
+  remediation: Validate attribute values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-extends
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)extends\s+[''\\\"]\w+[''\\\"]'
+  - regex: (?i)extends\s+['\\\"]\w+['\\\"]
   severity: low
-  description: "Moose class extension"
-  remediation: "Review parent class security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Moose class extension
+  remediation: Review parent class security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-moose-with
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)with\s+[''\\\"]\w+[''\\\"]'
+  - regex: (?i)with\s+['\\\"]\w+['\\\"]
   severity: low
-  description: "Moose role composition"
-  remediation: "Review role security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Moose role composition
+  remediation: Review role security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-moose-method
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)sub\s+\w+\s*\{|->can\s*\('
+  - regex: (?i)sub\s+\w+\s*\{|->can\s*\(
   severity: low
-  description: "Moose method"
-  remediation: "Validate method parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose method
+  remediation: Validate method parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-moose-builder
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)builder\s*=>|BUILD\s*\('
+  - regex: (?i)builder\s*=>|BUILD\s*\(
   severity: low
-  description: "Moose builder"
-  remediation: "Validate builder data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose builder
+  remediation: Validate builder data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-moose-trigger
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)trigger\s*=>|after\s+[''\\"]\w+[''\\"]'
+  - regex: (?i)trigger\s*=>|after\s+['\\"]\w+['\\"]
   severity: low
-  description: "Moose attribute trigger"
-  remediation: "Validate trigger data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose attribute trigger
+  remediation: Validate trigger data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-coerce
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)coerce\s*=>|coerce\s+\w+'
+  - regex: (?i)coerce\s*=>|coerce\s+\w+
   severity: low
-  description: "Moose type coercion"
-  remediation: "Validate coercion rules"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose type coercion
+  remediation: Validate coercion rules
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-type
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)isa\s*=>|Str|Int|ArrayRef'
+  - regex: (?i)isa\s*=>|Str|Int|ArrayRef
   severity: low
-  description: "Moose type constraint"
-  remediation: "Use appropriate type constraints"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose type constraint
+  remediation: Use appropriate type constraints
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-required
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)required\s*=>\s*1'
+  - regex: (?i)required\s*=>\s*1
   severity: low
-  description: "Moose required attribute"
-  remediation: "Validate required attributes"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose required attribute
+  remediation: Validate required attributes
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-default
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)default\s*=>|default\s+sub'
+  - regex: (?i)default\s*=>|default\s+sub
   severity: low
-  description: "Moose default value"
-  remediation: "Validate default values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose default value
+  remediation: Validate default values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-lazy
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)lazy\s*=>\s*1'
+  - regex: (?i)lazy\s*=>\s*1
   severity: low
-  description: "Moose lazy attribute"
-  remediation: "Validate lazy builders"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose lazy attribute
+  remediation: Validate lazy builders
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-clearer
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)clearer\s*=>|clearer\s+\w+'
+  - regex: (?i)clearer\s*=>|clearer\s+\w+
   severity: low
-  description: "Moose attribute clearer"
-  remediation: "Validate clearer usage"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose attribute clearer
+  remediation: Validate clearer usage
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-predicate
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)predicate\s*=>|predicate\s+\w+'
+  - regex: (?i)predicate\s*=>|predicate\s+\w+
   severity: low
-  description: "Moose attribute predicate"
-  remediation: "Validate predicate usage"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose attribute predicate
+  remediation: Validate predicate usage
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-handle
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)handles\s*=>|handles\s+\w+'
+  - regex: (?i)handles\s*=>|handles\s+\w+
   severity: low
-  description: "Moose attribute delegation"
-  remediation: "Validate delegated methods"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moose attribute delegation
+  remediation: Validate delegated methods
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moose-weak-ref
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)weak_ref\s*=>\s*1'
+  - regex: (?i)weak_ref\s*=>\s*1
   severity: low
-  description: "Moose weak reference"
-  remediation: "Handle weak refs properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Moose weak reference
+  remediation: Handle weak refs properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.45
 - id: perl-moose-metaclass
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)metaclass\s*=>|meta->'
+  - regex: (?i)metaclass\s*=>|meta->
   severity: low
-  description: "Moose metaclass"
-  remediation: "Review metaclass usage"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Moose metaclass
+  remediation: Review metaclass usage
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-moo-has
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)has\s+[''\\\"]\w+[''\\\"]'
+  - regex: (?i)has\s+['\\\"]\w+['\\\"]
   severity: low
-  description: "Moo attribute"
-  remediation: "Validate attribute values"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moo attribute
+  remediation: Validate attribute values
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-moo-with
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)with\s+[''\\\"]\w+[''\\\"]'
+  - regex: (?i)with\s+['\\\"]\w+['\\\"]
   severity: low
-  description: "Moo role"
-  remediation: "Review role security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Moo role
+  remediation: Review role security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-moo-build
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)BUILD\s*\('
+  - regex: (?i)BUILD\s*\(
   severity: low
-  description: "Moo BUILD method"
-  remediation: "Validate BUILD data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Moo BUILD method
+  remediation: Validate BUILD data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-moo-lazy-build
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)lazy_build\s*=>|_build_\w+'
+  - regex: (?i)lazy_build\s*=>|_build_\w+
   severity: low
-  description: "Moo lazy builder"
-  remediation: "Validate lazy builders"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# --- PSGI/PLACK (81-100) ---
+  description: Moo lazy builder
+  remediation: Validate lazy builders
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-psgi-app
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)sub\s*\{\s*my\s*\$env'
+  - regex: (?i)sub\s*\{\s*my\s*\$env
   severity: low
-  description: "PSGI application"
-  remediation: "Validate PSGI environment"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: PSGI application
+  remediation: Validate PSGI environment
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-plack-run
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Runner|plackup'
+  - regex: (?i)Plack::Runner|plackup
   severity: low
-  description: "Plack runner"
-  remediation: "Configure Plack securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Plack runner
+  remediation: Configure Plack securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-builder
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Builder|builder\s*\{'
+  - regex: (?i)Plack::Builder|builder\s*\{
   severity: low
-  description: "Plack builder"
-  remediation: "Configure middleware securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Plack builder
+  remediation: Configure middleware securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-middleware
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)enable\s+[''\\"]\w+[''\\"]|Plack::Middleware'
+  - regex: (?i)enable\s+['\\"]\w+['\\"]|Plack::Middleware
   severity: low
-  description: "Plack middleware"
-  remediation: "Review middleware security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Plack middleware
+  remediation: Review middleware security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-session
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::Session'
+  - regex: (?i)Plack::Middleware::Session
   severity: low
-  description: "Plack session middleware"
-  remediation: "Configure session securely"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Plack session middleware
+  remediation: Configure session securely
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-plack-auth
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::Auth'
+  - regex: (?i)Plack::Middleware::Auth
   severity: low
-  description: "Plack auth middleware"
-  remediation: "Configure authentication securely"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Plack auth middleware
+  remediation: Configure authentication securely
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-plack-static
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::Static'
+  - regex: (?i)Plack::Middleware::Static
   severity: low
-  description: "Plack static middleware"
-  remediation: "Secure static file serving"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Plack static middleware
+  remediation: Secure static file serving
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-plack-proxy
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::ReverseProxy'
+  - regex: (?i)Plack::Middleware::ReverseProxy
   severity: low
-  description: "Plack reverse proxy"
-  remediation: "Configure proxy securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Plack reverse proxy
+  remediation: Configure proxy securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-lint
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::Lint'
+  - regex: (?i)Plack::Middleware::Lint
   severity: low
-  description: "Plack lint middleware"
-  remediation: "Use in development only"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Plack lint middleware
+  remediation: Use in development only
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-debug
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::Debug'
+  - regex: (?i)Plack::Middleware::Debug
   severity: medium
-  description: "Plack debug middleware"
-  remediation: "Disable in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Plack debug middleware
+  remediation: Disable in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.55
 - id: perl-plack-access-log
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::AccessLog'
+  - regex: (?i)Plack::Middleware::AccessLog
   severity: low
-  description: "Plack access log"
-  remediation: "Configure logging securely"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Plack access log
+  remediation: Configure logging securely
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-log-requests
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::LogRequests'
+  - regex: (?i)Plack::Middleware::LogRequests
   severity: low
-  description: "Plack request logging"
-  remediation: "Don't log sensitive data"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Plack request logging
+  remediation: Don't log sensitive data
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-log-errors
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Middleware::LogErrors'
+  - regex: (?i)Plack::Middleware::LogErrors
   severity: low
-  description: "Plack error logging"
-  remediation: "Don't log sensitive data"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Plack error logging
+  remediation: Don't log sensitive data
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-file
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::App::File'
+  - regex: (?i)Plack::App::File
   severity: low
-  description: "Plack file app"
-  remediation: "Secure file serving"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Plack file app
+  remediation: Secure file serving
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-plack-directory
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::App::Directory'
+  - regex: (?i)Plack::App::Directory
   severity: medium
-  description: "Plack directory app"
-  remediation: "Don't expose directories"
-  cwe: "CWE-538"
-  owasp: "A05:2021"
-
+  description: Plack directory app
+  remediation: Don't expose directories
+  cwe: CWE-538
+  owasp: A05:2021
+  confidence: 0.55
 - id: perl-plack-proxy-app
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::App::Proxy'
+  - regex: (?i)Plack::App::Proxy
   severity: low
-  description: "Plack proxy app"
-  remediation: "Configure proxy securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Plack proxy app
+  remediation: Configure proxy securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-urlmap
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::App::URLMap'
+  - regex: (?i)Plack::App::URLMap
   severity: low
-  description: "Plack URL map"
-  remediation: "Review URL mappings"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Plack URL map
+  remediation: Review URL mappings
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-mount
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)mount\s*\{|Plack::Mount'
+  - regex: (?i)mount\s*\{|Plack::Mount
   severity: low
-  description: "Plack mount"
-  remediation: "Review mount points"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Plack mount
+  remediation: Review mount points
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-test
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Test|test_psgi'
+  - regex: (?i)Plack::Test|test_psgi
   severity: low
-  description: "Plack testing"
-  remediation: "Don't run tests in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: Plack testing
+  remediation: Don't run tests in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-plack-server
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Plack::Server|plackup.*-s'
+  - regex: (?i)Plack::Server|plackup.*-s
   severity: low
-  description: "Plack server"
-  remediation: "Choose appropriate server"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- CATALYST FRAMEWORK (101-120) ---
+  description: Plack server
+  remediation: Choose appropriate server
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-catalyst-controller
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)use\s+Catalyst|Catalyst::Controller'
+  - regex: (?i)use\s+Catalyst|Catalyst::Controller
   severity: low
-  description: "Catalyst controller"
-  remediation: "Implement authorization"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Catalyst controller
+  remediation: Implement authorization
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-catalyst-model
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Catalyst::Model::DBIC'
+  - regex: (?i)Catalyst::Model::DBIC
   severity: low
-  description: "Catalyst DBIC model"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Catalyst DBIC model
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-catalyst-view
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Catalyst::View::TT|Catalyst::View::Mason'
+  - regex: (?i)Catalyst::View::TT|Catalyst::View::Mason
   severity: low
-  description: "Catalyst view"
-  remediation: "Escape output properly"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Catalyst view
+  remediation: Escape output properly
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-catalyst-plugin
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i) Catalyst::Plugin::'
+  - regex: '(?i) Catalyst::Plugin::'
   severity: low
-  description: "Catalyst plugin"
-  remediation: "Review plugin security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Catalyst plugin
+  remediation: Review plugin security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-catalyst-auth
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Catalyst::Plugin::Authentication'
+  - regex: (?i)Catalyst::Plugin::Authentication
   severity: low
-  description: "Catalyst authentication"
-  remediation: "Configure auth securely"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Catalyst authentication
+  remediation: Configure auth securely
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-catalyst-session
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Catalyst::Plugin::Session'
+  - regex: (?i)Catalyst::Plugin::Session
   severity: low
-  description: "Catalyst session"
-  remediation: "Configure session securely"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Catalyst session
+  remediation: Configure session securely
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-catalyst-static
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Catalyst::Plugin::Static'
+  - regex: (?i)Catalyst::Plugin::Static
   severity: low
-  description: "Catalyst static files"
-  remediation: "Secure static file serving"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Catalyst static files
+  remediation: Secure static file serving
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-catalyst-log
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->log->|Catalyst::Log'
+  - regex: (?i)->log->|Catalyst::Log
   severity: low
-  description: "Catalyst logging"
-  remediation: "Don't log sensitive data"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Catalyst logging
+  remediation: Don't log sensitive data
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-catalyst-request
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->request->|Catalyst::Request'
+  - regex: (?i)->request->|Catalyst::Request
   severity: low
-  description: "Catalyst request"
-  remediation: "Validate request data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Catalyst request
+  remediation: Validate request data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-catalyst-response
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->response->|Catalyst::Response'
+  - regex: (?i)->response->|Catalyst::Response
   severity: low
-  description: "Catalyst response"
-  remediation: "Set appropriate headers"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Catalyst response
+  remediation: Set appropriate headers
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-catalyst-uri-for
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)uri_for\s*\('
+  - regex: (?i)uri_for\s*\(
   severity: low
-  description: "Catalyst URI generation"
-  remediation: "Validate URI parameters"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Catalyst URI generation
+  remediation: Validate URI parameters
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.5
 - id: perl-catalyst-redirect
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->redirect\s*\('
+  - regex: (?i)->redirect\s*\(
   severity: medium
-  description: "Catalyst redirect"
-  remediation: "Validate redirect URLs"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Catalyst redirect
+  remediation: Validate redirect URLs
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.6
 - id: perl-catalyst-forward
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->forward\s*\('
+  - regex: (?i)->forward\s*\(
   severity: low
-  description: "Catalyst forward"
-  remediation: "Validate forward targets"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Catalyst forward
+  remediation: Validate forward targets
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-catalyst-detach
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->detach\s*\('
+  - regex: (?i)->detach\s*\(
   severity: low
-  description: "Catalyst detach"
-  remediation: "Handle detach properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Catalyst detach
+  remediation: Handle detach properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-catalyst-component
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)COMPONENT\s*\(|config\s*\('
+  - regex: (?i)COMPONENT\s*\(|config\s*\(
   severity: low
-  description: "Catalyst component"
-  remediation: "Review component config"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Catalyst component
+  remediation: Review component config
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-catalyst-action
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)sub\s+\w+\s*:\s*(?:Chained|Path|Local)'
+  - regex: (?i)sub\s+\w+\s*:\s*(?:Chained|Path|Local)
   severity: low
-  description: "Catalyst action"
-  remediation: "Implement authorization"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Catalyst action
+  remediation: Implement authorization
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-catalyst-chained
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)Chained\s*\(|:Chained'
+  - regex: (?i)Chained\s*\(|:Chained
   severity: low
-  description: "Catalyst chained action"
-  remediation: "Validate chain parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Catalyst chained action
+  remediation: Validate chain parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-catalyst-args
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->req->args|\$c->req->args'
+  - regex: (?i)->req->args|\$c->req->args
   severity: low
-  description: "Catalyst action args"
-  remediation: "Validate action arguments"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Catalyst action args
+  remediation: Validate action arguments
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: perl-catalyst-stash
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->stash|stash\s*\('
+  - regex: (?i)->stash|stash\s*\(
   severity: low
-  description: "Catalyst stash"
-  remediation: "Don't store sensitive data in stash"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Catalyst stash
+  remediation: Don't store sensitive data in stash
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: perl-catalyst-finalize
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)->finalize\s*\('
+  - regex: (?i)->finalize\s*\(
   severity: low
-  description: "Catalyst finalize"
-  remediation: "Ensure proper finalization"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
-# --- DANCER FRAMEWORK (121-135) ---
+  description: Catalyst finalize
+  remediation: Ensure proper finalization
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-dancer-route
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)get\s*[''\\"]|post\s*[''\\"]|put\s*[''\\"]'
+  - regex: (?i)get\s*['\\"]|post\s*['\\"]|put\s*['\\"]
   severity: low
-  description: "Dancer route"
-  remediation: "Implement authorization"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dancer route
+  remediation: Implement authorization
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: perl-dancer-template
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)template\s*[''\\"]|template\s*\('
+  - regex: (?i)template\s*['\\"]|template\s*\(
   severity: low
-  description: "Dancer template"
-  remediation: "Escape template output"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Dancer template
+  remediation: Escape template output
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-dancer-param
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)param\s*[''\\"]|param\s*\('
+  - regex: (?i)param\s*['\\"]|param\s*\(
   severity: medium
-  description: "Dancer parameter"
-  remediation: "Validate parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Dancer parameter
+  remediation: Validate parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-dancer-session
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)session\s*\(|session\s*\['
+  - regex: (?i)session\s*\(|session\s*\[
   severity: low
-  description: "Dancer session"
-  remediation: "Configure session securely"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Dancer session
+  remediation: Configure session securely
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.5
 - id: perl-dancer-cookie
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)cookie\s*[''\\"]|cookie\s*\('
+  - regex: (?i)cookie\s*['\\"]|cookie\s*\(
   severity: low
-  description: "Dancer cookie"
-  remediation: "Set secure cookie flags"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Dancer cookie
+  remediation: Set secure cookie flags
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.5
 - id: perl-dancer-redirect
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)redirect\s*\('
+  - regex: (?i)redirect\s*\(
   severity: medium
-  description: "Dancer redirect"
-  remediation: "Validate redirect URLs"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Dancer redirect
+  remediation: Validate redirect URLs
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.6
 - id: perl-dancer-send-file
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)send_file\s*\('
+  - regex: (?i)send_file\s*\(
   severity: medium
-  description: "Dancer send file"
-  remediation: "Validate file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Dancer send file
+  remediation: Validate file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: perl-dancer-send-error
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)send_error\s*\('
+  - regex: (?i)send_error\s*\(
   severity: low
-  description: "Dancer error response"
-  remediation: "Don't expose error details"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Dancer error response
+  remediation: Don't expose error details
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-dancer-halt
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)halt\s*\('
+  - regex: (?i)halt\s*\(
   severity: low
-  description: "Dancer halt"
-  remediation: "Handle halt properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Dancer halt
+  remediation: Handle halt properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-dancer-pass
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)pass\s*\('
+  - regex: (?i)pass\s*\(
   severity: low
-  description: "Dancer pass"
-  remediation: "Handle pass properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Dancer pass
+  remediation: Handle pass properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-dancer-hook
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)hook\s*[''\\"]|before\s*|after\s*'
+  - regex: (?i)hook\s*['\\"]|before\s*|after\s*
   severity: low
-  description: "Dancer hook"
-  remediation: "Review hook security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Dancer hook
+  remediation: Review hook security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-dancer-filter
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)filter\s*\('
+  - regex: (?i)filter\s*\(
   severity: low
-  description: "Dancer filter"
-  remediation: "Review filter security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Dancer filter
+  remediation: Review filter security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-dancer-mime
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)mime_type\s*\('
+  - regex: (?i)mime_type\s*\(
   severity: low
-  description: "Dancer MIME type"
-  remediation: "Validate MIME types"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Dancer MIME type
+  remediation: Validate MIME types
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-dancer-layout
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)layout\s*[''\\"]|layout\s*\('
+  - regex: (?i)layout\s*['\\"]|layout\s*\(
   severity: low
-  description: "Dancer layout"
-  remediation: "Validate layout templates"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Dancer layout
+  remediation: Validate layout templates
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-dancer-config
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)config\s*\(|set\s+[''\\"]\w+[''\\"]'
+  - regex: (?i)config\s*\(|set\s+['\\"]\w+['\\"]
   severity: low
-  description: "Dancer configuration"
-  remediation: "Secure configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- CPAN MODULES (136-150) ---
+  description: Dancer configuration
+  remediation: Secure configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-cpan-outdated
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)use\s+\w+\s+v?\d+\.\d'
+  - regex: (?i)use\s+\w+\s+v?\d+\.\d
   severity: low
-  description: "CPAN module with version"
-  remediation: "Update to latest version"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: CPAN module with version
+  remediation: Update to latest version
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: perl-cpan-eval
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)eval\s*\{\s*use\s+'
+  - regex: (?i)eval\s*\{\s*use\s+
   severity: medium
-  description: "CPAN module eval use"
-  remediation: "Avoid eval for module loading"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: CPAN module eval use
+  remediation: Avoid eval for module loading
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.55
 - id: perl-cpan-autoload
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)use\s+autoload|AUTOLOAD\s*\('
+  - regex: (?i)use\s+autoload|AUTOLOAD\s*\(
   severity: low
-  description: "Perl autoload"
-  remediation: "Review autoload security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Perl autoload
+  remediation: Review autoload security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: perl-cpan-tie
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)tie\s+\$|tie\s+\\@'
+  - regex: (?i)tie\s+\$|tie\s+\\@
   severity: low
-  description: "Perl tie"
-  remediation: "Review tied class security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Perl tie
+  remediation: Review tied class security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-cpan-bless
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)bless\s+\$|bless\s+\{'
+  - regex: (?i)bless\s+\$|bless\s+\{
   severity: low
-  description: "Perl bless"
-  remediation: "Review blessed class"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Perl bless
+  remediation: Review blessed class
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: perl-cpan-ref
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)ref\s*\(|\$\w+->'
+  - regex: (?i)ref\s*\(|\$\w+->
   severity: low
-  description: "Perl reference"
-  remediation: "Validate references"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Perl reference
+  remediation: Validate references
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: perl-cpan-glob
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)glob\s*\(|<[^>]+>'
+  - regex: (?i)glob\s*\(|<[^>]+>
   severity: medium
-  description: "Perl glob"
-  remediation: "Validate glob patterns"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: Perl glob
+  remediation: Validate glob patterns
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.6
 - id: perl-cpan-opendir
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)opendir\s*\(|readdir\s*\('
+  - regex: (?i)opendir\s*\(|readdir\s*\(
   severity: low
-  description: "Perl directory operations"
-  remediation: "Validate directory paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Perl directory operations
+  remediation: Validate directory paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.5
 - id: perl-cpan-chdir
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)chdir\s*\('
+  - regex: (?i)chdir\s*\(
   severity: medium
-  description: "Perl chdir"
-  remediation: "Validate directory changes"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Perl chdir
+  remediation: Validate directory changes
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: perl-cpan-umask
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)umask\s*\('
+  - regex: (?i)umask\s*\(
   severity: low
-  description: "Perl umask"
-  remediation: "Set appropriate umask"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: Perl umask
+  remediation: Set appropriate umask
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.5
 - id: perl-cpan-fork
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)fork\s*\('
+  - regex: (?i)fork\s*\(
   severity: low
-  description: "Perl fork"
-  remediation: "Handle fork properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Perl fork
+  remediation: Handle fork properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-cpan-wait
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)wait\s*\(|waitpid\s*\('
+  - regex: (?i)wait\s*\(|waitpid\s*\(
   severity: low
-  description: "Perl wait"
-  remediation: "Handle child processes"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Perl wait
+  remediation: Handle child processes
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-cpan-kill
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)kill\s*\('
+  - regex: (?i)kill\s*\(
   severity: low
-  description: "Perl kill signal"
-  remediation: "Validate signal targets"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Perl kill signal
+  remediation: Validate signal targets
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-cpan-alarm
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)alarm\s*\('
+  - regex: (?i)alarm\s*\(
   severity: low
-  description: "Perl alarm"
-  remediation: "Handle alarm properly"
-  cwe: "CWE-754"
-  owasp: "A06:2021"
-
+  description: Perl alarm
+  remediation: Handle alarm properly
+  cwe: CWE-754
+  owasp: A06:2021
+  confidence: 0.5
 - id: perl-cpan-sleep
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)sleep\s*\('
+  - regex: (?i)sleep\s*\(
   severity: low
-  description: "Perl sleep"
-  remediation: "Review sleep usage"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
-
+  description: Perl sleep
+  remediation: Review sleep usage
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: perl-taint-bypass
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)no\s+warnings\s+''untie'''
+  - regex: (?i)no\s+warnings\s+'untie'
   severity: high
-  description: "Taint mode warning disabled"
-  remediation: "Enable taint warnings"
-  cwe: "CWE-253"
-  owasp: "A01:2021"
+  description: Taint mode warning disabled
+  remediation: Enable taint warnings
+  cwe: CWE-253
+  owasp: A01:2021
   confidence: 0.8
-
 - id: perl-eval-userinput
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)eval\s*\(.*\$ARGV|eval\s*\(.*\$input'
+  - regex: (?i)eval\s*\(.*\$ARGV|eval\s*\(.*\$input
   severity: critical
-  description: "Eval with user input"
-  remediation: "Never eval user-controlled input"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
+  description: Eval with user input
+  remediation: Never eval user-controlled input
+  cwe: CWE-94
+  owasp: A03:2021
   confidence: 0.8
-
 - id: perl-system-unsafe
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)system\s+@ARGV|exec\s+@ARGV'
+  - regex: (?i)system\s+@ARGV|exec\s+@ARGV
   severity: critical
-  description: "Command injection via ARGV"
-  remediation: "Validate ARGV before execution"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
+  description: Command injection via ARGV
+  remediation: Validate ARGV before execution
+  cwe: CWE-78
+  owasp: A03:2021
   confidence: 0.8
-
 - id: perl-dbi-injection
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\$dbh->do\s*\(.*\$\|\.='
+  - regex: (?i)\$dbh->do\s*\(.*\$\|\.=
   severity: critical
-  description: "SQL injection via DBI"
-  remediation: "Use placeholders"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
+  description: SQL injection via DBI
+  remediation: Use placeholders
+  cwe: CWE-89
+  owasp: A03:2021
   confidence: 0.8
-
 - id: perl-regex-dos
-  languages: [perl]
+  languages:
+  - perl
   patterns:
-    - regex: '(?i)\$str =~ /.*\+\|.*\*/'
+  - regex: (?i)\$str =~ /.*\+\|.*\*/
   severity: medium
-  description: "Potential ReDoS"
-  remediation: "Avoid nested quantifiers"
-  cwe: "CWE-1333"
-  owasp: "A04:2021"
+  description: Potential ReDoS
+  remediation: Avoid nested quantifiers
+  cwe: CWE-1333
+  owasp: A04:2021
   confidence: 0.8

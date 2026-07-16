@@ -1,1735 +1,1870 @@
-# ============================================================================
-# SOLIDITY / SMART CONTRACT SECURITY RULES
-# ============================================================================
-
-# ======================== Reentrancy ========================
 - id: sol-reentrancy-external-call
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '\.call\{value:|\.send\(|\.transfer\('
+  - regex: \.call\{value:|\.send\(|\.transfer\(
   severity: critical
-  description: "External call may be vulnerable to reentrancy attacks"
-  remediation: "Use checks-effects-interactions pattern. Apply ReentrancyGuard from OpenZeppelin"
-  cwe: "CWE-841"
-  owasp: "N/A"
-
+  description: External call may be vulnerable to reentrancy attacks
+  remediation: Use checks-effects-interactions pattern. Apply ReentrancyGuard from OpenZeppelin
+  cwe: CWE-841
+  owasp: N/A
+  confidence: 0.75
 - id: sol-reentrancy-state-after-call
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '\.call\{[^}]*\}\([^)]*\)[^;]*;[^}]*\w+\s*='
+  - regex: \.call\{[^}]*\}\([^)]*\)[^;]*;[^}]*\w+\s*=
   severity: critical
-  description: "State modification after external call — reentrancy risk"
-  remediation: "Update state BEFORE external calls (checks-effects-interactions pattern)"
-  cwe: "CWE-841"
-  owasp: "N/A"
-
-# ======================== Overflow / Underflow ========================
+  description: State modification after external call — reentrancy risk
+  remediation: Update state BEFORE external calls (checks-effects-interactions pattern)
+  cwe: CWE-841
+  owasp: N/A
+  confidence: 0.7
 - id: sol-unchecked-math
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'unchecked\s*\{'
+  - regex: unchecked\s*\{
   severity: medium
-  description: "Unchecked arithmetic block bypasses overflow/underflow checks"
-  remediation: "Only use unchecked blocks when overflow is mathematically impossible"
-  cwe: "CWE-190"
-  owasp: "N/A"
-
-# ======================== Access Control ========================
+  description: Unchecked arithmetic block bypasses overflow/underflow checks
+  remediation: Only use unchecked blocks when overflow is mathematically impossible
+  cwe: CWE-190
+  owasp: N/A
+  confidence: 0.55
 - id: sol-tx-origin-auth
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'tx\.origin'
+  - regex: tx\.origin
   severity: high
-  description: "tx.origin used for authorization — vulnerable to phishing attacks"
-  remediation: "Use msg.sender instead of tx.origin for authorization checks"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: tx.origin used for authorization — vulnerable to phishing attacks
+  remediation: Use msg.sender instead of tx.origin for authorization checks
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: sol-missing-access-control
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'function\s+\w+\s*\([^)]*\)\s*(public|external)'
+  - regex: function\s+\w+\s*\([^)]*\)\s*(public|external)
   severity: high
-  description: "Public/external function may lack access control"
-  remediation: "Add onlyOwner modifier or require(msg.sender == owner) for sensitive functions"
-  cwe: "CWE-862"
-  owasp: "A01:2021"
-
+  description: Public/external function may lack access control
+  remediation: Add onlyOwner modifier or require(msg.sender == owner) for sensitive functions
+  cwe: CWE-862
+  owasp: A01:2021
+  confidence: 0.7
 - id: sol-unprotected-selfdestruct
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'selfdestruct\s*\(|suicide\s*\('
+  - regex: selfdestruct\s*\(|suicide\s*\(
   severity: critical
-  description: "selfdestruct can destroy the contract and steal all funds"
-  remediation: "Add strict access control to selfdestruct. Consider removing it entirely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# ======================== Randomness ========================
+  description: selfdestruct can destroy the contract and steal all funds
+  remediation: Add strict access control to selfdestruct. Consider removing it entirely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.75
 - id: sol-insecure-randomness
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'block\.(timestamp|difficulty|number|coinbase)|blockhash\('
+  - regex: block\.(timestamp|difficulty|number|coinbase)|blockhash\(
   severity: high
-  description: "Block variables used for randomness can be manipulated by miners"
-  remediation: "Use Chainlink VRF or commit-reveal scheme for secure randomness"
-  cwe: "CWE-330"
-  owasp: "N/A"
-
-# ======================== Gas / DoS ========================
+  description: Block variables used for randomness can be manipulated by miners
+  remediation: Use Chainlink VRF or commit-reveal scheme for secure randomness
+  cwe: CWE-330
+  owasp: N/A
+  confidence: 0.65
 - id: sol-unbounded-loop
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'for\s*\(\s*uint\s+\w+\s*=\s*0\s*;\s*\w+\s*<\s*\w+\.length'
+  - regex: for\s*\(\s*uint\s+\w+\s*=\s*0\s*;\s*\w+\s*<\s*\w+\.length
   severity: medium
-  description: "Unbounded loop over dynamic array may cause out-of-gas DoS"
-  remediation: "Limit loop iterations or use pagination pattern"
-  cwe: "CWE-400"
-  owasp: "N/A"
-
+  description: Unbounded loop over dynamic array may cause out-of-gas DoS
+  remediation: Limit loop iterations or use pagination pattern
+  cwe: CWE-400
+  owasp: N/A
+  confidence: 0.6
 - id: sol-dos-with-revert
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'require\s*\([^)]*\.transfer\(|require\s*\([^)]*\.send\('
+  - regex: require\s*\([^)]*\.transfer\(|require\s*\([^)]*\.send\(
   severity: medium
-  description: "External call in require can brick the contract if recipient reverts"
-  remediation: "Use pull-over-push pattern for payments. Let users withdraw instead"
-  cwe: "CWE-400"
-  owasp: "N/A"
-
-# ======================== Visibility ========================
+  description: External call in require can brick the contract if recipient reverts
+  remediation: Use pull-over-push pattern for payments. Let users withdraw instead
+  cwe: CWE-400
+  owasp: N/A
+  confidence: 0.6
 - id: sol-default-visibility
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'function\s+\w+\s*\([^)]*\)\s*'
+  - regex: function\s+\w+\s*\([^)]*\)\s*
   severity: medium
-  description: "Function without explicit visibility defaults to public"
-  remediation: "Always specify function visibility: public, private, internal, or external"
-  cwe: "CWE-710"
-  owasp: "N/A"
-
-# ======================== Delegate Call ========================
+  description: Function without explicit visibility defaults to public
+  remediation: 'Always specify function visibility: public, private, internal, or external'
+  cwe: CWE-710
+  owasp: N/A
+  confidence: 0.6
 - id: sol-delegatecall
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '\.delegatecall\('
+  - regex: \.delegatecall\(
   severity: high
-  description: "delegatecall executes code in the context of the calling contract"
-  remediation: "Only delegatecall to trusted contracts. Validate target address"
-  cwe: "CWE-829"
-  owasp: "N/A"
-
-# ======================== Hardcoded Addresses ========================
+  description: delegatecall executes code in the context of the calling contract
+  remediation: Only delegatecall to trusted contracts. Validate target address
+  cwe: CWE-829
+  owasp: N/A
+  confidence: 0.65
 - id: sol-hardcoded-address
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '0x[0-9a-fA-F]{40}'
+  - regex: 0x[0-9a-fA-F]{40}
   severity: low
-  description: "Hardcoded Ethereum address detected"
-  remediation: "Use constructor parameters or configuration for addresses to support multiple networks"
-  cwe: "CWE-798"
-  owasp: "N/A"
-
-# ======================== Floating Pragma ========================
+  description: Hardcoded Ethereum address detected
+  remediation: Use constructor parameters or configuration for addresses to support multiple networks
+  cwe: CWE-798
+  owasp: N/A
+  confidence: 0.45
 - id: sol-floating-pragma
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: 'pragma solidity\s*\^'
+  - regex: pragma solidity\s*\^
   severity: low
-  description: "Floating pragma version allows compilation with different compiler versions"
-  remediation: "Lock pragma to a specific version: pragma solidity 0.8.20;"
-  cwe: "N/A"
-  owasp: "N/A"
-
-# ======================== Front-Running ========================
+  description: Floating pragma version allows compilation with different compiler versions
+  remediation: 'Lock pragma to a specific version: pragma solidity 0.8.20;'
+  cwe: N/A
+  owasp: N/A
+  confidence: 0.45
 - id: sol-frontrunning-vulnerable
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)approve\s*\(|transferFrom\s*\('
+  - regex: (?i)approve\s*\(|transferFrom\s*\(
   severity: medium
-  description: "ERC-20 approve/transferFrom pattern is vulnerable to front-running"
-  remediation: "Use increaseAllowance/decreaseAllowance or permit (EIP-2612)"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
-# ======================== Flash Loan ========================
+  description: ERC-20 approve/transferFrom pattern is vulnerable to front-running
+  remediation: Use increaseAllowance/decreaseAllowance or permit (EIP-2612)
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.6
 - id: sol-flash-loan-vulnerable
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)flashLoan|flash_loan|getReserves'
+  - regex: (?i)flashLoan|flash_loan|getReserves
   severity: medium
-  description: "Function may be vulnerable to flash loan price manipulation"
-  remediation: "Use time-weighted average prices (TWAP) from Uniswap V3 or Chainlink oracles"
-  cwe: "N/A"
-  owasp: "N/A"
-
-  # ============================================================================
-# SOLIDITY SECURITY RULES - EXPANDED (150 NEW RULES)
-# ============================================================================
-# Excludes all existing rules from uploaded solidity.yaml
-# Categories: ERC Standards, Gas, Upgrade, Oracle, Multi-sig,
-#             Time, Signature, Access, Event, State, Proxy, Pattern
-# ============================================================================
-
-# --- ERC STANDARDS (1-20) ---
+  description: Function may be vulnerable to flash loan price manipulation
+  remediation: Use time-weighted average prices (TWAP) from Uniswap V3 or Chainlink oracles
+  cwe: N/A
+  owasp: N/A
+  confidence: 0.55
 - id: sol-erc20-approve-race
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function\s+approve\s*\('
+  - regex: (?i)function\s+approve\s*\(
   severity: medium
-  description: "ERC20 approve vulnerable to race condition"
-  remediation: "Use increaseAllowance/decreaseAllowance pattern"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: ERC20 approve vulnerable to race condition
+  remediation: Use increaseAllowance/decreaseAllowance pattern
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.6
 - id: sol-erc20-transfer-from
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)transferFrom\s*\('
+  - regex: (?i)transferFrom\s*\(
   severity: low
-  description: "ERC20 transferFrom usage"
-  remediation: "Validate allowance before transfer"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC20 transferFrom usage
+  remediation: Validate allowance before transfer
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: sol-erc20-mint-function
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function\s+mint\s*\('
+  - regex: (?i)function\s+mint\s*\(
   severity: high
-  description: "ERC20 mint function"
-  remediation: "Restrict mint access with proper access control"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC20 mint function
+  remediation: Restrict mint access with proper access control
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: sol-erc20-burn-function
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function\s+burn\s*\('
+  - regex: (?i)function\s+burn\s*\(
   severity: medium
-  description: "ERC20 burn function"
-  remediation: "Validate burn amount and caller"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC20 burn function
+  remediation: Validate burn amount and caller
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-erc721-safe-transfer
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)safeTransferFrom\s*\('
+  - regex: (?i)safeTransferFrom\s*\(
   severity: low
-  description: "ERC721 safe transfer"
-  remediation: "Ensure recipient can handle NFTs"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC721 safe transfer
+  remediation: Ensure recipient can handle NFTs
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: sol-erc721-approve-all
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)setApprovalForAll\s*\('
+  - regex: (?i)setApprovalForAll\s*\(
   severity: medium
-  description: "ERC721 approve all"
-  remediation: "Warn users about approve all risks"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC721 approve all
+  remediation: Warn users about approve all risks
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-erc721-metadata
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)tokenURI\s*\('
+  - regex: (?i)tokenURI\s*\(
   severity: low
-  description: "ERC721 metadata URI"
-  remediation: "Validate metadata URIs"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: ERC721 metadata URI
+  remediation: Validate metadata URIs
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.5
 - id: sol-erc721-enumerable
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)ERC721Enumerable'
+  - regex: (?i)ERC721Enumerable
   severity: low
-  description: "ERC721 Enumerable extension"
-  remediation: "Consider gas costs of enumeration"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: ERC721 Enumerable extension
+  remediation: Consider gas costs of enumeration
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.45
 - id: sol-erc1155-batch-transfer
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)safeBatchTransferFrom\s*\('
+  - regex: (?i)safeBatchTransferFrom\s*\(
   severity: low
-  description: "ERC1155 batch transfer"
-  remediation: "Validate batch amounts"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC1155 batch transfer
+  remediation: Validate batch amounts
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: sol-erc1155-uri
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)uri\s*\(\s*uint256'
+  - regex: (?i)uri\s*\(\s*uint256
   severity: low
-  description: "ERC1155 URI function"
-  remediation: "Validate token URIs"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: ERC1155 URI function
+  remediation: Validate token URIs
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.5
 - id: sol-erc4626-vault
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)ERC4626|function\s+deposit\s*\('
+  - regex: (?i)ERC4626|function\s+deposit\s*\(
   severity: medium
-  description: "ERC4626 vault"
-  remediation: "Validate vault inflation attacks"
-  cwe: "CWE-1335"
-  owasp: "N/A"
-
+  description: ERC4626 vault
+  remediation: Validate vault inflation attacks
+  cwe: CWE-1335
+  owasp: N/A
+  confidence: 0.6
 - id: sol-erc4626-withdraw
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function\s+withdraw\s*\('
+  - regex: (?i)function\s+withdraw\s*\(
   severity: medium
-  description: "ERC4626 withdraw"
-  remediation: "Validate withdrawal amounts"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC4626 withdraw
+  remediation: Validate withdrawal amounts
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-erc4626-convert
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)convertToShares|convertToAssets'
+  - regex: (?i)convertToShares|convertToAssets
   severity: medium
-  description: "ERC4626 conversion"
-  remediation: "Check for rounding issues"
-  cwe: "CWE-190"
-  owasp: "N/A"
-
+  description: ERC4626 conversion
+  remediation: Check for rounding issues
+  cwe: CWE-190
+  owasp: N/A
+  confidence: 0.55
 - id: sol-erc2981-royalty
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)royaltyInfo\s*\('
+  - regex: (?i)royaltyInfo\s*\(
   severity: low
-  description: "ERC2981 royalty"
-  remediation: "Validate royalty percentages"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ERC2981 royalty
+  remediation: Validate royalty percentages
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: sol-erc1271-signature
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)isValidSignature\s*\('
+  - regex: (?i)isValidSignature\s*\(
   severity: low
-  description: "ERC1271 signature verification"
-  remediation: "Implement proper signature validation"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: ERC1271 signature verification
+  remediation: Implement proper signature validation
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.5
 - id: sol-erc2612-permit
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)permit\s*\('
+  - regex: (?i)permit\s*\(
   severity: medium
-  description: "ERC2612 permit"
-  remediation: "Validate permit signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: ERC2612 permit
+  remediation: Validate permit signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.6
 - id: sol-erc2612-domain
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)DOMAIN_SEPARATOR\s*\('
+  - regex: (?i)DOMAIN_SEPARATOR\s*\(
   severity: low
-  description: "EIP712 domain separator"
-  remediation: "Ensure proper domain separation"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: EIP712 domain separator
+  remediation: Ensure proper domain separation
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.5
 - id: sol-erc2612-nonce
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)nonces\s*\('
+  - regex: (?i)nonces\s*\(
   severity: low
-  description: "Permit nonce tracking"
-  remediation: "Ensure nonce increment"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: Permit nonce tracking
+  remediation: Ensure nonce increment
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.5
 - id: sol-erc165-interface
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)supportsInterface\s*\('
+  - regex: (?i)supportsInterface\s*\(
   severity: low
-  description: "ERC165 interface check"
-  remediation: "Implement interface detection properly"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: ERC165 interface check
+  remediation: Implement interface detection properly
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-erc1820-registry
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)ERC1820Registry|IERC1820Registry'
+  - regex: (?i)ERC1820Registry|IERC1820Registry
   severity: low
-  description: "ERC1820 registry"
-  remediation: "Validate registry interactions"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
-# --- GAS OPTIMIZATION SECURITY (21-40) ---
+  description: ERC1820 registry
+  remediation: Validate registry interactions
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-gas-loop-array
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)for\s*\([^;]+;[^;]+<\s*\w+\.length'
+  - regex: (?i)for\s*\([^;]+;[^;]+<\s*\w+\.length
   severity: medium
-  description: "Loop over dynamic array length"
-  remediation: "Cache array length before loop"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Loop over dynamic array length
+  remediation: Cache array length before loop
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.6
 - id: sol-gas-storage-read
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)\w+\.\w+\s*\+\s*\w+\.\w+'
+  - regex: (?i)\w+\.\w+\s*\+\s*\w+\.\w+
   severity: low
-  description: "Multiple storage reads"
-  remediation: "Cache storage values in memory"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Multiple storage reads
+  remediation: Cache storage values in memory
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-external-call
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)\w+\.\w+\s*\([^)]*\)\s*\{[^}]*\w+\.\w+'
+  - regex: (?i)\w+\.\w+\s*\([^)]*\)\s*\{[^}]*\w+\.\w+
   severity: medium
-  description: "External call in loop"
-  remediation: "Avoid external calls in loops"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: External call in loop
+  remediation: Avoid external calls in loops
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.6
 - id: sol-gas-string-concat
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)string\s*\([^)]*\+\s*[^)]*\+'
+  - regex: (?i)string\s*\([^)]*\+\s*[^)]*\+
   severity: low
-  description: "String concatenation"
-  remediation: "Use assembly or libraries for string operations"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: String concatenation
+  remediation: Use assembly or libraries for string operations
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-event-emission
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)emit\s+\w+\s*\([^)]*\w+\s*\+\s*\w+'
+  - regex: (?i)emit\s+\w+\s*\([^)]*\w+\s*\+\s*\w+
   severity: low
-  description: "Complex event emission"
-  remediation: "Simplify event parameters"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Complex event emission
+  remediation: Simplify event parameters
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-mapping-iteration
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)mapping\s*\([^)]+\)\s*\w+;'
+  - regex: (?i)mapping\s*\([^)]+\)\s*\w+;
   severity: low
-  description: "Mapping usage"
-  remediation: "Track keys separately for iteration"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Mapping usage
+  remediation: Track keys separately for iteration
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-delete-mapping
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)delete\s+\w+\s*\['
+  - regex: (?i)delete\s+\w+\s*\[
   severity: low
-  description: "Mapping element deletion"
-  remediation: "Note: delete doesn't remove from mapping"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Mapping element deletion
+  remediation: 'Note: delete doesn''t remove from mapping'
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-gas-array-push
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)\w+\.push\s*\('
+  - regex: (?i)\w+\.push\s*\(
   severity: low
-  description: "Array push operation"
-  remediation: "Consider gas costs of dynamic arrays"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Array push operation
+  remediation: Consider gas costs of dynamic arrays
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-array-pop
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)\w+\.pop\s*\('
+  - regex: (?i)\w+\.pop\s*\(
   severity: low
-  description: "Array pop operation"
-  remediation: "Consider gas refunds"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Array pop operation
+  remediation: Consider gas refunds
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-require-message
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)require\s*\([^,]+,\s*[''\\\"]'
+  - regex: (?i)require\s*\([^,]+,\s*['\\\"]
   severity: low
-  description: "Require with string message"
-  remediation: "Consider using custom errors (Solidity 0.8.4+)"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Require with string message
+  remediation: Consider using custom errors (Solidity 0.8.4+)
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-custom-error
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)error\s+\w+\s*\('
+  - regex: (?i)error\s+\w+\s*\(
   severity: low
-  description: "Custom error definition"
-  remediation: "Good practice for gas optimization"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Custom error definition
+  remediation: Good practice for gas optimization
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-gas-view-function
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)view\s+external\s+function|pure\s+external\s+function'
+  - regex: (?i)view\s+external\s+function|pure\s+external\s+function
   severity: low
-  description: "View/pure function"
-  remediation: "Use view/pure when possible"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: View/pure function
+  remediation: Use view/pure when possible
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-gas-payable-function
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)payable\s+external\s+function'
+  - regex: (?i)payable\s+external\s+function
   severity: low
-  description: "Payable function"
-  remediation: "Validate ETH handling"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Payable function
+  remediation: Validate ETH handling
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-gas-fallback
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)fallback\s*\(\s*\)\s+external'
+  - regex: (?i)fallback\s*\(\s*\)\s+external
   severity: medium
-  description: "Fallback function"
-  remediation: "Implement fallback securely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Fallback function
+  remediation: Implement fallback securely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-gas-receive
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)receive\s*\(\s*\)\s+external\s+payable'
+  - regex: (?i)receive\s*\(\s*\)\s+external\s+payable
   severity: medium
-  description: "Receive function"
-  remediation: "Implement receive securely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Receive function
+  remediation: Implement receive securely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-gas-constructor
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)constructor\s*\('
+  - regex: (?i)constructor\s*\(
   severity: low
-  description: "Constructor"
-  remediation: "Keep constructor gas-efficient"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
+  description: Constructor
+  remediation: Keep constructor gas-efficient
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-gas-initializer
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function\s+initialize\s*\('
+  - regex: (?i)function\s+initialize\s*\(
   severity: medium
-  description: "Initializer function"
-  remediation: "Protect initializer with proper access control"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Initializer function
+  remediation: Protect initializer with proper access control
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-gas-proxy-call
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)delegatecall\s*\('
+  - regex: (?i)delegatecall\s*\(
   severity: high
-  description: "Delegatecall usage"
-  remediation: "Validate delegatecall targets"
-  cwe: "CWE-829"
-  owasp: "N/A"
-
+  description: Delegatecall usage
+  remediation: Validate delegatecall targets
+  cwe: CWE-829
+  owasp: N/A
+  confidence: 0.7
 - id: sol-gas-assembly
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)assembly\s*\{'
+  - regex: (?i)assembly\s*\{
   severity: medium
-  description: "Assembly block"
-  remediation: "Review assembly code carefully"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Assembly block
+  remediation: Review assembly code carefully
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.55
 - id: sol-gas-sload
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)sload\s*\('
+  - regex: (?i)sload\s*\(
   severity: low
-  description: "SLOAD operation"
-  remediation: "Minimize storage reads"
-  cwe: "CWE-400"
-  owasp: "A04:2023"
-
-# --- UPGRADE PATTERNS (41-60) ---
+  description: SLOAD operation
+  remediation: Minimize storage reads
+  cwe: CWE-400
+  owasp: A04:2023
+  confidence: 0.5
 - id: sol-upgrade-proxy
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)TransparentUpgradeableProxy|UpgradeableProxy'
+  - regex: (?i)TransparentUpgradeableProxy|UpgradeableProxy
   severity: low
-  description: "Upgradeable proxy"
-  remediation: "Implement upgrade access control"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Upgradeable proxy
+  remediation: Implement upgrade access control
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-upgrade-beacon
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)BeaconProxy|UpgradeableBeacon'
+  - regex: (?i)BeaconProxy|UpgradeableBeacon
   severity: low
-  description: "Beacon proxy pattern"
-  remediation: "Secure beacon upgrade access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Beacon proxy pattern
+  remediation: Secure beacon upgrade access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-upgrade-implementation
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)upgradeTo\s*\(|upgradeToAndCall\s*\('
+  - regex: (?i)upgradeTo\s*\(|upgradeToAndCall\s*\(
   severity: high
-  description: "Upgrade function"
-  remediation: "Restrict upgrade access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Upgrade function
+  remediation: Restrict upgrade access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: sol-upgrade-admin
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)admin\s*\(|changeAdmin\s*\('
+  - regex: (?i)admin\s*\(|changeAdmin\s*\(
   severity: high
-  description: "Admin change function"
-  remediation: "Secure admin transfer"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Admin change function
+  remediation: Secure admin transfer
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: sol-upgrade-initializer
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)__\w+Init\s*\('
+  - regex: (?i)__\w+Init\s*\(
   severity: medium
-  description: "Initializer function"
-  remediation: "Prevent re-initialization"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Initializer function
+  remediation: Prevent re-initialization
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-upgrade-storage-gap
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)uint256\s*\[\s*\d+\s*\]\s+__gap'
+  - regex: (?i)uint256\s*\[\s*\d+\s*\]\s+__gap
   severity: low
-  description: "Storage gap for upgrades"
-  remediation: "Maintain storage layout"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Storage gap for upgrades
+  remediation: Maintain storage layout
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-upgrade-storage-slot
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)bytes32\s*\(\s*uint256\s*\(\s*keccak256'
+  - regex: (?i)bytes32\s*\(\s*uint256\s*\(\s*keccak256
   severity: low
-  description: "Storage slot calculation"
-  remediation: "Use consistent slot calculation"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Storage slot calculation
+  remediation: Use consistent slot calculation
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-upgrade-uups
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)UUPSUpgradeable|ERC1967Upgrade'
+  - regex: (?i)UUPSUpgradeable|ERC1967Upgrade
   severity: low
-  description: "UUPS upgrade pattern"
-  remediation: "Implement _authorizeUpgrade properly"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: UUPS upgrade pattern
+  remediation: Implement _authorizeUpgrade properly
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-upgrade-transparent
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)TransparentUpgradeableProxy'
+  - regex: (?i)TransparentUpgradeableProxy
   severity: low
-  description: "Transparent proxy"
-  remediation: "Understand proxy-admin separation"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Transparent proxy
+  remediation: Understand proxy-admin separation
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-upgrade-diamond
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)DiamondCut|DiamondLoupe'
+  - regex: (?i)DiamondCut|DiamondLoupe
   severity: medium
-  description: "Diamond pattern (EIP2535)"
-  remediation: "Secure facet management"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Diamond pattern (EIP2535)
+  remediation: Secure facet management
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: sol-upgrade-facet
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function\s+\w+\s*\([^)]*\)\s+external\s+facet'
+  - regex: (?i)function\s+\w+\s*\([^)]*\)\s+external\s+facet
   severity: low
-  description: "Diamond facet"
-  remediation: "Validate facet functions"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Diamond facet
+  remediation: Validate facet functions
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-upgrade-selector-clash
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function\s+\w+\s*\('
+  - regex: (?i)function\s+\w+\s*\(
   severity: low
-  description: "Function selector"
-  remediation: "Avoid selector clashes in upgrades"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Function selector
+  remediation: Avoid selector clashes in upgrades
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-upgrade-storage-collision
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)mapping\s*\(|uint256\s+\w+\s*;'
+  - regex: (?i)mapping\s*\(|uint256\s+\w+\s*;
   severity: low
-  description: "Storage variable"
-  remediation: "Maintain storage layout across upgrades"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Storage variable
+  remediation: Maintain storage layout across upgrades
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-upgrade-logic-contract
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)LogicContract|Implementation'
+  - regex: (?i)LogicContract|Implementation
   severity: low
-  description: "Logic contract reference"
-  remediation: "Validate implementation address"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Logic contract reference
+  remediation: Validate implementation address
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-upgrade-proxy-admin
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)ProxyAdmin|proxyAdmin'
+  - regex: (?i)ProxyAdmin|proxyAdmin
   severity: medium
-  description: "Proxy admin"
-  remediation: "Secure proxy admin access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Proxy admin
+  remediation: Secure proxy admin access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: sol-upgrade-timelock
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)TimelockController|timelock'
+  - regex: (?i)TimelockController|timelock
   severity: low
-  description: "Timelock for upgrades"
-  remediation: "Set appropriate timelock delay"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Timelock for upgrades
+  remediation: Set appropriate timelock delay
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-upgrade-multisig
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)GnosisSafe|MultiSigWallet'
+  - regex: (?i)GnosisSafe|MultiSigWallet
   severity: low
-  description: "Multisig for upgrades"
-  remediation: "Configure multisig properly"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Multisig for upgrades
+  remediation: Configure multisig properly
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-upgrade-governance
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)Governor|Timelock|Votes'
+  - regex: (?i)Governor|Timelock|Votes
   severity: low
-  description: "Governance for upgrades"
-  remediation: "Implement governance securely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Governance for upgrades
+  remediation: Implement governance securely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-upgrade-emergency-stop
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)Pausable|pause\s*\(|unpause\s*\('
+  - regex: (?i)Pausable|pause\s*\(|unpause\s*\(
   severity: low
-  description: "Emergency stop mechanism"
-  remediation: "Implement pause functionality"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Emergency stop mechanism
+  remediation: Implement pause functionality
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-upgrade-version
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)version\s*\(\s*\)|VERSION'
+  - regex: (?i)version\s*\(\s*\)|VERSION
   severity: low
-  description: "Version tracking"
-  remediation: "Track contract versions"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
-# --- ORACLE SECURITY (61-80) ---
+  description: Version tracking
+  remediation: Track contract versions
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-oracle-chainlink
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)Chainlink|AggregatorV3Interface'
+  - regex: (?i)Chainlink|AggregatorV3Interface
   severity: low
-  description: "Chainlink oracle"
-  remediation: "Validate oracle responses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Chainlink oracle
+  remediation: Validate oracle responses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: sol-oracle-price-feed
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)latestRoundData\s*\('
+  - regex: (?i)latestRoundData\s*\(
   severity: medium
-  description: "Price feed access"
-  remediation: "Check for stale prices"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: Price feed access
+  remediation: Check for stale prices
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.6
 - id: sol-oracle-stale-price
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)updatedAt\s*\(|answeredAt\s*\('
+  - regex: (?i)updatedAt\s*\(|answeredAt\s*\(
   severity: medium
-  description: "Price timestamp check"
-  remediation: "Validate price freshness"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: Price timestamp check
+  remediation: Validate price freshness
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.6
 - id: sol-oracle-heartbeat
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)heartbeat\s*\('
+  - regex: (?i)heartbeat\s*\(
   severity: low
-  description: "Oracle heartbeat"
-  remediation: "Monitor oracle health"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Oracle heartbeat
+  remediation: Monitor oracle health
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-oracle-manipulation
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)price\s*\(|getPrice\s*\('
+  - regex: (?i)price\s*\(|getPrice\s*\(
   severity: high
-  description: "Price access"
-  remediation: "Use time-weighted average prices"
-  cwe: "CWE-1335"
-  owasp: "N/A"
-
+  description: Price access
+  remediation: Use time-weighted average prices
+  cwe: CWE-1335
+  owasp: N/A
+  confidence: 0.7
 - id: sol-oracle-spot-price
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)spotPrice|currentPrice'
+  - regex: (?i)spotPrice|currentPrice
   severity: high
-  description: "Spot price usage"
-  remediation: "Avoid using spot prices for critical operations"
-  cwe: "CWE-1335"
-  owasp: "N/A"
-
+  description: Spot price usage
+  remediation: Avoid using spot prices for critical operations
+  cwe: CWE-1335
+  owasp: N/A
+  confidence: 0.65
 - id: sol-oracle-twap
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)TWAP|timeWeightedAverage'
+  - regex: (?i)TWAP|timeWeightedAverage
   severity: low
-  description: "TWAP oracle"
-  remediation: "Use appropriate time window"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: TWAP oracle
+  remediation: Use appropriate time window
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-oracle-uniswap-v3
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)UniswapV3Oracle|TWAPOracle'
+  - regex: (?i)UniswapV3Oracle|TWAPOracle
   severity: low
-  description: "Uniswap V3 oracle"
-  remediation: "Validate oracle configuration"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Uniswap V3 oracle
+  remediation: Validate oracle configuration
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-oracle-band
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)BandProtocol|IBandOracle'
+  - regex: (?i)BandProtocol|IBandOracle
   severity: low
-  description: "Band Protocol oracle"
-  remediation: "Validate Band oracle responses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Band Protocol oracle
+  remediation: Validate Band oracle responses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: sol-oracle-tellor
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)Tellor|ITellor'
+  - regex: (?i)Tellor|ITellor
   severity: low
-  description: "Tellor oracle"
-  remediation: "Validate Tellor responses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Tellor oracle
+  remediation: Validate Tellor responses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: sol-oracle-api3
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)API3|Airnode'
+  - regex: (?i)API3|Airnode
   severity: low
-  description: "API3 oracle"
-  remediation: "Validate API3 responses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: API3 oracle
+  remediation: Validate API3 responses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: sol-oracle-dia
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)DIA|DIAPriceFeed'
+  - regex: (?i)DIA|DIAPriceFeed
   severity: low
-  description: "DIA oracle"
-  remediation: "Validate DIA responses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: DIA oracle
+  remediation: Validate DIA responses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: sol-oracle-custom
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)Oracle|oracle\s*\('
+  - regex: (?i)Oracle|oracle\s*\(
   severity: medium
-  description: "Custom oracle"
-  remediation: "Implement oracle securely"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Custom oracle
+  remediation: Implement oracle securely
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-oracle-callback
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)oracleCallback|fulfillOracleRequest'
+  - regex: (?i)oracleCallback|fulfillOracleRequest
   severity: medium
-  description: "Oracle callback"
-  remediation: "Validate callback origin"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Oracle callback
+  remediation: Validate callback origin
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: sol-oracle-request
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)requestOracleData|requestData'
+  - regex: (?i)requestOracleData|requestData
   severity: medium
-  description: "Oracle request"
-  remediation: "Validate request parameters"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Oracle request
+  remediation: Validate request parameters
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: sol-oracle-payment
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)oraclePayment|payOracle'
+  - regex: (?i)oraclePayment|payOracle
   severity: low
-  description: "Oracle payment"
-  remediation: "Validate oracle fees"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Oracle payment
+  remediation: Validate oracle fees
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-oracle-multiple
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)multiple.*oracle|oracle.*multiple'
+  - regex: (?i)multiple.*oracle|oracle.*multiple
   severity: low
-  description: "Multiple oracles"
-  remediation: "Implement oracle aggregation"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Multiple oracles
+  remediation: Implement oracle aggregation
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-oracle-deviation
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)deviation|threshold'
+  - regex: (?i)deviation|threshold
   severity: low
-  description: "Price deviation check"
-  remediation: "Set appropriate deviation threshold"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Price deviation check
+  remediation: Set appropriate deviation threshold
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-oracle-circuit-breaker
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)circuitBreaker|circuit.*breaker'
+  - regex: (?i)circuitBreaker|circuit.*breaker
   severity: low
-  description: "Circuit breaker for oracles"
-  remediation: "Implement circuit breaker"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Circuit breaker for oracles
+  remediation: Implement circuit breaker
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-oracle-fallback
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)fallbackOracle|backupOracle'
+  - regex: (?i)fallbackOracle|backupOracle
   severity: low
-  description: "Fallback oracle"
-  remediation: "Configure fallback oracle"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
-# --- MULTI-SIG SECURITY (81-100) ---
+  description: Fallback oracle
+  remediation: Configure fallback oracle
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-multisig-gnosis
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)GnosisSafe|Safe'
+  - regex: (?i)GnosisSafe|Safe
   severity: low
-  description: "Gnosis Safe multisig"
-  remediation: "Configure Safe properly"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gnosis Safe multisig
+  remediation: Configure Safe properly
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-multisig-threshold
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)threshold\s*\(|required\s*\('
+  - regex: (?i)threshold\s*\(|required\s*\(
   severity: low
-  description: "Multisig threshold"
-  remediation: "Set appropriate threshold"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Multisig threshold
+  remediation: Set appropriate threshold
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-multisig-owner
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)addOwner|removeOwner|swapOwner'
+  - regex: (?i)addOwner|removeOwner|swapOwner
   severity: medium
-  description: "Owner management"
-  remediation: "Secure owner changes"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Owner management
+  remediation: Secure owner changes
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: sol-multisig-transaction
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)submitTransaction|confirmTransaction'
+  - regex: (?i)submitTransaction|confirmTransaction
   severity: medium
-  description: "Transaction submission"
-  remediation: "Validate transaction parameters"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Transaction submission
+  remediation: Validate transaction parameters
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: sol-multisig-execution
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)executeTransaction|execTransaction'
+  - regex: (?i)executeTransaction|execTransaction
   severity: medium
-  description: "Transaction execution"
-  remediation: "Validate execution conditions"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Transaction execution
+  remediation: Validate execution conditions
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: sol-multisig-replay
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)nonce\s*\(|transactionCount\s*\('
+  - regex: (?i)nonce\s*\(|transactionCount\s*\(
   severity: low
-  description: "Transaction nonce"
-  remediation: "Ensure nonce increment"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: Transaction nonce
+  remediation: Ensure nonce increment
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.5
 - id: sol-multisig-signature
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)signature|signTransaction'
+  - regex: (?i)signature|signTransaction
   severity: low
-  description: "Transaction signature"
-  remediation: "Validate signatures properly"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Transaction signature
+  remediation: Validate signatures properly
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-multisig-module
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)enableModule|disableModule'
+  - regex: (?i)enableModule|disableModule
   severity: medium
-  description: "Module management"
-  remediation: "Secure module changes"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Module management
+  remediation: Secure module changes
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: sol-multisig-guard
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)setGuard|guard\s*\('
+  - regex: (?i)setGuard|guard\s*\(
   severity: medium
-  description: "Guard configuration"
-  remediation: "Validate guard contract"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Guard configuration
+  remediation: Validate guard contract
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: sol-multisig-fallback
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)fallbackManager|setFallbackHandler'
+  - regex: (?i)fallbackManager|setFallbackHandler
   severity: low
-  description: "Fallback handler"
-  remediation: "Validate fallback handler"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Fallback handler
+  remediation: Validate fallback handler
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-multisig-delegate
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)delegateCall|delegatecall'
+  - regex: (?i)delegateCall|delegatecall
   severity: high
-  description: "Delegate call in multisig"
-  remediation: "Restrict delegate calls"
-  cwe: "CWE-829"
-  owasp: "N/A"
-
+  description: Delegate call in multisig
+  remediation: Restrict delegate calls
+  cwe: CWE-829
+  owasp: N/A
+  confidence: 0.65
 - id: sol-multisig-recovery
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)recovery|socialRecovery'
+  - regex: (?i)recovery|socialRecovery
   severity: low
-  description: "Account recovery"
-  remediation: "Implement secure recovery"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Account recovery
+  remediation: Implement secure recovery
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-multisig-time-lock
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)timeLock|delay\s*\('
+  - regex: (?i)timeLock|delay\s*\(
   severity: low
-  description: "Time lock for multisig"
-  remediation: "Set appropriate delay"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time lock for multisig
+  remediation: Set appropriate delay
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-multisig-spending-limit
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)spendingLimit|dailyLimit'
+  - regex: (?i)spendingLimit|dailyLimit
   severity: low
-  description: "Spending limit"
-  remediation: "Configure spending limits"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Spending limit
+  remediation: Configure spending limits
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-multisig-batch
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)multiSend|batchTransaction'
+  - regex: (?i)multiSend|batchTransaction
   severity: low
-  description: "Batch transaction"
-  remediation: "Validate batch transactions"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Batch transaction
+  remediation: Validate batch transactions
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-multisig-meta-tx
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)metaTransaction|executeMeta'
+  - regex: (?i)metaTransaction|executeMeta
   severity: medium
-  description: "Meta transaction"
-  remediation: "Validate meta transactions"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Meta transaction
+  remediation: Validate meta transactions
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.55
 - id: sol-multisig-relay
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)relay|relayer'
+  - regex: (?i)relay|relayer
   severity: low
-  description: "Transaction relay"
-  remediation: "Validate relayer"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Transaction relay
+  remediation: Validate relayer
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-multisig-gas-token
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)gasToken|gasTokenPayment'
+  - regex: (?i)gasToken|gasTokenPayment
   severity: low
-  description: "Gas token payment"
-  remediation: "Validate gas token"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gas token payment
+  remediation: Validate gas token
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: sol-multisig-refund
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)refund|gasRefund'
+  - regex: (?i)refund|gasRefund
   severity: low
-  description: "Gas refund"
-  remediation: "Calculate refund properly"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Gas refund
+  remediation: Calculate refund properly
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-multisig-version
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)VERSION\s*=|version\s*\('
+  - regex: (?i)VERSION\s*=|version\s*\(
   severity: low
-  description: "Multisig version"
-  remediation: "Track multisig version"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
-# --- TIME-BASED VULNERABILITIES (101-120) ---
+  description: Multisig version
+  remediation: Track multisig version
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-block-timestamp
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)block\.timestamp|now\b'
+  - regex: (?i)block\.timestamp|now\b
   severity: medium
-  description: "Block timestamp usage"
-  remediation: "Be aware of timestamp manipulation"
-  cwe: "CWE-330"
-  owasp: "N/A"
-
+  description: Block timestamp usage
+  remediation: Be aware of timestamp manipulation
+  cwe: CWE-330
+  owasp: N/A
+  confidence: 0.55
 - id: sol-time-block-number
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)block\.number|block\.height'
+  - regex: (?i)block\.number|block\.height
   severity: low
-  description: "Block number usage"
-  remediation: "Be aware of block number manipulation"
-  cwe: "CWE-330"
-  owasp: "N/A"
-
+  description: Block number usage
+  remediation: Be aware of block number manipulation
+  cwe: CWE-330
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-difficulty
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)block\.difficulty|block\.prevrandao'
+  - regex: (?i)block\.difficulty|block\.prevrandao
   severity: high
-  description: "Block difficulty usage"
-  remediation: "Don't use difficulty for randomness"
-  cwe: "CWE-330"
-  owasp: "N/A"
-
+  description: Block difficulty usage
+  remediation: Don't use difficulty for randomness
+  cwe: CWE-330
+  owasp: N/A
+  confidence: 0.7
 - id: sol-time-lock-until
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)lockUntil\s*\(|unlockTime'
+  - regex: (?i)lockUntil\s*\(|unlockTime
   severity: low
-  description: "Time lock"
-  remediation: "Validate lock duration"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time lock
+  remediation: Validate lock duration
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-vesting
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)vesting|vestedAmount'
+  - regex: (?i)vesting|vestedAmount
   severity: low
-  description: "Vesting schedule"
-  remediation: "Validate vesting calculation"
-  cwe: "CWE-190"
-  owasp: "N/A"
-
+  description: Vesting schedule
+  remediation: Validate vesting calculation
+  cwe: CWE-190
+  owasp: N/A
+  confidence: 0.45
 - id: sol-time-cliff
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)cliff\s*\(|cliffTime'
+  - regex: (?i)cliff\s*\(|cliffTime
   severity: low
-  description: "Vesting cliff"
-  remediation: "Validate cliff duration"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Vesting cliff
+  remediation: Validate cliff duration
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-duration
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)duration\s*\(|timeDuration'
+  - regex: (?i)duration\s*\(|timeDuration
   severity: low
-  description: "Time duration"
-  remediation: "Validate duration values"
-  cwe: "CWE-190"
-  owasp: "N/A"
-
+  description: Time duration
+  remediation: Validate duration values
+  cwe: CWE-190
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-deadline
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)deadline\s*\(|deadlineAt'
+  - regex: (?i)deadline\s*\(|deadlineAt
   severity: medium
-  description: "Deadline check"
-  remediation: "Validate deadline"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: Deadline check
+  remediation: Validate deadline
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.6
 - id: sol-time-expiry
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)expiry\s*\(|expiresAt'
+  - regex: (?i)expiry\s*\(|expiresAt
   severity: medium
-  description: "Expiry check"
-  remediation: "Validate expiry"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: Expiry check
+  remediation: Validate expiry
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.6
 - id: sol-time-grace-period
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)gracePeriod|grace_period'
+  - regex: (?i)gracePeriod|grace_period
   severity: low
-  description: "Grace period"
-  remediation: "Validate grace period"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Grace period
+  remediation: Validate grace period
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-time-delay
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)delay\s*\(|timeDelay'
+  - regex: (?i)delay\s*\(|timeDelay
   severity: low
-  description: "Time delay"
-  remediation: "Validate delay duration"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time delay
+  remediation: Validate delay duration
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-period
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)period\s*\(|timePeriod'
+  - regex: (?i)period\s*\(|timePeriod
   severity: low
-  description: "Time period"
-  remediation: "Validate period"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time period
+  remediation: Validate period
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-interval
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)interval\s*\(|timeInterval'
+  - regex: (?i)interval\s*\(|timeInterval
   severity: low
-  description: "Time interval"
-  remediation: "Validate interval"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time interval
+  remediation: Validate interval
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-frequency
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)frequency\s*\(|timeFrequency'
+  - regex: (?i)frequency\s*\(|timeFrequency
   severity: low
-  description: "Time frequency"
-  remediation: "Validate frequency"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time frequency
+  remediation: Validate frequency
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-rate
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)rate\s*\(|timeRate'
+  - regex: (?i)rate\s*\(|timeRate
   severity: low
-  description: "Time rate"
-  remediation: "Validate rate"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time rate
+  remediation: Validate rate
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-speed
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)speed\s*\(|timeSpeed'
+  - regex: (?i)speed\s*\(|timeSpeed
   severity: low
-  description: "Time speed"
-  remediation: "Validate speed"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time speed
+  remediation: Validate speed
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-acceleration
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)acceleration|timeAcceleration'
+  - regex: (?i)acceleration|timeAcceleration
   severity: low
-  description: "Time acceleration"
-  remediation: "Validate acceleration"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time acceleration
+  remediation: Validate acceleration
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-time-deceleration
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)deceleration|timeDeceleration'
+  - regex: (?i)deceleration|timeDeceleration
   severity: low
-  description: "Time deceleration"
-  remediation: "Validate deceleration"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time deceleration
+  remediation: Validate deceleration
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-time-schedule
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)schedule\s*\(|timeSchedule'
+  - regex: (?i)schedule\s*\(|timeSchedule
   severity: low
-  description: "Time schedule"
-  remediation: "Validate schedule"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Time schedule
+  remediation: Validate schedule
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-time-calendar
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)calendar|timeCalendar'
+  - regex: (?i)calendar|timeCalendar
   severity: low
-  description: "Time calendar"
-  remediation: "Validate calendar"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
-# --- SIGNATURE VERIFICATION (121-135) ---
+  description: Time calendar
+  remediation: Validate calendar
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-signature-ecrecover
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)ecrecover\s*\('
+  - regex: (?i)ecrecover\s*\(
   severity: medium
-  description: "ECDSA signature recovery"
-  remediation: "Use OpenZeppelin ECDSA library"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: ECDSA signature recovery
+  remediation: Use OpenZeppelin ECDSA library
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.6
 - id: sol-signature-hash
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)keccak256\s*\(.*abi\.encode'
+  - regex: (?i)keccak256\s*\(.*abi\.encode
   severity: low
-  description: "Signature hash"
-  remediation: "Use proper encoding for signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Signature hash
+  remediation: Use proper encoding for signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.5
 - id: sol-signature-domain
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)DOMAIN_SEPARATOR|domainSeparator'
+  - regex: (?i)DOMAIN_SEPARATOR|domainSeparator
   severity: low
-  description: "EIP712 domain"
-  remediation: "Implement domain separator properly"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: EIP712 domain
+  remediation: Implement domain separator properly
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-signature-struct
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)struct\s+\w+Signature|Signature\s*\('
+  - regex: (?i)struct\s+\w+Signature|Signature\s*\(
   severity: low
-  description: "Signature struct"
-  remediation: "Validate signature structure"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Signature struct
+  remediation: Validate signature structure
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.5
 - id: sol-signature-vrs
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)v\s*,\s*r\s*,\s*s'
+  - regex: (?i)v\s*,\s*r\s*,\s*s
   severity: low
-  description: "VRS signature components"
-  remediation: "Validate VRS values"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: VRS signature components
+  remediation: Validate VRS values
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-signature-malleability
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)signature.*malleability|malleable'
+  - regex: (?i)signature.*malleability|malleable
   severity: medium
-  description: "Signature malleability"
-  remediation: "Check for signature malleability"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Signature malleability
+  remediation: Check for signature malleability
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.55
 - id: sol-signature-replay
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)signature.*replay|replay.*attack'
+  - regex: (?i)signature.*replay|replay.*attack
   severity: high
-  description: "Signature replay"
-  remediation: "Implement replay protection"
-  cwe: "CWE-294"
-  owasp: "A02:2021"
-
+  description: Signature replay
+  remediation: Implement replay protection
+  cwe: CWE-294
+  owasp: A02:2021
+  confidence: 0.65
 - id: sol-signature-nonce
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)signatureNonce|nonce.*signature'
+  - regex: (?i)signatureNonce|nonce.*signature
   severity: low
-  description: "Signature nonce"
-  remediation: "Ensure nonce uniqueness"
-  cwe: "CWE-362"
-  owasp: "N/A"
-
+  description: Signature nonce
+  remediation: Ensure nonce uniqueness
+  cwe: CWE-362
+  owasp: N/A
+  confidence: 0.45
 - id: sol-signature-chain-id
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)chainId\s*\(|CHAIN_ID'
+  - regex: (?i)chainId\s*\(|CHAIN_ID
   severity: low
-  description: "Chain ID in signature"
-  remediation: "Include chain ID in signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Chain ID in signature
+  remediation: Include chain ID in signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.5
 - id: sol-signature-contract
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)isContract.*signature|signature.*isContract'
+  - regex: (?i)isContract.*signature|signature.*isContract
   severity: medium
-  description: "Contract signature verification"
-  remediation: "Use ERC1271 for contract signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Contract signature verification
+  remediation: Use ERC1271 for contract signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.55
 - id: sol-signature-batch
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)batch.*signature|signature.*batch'
+  - regex: (?i)batch.*signature|signature.*batch
   severity: low
-  description: "Batch signature"
-  remediation: "Validate batch signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Batch signature
+  remediation: Validate batch signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-signature-aggregate
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)aggregate.*signature|signature.*aggregate'
+  - regex: (?i)aggregate.*signature|signature.*aggregate
   severity: low
-  description: "Aggregate signature"
-  remediation: "Validate aggregate signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Aggregate signature
+  remediation: Validate aggregate signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-signature-threshold
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)threshold.*signature|signature.*threshold'
+  - regex: (?i)threshold.*signature|signature.*threshold
   severity: low
-  description: "Threshold signature"
-  remediation: "Validate threshold signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Threshold signature
+  remediation: Validate threshold signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-signature-multisig
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)multisig.*signature|signature.*multisig'
+  - regex: (?i)multisig.*signature|signature.*multisig
   severity: low
-  description: "Multisig signature"
-  remediation: "Validate multisig signatures"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
+  description: Multisig signature
+  remediation: Validate multisig signatures
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-signature-recovery
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)signature.*recover|recover.*signature'
+  - regex: (?i)signature.*recover|recover.*signature
   severity: low
-  description: "Signature recovery"
-  remediation: "Validate recovery process"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
-
-# --- EVENT EMISSION (136-150) ---
+  description: Signature recovery
+  remediation: Validate recovery process
+  cwe: CWE-347
+  owasp: A02:2021
+  confidence: 0.45
 - id: sol-event-emission
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)emit\s+\w+\s*\('
+  - regex: (?i)emit\s+\w+\s*\(
   severity: low
-  description: "Event emission"
-  remediation: "Emit events for important state changes"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Event emission
+  remediation: Emit events for important state changes
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.5
 - id: sol-event-indexed
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event\s+\w+\s*\([^)]*indexed'
+  - regex: (?i)event\s+\w+\s*\([^)]*indexed
   severity: low
-  description: "Indexed event parameter"
-  remediation: "Use indexed for filterable parameters"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Indexed event parameter
+  remediation: Use indexed for filterable parameters
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.5
 - id: sol-event-anonymous
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event\s+\w+\s*anonymous'
+  - regex: (?i)event\s+\w+\s*anonymous
   severity: low
-  description: "Anonymous event"
-  remediation: "Use anonymous events appropriately"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Anonymous event
+  remediation: Use anonymous events appropriately
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-event-sensitive
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)emit.*password|emit.*secret|emit.*key'
+  - regex: (?i)emit.*password|emit.*secret|emit.*key
   severity: high
-  description: "Sensitive data in event"
-  remediation: "Don't emit sensitive data"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Sensitive data in event
+  remediation: Don't emit sensitive data
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.65
 - id: sol-event-hash
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*hash|hash.*event'
+  - regex: (?i)event.*hash|hash.*event
   severity: low
-  description: "Event hash"
-  remediation: "Validate event hashing"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Event hash
+  remediation: Validate event hashing
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-event-log
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*log|log.*event'
+  - regex: (?i)event.*log|log.*event
   severity: low
-  description: "Event logging"
-  remediation: "Use events for logging"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Event logging
+  remediation: Use events for logging
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: sol-event-topic
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*topic|topic.*event'
+  - regex: (?i)event.*topic|topic.*event
   severity: low
-  description: "Event topic"
-  remediation: "Understand event topics"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Event topic
+  remediation: Understand event topics
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-event-data
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*data|data.*event'
+  - regex: (?i)event.*data|data.*event
   severity: low
-  description: "Event data"
-  remediation: "Validate event data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Event data
+  remediation: Validate event data
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: sol-event-filter
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*filter|filter.*event'
+  - regex: (?i)event.*filter|filter.*event
   severity: low
-  description: "Event filtering"
-  remediation: "Use indexed parameters for filtering"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Event filtering
+  remediation: Use indexed parameters for filtering
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-event-listener
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*listener|listener.*event'
+  - regex: (?i)event.*listener|listener.*event
   severity: low
-  description: "Event listener"
-  remediation: "Implement event listeners"
-  cwe: "CWE-693"
-  owasp: "N/A"
-
+  description: Event listener
+  remediation: Implement event listeners
+  cwe: CWE-693
+  owasp: N/A
+  confidence: 0.45
 - id: sol-event-monitor
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*monitor|monitor.*event'
+  - regex: (?i)event.*monitor|monitor.*event
   severity: low
-  description: "Event monitoring"
-  remediation: "Monitor important events"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Event monitoring
+  remediation: Monitor important events
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: sol-event-alert
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*alert|alert.*event'
+  - regex: (?i)event.*alert|alert.*event
   severity: low
-  description: "Event alert"
-  remediation: "Configure event alerts"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Event alert
+  remediation: Configure event alerts
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: sol-event-notification
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*notification|notification.*event'
+  - regex: (?i)event.*notification|notification.*event
   severity: low
-  description: "Event notification"
-  remediation: "Implement event notifications"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Event notification
+  remediation: Implement event notifications
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: sol-event-archive
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*archive|archive.*event'
+  - regex: (?i)event.*archive|archive.*event
   severity: low
-  description: "Event archiving"
-  remediation: "Archive important events"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Event archiving
+  remediation: Archive important events
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: sol-event-retention
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)event.*retention|retention.*event'
+  - regex: (?i)event.*retention|retention.*event
   severity: low
-  description: "Event retention"
-  remediation: "Configure event retention"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Event retention
+  remediation: Configure event retention
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: sol-erc20-approve-race-dup1
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)approve\s*\(\s*\w+\s*,\s*\w+\s*\)'
+  - regex: (?i)approve\s*\(\s*\w+\s*,\s*\w+\s*\)
   severity: high
-  description: "ERC20 approve race condition"
-  remediation: "Use increaseAllowance/decreaseAllowance"
-  cwe: "CWE-841"
-  owasp: "A04:2021"
+  description: ERC20 approve race condition
+  remediation: Use increaseAllowance/decreaseAllowance
+  cwe: CWE-841
+  owasp: A04:2021
   confidence: 0.8
-
 - id: sol-erc721-safe-transfer-dup1
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)safeTransferFrom.*onERC721Received'
+  - regex: (?i)safeTransferFrom.*onERC721Received
   severity: high
-  description: "ERC721 safe transfer not verified"
-  remediation: "Implement onERC721Received"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
+  description: ERC721 safe transfer not verified
+  remediation: Implement onERC721Received
+  cwe: CWE-284
+  owasp: A01:2021
   confidence: 0.8
-
 - id: sol-call-data-length
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)abi\.encodeCall.*\.selector.*msg\.data'
+  - regex: (?i)abi\.encodeCall.*\.selector.*msg\.data
   severity: medium
-  description: "Full call data forwarded"
-  remediation: "Validate forwarded data"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
+  description: Full call data forwarded
+  remediation: Validate forwarded data
+  cwe: CWE-20
+  owasp: A03:2021
   confidence: 0.8
-
 - id: sol-ecrecover-verify
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)ecrecover.*return\s+0'
+  - regex: (?i)ecrecover.*return\s+0
   severity: high
-  description: "ecrecover return value not checked"
-  remediation: "Verify ecrecover returns non-zero"
-  cwe: "CWE-252"
-  owasp: "A05:2021"
+  description: ecrecover return value not checked
+  remediation: Verify ecrecover returns non-zero
+  cwe: CWE-252
+  owasp: A05:2021
   confidence: 0.8
-
 - id: sol-ERC165-missing
-  languages: [solidity]
+  languages:
+  - solidity
   patterns:
-    - regex: '(?i)function supportsInterface.*return.*false'
+  - regex: (?i)function supportsInterface.*return.*false
   severity: medium
-  description: "ERC165 interface check missing"
-  remediation: "Implement supportsInterface"
-  cwe: "CWE-710"
-  owasp: "A06:2021"
+  description: ERC165 interface check missing
+  remediation: Implement supportsInterface
+  cwe: CWE-710
+  owasp: A06:2021
   confidence: 0.8

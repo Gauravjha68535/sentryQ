@@ -1,1564 +1,1703 @@
-# Laravel Security Rules
 - id: laravel-mass-assignment
-  name: "Laravel: Mass Assignment"
-  description: "Using Model::create() or fill() with an unprotected $guarded or $fillable property allows attackers to overwrite unexpected database columns."
-  severity: "high"
+  name: 'Laravel: Mass Assignment'
+  description: Using Model::create() or fill() with an unprotected $guarded or $fillable property allows attackers to overwrite
+    unexpected database columns.
+  severity: high
   patterns:
-    - regex: '::create\s*\([^{]*request\('
-  cwe: "CWE-915"
-  owasp: "A08:2021-Software and Data Integrity Failures"
-
+  - regex: ::create\s*\([^{]*request\(
+  cwe: CWE-915
+  owasp: A08:2021-Software and Data Integrity Failures
+  confidence: 0.7
 - id: laravel-blade-xss
-  name: "Laravel: Blade Unescaped Output (XSS)"
-  description: "Using {!! !!} in Blade templates outputs raw HTML, making the application vulnerable to XSS if the data is user-controlled."
-  severity: "high"
+  name: 'Laravel: Blade Unescaped Output (XSS)'
+  description: Using {!! !!} in Blade templates outputs raw HTML, making the application vulnerable to XSS if the data is
+    user-controlled.
+  severity: high
   patterns:
-    - regex: '\{!!.*!!\}'
-  cwe: "CWE-79"
-  owasp: "A03:2021-Injection"
-
+  - regex: \{!!.*!!\}
+  cwe: CWE-79
+  owasp: A03:2021-Injection
+  confidence: 0.65
 - id: laravel-env-exposure
-  name: "Laravel: Unsafe env() usage"
-  description: "Using env() outside of config files can lead to null values in production if config is cached."
-  severity: "medium"
+  name: 'Laravel: Unsafe env() usage'
+  description: Using env() outside of config files can lead to null values in production if config is cached.
+  severity: medium
   patterns:
-    - regex: 'env\s*\('
-  cwe: "CWE-488"
-  owasp: "A05:2021-Security Misconfiguration"
-
-# ============================================================================
-# LARAVEL SECURITY RULES - COMPREHENSIVE
-# ============================================================================
-# 150+ Security Rules for Laravel Framework
-# Excludes existing rules from uploaded laravel.yaml
-# ============================================================================
-
-# --- SQL Injection (1-15) ---
+  - regex: env\s*\(
+  cwe: CWE-488
+  owasp: A05:2021-Security Misconfiguration
+  confidence: 0.6
 - id: laravel-db-raw-query-interpolation
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)DB::raw\s*\(\s*\\\".*\$\{'
+  - regex: (?i)DB::raw\s*\(\s*\\\".*\$\{
   severity: critical
-  description: "SQL injection via DB::raw with string interpolation"
-  remediation: "Use parameterized queries: DB::select('SELECT * WHERE id = ?', [$id])"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via DB::raw with string interpolation
+  remediation: 'Use parameterized queries: DB::select(''SELECT * WHERE id = ?'', [$id])'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-db-select-interpolation
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)DB::select\s*\(\s*\\\".*\.\$'
+  - regex: (?i)DB::select\s*\(\s*\\\".*\.\$
   severity: critical
-  description: "SQL injection via DB::select with concatenation"
-  remediation: "Use parameterized queries with bindings"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via DB::select with concatenation
+  remediation: Use parameterized queries with bindings
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-db-table-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)DB::table\s*\(\s*\$\w+\s*\)'
+  - regex: (?i)DB::table\s*\(\s*\$\w+\s*\)
   severity: high
-  description: "Dynamic table name from variable"
-  remediation: "Validate table names against whitelist"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Dynamic table name from variable
+  remediation: Validate table names against whitelist
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: laravel-query-builder-where-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->whereRaw\s*\(\s*\\\".*\$\{'
+  - regex: (?i)->whereRaw\s*\(\s*\\\".*\$\{
   severity: critical
-  description: "SQL injection via whereRaw with interpolation"
-  remediation: "Use where() with parameterized bindings"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via whereRaw with interpolation
+  remediation: Use where() with parameterized bindings
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-query-builder-order-by-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->orderByRaw\s*\(\s*\$\w+'
+  - regex: (?i)->orderByRaw\s*\(\s*\$\w+
   severity: high
-  description: "SQL injection via orderByRaw with user input"
-  remediation: "Validate order by columns against whitelist"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via orderByRaw with user input
+  remediation: Validate order by columns against whitelist
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: laravel-query-builder-group-by-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->groupByRaw\s*\(\s*\$\w+'
+  - regex: (?i)->groupByRaw\s*\(\s*\$\w+
   severity: high
-  description: "SQL injection via groupByRaw with user input"
-  remediation: "Validate group by columns"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via groupByRaw with user input
+  remediation: Validate group by columns
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: laravel-query-builder-having-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->havingRaw\s*\(\s*\\\".*\$\{'
+  - regex: (?i)->havingRaw\s*\(\s*\\\".*\$\{
   severity: critical
-  description: "SQL injection via havingRaw with interpolation"
-  remediation: "Use having() with parameterized bindings"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via havingRaw with interpolation
+  remediation: Use having() with parameterized bindings
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-query-builder-join-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->join\s*\(\s*DB::raw'
+  - regex: (?i)->join\s*\(\s*DB::raw
   severity: critical
-  description: "SQL injection via join with DB::raw"
-  remediation: "Use parameterized joins"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via join with DB::raw
+  remediation: Use parameterized joins
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-eloquent-where-column
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->whereColumn\s*\(\s*\$\w+'
+  - regex: (?i)->whereColumn\s*\(\s*\$\w+
   severity: high
-  description: "SQL injection via whereColumn with variable"
-  remediation: "Validate column names"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via whereColumn with variable
+  remediation: Validate column names
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: laravel-eloquent-pluck-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->pluck\s*\(\s*DB::raw'
+  - regex: (?i)->pluck\s*\(\s*DB::raw
   severity: critical
-  description: "SQL injection via pluck with DB::raw"
-  remediation: "Use pluck with column name string"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via pluck with DB::raw
+  remediation: Use pluck with column name string
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-eloquent-increment-decrement
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->increment\s*\(\s*\$\w+|->decrement\s*\(\s*\$\w+'
+  - regex: (?i)->increment\s*\(\s*\$\w+|->decrement\s*\(\s*\$\w+
   severity: high
-  description: "SQL injection via increment/decrement with variable column"
-  remediation: "Validate column names"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via increment/decrement with variable column
+  remediation: Validate column names
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: laravel-model-new-query
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->newQuery\(\)->whereRaw'
+  - regex: (?i)->newQuery\(\)->whereRaw
   severity: critical
-  description: "SQL injection via newQuery with whereRaw"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via newQuery with whereRaw
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: laravel-db-statement-prepare
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)DB::connection.*prepare\s*\(\s*\\\".*\$\{'
+  - regex: (?i)DB::connection.*prepare\s*\(\s*\\\".*\$\{
   severity: critical
-  description: "SQL injection via prepared statement with interpolation"
-  remediation: "Use parameter binding"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via prepared statement with interpolation
+  remediation: Use parameter binding
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-db-transaction-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)DB::transaction\s*\(.*DB::raw'
+  - regex: (?i)DB::transaction\s*\(.*DB::raw
   severity: critical
-  description: "SQL injection in transaction with DB::raw"
-  remediation: "Use parameterized queries in transactions"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection in transaction with DB::raw
+  remediation: Use parameterized queries in transactions
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-eloquent-scope-raw
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)scope\w+\s*\(.*DB::raw'
+  - regex: (?i)scope\w+\s*\(.*DB::raw
   severity: critical
-  description: "SQL injection in Eloquent scope with DB::raw"
-  remediation: "Use parameterized queries in scopes"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
-# --- XSS (16-30) ---
+  description: SQL injection in Eloquent scope with DB::raw
+  remediation: Use parameterized queries in scopes
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: laravel-blade-unescaped-double-braces
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '\{!\\!.*\$request|\{!\\!.*\$request'
+  - regex: \{!\\!.*\$request|\{!\\!.*\$request
   severity: high
-  description: "XSS via unescaped Blade output with request data"
-  remediation: "Use {{ }} for auto-escaped output"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via unescaped Blade output with request data
+  remediation: Use {{ }} for auto-escaped output
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: laravel-blade-print-echo
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@php\s*echo\s*\$request'
+  - regex: '@php\s*echo\s*\$request'
   severity: high
-  description: "XSS via @php echo with request data"
-  remediation: "Use {{ }} or escape output"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via @php echo with request data
+  remediation: Use {{ }} or escape output
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: laravel-view-with-request
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: 'view\s*\(.*\$request->'
+  - regex: view\s*\(.*\$request->
   severity: medium
-  description: "View with request data passed"
-  remediation: "Sanitize data before passing to view"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: View with request data passed
+  remediation: Sanitize data before passing to view
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-response-view-with-input
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: 'return\s+view\s*\(.*\$request->input'
+  - regex: return\s+view\s*\(.*\$request->input
   severity: medium
-  description: "View returned with user input"
-  remediation: "Validate and sanitize input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: View returned with user input
+  remediation: Validate and sanitize input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-blade-include-with-vars
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@include\s*\(.*\$\w+'
+  - regex: '@include\s*\(.*\$\w+'
   severity: medium
-  description: "Blade include with variable path"
-  remediation: "Validate include paths"
-  cwe: "CWE-98"
-  owasp: "A03:2021"
-
+  description: Blade include with variable path
+  remediation: Validate include paths
+  cwe: CWE-98
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-blade-each-with-input
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@each\s*\(.*\$request'
+  - regex: '@each\s*\(.*\$request'
   severity: medium
-  description: "Blade each with user input"
-  remediation: "Validate data before rendering"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Blade each with user input
+  remediation: Validate data before rendering
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-blade-component-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '<x-\$\w+|<x-dynamic'
+  - regex: <x-\$\w+|<x-dynamic
   severity: medium
-  description: "Dynamic Blade component"
-  remediation: "Validate component names"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Dynamic Blade component
+  remediation: Validate component names
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.55
 - id: laravel-blade-slot-injection
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@slot\s*\(.*\$request'
+  - regex: '@slot\s*\(.*\$request'
   severity: medium
-  description: "Blade slot with user input"
-  remediation: "Escape slot content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Blade slot with user input
+  remediation: Escape slot content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-blade-push-injection
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@push\s*\(.*\$request'
+  - regex: '@push\s*\(.*\$request'
   severity: medium
-  description: "Blade push stack with user input"
-  remediation: "Escape pushed content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Blade push stack with user input
+  remediation: Escape pushed content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-blade-section-injection
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@section\s*\(.*\$request'
+  - regex: '@section\s*\(.*\$request'
   severity: medium
-  description: "Blade section with user input"
-  remediation: "Escape section content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Blade section with user input
+  remediation: Escape section content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-blade-verbatim-bypass
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@verbatim.*\$request|@endverbatim'
+  - regex: '@verbatim.*\$request|@endverbatim'
   severity: medium
-  description: "Blade verbatim with user input"
-  remediation: "Don't use verbatim with user data"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Blade verbatim with user input
+  remediation: Don't use verbatim with user data
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.55
 - id: laravel-blade-php-block
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '@php.*echo.*\$_'
+  - regex: '@php.*echo.*\$_'
   severity: high
-  description: "PHP block with direct superglobal output"
-  remediation: "Use Blade escaping"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: PHP block with direct superglobal output
+  remediation: Use Blade escaping
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: laravel-response-html-method
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: 'Response::make\s*\(.*\$request.*\[''Content-Type''\]\s*=\s*[''\\\"]text/html'
+  - regex: Response::make\s*\(.*\$request.*\['Content-Type'\]\s*=\s*['\\\"]text/html
   severity: high
-  description: "Response with HTML content type and user input"
-  remediation: "Use application/json or escape HTML"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Response with HTML content type and user input
+  remediation: Use application/json or escape HTML
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.95
 - id: laravel-response-download-mime
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: 'Response::download\s*\(.*\$request'
+  - regex: Response::download\s*\(.*\$request
   severity: medium
-  description: "File download with user-controlled filename"
-  remediation: "Validate and sanitize filenames"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: File download with user-controlled filename
+  remediation: Validate and sanitize filenames
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-view-composer-input
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: 'View::composer\s*\(.*\$request'
+  - regex: View::composer\s*\(.*\$request
   severity: medium
-  description: "View composer with user input"
-  remediation: "Validate composer data"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# --- CSRF (31-45) ---
+  description: View composer with user input
+  remediation: Validate composer data
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-csrf-exempt-route
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::.*->withoutMiddleware\s*\(.*VerifyCsrfToken'
+  - regex: (?i)Route::.*->withoutMiddleware\s*\(.*VerifyCsrfToken
   severity: high
-  description: "Route exempted from CSRF verification"
-  remediation: "Only exempt API routes, not web routes"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Route exempted from CSRF verification
+  remediation: Only exempt API routes, not web routes
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-csrf-middleware-disabled
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)VerifyCsrfToken::class.*\$'
+  - regex: (?i)VerifyCsrfToken::class.*\$
   severity: high
-  description: "CSRF middleware commented out or removed"
-  remediation: "Keep CSRF middleware enabled"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF middleware commented out or removed
+  remediation: Keep CSRF middleware enabled
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: laravel-csrf-except-array
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)\$except\s*=\s*\[.*[''\\\"]api/.*[''\\\"]'
+  - regex: (?i)\$except\s*=\s*\[.*['\\\"]api/.*['\\\"]
   severity: medium
-  description: "CSRF exception for API routes"
-  remediation: "Ensure API uses token auth instead"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF exception for API routes
+  remediation: Ensure API uses token auth instead
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-form-no-csrf-field
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '<form.*method=[''\\\"]POST[''\\\"](?:.*@csrf)'
+  - regex: <form.*method=['\\\"]POST['\\\"](?:.*@csrf)
   severity: high
-  description: "POST form without @csrf directive"
-  remediation: "Add @csrf to all POST forms"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: POST form without @csrf directive
+  remediation: Add @csrf to all POST forms
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.85
 - id: laravel-ajax-no-csrf-token
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)axios\.post|fetch\s*\(.*POST'
+  - regex: (?i)axios\.post|fetch\s*\(.*POST
   severity: high
-  description: "AJAX POST without CSRF token"
-  remediation: "Include CSRF token in AJAX headers"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: AJAX POST without CSRF token
+  remediation: Include CSRF token in AJAX headers
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-csrf-token-exposed
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: 'csrf_token\(\).*echo|@csrf.*\{!\\!'
+  - regex: csrf_token\(\).*echo|@csrf.*\{!\\!
   severity: medium
-  description: "CSRF token exposed in unescaped output"
-  remediation: "Don't expose CSRF token in API responses"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF token exposed in unescaped output
+  remediation: Don't expose CSRF token in API responses
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-csrf-validate-manual
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Crypt::checkToken|csrf_field.*manual'
+  - regex: (?i)Crypt::checkToken|csrf_field.*manual
   severity: medium
-  description: "Manual CSRF validation implementation"
-  remediation: "Use built-in CSRF middleware"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Manual CSRF validation implementation
+  remediation: Use built-in CSRF middleware
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-csrf-cookie-secure-false
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''secure''\s*=>\s*false.*csrf'
+  - regex: (?i)'secure'\s*=>\s*false.*csrf
   severity: high
-  description: "CSRF cookie without secure flag"
-  remediation: "Set secure => true for CSRF cookies"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF cookie without secure flag
+  remediation: Set secure => true for CSRF cookies
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: laravel-csrf-cookie-httponly-false
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''http_only''\s*=>\s*false.*csrf'
+  - regex: (?i)'http_only'\s*=>\s*false.*csrf
   severity: high
-  description: "CSRF cookie without HttpOnly flag"
-  remediation: "Set http_only => true for CSRF cookies"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF cookie without HttpOnly flag
+  remediation: Set http_only => true for CSRF cookies
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: laravel-csrf-same-site-none
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''same_site''\s*=>\s*[''\\\"]none[''\\\"].*csrf'
+  - regex: (?i)'same_site'\s*=>\s*['\\\"]none['\\\"].*csrf
   severity: medium
-  description: "CSRF cookie with SameSite=None"
-  remediation: "Use SameSite=Lax or Strict"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF cookie with SameSite=None
+  remediation: Use SameSite=Lax or Strict
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-csrf-exclude-pattern
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)except\s*=>\s*\[.*''\*'''
+  - regex: (?i)except\s*=>\s*\[.*'\*'
   severity: high
-  description: "CSRF exclusion with wildcard pattern"
-  remediation: "Specify exact routes to exclude"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF exclusion with wildcard pattern
+  remediation: Specify exact routes to exclude
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.65
 - id: laravel-csrf-middleware-order
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Middleware.*VerifyCsrfToken.*after.*StartSession'
+  - regex: (?i)Middleware.*VerifyCsrfToken.*after.*StartSession
   severity: medium
-  description: "CSRF middleware order issue"
-  remediation: "Ensure proper middleware ordering"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF middleware order issue
+  remediation: Ensure proper middleware ordering
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-csrf-api-middleware-group
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::middleware\s*\(\s*\[\s*\]'
+  - regex: (?i)Route::middleware\s*\(\s*\[\s*\]
   severity: high
-  description: "Route group without CSRF middleware"
-  remediation: "Add web middleware group to web routes"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Route group without CSRF middleware
+  remediation: Add web middleware group to web routes
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-csrf-stateless-api
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Stateless\s*\(\s*\).*api'
+  - regex: (?i)Stateless\s*\(\s*\).*api
   severity: medium
-  description: "Stateless API without token auth"
-  remediation: "Implement API token authentication"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Stateless API without token auth
+  remediation: Implement API token authentication
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-csrf-double-submit
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)csrf_token.*cookie.*header'
+  - regex: (?i)csrf_token.*cookie.*header
   severity: low
-  description: "Double submit cookie pattern"
-  remediation: "Ensure proper implementation"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
-# --- Authentication (46-60) ---
+  description: Double submit cookie pattern
+  remediation: Ensure proper implementation
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-auth-guard-driver-custom
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''driver''\s*=>\s*[''\\\"]custom[''\\\"]'
+  - regex: (?i)'driver'\s*=>\s*['\\\"]custom['\\\"]
   severity: medium
-  description: "Custom authentication guard driver"
-  remediation: "Review custom guard implementation"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Custom authentication guard driver
+  remediation: Review custom guard implementation
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-provider-custom
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''provider''\s*=>\s*[''\\\"]custom[''\\\"]'
+  - regex: (?i)'provider'\s*=>\s*['\\\"]custom['\\\"]
   severity: medium
-  description: "Custom authentication provider"
-  remediation: "Review custom provider security"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Custom authentication provider
+  remediation: Review custom provider security
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-remember-me-forever
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)remember\s*\(\s*true\s*\)|rememberForever'
+  - regex: (?i)remember\s*\(\s*true\s*\)|rememberForever
   severity: medium
-  description: "Remember me with no expiration"
-  remediation: "Set reasonable remember me duration"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Remember me with no expiration
+  remediation: Set reasonable remember me duration
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-auth-attempts-unlimited
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)throttle\s*\(\s*\d+\s*,\s*\d+\s*\).*login'
+  - regex: (?i)throttle\s*\(\s*\d+\s*,\s*\d+\s*\).*login
   severity: medium
-  description: "Login throttling configuration"
-  remediation: "Ensure reasonable throttle limits"
-  cwe: "CWE-307"
-  owasp: "A07:2021"
-
+  description: Login throttling configuration
+  remediation: Ensure reasonable throttle limits
+  cwe: CWE-307
+  owasp: A07:2021
+  confidence: 0.6
 - id: laravel-auth-password-reset-token
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)passwords\.reset.*token.*\$'
+  - regex: (?i)passwords\.reset.*token.*\$
   severity: medium
-  description: "Password reset token handling"
-  remediation: "Validate reset tokens properly"
-  cwe: "CWE-640"
-  owasp: "A01:2021"
-
+  description: Password reset token handling
+  remediation: Validate reset tokens properly
+  cwe: CWE-640
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-email-verification-disabled
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)MustVerifyEmail.*\$'
+  - regex: (?i)MustVerifyEmail.*\$
   severity: medium
-  description: "Email verification may be disabled"
-  remediation: "Implement MustVerifyEmail interface"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Email verification may be disabled
+  remediation: Implement MustVerifyEmail interface
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-two-factor-disabled
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)TwoFactorAuthentication.*false'
+  - regex: (?i)TwoFactorAuthentication.*false
   severity: medium
-  description: "Two-factor authentication disabled"
-  remediation: "Enable 2FA for sensitive accounts"
-  cwe: "CWE-308"
-  owasp: "A01:2021"
-
+  description: Two-factor authentication disabled
+  remediation: Enable 2FA for sensitive accounts
+  cwe: CWE-308
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-session-driver-database
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''driver''\s*=>\s*[''\\\"]database[''\\\"]'
+  - regex: (?i)'driver'\s*=>\s*['\\\"]database['\\\"]
   severity: low
-  description: "Session driver set to database"
-  remediation: "Ensure session table is secured"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session driver set to database
+  remediation: Ensure session table is secured
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-auth-session-lifetime-long
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''lifetime''\s*=>\s*[0-9]{5,}'
+  - regex: (?i)'lifetime'\s*=>\s*[0-9]{5,}
   severity: medium
-  description: "Session lifetime too long"
-  remediation: "Set reasonable session lifetime"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session lifetime too long
+  remediation: Set reasonable session lifetime
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-session-expire-on-close
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''expire_on_close''\s*=>\s*false'
+  - regex: (?i)'expire_on_close'\s*=>\s*false
   severity: medium
-  description: "Session doesn't expire on browser close"
-  remediation: "Set expire_on_close = true"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session doesn't expire on browser close
+  remediation: Set expire_on_close = true
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-sanctum-stateful
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)stateful\s*=>\s*\[\s*\]'
+  - regex: (?i)stateful\s*=>\s*\[\s*\]
   severity: medium
-  description: "Sanctum stateful domains empty"
-  remediation: "Configure stateful domains properly"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Sanctum stateful domains empty
+  remediation: Configure stateful domains properly
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-passport-personal
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)createPersonalAccessClient'
+  - regex: (?i)createPersonalAccessClient
   severity: medium
-  description: "OAuth personal access client"
-  remediation: "Secure personal access tokens"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: OAuth personal access client
+  remediation: Secure personal access tokens
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-auth-jwt-secret-weak
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)JWT_SECRET\s*=\s*[''\\\"][a-zA-Z0-9]{8,16}[''\\\"]'
+  - regex: (?i)JWT_SECRET\s*=\s*['\\\"][a-zA-Z0-9]{8,16}['\\\"]
   severity: high
-  description: "Weak JWT secret"
-  remediation: "Use strong random JWT secret"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Weak JWT secret
+  remediation: Use strong random JWT secret
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.65
 - id: laravel-auth-guard-default
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''defaults''\s*=>\s*\[.*''guard''\s*=>'
+  - regex: (?i)'defaults'\s*=>\s*\[.*'guard'\s*=>
   severity: low
-  description: "Default authentication guard"
-  remediation: "Review default guard configuration"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
+  description: Default authentication guard
+  remediation: Review default guard configuration
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-auth-provider-table
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''table''\s*=>\s*[''\\\"]users[''\\\"]'
+  - regex: (?i)'table'\s*=>\s*['\\\"]users['\\\"]
   severity: low
-  description: "Default users table for auth"
-  remediation: "Ensure users table is secured"
-  cwe: "CWE-287"
-  owasp: "A01:2021"
-
-# --- Authorization (61-75) ---
+  description: Default users table for auth
+  remediation: Ensure users table is secured
+  cwe: CWE-287
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-gate-ability-check
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Gate::allows\s*\(.*\$request'
+  - regex: (?i)Gate::allows\s*\(.*\$request
   severity: medium
-  description: "Gate ability check with request data"
-  remediation: "Validate ability parameters"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gate ability check with request data
+  remediation: Validate ability parameters
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-gate-denies-check
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Gate::denies\s*\(.*\$request'
+  - regex: (?i)Gate::denies\s*\(.*\$request
   severity: medium
-  description: "Gate denies check with request data"
-  remediation: "Validate ability parameters"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gate denies check with request data
+  remediation: Validate ability parameters
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-gate-any-check
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Gate::any\s*\(.*\$request'
+  - regex: (?i)Gate::any\s*\(.*\$request
   severity: medium
-  description: "Gate any check with request data"
-  remediation: "Validate ability parameters"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gate any check with request data
+  remediation: Validate ability parameters
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-gate-none-check
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Gate::none\s*\(.*\$request'
+  - regex: (?i)Gate::none\s*\(.*\$request
   severity: medium
-  description: "Gate none check with request data"
-  remediation: "Validate ability parameters"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gate none check with request data
+  remediation: Validate ability parameters
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-gate-inspects
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Gate::inspect\s*\(.*\$request'
+  - regex: (?i)Gate::inspect\s*\(.*\$request
   severity: medium
-  description: "Gate inspect with request data"
-  remediation: "Validate inspect parameters"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gate inspect with request data
+  remediation: Validate inspect parameters
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-gate-for-user
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Gate::forUser\s*\('
+  - regex: (?i)Gate::forUser\s*\(
   severity: medium
-  description: "Gate forUser impersonation"
-  remediation: "Restrict forUser usage"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Gate forUser impersonation
+  remediation: Restrict forUser usage
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-policy-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Policy::class.*\$\w+'
+  - regex: (?i)Policy::class.*\$\w+
   severity: medium
-  description: "Dynamic policy class"
-  remediation: "Validate policy class names"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic policy class
+  remediation: Validate policy class names
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-middleware-ability
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->middleware\s*\(\s*[''\\\"]can:'
+  - regex: '(?i)->middleware\s*\(\s*[''\\\"]can:'
   severity: low
-  description: "Can middleware for authorization"
-  remediation: "Ensure ability is defined"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Can middleware for authorization
+  remediation: Ensure ability is defined
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: laravel-middleware-role
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->middleware\s*\(\s*[''\\\"]role:'
+  - regex: '(?i)->middleware\s*\(\s*[''\\\"]role:'
   severity: low
-  description: "Role middleware for authorization"
-  remediation: "Ensure role is defined"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Role middleware for authorization
+  remediation: Ensure role is defined
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: laravel-middleware-permission
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->middleware\s*\(\s*[''\\\"]permission:'
+  - regex: '(?i)->middleware\s*\(\s*[''\\\"]permission:'
   severity: low
-  description: "Permission middleware"
-  remediation: "Ensure permission is defined"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Permission middleware
+  remediation: Ensure permission is defined
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: laravel-ability-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)@can\s*\(\s*\$\w+'
+  - regex: (?i)@can\s*\(\s*\$\w+
   severity: medium
-  description: "Dynamic ability in Blade"
-  remediation: "Validate ability names"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic ability in Blade
+  remediation: Validate ability names
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-cannot-directive
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)@cannot\s*\(\s*\$\w+'
+  - regex: (?i)@cannot\s*\(\s*\$\w+
   severity: medium
-  description: "Dynamic cannot in Blade"
-  remediation: "Validate ability names"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic cannot in Blade
+  remediation: Validate ability names
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-else-can
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)@elsecan\s*\(\s*\$\w+'
+  - regex: (?i)@elsecan\s*\(\s*\$\w+
   severity: medium
-  description: "Dynamic elsecan in Blade"
-  remediation: "Validate ability names"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic elsecan in Blade
+  remediation: Validate ability names
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-cannot-any
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)@canany\s*\(\s*\[.*\$\w+'
+  - regex: (?i)@canany\s*\(\s*\[.*\$\w+
   severity: medium
-  description: "Dynamic canany in Blade"
-  remediation: "Validate ability names"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic canany in Blade
+  remediation: Validate ability names
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-gate-define-closure
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Gate::define\s*\(.*function\s*\('
+  - regex: (?i)Gate::define\s*\(.*function\s*\(
   severity: low
-  description: "Gate definition closure"
-  remediation: "Review gate logic"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# --- File Operations (76-90) ---
+  description: Gate definition closure
+  remediation: Review gate logic
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: laravel-storage-put-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Storage::put\s*\(\s*\$request'
+  - regex: (?i)Storage::put\s*\(\s*\$request
   severity: high
-  description: "File storage with user-controlled path"
-  remediation: "Validate and sanitize file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File storage with user-controlled path
+  remediation: Validate and sanitize file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-storage-get-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Storage::get\s*\(\s*\$request'
+  - regex: (?i)Storage::get\s*\(\s*\$request
   severity: high
-  description: "File retrieval with user-controlled path"
-  remediation: "Validate file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File retrieval with user-controlled path
+  remediation: Validate file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-storage-delete-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Storage::delete\s*\(\s*\$request'
+  - regex: (?i)Storage::delete\s*\(\s*\$request
   severity: high
-  description: "File deletion with user-controlled path"
-  remediation: "Validate file paths"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File deletion with user-controlled path
+  remediation: Validate file paths
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-storage-exists-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Storage::exists\s*\(\s*\$request'
+  - regex: (?i)Storage::exists\s*\(\s*\$request
   severity: medium
-  description: "File exists check with user path"
-  remediation: "Validate file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File exists check with user path
+  remediation: Validate file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-storage-download-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Storage::download\s*\(\s*\$request'
+  - regex: (?i)Storage::download\s*\(\s*\$request
   severity: high
-  description: "File download with user-controlled path"
-  remediation: "Validate file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File download with user-controlled path
+  remediation: Validate file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-storage-temporary-url
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)temporaryUrl\s*\(\s*\$request'
+  - regex: (?i)temporaryUrl\s*\(\s*\$request
   severity: medium
-  description: "Temporary URL with user input"
-  remediation: "Validate expiration and path"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Temporary URL with user input
+  remediation: Validate expiration and path
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-file-move-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->move\s*\(\s*\$request'
+  - regex: (?i)->move\s*\(\s*\$request
   severity: high
-  description: "File move with user-controlled destination"
-  remediation: "Validate destination paths"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File move with user-controlled destination
+  remediation: Validate destination paths
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-file-store-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->store\s*\(\s*\$request'
+  - regex: (?i)->store\s*\(\s*\$request
   severity: high
-  description: "File store with user-controlled path"
-  remediation: "Validate storage paths"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File store with user-controlled path
+  remediation: Validate storage paths
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-file-store-as-user-path
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->storeAs\s*\(.*\$request'
+  - regex: (?i)->storeAs\s*\(.*\$request
   severity: high
-  description: "File storeAs with user-controlled filename"
-  remediation: "Generate server-side filenames"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File storeAs with user-controlled filename
+  remediation: Generate server-side filenames
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: laravel-file-extension-validation
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)mimes:\s*[a-z]+.*\$request'
+  - regex: (?i)mimes:\s*[a-z]+.*\$request
   severity: medium
-  description: "File MIME type validation"
-  remediation: "Validate file extensions server-side"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: File MIME type validation
+  remediation: Validate file extensions server-side
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.55
 - id: laravel-file-max-size
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)max:\s*[0-9]+.*file'
+  - regex: (?i)max:\s*[0-9]+.*file
   severity: medium
-  description: "File max size validation"
-  remediation: "Set appropriate file size limits"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: File max size validation
+  remediation: Set appropriate file size limits
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: laravel-file-image-dimensions
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)dimensions:\s*\['
+  - regex: (?i)dimensions:\s*\[
   severity: low
-  description: "Image dimension validation"
-  remediation: "Validate image dimensions"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Image dimension validation
+  remediation: Validate image dimensions
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-file-mimes-array
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''mimes''\s*=>\s*\[.*''php'''
+  - regex: (?i)'mimes'\s*=>\s*\[.*'php'
   severity: critical
-  description: "PHP file upload allowed"
-  remediation: "Block executable file extensions"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: PHP file upload allowed
+  remediation: Block executable file extensions
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.7
 - id: laravel-file-extension-array
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''extensions''\s*=>\s*\[.*''exe'''
+  - regex: (?i)'extensions'\s*=>\s*\[.*'exe'
   severity: critical
-  description: "Executable file extension allowed"
-  remediation: "Block executable extensions"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Executable file extension allowed
+  remediation: Block executable extensions
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.7
 - id: laravel-file-mime-types-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)mimes:\s*\$\w+'
+  - regex: (?i)mimes:\s*\$\w+
   severity: high
-  description: "Dynamic MIME type validation"
-  remediation: "Use static MIME type allowlist"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
-# --- Configuration (91-105) ---
+  description: Dynamic MIME type validation
+  remediation: Use static MIME type allowlist
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.65
 - id: laravel-config-app-debug-true
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''debug''\s*=>\s*true'
+  - regex: (?i)'debug'\s*=>\s*true
   severity: high
-  description: "App debug mode enabled"
-  remediation: "Set debug = false in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: App debug mode enabled
+  remediation: Set debug = false in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.65
 - id: laravel-config-app-url-http
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''url''\s*=>\s*[''\\\"]http://'
+  - regex: (?i)'url'\s*=>\s*['\\\"]http://
   severity: medium
-  description: "App URL using HTTP"
-  remediation: "Use HTTPS for APP_URL"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: App URL using HTTP
+  remediation: Use HTTPS for APP_URL
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.55
 - id: laravel-config-app-key-default
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)APP_KEY\s*=\s*[''\\\"]base64:'
+  - regex: '(?i)APP_KEY\s*=\s*[''\\\"]base64:'
   severity: high
-  description: "Default or weak APP_KEY"
-  remediation: "Generate strong random APP_KEY"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Default or weak APP_KEY
+  remediation: Generate strong random APP_KEY
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.65
 - id: laravel-config-session-driver-cookie
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''driver''\s*=>\s*[''\\\"]cookie[''\\\"]'
+  - regex: (?i)'driver'\s*=>\s*['\\\"]cookie['\\\"]
   severity: medium
-  description: "Session driver set to cookie"
-  remediation: "Use file or database session driver"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session driver set to cookie
+  remediation: Use file or database session driver
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-config-session-lifetime
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''lifetime''\s*=>\s*[0-9]{6,}'
+  - regex: (?i)'lifetime'\s*=>\s*[0-9]{6,}
   severity: medium
-  description: "Session lifetime too long"
-  remediation: "Set reasonable session lifetime"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session lifetime too long
+  remediation: Set reasonable session lifetime
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-config-session-encrypt-false
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''encrypt''\s*=>\s*false'
+  - regex: (?i)'encrypt'\s*=>\s*false
   severity: high
-  description: "Session encryption disabled"
-  remediation: "Enable session encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Session encryption disabled
+  remediation: Enable session encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: laravel-config-cookie-secure-false
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''secure''\s*=>\s*false'
+  - regex: (?i)'secure'\s*=>\s*false
   severity: high
-  description: "Cookie secure flag disabled"
-  remediation: "Enable secure cookie flag"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Cookie secure flag disabled
+  remediation: Enable secure cookie flag
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: laravel-config-cookie-httponly-false
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''http_only''\s*=>\s*false'
+  - regex: (?i)'http_only'\s*=>\s*false
   severity: high
-  description: "Cookie HttpOnly flag disabled"
-  remediation: "Enable HttpOnly flag"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Cookie HttpOnly flag disabled
+  remediation: Enable HttpOnly flag
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: laravel-config-cookie-samesite-none
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''same_site''\s*=>\s*[''\\\"]none[''\\\"]'
+  - regex: (?i)'same_site'\s*=>\s*['\\\"]none['\\\"]
   severity: medium
-  description: "Cookie SameSite set to none"
-  remediation: "Use SameSite=Lax or Strict"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Cookie SameSite set to none
+  remediation: Use SameSite=Lax or Strict
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: laravel-config-view-compile-true
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''compiled''\s*=>\s*.*env\s*\('
+  - regex: (?i)'compiled'\s*=>\s*.*env\s*\(
   severity: medium
-  description: "View compilation path from env"
-  remediation: "Use fixed compiled path"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: View compilation path from env
+  remediation: Use fixed compiled path
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.6
 - id: laravel-config-cache-driver
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''CACHE_DRIVER''\s*=>\s*[''\\\"]file[''\\\"]'
+  - regex: (?i)'CACHE_DRIVER'\s*=>\s*['\\\"]file['\\\"]
   severity: low
-  description: "Cache driver set to file"
-  remediation: "Use Redis or Memcached in production"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Cache driver set to file
+  remediation: Use Redis or Memcached in production
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: laravel-config-queue-driver
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''QUEUE_CONNECTION''\s*=>\s*[''\\\"]sync[''\\\"]'
+  - regex: (?i)'QUEUE_CONNECTION'\s*=>\s*['\\\"]sync['\\\"]
   severity: low
-  description: "Queue driver set to sync"
-  remediation: "Use database or Redis queue in production"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Queue driver set to sync
+  remediation: Use database or Redis queue in production
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: laravel-config-log-channel
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''LOG_CHANNEL''\s*=>\s*[''\\\"]single[''\\\"]'
+  - regex: (?i)'LOG_CHANNEL'\s*=>\s*['\\\"]single['\\\"]
   severity: low
-  description: "Log channel set to single"
-  remediation: "Use daily or stack logging"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Log channel set to single
+  remediation: Use daily or stack logging
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: laravel-config-log-level-debug
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''LOG_LEVEL''\s*=>\s*[''\\\"]debug[''\\\"]'
+  - regex: (?i)'LOG_LEVEL'\s*=>\s*['\\\"]debug['\\\"]
   severity: medium
-  description: "Log level set to debug"
-  remediation: "Use error or warning in production"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Log level set to debug
+  remediation: Use error or warning in production
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.55
 - id: laravel-config-trusted-proxies
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''proxies''\s*=>\s*[''\\\"]\*[''\\\"]'
+  - regex: (?i)'proxies'\s*=>\s*['\\\"]\*['\\\"]
   severity: high
-  description: "Trusted proxies set to wildcard"
-  remediation: "Specify exact proxy IPs"
-  cwe: "CWE-20"
-  owasp: "A01:2021"
-
-# --- Middleware (106-120) ---
+  description: Trusted proxies set to wildcard
+  remediation: Specify exact proxy IPs
+  cwe: CWE-20
+  owasp: A01:2021
+  confidence: 0.65
 - id: laravel-middleware-throttle-api
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''throttle:api'''
+  - regex: (?i)'throttle:api'
   severity: low
-  description: "API throttle middleware"
-  remediation: "Configure appropriate rate limits"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: API throttle middleware
+  remediation: Configure appropriate rate limits
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: laravel-middleware-auth-api
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''auth:api'''
+  - regex: (?i)'auth:api'
   severity: low
-  description: "API auth middleware"
-  remediation: "Ensure API authentication is configured"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: API auth middleware
+  remediation: Ensure API authentication is configured
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-middleware-guest
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''guest'''
+  - regex: (?i)'guest'
   severity: low
-  description: "Guest middleware"
-  remediation: "Ensure guest routes are appropriate"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Guest middleware
+  remediation: Ensure guest routes are appropriate
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-middleware-redirect-if-authenticated
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)RedirectIfAuthenticated'
+  - regex: (?i)RedirectIfAuthenticated
   severity: low
-  description: "Redirect if authenticated middleware"
-  remediation: "Review redirect logic"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Redirect if authenticated middleware
+  remediation: Review redirect logic
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-middleware-trim-strings
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)TrimStrings::class'
+  - regex: (?i)TrimStrings::class
   severity: low
-  description: "Trim strings middleware"
-  remediation: "Ensure proper input trimming"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Trim strings middleware
+  remediation: Ensure proper input trimming
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-middleware-convert-empty-strings
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)ConvertEmptyStringsToNull::class'
+  - regex: (?i)ConvertEmptyStringsToNull::class
   severity: low
-  description: "Convert empty strings middleware"
-  remediation: "Review null conversion logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Convert empty strings middleware
+  remediation: Review null conversion logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-middleware-verify-csrf-token
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)VerifyCsrfToken::class'
+  - regex: (?i)VerifyCsrfToken::class
   severity: low
-  description: "Verify CSRF token middleware"
-  remediation: "Ensure CSRF protection is enabled"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Verify CSRF token middleware
+  remediation: Ensure CSRF protection is enabled
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-middleware-authenticate
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Authenticate::class'
+  - regex: (?i)Authenticate::class
   severity: low
-  description: "Authenticate middleware"
-  remediation: "Ensure authentication is configured"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Authenticate middleware
+  remediation: Ensure authentication is configured
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-middleware-authenticate-session
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)AuthenticateSession::class'
+  - regex: (?i)AuthenticateSession::class
   severity: low
-  description: "Authenticate session middleware"
-  remediation: "Ensure session auth is configured"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Authenticate session middleware
+  remediation: Ensure session auth is configured
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-middleware-bind-shared-bindings
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Bindings::class'
+  - regex: (?i)Bindings::class
   severity: low
-  description: "Bindings middleware"
-  remediation: "Review model binding"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Bindings middleware
+  remediation: Review model binding
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-middleware-substitute-bindings
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)SubstituteBindings::class'
+  - regex: (?i)SubstituteBindings::class
   severity: low
-  description: "Substitute bindings middleware"
-  remediation: "Review route binding"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Substitute bindings middleware
+  remediation: Review route binding
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-middleware-throttle-global
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''throttle:60,1'''
+  - regex: (?i)'throttle:60,1'
   severity: low
-  description: "Global throttle middleware"
-  remediation: "Review rate limit settings"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Global throttle middleware
+  remediation: Review rate limit settings
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: laravel-middleware-cache-headers
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)CacheHeaders::class'
+  - regex: (?i)CacheHeaders::class
   severity: low
-  description: "Cache headers middleware"
-  remediation: "Review cache configuration"
-  cwe: "CWE-524"
-  owasp: "A05:2021"
-
+  description: Cache headers middleware
+  remediation: Review cache configuration
+  cwe: CWE-524
+  owasp: A05:2021
+  confidence: 0.45
 - id: laravel-middleware-localize
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Localize::class'
+  - regex: (?i)Localize::class
   severity: low
-  description: "Localize middleware"
-  remediation: "Review localization logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Localize middleware
+  remediation: Review localization logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-middleware-prevent-requests-during-maintenance
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)PreventRequestsDuringMaintenance::class'
+  - regex: (?i)PreventRequestsDuringMaintenance::class
   severity: low
-  description: "Prevent requests during maintenance"
-  remediation: "Ensure maintenance mode works"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- Routing (121-135) ---
+  description: Prevent requests during maintenance
+  remediation: Ensure maintenance mode works
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: laravel-route-any-method
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::any\s*\('
+  - regex: (?i)Route::any\s*\(
   severity: medium
-  description: "Route accepting any HTTP method"
-  remediation: "Specify explicit HTTP methods"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Route accepting any HTTP method
+  remediation: Specify explicit HTTP methods
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-route-match-multiple-methods
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::match\s*\(\s*\[.*''GET''.*''POST'''
+  - regex: (?i)Route::match\s*\(\s*\[.*'GET'.*'POST'
   severity: medium
-  description: "Route matching multiple methods"
-  remediation: "Use separate routes for different methods"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Route matching multiple methods
+  remediation: Use separate routes for different methods
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-route-group-middleware-empty
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::group\s*\(\s*\[\s*''middleware''\s*=>\s*\[\s*\]'
+  - regex: (?i)Route::group\s*\(\s*\[\s*'middleware'\s*=>\s*\[\s*\]
   severity: medium
-  description: "Route group without middleware"
-  remediation: "Add appropriate middleware"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Route group without middleware
+  remediation: Add appropriate middleware
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-route-prefix-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::prefix\s*\(\s*\$\w+'
+  - regex: (?i)Route::prefix\s*\(\s*\$\w+
   severity: medium
-  description: "Dynamic route prefix"
-  remediation: "Use static route prefixes"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic route prefix
+  remediation: Use static route prefixes
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-route-domain-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::domain\s*\(\s*\$\w+'
+  - regex: (?i)Route::domain\s*\(\s*\$\w+
   severity: medium
-  description: "Dynamic route domain"
-  remediation: "Use static domain configuration"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic route domain
+  remediation: Use static domain configuration
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-route-name-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->name\s*\(\s*\$\w+'
+  - regex: (?i)->name\s*\(\s*\$\w+
   severity: medium
-  description: "Dynamic route name"
-  remediation: "Use static route names"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic route name
+  remediation: Use static route names
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-route-middleware-dynamic
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->middleware\s*\(\s*\$\w+'
+  - regex: (?i)->middleware\s*\(\s*\$\w+
   severity: medium
-  description: "Dynamic middleware"
-  remediation: "Use static middleware"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Dynamic middleware
+  remediation: Use static middleware
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: laravel-route-fallback-closure
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::fallback\s*\(\s*function'
+  - regex: (?i)Route::fallback\s*\(\s*function
   severity: low
-  description: "Route fallback closure"
-  remediation: "Review fallback logic"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Route fallback closure
+  remediation: Review fallback logic
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: laravel-route-view-direct
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::view\s*\('
+  - regex: (?i)Route::view\s*\(
   severity: low
-  description: "Direct view route"
-  remediation: "Review view route security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Direct view route
+  remediation: Review view route security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: laravel-route-redirect-direct
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::redirect\s*\('
+  - regex: (?i)Route::redirect\s*\(
   severity: low
-  description: "Direct redirect route"
-  remediation: "Review redirect destination"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Direct redirect route
+  remediation: Review redirect destination
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.5
 - id: laravel-route-permanent-redirect
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)permanent:\s*true'
+  - regex: (?i)permanent:\s*true
   severity: low
-  description: "Permanent redirect"
-  remediation: "Ensure redirect is intentional"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Permanent redirect
+  remediation: Ensure redirect is intentional
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.45
 - id: laravel-route-resource-controller
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::resource\s*\('
+  - regex: (?i)Route::resource\s*\(
   severity: low
-  description: "Resource controller route"
-  remediation: "Review resource methods"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Resource controller route
+  remediation: Review resource methods
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: laravel-route-api-resource
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::apiResource\s*\('
+  - regex: (?i)Route::apiResource\s*\(
   severity: low
-  description: "API resource route"
-  remediation: "Review API resource methods"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: API resource route
+  remediation: Review API resource methods
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: laravel-route-implicit-binding
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)function\s*\(\s*\w+\s+\$\w+\s*\)'
+  - regex: (?i)function\s*\(\s*\w+\s+\$\w+\s*\)
   severity: low
-  description: "Implicit route binding"
-  remediation: "Review implicit binding"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Implicit route binding
+  remediation: Review implicit binding
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: laravel-route-explicit-binding
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)Route::bind\s*\('
+  - regex: (?i)Route::bind\s*\(
   severity: low
-  description: "Explicit route binding"
-  remediation: "Review binding logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# --- Validation (136-150) ---
+  description: Explicit route binding
+  remediation: Review binding logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: laravel-validation-nullable-without-required
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''nullable''.*''(?:required)'
+  - regex: (?i)'nullable'.*'(?:required)
   severity: medium
-  description: "Nullable field without required"
-  remediation: "Review nullable field logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Nullable field without required
+  remediation: Review nullable field logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.55
 - id: laravel-validation-sometimes
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->sometimes\s*\('
+  - regex: (?i)->sometimes\s*\(
   severity: medium
-  description: "Conditional validation"
-  remediation: "Review conditional logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Conditional validation
+  remediation: Review conditional logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-validation-bail
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->bail'
+  - regex: (?i)->bail
   severity: low
-  description: "Validation bail on first failure"
-  remediation: "Review validation flow"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Validation bail on first failure
+  remediation: Review validation flow
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-sometimes-nullable
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->sometimes\s*\(.*nullable'
+  - regex: (?i)->sometimes\s*\(.*nullable
   severity: medium
-  description: "Sometimes with nullable"
-  remediation: "Review validation rules"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Sometimes with nullable
+  remediation: Review validation rules
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-validation-provided
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)->sometimes\s*\(.*provided'
+  - regex: (?i)->sometimes\s*\(.*provided
   severity: medium
-  description: "Sometimes with provided"
-  remediation: "Review validation rules"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Sometimes with provided
+  remediation: Review validation rules
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: laravel-validation-required-if
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''required_if'':'
+  - regex: '(?i)''required_if'':'
   severity: low
-  description: "Required if validation"
-  remediation: "Review conditional requirement"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Required if validation
+  remediation: Review conditional requirement
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-required-unless
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''required_unless'':'
+  - regex: '(?i)''required_unless'':'
   severity: low
-  description: "Required unless validation"
-  remediation: "Review conditional requirement"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Required unless validation
+  remediation: Review conditional requirement
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-required-with
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''required_with'':'
+  - regex: '(?i)''required_with'':'
   severity: low
-  description: "Required with validation"
-  remediation: "Review conditional requirement"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Required with validation
+  remediation: Review conditional requirement
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-required-without
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''required_without'':'
+  - regex: '(?i)''required_without'':'
   severity: low
-  description: "Required without validation"
-  remediation: "Review conditional requirement"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Required without validation
+  remediation: Review conditional requirement
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-required-with-all
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''required_with_all'':'
+  - regex: '(?i)''required_with_all'':'
   severity: low
-  description: "Required with all validation"
-  remediation: "Review conditional requirement"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Required with all validation
+  remediation: Review conditional requirement
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-required-without-all
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''required_without_all'':'
+  - regex: '(?i)''required_without_all'':'
   severity: low
-  description: "Required without all validation"
-  remediation: "Review conditional requirement"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Required without all validation
+  remediation: Review conditional requirement
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-excluded-if
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''prohibited_if'':'
+  - regex: '(?i)''prohibited_if'':'
   severity: low
-  description: "Prohibited if validation"
-  remediation: "Review prohibition logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Prohibited if validation
+  remediation: Review prohibition logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-excluded-unless
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''prohibited_unless'':'
+  - regex: '(?i)''prohibited_unless'':'
   severity: low
-  description: "Prohibited unless validation"
-  remediation: "Review prohibition logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Prohibited unless validation
+  remediation: Review prohibition logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-excluded-with
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''prohibited_with'':'
+  - regex: '(?i)''prohibited_with'':'
   severity: low
-  description: "Prohibited with validation"
-  remediation: "Review prohibition logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Prohibited with validation
+  remediation: Review prohibition logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-validation-excluded-without
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)''prohibited_without'':'
+  - regex: '(?i)''prohibited_without'':'
   severity: low
-  description: "Prohibited without validation"
-  remediation: "Review prohibition logic"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Prohibited without validation
+  remediation: Review prohibition logic
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: laravel-raw-db-statement-interpolation
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)(?:DB::select|DB::statement|DB::insert|DB::update|DB::delete)\s*\(\s*["''\}].*(?:\$|{)'
+  - regex: (?i)(?:DB::select|DB::statement|DB::insert|DB::update|DB::delete)\s*\(\s*["'\}].*(?:\$|{)
   severity: critical
-  description: "Raw DB statement execution with direct variable interpolation. This is a severe SQL Injection vector."
-  remediation: "Never interpolate strings into raw DB commands. Always use parameterized queries like DB::select('SELECT * FROM x WHERE id = ?', [$id])."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Raw DB statement execution with direct variable interpolation. This is a severe SQL Injection vector.
+  remediation: Never interpolate strings into raw DB commands. Always use parameterized queries like DB::select('SELECT *
+    FROM x WHERE id = ?', [$id]).
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.8
 - id: laravel-raw-db-query-builder-interpolation
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)(?:->selectRaw|->whereRaw|->orWhereRaw|->havingRaw|->orHavingRaw|->orderByRaw|->groupByRaw)\s*\(\s*["''\}].*(?:\$|{)'
+  - regex: (?i)(?:->selectRaw|->whereRaw|->orWhereRaw|->havingRaw|->orHavingRaw|->orderByRaw|->groupByRaw)\s*\(\s*["'\}].*(?:\$|{)
   severity: critical
-  description: "Raw Query Builder method called with direct string interpolation. This escapes Eloquent's built-in parameterization and leads to direct SQL injection."
-  remediation: "Extract variables out of the raw string and pass them as the second array argument for PDO parameter binding."
-  cwe: "CWE-89"
-  owasp: "A03:2021"
+  description: Raw Query Builder method called with direct string interpolation. This escapes Eloquent's built-in parameterization
+    and leads to direct SQL injection.
+  remediation: Extract variables out of the raw string and pass them as the second array argument for PDO parameter binding.
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.8

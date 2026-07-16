@@ -1,1705 +1,1837 @@
-# ============================================================================
-# ELIXIR / PHOENIX SECURITY RULES
-# ============================================================================
-
-# ======================== Hardcoded Secrets ========================
 - id: elixir-hardcoded-secret
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)(secret_key_base|password|api_key|secret)\s*[=:]\s*\\"[^\\"]{8,}\\"'
+  - regex: (?i)(secret_key_base|password|api_key|secret)\s*[=:]\s*\\"[^\\"]{8,}\\"
   severity: high
-  description: "Hardcoded secret in Elixir source code"
-  remediation: "Use System.get_env() or runtime config for secrets"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
-# ======================== SQL Injection (Ecto) ========================
+  description: Hardcoded secret in Elixir source code
+  remediation: Use System.get_env() or runtime config for secrets
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: elixir-sql-injection-fragment
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)fragment\s*\(\s*\\".*#\{|Ecto\.Adapters\.SQL\.query.*#\{'
+  - regex: (?i)fragment\s*\(\s*\\".*#\{|Ecto\.Adapters\.SQL\.query.*#\{
   severity: critical
-  description: "SQL injection via string interpolation in Ecto fragment"
-  remediation: "Use Ecto.Query placeholders: fragment(\"? = ?\", field, ^value)"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via string interpolation in Ecto fragment
+  remediation: 'Use Ecto.Query placeholders: fragment("? = ?", field, ^value)'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.95
 - id: elixir-sql-injection-raw
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)Ecto\.Adapters\.SQL\.(query|query!)\s*\(.*<>'
+  - regex: (?i)Ecto\.Adapters\.SQL\.(query|query!)\s*\(.*<>
   severity: critical
-  description: "Raw SQL with string concatenation in Ecto"
-  remediation: "Use parameterized queries: SQL.query(repo, \"SELECT * WHERE id = $1\", [id])"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
-# ======================== Command Injection ========================
+  description: Raw SQL with string concatenation in Ecto
+  remediation: 'Use parameterized queries: SQL.query(repo, "SELECT * WHERE id = $1", [id])'
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: elixir-command-injection
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'System\.cmd\s*\(.*#\{|:os\.cmd\s*\(.*#\{'
+  - regex: System\.cmd\s*\(.*#\{|:os\.cmd\s*\(.*#\{
   severity: critical
-  description: "Command injection via string interpolation in System.cmd"
-  remediation: "Use System.cmd/3 with separate argument list. Never interpolate user input"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-# ======================== Code Injection ========================
+  description: Command injection via string interpolation in System.cmd
+  remediation: Use System.cmd/3 with separate argument list. Never interpolate user input
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: elixir-code-injection-eval
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Code\.eval_string\s*\(|Code\.eval_file\s*\('
+  - regex: Code\.eval_string\s*\(|Code\.eval_file\s*\(
   severity: critical
-  description: "Code.eval_string() can execute arbitrary Elixir code"
-  remediation: "Avoid Code.eval_string with user input. Use AST-safe parsing"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
-# ======================== XSS (Phoenix) ========================
+  description: Code.eval_string() can execute arbitrary Elixir code
+  remediation: Avoid Code.eval_string with user input. Use AST-safe parsing
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: elixir-phoenix-xss
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)raw\s*\(.*conn\.params|Phoenix\.HTML\.raw\s*\(.*params'
+  - regex: (?i)raw\s*\(.*conn\.params|Phoenix\.HTML\.raw\s*\(.*params
   severity: high
-  description: "XSS via raw() with user input in Phoenix template"
-  remediation: "Avoid raw(). Phoenix auto-escapes by default — use <%= instead of raw"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# ======================== CSRF ========================
+  description: XSS via raw() with user input in Phoenix template
+  remediation: Avoid raw(). Phoenix auto-escapes by default — use <%= instead of raw
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: elixir-phoenix-csrf-disabled
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)protect_from_forgery\s*false|:put_secure_browser_headers.*delete'
+  - regex: (?i)protect_from_forgery\s*false|:put_secure_browser_headers.*delete
   severity: high
-  description: "CSRF protection disabled in Phoenix"
-  remediation: "Keep protect_from_forgery enabled and use csrf_meta_tag in templates"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
-# ======================== Sensitive Data ========================
+  description: CSRF protection disabled in Phoenix
+  remediation: Keep protect_from_forgery enabled and use csrf_meta_tag in templates
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: elixir-sensitive-log
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)Logger\.(info|warn|error|debug)\s*\(.*(?:password|token|secret|credit_card)'
+  - regex: (?i)Logger\.(info|warn|error|debug)\s*\(.*(?:password|token|secret|credit_card)
   severity: medium
-  description: "Sensitive data in Logger output"
-  remediation: "Filter sensitive data from logs. Use @derive {Inspect, except: [:password]}"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
-# ======================== Deserialization ========================
+  description: Sensitive data in Logger output
+  remediation: 'Filter sensitive data from logs. Use @derive {Inspect, except: [:password]}'
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.65
 - id: elixir-insecure-deserialization
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':erlang\.binary_to_term\s*\(|:erlang\.term_to_binary'
+  - regex: :erlang\.binary_to_term\s*\(|:erlang\.term_to_binary
   severity: high
-  description: "Erlang term deserialization can execute arbitrary code"
-  remediation: "Use :erlang.binary_to_term(data, [:safe]) or JSON for untrusted data"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
-# ======================== Insecure HTTP ========================
+  description: Erlang term deserialization can execute arbitrary code
+  remediation: Use :erlang.binary_to_term(data, [:safe]) or JSON for untrusted data
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.7
 - id: elixir-insecure-http
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'http://[^\\\"''\s]+'
+  - regex: http://[^\\\"'\s]+
   severity: low
-  description: "Insecure HTTP URL detected"
-  remediation: "Use HTTPS for all external communications"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
-# ======================== Open Redirect ========================
+  description: Insecure HTTP URL detected
+  remediation: Use HTTPS for all external communications
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-open-redirect
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'redirect\s*\(\s*conn\s*,\s*external:\s*.*params'
+  - regex: redirect\s*\(\s*conn\s*,\s*external:\s*.*params
   severity: high
-  description: "Open redirect via user-controlled URL"
-  remediation: "Validate redirect URLs against allowlist. Prefer internal redirects"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
-# ======================== Path Traversal ========================
+  description: Open redirect via user-controlled URL
+  remediation: Validate redirect URLs against allowlist. Prefer internal redirects
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: elixir-path-traversal
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'File\.(read|write|stream)\s*\(.*params|Path\.join\s*\(.*params'
+  - regex: File\.(read|write|stream)\s*\(.*params|Path\.join\s*\(.*params
   severity: high
-  description: "Path traversal via user-controlled file path"
-  remediation: "Validate paths with Path.expand and ensure they start within expected directory"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
-  # ============================================================================
-# ELIXIR/PHOENIX SECURITY RULES - EXPANDED (150 NEW RULES)
-# ============================================================================
-# Excludes all existing rules from uploaded elixir.yaml
-# Categories: Auth, Storage, Network, Platform, Dependencies, 
-#             Crypto, Navigation, Debug, Permissions, Native, OTP, GenServer
-# ============================================================================
-
-# --- AUTHENTICATION & AUTHORIZATION (1-20) ---
+  description: Path traversal via user-controlled file path
+  remediation: Validate paths with Path.expand and ensure they start within expected directory
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.75
 - id: elixir-auth-guard-missing
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'def\s+\w+\s*\(.*conn.*\)\s+when'
+  - regex: def\s+\w+\s*\(.*conn.*\)\s+when
   severity: medium
-  description: "Phoenix controller without auth guard"
-  remediation: "Add :protect_from_forgery and authentication plugs"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Phoenix controller without auth guard
+  remediation: Add :protect_from_forgery and authentication plugs
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.6
 - id: elixir-session-store
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Plug\.Session.*store:\s*:ets'
+  - regex: Plug\.Session.*store:\s*:ets
   severity: medium
-  description: "Session stored in ETS (in-memory)"
-  remediation: "Use persistent session store for production"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Session stored in ETS (in-memory)
+  remediation: Use persistent session store for production
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: elixir-session-cookie-secure
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Plug\.Session.*secure:\s*false'
+  - regex: Plug\.Session.*secure:\s*false
   severity: high
-  description: "Session cookie without secure flag"
-  remediation: "Set secure: true for session cookies"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Session cookie without secure flag
+  remediation: 'Set secure: true for session cookies'
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: elixir-session-httponly
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Plug\.Session.*http_only:\s*false'
+  - regex: Plug\.Session.*http_only:\s*false
   severity: high
-  description: "Session cookie without HttpOnly flag"
-  remediation: "Set http_only: true for session cookies"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: Session cookie without HttpOnly flag
+  remediation: 'Set http_only: true for session cookies'
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.65
 - id: elixir-session-samesite
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Plug\.Session.*same_site:\s*\\\"None\\\"'
+  - regex: Plug\.Session.*same_site:\s*\\\"None\\\"
   severity: medium
-  description: "Session cookie with SameSite=None"
-  remediation: "Use SameSite=Lax or Strict"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Session cookie with SameSite=None
+  remediation: Use SameSite=Lax or Strict
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: elixir-auth-plug-missing
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'pipeline\s+:browser.*plug\s+:fetch_session'
+  - regex: pipeline\s+:browser.*plug\s+:fetch_session
   severity: medium
-  description: "Browser pipeline without auth plug"
-  remediation: "Add authentication plug to browser pipeline"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Browser pipeline without auth plug
+  remediation: Add authentication plug to browser pipeline
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.55
 - id: elixir-guardian-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Guardian\.Config.*secret_key'
+  - regex: Guardian\.Config.*secret_key
   severity: high
-  description: "Guardian secret key in config"
-  remediation: "Use environment variable for secret key"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Guardian secret key in config
+  remediation: Use environment variable for secret key
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: elixir-pow-assent-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'PowAssent\.Config.*client_secret'
+  - regex: PowAssent\.Config.*client_secret
   severity: high
-  description: "OAuth client secret in config"
-  remediation: "Use runtime environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: OAuth client secret in config
+  remediation: Use runtime environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: elixir-ueberauth-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Ueberauth\.Strategy.*client_id'
+  - regex: Ueberauth\.Strategy.*client_id
   severity: high
-  description: "OAuth client ID in config"
-  remediation: "Use environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: OAuth client ID in config
+  remediation: Use environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: elixir-token-expiry
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'token_ttl:\s*\{\s*999'
+  - regex: token_ttl:\s*\{\s*999
   severity: medium
-  description: "Token TTL set very high"
-  remediation: "Use reasonable token expiration (e.g., 1 hour)"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Token TTL set very high
+  remediation: Use reasonable token expiration (e.g., 1 hour)
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.55
 - id: elixir-refresh-token
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'refresh_token|refreshable'
+  - regex: refresh_token|refreshable
   severity: low
-  description: "Refresh token implementation"
-  remediation: "Implement token rotation and revocation"
-  cwe: "CWE-312"
-  owasp: "A01:2021"
-
+  description: Refresh token implementation
+  remediation: Implement token rotation and revocation
+  cwe: CWE-312
+  owasp: A01:2021
+  confidence: 0.45
 - id: elixir-password-hasher
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Comeonin\.|Bcrypt\.|Argon2\.'
+  - regex: Comeonin\.|Bcrypt\.|Argon2\.
   severity: low
-  description: "Password hashing library"
-  remediation: "Use Argon2 or Bcrypt with appropriate cost"
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
+  description: Password hashing library
+  remediation: Use Argon2 or Bcrypt with appropriate cost
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-password-cost
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'bcrypt_log_rounds:\s*[0-5]\b'
+  - regex: bcrypt_log_rounds:\s*[0-5]\b
   severity: medium
-  description: "Bcrypt cost factor too low"
-  remediation: "Use cost factor of 12 or higher"
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
+  description: Bcrypt cost factor too low
+  remediation: Use cost factor of 12 or higher
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.55
 - id: elixir-argon2-params
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'argon2.*m_cost:\s*[0-9]{1,3}'
+  - regex: argon2.*m_cost:\s*[0-9]{1,3}
   severity: medium
-  description: "Argon2 memory cost too low"
-  remediation: "Use appropriate memory cost (64MB+)"
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
+  description: Argon2 memory cost too low
+  remediation: Use appropriate memory cost (64MB+)
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.55
 - id: elixir-rate-limiter
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'ExRated\.|Hammer\.|ExLimit\.'
+  - regex: ExRated\.|Hammer\.|ExLimit\.
   severity: low
-  description: "Rate limiting library"
-  remediation: "Configure appropriate rate limits"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Rate limiting library
+  remediation: Configure appropriate rate limits
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: elixir-brute-force
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'login.*attempt|failed.*login'
+  - regex: login.*attempt|failed.*login
   severity: low
-  description: "Login attempt tracking"
-  remediation: "Implement account lockout after failed attempts"
-  cwe: "CWE-307"
-  owasp: "A07:2021"
-
+  description: Login attempt tracking
+  remediation: Implement account lockout after failed attempts
+  cwe: CWE-307
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-captcha
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'recaptcha|hcaptcha|captcha'
+  - regex: recaptcha|hcaptcha|captcha
   severity: low
-  description: "CAPTCHA implementation"
-  remediation: "Use CAPTCHA for sensitive operations"
-  cwe: "CWE-307"
-  owasp: "A07:2021"
-
+  description: CAPTCHA implementation
+  remediation: Use CAPTCHA for sensitive operations
+  cwe: CWE-307
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-2fa
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'totp|two_factor|2fa'
+  - regex: totp|two_factor|2fa
   severity: low
-  description: "Two-factor authentication"
-  remediation: "Enforce 2FA for sensitive accounts"
-  cwe: "CWE-308"
-  owasp: "A01:2021"
-
+  description: Two-factor authentication
+  remediation: Enforce 2FA for sensitive accounts
+  cwe: CWE-308
+  owasp: A01:2021
+  confidence: 0.45
 - id: elixir-oauth-scope
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'scope:|scopes:'
+  - regex: 'scope:|scopes:'
   severity: low
-  description: "OAuth scope configuration"
-  remediation: "Validate OAuth scopes on each request"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: OAuth scope configuration
+  remediation: Validate OAuth scopes on each request
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: elixir-api-key-auth
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'api_key|apikey|api-key'
+  - regex: api_key|apikey|api-key
   severity: medium
-  description: "API key authentication"
-  remediation: "Rotate API keys regularly"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
-# --- DATABASE & ECTO (21-40) ---
+  description: API key authentication
+  remediation: Rotate API keys regularly
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.55
 - id: elixir-ecto-repo-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Ecto\.Repo.*username.*password'
+  - regex: Ecto\.Repo.*username.*password
   severity: high
-  description: "Database credentials in repo config"
-  remediation: "Use environment variables for database credentials"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Database credentials in repo config
+  remediation: Use environment variables for database credentials
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: elixir-ecto-ssl
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'ssl:\s*false|ssl:\s*nil'
+  - regex: ssl:\s*false|ssl:\s*nil
   severity: high
-  description: "Database SSL disabled"
-  remediation: "Enable SSL for database connections"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Database SSL disabled
+  remediation: Enable SSL for database connections
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: elixir-ecto-pool-size
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'pool_size:\s*[0-9]{3,}'
+  - regex: pool_size:\s*[0-9]{3,}
   severity: low
-  description: "Database pool size very high"
-  remediation: "Set appropriate pool size for workload"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Database pool size very high
+  remediation: Set appropriate pool size for workload
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: elixir-ecto-migration
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'def\s+change.*do.*execute'
+  - regex: def\s+change.*do.*execute
   severity: low
-  description: "Ecto migration with execute"
-  remediation: "Review raw SQL in migrations"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Ecto migration with execute
+  remediation: Review raw SQL in migrations
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.45
 - id: elixir-ecto-schema
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'schema\s+\\\"\w+\\\".*do'
+  - regex: schema\s+\\\"\w+\\\".*do
   severity: low
-  description: "Ecto schema definition"
-  remediation: "Don't expose sensitive fields in schemas"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Ecto schema definition
+  remediation: Don't expose sensitive fields in schemas
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-ecto-changeset
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'cast\s*\(.*\[.*\]\)'
+  - regex: cast\s*\(.*\[.*\]\)
   severity: low
-  description: "Ecto changeset cast"
-  remediation: "Whitelist allowed fields in cast"
-  cwe: "CWE-915"
-  owasp: "A08:2021"
-
+  description: Ecto changeset cast
+  remediation: Whitelist allowed fields in cast
+  cwe: CWE-915
+  owasp: A08:2021
+  confidence: 0.5
 - id: elixir-ecto-validate
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'validate_\w+\s*\('
+  - regex: validate_\w+\s*\(
   severity: low
-  description: "Ecto validation"
-  remediation: "Implement comprehensive validations"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Ecto validation
+  remediation: Implement comprehensive validations
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: elixir-ecto-unique
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'unique_constraint\s*\('
+  - regex: unique_constraint\s*\(
   severity: low
-  description: "Unique constraint"
-  remediation: "Handle unique constraint errors properly"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Unique constraint
+  remediation: Handle unique constraint errors properly
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.5
 - id: elixir-ecto-foreign-key
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'foreign_key_constraint\s*\('
+  - regex: foreign_key_constraint\s*\(
   severity: low
-  description: "Foreign key constraint"
-  remediation: "Handle foreign key errors properly"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Foreign key constraint
+  remediation: Handle foreign key errors properly
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.5
 - id: elixir-ecto-exclude
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'select:\s*\[.*\]|exclude:'
+  - regex: 'select:\s*\[.*\]|exclude:'
   severity: low
-  description: "Field selection/exclusion"
-  remediation: "Exclude sensitive fields from queries"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Field selection/exclusion
+  remediation: Exclude sensitive fields from queries
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-ecto-preload
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'preload:\s*\[|preload\s*\('
+  - regex: preload:\s*\[|preload\s*\(
   severity: low
-  description: "Ecto preload"
-  remediation: "Don't preload sensitive associations"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Ecto preload
+  remediation: Don't preload sensitive associations
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: elixir-ecto-transaction
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Ecto\.Multi\.|transaction\s*do'
+  - regex: Ecto\.Multi\.|transaction\s*do
   severity: low
-  description: "Database transaction"
-  remediation: "Handle transaction rollbacks properly"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Database transaction
+  remediation: Handle transaction rollbacks properly
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.5
 - id: elixir-ecto-lock
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'lock:\s*\\"|SELECT.*FOR'
+  - regex: lock:\s*\\"|SELECT.*FOR
   severity: low
-  description: "Database row locking"
-  remediation: "Use appropriate lock mode"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: Database row locking
+  remediation: Use appropriate lock mode
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-ecto-dynamic
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'dynamic\s*\('
+  - regex: dynamic\s*\(
   severity: medium
-  description: "Dynamic Ecto query"
-  remediation: "Validate dynamic query parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Dynamic Ecto query
+  remediation: Validate dynamic query parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.6
 - id: elixir-ecto-unsafe-unique
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'unsafe_unique\s*\('
+  - regex: unsafe_unique\s*\(
   severity: medium
-  description: "Unsafe unique constraint"
-  remediation: "Use safe unique constraints"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Unsafe unique constraint
+  remediation: Use safe unique constraints
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.6
 - id: elixir-ecto-all-records
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Repo\.all\s*\(|all\s*\('
+  - regex: Repo\.all\s*\(|all\s*\(
   severity: medium
-  description: "Fetching all records"
-  remediation: "Use pagination for large datasets"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Fetching all records
+  remediation: Use pagination for large datasets
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.6
 - id: elixir-ecto-count
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Repo\.aggregate\s*\(.*:count'
+  - regex: Repo\.aggregate\s*\(.*:count
   severity: low
-  description: "Count query"
-  remediation: "Consider performance implications"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Count query
+  remediation: Consider performance implications
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: elixir-ecto-stream
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Repo\.stream\s*\('
+  - regex: Repo\.stream\s*\(
   severity: low
-  description: "Stream query"
-  remediation: "Close stream properly"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Stream query
+  remediation: Close stream properly
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.5
 - id: elixir-ecto-insert-all
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'insert_all\s*\('
+  - regex: insert_all\s*\(
   severity: low
-  description: "Bulk insert"
-  remediation: "Validate bulk data before insert"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Bulk insert
+  remediation: Validate bulk data before insert
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: elixir-ecto-update-all
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'update_all\s*\('
+  - regex: update_all\s*\(
   severity: medium
-  description: "Bulk update"
-  remediation: "Validate bulk update conditions"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# --- PHOENIX SPECIFIC (41-60) ---
+  description: Bulk update
+  remediation: Validate bulk update conditions
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.6
 - id: elixir-phoenix-endpoint
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Phoenix\.Endpoint.*http:\s*\[.*port:'
+  - regex: 'Phoenix\.Endpoint.*http:\s*\[.*port:'
   severity: low
-  description: "Phoenix endpoint HTTP config"
-  remediation: "Use HTTPS in production"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Phoenix endpoint HTTP config
+  remediation: Use HTTPS in production
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-phoenix-ssl
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'https:\s*\[|ssl:\s*true'
+  - regex: https:\s*\[|ssl:\s*true
   severity: low
-  description: "Phoenix SSL configuration"
-  remediation: "Ensure SSL is properly configured"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Phoenix SSL configuration
+  remediation: Ensure SSL is properly configured
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-phoenix-cors
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'plug\s+CORSPlug|cors_plug'
+  - regex: plug\s+CORSPlug|cors_plug
   severity: medium
-  description: "CORS plug configured"
-  remediation: "Configure specific allowed origins"
-  cwe: "CWE-942"
-  owasp: "A05:2021"
-
+  description: CORS plug configured
+  remediation: Configure specific allowed origins
+  cwe: CWE-942
+  owasp: A05:2021
+  confidence: 0.55
 - id: elixir-phoenix-pubsub
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Phoenix\.PubSub.*adapter'
+  - regex: Phoenix\.PubSub.*adapter
   severity: low
-  description: "Phoenix PubSub adapter"
-  remediation: "Secure PubSub for production"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Phoenix PubSub adapter
+  remediation: Secure PubSub for production
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: elixir-phoenix-channel
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'defmodule.*Channel.*do'
+  - regex: defmodule.*Channel.*do
   severity: medium
-  description: "Phoenix channel"
-  remediation: "Authenticate channel connections"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Phoenix channel
+  remediation: Authenticate channel connections
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.55
 - id: elixir-phoenix-socket
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'socket\s+\\"/.*\\"|Socket.*do'
+  - regex: socket\s+\\"/.*\\"|Socket.*do
   severity: medium
-  description: "Phoenix socket"
-  remediation: "Authenticate socket connections"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Phoenix socket
+  remediation: Authenticate socket connections
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.55
 - id: elixir-phoenix-presence
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Phoenix\.Presence|track.*presence'
+  - regex: Phoenix\.Presence|track.*presence
   severity: low
-  description: "Phoenix Presence"
-  remediation: "Don't expose sensitive presence data"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Phoenix Presence
+  remediation: Don't expose sensitive presence data
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-phoenix-liveview
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'use\s+Phoenix\.LiveView|live_view'
+  - regex: use\s+Phoenix\.LiveView|live_view
   severity: low
-  description: "Phoenix LiveView"
-  remediation: "Validate LiveView assigns"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Phoenix LiveView
+  remediation: Validate LiveView assigns
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: elixir-phoenix-live-upload
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'allow_upload|consume_uploaded'
+  - regex: allow_upload|consume_uploaded
   severity: medium
-  description: "LiveView file upload"
-  remediation: "Validate uploaded files"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: LiveView file upload
+  remediation: Validate uploaded files
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.55
 - id: elixir-phoenix-router
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'scope\s+\\"/api\\"|pipeline\s+:api'
+  - regex: scope\s+\\"/api\\"|pipeline\s+:api
   severity: low
-  description: "API router scope"
-  remediation: "Secure API routes with authentication"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: API router scope
+  remediation: Secure API routes with authentication
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: elixir-phoenix-plug
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'plug\s+\w+.*do|def\s+call'
+  - regex: plug\s+\w+.*do|def\s+call
   severity: low
-  description: "Custom plug"
-  remediation: "Review custom plug security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Custom plug
+  remediation: Review custom plug security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-phoenix-controller
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'use\s+Phoenix\.Controller|defmodule.*Controller'
+  - regex: use\s+Phoenix\.Controller|defmodule.*Controller
   severity: low
-  description: "Phoenix controller"
-  remediation: "Implement authorization in controllers"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Phoenix controller
+  remediation: Implement authorization in controllers
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: elixir-phoenix-view
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'use\s+Phoenix\.View|defmodule.*View'
+  - regex: use\s+Phoenix\.View|defmodule.*View
   severity: low
-  description: "Phoenix view"
-  remediation: "Don't expose sensitive data in views"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Phoenix view
+  remediation: Don't expose sensitive data in views
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-phoenix-template
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '\.eex|\.heex|\.leex'
+  - regex: \.eex|\.heex|\.leex
   severity: low
-  description: "Phoenix template"
-  remediation: "Use auto-escaping in templates"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Phoenix template
+  remediation: Use auto-escaping in templates
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.5
 - id: elixir-phoenix-layout
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'render\s+\\"layout\\"|layout:'
+  - regex: 'render\s+\\"layout\\"|layout:'
   severity: low
-  description: "Phoenix layout"
-  remediation: "Secure layout templates"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: Phoenix layout
+  remediation: Secure layout templates
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.45
 - id: elixir-phoenix-error
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'ErrorView|error\.html'
+  - regex: ErrorView|error\.html
   severity: low
-  description: "Error view"
-  remediation: "Don't expose stack traces in errors"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Error view
+  remediation: Don't expose stack traces in errors
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-phoenix-changeset-view
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'ChangesetView|changeset.*error'
+  - regex: ChangesetView|changeset.*error
   severity: low
-  description: "Changeset error view"
-  remediation: "Don't expose internal error details"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Changeset error view
+  remediation: Don't expose internal error details
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-phoenix-fallback
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'fallback_controller|FallbackController'
+  - regex: fallback_controller|FallbackController
   severity: low
-  description: "Fallback controller"
-  remediation: "Handle errors securely"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Fallback controller
+  remediation: Handle errors securely
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.45
 - id: elixir-phoenix-action
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'action_fallback|action:'
+  - regex: 'action_fallback|action:'
   severity: low
-  description: "Action fallback"
-  remediation: "Handle action errors securely"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Action fallback
+  remediation: Handle action errors securely
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.45
 - id: elixir-phoenix-telemetry
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Phoenix\.Telemetry|telemetry_handler'
+  - regex: Phoenix\.Telemetry|telemetry_handler
   severity: low
-  description: "Phoenix telemetry"
-  remediation: "Don't log sensitive data in telemetry"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
-# --- OTP & GENSERVER (61-80) ---
+  description: Phoenix telemetry
+  remediation: Don't log sensitive data in telemetry
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-genserver-start
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'GenServer\.start|GenServer\.start_link'
+  - regex: GenServer\.start|GenServer\.start_link
   severity: low
-  description: "GenServer start"
-  remediation: "Validate GenServer arguments"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: GenServer start
+  remediation: Validate GenServer arguments
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: elixir-genserver-call
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'GenServer\.call\s*\('
+  - regex: GenServer\.call\s*\(
   severity: low
-  description: "GenServer synchronous call"
-  remediation: "Set appropriate timeout"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: GenServer synchronous call
+  remediation: Set appropriate timeout
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: elixir-genserver-cast
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'GenServer\.cast\s*\('
+  - regex: GenServer\.cast\s*\(
   severity: low
-  description: "GenServer async cast"
-  remediation: "Validate cast messages"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: GenServer async cast
+  remediation: Validate cast messages
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: elixir-genserver-reply
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '\{:reply,|:noreply'
+  - regex: \{:reply,|:noreply
   severity: low
-  description: "GenServer reply"
-  remediation: "Don't expose internal state in replies"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: GenServer reply
+  remediation: Don't expose internal state in replies
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-genserver-state
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'def\s+handle_call.*state|def\s+handle_cast.*state'
+  - regex: def\s+handle_call.*state|def\s+handle_cast.*state
   severity: low
-  description: "GenServer state handling"
-  remediation: "Don't store sensitive data in state"
-  cwe: "CWE-312"
-  owasp: "A05:2021"
-
+  description: GenServer state handling
+  remediation: Don't store sensitive data in state
+  cwe: CWE-312
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-supervisor-start
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Supervisor\.start_link|use\s+Supervisor'
+  - regex: Supervisor\.start_link|use\s+Supervisor
   severity: low
-  description: "Supervisor configuration"
-  remediation: "Configure appropriate restart strategy"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Supervisor configuration
+  remediation: Configure appropriate restart strategy
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-supervisor-strategy
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'strategy:\s*:one_for_all|strategy:\s*:rest_for_one'
+  - regex: strategy:\s*:one_for_all|strategy:\s*:rest_for_one
   severity: low
-  description: "Supervisor strategy"
-  remediation: "Choose appropriate restart strategy"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Supervisor strategy
+  remediation: Choose appropriate restart strategy
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-supervisor-intensity
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'max_restarts:\s*[0-9]|max_seconds:\s*[0-9]'
+  - regex: max_restarts:\s*[0-9]|max_seconds:\s*[0-9]
   severity: low
-  description: "Supervisor intensity"
-  remediation: "Set appropriate restart intensity"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Supervisor intensity
+  remediation: Set appropriate restart intensity
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: elixir-agent
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Agent\.start|Agent\.update'
+  - regex: Agent\.start|Agent\.update
   severity: medium
-  description: "Agent for shared state"
-  remediation: "Don't store sensitive data in Agent"
-  cwe: "CWE-312"
-  owasp: "A05:2021"
-
+  description: Agent for shared state
+  remediation: Don't store sensitive data in Agent
+  cwe: CWE-312
+  owasp: A05:2021
+  confidence: 0.6
 - id: elixir-registry
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Registry\.start_link|Registry\.register'
+  - regex: Registry\.start_link|Registry\.register
   severity: low
-  description: "Registry for process registration"
-  remediation: "Don't expose sensitive process info"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Registry for process registration
+  remediation: Don't expose sensitive process info
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.5
 - id: elixir-task
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Task\.start|Task\.async'
+  - regex: Task\.start|Task\.async
   severity: low
-  description: "Task for async work"
-  remediation: "Handle task errors properly"
-  cwe: "CWE-754"
-  owasp: "N/A"
-
+  description: Task for async work
+  remediation: Handle task errors properly
+  cwe: CWE-754
+  owasp: N/A
+  confidence: 0.5
 - id: elixir-task-supervisor
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Task\.Supervisor|Task\.Supervisor\.start_link'
+  - regex: Task\.Supervisor|Task\.Supervisor\.start_link
   severity: low
-  description: "Task supervisor"
-  remediation: "Configure appropriate max restarts"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Task supervisor
+  remediation: Configure appropriate max restarts
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.5
 - id: elixir-dynamic-supervisor
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'DynamicSupervisor|dynamic_supervisor'
+  - regex: DynamicSupervisor|dynamic_supervisor
   severity: low
-  description: "Dynamic supervisor"
-  remediation: "Configure appropriate max children"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Dynamic supervisor
+  remediation: Configure appropriate max children
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: elixir-event-handler
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':gen_event|GenEvent\.'
+  - regex: :gen_event|GenEvent\.
   severity: low
-  description: "Event handler (legacy)"
-  remediation: "Use :gen_event carefully (deprecated)"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Event handler (legacy)
+  remediation: Use :gen_event carefully (deprecated)
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'config\s+:logger|Logger\.configure'
+  - regex: config\s+:logger|Logger\.configure
   severity: low
-  description: "Logger configuration"
-  remediation: "Set appropriate log level for production"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Logger configuration
+  remediation: Set appropriate log level for production
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-backend
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.add_backend|logger_backend'
+  - regex: Logger\.add_backend|logger_backend
   severity: low
-  description: "Logger backend"
-  remediation: "Secure logger backend configuration"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Logger backend
+  remediation: Secure logger backend configuration
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-metadata
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.metadata|metadata:'
+  - regex: 'Logger\.metadata|metadata:'
   severity: low
-  description: "Logger metadata"
-  remediation: "Don't include sensitive data in metadata"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Logger metadata
+  remediation: Don't include sensitive data in metadata
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-application-start
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'def\s+start.*type.*args|Application\.start'
+  - regex: def\s+start.*type.*args|Application\.start
   severity: low
-  description: "Application start"
-  remediation: "Validate application arguments"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: Application start
+  remediation: Validate application arguments
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: elixir-application-stop
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'def\s+stop.*state|Application\.stop'
+  - regex: def\s+stop.*state|Application\.stop
   severity: low
-  description: "Application stop"
-  remediation: "Clean up resources properly"
-  cwe: "CWE-775"
-  owasp: "A06:2021"
-
+  description: Application stop
+  remediation: Clean up resources properly
+  cwe: CWE-775
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-app-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Application\.get_env|Application\.put_env'
+  - regex: Application\.get_env|Application\.put_env
   severity: low
-  description: "Application config"
-  remediation: "Don't store secrets in app config"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
-# --- DEPENDENCIES & PACKAGES (81-100) ---
+  description: Application config
+  remediation: Don't store secrets in app config
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: elixir-mix-dep
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'mix\.exs.*deps.*do'
+  - regex: mix\.exs.*deps.*do
   severity: low
-  description: "Mix dependencies"
-  remediation: "Pin dependency versions"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Mix dependencies
+  remediation: Pin dependency versions
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-mix-dep-git
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'git:\s*\\\"https?://'
+  - regex: git:\s*\\\"https?://
   severity: medium
-  description: "Dependency from Git"
-  remediation: "Pin to specific commit"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Dependency from Git
+  remediation: Pin to specific commit
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.55
 - id: elixir-mix-dep-path
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'path:\s*\\\"'
+  - regex: path:\s*\\\"
   severity: low
-  description: "Local path dependency"
-  remediation: "Ensure path dependency is secure"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Local path dependency
+  remediation: Ensure path dependency is secure
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-mix-dep-override
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'override:\s*true'
+  - regex: override:\s*true
   severity: medium
-  description: "Dependency override"
-  remediation: "Review override necessity"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Dependency override
+  remediation: Review override necessity
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.55
 - id: elixir-mix-dep-only
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'only:\s*\[\s*:dev|only:\s*\[\s*:test'
+  - regex: only:\s*\[\s*:dev|only:\s*\[\s*:test
   severity: low
-  description: "Environment-specific dependency"
-  remediation: "Don't include dev/test deps in production"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Environment-specific dependency
+  remediation: Don't include dev/test deps in production
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-mix-dep-runtime
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'runtime:\s*false'
+  - regex: runtime:\s*false
   severity: low
-  description: "Non-runtime dependency"
-  remediation: "Ensure non-runtime deps don't leak to production"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Non-runtime dependency
+  remediation: Ensure non-runtime deps don't leak to production
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-mix-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'config\s+:elixir|config\.exs'
+  - regex: config\s+:elixir|config\.exs
   severity: low
-  description: "Mix config"
-  remediation: "Don't store secrets in config files"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Mix config
+  remediation: Don't store secrets in config files
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-mix-release
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'release\s+do|Mix\.Releases'
+  - regex: release\s+do|Mix\.Releases
   severity: low
-  description: "Mix release"
-  remediation: "Secure release configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Mix release
+  remediation: Secure release configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-mix-archive
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'mix\s+archive|archive:'
+  - regex: 'mix\s+archive|archive:'
   severity: low
-  description: "Mix archive"
-  remediation: "Verify archive integrity"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Mix archive
+  remediation: Verify archive integrity
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-mix-hex
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'hex\.pm|{:hex'
+  - regex: hex\.pm|{:hex
   severity: low
-  description: "Hex package manager"
-  remediation: "Verify package signatures"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Hex package manager
+  remediation: Verify package signatures
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.45
 - id: elixir-credo
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'credo|Credo\.'
+  - regex: credo|Credo\.
   severity: low
-  description: "Credo linting"
-  remediation: "Include security checks in Credo"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Credo linting
+  remediation: Include security checks in Credo
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-dialyzer
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'dialyzer|Dialyzer\.'
+  - regex: dialyzer|Dialyzer\.
   severity: low
-  description: "Dialyzer type checking"
-  remediation: "Run Dialyzer for type safety"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Dialyzer type checking
+  remediation: Run Dialyzer for type safety
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-excoveralls
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'excoveralls|ExCoveralls\.'
+  - regex: excoveralls|ExCoveralls\.
   severity: low
-  description: "Test coverage"
-  remediation: "Maintain good test coverage"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Test coverage
+  remediation: Maintain good test coverage
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-exunit
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'ExUnit\.|ex_unit'
+  - regex: ExUnit\.|ex_unit
   severity: low
-  description: "ExUnit testing"
-  remediation: "Include security tests"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ExUnit testing
+  remediation: Include security tests
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-wallaby
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Wallaby|wallaby'
+  - regex: Wallaby|wallaby
   severity: low
-  description: "Wallaby browser testing"
-  remediation: "Include security in browser tests"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Wallaby browser testing
+  remediation: Include security in browser tests
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-floki
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Floki|floki'
+  - regex: Floki|floki
   severity: low
-  description: "Floki HTML parsing"
-  remediation: "Don't parse untrusted HTML"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Floki HTML parsing
+  remediation: Don't parse untrusted HTML
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.45
 - id: elixir-jason
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Jason\.|jason'
+  - regex: Jason\.|jason
   severity: low
-  description: "Jason JSON encoding"
-  remediation: "Configure safe encoding options"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Jason JSON encoding
+  remediation: Configure safe encoding options
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.45
 - id: elixir-poison
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Poison\.|poison'
+  - regex: Poison\.|poison
   severity: low
-  description: "Poison JSON (legacy)"
-  remediation: "Migrate to Jason"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Poison JSON (legacy)
+  remediation: Migrate to Jason
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-httpoison
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'HTTPoison\.|httpoison'
+  - regex: HTTPoison\.|httpoison
   severity: low
-  description: "HTTPoison HTTP client"
-  remediation: "Validate HTTP responses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: HTTPoison HTTP client
+  remediation: Validate HTTP responses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: elixir-hackney
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'hackney|:hackney'
+  - regex: hackney|:hackney
   severity: low
-  description: "Hackney HTTP client"
-  remediation: "Validate HTTP responses"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
-# --- CRYPTOGRAPHY (101-120) ---
+  description: Hackney HTTP client
+  remediation: Validate HTTP responses
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.45
 - id: elixir-crypto-hash
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.hash\s*\(\s*:md5|:crypto\.hash\s*\(\s*:sha'
+  - regex: :crypto\.hash\s*\(\s*:md5|:crypto\.hash\s*\(\s*:sha
   severity: medium
-  description: "Weak hash algorithm"
-  remediation: "Use :sha256 or :sha512"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Weak hash algorithm
+  remediation: Use :sha256 or :sha512
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.6
 - id: elixir-crypto-aes
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.crypto_one_time.*aes'
+  - regex: :crypto\.crypto_one_time.*aes
   severity: low
-  description: "AES encryption"
-  remediation: "Use AES-GCM for authenticated encryption"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: AES encryption
+  remediation: Use AES-GCM for authenticated encryption
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-crypto-rand
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.strong_rand_bytes|:rand\.uniform'
+  - regex: :crypto\.strong_rand_bytes|:rand\.uniform
   severity: low
-  description: "Random generation"
-  remediation: "Use strong_rand_bytes for crypto"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Random generation
+  remediation: Use strong_rand_bytes for crypto
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-crypto-base
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Base\.encode64|Base\.decode64'
+  - regex: Base\.encode64|Base\.decode64
   severity: low
-  description: "Base64 encoding"
-  remediation: "Base64 is not encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Base64 encoding
+  remediation: Base64 is not encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-crypto-bcrypt
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Bcrypt\.hash_pwd_salt|Bcrypt\.verify_pass'
+  - regex: Bcrypt\.hash_pwd_salt|Bcrypt\.verify_pass
   severity: low
-  description: "Bcrypt password hashing"
-  remediation: "Use appropriate cost factor"
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
+  description: Bcrypt password hashing
+  remediation: Use appropriate cost factor
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-crypto-argon2
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Argon2\.hash_pwd_salt|Argon2\.verify_pass'
+  - regex: Argon2\.hash_pwd_salt|Argon2\.verify_pass
   severity: low
-  description: "Argon2 password hashing"
-  remediation: "Use appropriate parameters"
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
+  description: Argon2 password hashing
+  remediation: Use appropriate parameters
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-crypto-pbkdf2
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Pbkdf2\.hash_pwd_salt|pbkdf2'
+  - regex: Pbkdf2\.hash_pwd_salt|pbkdf2
   severity: low
-  description: "PBKDF2 key derivation"
-  remediation: "Use sufficient iterations"
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
+  description: PBKDF2 key derivation
+  remediation: Use sufficient iterations
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-crypto-hmac
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.mac\s*\(\s*:hmac'
+  - regex: :crypto\.mac\s*\(\s*:hmac
   severity: low
-  description: "HMAC authentication"
-  remediation: "Use HMAC-SHA256 or higher"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: HMAC authentication
+  remediation: Use HMAC-SHA256 or higher
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-crypto-sign
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.sign\s*\(|:crypto\.verify'
+  - regex: :crypto\.sign\s*\(|:crypto\.verify
   severity: low
-  description: "Digital signature"
-  remediation: "Use strong algorithms (Ed25519)"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Digital signature
+  remediation: Use strong algorithms (Ed25519)
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-crypto-generate-key
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.generate_key|ExPublicKey\.'
+  - regex: :crypto\.generate_key|ExPublicKey\.
   severity: low
-  description: "Key generation"
-  remediation: "Use secure key generation"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Key generation
+  remediation: Use secure key generation
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-jose
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'JOSE\.|jose'
+  - regex: JOSE\.|jose
   severity: low
-  description: "JOSE JWT library"
-  remediation: "Validate JWT properly"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: JOSE JWT library
+  remediation: Validate JWT properly
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-guardian-token
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Guardian\.encode_and_sign|Guardian\.decode_and_verify'
+  - regex: Guardian\.encode_and_sign|Guardian\.decode_and_verify
   severity: low
-  description: "Guardian JWT"
-  remediation: "Validate JWT claims"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Guardian JWT
+  remediation: Validate JWT claims
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-phx-token
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Phoenix\.Token|phoenix_token'
+  - regex: Phoenix\.Token|phoenix_token
   severity: low
-  description: "Phoenix Token"
-  remediation: "Set appropriate token TTL"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Phoenix Token
+  remediation: Set appropriate token TTL
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-key-exchange
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.generate_key.*ecdh|:crypto\.compute_key'
+  - regex: :crypto\.generate_key.*ecdh|:crypto\.compute_key
   severity: low
-  description: "Key exchange"
-  remediation: "Use secure key exchange"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Key exchange
+  remediation: Use secure key exchange
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-ssl-config
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'ssl_options|:ssl\.ssl_option'
+  - regex: ssl_options|:ssl\.ssl_option
   severity: low
-  description: "SSL configuration"
-  remediation: "Configure secure SSL options"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: SSL configuration
+  remediation: Configure secure SSL options
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-certfile
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'certfile:|keyfile:'
+  - regex: 'certfile:|keyfile:'
   severity: low
-  description: "Certificate file"
-  remediation: "Protect certificate files"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Certificate file
+  remediation: Protect certificate files
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-cacertfile
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'cacertfile:|verify:\s*:verify_peer'
+  - regex: cacertfile:|verify:\s*:verify_peer
   severity: low
-  description: "CA certificate"
-  remediation: "Use trusted CA certificates"
-  cwe: "CWE-295"
-  owasp: "A07:2021"
-
+  description: CA certificate
+  remediation: Use trusted CA certificates
+  cwe: CWE-295
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-secure-random
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':crypto\.strong_rand_bytes|:rand\.bytes'
+  - regex: :crypto\.strong_rand_bytes|:rand\.bytes
   severity: low
-  description: "Secure random"
-  remediation: "Good for cryptographic purposes"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Secure random
+  remediation: Good for cryptographic purposes
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.5
 - id: elixir-nacl
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'ENaCl|enacl'
+  - regex: ENaCl|enacl
   severity: low
-  description: "NaCl cryptography"
-  remediation: "Good choice for modern crypto"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: NaCl cryptography
+  remediation: Good choice for modern crypto
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-libsignal
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'libsignal|SignalProtocol'
+  - regex: libsignal|SignalProtocol
   severity: low
-  description: "Signal Protocol"
-  remediation: "Good for end-to-end encryption"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
-# --- DEBUG & LOGGING (121-135) ---
+  description: Signal Protocol
+  remediation: Good for end-to-end encryption
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.45
 - id: elixir-io-puts
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'IO\.puts\s*\(|IO\.inspect\s*\('
+  - regex: IO\.puts\s*\(|IO\.inspect\s*\(
   severity: medium
-  description: "IO output in code"
-  remediation: "Remove IO.puts in production"
-  cwe: "CWE-489"
-  owasp: "A05:2021"
-
+  description: IO output in code
+  remediation: Remove IO.puts in production
+  cwe: CWE-489
+  owasp: A05:2021
+  confidence: 0.6
 - id: elixir-io-write
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'IO\.write\s*\(|IO\.read\s*\('
+  - regex: IO\.write\s*\(|IO\.read\s*\(
   severity: low
-  description: "IO write/read"
-  remediation: "Validate IO operations"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
-
+  description: IO write/read
+  remediation: Validate IO operations
+  cwe: CWE-20
+  owasp: A03:2021
+  confidence: 0.5
 - id: elixir-logger-debug
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.debug\s*\('
+  - regex: Logger\.debug\s*\(
   severity: low
-  description: "Debug logging"
-  remediation: "Disable debug logging in production"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Debug logging
+  remediation: Disable debug logging in production
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.5
 - id: elixir-logger-info
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.info\s*\('
+  - regex: Logger\.info\s*\(
   severity: low
-  description: "Info logging"
-  remediation: "Don't log sensitive data"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Info logging
+  remediation: Don't log sensitive data
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.5
 - id: elixir-logger-warn
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.warn\s*\(|Logger\.warning'
+  - regex: Logger\.warn\s*\(|Logger\.warning
   severity: low
-  description: "Warning logging"
-  remediation: "Don't log sensitive data"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Warning logging
+  remediation: Don't log sensitive data
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.5
 - id: elixir-logger-error
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.error\s*\('
+  - regex: Logger\.error\s*\(
   severity: low
-  description: "Error logging"
-  remediation: "Don't log stack traces to users"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Error logging
+  remediation: Don't log stack traces to users
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.5
 - id: elixir-logger-level
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'level:\s*:debug|level:\s*:all'
+  - regex: level:\s*:debug|level:\s*:all
   severity: medium
-  description: "Verbose log level"
-  remediation: "Set level to :info or :warn in production"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Verbose log level
+  remediation: Set level to :info or :warn in production
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.55
 - id: elixir-logger-format
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'format:\s*\\"|:logger_formatter'
+  - regex: format:\s*\\"|:logger_formatter
   severity: low
-  description: "Logger format"
-  remediation: "Don't include sensitive data in format"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Logger format
+  remediation: Don't include sensitive data in format
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-metadata-dup1
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.metadata\s*\('
+  - regex: Logger\.metadata\s*\(
   severity: low
-  description: "Logger metadata"
-  remediation: "Don't include sensitive metadata"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Logger metadata
+  remediation: Don't include sensitive metadata
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.5
 - id: elixir-logger-translate
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'translate:\s*false|:logger_translator'
+  - regex: translate:\s*false|:logger_translator
   severity: low
-  description: "Logger translator"
-  remediation: "Review translator configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Logger translator
+  remediation: Review translator configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-handler
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Logger\.add_handler|:logger_handler'
+  - regex: Logger\.add_handler|:logger_handler
   severity: low
-  description: "Logger handler"
-  remediation: "Secure logger handler"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Logger handler
+  remediation: Secure logger handler
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-console
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':logger_handler_console|console:'
+  - regex: ':logger_handler_console|console:'
   severity: low
-  description: "Console logging"
-  remediation: "Disable console logging in production"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Console logging
+  remediation: Disable console logging in production
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-file
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':logger_handler_watcher|file:'
+  - regex: ':logger_handler_watcher|file:'
   severity: low
-  description: "File logging"
-  remediation: "Protect log files"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: File logging
+  remediation: Protect log files
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-sasl
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':sasl|sasl_error_logger'
+  - regex: :sasl|sasl_error_logger
   severity: low
-  description: "SASL logging (legacy)"
-  remediation: "Migrate to new Logger"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: SASL logging (legacy)
+  remediation: Migrate to new Logger
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-logger-report
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: ':error_logger|error_logger'
+  - regex: :error_logger|error_logger
   severity: low
-  description: "Error logger (legacy)"
-  remediation: "Migrate to new Logger"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- CONFIGURATION & DEPLOYMENT (136-150) ---
+  description: Error logger (legacy)
+  remediation: Migrate to new Logger
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-prod
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'config/prod\.exs|prod\.secret\.exs'
+  - regex: config/prod\.exs|prod\.secret\.exs
   severity: medium
-  description: "Production config file"
-  remediation: "Don't commit prod.secret.exs"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Production config file
+  remediation: Don't commit prod.secret.exs
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.6
 - id: elixir-config-runtime
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'runtime\.exs|config_runtime'
+  - regex: runtime\.exs|config_runtime
   severity: low
-  description: "Runtime config"
-  remediation: "Load secrets at runtime"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Runtime config
+  remediation: Load secrets at runtime
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-config-release
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'releases\.exs|release:'
+  - regex: 'releases\.exs|release:'
   severity: low
-  description: "Release config"
-  remediation: "Secure release configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Release config
+  remediation: Secure release configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-distillery
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'distillery|exrm'
+  - regex: distillery|exrm
   severity: low
-  description: "Distillery release (legacy)"
-  remediation: "Migrate to Mix releases"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Distillery release (legacy)
+  remediation: Migrate to Mix releases
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-edeliver
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'edeliver|.deliver'
+  - regex: edeliver|.deliver
   severity: low
-  description: "Edeliver deployment"
-  remediation: "Secure deployment configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Edeliver deployment
+  remediation: Secure deployment configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-gigalixir
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'gigalixir|Gigalixir'
+  - regex: gigalixir|Gigalixir
   severity: low
-  description: "Gigalixir deployment"
-  remediation: "Secure deployment configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Gigalixir deployment
+  remediation: Secure deployment configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-flyio
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'fly\.toml|flyctl'
+  - regex: fly\.toml|flyctl
   severity: low
-  description: "Fly.io deployment"
-  remediation: "Secure fly.toml configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Fly.io deployment
+  remediation: Secure fly.toml configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-heroku
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Procfile|heroku'
+  - regex: Procfile|heroku
   severity: low
-  description: "Heroku deployment"
-  remediation: "Secure Procfile"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Heroku deployment
+  remediation: Secure Procfile
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-docker
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'Dockerfile|docker-compose'
+  - regex: Dockerfile|docker-compose
   severity: low
-  description: "Docker deployment"
-  remediation: "Follow Docker security best practices"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Docker deployment
+  remediation: Follow Docker security best practices
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-kubernetes
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'kubernetes|k8s|\.yaml.*deployment'
+  - regex: kubernetes|k8s|\.yaml.*deployment
   severity: low
-  description: "Kubernetes deployment"
-  remediation: "Follow Kubernetes security best practices"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes deployment
+  remediation: Follow Kubernetes security best practices
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-config-aws
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'aws|ex_aws'
+  - regex: aws|ex_aws
   severity: low
-  description: "AWS integration"
-  remediation: "Use IAM roles, not credentials"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: AWS integration
+  remediation: Use IAM roles, not credentials
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-config-azure
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'azure|ex_azure'
+  - regex: azure|ex_azure
   severity: low
-  description: "Azure integration"
-  remediation: "Use managed identities"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Azure integration
+  remediation: Use managed identities
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-config-gcp
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: 'gcp|google_cloud'
+  - regex: gcp|google_cloud
   severity: low
-  description: "GCP integration"
-  remediation: "Use service accounts"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: GCP integration
+  remediation: Use service accounts
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.45
 - id: elixir-gitignore
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '\.gitignore|_build|deps'
+  - regex: \.gitignore|_build|deps
   severity: low
-  description: "Git ignore configuration"
-  remediation: "Ensure secrets are gitignored"
-  cwe: "CWE-530"
-  owasp: "A05:2021"
-
+  description: Git ignore configuration
+  remediation: Ensure secrets are gitignored
+  cwe: CWE-530
+  owasp: A05:2021
+  confidence: 0.45
 - id: elixir-env-file
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '\.env|\.env\.sample'
+  - regex: \.env|\.env\.sample
   severity: medium
-  description: "Environment file"
-  remediation: "Don't commit .env files"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Environment file
+  remediation: Don't commit .env files
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.6
 - id: elixir-eval-unsafe
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)Code\.eval_string|Code\.eval_file'
+  - regex: (?i)Code\.eval_string|Code\.eval_file
   severity: critical
-  description: "Dynamic code evaluation"
-  remediation: "Never eval untrusted code"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
+  description: Dynamic code evaluation
+  remediation: Never eval untrusted code
+  cwe: CWE-94
+  owasp: A03:2021
   confidence: 0.8
-
 - id: elixir-ecto-injection
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)Ecto\.Adapters\.SQL\.query.*#\{'
+  - regex: (?i)Ecto\.Adapters\.SQL\.query.*#\{
   severity: critical
-  description: "SQL injection via Ecto interpolation"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
+  description: SQL injection via Ecto interpolation
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
   confidence: 0.8
-
 - id: elixir-plug-params
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)Plug\.Params\.init.*false'
+  - regex: (?i)Plug\.Params\.init.*false
   severity: high
-  description: "Plug.Params validation disabled"
-  remediation: "Enable parameter validation"
-  cwe: "CWE-20"
-  owasp: "A03:2021"
+  description: Plug.Params validation disabled
+  remediation: Enable parameter validation
+  cwe: CWE-20
+  owasp: A03:2021
   confidence: 0.8
-
 - id: elixir-crypto-weak
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i):crypto\.hash\s*:md5|:crypto\.hash\s*:sha'
+  - regex: (?i):crypto\.hash\s*:md5|:crypto\.hash\s*:sha
   severity: medium
-  description: "Weak cryptographic hash"
-  remediation: "Use SHA-256 or better"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
+  description: Weak cryptographic hash
+  remediation: Use SHA-256 or better
+  cwe: CWE-327
+  owasp: A02:2021
   confidence: 0.8
-
 - id: elixir-guardian-weak
-  languages: [elixir]
+  languages:
+  - elixir
   patterns:
-    - regex: '(?i)Guardian\.decode_and_verify.*algorithm.*HS'
+  - regex: (?i)Guardian\.decode_and_verify.*algorithm.*HS
   severity: high
-  description: "JWT algorithm confusion risk"
-  remediation: "Use RS256 algorithm"
-  cwe: "CWE-347"
-  owasp: "A02:2021"
+  description: JWT algorithm confusion risk
+  remediation: Use RS256 algorithm
+  cwe: CWE-347
+  owasp: A02:2021
   confidence: 0.8

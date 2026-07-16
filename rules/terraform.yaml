@@ -1,1915 +1,2090 @@
 - id: tf-aws-s3-public-acl
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)acl\s*=\s*\\"(public-read|public-read-write|authenticated-read)\\"'
+  - regex: (?i)acl\s*=\s*\\"(public-read|public-read-write|authenticated-read)\\"
   severity: critical
-  description: "S3 bucket with public ACL — data may be exposed to the internet"
-  remediation: "Use acl = \"private\" and configure IAM policies for specific access"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
+  description: S3 bucket with public ACL — data may be exposed to the internet
+  remediation: Use acl = "private" and configure IAM policies for specific access
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.75
 - id: tf-aws-s3-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)resource\s+\\\"aws_s3_bucket\\\"[^}]*'
+  - regex: (?i)resource\s+\\\"aws_s3_bucket\\\"[^}]*
   severity: high
-  description: "S3 bucket without server-side encryption"
-  remediation: "Enable SSE: server_side_encryption_configuration { rule { apply_server_side_encryption_by_default } }"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: S3 bucket without server-side encryption
+  remediation: 'Enable SSE: server_side_encryption_configuration { rule { apply_server_side_encryption_by_default } }'
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-s3-no-versioning
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)resource\s+\\\"aws_s3_bucket\\\"[^}]*'
+  - regex: (?i)resource\s+\\\"aws_s3_bucket\\\"[^}]*
   severity: medium
-  description: "S3 bucket without versioning enabled"
-  remediation: "Enable versioning to protect against accidental deletions"
-  cwe: "N/A"
-  owasp: "N/A"
-
+  description: S3 bucket without versioning enabled
+  remediation: Enable versioning to protect against accidental deletions
+  cwe: N/A
+  owasp: N/A
+  confidence: 0.55
 - id: tf-aws-sg-open-ingress
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)cidr_blocks\s*=\s*\[\s*\\\"0\.0\.0\.0/0\\\"\s*\]'
+  - regex: (?i)cidr_blocks\s*=\s*\[\s*\\\"0\.0\.0\.0/0\\\"\s*\]
   severity: high
-  description: "Security group allows ingress from 0.0.0.0/0 (entire internet)"
-  remediation: "Restrict cidr_blocks to specific IP ranges needed for access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Security group allows ingress from 0.0.0.0/0 (entire internet)
+  remediation: Restrict cidr_blocks to specific IP ranges needed for access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-aws-rds-public
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)publicly_accessible\s*=\s*true'
+  - regex: (?i)publicly_accessible\s*=\s*true
   severity: critical
-  description: "RDS/database instance publicly accessible from the internet"
-  remediation: "Set publicly_accessible = false and use VPC private subnets"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RDS/database instance publicly accessible from the internet
+  remediation: Set publicly_accessible = false and use VPC private subnets
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-aws-rds-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)storage_encrypted\s*=\s*false'
+  - regex: (?i)storage_encrypted\s*=\s*false
   severity: high
-  description: "RDS storage encryption disabled"
-  remediation: "Set storage_encrypted = true for encryption at rest"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: RDS storage encryption disabled
+  remediation: Set storage_encrypted = true for encryption at rest
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-iam-wildcard
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)\\"Action\\"\s*:\s*\\"\*\\"|\\"Resource\\"\s*:\s*\\"\*\\"'
+  - regex: (?i)\\"Action\\"\s*:\s*\\"\*\\"|\\"Resource\\"\s*:\s*\\"\*\\"
   severity: critical
-  description: "IAM policy with wildcard Action or Resource grants excessive permissions"
-  remediation: "Follow least privilege: specify exact actions and resource ARNs"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: IAM policy with wildcard Action or Resource grants excessive permissions
+  remediation: 'Follow least privilege: specify exact actions and resource ARNs'
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.75
 - id: tf-aws-cloudtrail-disabled
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)enable_logging\s*=\s*false'
+  - regex: (?i)enable_logging\s*=\s*false
   severity: high
-  description: "CloudTrail logging disabled — audit trail lost"
-  remediation: "Enable logging: enable_logging = true with S3 bucket for log storage"
-  cwe: "CWE-778"
-  owasp: "A09:2021"
-
-# ======================== Azure ========================
+  description: CloudTrail logging disabled — audit trail lost
+  remediation: 'Enable logging: enable_logging = true with S3 bucket for log storage'
+  cwe: CWE-778
+  owasp: A09:2021
+  confidence: 0.65
 - id: tf-azure-storage-public
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)allow_blob_public_access\s*=\s*true|public_network_access_enabled\s*=\s*true'
+  - regex: (?i)allow_blob_public_access\s*=\s*true|public_network_access_enabled\s*=\s*true
   severity: high
-  description: "Azure Storage account allows public access"
-  remediation: "Set allow_blob_public_access = false for storage accounts"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# ======================== GCP ========================
+  description: Azure Storage account allows public access
+  remediation: Set allow_blob_public_access = false for storage accounts
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-gcp-compute-public
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)access_config\s*\{\s*\}'
+  - regex: (?i)access_config\s*\{\s*\}
   severity: high
-  description: "GCP compute instance with public IP (empty access_config)"
-  remediation: "Remove access_config block to prevent public IP assignment. Use Cloud NAT"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# ======================== General ========================
+  description: GCP compute instance with public IP (empty access_config)
+  remediation: Remove access_config block to prevent public IP assignment. Use Cloud NAT
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-hardcoded-secret
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)(password|secret|api_key|access_key)\s*=\s*\\"[^\\"]{8,}\\"'
+  - regex: (?i)(password|secret|api_key|access_key)\s*=\s*\\"[^\\"]{8,}\\"
   severity: critical
-  description: "Hardcoded secret in Terraform configuration"
-  remediation: "Use terraform variables with sensitive flag, environment vars, or vault provider"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded secret in Terraform configuration
+  remediation: Use terraform variables with sensitive flag, environment vars, or vault provider
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.75
 - id: tf-no-state-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"s3\\\"\s*\{[^}]*'
+  - regex: (?i)backend\s+\\\"s3\\\"\s*\{[^}]*
   severity: high
-  description: "Terraform state stored without encryption"
-  remediation: "Enable encryption for remote state: encrypt = true in backend config"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Terraform state stored without encryption
+  remediation: 'Enable encryption for remote state: encrypt = true in backend config'
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-http-backend
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"http\\\"\s*\{[^}]*address\s*=\s*\\\"http://'
+  - regex: (?i)backend\s+\\\"http\\\"\s*\{[^}]*address\s*=\s*\\\"http://
   severity: high
-  description: "Terraform state backend uses HTTP instead of HTTPS"
-  remediation: "Use HTTPS for remote state backend to protect sensitive state data"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Terraform state backend uses HTTP instead of HTTPS
+  remediation: Use HTTPS for remote state backend to protect sensitive state data
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.7
 - id: tf-k8s-privileged-pod
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)privileged\s*=\s*true'
+  - regex: (?i)privileged\s*=\s*true
   severity: critical
-  description: "Kubernetes Pod or Deployment running a privileged container"
-  remediation: "Set privileged = false or remove the parameter"
-  cwe: "CWE-269"
-  owasp: "A01:2021"
-
+  description: Kubernetes Pod or Deployment running a privileged container
+  remediation: Set privileged = false or remove the parameter
+  cwe: CWE-269
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-k8s-host-network
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)host_network\s*=\s*true'
+  - regex: (?i)host_network\s*=\s*true
   severity: high
-  description: "Kubernetes Pod using host network namespace"
-  remediation: "Set host_network = false to isolate network traffic"
-  cwe: "CWE-284"
-  owasp: "A05:2021"
-
+  description: Kubernetes Pod using host network namespace
+  remediation: Set host_network = false to isolate network traffic
+  cwe: CWE-284
+  owasp: A05:2021
+  confidence: 0.65
 - id: tf-k8s-no-limits
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)resources\s*\{[^}]*'
+  - regex: (?i)resources\s*\{[^}]*
   severity: medium
-  description: "Kubernetes container missing resource limits"
-  remediation: "Define CPU and memory limits inside the resources block"
-  cwe: "CWE-400"
-  owasp: "A06:2021"
-
-# ============================================================================
-# TERRAFORM SECURITY RULES - EXPANDED (150 NEW RULES)
-# ============================================================================
-# Excludes all existing rules from uploaded terraform.yaml
-# Categories: AWS, Azure, GCP, Kubernetes, General, State, Variables,
-#             Modules, Providers, Backend, Policy, Compliance
-# ============================================================================
-
-# --- AWS SPECIFIC (1-30) ---
+  description: Kubernetes container missing resource limits
+  remediation: Define CPU and memory limits inside the resources block
+  cwe: CWE-400
+  owasp: A06:2021
+  confidence: 0.55
 - id: tf-aws-ec2-no-monitoring
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_instance.*monitoring\s*=\s*false'
+  - regex: (?i)aws_instance.*monitoring\s*=\s*false
   severity: medium
-  description: "EC2 detailed monitoring disabled"
-  remediation: "Enable detailed monitoring for better visibility"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: EC2 detailed monitoring disabled
+  remediation: Enable detailed monitoring for better visibility
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-aws-ec2-no-termination-protection
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_instance'
+  - regex: (?i)aws_instance
   severity: low
-  description: "EC2 termination protection not configured"
-  remediation: "Set disable_api_termination = true for critical instances"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: EC2 termination protection not configured
+  remediation: Set disable_api_termination = true for critical instances
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-aws-ec2-imdsv1
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)metadata_options.*http_tokens\s*=\s*optional'
+  - regex: (?i)metadata_options.*http_tokens\s*=\s*optional
   severity: high
-  description: "EC2 IMDSv1 enabled"
-  remediation: "Set http_tokens = required for IMDSv2"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: EC2 IMDSv1 enabled
+  remediation: Set http_tokens = required for IMDSv2
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-aws-ec2-associate-public-ip
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)associate_public_ip_address\s*=\s*true'
+  - regex: (?i)associate_public_ip_address\s*=\s*true
   severity: medium
-  description: "EC2 with public IP"
-  remediation: "Use private IPs with NAT Gateway"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: EC2 with public IP
+  remediation: Use private IPs with NAT Gateway
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-aws-ebs-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_ebs_volume'
+  - regex: (?i)aws_ebs_volume
   severity: high
-  description: "EBS volume without encryption"
-  remediation: "Set encrypted = true for EBS volumes"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: EBS volume without encryption
+  remediation: Set encrypted = true for EBS volumes
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-ebs-snapshot-public
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_ebs_snapshot.*create_volume_permission'
+  - regex: (?i)aws_ebs_snapshot.*create_volume_permission
   severity: high
-  description: "EBS snapshot with create volume permissions"
-  remediation: "Don't share EBS snapshots publicly"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: EBS snapshot with create volume permissions
+  remediation: Don't share EBS snapshots publicly
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-aws-ami-public
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_ami.*launch_permission'
+  - regex: (?i)aws_ami.*launch_permission
   severity: high
-  description: "AMI with launch permissions"
-  remediation: "Don't share AMIs publicly"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: AMI with launch permissions
+  remediation: Don't share AMIs publicly
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-aws-lambda-no-vpc
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_lambda_function'
+  - regex: (?i)aws_lambda_function
   severity: medium
-  description: "Lambda function not in VPC"
-  remediation: "Configure Lambda with VPC for network isolation"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Lambda function not in VPC
+  remediation: Configure Lambda with VPC for network isolation
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-aws-lambda-environment-vars
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_lambda_function.*environment.*\{[^}]*password'
+  - regex: (?i)aws_lambda_function.*environment.*\{[^}]*password
   severity: high
-  description: "Lambda with sensitive environment variables"
-  remediation: "Use AWS Secrets Manager for Lambda environment"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Lambda with sensitive environment variables
+  remediation: Use AWS Secrets Manager for Lambda environment
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: tf-aws-api-gateway-no-auth
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_api_gateway_method.*authorization\s*=\s*NONE'
+  - regex: (?i)aws_api_gateway_method.*authorization\s*=\s*NONE
   severity: high
-  description: "API Gateway without authorization"
-  remediation: "Set authorization = AWS_IAM or COGNITO_USER_POOLS"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: API Gateway without authorization
+  remediation: Set authorization = AWS_IAM or COGNITO_USER_POOLS
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-aws-api-gateway-no-throttling
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_api_gateway_stage'
+  - regex: (?i)aws_api_gateway_stage
   severity: medium
-  description: "API Gateway without throttling"
-  remediation: "Configure throttling for API Gateway"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: API Gateway without throttling
+  remediation: Configure throttling for API Gateway
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.55
 - id: tf-aws-api-gateway-logging
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_api_gateway_stage'
+  - regex: (?i)aws_api_gateway_stage
   severity: medium
-  description: "API Gateway without access logging"
-  remediation: "Configure access_log_settings for API Gateway"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: API Gateway without access logging
+  remediation: Configure access_log_settings for API Gateway
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-aws-cloudfront-no-waf
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_cloudfront_distribution'
+  - regex: (?i)aws_cloudfront_distribution
   severity: medium
-  description: "CloudFront without WAF"
-  remediation: "Associate WAF web_acl_id with CloudFront"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CloudFront without WAF
+  remediation: Associate WAF web_acl_id with CloudFront
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-aws-cloudfront-no-https
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_cloudfront_distribution.*viewer_protocol_policy\s*=\s*allow-all'
+  - regex: (?i)aws_cloudfront_distribution.*viewer_protocol_policy\s*=\s*allow-all
   severity: high
-  description: "CloudFront allowing HTTP"
-  remediation: "Set viewer_protocol_policy = redirect-to-https"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: CloudFront allowing HTTP
+  remediation: Set viewer_protocol_policy = redirect-to-https
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.7
 - id: tf-aws-cloudfront-no-oai
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_cloudfront_distribution'
+  - regex: (?i)aws_cloudfront_distribution
   severity: medium
-  description: "CloudFront without OAI"
-  remediation: "Use Origin Access Identity for S3 origins"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: CloudFront without OAI
+  remediation: Use Origin Access Identity for S3 origins
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-aws-elasticache-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_elasticache_cluster'
+  - regex: (?i)aws_elasticache_cluster
   severity: high
-  description: "ElastiCache without encryption"
-  remediation: "Enable encryption at rest and in transit"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: ElastiCache without encryption
+  remediation: Enable encryption at rest and in transit
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-elasticache-public
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_elasticache_cluster.*security_group_ids.*sg-'
+  - regex: (?i)aws_elasticache_cluster.*security_group_ids.*sg-
   severity: medium
-  description: "ElastiCache with security group"
-  remediation: "Restrict ElastiCache security group"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ElastiCache with security group
+  remediation: Restrict ElastiCache security group
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-aws-redshift-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_redshift_cluster'
+  - regex: (?i)aws_redshift_cluster
   severity: high
-  description: "Redshift without encryption"
-  remediation: "Set encrypted = true for Redshift"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Redshift without encryption
+  remediation: Set encrypted = true for Redshift
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-redshift-public
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_redshift_cluster.*publicly_accessible\s*=\s*true'
+  - regex: (?i)aws_redshift_cluster.*publicly_accessible\s*=\s*true
   severity: critical
-  description: "Redshift publicly accessible"
-  remediation: "Set publicly_accessible = false"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Redshift publicly accessible
+  remediation: Set publicly_accessible = false
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-aws-ecs-no-fargate
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_ecs_service.*launch_type\s*=\s*EC2'
+  - regex: (?i)aws_ecs_service.*launch_type\s*=\s*EC2
   severity: low
-  description: "ECS using EC2 launch type"
-  remediation: "Consider Fargate for better isolation"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ECS using EC2 launch type
+  remediation: Consider Fargate for better isolation
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-aws-ecs-task-no-iam
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_ecs_task_definition'
+  - regex: (?i)aws_ecs_task_definition
   severity: medium
-  description: "ECS task without IAM role"
-  remediation: "Configure task_role_arn for ECS tasks"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ECS task without IAM role
+  remediation: Configure task_role_arn for ECS tasks
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-aws-eks-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_eks_cluster'
+  - regex: (?i)aws_eks_cluster
   severity: high
-  description: "EKS without encryption"
-  remediation: "Configure encryption_config for EKS"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: EKS without encryption
+  remediation: Configure encryption_config for EKS
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-eks-public-endpoint
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_eks_cluster.*endpoint_public_access\s*=\s*true'
+  - regex: (?i)aws_eks_cluster.*endpoint_public_access\s*=\s*true
   severity: high
-  description: "EKS with public endpoint"
-  remediation: "Set endpoint_public_access = false"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: EKS with public endpoint
+  remediation: Set endpoint_public_access = false
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-aws-msk-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_msk_cluster'
+  - regex: (?i)aws_msk_cluster
   severity: high
-  description: "MSK without encryption"
-  remediation: "Configure encryption_info for MSK"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: MSK without encryption
+  remediation: Configure encryption_info for MSK
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-neptune-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_neptune_cluster'
+  - regex: (?i)aws_neptune_cluster
   severity: high
-  description: "Neptune without encryption"
-  remediation: "Set storage_encrypted = true"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Neptune without encryption
+  remediation: Set storage_encrypted = true
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-documentdb-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_docdb_cluster'
+  - regex: (?i)aws_docdb_cluster
   severity: high
-  description: "DocumentDB without encryption"
-  remediation: "Set storage_encrypted = true"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: DocumentDB without encryption
+  remediation: Set storage_encrypted = true
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-kinesis-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_kinesis_stream'
+  - regex: (?i)aws_kinesis_stream
   severity: high
-  description: "Kinesis without encryption"
-  remediation: "Set encryption_type = KMS"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Kinesis without encryption
+  remediation: Set encryption_type = KMS
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-firehose-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_kinesis_firehose_delivery_stream'
+  - regex: (?i)aws_kinesis_firehose_delivery_stream
   severity: high
-  description: "Firehose without encryption"
-  remediation: "Configure server_side_encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Firehose without encryption
+  remediation: Configure server_side_encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-glue-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_glue_catalog_database'
+  - regex: (?i)aws_glue_catalog_database
   severity: high
-  description: "Glue without encryption"
-  remediation: "Configure encryption for Glue"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Glue without encryption
+  remediation: Configure encryption for Glue
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-aws-athena-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)aws_athena_workgroup'
+  - regex: (?i)aws_athena_workgroup
   severity: high
-  description: "Athena without encryption"
-  remediation: "Configure encryption_configuration"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
-# --- AZURE SPECIFIC (31-60) ---
+  description: Athena without encryption
+  remediation: Configure encryption_configuration
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-azure-vm-no-disk-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_virtual_machine'
+  - regex: (?i)azurerm_virtual_machine
   severity: high
-  description: "Azure VM without disk encryption"
-  remediation: "Configure encryption_settings for VM disks"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Azure VM without disk encryption
+  remediation: Configure encryption_settings for VM disks
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-azure-vm-managed-disk
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_virtual_machine.*os_disk.*vhd_uri'
+  - regex: (?i)azurerm_virtual_machine.*os_disk.*vhd_uri
   severity: medium
-  description: "Azure VM using unmanaged disks"
-  remediation: "Use managed disks instead of vhd_uri"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure VM using unmanaged disks
+  remediation: Use managed disks instead of vhd_uri
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-azure-aks-no-rbac
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_kubernetes_cluster.*role_based_access_control\s*=\s*false'
+  - regex: (?i)azurerm_kubernetes_cluster.*role_based_access_control\s*=\s*false
   severity: high
-  description: "AKS without RBAC"
-  remediation: "Set role_based_access_control = true"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: AKS without RBAC
+  remediation: Set role_based_access_control = true
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-azure-aks-public-ip
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_kubernetes_cluster.*public_network_access\s*=\s*Enabled'
+  - regex: (?i)azurerm_kubernetes_cluster.*public_network_access\s*=\s*Enabled
   severity: high
-  description: "AKS with public network access"
-  remediation: "Set public_network_access = Disabled"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: AKS with public network access
+  remediation: Set public_network_access = Disabled
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-azure-function-no-vnet
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_function_app'
+  - regex: (?i)azurerm_function_app
   severity: medium
-  description: "Azure Function without VNet"
-  remediation: "Configure virtual_network_subnet_id"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Azure Function without VNet
+  remediation: Configure virtual_network_subnet_id
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-azure-function-https-only
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_function_app.*https_only\s*=\s*false'
+  - regex: (?i)azurerm_function_app.*https_only\s*=\s*false
   severity: high
-  description: "Azure Function allowing HTTP"
-  remediation: "Set https_only = true"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Azure Function allowing HTTP
+  remediation: Set https_only = true
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-azure-app-service-https
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_app_service.*https_only\s*=\s*false'
+  - regex: (?i)azurerm_app_service.*https_only\s*=\s*false
   severity: high
-  description: "App Service allowing HTTP"
-  remediation: "Set https_only = true"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: App Service allowing HTTP
+  remediation: Set https_only = true
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-azure-app-service-client-cert
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_app_service.*client_cert_enabled\s*=\s*false'
+  - regex: (?i)azurerm_app_service.*client_cert_enabled\s*=\s*false
   severity: medium
-  description: "App Service without client cert"
-  remediation: "Enable client_cert_enabled for mutual TLS"
-  cwe: "CWE-295"
-  owasp: "A07:2021"
-
+  description: App Service without client cert
+  remediation: Enable client_cert_enabled for mutual TLS
+  cwe: CWE-295
+  owasp: A07:2021
+  confidence: 0.55
 - id: tf-azure-cosmos-no-firewall
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_cosmosdb_account'
+  - regex: (?i)azurerm_cosmosdb_account
   severity: medium
-  description: "CosmosDB without IP firewall"
-  remediation: "Configure ip_range_filter for CosmosDB"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: CosmosDB without IP firewall
+  remediation: Configure ip_range_filter for CosmosDB
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-azure-cosmos-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_cosmosdb_account.*enable_multiple_write_locations'
+  - regex: (?i)azurerm_cosmosdb_account.*enable_multiple_write_locations
   severity: medium
-  description: "CosmosDB multi-region write"
-  remediation: "Review multi-region write implications"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CosmosDB multi-region write
+  remediation: Review multi-region write implications
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.6
 - id: tf-azure-sql-audit
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_mssql_server'
+  - regex: (?i)azurerm_mssql_server
   severity: medium
-  description: "Azure SQL without auditing"
-  remediation: "Configure auditing for SQL Server"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Azure SQL without auditing
+  remediation: Configure auditing for SQL Server
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-azure-sql-threat-detection
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_mssql_server'
+  - regex: (?i)azurerm_mssql_server
   severity: medium
-  description: "Azure SQL without threat detection"
-  remediation: "Configure threat_detection_policy"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Azure SQL without threat detection
+  remediation: Configure threat_detection_policy
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-azure-key-vault-soft-delete
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_key_vault.*soft_delete_enabled\s*=\s*false'
+  - regex: (?i)azurerm_key_vault.*soft_delete_enabled\s*=\s*false
   severity: high
-  description: "Key Vault soft delete disabled"
-  remediation: "Set soft_delete_enabled = true"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Key Vault soft delete disabled
+  remediation: Set soft_delete_enabled = true
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.65
 - id: tf-azure-key-vault-purge
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_key_vault.*purge_protection_enabled\s*=\s*false'
+  - regex: (?i)azurerm_key_vault.*purge_protection_enabled\s*=\s*false
   severity: high
-  description: "Key Vault purge protection disabled"
-  remediation: "Set purge_protection_enabled = true"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Key Vault purge protection disabled
+  remediation: Set purge_protection_enabled = true
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.65
 - id: tf-azure-key-vault-network
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_key_vault.*network_acls.*default_action\s*=\s*Allow'
+  - regex: (?i)azurerm_key_vault.*network_acls.*default_action\s*=\s*Allow
   severity: high
-  description: "Key Vault network ACLs allowing all"
-  remediation: "Set default_action = Deny"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Key Vault network ACLs allowing all
+  remediation: Set default_action = Deny
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-azure-advisor
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_advisor.*recommendation'
+  - regex: (?i)azurerm_advisor.*recommendation
   severity: low
-  description: "Azure Advisor recommendations"
-  remediation: "Review Advisor recommendations"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Advisor recommendations
+  remediation: Review Advisor recommendations
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-policy
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_policy.*assignment'
+  - regex: (?i)azurerm_policy.*assignment
   severity: low
-  description: "Azure Policy assignment"
-  remediation: "Review Policy assignments"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Policy assignment
+  remediation: Review Policy assignments
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-blueprint
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_blueprint.*assignment'
+  - regex: (?i)azurerm_blueprint.*assignment
   severity: low
-  description: "Azure Blueprint assignment"
-  remediation: "Review Blueprint assignments"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Blueprint assignment
+  remediation: Review Blueprint assignments
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-sentinel
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_sentinel.*workspace'
+  - regex: (?i)azurerm_sentinel.*workspace
   severity: low
-  description: "Azure Sentinel workspace"
-  remediation: "Configure Sentinel for security monitoring"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Azure Sentinel workspace
+  remediation: Configure Sentinel for security monitoring
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-defender
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_security_center.*pricing'
+  - regex: (?i)azurerm_security_center.*pricing
   severity: low
-  description: "Azure Defender pricing tier"
-  remediation: "Enable Defender for all resource types"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: Azure Defender pricing tier
+  remediation: Enable Defender for all resource types
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-backup
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_backup.*vault'
+  - regex: (?i)azurerm_backup.*vault
   severity: low
-  description: "Azure Backup vault"
-  remediation: "Configure Backup for critical resources"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Backup vault
+  remediation: Configure Backup for critical resources
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-site-recovery
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_site_recovery.*vault'
+  - regex: (?i)azurerm_site_recovery.*vault
   severity: low
-  description: "Azure Site Recovery vault"
-  remediation: "Configure Site Recovery for DR"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Site Recovery vault
+  remediation: Configure Site Recovery for DR
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-traffic-manager
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_traffic_manager.*profile'
+  - regex: (?i)azurerm_traffic_manager.*profile
   severity: low
-  description: "Azure Traffic Manager profile"
-  remediation: "Configure Traffic Manager for HA"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Traffic Manager profile
+  remediation: Configure Traffic Manager for HA
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-front-door
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_frontdoor.*frontend_endpoint'
+  - regex: (?i)azurerm_frontdoor.*frontend_endpoint
   severity: low
-  description: "Azure Front Door endpoint"
-  remediation: "Configure Front Door WAF"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Front Door endpoint
+  remediation: Configure Front Door WAF
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-cdn
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_cdn.*profile'
+  - regex: (?i)azurerm_cdn.*profile
   severity: low
-  description: "Azure CDN profile"
-  remediation: "Configure CDN security"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure CDN profile
+  remediation: Configure CDN security
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-dns
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_dns.*zone'
+  - regex: (?i)azurerm_dns.*zone
   severity: low
-  description: "Azure DNS zone"
-  remediation: "Secure DNS zone configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure DNS zone
+  remediation: Secure DNS zone configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-private-dns
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_private_dns.*zone'
+  - regex: (?i)azurerm_private_dns.*zone
   severity: low
-  description: "Azure Private DNS zone"
-  remediation: "Good for internal DNS"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Azure Private DNS zone
+  remediation: Good for internal DNS
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-azure-bastion
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_bastion_host'
+  - regex: (?i)azurerm_bastion_host
   severity: low
-  description: "Azure Bastion host"
-  remediation: "Use Bastion for secure RDP/SSH"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Azure Bastion host
+  remediation: Use Bastion for secure RDP/SSH
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-azure-ddos
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_ddos_protection_plan'
+  - regex: (?i)azurerm_ddos_protection_plan
   severity: low
-  description: "Azure DDoS protection plan"
-  remediation: "Enable DDoS protection"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Azure DDoS protection plan
+  remediation: Enable DDoS protection
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: tf-azure-monitor
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)azurerm_monitor.*diagnostic_setting'
+  - regex: (?i)azurerm_monitor.*diagnostic_setting
   severity: low
-  description: "Azure Monitor diagnostic setting"
-  remediation: "Configure comprehensive monitoring"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
-# --- GCP SPECIFIC (61-90) ---
+  description: Azure Monitor diagnostic setting
+  remediation: Configure comprehensive monitoring
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-gcp-compute-no-shielded
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_compute_instance'
+  - regex: (?i)google_compute_instance
   severity: medium
-  description: "GCP Compute without shielded VM"
-  remediation: "Configure shielded_instance_config"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: GCP Compute without shielded VM
+  remediation: Configure shielded_instance_config
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-gcp-compute-no-confidential
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_compute_instance.*confidential_instance_config.*enable_confidential_compute\s*=\s*false'
+  - regex: (?i)google_compute_instance.*confidential_instance_config.*enable_confidential_compute\s*=\s*false
   severity: medium
-  description: "GCP confidential computing disabled"
-  remediation: "Enable confidential compute for sensitive workloads"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: GCP confidential computing disabled
+  remediation: Enable confidential compute for sensitive workloads
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.6
 - id: tf-gcp-gke-no-private-cluster
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_container_cluster.*private_cluster_config.*enable_private_nodes\s*=\s*false'
+  - regex: (?i)google_container_cluster.*private_cluster_config.*enable_private_nodes\s*=\s*false
   severity: high
-  description: "GKE without private nodes"
-  remediation: "Set enable_private_nodes = true"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: GKE without private nodes
+  remediation: Set enable_private_nodes = true
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-gcp-gke-no-master-auth
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_container_cluster.*master_auth.*username'
+  - regex: (?i)google_container_cluster.*master_auth.*username
   severity: high
-  description: "GKE with basic auth enabled"
-  remediation: "Disable basic auth, use IAM"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: GKE with basic auth enabled
+  remediation: Disable basic auth, use IAM
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-gcp-gke-no-network-policy
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_container_cluster.*network_policy.*enabled\s*=\s*false'
+  - regex: (?i)google_container_cluster.*network_policy.*enabled\s*=\s*false
   severity: medium
-  description: "GKE network policy disabled"
-  remediation: "Set network_policy.enabled = true"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: GKE network policy disabled
+  remediation: Set network_policy.enabled = true
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: tf-gcp-gke-no-pod-security
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_container_cluster.*pod_security_policy_config.*enabled\s*=\s*false'
+  - regex: (?i)google_container_cluster.*pod_security_policy_config.*enabled\s*=\s*false
   severity: medium
-  description: "GKE pod security policy disabled"
-  remediation: "Enable pod_security_policy_config"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: GKE pod security policy disabled
+  remediation: Enable pod_security_policy_config
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: tf-gcp-gke-no-binary-authorization
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_container_cluster.*binary_authorization.*enabled\s*=\s*false'
+  - regex: (?i)google_container_cluster.*binary_authorization.*enabled\s*=\s*false
   severity: medium
-  description: "GKE binary authorization disabled"
-  remediation: "Enable binary_authorization"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: GKE binary authorization disabled
+  remediation: Enable binary_authorization
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.6
 - id: tf-gcp-gke-no-workload-identity
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_container_cluster.*workload_identity_config'
+  - regex: (?i)google_container_cluster.*workload_identity_config
   severity: low
-  description: "GKE workload identity"
-  remediation: "Configure workload_identity_config"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: GKE workload identity
+  remediation: Configure workload_identity_config
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-gcp-cloud-function-no-vpc
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_cloudfunctions_function'
+  - regex: (?i)google_cloudfunctions_function
   severity: medium
-  description: "Cloud Function without VPC"
-  remediation: "Configure vpc_connector"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Cloud Function without VPC
+  remediation: Configure vpc_connector
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-gcp-cloud-function-https
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_cloudfunctions_function.*ingress_settings\s*=\s*ALLOW_ALL'
+  - regex: (?i)google_cloudfunctions_function.*ingress_settings\s*=\s*ALLOW_ALL
   severity: high
-  description: "Cloud Function allowing all ingress"
-  remediation: "Set ingress_settings = ALLOW_INTERNAL_ONLY"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Cloud Function allowing all ingress
+  remediation: Set ingress_settings = ALLOW_INTERNAL_ONLY
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: tf-gcp-pubsub-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_pubsub_topic'
+  - regex: (?i)google_pubsub_topic
   severity: high
-  description: "Pub/Sub without encryption"
-  remediation: "Configure message_encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Pub/Sub without encryption
+  remediation: Configure message_encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-spanner-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_spanner_instance'
+  - regex: (?i)google_spanner_instance
   severity: high
-  description: "Spanner without encryption"
-  remediation: "Configure encryption_config"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Spanner without encryption
+  remediation: Configure encryption_config
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-bigquery-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_bigquery_dataset'
+  - regex: (?i)google_bigquery_dataset
   severity: high
-  description: "BigQuery without encryption"
-  remediation: "Configure encryption_configuration"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: BigQuery without encryption
+  remediation: Configure encryption_configuration
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-dataflow-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_dataflow_job'
+  - regex: (?i)google_dataflow_job
   severity: high
-  description: "Dataflow without encryption"
-  remediation: "Configure encryption_config"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Dataflow without encryption
+  remediation: Configure encryption_config
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-dataproc-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_dataproc_cluster'
+  - regex: (?i)google_dataproc_cluster
   severity: high
-  description: "Dataproc without encryption"
-  remediation: "Configure encryption_config"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Dataproc without encryption
+  remediation: Configure encryption_config
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-composer-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_composer_environment'
+  - regex: (?i)google_composer_environment
   severity: high
-  description: "Composer without encryption"
-  remediation: "Configure encryption_config"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Composer without encryption
+  remediation: Configure encryption_config
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-memorystore-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_redis_instance'
+  - regex: (?i)google_redis_instance
   severity: high
-  description: "Memorystore without encryption"
-  remediation: "Enable encryption for Memorystore"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Memorystore without encryption
+  remediation: Enable encryption for Memorystore
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-filestore-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_filestore_instance'
+  - regex: (?i)google_filestore_instance
   severity: high
-  description: "Filestore without encryption"
-  remediation: "Enable encryption for Filestore"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Filestore without encryption
+  remediation: Enable encryption for Filestore
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-gcp-sourcerepo-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_sourcerepo_repository'
+  - regex: (?i)google_sourcerepo_repository
   severity: low
-  description: "Cloud Source Repository"
-  remediation: "Review repository access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Cloud Source Repository
+  remediation: Review repository access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-gcp-build-no-encryption
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_cloudbuild_trigger'
+  - regex: (?i)google_cloudbuild_trigger
   severity: low
-  description: "Cloud Build trigger"
-  remediation: "Secure build triggers"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Cloud Build trigger
+  remediation: Secure build triggers
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-gcp-run-no-iam
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_cloud_run_service'
+  - regex: (?i)google_cloud_run_service
   severity: medium
-  description: "Cloud Run without IAM"
-  remediation: "Configure IAM for Cloud Run"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Cloud Run without IAM
+  remediation: Configure IAM for Cloud Run
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-gcp-run-no-ingress
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_cloud_run_service.*ingress\s*=\s*all'
+  - regex: (?i)google_cloud_run_service.*ingress\s*=\s*all
   severity: high
-  description: "Cloud Run allowing all ingress"
-  remediation: "Set ingress = internal"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Cloud Run allowing all ingress
+  remediation: Set ingress = internal
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-gcp-app-engine-no-iam
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_app_engine_application'
+  - regex: (?i)google_app_engine_application
   severity: medium
-  description: "App Engine without IAM"
-  remediation: "Configure IAM for App Engine"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: App Engine without IAM
+  remediation: Configure IAM for App Engine
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-gcp-endpoints-no-auth
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_endpoints_service.*openapi_config.*security'
+  - regex: (?i)google_endpoints_service.*openapi_config.*security
   severity: medium
-  description: "Endpoints without auth"
-  remediation: "Configure security for Endpoints"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Endpoints without auth
+  remediation: Configure security for Endpoints
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-gcp-iap-no-auth
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_iap_web.*enabled\s*=\s*false'
+  - regex: (?i)google_iap_web.*enabled\s*=\s*false
   severity: high
-  description: "IAP disabled"
-  remediation: "Enable IAP for access control"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: IAP disabled
+  remediation: Enable IAP for access control
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: tf-gcp-vpc-no-flow-logs
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_compute_subnetwork.*log_config.*enable\s*=\s*false'
+  - regex: (?i)google_compute_subnetwork.*log_config.*enable\s*=\s*false
   severity: medium
-  description: "VPC flow logs disabled"
-  remediation: "Enable log_config.enable"
-  cwe: "CWE-778"
-  owasp: "A05:2021"
-
+  description: VPC flow logs disabled
+  remediation: Enable log_config.enable
+  cwe: CWE-778
+  owasp: A05:2021
+  confidence: 0.6
 - id: tf-gcp-vpc-no-private-google
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_compute_subnetwork.*private_ipv6_google_access\s*=\s*DISABLE'
+  - regex: (?i)google_compute_subnetwork.*private_ipv6_google_access\s*=\s*DISABLE
   severity: medium
-  description: "Private Google access disabled"
-  remediation: "Enable private_ipv6_google_access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Private Google access disabled
+  remediation: Enable private_ipv6_google_access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: tf-gcp-vpc-no-internal-dns
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_compute_network.*routing_mode\s*=\s*REGIONAL'
+  - regex: (?i)google_compute_network.*routing_mode\s*=\s*REGIONAL
   severity: low
-  description: "VPC routing mode"
-  remediation: "Use GLOBAL routing mode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: VPC routing mode
+  remediation: Use GLOBAL routing mode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-gcp-vpc-peering
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_compute_network_peering'
+  - regex: (?i)google_compute_network_peering
   severity: low
-  description: "VPC peering"
-  remediation: "Review VPC peering configuration"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: VPC peering
+  remediation: Review VPC peering configuration
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-gcp-vpc-shared
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)google_compute_shared_vpc'
+  - regex: (?i)google_compute_shared_vpc
   severity: low
-  description: "Shared VPC"
-  remediation: "Review Shared VPC configuration"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# --- KUBERNETES SPECIFIC (91-120) ---
+  description: Shared VPC
+  remediation: Review Shared VPC configuration
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-k8s-no-network-policy
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_network_policy'
+  - regex: (?i)kubernetes_network_policy
   severity: medium
-  description: "Kubernetes NetworkPolicy"
-  remediation: "Implement NetworkPolicy for pod isolation"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes NetworkPolicy
+  remediation: Implement NetworkPolicy for pod isolation
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-k8s-no-pod-security-policy
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_pod_security_policy'
+  - regex: (?i)kubernetes_pod_security_policy
   severity: medium
-  description: "Kubernetes PodSecurityPolicy"
-  remediation: "Implement PSP for pod security"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes PodSecurityPolicy
+  remediation: Implement PSP for pod security
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: tf-k8s-no-resource-quota
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_resource_quota'
+  - regex: (?i)kubernetes_resource_quota
   severity: low
-  description: "Kubernetes ResourceQuota"
-  remediation: "Implement ResourceQuota for namespace"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Kubernetes ResourceQuota
+  remediation: Implement ResourceQuota for namespace
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: tf-k8s-no-limit-range
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_limit_range'
+  - regex: (?i)kubernetes_limit_range
   severity: low
-  description: "Kubernetes LimitRange"
-  remediation: "Implement LimitRange for containers"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Kubernetes LimitRange
+  remediation: Implement LimitRange for containers
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: tf-k8s-no-pdb
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_pod_disruption_budget'
+  - regex: (?i)kubernetes_pod_disruption_budget
   severity: low
-  description: "Kubernetes PDB"
-  remediation: "Implement PDB for availability"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes PDB
+  remediation: Implement PDB for availability
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-hpa
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_horizontal_pod_autoscaler'
+  - regex: (?i)kubernetes_horizontal_pod_autoscaler
   severity: low
-  description: "Kubernetes HPA"
-  remediation: "Implement HPA for scaling"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Kubernetes HPA
+  remediation: Implement HPA for scaling
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: tf-k8s-no-vpa
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_vertical_pod_autoscaler'
+  - regex: (?i)kubernetes_vertical_pod_autoscaler
   severity: low
-  description: "Kubernetes VPA"
-  remediation: "Implement VPA for resource optimization"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Kubernetes VPA
+  remediation: Implement VPA for resource optimization
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: tf-k8s-no-service-account
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_service_account'
+  - regex: (?i)kubernetes_service_account
   severity: low
-  description: "Kubernetes ServiceAccount"
-  remediation: "Use dedicated ServiceAccounts"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes ServiceAccount
+  remediation: Use dedicated ServiceAccounts
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-k8s-no-role
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_role|kubernetes_cluster_role'
+  - regex: (?i)kubernetes_role|kubernetes_cluster_role
   severity: low
-  description: "Kubernetes Role"
-  remediation: "Define least privilege roles"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes Role
+  remediation: Define least privilege roles
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-k8s-no-role-binding
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_role_binding|kubernetes_cluster_role_binding'
+  - regex: (?i)kubernetes_role_binding|kubernetes_cluster_role_binding
   severity: low
-  description: "Kubernetes RoleBinding"
-  remediation: "Review RoleBinding assignments"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes RoleBinding
+  remediation: Review RoleBinding assignments
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-k8s-no-secret
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_secret'
+  - regex: (?i)kubernetes_secret
   severity: low
-  description: "Kubernetes Secret"
-  remediation: "Encrypt secrets at rest"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Kubernetes Secret
+  remediation: Encrypt secrets at rest
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: tf-k8s-no-configmap
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_config_map'
+  - regex: (?i)kubernetes_config_map
   severity: low
-  description: "Kubernetes ConfigMap"
-  remediation: "Don't store secrets in ConfigMaps"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Kubernetes ConfigMap
+  remediation: Don't store secrets in ConfigMaps
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: tf-k8s-no-ingress
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_ingress|kubernetes_ingress_v1'
+  - regex: (?i)kubernetes_ingress|kubernetes_ingress_v1
   severity: low
-  description: "Kubernetes Ingress"
-  remediation: "Configure TLS for Ingress"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Kubernetes Ingress
+  remediation: Configure TLS for Ingress
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-k8s-no-service
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_service'
+  - regex: (?i)kubernetes_service
   severity: low
-  description: "Kubernetes Service"
-  remediation: "Use ClusterIP instead of NodePort"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes Service
+  remediation: Use ClusterIP instead of NodePort
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-k8s-no-persistent-volume
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_persistent_volume'
+  - regex: (?i)kubernetes_persistent_volume
   severity: low
-  description: "Kubernetes PersistentVolume"
-  remediation: "Encrypt PersistentVolumes"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Kubernetes PersistentVolume
+  remediation: Encrypt PersistentVolumes
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-k8s-no-storage-class
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_storage_class'
+  - regex: (?i)kubernetes_storage_class
   severity: low
-  description: "Kubernetes StorageClass"
-  remediation: "Configure StorageClass encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Kubernetes StorageClass
+  remediation: Configure StorageClass encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-k8s-no-statefulset
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_stateful_set'
+  - regex: (?i)kubernetes_stateful_set
   severity: low
-  description: "Kubernetes StatefulSet"
-  remediation: "Secure StatefulSet configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes StatefulSet
+  remediation: Secure StatefulSet configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-daemonset
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_daemon_set'
+  - regex: (?i)kubernetes_daemon_set
   severity: low
-  description: "Kubernetes DaemonSet"
-  remediation: "Secure DaemonSet configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes DaemonSet
+  remediation: Secure DaemonSet configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-cronjob
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_cron_job'
+  - regex: (?i)kubernetes_cron_job
   severity: low
-  description: "Kubernetes CronJob"
-  remediation: "Secure CronJob configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes CronJob
+  remediation: Secure CronJob configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-job
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_job'
+  - regex: (?i)kubernetes_job
   severity: low
-  description: "Kubernetes Job"
-  remediation: "Secure Job configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes Job
+  remediation: Secure Job configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-namespace
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_namespace'
+  - regex: (?i)kubernetes_namespace
   severity: low
-  description: "Kubernetes Namespace"
-  remediation: "Use namespaces for isolation"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes Namespace
+  remediation: Use namespaces for isolation
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-k8s-no-validating-webhook
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_validating_webhook_configuration'
+  - regex: (?i)kubernetes_validating_webhook_configuration
   severity: low
-  description: "Kubernetes ValidatingWebhook"
-  remediation: "Implement admission webhooks"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes ValidatingWebhook
+  remediation: Implement admission webhooks
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-mutating-webhook
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_mutating_webhook_configuration'
+  - regex: (?i)kubernetes_mutating_webhook_configuration
   severity: low
-  description: "Kubernetes MutatingWebhook"
-  remediation: "Implement admission webhooks"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes MutatingWebhook
+  remediation: Implement admission webhooks
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-custom-resource
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_custom_resource'
+  - regex: (?i)kubernetes_custom_resource
   severity: low
-  description: "Kubernetes CustomResource"
-  remediation: "Validate CustomResource definitions"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes CustomResource
+  remediation: Validate CustomResource definitions
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-api-service
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_api_service'
+  - regex: (?i)kubernetes_api_service
   severity: low
-  description: "Kubernetes APIService"
-  remediation: "Secure APIService configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes APIService
+  remediation: Secure APIService configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-certificate
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_certificate'
+  - regex: (?i)kubernetes_certificate
   severity: low
-  description: "Kubernetes Certificate"
-  remediation: "Manage certificates securely"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: Kubernetes Certificate
+  remediation: Manage certificates securely
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-k8s-no-cluster-role-aggregation
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_cluster_role.*aggregation_rule'
+  - regex: (?i)kubernetes_cluster_role.*aggregation_rule
   severity: low
-  description: "Kubernetes ClusterRole aggregation"
-  remediation: "Review aggregation rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Kubernetes ClusterRole aggregation
+  remediation: Review aggregation rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: tf-k8s-no-priority-class
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_priority_class'
+  - regex: (?i)kubernetes_priority_class
   severity: low
-  description: "Kubernetes PriorityClass"
-  remediation: "Configure PriorityClass appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes PriorityClass
+  remediation: Configure PriorityClass appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-runtime-class
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_runtime_class'
+  - regex: (?i)kubernetes_runtime_class
   severity: low
-  description: "Kubernetes RuntimeClass"
-  remediation: "Configure RuntimeClass appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Kubernetes RuntimeClass
+  remediation: Configure RuntimeClass appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-k8s-no-csi-driver
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)kubernetes_csi_driver'
+  - regex: (?i)kubernetes_csi_driver
   severity: low
-  description: "Kubernetes CSIDriver"
-  remediation: "Secure CSI driver configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- GENERAL TERRAFORM (121-150) ---
+  description: Kubernetes CSIDriver
+  remediation: Secure CSI driver configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-no-provider-version
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)provider\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)provider\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: medium
-  description: "Provider without version constraint"
-  remediation: "Specify provider version constraint"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Provider without version constraint
+  remediation: Specify provider version constraint
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.55
 - id: tf-general-no-module-version
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)module\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)module\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: medium
-  description: "Module without version"
-  remediation: "Specify module version or commit hash"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Module without version
+  remediation: Specify module version or commit hash
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.55
 - id: tf-general-no-module-source
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)module\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)module\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: medium
-  description: "Module without source"
-  remediation: "Specify module source"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Module without source
+  remediation: Specify module source
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.55
 - id: tf-general-local-module
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)source\s*=\s*\\"\.\./|source\s*=\s*\\"\.\\/'
+  - regex: (?i)source\s*=\s*\\"\.\./|source\s*=\s*\\"\.\\/
   severity: low
-  description: "Local module source"
-  remediation: "Use versioned module registry"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Local module source
+  remediation: Use versioned module registry
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.5
 - id: tf-general-git-module
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)source\s*=\s*\\\"git::'
+  - regex: '(?i)source\s*=\s*\\\"git::'
   severity: medium
-  description: "Git module source"
-  remediation: "Pin to specific commit hash"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: Git module source
+  remediation: Pin to specific commit hash
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.55
 - id: tf-general-http-module
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)source\s*=\s*\\\"https?://'
+  - regex: (?i)source\s*=\s*\\\"https?://
   severity: high
-  description: "HTTP module source"
-  remediation: "Use versioned module registry"
-  cwe: "CWE-1391"
-  owasp: "A06:2021"
-
+  description: HTTP module source
+  remediation: Use versioned module registry
+  cwe: CWE-1391
+  owasp: A06:2021
+  confidence: 0.65
 - id: tf-general-no-variable-type
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)variable\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)variable\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: low
-  description: "Variable without type"
-  remediation: "Specify variable type"
-  cwe: "CWE-710"
-  owasp: "N/A"
-
+  description: Variable without type
+  remediation: Specify variable type
+  cwe: CWE-710
+  owasp: N/A
+  confidence: 0.45
 - id: tf-general-no-variable-default
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)variable\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)variable\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: low
-  description: "Variable without default"
-  remediation: "Consider setting default value"
-  cwe: "CWE-710"
-  owasp: "N/A"
-
+  description: Variable without default
+  remediation: Consider setting default value
+  cwe: CWE-710
+  owasp: N/A
+  confidence: 0.45
 - id: tf-general-variable-sensitive
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)variable\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)variable\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: low
-  description: "Sensitive variable not marked"
-  remediation: "Set sensitive = true for secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive variable not marked
+  remediation: Set sensitive = true for secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: tf-general-no-output-description
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)output\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)output\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: low
-  description: "Output without description"
-  remediation: "Add output description"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Output without description
+  remediation: Add output description
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-output-sensitive
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)output\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)output\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: medium
-  description: "Sensitive output not marked"
-  remediation: "Set sensitive = true for secret outputs"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sensitive output not marked
+  remediation: Set sensitive = true for secret outputs
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.55
 - id: tf-general-no-data-source
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)data\s+\\\"[^\\\"]+\\\"\s+\\\"[^\\\"]+\\\"\s*\{'
+  - regex: (?i)data\s+\\\"[^\\\"]+\\\"\s+\\\"[^\\\"]+\\\"\s*\{
   severity: low
-  description: "Data source usage"
-  remediation: "Validate data source configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Data source usage
+  remediation: Validate data source configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-no-resource-lifecycle
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)resource\s+\\\"[^\\\"]+\\\"\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)resource\s+\\\"[^\\\"]+\\\"\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: low
-  description: "Resource without lifecycle"
-  remediation: "Consider lifecycle configuration"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Resource without lifecycle
+  remediation: Consider lifecycle configuration
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-no-provisioner
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)provisioner\s+\\\"[^\\\"]+\\\"'
+  - regex: (?i)provisioner\s+\\\"[^\\\"]+\\\"
   severity: medium
-  description: "Provisioner usage"
-  remediation: "Avoid provisioners, use cloud-init"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Provisioner usage
+  remediation: Avoid provisioners, use cloud-init
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-general-local-exec
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)provisioner\s+\\\"local-exec\\\"'
+  - regex: (?i)provisioner\s+\\\"local-exec\\\"
   severity: high
-  description: "local-exec provisioner"
-  remediation: "Avoid local-exec, use remote management"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: local-exec provisioner
+  remediation: Avoid local-exec, use remote management
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: tf-general-remote-exec
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)provisioner\s+\\\"remote-exec\\\"'
+  - regex: (?i)provisioner\s+\\\"remote-exec\\\"
   severity: high
-  description: "remote-exec provisioner"
-  remediation: "Avoid remote-exec, use cloud-init"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
+  description: remote-exec provisioner
+  remediation: Avoid remote-exec, use cloud-init
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.65
 - id: tf-general-file-provisioner
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)provisioner\s+\\\"file\\\"'
+  - regex: (?i)provisioner\s+\\\"file\\\"
   severity: medium
-  description: "file provisioner"
-  remediation: "Use cloud-init or configuration management"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: file provisioner
+  remediation: Use cloud-init or configuration management
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-general-no-remote-state
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s*\{[^}]*'
+  - regex: (?i)terraform\s*\{[^}]*
   severity: high
-  description: "No remote state backend"
-  remediation: "Configure remote state backend"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: No remote state backend
+  remediation: Configure remote state backend
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.65
 - id: tf-general-state-lock
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"[^\\\"]+\\\"\s*\{[^}]*'
+  - regex: (?i)backend\s+\\\"[^\\\"]+\\\"\s*\{[^}]*
   severity: medium
-  description: "State locking not configured"
-  remediation: "Enable state locking"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: State locking not configured
+  remediation: Enable state locking
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.55
 - id: tf-general-state-dynamodb
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"s3\\\"\s*\{[^}]*dynamodb_table'
+  - regex: (?i)backend\s+\\\"s3\\\"\s*\{[^}]*dynamodb_table
   severity: low
-  description: "S3 backend with DynamoDB locking"
-  remediation: "Good practice for state locking"
-  cwe: "CWE-362"
-  owasp: "A06:2021"
-
+  description: S3 backend with DynamoDB locking
+  remediation: Good practice for state locking
+  cwe: CWE-362
+  owasp: A06:2021
+  confidence: 0.45
 - id: tf-general-state-consul
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"consul\\\"'
+  - regex: (?i)backend\s+\\\"consul\\\"
   severity: low
-  description: "Consul backend"
-  remediation: "Secure Consul configuration"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Consul backend
+  remediation: Secure Consul configuration
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: tf-general-state-gcs
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"gcs\\\"'
+  - regex: (?i)backend\s+\\\"gcs\\\"
   severity: low
-  description: "GCS backend"
-  remediation: "Enable GCS bucket encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: GCS backend
+  remediation: Enable GCS bucket encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-general-state-azurerm
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"azurerm\\\"'
+  - regex: (?i)backend\s+\\\"azurerm\\\"
   severity: low
-  description: "Azure backend"
-  remediation: "Enable storage account encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Azure backend
+  remediation: Enable storage account encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-general-state-http
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"http\\\"'
+  - regex: (?i)backend\s+\\\"http\\\"
   severity: high
-  description: "HTTP backend (insecure)"
-  remediation: "Use secure backend instead"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: HTTP backend (insecure)
+  remediation: Use secure backend instead
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.65
 - id: tf-general-state-artifactory
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"artifactory\\\"'
+  - regex: (?i)backend\s+\\\"artifactory\\\"
   severity: low
-  description: "Artifactory backend"
-  remediation: "Secure Artifactory configuration"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Artifactory backend
+  remediation: Secure Artifactory configuration
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: tf-general-state-oss
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"oss\\\"'
+  - regex: (?i)backend\s+\\\"oss\\\"
   severity: low
-  description: "Alibaba OSS backend"
-  remediation: "Enable OSS bucket encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Alibaba OSS backend
+  remediation: Enable OSS bucket encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-general-state-cos
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)backend\s+\\\"cos\\\"'
+  - regex: (?i)backend\s+\\\"cos\\\"
   severity: low
-  description: "Tencent COS backend"
-  remediation: "Enable COS bucket encryption"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: Tencent COS backend
+  remediation: Enable COS bucket encryption
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.45
 - id: tf-general-workspace
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+workspace'
+  - regex: (?i)terraform\s+workspace
   severity: low
-  description: "Terraform workspace"
-  remediation: "Use workspaces for environment separation"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform workspace
+  remediation: Use workspaces for environment separation
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-import
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+import'
+  - regex: (?i)terraform\s+import
   severity: low
-  description: "Terraform import"
-  remediation: "Review imported resources"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform import
+  remediation: Review imported resources
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-taint
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+taint'
+  - regex: (?i)terraform\s+taint
   severity: low
-  description: "Terraform taint"
-  remediation: "Review tainted resources"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform taint
+  remediation: Review tainted resources
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-refresh
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+refresh'
+  - regex: (?i)terraform\s+refresh
   severity: low
-  description: "Terraform refresh"
-  remediation: "Review state drift"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform refresh
+  remediation: Review state drift
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-apply-auto-approve
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+apply\s+-auto-approve'
+  - regex: (?i)terraform\s+apply\s+-auto-approve
   severity: medium
-  description: "Terraform apply with auto-approve"
-  remediation: "Review changes before applying"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform apply with auto-approve
+  remediation: Review changes before applying
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-general-plan-out
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+plan\s+-out'
+  - regex: (?i)terraform\s+plan\s+-out
   severity: low
-  description: "Terraform plan output"
-  remediation: "Review plan output before apply"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform plan output
+  remediation: Review plan output before apply
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-destroy
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+destroy'
+  - regex: (?i)terraform\s+destroy
   severity: medium
-  description: "Terraform destroy"
-  remediation: "Ensure destroy is intentional"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform destroy
+  remediation: Ensure destroy is intentional
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-general-state-rm
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+state\s+rm'
+  - regex: (?i)terraform\s+state\s+rm
   severity: medium
-  description: "Terraform state rm"
-  remediation: "Ensure state removal is intentional"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform state rm
+  remediation: Ensure state removal is intentional
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-general-state-mv
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+state\s+mv'
+  - regex: (?i)terraform\s+state\s+mv
   severity: low
-  description: "Terraform state mv"
-  remediation: "Review state moves"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform state mv
+  remediation: Review state moves
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-state-pull
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+state\s+pull'
+  - regex: (?i)terraform\s+state\s+pull
   severity: low
-  description: "Terraform state pull"
-  remediation: "Review state content"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform state pull
+  remediation: Review state content
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-state-push
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+state\s+push'
+  - regex: (?i)terraform\s+state\s+push
   severity: medium
-  description: "Terraform state push"
-  remediation: "Ensure state push is intentional"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform state push
+  remediation: Ensure state push is intentional
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.55
 - id: tf-general-state-list
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+state\s+list'
+  - regex: (?i)terraform\s+state\s+list
   severity: low
-  description: "Terraform state list"
-  remediation: "Review state resources"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform state list
+  remediation: Review state resources
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-state-show
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+state\s+show'
+  - regex: (?i)terraform\s+state\s+show
   severity: low
-  description: "Terraform state show"
-  remediation: "Review resource state"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform state show
+  remediation: Review resource state
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-validate
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+validate'
+  - regex: (?i)terraform\s+validate
   severity: low
-  description: "Terraform validate"
-  remediation: "Run validate before apply"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform validate
+  remediation: Run validate before apply
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-format
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform\s+fmt'
+  - regex: (?i)terraform\s+fmt
   severity: low
-  description: "Terraform fmt"
-  remediation: "Run fmt for consistent formatting"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform fmt
+  remediation: Run fmt for consistent formatting
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-docs
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform-docs'
+  - regex: (?i)terraform-docs
   severity: low
-  description: "terraform-docs usage"
-  remediation: "Generate documentation"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: terraform-docs usage
+  remediation: Generate documentation
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-tflint
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)tflint'
+  - regex: (?i)tflint
   severity: low
-  description: "tflint usage"
-  remediation: "Run tflint for linting"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: tflint usage
+  remediation: Run tflint for linting
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-tfsec
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)tfsec'
+  - regex: (?i)tfsec
   severity: low
-  description: "tfsec usage"
-  remediation: "Run tfsec for security scanning"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: tfsec usage
+  remediation: Run tfsec for security scanning
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-checkov
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)checkov'
+  - regex: (?i)checkov
   severity: low
-  description: "Checkov usage"
-  remediation: "Run Checkov for security scanning"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Checkov usage
+  remediation: Run Checkov for security scanning
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-terrascan
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terrascan'
+  - regex: (?i)terrascan
   severity: low
-  description: "Terrascan usage"
-  remediation: "Run Terrascan for security scanning"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terrascan usage
+  remediation: Run Terrascan for security scanning
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-infracost
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)infracost'
+  - regex: (?i)infracost
   severity: low
-  description: "Infracost usage"
-  remediation: "Review cost estimates"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Infracost usage
+  remediation: Review cost estimates
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-atlantis
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)atlantis'
+  - regex: (?i)atlantis
   severity: low
-  description: "Atlantis usage"
-  remediation: "Configure Atlantis securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Atlantis usage
+  remediation: Configure Atlantis securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-terraform-cloud
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)app\.terraform\.io|terraform\.cloud'
+  - regex: (?i)app\.terraform\.io|terraform\.cloud
   severity: low
-  description: "Terraform Cloud"
-  remediation: "Configure Terraform Cloud securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform Cloud
+  remediation: Configure Terraform Cloud securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: tf-general-terraform-enterprise
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)terraform.*enterprise|TFE'
+  - regex: (?i)terraform.*enterprise|TFE
   severity: low
-  description: "Terraform Enterprise"
-  remediation: "Configure TFE securely"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Terraform Enterprise
+  remediation: Configure TFE securely
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.65
 - id: tf-general-sentinel
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)sentinel'
+  - regex: (?i)sentinel
   severity: low
-  description: "Sentinel policy"
-  remediation: "Implement Sentinel policies"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Sentinel policy
+  remediation: Implement Sentinel policies
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-opa
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)openpolicyagent|opa'
+  - regex: (?i)openpolicyagent|opa
   severity: low
-  description: "OPA policy"
-  remediation: "Implement OPA policies"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: OPA policy
+  remediation: Implement OPA policies
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: tf-general-conftest
-  languages: [terraform]
+  languages:
+  - terraform
   patterns:
-    - regex: '(?i)conftest'
+  - regex: (?i)conftest
   severity: low
-  description: "Conftest usage"
-  remediation: "Run conftest for policy testing"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
+  description: Conftest usage
+  remediation: Run conftest for policy testing
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45

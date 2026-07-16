@@ -551,8 +551,12 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		return
 	}
 	wsHub.BroadcastProgress(scanID, "Taint Analysis", 40)
-	wsHub.BroadcastLog(scanID, "Running taint analyzer...", "phase")
+	wsHub.BroadcastLog(scanID, "Running taint analyzer (building cross-file index)...", "phase")
 	taintAnalyzer := scanner.NewTaintAnalyzer()
+	// Build cross-file index once so imported wrapper-source functions are
+	// recognised as taint sources when scanning files that import them.
+	crossFileIdx := taintAnalyzer.BuildCrossFileIndex(targetDir)
+	utils.LogInfo(fmt.Sprintf("Cross-file taint index: %d tainted functions indexed", len(crossFileIdx.TaintedFunctions)))
 	for _, files := range result.FilePaths {
 		if ctx.Err() != nil {
 			return
@@ -561,7 +565,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 			if ctx.Err() != nil {
 				return
 			}
-			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
+			findings, err := taintAnalyzer.AnalyzeTaintFlowWithIndex(file, crossFileIdx)
 			if err == nil {
 				allFindings = append(allFindings, findings...)
 			} else {
@@ -1632,16 +1636,18 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 		}
 	}
 
-	// Taint Analysis
+	// Taint Analysis with cross-file index
 	wsHub.BroadcastProgress(scanID, "Phase 1: Taint Analysis", 12)
-	wsHub.BroadcastLog(scanID, "Running taint analyzer...", "info")
+	wsHub.BroadcastLog(scanID, "Running taint analyzer (cross-file mode)...", "info")
 	taintAnalyzer := scanner.NewTaintAnalyzer()
+	crossIdx := taintAnalyzer.BuildCrossFileIndex(targetDir)
+	utils.LogInfo(fmt.Sprintf("Cross-file taint index: %d functions indexed", len(crossIdx.TaintedFunctions)))
 	for _, files := range result.FilePaths {
 		for _, file := range files {
 			if ctx.Err() != nil {
 				break
 			}
-			findings, err := taintAnalyzer.AnalyzeTaintFlow(file)
+			findings, err := taintAnalyzer.AnalyzeTaintFlowWithIndex(file, crossIdx)
 			if err == nil {
 				staticFindings = append(staticFindings, findings...)
 			} else {

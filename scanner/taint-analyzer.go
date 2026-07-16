@@ -2,7 +2,9 @@ package scanner
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -10,10 +12,23 @@ import (
 	"SentryQ/utils"
 )
 
+// funcProfile stores per-function taint properties derived from a pre-scan pass.
+// Used to enable inter-procedural taint tracking without a full call graph.
+type funcProfile struct {
+	// ReturnsTainted is true when the function has at least one code path that
+	// returns user-controlled data (i.e. it is a "wrapper source").
+	// e.g.  def get_name(): return request.args.get('name')
+	ReturnsTainted bool
+	// SinkInBody is true when the function body directly calls a dangerous sink
+	// using one of its parameters. Call sites passing tainted args are flagged.
+	// e.g.  def run_query(sql): cursor.execute(sql)
+	SinkInBody bool
+}
+
 // TaintAnalyzer tracks user input through code to detect injection vulnerabilities
 type TaintAnalyzer struct {
 	taintSources      []*regexp.Regexp
-	taintSinks        map[string][]string    // raw sink patterns (kept for reference)
+	taintSinks        map[string][]string         // raw sink patterns (kept for reference)
 	compiledSinks     map[string][]*regexp.Regexp // pre-compiled at init; used in AnalyzeTaintFlow
 	sanitizers        []*regexp.Regexp
 	scopeStartPattern *regexp.Regexp
@@ -22,6 +37,10 @@ type TaintAnalyzer struct {
 	concatRe        *regexp.Regexp
 	interpolationRe *regexp.Regexp
 	funcCallRe      *regexp.Regexp
+	// Pre-compiled patterns for inter-procedural pre-scan
+	funcDefRe    *regexp.Regexp
+	returnStmtRe *regexp.Regexp
+	callReturnRe *regexp.Regexp
 }
 
 // NewTaintAnalyzer creates a new taint analyzer
@@ -115,6 +134,13 @@ func NewTaintAnalyzer() *TaintAnalyzer {
 		concatRe:        regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=|\+=)\s*.*(?:await\s+)?\$?([a-zA-Z_][a-zA-Z0-9_]*)`),
 		interpolationRe: regexp.MustCompile(`(?:var|let|const)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=)\s*(?:f"|f'|` + "`" + `|\$\{).*\$?([a-zA-Z_][a-zA-Z0-9_]*)`),
 		funcCallRe:      regexp.MustCompile(`(?:await\s+)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)`),
+		// Inter-procedural pre-scan patterns
+		// Matches: def foo(, func foo(, function foo(, public void foo(, private String foo(, etc.
+		funcDefRe: regexp.MustCompile(`(?i)(?:^|[\s{])(?:async\s+)?(?:def|func|function|sub|procedure)\s+(\w+)\s*\(|(?:public|private|protected|internal|static)\s+(?:async\s+)?(?:void|string|int|bool|object|var|\w+\??)\s+(\w+)\s*\(`),
+		// Matches: return expr, yield expr
+		returnStmtRe: regexp.MustCompile(`^\s*(?:return|yield)\s+(\w+)`),
+		// Matches: result = someFunc(  OR  result := someFunc(  to detect call return value
+		callReturnRe: regexp.MustCompile(`(?:var|let|const|async)?\s*\$?([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=|:=)\s*(?:await\s+)?([a-zA-Z_][a-zA-Z0-9_]+)\s*\(`),
 	}
 
 	// Pre-compile all sink patterns at construction time so AnalyzeTaintFlow
@@ -155,8 +181,223 @@ type taintInfo struct {
 // Risk 4 fix: Maximum alias hops to prevent circular/deep chains (a=b; b=a)
 const maxTaintHops = 10
 
+// preScanFunctions performs a first pass over the file to build a map of
+// user-defined function names to their taint properties. This enables the main
+// analysis to follow taint across function call boundaries within the same file.
+//
+// Two profiles are built:
+//   - ReturnsTainted: the function has a return/yield that hands back a tainted variable.
+//     e.g. "def get_name(): return request.args.get('name')"
+//     → calling get_name() produces tainted data at the call site.
+//   - SinkInBody: the function body calls a dangerous sink using a local variable
+//     that is likely to be a parameter (any non-source local used in a sink).
+//     e.g. "def run_query(sql): cursor.execute(sql)"
+//     → calling run_query(user_input) should be flagged at the call site.
+func (ta *TaintAnalyzer) preScanFunctions(lines []string, lang string) map[string]funcProfile {
+	profiles := make(map[string]funcProfile)
+	compiledSinks := ta.compiledSinks[lang]
+
+	var currentFunc string
+	// Per-function bookkeeping (reset on each new function definition).
+	localTaint := make(map[string]bool)  // varName → tainted within this func
+	localVars  := make(map[string]bool)  // all assigned vars (potential params / locals)
+
+	for _, line := range lines {
+		// ── Detect function definition ────────────────────────────────────
+		if m := ta.funcDefRe.FindStringSubmatch(line); m != nil {
+			// Extract function name (first non-empty capture group)
+			fname := ""
+			for _, g := range m[1:] {
+				if g != "" {
+					fname = g
+					break
+				}
+			}
+			if fname != "" {
+				currentFunc = fname
+				localTaint = make(map[string]bool)
+				localVars  = make(map[string]bool)
+				continue
+			}
+		}
+		if currentFunc == "" {
+			continue
+		}
+
+		trimmed := strings.TrimSpace(line)
+
+		// ── Track taint sources inside this function ──────────────────────
+		for _, srcRe := range ta.taintSources {
+			if srcRe.MatchString(line) {
+				if v := extractVariableName(line); v != "" {
+					localTaint[v] = true
+					localVars[v]  = true
+				}
+			}
+		}
+
+		// ── Track simple aliases (a = b) ──────────────────────────────────
+		aliasVar, srcVar := extractAliasAssignment(line)
+		if aliasVar != "" {
+			localVars[aliasVar] = true
+			if localTaint[srcVar] {
+				localTaint[aliasVar] = true
+			}
+		}
+
+		// ── Track all local assignments (to catch parameter-like vars) ────
+		if v := extractVariableName(line); v != "" {
+			localVars[v] = true
+		}
+
+		// ── Check return/yield for tainted value ──────────────────────────
+		if strings.Contains(trimmed, "return ") || strings.Contains(trimmed, "yield ") {
+			marked := false
+			// Case A: return taintedVar  (variable was assigned from source earlier)
+			if m := ta.returnStmtRe.FindStringSubmatch(trimmed); m != nil {
+				if localTaint[m[1]] {
+					p := profiles[currentFunc]
+					p.ReturnsTainted = true
+					profiles[currentFunc] = p
+					marked = true
+				}
+			}
+			// Case B: return request.args.get('x')  (source expression returned directly,
+			// no intermediate variable assignment — the most common wrapper pattern)
+			if !marked {
+				for _, srcRe := range ta.taintSources {
+					if srcRe.MatchString(line) {
+						p := profiles[currentFunc]
+						p.ReturnsTainted = true
+						profiles[currentFunc] = p
+						break
+					}
+				}
+			}
+		}
+
+		// ── Check if a sink is called with a local (likely-param) var ─────
+		if compiledSinks != nil {
+			for _, sinkRe := range compiledSinks {
+				if sinkRe.MatchString(line) && !isSafeSinkUsage(line, "") {
+					for v := range localVars {
+						if !localTaint[v] && containsVariable(line, v) {
+							// v is used in a sink but NOT from a known taint source
+							// — it is probably a parameter received from the caller.
+							p := profiles[currentFunc]
+							p.SinkInBody = true
+							profiles[currentFunc] = p
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return profiles
+}
+
+// CrossFileIndex holds cross-file taint information derived from scanning
+// all files in the project before analysing individual files.
+// Key = module/function name → ReturnsTainted bool.
+type CrossFileIndex struct {
+	// TaintedFunctions maps fully-qualified or short function names that are
+	// known to return user-controlled data from another file in the project.
+	// Example: "utils.get_user_input" → true
+	TaintedFunctions map[string]bool
+	// TaintedModules maps import aliases whose module is a known user-input source.
+	// Example: "flask_request" → true (imported as `from flask import request as flask_request`)
+	TaintedModules map[string]bool
+}
+
+// importPatterns matches import statements in Python, JS/TS, Go, Ruby
+var importPatterns = []*regexp.Regexp{
+	// Python: from module import func  OR  import module.func
+	regexp.MustCompile(`(?m)^from\s+(\S+)\s+import\s+(.+)$`),
+	regexp.MustCompile(`(?m)^import\s+(\S+)(?:\s+as\s+(\w+))?`),
+	// JS/TS: import { func } from 'module'  OR  const func = require('module')
+	regexp.MustCompile(`(?m)import\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]`),
+	regexp.MustCompile(`(?m)(?:const|let|var)\s+(\w+)\s*=\s*require\s*\(\s*['"]([^'"]+)['"]\s*\)`),
+	// Go: import "package" or import alias "package"
+	regexp.MustCompile(`(?m)(?:(\w+)\s+)?"([^"]+)"`),
+	// Ruby: require 'module' or require_relative 'path'
+	regexp.MustCompile(`(?m)require(?:_relative)?\s+['"]([^'"]+)['"]`),
+}
+
+// BuildCrossFileIndex scans all source files in targetDir to build a project-wide
+// map of functions that return tainted data. This enables cross-file taint tracking:
+// if utils.py defines get_user_id() that returns request.args, app.py scanning
+// will recognise get_user_id() as a taint source without needing to open utils.py.
+func (ta *TaintAnalyzer) BuildCrossFileIndex(targetDir string) *CrossFileIndex {
+	idx := &CrossFileIndex{
+		TaintedFunctions: make(map[string]bool),
+		TaintedModules:   make(map[string]bool),
+	}
+
+	err := filepath.WalkDir(targetDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			if d != nil && d.IsDir() {
+				name := d.Name()
+				if name == "node_modules" || name == "vendor" || name == ".git" || name == ".claude" {
+					return filepath.SkipDir
+				}
+			}
+			return nil
+		}
+
+		lang := getLanguageFromPath(path)
+		if lang == "" || ta.compiledSinks[lang] == nil {
+			return nil
+		}
+
+		// Skip files larger than 512 KB to avoid OOM on generated files
+		if info, err := d.Info(); err == nil && info.Size() > 512*1024 {
+			return nil
+		}
+
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return nil
+		}
+
+		lines := strings.Split(utils.NormalizeNewlines(string(content)), "\n")
+		profiles := ta.preScanFunctions(lines, lang)
+
+		// Derive the module name from the file path for cross-file lookups
+		// e.g.  utils/helpers.py  →  "utils.helpers" or just "helpers"
+		base := filepath.Base(path)
+		modName := strings.TrimSuffix(base, filepath.Ext(base))
+
+		for funcName, profile := range profiles {
+			if profile.ReturnsTainted {
+				// Register as "module.function" and bare "function"
+				idx.TaintedFunctions[modName+"."+funcName] = true
+				idx.TaintedFunctions[funcName] = true
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		utils.LogWarn(fmt.Sprintf("cross-file index: walk error: %v", err))
+	}
+
+	return idx
+}
+
 // AnalyzeTaintFlow scans a file for taint flow vulnerabilities
 func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, error) {
+	return ta.analyzeTaintFlowInternal(filePath, nil)
+}
+
+// AnalyzeTaintFlowWithIndex scans a file using a pre-built cross-file index so that
+// functions defined in other files that return user-controlled data are recognised
+// as taint sources in this file.
+func (ta *TaintAnalyzer) AnalyzeTaintFlowWithIndex(filePath string, idx *CrossFileIndex) ([]reporter.Finding, error) {
+	return ta.analyzeTaintFlowInternal(filePath, idx)
+}
+
+func (ta *TaintAnalyzer) analyzeTaintFlowInternal(filePath string, crossFileIdx *CrossFileIndex) ([]reporter.Finding, error) {
 	lang := getLanguageFromPath(filePath)
 	if lang == "" || ta.compiledSinks[lang] == nil {
 		return nil, nil
@@ -169,6 +410,23 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 
 	lines := strings.Split(utils.NormalizeNewlines(string(content)), "\n")
 
+	// ── Phase 3: Inter-procedural pre-scan ───────────────────────────────────
+	// Build per-function taint profiles before the main linear pass.
+	// This lets the main pass recognise wrapper sources (functions that return
+	// user input) and sink-body functions (functions whose body calls a sink).
+	funcProfiles := ta.preScanFunctions(lines, lang)
+
+	// ── Cross-file: merge external taint profiles into local funcProfiles ────
+	// When a cross-file index is provided, any function imported from another
+	// file that was marked ReturnsTainted is promoted to a local taint source.
+	if crossFileIdx != nil {
+		for extFunc := range crossFileIdx.TaintedFunctions {
+			if _, alreadyLocal := funcProfiles[extFunc]; !alreadyLocal {
+				funcProfiles[extFunc] = funcProfile{ReturnsTainted: true}
+			}
+		}
+	}
+
 	var findings []reporter.Finding
 	srNo := 1
 
@@ -178,7 +436,6 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 
 	// De-duplication: track reported source-sink pairs to avoid duplicates
 	reportedPairs := make(map[string]bool)
-
 
 	// Use the sink regexes pre-compiled in NewTaintAnalyzer (zero allocation per file).
 	compiledSinks := ta.compiledSinks[lang]
@@ -292,6 +549,71 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlow(filePath string) ([]reporter.Finding, 
 					}
 					sanitizedVars[destVar] = false
 					break
+				}
+			}
+		}
+
+		// 2e. Inter-procedural: wrapper-source call return value taint
+		// If result = someFunc(...) and someFunc was found to return tainted data
+		// in the pre-scan, mark result as tainted at this call site.
+		// This catches:  name = get_user_name()  →  cursor.execute(f"... {name}")
+		if len(funcProfiles) > 0 {
+			if m := ta.callReturnRe.FindStringSubmatch(trimmedLine); len(m) > 2 {
+				destVar := m[1]
+				calledFunc := m[2]
+				if profile, ok := funcProfiles[calledFunc]; ok && profile.ReturnsTainted {
+					if _, alreadyTainted := taintedVars[destVar]; !alreadyTainted {
+						taintedVars[destVar] = taintInfo{
+							SourceLine: currentLine,
+							Hops:       1,
+							SourceVar:  calledFunc + "()",
+							Path: []string{
+								fmt.Sprintf("Line %d: Return value of wrapper-source function '%s()' is tainted", currentLine, calledFunc),
+							},
+						}
+						sanitizedVars[destVar] = false
+					}
+				}
+			}
+		}
+
+		// 2f. Inter-procedural: sink-body function called with tainted argument
+		// If run_query(user_input) and run_query has a sink in its body (pre-scan),
+		// report at the call site rather than waiting for the sink line.
+		// This catches:  run_query(tainted_var)  when run_query does cursor.execute(sql)
+		if len(funcProfiles) > 0 {
+			if callMatch := ta.funcCallRe.FindStringSubmatch(trimmedLine); len(callMatch) > 1 {
+				calledFunc := callMatch[1]
+				if profile, ok := funcProfiles[calledFunc]; ok && profile.SinkInBody {
+					// Check if any tainted variable appears in the argument list
+					for varName, info := range taintedVars {
+						if !sanitizedVars[varName] && containsVariable(trimmedLine, varName) {
+							pairKey := fmt.Sprintf("sink-body:%s→%d→%s", info.SourceVar, info.SourceLine, calledFunc)
+							if !reportedPairs[pairKey] {
+								reportedPairs[pairKey] = true
+								confidence := calculateTaintConfidence(currentLine, info) - 0.05 // slight discount for indirect
+								if confidence >= 0.30 {
+									findings = append(findings, reporter.Finding{
+										SrNo:        srNo,
+										IssueName:   fmt.Sprintf("Taint Flow: Injection via %s()", calledFunc),
+										FilePath:    filePath,
+										Description: fmt.Sprintf("Tainted variable '%s' (from line %d) passed to '%s()' which calls a dangerous sink internally", info.SourceVar, info.SourceLine, calledFunc),
+										ExploitPath: append(info.Path, fmt.Sprintf("Line %d: Passed as argument to '%s()' (sink in body)", currentLine, calledFunc)),
+										Severity:    "high",
+										LineNumber:  fmt.Sprintf("%d", currentLine),
+										AiValidated: "No",
+										Remediation: "Sanitize or validate the argument before passing it to this function, or refactor the function to use parameterized operations.",
+										RuleID:      fmt.Sprintf("dataflow-interprocedural-%s", strings.ToLower(calledFunc)),
+										Source:      "taint-analyzer",
+										CWE:         "CWE-20",
+										OWASP:       "A03:2021",
+										Confidence:  confidence,
+									})
+									srNo++
+								}
+							}
+						}
+					}
 				}
 			}
 		}

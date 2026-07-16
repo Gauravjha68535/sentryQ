@@ -1,341 +1,372 @@
-# Insecure Randomness Security Rules
-# Detects insecure random number generation across multiple programming languages
-# Reference: OWASP A02:2021 - Cryptographic Failures, CWE-338: Use of Cryptographically Weak PRNG
-
-# ======================== JavaScript/TypeScript ========================
-
 - id: insecure-random-js-math-random
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: 'Math\.random\s*\('
+  - regex: Math\.random\s*\(
   severity: high
-  description: "Math.random() is not cryptographically secure - predictable for security purposes"
-  remediation: "Use crypto.getRandomValues() or crypto.randomBytes() for security-sensitive operations"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: Math.random() is not cryptographically secure - predictable for security purposes
+  remediation: Use crypto.getRandomValues() or crypto.randomBytes() for security-sensitive operations
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-js-math-random-token
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   patterns:
-    - regex: '(?i)(token|secret|key|password|session|auth).*Math\.random'
+  - regex: (?i)(token|secret|key|password|session|auth).*Math\.random
   severity: critical
-  description: "Math.random() used for security token generation - highly predictable"
-  remediation: "Use crypto.randomUUID() or crypto.getRandomValues() for generating tokens"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Python ========================
-
+  description: Math.random() used for security token generation - highly predictable
+  remediation: Use crypto.randomUUID() or crypto.getRandomValues() for generating tokens
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-python-random
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: 'random\.random\s*\('
+  - regex: random\.random\s*\(
   severity: high
-  description: "random.random() is not cryptographically secure"
-  remediation: "Use secrets module: secrets.token_urlsafe(32) or secrets.randbelow()"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: random.random() is not cryptographically secure
+  remediation: 'Use secrets module: secrets.token_urlsafe(32) or secrets.randbelow()'
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-python-choice
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: 'random\.choice\s*\('
+  - regex: random\.choice\s*\(
   severity: medium
-  description: "random.choice() uses predictable random generator"
-  remediation: "Use secrets.choice() for security-sensitive selections"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: random.choice() uses predictable random generator
+  remediation: Use secrets.choice() for security-sensitive selections
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.6
 - id: insecure-random-python-randint
-  languages: [python]
+  languages:
+  - python
   patterns:
-    - regex: 'random\.(randint|randrange)\s*\('
+  - regex: random\.(randint|randrange)\s*\(
   severity: high
-  description: "random.randint/randrange uses predictable PRNG"
-  remediation: "Use secrets.randbelow() for security-sensitive random numbers"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-- id: insecure-random-python-token
-  languages: [python]
-  patterns:
-    - regex: 'random\.[a-z]+\s*\(.*(?i)(token|secret|key|password|session)'
-  severity: critical
-  description: "Using random module for security token generation"
-  remediation: "Use secrets.token_urlsafe(32) for tokens and secrets.token_hex(32) for keys"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Java ========================
-
+  description: random.randint/randrange uses predictable PRNG
+  remediation: Use secrets.randbelow() for security-sensitive random numbers
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-java-util-random
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: 'new\s+java\.util\.Random\s*\('
+  - regex: new\s+java\.util\.Random\s*\(
   severity: high
-  description: "java.util.Random is not cryptographically secure"
-  remediation: "Use java.security.SecureRandom for security-sensitive operations"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: java.util.Random is not cryptographically secure
+  remediation: Use java.security.SecureRandom for security-sensitive operations
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-java-random-token
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: 'Random\s*\([^)]*\)\.(?:nextInt|nextLong|nextDouble)\s*\([^)]*\).*(?i)(token|secret|key|id|session)'
+  - regex: (?i)new\s+java\.util\.Random\s*\(\s*\)
   severity: critical
-  description: "Using java.util.Random for security token generation"
-  remediation: "Use SecureRandom with proper entropy source for tokens"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Go ========================
-
+  description: Using java.util.Random for security token generation
+  remediation: Use SecureRandom with proper entropy source for tokens
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.75
 - id: insecure-random-go-math-rand
-  languages: [go]
+  languages:
+  - go
   patterns:
-    - regex: 'math/rand'
+  - regex: math/rand
   severity: high
-  description: "math/rand is not cryptographically secure - uses deterministic PRNG"
-  remediation: "Use crypto/rand for all security-sensitive random number generation"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: math/rand is not cryptographically secure - uses deterministic PRNG
+  remediation: Use crypto/rand for all security-sensitive random number generation
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.65
 - id: insecure-random-go-math-rand-token
-  languages: [go]
+  languages:
+  - go
   patterns:
-    - regex: '(?i)(token|secret|key|password|session|auth).*math/rand'
+  - regex: (?i)(token|secret|key|password|session|auth).*math/rand
   severity: critical
-  description: "math/rand used for generating security tokens - predictable"
-  remediation: "Use crypto/rand and encoding/base64 for secure token generation"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: math/rand used for generating security tokens - predictable
+  remediation: Use crypto/rand and encoding/base64 for secure token generation
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-go-rand-seed
-  languages: [go]
+  languages:
+  - go
   patterns:
-    - regex: 'rand\.Seed\s*\('
+  - regex: rand\.Seed\s*\(
   severity: high
-  description: "Explicit seeding of random generator makes output predictable"
-  remediation: "Remove manual seeding - crypto/rand auto-seeds from entropy"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== C/C++ ========================
-
+  description: Explicit seeding of random generator makes output predictable
+  remediation: Remove manual seeding - crypto/rand auto-seeds from entropy
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-c-rand
-  languages: [c, cpp]
+  languages:
+  - c
+  - cpp
   patterns:
-    - regex: 'rand\s*\('
+  - regex: rand\s*\(
   severity: high
-  description: "rand() is not cryptographically secure"
-  remediation: "Use arc4random(), getrandom(), or /dev/urandom for security"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: rand() is not cryptographically secure
+  remediation: Use arc4random(), getrandom(), or /dev/urandom for security
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-c-rand-token
-  languages: [c, cpp]
+  languages:
+  - c
+  - cpp
   patterns:
-    - regex: '(?i)(token|secret|key|password|session).*rand\s*\('
+  - regex: (?i)(token|secret|key|password|session).*rand\s*\(
   severity: critical
-  description: "rand() used for security token generation - predictable"
-  remediation: "Use cryptographic random APIs like RAND_bytes or arc4random_buf"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: rand() used for security token generation - predictable
+  remediation: Use cryptographic random APIs like RAND_bytes or arc4random_buf
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.75
 - id: insecure-random-c-srand-time
-  languages: [c, cpp]
+  languages:
+  - c
+  - cpp
   patterns:
-    - regex: 'srand\s*\(\s*(?:time|time_null)'
+  - regex: srand\s*\(\s*(?:time|time_null)
   severity: high
-  description: "Seeding rand() with time() makes randomness predictable"
-  remediation: "Use cryptographic random sources without deterministic seeding"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Ruby ========================
-
+  description: Seeding rand() with time() makes randomness predictable
+  remediation: Use cryptographic random sources without deterministic seeding
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-ruby-random
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '(?i)Random\.new'
+  - regex: (?i)Random\.new
   severity: high
-  description: "Random.new is not cryptographically secure"
-  remediation: "Use Random::Secure or SecureRandom for security-sensitive operations"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: Random.new is not cryptographically secure
+  remediation: Use Random::Secure or SecureRandom for security-sensitive operations
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.65
 - id: insecure-random-ruby-rand
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '(?i)rand\s*\('
+  - regex: (?i)rand\s*\(
   severity: high
-  description: "rand() uses predictable PRNG for security contexts"
-  remediation: "Use SecureRandom for generating random numbers in security contexts"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: rand() uses predictable PRNG for security contexts
+  remediation: Use SecureRandom for generating random numbers in security contexts
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-ruby-token
-  languages: [ruby]
+  languages:
+  - ruby
   patterns:
-    - regex: '(?i)(token|secret|key|password|session).*rand\s*\(|rand.*(?i)(token|secret|key|password|session)'
+  - regex: (?i)Random\.rand\s*\(|rand\s*\([0-9]
   severity: critical
-  description: "Using insecure rand() for security token generation"
-  remediation: "Use SecureRandom.urlsafe_base64 or SecureRandom.hex for tokens"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== PHP ========================
-
+  description: Using insecure rand() for security token generation
+  remediation: Use SecureRandom.urlsafe_base64 or SecureRandom.hex for tokens
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.75
 - id: insecure-random-php-mt-rand
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: 'mt_rand\s*\('
+  - regex: mt_rand\s*\(
   severity: high
-  description: "mt_rand() uses Mersenne Twister - not cryptographically secure"
-  remediation: "Use random_bytes() or random_int() for security-sensitive operations"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: mt_rand() uses Mersenne Twister - not cryptographically secure
+  remediation: Use random_bytes() or random_int() for security-sensitive operations
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-php-mt-rand-token
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)(token|secret|key|password|session|id).*mt_rand|mt_rand.*(?i)(token|secret|key|password|session|id)'
+  - regex: (?i)\bmt_rand\s*\(|\brand\s*\(
   severity: critical
-  description: "mt_rand() used for session ID or token generation - predictable"
-  remediation: "Use bin2hex(random_bytes(16)) or random_int() for secure tokens"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: mt_rand() used for session ID or token generation - predictable
+  remediation: Use bin2hex(random_bytes(16)) or random_int() for secure tokens
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.75
 - id: insecure-random-php-rand
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)rand\s*\('
+  - regex: (?i)rand\s*\(
   severity: high
-  description: "rand() is not cryptographically secure"
-  remediation: "Use random_bytes() or random_int() instead"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: rand() is not cryptographically secure
+  remediation: Use random_bytes() or random_int() instead
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-php-srand
-  languages: [php]
+  languages:
+  - php
   patterns:
-    - regex: '(?i)srand|mt_srand\s*\('
+  - regex: (?i)srand|mt_srand\s*\(
   severity: high
-  description: "Manual seeding of random generator makes output predictable"
-  remediation: "Remove manual seeding - use random_bytes() which auto-seeds"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Kotlin ========================
-
+  description: Manual seeding of random generator makes output predictable
+  remediation: Remove manual seeding - use random_bytes() which auto-seeds
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-kotlin-random
-  languages: [kotlin]
+  languages:
+  - kotlin
   patterns:
-    - regex: 'kotlin\.random\.Random\s*\('
+  - regex: kotlin\.random\.Random\s*\(
   severity: high
-  description: "kotlin.random.Random is not cryptographically secure"
-  remediation: "Use java.security.SecureRandom for security-sensitive random numbers"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: kotlin.random.Random is not cryptographically secure
+  remediation: Use java.security.SecureRandom for security-sensitive random numbers
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-kotlin-util-random
-  languages: [kotlin]
+  languages:
+  - kotlin
   patterns:
-    - regex: 'java\.util\.Random\s*\('
+  - regex: java\.util\.Random\s*\(
   severity: high
-  description: "java.util.Random used in Kotlin - not cryptographically secure"
-  remediation: "Use SecureRandom via java.security.SecureRandom for security contexts"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Swift ========================
-
+  description: java.util.Random used in Kotlin - not cryptographically secure
+  remediation: Use SecureRandom via java.security.SecureRandom for security contexts
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-swift-random
-  languages: [swift]
+  languages:
+  - swift
   patterns:
-    - regex: '(?i)Int\.random|Double\.random|Float\.random|CGFloat\.random'
+  - regex: (?i)Int\.random|Double\.random|Float\.random|CGFloat\.random
   severity: high
-  description: "Swift's random() is not cryptographically secure"
-  remediation: "Use SecRandomCopyBytes or UUID for security-sensitive operations"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: Swift's random() is not cryptographically secure
+  remediation: Use SecRandomCopyBytes or UUID for security-sensitive operations
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-swift-arc4random
-  languages: [swift]
+  languages:
+  - swift
   patterns:
-    - regex: '(?i)arc4random_uniform\s*\('
+  - regex: (?i)arc4random_uniform\s*\(
   severity: high
-  description: "arc4random_uniform is not recommended for cryptographic use"
-  remediation: "Use SecRandomCopyBytes for cryptographic randomness"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Rust ========================
-
+  description: arc4random_uniform is not recommended for cryptographic use
+  remediation: Use SecRandomCopyBytes for cryptographic randomness
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-rust-thread-rng
-  languages: [rust]
+  languages:
+  - rust
   patterns:
-    - regex: 'rand::thread_rng|rand::random'
+  - regex: rand::thread_rng|rand::random
   severity: high
-  description: "Thread-local RNG is not cryptographically secure"
-  remediation: "Use rand::rngs::OsRng or getrandom crate for cryptographic randomness"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
+  description: Thread-local RNG is not cryptographically secure
+  remediation: Use rand::rngs::OsRng or getrandom crate for cryptographic randomness
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.65
 - id: insecure-random-rust-small-range
-  languages: [rust]
+  languages:
+  - rust
   patterns:
-    - regex: '(?i)(token|secret|key).*(rand|random)'
+  - regex: (?i)(token|secret|key).*(rand|random)
   severity: critical
-  description: "Using non-crypto random for security token generation"
-  remediation: "Use OsRng for generating tokens, secrets, and keys"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== UUID v1 (Timestamp-based) ========================
-
+  description: Using non-crypto random for security token generation
+  remediation: Use OsRng for generating tokens, secrets, and keys
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.7
 - id: insecure-random-uuid-v1
-  languages: [javascript, typescript, python, java, go, ruby, php, csharp]
+  languages:
+  - javascript
+  - typescript
+  - python
+  - java
+  - go
+  - ruby
+  - php
+  - csharp
   patterns:
-    - regex: '(?i)(?:uuid|v4)?.*\.uuidv1\s*\(|UUID\.v1\s*\(|uuid\.v1\s*\(|newUUIDv1|generateV1UUID'
+  - regex: (?i)(?:uuid|v4)?.*\.uuidv1\s*\(|UUID\.v1\s*\(|uuid\.v1\s*\(|newUUIDv1|generateV1UUID
   severity: high
-  description: "UUID v1 uses timestamp and MAC address - predictable and privacy risk"
-  remediation: "Use UUID v4 (random) for security purposes, or crypto.randomUUID() in JS"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Time-based seeds ========================
-
+  description: UUID v1 uses timestamp and MAC address - predictable and privacy risk
+  remediation: Use UUID v4 (random) for security purposes, or crypto.randomUUID() in JS
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.75
 - id: insecure-random-time-seed
-  languages: [javascript, typescript, python, java, go, ruby, php, csharp, c, cpp]
+  languages:
+  - javascript
+  - typescript
+  - python
+  - java
+  - go
+  - ruby
+  - php
+  - csharp
+  - c
+  - cpp
   patterns:
-    - regex: '(?i)(seed|srand|srandom)\s*\([^)]*(?:time|now|timestamp|date)'
+  - regex: (?i)(seed|srand|srandom)\s*\([^)]*(?:time|now|timestamp|date)
   severity: high
-  description: "Using time/timestamp as random seed - predictable"
-  remediation: "Use cryptographically secure random generators that auto-seed from entropy"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Predictable seeds ========================
-
+  description: Using time/timestamp as random seed - predictable
+  remediation: Use cryptographically secure random generators that auto-seed from entropy
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.75
 - id: insecure-random-predictable-seed
-  languages: [javascript, typescript, python, java, go, ruby, php, csharp, c, cpp]
+  languages:
+  - javascript
+  - typescript
+  - python
+  - java
+  - go
+  - ruby
+  - php
+  - csharp
+  - c
+  - cpp
   patterns:
-    - regex: '(?i)(seed|srand)\s*\(\s*["'']|seed\s*\(\s*\d{1,6}\s*\)|seed\s*\(\s*null\s*\)'
+  - regex: (?i)(seed|srand)\s*\(\s*["']|seed\s*\(\s*\d{1,6}\s*\)|seed\s*\(\s*null\s*\)
   severity: high
-  description: "Predictable or static random seed detected"
-  remediation: "Remove manual seeding or use cryptographic random seed sources"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
-
-# ======================== Generic weak random for security ========================
-
+  description: Predictable or static random seed detected
+  remediation: Remove manual seeding or use cryptographic random seed sources
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.75
 - id: insecure-random-generic-security-context
-  languages: [javascript, typescript, python, java, go, ruby, php, kotlin, swift, rust, c, cpp, csharp]
+  languages:
+  - javascript
+  - typescript
+  - python
+  - java
+  - go
+  - ruby
+  - php
+  - kotlin
+  - swift
+  - rust
+  - c
+  - cpp
+  - csharp
   patterns:
-    - regex: '(?i)(?:random|rand)\s*\(.*(?:token|secret|key|password|auth|session|captcha|verification|activation|reset)'
+  - regex: (?i)(?:random|rand)\s*\(.*(?:token|secret|key|password|auth|session|captcha|verification|activation|reset)
   severity: critical
-  description: "Weak random used for security-critical value generation"
-  remediation: "Use language-specific cryptographic random APIs"
-  cwe: "CWE-338"
-  owasp: "A02:2021"
+  description: Weak random used for security-critical value generation
+  remediation: Use language-specific cryptographic random APIs
+  cwe: CWE-338
+  owasp: A02:2021
+  confidence: 0.8

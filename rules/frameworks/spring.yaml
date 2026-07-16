@@ -1,2019 +1,2241 @@
-# ============================================================================
-# SPRING FRAMEWORK SECURITY RULES - COMPREHENSIVE
-# ============================================================================
-# 150+ Security Rules for Spring/Spring Boot Applications
-# Format: Valid YAML List for Security Scanners
-# ============================================================================
-
-# --- Authentication & Authorization (1-20) ---
 - id: spring-auth-no-security-config
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@SpringBootApplication'
+  - regex: (?i)@SpringBootApplication
   severity: high
-  description: "Spring Boot application without security configuration"
-  remediation: "Add @EnableWebSecurity and configure SecurityFilterChain"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Spring Boot application without security configuration
+  remediation: Add @EnableWebSecurity and configure SecurityFilterChain
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.65
 - id: spring-auth-permit-all-endpoints
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.permitAll\(\)\.anyRequest'
+  - regex: (?i)\.permitAll\(\)\.anyRequest
   severity: critical
-  description: "All endpoints permitted without authentication"
-  remediation: "Restrict permitAll to specific endpoints like /login, /register"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: All endpoints permitted without authentication
+  remediation: Restrict permitAll to specific endpoints like /login, /register
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.75
 - id: spring-auth-web-ignored
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.web\.ignoring\(\)\.antMatchers'
+  - regex: (?i)\.web\.ignoring\(\)\.antMatchers
   severity: high
-  description: "Security ignored for URL patterns"
-  remediation: "Use httpSecurity instead of web.ignoring for security"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Security ignored for URL patterns
+  remediation: Use httpSecurity instead of web.ignoring for security
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-auth-no-password-encoder
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)PasswordEncoder\s*\{\s*\}|NoOpPasswordEncoder'
+  - regex: (?i)PasswordEncoder\s*\{\s*\}|NoOpPasswordEncoder
   severity: critical
-  description: "NoOpPasswordEncoder stores passwords in plain text"
-  remediation: "Use BCryptPasswordEncoder or Argon2PasswordEncoder"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: NoOpPasswordEncoder stores passwords in plain text
+  remediation: Use BCryptPasswordEncoder or Argon2PasswordEncoder
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.7
 - id: spring-auth-basic-auth-enabled
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)httpBasic\(\)\.and\(\)'
+  - regex: (?i)httpBasic\(\)\.and\(\)
   severity: medium
-  description: "HTTP Basic Authentication enabled"
-  remediation: "Use token-based auth for APIs, Basic only for internal services"
-  cwe: "CWE-523"
-  owasp: "A01:2021"
-
+  description: HTTP Basic Authentication enabled
+  remediation: Use token-based auth for APIs, Basic only for internal services
+  cwe: CWE-523
+  owasp: A01:2021
+  confidence: 0.55
 - id: spring-auth-remember-me-enabled
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.rememberMe\(\)\.key\s*\('
+  - regex: (?i)\.rememberMe\(\)\.key\s*\(
   severity: medium
-  description: "Remember-me with hardcoded key"
-  remediation: "Generate secure random key for remember-me"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Remember-me with hardcoded key
+  remediation: Generate secure random key for remember-me
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.6
 - id: spring-auth-session-fixation
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.sessionManagement\(\)\.sessionFixation\(\)\.none'
+  - regex: (?i)\.sessionManagement\(\)\.sessionFixation\(\)\.none
   severity: high
-  description: "Session fixation protection disabled"
-  remediation: "Enable session fixation protection: migrateSession or newSession"
-  cwe: "CWE-384"
-  owasp: "A01:2021"
-
+  description: Session fixation protection disabled
+  remediation: 'Enable session fixation protection: migrateSession or newSession'
+  cwe: CWE-384
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-auth-concurrent-sessions
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.maximumSessions\s*\(\s*-1\s*\)'
+  - regex: (?i)\.maximumSessions\s*\(\s*-1\s*\)
   severity: medium
-  description: "Unlimited concurrent sessions allowed"
-  remediation: "Set reasonable maximum sessions limit"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: Unlimited concurrent sessions allowed
+  remediation: Set reasonable maximum sessions limit
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-auth-anonymous-enabled
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.anonymous\(\)\.disable\s*\(\s*\)\s*\\\\'
+  - regex: (?i)\.anonymous\(\)\.disable\s*\(\s*\)\s*\\\\
   severity: low
-  description: "Anonymous authentication disabled"
-  remediation: "Review if anonymous access is needed"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Anonymous authentication disabled
+  remediation: Review if anonymous access is needed
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.5
 - id: spring-auth-logout-url-default
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.logout\(\)'
+  - regex: (?i)\.logout\(\)
   severity: low
-  description: "Default logout URL (/logout) used"
-  remediation: "Consider customizing logout URL"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Default logout URL (/logout) used
+  remediation: Consider customizing logout URL
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: spring-auth-csrf-disabled
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.csrf\(\)\.disable\(\)'
+  - regex: (?i)\.csrf\(\)\.disable\(\)
   severity: critical
-  description: "CSRF protection completely disabled"
-  remediation: "Enable CSRF for state-changing operations"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF protection completely disabled
+  remediation: Enable CSRF for state-changing operations
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.75
 - id: spring-auth-csrf-ignore-ant-matchers
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.csrf\(\)\.ignoringAntMatchers'
+  - regex: (?i)\.csrf\(\)\.ignoringAntMatchers
   severity: high
-  description: "CSRF ignored for specific URL patterns"
-  remediation: "Review if CSRF should be ignored for these endpoints"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF ignored for specific URL patterns
+  remediation: Review if CSRF should be ignored for these endpoints
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-auth-csrf-cookie-http-only-false
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.csrfTokenRepository\(\).*httpOnly\s*\(\s*false\s*\)'
+  - regex: (?i)\.csrfTokenRepository\(\).*httpOnly\s*\(\s*false\s*\)
   severity: high
-  description: "CSRF cookie not HttpOnly"
-  remediation: "Set CSRF cookie as HttpOnly"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: CSRF cookie not HttpOnly
+  remediation: Set CSRF cookie as HttpOnly
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-auth-oauth2-client-secret-plaintext
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)client-secret:\s*[a-zA-Z0-9]{8,}'
+  - regex: (?i)client-secret:\s*[a-zA-Z0-9]{8,}
   severity: high
-  description: "OAuth2 client secret in plaintext configuration"
-  remediation: "Use environment variables or vault for client secrets"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: OAuth2 client secret in plaintext configuration
+  remediation: Use environment variables or vault for client secrets
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-auth-jwt-secret-short
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)jwt\.secret\s*=\s*[\\\"''][a-zA-Z0-9]{8,20}[\\\"'']'
+  - regex: (?i)jwt\.secret\s*=\s*[\\\"'][a-zA-Z0-9]{8,20}[\\\"']
   severity: high
-  description: "JWT secret key too short"
-  remediation: "Use minimum 256-bit (32 character) secret for JWT"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: JWT secret key too short
+  remediation: Use minimum 256-bit (32 character) secret for JWT
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.65
 - id: spring-auth-jwt-no-expiration
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)JwtBuilder.*\.setExpiration\s*\(\s*null\s*\)'
+  - regex: (?i)JwtBuilder.*\.setExpiration\s*\(\s*null\s*\)
   severity: high
-  description: "JWT token without expiration"
-  remediation: "Set reasonable expiration time for JWT tokens"
-  cwe: "CWE-613"
-  owasp: "A01:2021"
-
+  description: JWT token without expiration
+  remediation: Set reasonable expiration time for JWT tokens
+  cwe: CWE-613
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-auth-jwt-algorithm-none
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.signWith\s*\(\s*SignatureAlgorithm\.NONE'
+  - regex: (?i)\.signWith\s*\(\s*SignatureAlgorithm\.NONE
   severity: critical
-  description: "JWT signed with NONE algorithm"
-  remediation: "Use HS256, RS256, or ES256 for JWT signing"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: JWT signed with NONE algorithm
+  remediation: Use HS256, RS256, or ES256 for JWT signing
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.75
 - id: spring-auth-method-security-disabled
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@EnableMethodSecurity\s*\(\s*securedEnabled\s*=\s*false'
+  - regex: (?i)@EnableMethodSecurity\s*\(\s*securedEnabled\s*=\s*false
   severity: medium
-  description: "Method security disabled"
-  remediation: "Enable method security for fine-grained access control"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Method security disabled
+  remediation: Enable method security for fine-grained access control
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-auth-preauthorize-spel-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@PreAuthorize\s*\(\s*\\\".*#\{.*\}'
+  - regex: (?i)@PreAuthorize\s*\(\s*\\\".*#\{.*\}
   severity: high
-  description: "SpEL injection in @PreAuthorize"
-  remediation: "Avoid user input in SpEL expressions"
-  cwe: "CWE-917"
-  owasp: "A03:2021"
-
+  description: SpEL injection in @PreAuthorize
+  remediation: Avoid user input in SpEL expressions
+  cwe: CWE-917
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-auth-roles-hardcoded
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@PreAuthorize\s*\(\s*\\\"hasRole\s*\(\s*[''\\\"]ADMIN[''\\\"]'
+  - regex: (?i)@PreAuthorize\s*\(\s*\\\"hasRole\s*\(\s*['\\\"]ADMIN['\\\"]
   severity: low
-  description: "Hardcoded role in authorization"
-  remediation: "Externalize roles to configuration"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# --- SQL Injection (21-40) ---
+  description: Hardcoded role in authorization
+  remediation: Externalize roles to configuration
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: spring-sql-jdbc-concatenation
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)JdbcTemplate.*execute\s*\(\s*\\\".*\+.*\+'
+  - regex: (?i)JdbcTemplate.*execute\s*\(\s*\\\".*\+.*\+
   severity: critical
-  description: "SQL injection via string concatenation in JdbcTemplate"
-  remediation: "Use parameterized queries with ? placeholders"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection via string concatenation in JdbcTemplate
+  remediation: Use parameterized queries with ? placeholders
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-named-parameter-jdbc
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)NamedParameterJdbcTemplate.*\\\".*:\w+.*\\\".*\+.*\+'
+  - regex: (?i)NamedParameterJdbcTemplate.*\\\".*:\w+.*\\\".*\+.*\+
   severity: critical
-  description: "SQL injection in NamedParameterJdbcTemplate"
-  remediation: "Use MapSqlParameterSource for parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection in NamedParameterJdbcTemplate
+  remediation: Use MapSqlParameterSource for parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-sql-hibernate-create-native-query
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)createNativeQuery\s*\(\s*\\\".*\+.*\+'
+  - regex: (?i)createNativeQuery\s*\(\s*\\\".*\+.*\+
   severity: critical
-  description: "SQL injection in Hibernate native query"
-  remediation: "Use parameterized native queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection in Hibernate native query
+  remediation: Use parameterized native queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-hibernate-hql-concatenation
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)createQuery\s*\(\s*\\\"FROM.*WHERE.*\+.*\+'
+  - regex: (?i)createQuery\s*\(\s*\\\"FROM.*WHERE.*\+.*\+
   severity: critical
-  description: "HQL injection via string concatenation"
-  remediation: "Use HQL with named parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: HQL injection via string concatenation
+  remediation: Use HQL with named parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-string-builder-sql
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)StringBuilder.*append\s*\(.*SELECT|StringBuilder.*append\s*\(.*INSERT'
+  - regex: (?i)StringBuilder.*append\s*\(.*SELECT|StringBuilder.*append\s*\(.*INSERT
   severity: critical
-  description: "SQL built with StringBuilder"
-  remediation: "Use parameterized queries instead"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL built with StringBuilder
+  remediation: Use parameterized queries instead
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.8
 - id: spring-sql-string-format-sql
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)String\.format\s*\(\s*\\\".*SELECT.*%s'
+  - regex: (?i)String\.format\s*\(\s*\\\".*SELECT.*%s
   severity: critical
-  description: "SQL built with String.format"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL built with String.format
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-concat-function
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)CONCAT\s*\(.*\$\{|CONCAT\s*\(.*\+'
+  - regex: (?i)CONCAT\s*\(.*\$\{|CONCAT\s*\(.*\+
   severity: critical
-  description: "SQL CONCAT with user input"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL CONCAT with user input
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-order-by-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ORDER\s+BY\s+\$\{|ORDER\s+BY\s+\+'
+  - regex: (?i)ORDER\s+BY\s+\$\{|ORDER\s+BY\s+\+
   severity: high
-  description: "ORDER BY clause with user input"
-  remediation: "Whitelist allowed sort columns"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: ORDER BY clause with user input
+  remediation: Whitelist allowed sort columns
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-sql-limit-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)LIMIT\s+\$\{|LIMIT\s+\+'
+  - regex: (?i)LIMIT\s+\$\{|LIMIT\s+\+
   severity: high
-  description: "LIMIT clause with user input"
-  remediation: "Validate and cast to integer"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: LIMIT clause with user input
+  remediation: Validate and cast to integer
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-sql-group-by-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)GROUP\s+BY\s+\$\{|GROUP\s+BY\s+\+'
+  - regex: (?i)GROUP\s+BY\s+\$\{|GROUP\s+BY\s+\+
   severity: high
-  description: "GROUP BY clause with user input"
-  remediation: "Whitelist allowed group columns"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: GROUP BY clause with user input
+  remediation: Whitelist allowed group columns
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-sql-into-outfile
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)INTO\s+OUTFILE|INTO\s+DUMPFILE'
+  - regex: (?i)INTO\s+OUTFILE|INTO\s+DUMPFILE
   severity: critical
-  description: "SQL INTO OUTFILE can write files"
-  remediation: "Disable FILE privilege for database user"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL INTO OUTFILE can write files
+  remediation: Disable FILE privilege for database user
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-sql-union-based
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)UNION\s+SELECT.*\$\{'
+  - regex: (?i)UNION\s+SELECT.*\$\{
   severity: critical
-  description: "UNION-based SQL injection"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: UNION-based SQL injection
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-sql-error-based
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)EXTRACTVALUE\s*\(|UPDATEXML\s*\('
+  - regex: (?i)EXTRACTVALUE\s*\(|UPDATEXML\s*\(
   severity: critical
-  description: "Error-based SQL injection functions"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Error-based SQL injection functions
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-time-based
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)SLEEP\s*\(|BENCHMARK\s*\(|WAITFOR\s+DELAY'
+  - regex: (?i)SLEEP\s*\(|BENCHMARK\s*\(|WAITFOR\s+DELAY
   severity: critical
-  description: "Time-based SQL injection functions"
-  remediation: "Use parameterized queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Time-based SQL injection functions
+  remediation: Use parameterized queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-stored-procedure
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\{\s*CALL\s+.*\$\{'
+  - regex: (?i)\{\s*CALL\s+.*\$\{
   severity: high
-  description: "Stored procedure with user input"
-  remediation: "Validate stored procedure parameters"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Stored procedure with user input
+  remediation: Validate stored procedure parameters
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-sql-batch-update
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)batchUpdate\s*\(\s*\\\".*\+.*\+'
+  - regex: (?i)batchUpdate\s*\(\s*\\\".*\+.*\+
   severity: critical
-  description: "SQL injection in batch update"
-  remediation: "Use parameterized batch operations"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: SQL injection in batch update
+  remediation: Use parameterized batch operations
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-sql-dynamic-table-name
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)FROM\s+\$\{|FROM\s+\+.*table'
+  - regex: (?i)FROM\s+\$\{|FROM\s+\+.*table
   severity: critical
-  description: "Dynamic table name from user input"
-  remediation: "Whitelist allowed table names"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: Dynamic table name from user input
+  remediation: Whitelist allowed table names
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-sql-like-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)LIKE\s+\\\"%\\\".*\+.*\+'
+  - regex: (?i)LIKE\s+\\\"%\\\".*\+.*\+
   severity: high
-  description: "LIKE clause with user input"
-  remediation: "Escape special characters in LIKE queries"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: LIKE clause with user input
+  remediation: Escape special characters in LIKE queries
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-sql-in-clause-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)IN\s*\(\s*\$\{|IN\s*\(\s*\+'
+  - regex: (?i)IN\s*\(\s*\$\{|IN\s*\(\s*\+
   severity: high
-  description: "IN clause with user input"
-  remediation: "Validate and sanitize IN clause values"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
+  description: IN clause with user input
+  remediation: Validate and sanitize IN clause values
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-sql-comment-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)--\s*$|/\*.*\*/.*\$'
+  - regex: (?i)--\s*$|/\*.*\*/.*\$
   severity: high
-  description: "SQL comment in query with user input"
-  remediation: "Remove comments from user input"
-  cwe: "CWE-89"
-  owasp: "A03:2021"
-
-# --- XSS (41-60) ---
+  description: SQL comment in query with user input
+  remediation: Remove comments from user input
+  cwe: CWE-89
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-xss-response-body
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@ResponseBody.*String.*request\.getParameter'
+  - regex: (?i)@ResponseBody.*String.*request\.getParameter
   severity: high
-  description: "XSS via @ResponseBody with user input"
-  remediation: "Encode output or use @ResponseBody with proper content type"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via @ResponseBody with user input
+  remediation: Encode output or use @ResponseBody with proper content type
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.85
 - id: spring-xss-response-entity
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ResponseEntity\.ok\s*\(\s*request\.getParameter'
+  - regex: (?i)ResponseEntity\.ok\s*\(\s*request\.getParameter
   severity: high
-  description: "XSS via ResponseEntity with user input"
-  remediation: "Encode output before returning in ResponseEntity"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via ResponseEntity with user input
+  remediation: Encode output before returning in ResponseEntity
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.9
 - id: spring-xss-model-and-view
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+ModelAndView\s*\(\s*\\\".*\\\".*request\.getParameter'
+  - regex: (?i)new\s+ModelAndView\s*\(\s*\\\".*\\\".*request\.getParameter
   severity: high
-  description: "XSS via ModelAndView with user input"
-  remediation: "Encode model attributes or use view technology auto-escaping"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via ModelAndView with user input
+  remediation: Encode model attributes or use view technology auto-escaping
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.95
 - id: spring-xss-model-add-attribute
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)model\.addAttribute\s*\(\s*request\.getParameter'
+  - regex: (?i)model\.addAttribute\s*\(\s*request\.getParameter
   severity: high
-  description: "XSS via model.addAttribute with user input"
-  remediation: "Encode data before adding to model"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via model.addAttribute with user input
+  remediation: Encode data before adding to model
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.9
 - id: spring-xss-print-writer
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)response\.getWriter\s*\(\s*\)\.print\s*\(\s*request'
+  - regex: (?i)response\.getWriter\s*\(\s*\)\.print\s*\(\s*request
   severity: high
-  description: "XSS via PrintWriter with user input"
-  remediation: "Encode output before writing to response"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via PrintWriter with user input
+  remediation: Encode output before writing to response
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-xss-output-stream
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)response\.getOutputStream\s*\(\s*\)\.write\s*\(\s*request'
+  - regex: (?i)response\.getOutputStream\s*\(\s*\)\.write\s*\(\s*request
   severity: high
-  description: "XSS via OutputStream with user input"
-  remediation: "Encode output before writing to response"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via OutputStream with user input
+  remediation: Encode output before writing to response
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-xss-jsp-expression
-  languages: [java, jsp]
+  languages:
+  - java
+  - jsp
   patterns:
-    - regex: '(?i)<%=.*request\.getParameter|%\{.*param\.'
+  - regex: (?i)<%=.*request\.getParameter|%\{.*param\.
   severity: high
-  description: "XSS via JSP expression with user input"
-  remediation: "Use JSTL <c:out> or EL with escaping"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via JSP expression with user input
+  remediation: Use JSTL <c:out> or EL with escaping
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.9
 - id: spring-xss-thymeleaf-unescaped
-  languages: [java, html]
+  languages:
+  - java
+  - html
   patterns:
-    - regex: '(?i)th:utext\s*=|th:utext\s*\('
+  - regex: (?i)th:utext\s*=|th:utext\s*\(
   severity: high
-  description: "XSS via Thymeleaf unescaped text (th:utext)"
-  remediation: "Use th:text instead of th:utext for user input"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via Thymeleaf unescaped text (th:utext)
+  remediation: Use th:text instead of th:utext for user input
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-xss-freemarker-raw
-  languages: [java, ftl]
+  languages:
+  - java
+  - ftl
   patterns:
-    - regex: '(?i)\$\{.*\?html|\$\{.*\?xml'
+  - regex: (?i)\$\{.*\?html|\$\{.*\?xml
   severity: high
-  description: "XSS via FreeMarker without escaping"
-  remediation: "Use ?html or ?xml built-in for escaping"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via FreeMarker without escaping
+  remediation: Use ?html or ?xml built-in for escaping
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-xss-velocity-unescaped
-  languages: [java, vm]
+  languages:
+  - java
+  - vm
   patterns:
-    - regex: '(?i)\$[^{]|\$!\{'
+  - regex: (?i)\$[^{]|\$!\{
   severity: high
-  description: "XSS via Velocity without escaping"
-  remediation: "Use Velocity escape tools"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via Velocity without escaping
+  remediation: Use Velocity escape tools
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-xss-redirect-url
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)redirect:\s*\+.*request\.getParameter'
+  - regex: (?i)redirect:\s*\+.*request\.getParameter
   severity: high
-  description: "XSS via redirect URL with user input"
-  remediation: "Validate and encode redirect URLs"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via redirect URL with user input
+  remediation: Validate and encode redirect URLs
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.85
 - id: spring-xss-forward-url
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)forward:\s*\+.*request\.getParameter'
+  - regex: (?i)forward:\s*\+.*request\.getParameter
   severity: high
-  description: "XSS via forward URL with user input"
-  remediation: "Validate forward URLs against whitelist"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XSS via forward URL with user input
+  remediation: Validate forward URLs against whitelist
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.85
 - id: spring-xss-json-content-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)produces\s*=\s*\\\"application/json\\\".*request\.getParameter'
+  - regex: (?i)produces\s*=\s*\\\"application/json\\\".*request\.getParameter
   severity: medium
-  description: "JSON response with user input"
-  remediation: "Validate and sanitize JSON output"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: JSON response with user input
+  remediation: Validate and sanitize JSON output
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.8
 - id: spring-xss-html-content-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)produces\s*=\s*\\\"text/html\\\".*request\.getParameter'
+  - regex: (?i)produces\s*=\s*\\\"text/html\\\".*request\.getParameter
   severity: high
-  description: "HTML response with user input"
-  remediation: "Encode all user input in HTML responses"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: HTML response with user input
+  remediation: Encode all user input in HTML responses
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.85
 - id: spring-xss-javascript-content-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)produces\s*=\s*\\\"application/javascript\\\".*request'
+  - regex: (?i)produces\s*=\s*\\\"application/javascript\\\".*request
   severity: high
-  description: "JavaScript response with user input"
-  remediation: "Avoid returning user input in JavaScript"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: JavaScript response with user input
+  remediation: Avoid returning user input in JavaScript
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-xss-xml-content-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)produces\s*=\s*\\\"application/xml\\\".*request'
+  - regex: (?i)produces\s*=\s*\\\"application/xml\\\".*request
   severity: high
-  description: "XML response with user input"
-  remediation: "Encode XML special characters"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: XML response with user input
+  remediation: Encode XML special characters
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-xss-svg-content-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)produces\s*=\s*\\\"image/svg\+xml\\\".*request'
+  - regex: (?i)produces\s*=\s*\\\"image/svg\+xml\\\".*request
   severity: high
-  description: "SVG response with user input"
-  remediation: "Sanitize SVG content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: SVG response with user input
+  remediation: Sanitize SVG content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.65
 - id: spring-xss-pdf-content-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)produces\s*=\s*\\\"application/pdf\\\".*request'
+  - regex: (?i)produces\s*=\s*\\\"application/pdf\\\".*request
   severity: medium
-  description: "PDF generation with user input"
-  remediation: "Validate PDF content"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: PDF generation with user input
+  remediation: Validate PDF content
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.55
 - id: spring-xss-csv-content-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)produces\s*=\s*\\\"text/csv\\\".*request'
+  - regex: (?i)produces\s*=\s*\\\"text/csv\\\".*request
   severity: medium
-  description: "CSV export with user input"
-  remediation: "Escape CSV special characters"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
+  description: CSV export with user input
+  remediation: Escape CSV special characters
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.55
 - id: spring-xss-reflected-parameter
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@RequestParam.*@ResponseBody|@RequestParam.*ResponseEntity'
+  - regex: (?i)@RequestParam.*@ResponseBody|@RequestParam.*ResponseEntity
   severity: high
-  description: "Reflected XSS via RequestParam to Response"
-  remediation: "Encode all reflected parameters"
-  cwe: "CWE-79"
-  owasp: "A03:2021"
-
-# --- CSRF (61-75) ---
+  description: Reflected XSS via RequestParam to Response
+  remediation: Encode all reflected parameters
+  cwe: CWE-79
+  owasp: A03:2021
+  confidence: 0.7
 - id: spring-csrf-get-state-changing
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@GetMapping.*@PostMapping|@GetMapping.*delete|@GetMapping.*update'
+  - regex: (?i)@GetMapping.*@PostMapping|@GetMapping.*delete|@GetMapping.*update
   severity: high
-  description: "State-changing operation on GET request"
-  remediation: "Use POST/PUT/DELETE for state-changing operations"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: State-changing operation on GET request
+  remediation: Use POST/PUT/DELETE for state-changing operations
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-csrf-cookie-secure-false
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.secure\s*\(\s*false\s*\)'
+  - regex: (?i)\.secure\s*\(\s*false\s*\)
   severity: high
-  description: "CSRF cookie not marked as secure"
-  remediation: "Set CSRF cookie as secure"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: CSRF cookie not marked as secure
+  remediation: Set CSRF cookie as secure
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-csrf-cookie-same-site-none
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.sameSite\s*\(\s*SameSitePolicy\.NONE'
+  - regex: (?i)\.sameSite\s*\(\s*SameSitePolicy\.NONE
   severity: medium
-  description: "CSRF cookie with SameSite=None"
-  remediation: "Use SameSite=Lax or Strict"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF cookie with SameSite=None
+  remediation: Use SameSite=Lax or Strict
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-csrf-header-name-default
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.csrfTokenRepository\s*\(\).*headerName\s*\(\s*\\\"X-CSRF-TOKEN'
+  - regex: (?i)\.csrfTokenRepository\s*\(\).*headerName\s*\(\s*\\\"X-CSRF-TOKEN
   severity: low
-  description: "Default CSRF header name used"
-  remediation: "Consider customizing CSRF header name"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Default CSRF header name used
+  remediation: Consider customizing CSRF header name
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: spring-csrf-parameter-name-default
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.csrfTokenRepository\s*\(\).*parameterName\s*\(\s*\\\"_csrf'
+  - regex: (?i)\.csrfTokenRepository\s*\(\).*parameterName\s*\(\s*\\\"_csrf
   severity: low
-  description: "Default CSRF parameter name used"
-  remediation: "Consider customizing CSRF parameter name"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Default CSRF parameter name used
+  remediation: Consider customizing CSRF parameter name
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.55
 - id: spring-csrf-session-repository
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)HttpSessionCsrfTokenRepository'
+  - regex: (?i)HttpSessionCsrfTokenRepository
   severity: low
-  description: "Session-based CSRF token repository"
-  remediation: "Consider cookie-based token repository for stateless APIs"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: Session-based CSRF token repository
+  remediation: Consider cookie-based token repository for stateless APIs
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.45
 - id: spring-csrf-cookie-http-only-false
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)CookieCsrfTokenRepository.*httpOnly\s*\(\s*false'
+  - regex: (?i)CookieCsrfTokenRepository.*httpOnly\s*\(\s*false
   severity: high
-  description: "CSRF cookie not HttpOnly"
-  remediation: "Set CSRF cookie as HttpOnly"
-  cwe: "CWE-614"
-  owasp: "A01:2021"
-
+  description: CSRF cookie not HttpOnly
+  remediation: Set CSRF cookie as HttpOnly
+  cwe: CWE-614
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-csrf-cookie-path-root
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.cookiePath\s*\(\s*\\\"/\\\"\s*\)'
+  - regex: (?i)\.cookiePath\s*\(\s*\\\"/\\\"\s*\)
   severity: low
-  description: "CSRF cookie path set to root"
-  remediation: "Consider restricting cookie path"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF cookie path set to root
+  remediation: Consider restricting cookie path
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.5
 - id: spring-csrf-cookie-domain
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.cookieDomain\s*\(\s*\\\"\.'
+  - regex: (?i)\.cookieDomain\s*\(\s*\\\"\.
   severity: medium
-  description: "CSRF cookie domain set to parent domain"
-  remediation: "Set cookie domain to specific domain"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF cookie domain set to parent domain
+  remediation: Set cookie domain to specific domain
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-csrf-cookie-max-age
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.cookieMaxAgeSeconds\s*\(\s*-1\s*\)'
+  - regex: (?i)\.cookieMaxAgeSeconds\s*\(\s*-1\s*\)
   severity: medium
-  description: "CSRF cookie with session-only lifetime"
-  remediation: "Set appropriate max age for CSRF cookie"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF cookie with session-only lifetime
+  remediation: Set appropriate max age for CSRF cookie
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-csrf-request-attribute
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.csrfTokenRepository\s*\(\).*requestAttributeName'
+  - regex: (?i)\.csrfTokenRepository\s*\(\).*requestAttributeName
   severity: low
-  description: "CSRF token in request attribute"
-  remediation: "Review CSRF token storage mechanism"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF token in request attribute
+  remediation: Review CSRF token storage mechanism
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.5
 - id: spring-csrf-ignoring-request-matcher
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.ignoringRequestMatchers\s*\('
+  - regex: (?i)\.ignoringRequestMatchers\s*\(
   severity: high
-  description: "CSRF ignoring for specific request matchers"
-  remediation: "Review if CSRF should be ignored"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF ignoring for specific request matchers
+  remediation: Review if CSRF should be ignored
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-csrf-ignoring-ant-matcher
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.ignoringRequestMatchers\s*\(\s*new\s+AntPathRequestMatcher'
+  - regex: (?i)\.ignoringRequestMatchers\s*\(\s*new\s+AntPathRequestMatcher
   severity: high
-  description: "CSRF ignored for Ant path patterns"
-  remediation: "Review CSRF exemption for these paths"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF ignored for Ant path patterns
+  remediation: Review CSRF exemption for these paths
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.75
 - id: spring-csrf-ignoring-regex-matcher
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.ignoringRequestMatchers\s*\(\s*new\s+RegexRequestMatcher'
+  - regex: (?i)\.ignoringRequestMatchers\s*\(\s*new\s+RegexRequestMatcher
   severity: high
-  description: "CSRF ignored for regex patterns"
-  remediation: "Review CSRF exemption for these patterns"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
+  description: CSRF ignored for regex patterns
+  remediation: Review CSRF exemption for these patterns
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.75
 - id: spring-csrf-ignoring-request-matcher-type
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.ignoringRequestMatchers\s*\(\s*new\s+RequestMatcher'
+  - regex: (?i)\.ignoringRequestMatchers\s*\(\s*new\s+RequestMatcher
   severity: high
-  description: "CSRF ignored for custom request matcher"
-  remediation: "Review CSRF exemption logic"
-  cwe: "CWE-352"
-  owasp: "A01:2021"
-
-# --- Insecure Deserialization (76-90) ---
+  description: CSRF ignored for custom request matcher
+  remediation: Review CSRF exemption logic
+  cwe: CWE-352
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-deser-object-input-stream
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+ObjectInputStream\s*\('
+  - regex: (?i)new\s+ObjectInputStream\s*\(
   severity: critical
-  description: "Java native deserialization detected"
-  remediation: "Use JSON or implement ObjectInputFilter"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Java native deserialization detected
+  remediation: Use JSON or implement ObjectInputFilter
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-read-object
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.readObject\s*\('
+  - regex: (?i)\.readObject\s*\(
   severity: critical
-  description: "readObject() call for deserialization"
-  remediation: "Implement readObject validation or use safe serialization"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: readObject() call for deserialization
+  remediation: Implement readObject validation or use safe serialization
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-xml-decoder
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+XMLDecoder\s*\('
+  - regex: (?i)new\s+XMLDecoder\s*\(
   severity: critical
-  description: "XMLDecoder can execute arbitrary code"
-  remediation: "Use JAXB or Jackson for XML processing"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: XMLDecoder can execute arbitrary code
+  remediation: Use JAXB or Jackson for XML processing
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-xstream
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+XStream\s*\('
+  - regex: (?i)new\s+XStream\s*\(
   severity: critical
-  description: "XStream deserialization without security setup"
-  remediation: "Configure XStream with security framework"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: XStream deserialization without security setup
+  remediation: Configure XStream with security framework
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-yaml-snakeyaml
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+Yaml\s*\(\s*\)\.load'
+  - regex: (?i)new\s+Yaml\s*\(\s*\)\.load
   severity: critical
-  description: "SnakeYAML load without safe constructor"
-  remediation: "Use SafeConstructor for YAML parsing"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: SnakeYAML load without safe constructor
+  remediation: Use SafeConstructor for YAML parsing
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-jackson-default-typing
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.enableDefaultTyping\s*\('
+  - regex: (?i)\.enableDefaultTyping\s*\(
   severity: critical
-  description: "Jackson default typing enabled"
-  remediation: "Disable default typing or use allowlist"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Jackson default typing enabled
+  remediation: Disable default typing or use allowlist
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-jackson-type-name
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@JsonTypeInfo.*use\s*=\s*JsonTypeInfo\.Id\.CLASS'
+  - regex: (?i)@JsonTypeInfo.*use\s*=\s*JsonTypeInfo\.Id\.CLASS
   severity: high
-  description: "Jackson type information from class name"
-  remediation: "Use Id.NAME with explicit type names"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Jackson type information from class name
+  remediation: Use Id.NAME with explicit type names
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.7
 - id: spring-deser-jackson-object-id
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@JsonIdentityInfo\s*\('
+  - regex: (?i)@JsonIdentityInfo\s*\(
   severity: medium
-  description: "Jackson object identity handling"
-  remediation: "Validate object references"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Jackson object identity handling
+  remediation: Validate object references
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.6
 - id: spring-deser-kryo
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+Kryo\s*\('
+  - regex: (?i)new\s+Kryo\s*\(
   severity: critical
-  description: "Kryo deserialization without security"
-  remediation: "Configure Kryo with registration required"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Kryo deserialization without security
+  remediation: Configure Kryo with registration required
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-hessian
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+Hessian2Input\s*\('
+  - regex: (?i)new\s+Hessian2Input\s*\(
   severity: critical
-  description: "Hessian deserialization detected"
-  remediation: "Use whitelist for allowed classes"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Hessian deserialization detected
+  remediation: Use whitelist for allowed classes
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-castor
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)org\.codehaus\.castor'
+  - regex: (?i)org\.codehaus\.castor
   severity: critical
-  description: "Castor XML deserialization"
-  remediation: "Configure class whitelist"
-  cwe: "CWE-502"
-  owasp: "A08:2021"
-
+  description: Castor XML deserialization
+  remediation: Configure class whitelist
+  cwe: CWE-502
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-beanshell
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)bsh\.Interpreter|bsh\.Eval'
+  - regex: (?i)bsh\.Interpreter|bsh\.Eval
   severity: critical
-  description: "BeanShell interpreter can execute code"
-  remediation: "Remove BeanShell or restrict access"
-  cwe: "CWE-94"
-  owasp: "A08:2021"
-
+  description: BeanShell interpreter can execute code
+  remediation: Remove BeanShell or restrict access
+  cwe: CWE-94
+  owasp: A08:2021
+  confidence: 0.75
 - id: spring-deser-groovy
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)GroovyShell|GroovyClassLoader'
+  - regex: (?i)GroovyShell|GroovyClassLoader
   severity: critical
-  description: "Groovy script execution detected"
-  remediation: "Use SecureGroovyScriptEngine"
-  cwe: "CWE-94"
-  owasp: "A08:2021"
-
+  description: Groovy script execution detected
+  remediation: Use SecureGroovyScriptEngine
+  cwe: CWE-94
+  owasp: A08:2021
+  confidence: 0.7
 - id: spring-deser-mvel
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)MVEL\.eval|new\s+MVELExpressionCompiler'
+  - regex: (?i)MVEL\.eval|new\s+MVELExpressionCompiler
   severity: critical
-  description: "MVEL expression evaluation"
-  remediation: "Restrict MVEL expressions"
-  cwe: "CWE-94"
-  owasp: "A08:2021"
-
+  description: MVEL expression evaluation
+  remediation: Restrict MVEL expressions
+  cwe: CWE-94
+  owasp: A08:2021
+  confidence: 0.7
 - id: spring-deser-jxpath
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)JXPathContext\.newContext'
+  - regex: (?i)JXPathContext\.newContext
   severity: high
-  description: "JXPath context creation"
-  remediation: "Validate XPath expressions"
-  cwe: "CWE-94"
-  owasp: "A08:2021"
-
-# --- SSRF (91-105) ---
+  description: JXPath context creation
+  remediation: Validate XPath expressions
+  cwe: CWE-94
+  owasp: A08:2021
+  confidence: 0.65
 - id: spring-ssrf-rest-template
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)RestTemplate.*getForObject\s*\(\s*request\.getParameter'
+  - regex: (?i)RestTemplate.*getForObject\s*\(\s*request\.getParameter
   severity: high
-  description: "SSRF via RestTemplate with user-controlled URL"
-  remediation: "Validate URLs against allowlist"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: SSRF via RestTemplate with user-controlled URL
+  remediation: Validate URLs against allowlist
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.9
 - id: spring-ssrf-web-client
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)WebClient\.create\(\).*uri\s*\(\s*request'
+  - regex: (?i)WebClient\.create\(\).*uri\s*\(\s*request
   severity: high
-  description: "SSRF via WebClient with user-controlled URI"
-  remediation: "Validate URIs before making requests"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: SSRF via WebClient with user-controlled URI
+  remediation: Validate URIs before making requests
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: spring-ssrf-http-url-connection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+URL\s*\(\s*request\.getParameter'
+  - regex: (?i)new\s+URL\s*\(\s*request\.getParameter
   severity: high
-  description: "SSRF via URL with user input"
-  remediation: "Validate and restrict URL protocols"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: SSRF via URL with user input
+  remediation: Validate and restrict URL protocols
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.9
 - id: spring-ssrf-okhttp
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+Request\.Builder\(\).*url\s*\(\s*request'
+  - regex: (?i)new\s+Request\.Builder\(\).*url\s*\(\s*request
   severity: high
-  description: "SSRF via OkHttp with user-controlled URL"
-  remediation: "Validate URLs against allowlist"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: SSRF via OkHttp with user-controlled URL
+  remediation: Validate URLs against allowlist
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: spring-ssrf-apache-httpclient
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)HttpGet\s*\(\s*request\.getParameter|HttpPost\s*\(\s*request'
+  - regex: (?i)HttpGet\s*\(\s*request\.getParameter|HttpPost\s*\(\s*request
   severity: high
-  description: "SSRF via Apache HttpClient with user input"
-  remediation: "Validate URLs before HTTP requests"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: SSRF via Apache HttpClient with user input
+  remediation: Validate URLs before HTTP requests
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.95
 - id: spring-ssrf-socket
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+Socket\s*\(\s*request\.getParameter'
+  - regex: (?i)new\s+Socket\s*\(\s*request\.getParameter
   severity: high
-  description: "SSRF via Socket with user-controlled host"
-  remediation: "Validate host and port"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: SSRF via Socket with user-controlled host
+  remediation: Validate host and port
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.9
 - id: spring-ssrf-datagram-socket
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+DatagramSocket\s*\(\s*request'
+  - regex: (?i)new\s+DatagramSocket\s*\(\s*request
   severity: high
-  description: "SSRF via DatagramSocket with user input"
-  remediation: "Validate destination address"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: SSRF via DatagramSocket with user input
+  remediation: Validate destination address
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: spring-ssrf-http-client-builder
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)HttpClient\.newBuilder\(\).*build\(\).*send'
+  - regex: (?i)HttpClient\.newBuilder\(\).*build\(\).*send
   severity: medium
-  description: "Java 11+ HttpClient usage"
-  remediation: "Validate URLs in requests"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Java 11+ HttpClient usage
+  remediation: Validate URLs in requests
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.55
 - id: spring-ssrf-feign-client
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@FeignClient.*url\s*=\s*\\\"\$\{'
+  - regex: (?i)@FeignClient.*url\s*=\s*\\\"\$\{
   severity: high
-  description: "Feign client with dynamic URL"
-  remediation: "Validate Feign client URLs"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Feign client with dynamic URL
+  remediation: Validate Feign client URLs
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.65
 - id: spring-ssrf-retrofit
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)@GET\s*\(\s*\\"\$\{|@POST\s*\(\s*\\"\$\{'
+  - regex: (?i)@GET\s*\(\s*\\"\$\{|@POST\s*\(\s*\\"\$\{
   severity: high
-  description: "Retrofit with dynamic endpoint"
-  remediation: "Validate Retrofit endpoints"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Retrofit with dynamic endpoint
+  remediation: Validate Retrofit endpoints
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: spring-ssrf-webflux-webclient
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)WebClient\.builder\(\).*baseUrl\s*\(\s*\$\{'
+  - regex: (?i)WebClient\.builder\(\).*baseUrl\s*\(\s*\$\{
   severity: high
-  description: "WebFlux WebClient with dynamic base URL"
-  remediation: "Validate base URL configuration"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: WebFlux WebClient with dynamic base URL
+  remediation: Validate base URL configuration
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: spring-ssrf-jersey-client
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ClientBuilder\.newClient\(\).*target\s*\(\s*\$\{'
+  - regex: (?i)ClientBuilder\.newClient\(\).*target\s*\(\s*\$\{
   severity: high
-  description: "JAX-RS client with dynamic target"
-  remediation: "Validate target URIs"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: JAX-RS client with dynamic target
+  remediation: Validate target URIs
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.7
 - id: spring-ssrf-apache-http-async
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)HttpAsyncClients\.createDefault\(\).*execute'
+  - regex: (?i)HttpAsyncClients\.createDefault\(\).*execute
   severity: medium
-  description: "Apache HTTP Async Client usage"
-  remediation: "Validate URLs in async requests"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: Apache HTTP Async Client usage
+  remediation: Validate URLs in async requests
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.55
 - id: spring-ssrf-okhttp-interceptor
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)class.*implements.*Interceptor.*intercept'
+  - regex: (?i)class.*implements.*Interceptor.*intercept
   severity: medium
-  description: "OkHttp interceptor detected"
-  remediation: "Validate URLs in interceptors"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
+  description: OkHttp interceptor detected
+  remediation: Validate URLs in interceptors
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.55
 - id: spring-ssrf-rest-template-interceptor
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ClientHttpRequestInterceptor|ClientHttpRequestFactory'
+  - regex: (?i)ClientHttpRequestInterceptor|ClientHttpRequestFactory
   severity: medium
-  description: "RestTemplate request interceptor"
-  remediation: "Validate URLs in interceptors"
-  cwe: "CWE-918"
-  owasp: "A10:2021"
-
-# --- Security Misconfiguration (106-125) ---
+  description: RestTemplate request interceptor
+  remediation: Validate URLs in interceptors
+  cwe: CWE-918
+  owasp: A10:2021
+  confidence: 0.55
 - id: spring-misconfig-debug-enabled
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)debug\.enabled\s*=\s*true|logging\.level\.root\s*=\s*DEBUG'
+  - regex: (?i)debug\.enabled\s*=\s*true|logging\.level\.root\s*=\s*DEBUG
   severity: high
-  description: "Debug logging enabled in production"
-  remediation: "Disable debug logging in production"
-  cwe: "CWE-215"
-  owasp: "A05:2021"
-
+  description: Debug logging enabled in production
+  remediation: Disable debug logging in production
+  cwe: CWE-215
+  owasp: A05:2021
+  confidence: 0.75
 - id: spring-misconfig-actuator-exposed
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoints\.web\.exposure\.include\s*=\s*\*'
+  - regex: (?i)management\.endpoints\.web\.exposure\.include\s*=\s*\*
   severity: high
-  description: "All Actuator endpoints exposed"
-  remediation: "Expose only necessary endpoints"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: All Actuator endpoints exposed
+  remediation: Expose only necessary endpoints
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-actuator-env
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.env\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.env\.enabled\s*=\s*true
   severity: high
-  description: "Actuator env endpoint enabled"
-  remediation: "Disable env endpoint or secure it"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Actuator env endpoint enabled
+  remediation: Disable env endpoint or secure it
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-actuator-heapdump
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.heapdump\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.heapdump\.enabled\s*=\s*true
   severity: high
-  description: "Actuator heapdump endpoint enabled"
-  remediation: "Disable heapdump endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Actuator heapdump endpoint enabled
+  remediation: Disable heapdump endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-actuator-threaddump
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.threaddump\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.threaddump\.enabled\s*=\s*true
   severity: high
-  description: "Actuator threaddump endpoint enabled"
-  remediation: "Disable threaddump endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Actuator threaddump endpoint enabled
+  remediation: Disable threaddump endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-actuator-mappings
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.mappings\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.mappings\.enabled\s*=\s*true
   severity: high
-  description: "Actuator mappings endpoint enabled"
-  remediation: "Disable mappings endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Actuator mappings endpoint enabled
+  remediation: Disable mappings endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-actuator-beans
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.beans\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.beans\.enabled\s*=\s*true
   severity: high
-  description: "Actuator beans endpoint enabled"
-  remediation: "Disable beans endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Actuator beans endpoint enabled
+  remediation: Disable beans endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-actuator-configprops
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.configprops\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.configprops\.enabled\s*=\s*true
   severity: high
-  description: "Actuator configprops endpoint enabled"
-  remediation: "Disable configprops endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Actuator configprops endpoint enabled
+  remediation: Disable configprops endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-actuator-shutdown
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.shutdown\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.shutdown\.enabled\s*=\s*true
   severity: critical
-  description: "Actuator shutdown endpoint enabled"
-  remediation: "Disable shutdown endpoint or secure it"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Actuator shutdown endpoint enabled
+  remediation: Disable shutdown endpoint or secure it
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.75
 - id: spring-misconfig-actuator-restart
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.restart\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.restart\.enabled\s*=\s*true
   severity: critical
-  description: "Actuator restart endpoint enabled"
-  remediation: "Disable restart endpoint or secure it"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Actuator restart endpoint enabled
+  remediation: Disable restart endpoint or secure it
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.75
 - id: spring-misconfig-error-whitelabel
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)server\.error\.whitelabel\.enabled\s*=\s*true'
+  - regex: (?i)server\.error\.whitelabel\.enabled\s*=\s*true
   severity: medium
-  description: "Whitelabel error page enabled"
-  remediation: "Implement custom error page"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Whitelabel error page enabled
+  remediation: Implement custom error page
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.6
 - id: spring-misconfig-include-error-details
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)server\.error\.include-exception\s*=\s*true|include-message\s*=\s*always'
+  - regex: (?i)server\.error\.include-exception\s*=\s*true|include-message\s*=\s*always
   severity: high
-  description: "Error details exposed in responses"
-  remediation: "Disable error details in production"
-  cwe: "CWE-209"
-  owasp: "A05:2021"
-
+  description: Error details exposed in responses
+  remediation: Disable error details in production
+  cwe: CWE-209
+  owasp: A05:2021
+  confidence: 0.75
 - id: spring-misconfig-trace-enabled
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.trace\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.trace\.enabled\s*=\s*true
   severity: high
-  description: "Actuator trace endpoint enabled"
-  remediation: "Disable trace endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Actuator trace endpoint enabled
+  remediation: Disable trace endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-httptrace-enabled
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.httptrace\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.httptrace\.enabled\s*=\s*true
   severity: high
-  description: "HTTP trace endpoint enabled"
-  remediation: "Disable httptrace endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: HTTP trace endpoint enabled
+  remediation: Disable httptrace endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-metrics-unsecured
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.metrics\.enabled\s*=\s*true.*security.*false'
+  - regex: (?i)management\.endpoint\.metrics\.enabled\s*=\s*true.*security.*false
   severity: medium
-  description: "Metrics endpoint without security"
-  remediation: "Secure metrics endpoint"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Metrics endpoint without security
+  remediation: Secure metrics endpoint
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: spring-misconfig-prometheus-unsecured
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.prometheus\.metrics\.export\.enabled\s*=\s*true'
+  - regex: (?i)management\.prometheus\.metrics\.export\.enabled\s*=\s*true
   severity: medium
-  description: "Prometheus metrics export enabled"
-  remediation: "Secure Prometheus endpoint"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Prometheus metrics export enabled
+  remediation: Secure Prometheus endpoint
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.65
 - id: spring-misconfig-health-unsecured
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.health\.show-details\s*=\s*always'
+  - regex: (?i)management\.endpoint\.health\.show-details\s*=\s*always
   severity: medium
-  description: "Health endpoint shows detailed info"
-  remediation: "Show health details only for authorized users"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Health endpoint shows detailed info
+  remediation: Show health details only for authorized users
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.6
 - id: spring-misconfig-info-unsecured
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.info\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.info\.enabled\s*=\s*true
   severity: medium
-  description: "Info endpoint enabled"
-  remediation: "Review info endpoint exposure"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Info endpoint enabled
+  remediation: Review info endpoint exposure
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.6
 - id: spring-misconfig-loggers-unsecured
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.loggers\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.loggers\.enabled\s*=\s*true
   severity: high
-  description: "Loggers endpoint enabled"
-  remediation: "Disable loggers endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Loggers endpoint enabled
+  remediation: Disable loggers endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.7
 - id: spring-misconfig-conditions-unsecured
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)management\.endpoint\.conditions\.enabled\s*=\s*true'
+  - regex: (?i)management\.endpoint\.conditions\.enabled\s*=\s*true
   severity: medium
-  description: "Conditions endpoint enabled"
-  remediation: "Disable conditions endpoint in production"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
-# --- Cryptography (126-140) ---
+  description: Conditions endpoint enabled
+  remediation: Disable conditions endpoint in production
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.6
 - id: spring-crypto-weak-algorithm-md5
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)MessageDigest\.getInstance\s*\(\s*\\\"MD5'
+  - regex: (?i)MessageDigest\.getInstance\s*\(\s*\\\"MD5
   severity: medium
-  description: "MD5 hash algorithm used"
-  remediation: "Use SHA-256 or stronger"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: MD5 hash algorithm used
+  remediation: Use SHA-256 or stronger
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.6
 - id: spring-crypto-weak-algorithm-sha1
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)MessageDigest\.getInstance\s*\(\s*\\\"SHA-1'
+  - regex: (?i)MessageDigest\.getInstance\s*\(\s*\\\"SHA-1
   severity: medium
-  description: "SHA-1 hash algorithm used"
-  remediation: "Use SHA-256 or stronger"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: SHA-1 hash algorithm used
+  remediation: Use SHA-256 or stronger
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.6
 - id: spring-crypto-weak-cipher-des
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Cipher\.getInstance\s*\(\s*\\\"DES'
+  - regex: (?i)Cipher\.getInstance\s*\(\s*\\\"DES
   severity: high
-  description: "DES encryption algorithm used"
-  remediation: "Use AES-256-GCM"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: DES encryption algorithm used
+  remediation: Use AES-256-GCM
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.7
 - id: spring-crypto-weak-cipher-rc4
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Cipher\.getInstance\s*\(\s*\\\"RC4'
+  - regex: (?i)Cipher\.getInstance\s*\(\s*\\\"RC4
   severity: high
-  description: "RC4 encryption algorithm used"
-  remediation: "Use AES-256-GCM"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: RC4 encryption algorithm used
+  remediation: Use AES-256-GCM
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.7
 - id: spring-crypto-ecb-mode
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Cipher\.getInstance\s*\(\s*\\\".*/ECB/'
+  - regex: (?i)Cipher\.getInstance\s*\(\s*\\\".*/ECB/
   severity: high
-  description: "ECB mode encryption used"
-  remediation: "Use GCM or CBC mode with IV"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: ECB mode encryption used
+  remediation: Use GCM or CBC mode with IV
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.7
 - id: spring-crypto-hardcoded-key
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+SecretKeySpec\s*\(\s*\\\"[^\\\"]+\\\"\.getBytes'
+  - regex: (?i)new\s+SecretKeySpec\s*\(\s*\\\"[^\\\"]+\\\"\.getBytes
   severity: critical
-  description: "Hardcoded encryption key"
-  remediation: "Use KeyStore or environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded encryption key
+  remediation: Use KeyStore or environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.75
 - id: spring-crypto-hardcoded-iv
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+IvParameterSpec\s*\(\s*\\\"[^\\\"]+\\\"\.getBytes'
+  - regex: (?i)new\s+IvParameterSpec\s*\(\s*\\\"[^\\\"]+\\\"\.getBytes
   severity: high
-  description: "Hardcoded initialization vector"
-  remediation: "Generate random IV for each encryption"
-  cwe: "CWE-327"
-  owasp: "A02:2021"
-
+  description: Hardcoded initialization vector
+  remediation: Generate random IV for each encryption
+  cwe: CWE-327
+  owasp: A02:2021
+  confidence: 0.7
 - id: spring-crypto-insecure-random
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+Random\s*\('
+  - regex: (?i)new\s+Random\s*\(
   severity: medium
-  description: "Insecure Random for cryptographic operations"
-  remediation: "Use SecureRandom for crypto operations"
-  cwe: "CWE-330"
-  owasp: "A02:2021"
-
+  description: Insecure Random for cryptographic operations
+  remediation: Use SecureRandom for crypto operations
+  cwe: CWE-330
+  owasp: A02:2021
+  confidence: 0.6
 - id: spring-crypto-password-encoder-none
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)NoOpPasswordEncoder\.getInstance\s*\('
+  - regex: (?i)NoOpPasswordEncoder\.getInstance\s*\(
   severity: critical
-  description: "NoOpPasswordEncoder stores plain text passwords"
-  remediation: "Use BCryptPasswordEncoder"
-  cwe: "CWE-311"
-  owasp: "A02:2021"
-
+  description: NoOpPasswordEncoder stores plain text passwords
+  remediation: Use BCryptPasswordEncoder
+  cwe: CWE-311
+  owasp: A02:2021
+  confidence: 0.75
 - id: spring-crypto-password-encoder-sha
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ShaPasswordEncoder|StandardPasswordEncoder'
+  - regex: (?i)ShaPasswordEncoder|StandardPasswordEncoder
   severity: medium
-  description: "SHA-based password encoder (weak)"
-  remediation: "Use BCryptPasswordEncoder"
-  cwe: "CWE-328"
-  owasp: "A02:2021"
-
+  description: SHA-based password encoder (weak)
+  remediation: Use BCryptPasswordEncoder
+  cwe: CWE-328
+  owasp: A02:2021
+  confidence: 0.55
 - id: spring-crypto-tls-ssl3
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)ssl\.enabled\.protocols.*SSLv3|tls\.protocols.*SSLv3'
+  - regex: (?i)ssl\.enabled\.protocols.*SSLv3|tls\.protocols.*SSLv3
   severity: critical
-  description: "SSLv3 protocol enabled"
-  remediation: "Disable SSLv3, use TLS 1.2+"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: SSLv3 protocol enabled
+  remediation: Disable SSLv3, use TLS 1.2+
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.75
 - id: spring-crypto-tls-tls10
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)tls\.protocols.*TLSv1\.0|tls1'
+  - regex: (?i)tls\.protocols.*TLSv1\.0|tls1
   severity: high
-  description: "TLS 1.0 protocol enabled"
-  remediation: "Disable TLS 1.0, use TLS 1.2+"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: TLS 1.0 protocol enabled
+  remediation: Disable TLS 1.0, use TLS 1.2+
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.7
 - id: spring-crypto-tls-tls11
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)tls\.protocols.*TLSv1\.1|tls11'
+  - regex: (?i)tls\.protocols.*TLSv1\.1|tls11
   severity: high
-  description: "TLS 1.1 protocol enabled"
-  remediation: "Disable TLS 1.1, use TLS 1.2+"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
+  description: TLS 1.1 protocol enabled
+  remediation: Disable TLS 1.1, use TLS 1.2+
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.7
 - id: spring-crypto-certificate-validation-disabled
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)setVerifyHostname\s*\(\s*false\s*\)|TrustAllCertificates'
+  - regex: (?i)setVerifyHostname\s*\(\s*false\s*\)|TrustAllCertificates
   severity: critical
-  description: "Certificate validation disabled"
-  remediation: "Enable certificate validation"
-  cwe: "CWE-295"
-  owasp: "A07:2021"
-
+  description: Certificate validation disabled
+  remediation: Enable certificate validation
+  cwe: CWE-295
+  owasp: A07:2021
+  confidence: 0.75
 - id: spring-crypto-key-length-short
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)KeyGenerator\.getInstance.*init\s*\(\s*128\s*\)'
+  - regex: (?i)KeyGenerator\.getInstance.*init\s*\(\s*128\s*\)
   severity: medium
-  description: "Short key length for encryption"
-  remediation: "Use minimum 256-bit keys"
-  cwe: "CWE-326"
-  owasp: "A02:2021"
-
-# --- File Operations (141-155) ---
+  description: Short key length for encryption
+  remediation: Use minimum 256-bit keys
+  cwe: CWE-326
+  owasp: A02:2021
+  confidence: 0.6
 - id: spring-file-path-traversal-read
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.readAllBytes\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.readAllBytes\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "Path traversal in file read operation"
-  remediation: "Validate and sanitize file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Path traversal in file read operation
+  remediation: Validate and sanitize file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-file-path-traversal-write
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.write\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.write\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "Path traversal in file write operation"
-  remediation: "Validate and sanitize file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Path traversal in file write operation
+  remediation: Validate and sanitize file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-file-upload-no-size-limit
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)spring\.servlet\.multipart\.max-file-size\s*=\s*-1'
+  - regex: (?i)spring\.servlet\.multipart\.max-file-size\s*=\s*-1
   severity: high
-  description: "No file size limit configured"
-  remediation: "Set appropriate file size limits"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: No file size limit configured
+  remediation: Set appropriate file size limits
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.7
 - id: spring-file-upload-no-type-validation
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)MultipartFile.*getOriginalFilename\(\).*\.'
+  - regex: (?i)MultipartFile.*getOriginalFilename\(\).*\.
   severity: high
-  description: "File upload without type validation"
-  remediation: "Validate file content type and extension"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: File upload without type validation
+  remediation: Validate file content type and extension
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.65
 - id: spring-file-upload-executable-extensions
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)\.jsp|\.jspx|\.jspx|\.jspx|\.war|\.exe|\.bat|\.sh'
+  - regex: (?i)\.jsp|\.jspx|\.jspx|\.jspx|\.war|\.exe|\.bat|\.sh
   severity: critical
-  description: "Executable file extension in upload"
-  remediation: "Block executable file extensions"
-  cwe: "CWE-434"
-  owasp: "A04:2021"
-
+  description: Executable file extension in upload
+  remediation: Block executable file extensions
+  cwe: CWE-434
+  owasp: A04:2021
+  confidence: 0.75
 - id: spring-file-temp-directory
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.createTempFile|File\.createTempFile'
+  - regex: (?i)Files\.createTempFile|File\.createTempFile
   severity: low
-  description: "Temporary file creation"
-  remediation: "Ensure temp files are cleaned up"
-  cwe: "CWE-775"
-  owasp: "A05:2021"
-
+  description: Temporary file creation
+  remediation: Ensure temp files are cleaned up
+  cwe: CWE-775
+  owasp: A05:2021
+  confidence: 0.5
 - id: spring-file-delete-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.delete\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.delete\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "File deletion with user input"
-  remediation: "Validate file paths before deletion"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File deletion with user input
+  remediation: Validate file paths before deletion
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-file-copy-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.copy\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.copy\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "File copy with user input"
-  remediation: "Validate source and destination paths"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File copy with user input
+  remediation: Validate source and destination paths
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-file-move-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.move\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.move\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "File move with user input"
-  remediation: "Validate source and destination paths"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: File move with user input
+  remediation: Validate source and destination paths
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-file-exists-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.exists\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.exists\s*\(\s*Paths\.get\s*\(\s*request
   severity: medium
-  description: "File existence check with user input"
-  remediation: "Validate file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File existence check with user input
+  remediation: Validate file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-file-mkdirs-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.createDirectories\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.createDirectories\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "Directory creation with user input"
-  remediation: "Validate directory paths"
-  cwe: "CWE-73"
-  owasp: "A01:2021"
-
+  description: Directory creation with user input
+  remediation: Validate directory paths
+  cwe: CWE-73
+  owasp: A01:2021
+  confidence: 0.75
 - id: spring-file-list-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.list\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.list\s*\(\s*Paths\.get\s*\(\s*request
   severity: medium
-  description: "Directory listing with user input"
-  remediation: "Validate directory paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Directory listing with user input
+  remediation: Validate directory paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-file-walk-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.walk\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.walk\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "Directory walk with user input"
-  remediation: "Validate directory paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: Directory walk with user input
+  remediation: Validate directory paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-file-attributes-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.getAttributes\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.getAttributes\s*\(\s*Paths\.get\s*\(\s*request
   severity: medium
-  description: "File attributes with user input"
-  remediation: "Validate file paths"
-  cwe: "CWE-22"
-  owasp: "A01:2021"
-
+  description: File attributes with user input
+  remediation: Validate file paths
+  cwe: CWE-22
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-file-permissions-user-input
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Files\.setPosixFilePermissions\s*\(\s*Paths\.get\s*\(\s*request'
+  - regex: (?i)Files\.setPosixFilePermissions\s*\(\s*Paths\.get\s*\(\s*request
   severity: high
-  description: "File permissions with user input"
-  remediation: "Validate file paths and permissions"
-  cwe: "CWE-732"
-  owasp: "A01:2021"
-
-# --- Open Redirect (156-165) ---
+  description: File permissions with user input
+  remediation: Validate file paths and permissions
+  cwe: CWE-732
+  owasp: A01:2021
+  confidence: 0.75
 - id: spring-redirect-sendredirect
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)response\.sendRedirect\s*\(\s*request\.getParameter'
+  - regex: (?i)response\.sendRedirect\s*\(\s*request\.getParameter
   severity: high
-  description: "Open redirect via sendRedirect"
-  remediation: "Validate redirect URLs against allowlist"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Open redirect via sendRedirect
+  remediation: Validate redirect URLs against allowlist
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.9
 - id: spring-redirect-response-entity
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ResponseEntity\.status\s*\(\s*302\s*\)\.location'
+  - regex: (?i)ResponseEntity\.status\s*\(\s*302\s*\)\.location
   severity: high
-  description: "Open redirect via ResponseEntity"
-  remediation: "Validate redirect URLs"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Open redirect via ResponseEntity
+  remediation: Validate redirect URLs
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-redirect-redirect-view
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)return\s+\\\"redirect:\\\"\s*\+.*request'
+  - regex: (?i)return\s+\\\"redirect:\\\"\s*\+.*request
   severity: high
-  description: "Open redirect via redirect: prefix"
-  remediation: "Validate redirect URLs"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: 'Open redirect via redirect: prefix'
+  remediation: Validate redirect URLs
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.65
 - id: spring-redirect-forward-view
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)return\s+\\\"forward:\\\"\s*\+.*request'
+  - regex: (?i)return\s+\\\"forward:\\\"\s*\+.*request
   severity: medium
-  description: "Forward with user-controlled path"
-  remediation: "Validate forward paths"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Forward with user-controlled path
+  remediation: Validate forward paths
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.55
 - id: spring-redirect-modelandview
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)new\s+ModelAndView\s*\(\s*\\\"redirect:'
+  - regex: '(?i)new\s+ModelAndView\s*\(\s*\\\"redirect:'
   severity: high
-  description: "Open redirect via ModelAndView"
-  remediation: "Validate redirect URLs in ModelAndView"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Open redirect via ModelAndView
+  remediation: Validate redirect URLs in ModelAndView
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.7
 - id: spring-redirect-uri-builder
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)UriComponentsBuilder.*queryParam.*request\.getParameter'
+  - regex: (?i)UriComponentsBuilder.*queryParam.*request\.getParameter
   severity: medium
-  description: "URI building with user input"
-  remediation: "Validate URI components"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: URI building with user input
+  remediation: Validate URI components
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.75
 - id: spring-redirect-uri-components
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)UriComponents\.fromUriString\s*\(\s*request'
+  - regex: (?i)UriComponents\.fromUriString\s*\(\s*request
   severity: medium
-  description: "URI components from user input"
-  remediation: "Validate URI strings"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: URI components from user input
+  remediation: Validate URI strings
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-redirect-url-validator
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)UrlPathHelper|UrlPathHelper\.getDefaultInstance'
+  - regex: (?i)UrlPathHelper|UrlPathHelper\.getDefaultInstance
   severity: low
-  description: "URL path helper usage"
-  remediation: "Configure URL path helper securely"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: URL path helper usage
+  remediation: Configure URL path helper securely
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.45
 - id: spring-redirect-servlet-context
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ServletContext\.getContext\s*\('
+  - regex: (?i)ServletContext\.getContext\s*\(
   severity: medium
-  description: "Servlet context from external context"
-  remediation: "Validate context paths"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
+  description: Servlet context from external context
+  remediation: Validate context paths
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-redirect-request-dispatcher
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)RequestDispatcher\.forward\s*\(\s*request'
+  - regex: (?i)RequestDispatcher\.forward\s*\(\s*request
   severity: medium
-  description: "Request dispatcher with user input"
-  remediation: "Validate forward paths"
-  cwe: "CWE-601"
-  owasp: "A01:2021"
-
-# --- Logging Injection (166-175) ---
+  description: Request dispatcher with user input
+  remediation: Validate forward paths
+  cwe: CWE-601
+  owasp: A01:2021
+  confidence: 0.6
 - id: spring-log-injection-param
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\.info\s*\(\s*request\.getParameter'
+  - regex: (?i)logger\.info\s*\(\s*request\.getParameter
   severity: medium
-  description: "Log injection via request parameter"
-  remediation: "Sanitize user input before logging"
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: Log injection via request parameter
+  remediation: Sanitize user input before logging
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.8
 - id: spring-log-injection-header
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\.info\s*\(\s*request\.getHeader'
+  - regex: (?i)logger\.info\s*\(\s*request\.getHeader
   severity: medium
-  description: "Log injection via request header"
-  remediation: "Sanitize headers before logging"
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: Log injection via request header
+  remediation: Sanitize headers before logging
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.6
 - id: spring-log-injection-body
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\.info\s*\(\s*request\.getBody'
+  - regex: (?i)logger\.info\s*\(\s*request\.getBody
   severity: medium
-  description: "Log injection via request body"
-  remediation: "Sanitize body content before logging"
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: Log injection via request body
+  remediation: Sanitize body content before logging
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.6
 - id: spring-log-injection-attribute
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\.info\s*\(\s*request\.getAttribute'
+  - regex: (?i)logger\.info\s*\(\s*request\.getAttribute
   severity: medium
-  description: "Log injection via request attribute"
-  remediation: "Sanitize attributes before logging"
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: Log injection via request attribute
+  remediation: Sanitize attributes before logging
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.6
 - id: spring-log-injection-session
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\.info\s*\(\s*session\.getAttribute'
+  - regex: (?i)logger\.info\s*\(\s*session\.getAttribute
   severity: medium
-  description: "Log injection via session attribute"
-  remediation: "Sanitize session data before logging"
-  cwe: "CWE-117"
-  owasp: "A09:2021"
-
+  description: Log injection via session attribute
+  remediation: Sanitize session data before logging
+  cwe: CWE-117
+  owasp: A09:2021
+  confidence: 0.6
 - id: spring-log-sensitive-password
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\..*password|log.*password'
+  - regex: (?i)logger\..*password|log.*password
   severity: high
-  description: "Password logged"
-  remediation: "Never log passwords"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
+  description: Password logged
+  remediation: Never log passwords
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.65
 - id: spring-log-sensitive-token
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\..*token|log.*token'
+  - regex: (?i)logger\..*token|log.*token
   severity: high
-  description: "Token logged"
-  remediation: "Never log tokens"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
+  description: Token logged
+  remediation: Never log tokens
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.65
 - id: spring-log-sensitive-secret
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\..*secret|log.*secret'
+  - regex: (?i)logger\..*secret|log.*secret
   severity: high
-  description: "Secret logged"
-  remediation: "Never log secrets"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
+  description: Secret logged
+  remediation: Never log secrets
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.65
 - id: spring-log-sensitive-api-key
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\..*apiKey|log.*api.*key'
+  - regex: (?i)logger\..*apiKey|log.*api.*key
   severity: high
-  description: "API key logged"
-  remediation: "Never log API keys"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
+  description: API key logged
+  remediation: Never log API keys
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.65
 - id: spring-log-sensitive-credit-card
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)logger\..*card|log.*credit'
+  - regex: (?i)logger\..*card|log.*credit
   severity: high
-  description: "Credit card data logged"
-  remediation: "Never log credit card data"
-  cwe: "CWE-532"
-  owasp: "A09:2021"
-
-# --- Additional Security (176-185) ---
+  description: Credit card data logged
+  remediation: Never log credit card data
+  cwe: CWE-532
+  owasp: A09:2021
+  confidence: 0.65
 - id: spring-ldap-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ldapTemplate\.search\s*\(\s*\\\".*\+.*\+'
+  - regex: (?i)ldapTemplate\.search\s*\(\s*\\\".*\+.*\+
   severity: critical
-  description: "LDAP injection via string concatenation"
-  remediation: "Use LDAP filters with proper escaping"
-  cwe: "CWE-90"
-  owasp: "A03:2021"
-
+  description: LDAP injection via string concatenation
+  remediation: Use LDAP filters with proper escaping
+  cwe: CWE-90
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-ldap-filter-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)AndFilter|OrFilter.*request\.getParameter'
+  - regex: (?i)AndFilter|OrFilter.*request\.getParameter
   severity: high
-  description: "LDAP filter with user input"
-  remediation: "Escape LDAP filter special characters"
-  cwe: "CWE-90"
-  owasp: "A03:2021"
-
+  description: LDAP filter with user input
+  remediation: Escape LDAP filter special characters
+  cwe: CWE-90
+  owasp: A03:2021
+  confidence: 0.85
 - id: spring-xpath-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)xpath\s*\(\s*\\".*\+.*\+|XPathExpression.*evaluate.*request'
+  - regex: (?i)xpath\s*\(\s*\\".*\+.*\+|XPathExpression.*evaluate.*request
   severity: critical
-  description: "XPath injection via string concatenation"
-  remediation: "Use XPath variables"
-  cwe: "CWE-643"
-  owasp: "A03:2021"
-
+  description: XPath injection via string concatenation
+  remediation: Use XPath variables
+  cwe: CWE-643
+  owasp: A03:2021
+  confidence: 0.8
 - id: spring-el-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ExpressionParser\.parseExpression\s*\(\s*request'
+  - regex: (?i)ExpressionParser\.parseExpression\s*\(\s*request
   severity: critical
-  description: "SpEL injection with user input"
-  remediation: "Never evaluate user input as SpEL"
-  cwe: "CWE-917"
-  owasp: "A03:2021"
-
+  description: SpEL injection with user input
+  remediation: Never evaluate user input as SpEL
+  cwe: CWE-917
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-ognl-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Ognl\.getValue\s*\(\s*request'
+  - regex: (?i)Ognl\.getValue\s*\(\s*request
   severity: critical
-  description: "OGNL injection with user input"
-  remediation: "Never evaluate user input as OGNL"
-  cwe: "CWE-917"
-  owasp: "A03:2021"
-
+  description: OGNL injection with user input
+  remediation: Never evaluate user input as OGNL
+  cwe: CWE-917
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-mvel-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)MVEL\.eval\s*\(\s*request'
+  - regex: (?i)MVEL\.eval\s*\(\s*request
   severity: critical
-  description: "MVEL injection with user input"
-  remediation: "Never evaluate user input as MVEL"
-  cwe: "CWE-917"
-  owasp: "A03:2021"
-
+  description: MVEL injection with user input
+  remediation: Never evaluate user input as MVEL
+  cwe: CWE-917
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-groovy-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)GroovyShell\.evaluate\s*\(\s*request'
+  - regex: (?i)GroovyShell\.evaluate\s*\(\s*request
   severity: critical
-  description: "Groovy injection with user input"
-  remediation: "Use SecureGroovyScriptEngine"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: Groovy injection with user input
+  remediation: Use SecureGroovyScriptEngine
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-beanshell-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)bsh\.Interpreter\.eval\s*\(\s*request'
+  - regex: (?i)bsh\.Interpreter\.eval\s*\(\s*request
   severity: critical
-  description: "BeanShell injection with user input"
-  remediation: "Remove BeanShell or restrict access"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: BeanShell injection with user input
+  remediation: Remove BeanShell or restrict access
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-javascript-engine-injection
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)ScriptEngine\.eval\s*\(\s*request'
+  - regex: (?i)ScriptEngine\.eval\s*\(\s*request
   severity: critical
-  description: "JavaScript engine injection"
-  remediation: "Never evaluate user input as script"
-  cwe: "CWE-94"
-  owasp: "A03:2021"
-
+  description: JavaScript engine injection
+  remediation: Never evaluate user input as script
+  cwe: CWE-94
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-rce-runtime-exec
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)Runtime\.getRuntime\(\)\.exec\s*\('
+  - regex: (?i)Runtime\.getRuntime\(\)\.exec\s*\(
   severity: critical
-  description: "Runtime.exec for command execution"
-  remediation: "Avoid command execution, use safe APIs"
-  cwe: "CWE-78"
-  owasp: "A03:2021"
-
-# --- Hardcoded Secrets (186-200) ---
+  description: Runtime.exec for command execution
+  remediation: Avoid command execution, use safe APIs
+  cwe: CWE-78
+  owasp: A03:2021
+  confidence: 0.75
 - id: spring-secret-hardcoded-password
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)password\s*=\s*[''\\\"][^''\\\"]{8,}[''\\\"]'
+  - regex: (?i)password\s*=\s*['\\\"][^'\\\"]{8,}['\\\"]
   severity: high
-  description: "Hardcoded password in configuration"
-  remediation: "Use environment variables or vault"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded password in configuration
+  remediation: Use environment variables or vault
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-hardcoded-api-key
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)api\.key\s*=\s*[a-zA-Z0-9]{16,}'
+  - regex: (?i)api\.key\s*=\s*[a-zA-Z0-9]{16,}
   severity: high
-  description: "Hardcoded API key"
-  remediation: "Use environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded API key
+  remediation: Use environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-hardcoded-secret
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)secret\s*=\s*[a-zA-Z0-9]{8,}'
+  - regex: (?i)secret\s*=\s*[a-zA-Z0-9]{8,}
   severity: high
-  description: "Hardcoded secret"
-  remediation: "Use environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded secret
+  remediation: Use environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-hardcoded-token
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)token\s*=\s*[a-zA-Z0-9_-]{20,}'
+  - regex: (?i)token\s*=\s*[a-zA-Z0-9_-]{20,}
   severity: high
-  description: "Hardcoded token"
-  remediation: "Use environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded token
+  remediation: Use environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-hardcoded-access-key
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)access\.key\s*=\s*[A-Z0-9]{16,}'
+  - regex: (?i)access\.key\s*=\s*[A-Z0-9]{16,}
   severity: high
-  description: "Hardcoded access key"
-  remediation: "Use IAM roles or secrets manager"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded access key
+  remediation: Use IAM roles or secrets manager
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-hardcoded-private-key
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)-----BEGIN.*PRIVATE KEY-----'
+  - regex: (?i)-----BEGIN.*PRIVATE KEY-----
   severity: critical
-  description: "Private key in source code"
-  remediation: "Use KeyStore or secrets manager"
-  cwe: "CWE-321"
-  owasp: "A07:2021"
-
+  description: Private key in source code
+  remediation: Use KeyStore or secrets manager
+  cwe: CWE-321
+  owasp: A07:2021
+  confidence: 0.7
 - id: spring-secret-hardcoded-certificate
-  languages: [java]
+  languages:
+  - java
   patterns:
-    - regex: '(?i)-----BEGIN.*CERTIFICATE-----'
+  - regex: (?i)-----BEGIN.*CERTIFICATE-----
   severity: medium
-  description: "Certificate in source code"
-  remediation: "Use KeyStore for certificates"
-  cwe: "CWE-321"
-  owasp: "A07:2021"
-
+  description: Certificate in source code
+  remediation: Use KeyStore for certificates
+  cwe: CWE-321
+  owasp: A07:2021
+  confidence: 0.55
 - id: spring-secret-database-url
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)jdbc:.*:.*@'
+  - regex: (?i)jdbc:.*:.*@
   severity: high
-  description: "Database URL with credentials"
-  remediation: "Separate credentials from URL"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Database URL with credentials
+  remediation: Separate credentials from URL
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-aws-credentials
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: 'AKIA[0-9A-Z]{16}'
+  - regex: AKIA[0-9A-Z]{16}
   severity: critical
-  description: "AWS access key ID"
-  remediation: "Use IAM roles"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: AWS access key ID
+  remediation: Use IAM roles
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: spring-secret-azure-connection-string
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)DefaultEndpointsProtocol.*AccountKey'
+  - regex: (?i)DefaultEndpointsProtocol.*AccountKey
   severity: high
-  description: "Azure connection string with key"
-  remediation: "Use managed identities"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Azure connection string with key
+  remediation: Use managed identities
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-gcp-credentials
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)\\\"type\\\":\s*\\\"service_account\\\"'
+  - regex: (?i)\\\"type\\\":\s*\\\"service_account\\\"
   severity: high
-  description: "GCP service account credentials"
-  remediation: "Use workload identity"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: GCP service account credentials
+  remediation: Use workload identity
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-jwt-signing-key
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)jwt\.signing\.key\s*=\s*[a-zA-Z0-9]{16,}'
+  - regex: (?i)jwt\.signing\.key\s*=\s*[a-zA-Z0-9]{16,}
   severity: high
-  description: "Hardcoded JWT signing key"
-  remediation: "Use environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded JWT signing key
+  remediation: Use environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: spring-secret-oauth-client-secret
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)oauth\.client\.secret\s*=\s*[a-zA-Z0-9]{8,}'
+  - regex: (?i)oauth\.client\.secret\s*=\s*[a-zA-Z0-9]{8,}
   severity: high
-  description: "Hardcoded OAuth client secret"
-  remediation: "Use environment variables"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded OAuth client secret
+  remediation: Use environment variables
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.7
 - id: spring-secret-encryption-key
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)encryption\.key\s*=\s*[a-zA-Z0-9+/=]{16,}'
+  - regex: (?i)encryption\.key\s*=\s*[a-zA-Z0-9+/=]{16,}
   severity: high
-  description: "Hardcoded encryption key"
-  remediation: "Use KeyStore or secrets manager"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
-
+  description: Hardcoded encryption key
+  remediation: Use KeyStore or secrets manager
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65
 - id: spring-secret-signing-key
-  languages: [java, properties]
+  languages:
+  - java
+  - properties
   patterns:
-    - regex: '(?i)signing\.key\s*=\s*[a-zA-Z0-9+/=]{16,}'
+  - regex: (?i)signing\.key\s*=\s*[a-zA-Z0-9+/=]{16,}
   severity: high
-  description: "Hardcoded signing key"
-  remediation: "Use KeyStore or secrets manager"
-  cwe: "CWE-798"
-  owasp: "A07:2021"
+  description: Hardcoded signing key
+  remediation: Use KeyStore or secrets manager
+  cwe: CWE-798
+  owasp: A07:2021
+  confidence: 0.65

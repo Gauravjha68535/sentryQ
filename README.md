@@ -1,4 +1,4 @@
-# 🛡️ SentryQ
+# SentryQ
 
 <div align="center">
   <p><strong>Next-Gen AI-Orchestrated Security Analysis Platform</strong></p>
@@ -18,11 +18,13 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 
 ---
 
-## ✨ Core Capabilities
+## Core Capabilities
 
 | Feature | Details |
 | :--- | :--- |
-| **Multi-Engine SAST** | 14,600+ rules across 122 rule files (67+ languages, 15 framework targets) + Tree-Sitter AST (Python, JS, Java, Kotlin) + intra-file taint tracking (11 languages) |
+| **Multi-Engine SAST** | 13,160+ rules across 120 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (Python, JS, Java, Kotlin) + intra-file taint tracking (11 languages) |
+| **Cross-File Taint Tracking** | Project-wide taint index built before scanning — wrapper-source functions and imported taint propagators are recognised across file boundaries |
+| **Negative Pattern Suppression** | Per-rule `negative_patterns` teach the engine about sanitizers and safe API variants; any match within a ±10-line context window auto-suppresses the finding |
 | **Shannon Entropy Secret Detection** | Catches known secrets (AWS, GitHub, Google, Stripe, Slack, JWT, private keys) and custom credentials via entropy analysis + base64/hex decode |
 | **SCA / Dependency Auditing** | OSV API + `osv-scanner` CLI, reachability-aware (unused deps are downgraded) + supply chain / typosquatting checks |
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
@@ -37,14 +39,15 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 Source Code
     │
-    ├──► Pattern Engine       (14,600+ regex rules, 67+ languages, 15 framework targets)
+    ├──► Pattern Engine       (13,160+ regex rules, 71 languages, 15 framework targets)
+    │     └── Negative Patterns (±10-line context window suppresses sanitized code paths)
     ├──► AST Analyzer         (Tree-Sitter: Python, JavaScript, Java, Kotlin)
-    ├──► Taint-Flow Tracker   (intra-file source→sink, 11 languages)
+    ├──► Taint-Flow Tracker   (cross-file index + intra-file source→sink, 11 languages)
     ├──► Secret Detector      (regex + Shannon entropy + base64/hex decode)
     ├──► Dependency Scanner   (OSV API + osv-scanner CLI)
     ├──► Container Scanner    (Dockerfile + K8s + Trivy)
@@ -75,7 +78,7 @@ Final Report
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 
@@ -113,7 +116,7 @@ This bundles the React frontend and compiles the Go backend into a single `sentr
 
 ---
 
-## 🏁 Usage
+## Usage
 
 ### Web Dashboard (recommended)
 
@@ -150,7 +153,7 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → upload a fold
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Settings are stored at `~/.sentryq/settings.json` (owner-only, mode 0600). Configure via the Settings page in the UI or environment variables.
 
@@ -182,6 +185,8 @@ Drop any `.yaml` file into the `rules/` directory next to the binary:
   languages: [javascript, typescript, python, go]
   patterns:
     - regex: '(?i)(jwt_secret|jwt_key)\s*=\s*["\'][a-zA-Z0-9_\-\.]{10,}["\']'
+  negative_patterns:
+    - regex: 'os\.environ|process\.env|getenv|config\.'
   severity: critical
   description: "Hardcoded JWT secret detected"
   remediation: "Load from environment variable: process.env.JWT_SECRET"
@@ -189,11 +194,13 @@ Drop any `.yaml` file into the `rules/` directory next to the binary:
   owasp: "A07:2021"
 ```
 
+`negative_patterns` are optional — when any negative pattern matches within ±10 lines of a positive hit, the finding is suppressed. Use this to teach rules about your project's specific sanitizer functions.
+
 SentryQ auto-loads all rules on startup and on every scan, filtered to the languages detected in the target.
 
 ---
 
-## 🔧 Additional Capabilities
+## Additional Capabilities
 
 | Capability | Details |
 | :--- | :--- |
@@ -212,7 +219,19 @@ SentryQ auto-loads all rules on startup and on every scan, filtered to the langu
 
 ---
 
-## ⚙️ CI/CD Integration (GitHub Actions)
+## Rule Coverage
+
+120 rule files covering 71 languages and security domains:
+
+**Languages & Runtimes:** C, C++, C#, Go, Java, JavaScript, TypeScript, Python, Ruby, PHP, Rust, Swift, Kotlin, Scala, Dart, Groovy, Elixir, Erlang, Haskell, Lua, Perl, R, Julia, Nim, OCaml, F#, Crystal, Clojure, Zig, Move, Cairo, Vyper, Solidity, WebAssembly, Objective-C, Bash/Shell, PowerShell, ASP, ASP.NET, and more.
+
+**Security Domains:** SQL Injection, XSS, SSRF, Command Injection, Path Traversal, Secrets Detection, Cryptography, Authentication, Authorization, JWT, OAuth/OIDC, Session Management, CSRF, Deserialization, Race Conditions, ReDoS, Prototype Pollution, Template Injection, XXE, GraphQL, gRPC, WebSockets, CORS, CSP Bypass, HTTP Request Smuggling, LDAP Injection, NoSQL Injection, Email/SMTP Injection, Supply Chain, Side-Channel / Timing, LLM/AI Security, Cloud Metadata, Container Security, Kubernetes, Serverless, Service Mesh, eBPF Security, Mobile (Android/iOS/Flutter), and more.
+
+**Frameworks:** Angular, Django, Express, FastAPI, Flask, Go Web (Gin/Echo/Fiber), Laravel, Next.js, Nuxt.js, Rails, React, Spring, Svelte, Vue, Mobile (React Native/Ionic).
+
+---
+
+## CI/CD Integration (GitHub Actions)
 
 ```yaml
 name: SentryQ Security Scan
@@ -248,12 +267,12 @@ jobs:
 
 ---
 
-## 🔍 Scan Modes
+## Scan Modes
 
 ### Standard Mode
 Runs all always-on engines (pattern, AST, taint, secret detection, FP suppression, reachability). Enable **Deep Scan** to add dependency auditing, Semgrep, supply chain / typosquatting checks, container scanning, and MITRE ATT&CK enrichment. Enable **AI** to add Chain-of-Thought validation (with Exploit PoC + Fixed Code generation), AI discovery, Judge LLM consolidation, and confidence calibration.
 
-> **Note:** AST analysis covers Python, JavaScript, Java, and Kotlin. Taint tracking is intra-file across 11 languages (Python, PHP, JavaScript/TypeScript, Java, Kotlin, C#/ASP.NET, Go, Ruby, Swift, Dart). Browser notifications fire on scan completion.
+> **Note:** AST analysis covers Python, JavaScript, Java, and Kotlin. Taint tracking is cross-file + intra-file across 11 languages (Python, PHP, JavaScript/TypeScript, Java, Kotlin, C#/ASP.NET, Go, Ruby, Swift, Dart). Browser notifications fire on scan completion.
 
 ### Ensemble Audit Mode
 Three-phase high-assurance pipeline for maximum accuracy:
@@ -266,7 +285,7 @@ Three-phase high-assurance pipeline for maximum accuracy:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 | Area | Location |
 | :--- | :--- |
@@ -275,8 +294,9 @@ Three-phase high-assurance pipeline for maximum accuracy:
 | API server & scan orchestration | `cmd/scanner/` |
 | Frontend UI | `web/src/` |
 | Report generators (SARIF, HTML, PDF, CSV) | `reporter/` |
-| Detection rules (107 files: 67+ languages + security domains; 15 framework files) | `rules/` |
-| Rule loader (YAML parsing) | `config/` |
+| Detection rules (120 files: 71 languages + security domains; 15 framework files) | `rules/` |
+| Rule loader (YAML parsing, negative patterns) | `config/` |
+| Shared utilities | `utils/` |
 
 **Frontend dev server:**
 ```bash
@@ -290,6 +310,6 @@ go test ./...
 
 ---
 
-## 📜 License
+## License
 
 © 2026 SentryQ. All rights reserved.

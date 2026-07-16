@@ -1,1768 +1,1885 @@
 - id: k8s-privileged-container
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)privileged:\s*true'
+  - regex: (?i)privileged:\s*true
   severity: critical
-  description: "Pod running privileged container"
-  remediation: "Set privileged: false or remove the field entirely"
-
-# Host Network
-
+  description: Pod running privileged container
+  remediation: 'Set privileged: false or remove the field entirely'
+  confidence: 0.7
 - id: k8s-host-network
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)hostNetwork:\s*true'
+  - regex: (?i)hostNetwork:\s*true
   severity: high
-  description: "Pod using host network namespace"
-  remediation: "Set hostNetwork: false and use Kubernetes networking"
-
-# Host PID
-
+  description: Pod using host network namespace
+  remediation: 'Set hostNetwork: false and use Kubernetes networking'
+  confidence: 0.65
 - id: k8s-host-pid
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)hostPID:\s*true'
+  - regex: (?i)hostPID:\s*true
   severity: high
-  description: "Pod sharing host PID namespace"
-  remediation: "Set hostPID: false unless absolutely necessary"
-
-# Host IPC
-
+  description: Pod sharing host PID namespace
+  remediation: 'Set hostPID: false unless absolutely necessary'
+  confidence: 0.65
 - id: k8s-host-ipc
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)hostIPC:\s*true'
+  - regex: (?i)hostIPC:\s*true
   severity: high
-  description: "Pod sharing host IPC namespace"
-  remediation: "Set hostIPC: false unless absolutely necessary"
-
-# Root User
-
+  description: Pod sharing host IPC namespace
+  remediation: 'Set hostIPC: false unless absolutely necessary'
+  confidence: 0.65
 - id: k8s-run-as-root
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)runAsUser:\s*0|runAsNonRoot:\s*false'
+  - regex: (?i)runAsUser:\s*0|runAsNonRoot:\s*false
   severity: high
-  description: "Container running as root user"
-  remediation: "Set runAsNonRoot: true and specify non-root runAsUser"
-
-# Writable Root Filesystem
-
+  description: Container running as root user
+  remediation: 'Set runAsNonRoot: true and specify non-root runAsUser'
+  confidence: 0.65
 - id: k8s-writable-root-fs
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)readOnlyRootFilesystem:\s*false|securityContext'
+  - regex: (?i)readOnlyRootFilesystem:\s*false|securityContext
   severity: medium
-  description: "Container root filesystem is writable"
-  remediation: "Set readOnlyRootFilesystem: true and use volumes for writable paths"
-
-# Capabilities Added
-
+  description: Container root filesystem is writable
+  remediation: 'Set readOnlyRootFilesystem: true and use volumes for writable paths'
+  confidence: 0.55
 - id: k8s-cap-add
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)add:\s*\[?\s*(ALL|SYS_ADMIN|NET_ADMIN|SYS_PTRACE)'
+  - regex: (?i)add:\s*\[?\s*(ALL|SYS_ADMIN|NET_ADMIN|SYS_PTRACE)
   severity: high
-  description: "Dangerous Linux capabilities added to container"
-  remediation: "Remove unnecessary capabilities. Use minimal required set"
-
-# No Resource Limits
-
+  description: Dangerous Linux capabilities added to container
+  remediation: Remove unnecessary capabilities. Use minimal required set
+  confidence: 0.65
 - id: k8s-no-resource-limits
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)resources:\s*\{\s*|'
+  - regex: (?i)resources:\s*\{\s*|
   severity: medium
-  description: "Container without resource limits defined"
-  remediation: "Define resources.limits and resources.requests for CPU and memory"
-
-# Default Service Account
-
+  description: Container without resource limits defined
+  remediation: Define resources.limits and resources.requests for CPU and memory
+  confidence: 0.55
 - id: k8s-default-service-account
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)serviceAccountName:\s*default|serviceAccount:\s*default'
+  - regex: (?i)serviceAccountName:\s*default|serviceAccount:\s*default
   severity: medium
-  description: "Pod using default service account"
-  remediation: "Create and use dedicated service accounts with minimal permissions"
-
-# Automount Service Account Token
-
+  description: Pod using default service account
+  remediation: Create and use dedicated service accounts with minimal permissions
+  confidence: 0.55
 - id: k8s-automount-sa-token
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)automountServiceAccountToken:\s*true|'
+  - regex: (?i)automountServiceAccountToken:\s*true|
   severity: medium
-  description: "Service account token automatically mounted"
-  remediation: "Set automountServiceAccountToken: false if not needed"
-
-# Host Path Volume
-
+  description: Service account token automatically mounted
+  remediation: 'Set automountServiceAccountToken: false if not needed'
+  confidence: 0.55
 - id: k8s-host-path-volume
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)hostPath:\s*\{'
+  - regex: (?i)hostPath:\s*\{
   severity: high
-  description: "Pod using hostPath volume"
-  remediation: "Use PersistentVolumeClaim or ConfigMap/Secret instead of hostPath"
-
-# Allow Privilege Escalation
-
+  description: Pod using hostPath volume
+  remediation: Use PersistentVolumeClaim or ConfigMap/Secret instead of hostPath
+  confidence: 0.65
 - id: k8s-allow-privilege-escalation
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)allowPrivilegeEscalation:\s*true|'
+  - regex: (?i)allowPrivilegeEscalation:\s*true|
   severity: high
-  description: "Container allows privilege escalation"
-  remediation: "Set allowPrivilegeEscalation: false in securityContext"
-
-# Ingress Without TLS
-
+  description: Container allows privilege escalation
+  remediation: 'Set allowPrivilegeEscalation: false in securityContext'
+  confidence: 0.65
 - id: k8s-ingress-no-tls
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*Ingress'
+  - regex: (?i)kind:\s*Ingress
   severity: high
-  description: "Ingress resource without TLS configuration"
-  remediation: "Add tls section with secretName for HTTPS termination"
-
-# ClusterRole Binding to Default SA
-
+  description: Ingress resource without TLS configuration
+  remediation: Add tls section with secretName for HTTPS termination
+  confidence: 0.65
 - id: k8s-clusterrole-default-sa
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*ClusterRoleBinding.*name:\s*default'
+  - regex: (?i)kind:\s*ClusterRoleBinding.*name:\s*default
   severity: critical
-  description: "ClusterRole bound to default service account"
-  remediation: "Use dedicated service accounts with minimal required permissions"
-
-# Secrets in Environment Variables
-
+  description: ClusterRole bound to default service account
+  remediation: Use dedicated service accounts with minimal required permissions
+  confidence: 0.7
 - id: k8s-secrets-in-env
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)value:\s*[''\\"][^''\\"]{8,}[''\\"].*password|value:\s*[''\\"][^''\\"]{8,}[''\\"].*secret'
+  - regex: (?i)value:\s*['\\"][^'\\"]{8,}['\\"].*password|value:\s*['\\"][^'\\"]{8,}['\\"].*secret
   severity: high
-  description: "Secrets hardcoded in environment variables"
-  remediation: "Use secretKeyRef to reference Kubernetes Secrets"
-
-# NodePort Service
-
+  description: Secrets hardcoded in environment variables
+  remediation: Use secretKeyRef to reference Kubernetes Secrets
+  confidence: 0.7
 - id: k8s-nodeport-service
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*NodePort'
+  - regex: (?i)type:\s*NodePort
   severity: medium
-  description: "Service exposed via NodePort"
-  remediation: "Use ClusterIP with Ingress or LoadBalancer for external access"
-
-# Liveness/Readiness Probe Missing
-
+  description: Service exposed via NodePort
+  remediation: Use ClusterIP with Ingress or LoadBalancer for external access
+  confidence: 0.55
 - id: k8s-probe-missing
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*(Deployment|StatefulSet)'
+  - regex: (?i)kind:\s*(Deployment|StatefulSet)
   severity: medium
-  description: "Deployment without liveness/readiness probes"
-  remediation: "Add livenessProbe and readinessProbe for health checking"
-
-# Image Pull Policy Always
-
+  description: Deployment without liveness/readiness probes
+  remediation: Add livenessProbe and readinessProbe for health checking
+  confidence: 0.55
 - id: k8s-image-pull-policy
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)imagePullPolicy:\s*Always'
+  - regex: (?i)imagePullPolicy:\s*Always
   severity: low
-  description: "Image pull policy set to Always"
-  remediation: "Use IfNotPresent with tagged images for production"
-
-# Latest Image Tag
-
+  description: Image pull policy set to Always
+  remediation: Use IfNotPresent with tagged images for production
+  confidence: 0.45
 - id: k8s-latest-image-tag
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)image:\s*[^:]+:latest|image:\s*[^:]+$'
+  - regex: (?i)image:\s*[^:]+:latest|image:\s*[^:]+$
   severity: medium
-  description: "Using :latest tag or no tag for container image"
-  remediation: "Pin image to specific version: image: nginx:1.25.3"
-
-# Network Policy Missing
-
+  description: Using :latest tag or no tag for container image
+  remediation: 'Pin image to specific version: image: nginx:1.25.3'
+  confidence: 0.55
 - id: k8s-network-policy-missing
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*Namespace'
+  - regex: (?i)kind:\s*Namespace
   severity: medium
-  description: "Namespace without NetworkPolicy"
-  remediation: "Create NetworkPolicy to restrict pod-to-pod communication"
-
-  # ============================================================================
-# KUBERNETES SECURITY RULES - EXPANDED (150 NEW RULES)
-# ============================================================================
-# Excludes all existing rules from uploaded kubernetes.yaml
-# Categories: RBAC, Network, Storage, Secrets, Config, Monitoring,
-#             Admission, Audit, Node, Cluster, Pod, Service, Ingress
-# ============================================================================
-
-# --- RBAC SECURITY (1-20) ---
+  description: Namespace without NetworkPolicy
+  remediation: Create NetworkPolicy to restrict pod-to-pod communication
+  confidence: 0.55
 - id: k8s-rbac-cluster-admin-binding
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*ClusterRoleBinding.*cluster-admin'
+  - regex: (?i)kind:\s*ClusterRoleBinding.*cluster-admin
   severity: critical
-  description: "ClusterRoleBinding to cluster-admin"
-  remediation: "Use least privilege. Create custom ClusterRoles"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: ClusterRoleBinding to cluster-admin
+  remediation: Use least privilege. Create custom ClusterRoles
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: k8s-rbac-wildcard-resources
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)resources:\s*\[\s*[''\\\"]\*[''\\\"]'
+  - regex: (?i)resources:\s*\[\s*['\\\"]\*['\\\"]
   severity: high
-  description: "RBAC wildcard resources"
-  remediation: "Specify explicit resources"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC wildcard resources
+  remediation: Specify explicit resources
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-rbac-wildcard-verbs
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)verbs:\s*\[\s*[''\\\"]\*[''\\\"]'
+  - regex: (?i)verbs:\s*\[\s*['\\\"]\*['\\\"]
   severity: high
-  description: "RBAC wildcard verbs"
-  remediation: "Specify explicit verbs"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC wildcard verbs
+  remediation: Specify explicit verbs
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-rbac-wildcard-apigroups
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)apiGroups:\s*\[\s*[''\\\"]\*[''\\\"]'
+  - regex: (?i)apiGroups:\s*\[\s*['\\\"]\*['\\\"]
   severity: high
-  description: "RBAC wildcard API groups"
-  remediation: "Specify explicit API groups"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC wildcard API groups
+  remediation: Specify explicit API groups
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-rbac-escalate-verb
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)verbs:.*escalate'
+  - regex: (?i)verbs:.*escalate
   severity: critical
-  description: "RBAC escalate verb"
-  remediation: "Remove escalate verb"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC escalate verb
+  remediation: Remove escalate verb
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: k8s-rbac-bind-verb
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)verbs:.*bind'
+  - regex: (?i)verbs:.*bind
   severity: critical
-  description: "RBAC bind verb"
-  remediation: "Remove bind verb"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC bind verb
+  remediation: Remove bind verb
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: k8s-rbac-impersonate-verb
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)verbs:.*impersonate'
+  - regex: (?i)verbs:.*impersonate
   severity: critical
-  description: "RBAC impersonate verb"
-  remediation: "Remove impersonate verb"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC impersonate verb
+  remediation: Remove impersonate verb
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.7
 - id: k8s-rbac-secrets-access
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)resources:.*secrets.*verbs:.*get'
+  - regex: (?i)resources:.*secrets.*verbs:.*get
   severity: high
-  description: "RBAC secrets access"
-  remediation: "Limit secrets access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC secrets access
+  remediation: Limit secrets access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-rbac-pods-exec
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)resources:.*pods.*verbs:.*create.*exec'
+  - regex: (?i)resources:.*pods.*verbs:.*create.*exec
   severity: high
-  description: "RBAC pod exec access"
-  remediation: "Limit pod exec access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC pod exec access
+  remediation: Limit pod exec access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-rbac-nodes-proxy
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)resources:.*nodes.*verbs:.*proxy'
+  - regex: (?i)resources:.*nodes.*verbs:.*proxy
   severity: high
-  description: "RBAC nodes proxy access"
-  remediation: "Limit nodes proxy access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC nodes proxy access
+  remediation: Limit nodes proxy access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-rbac-service-account-token
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)resources:.*serviceaccounts.*token'
+  - regex: (?i)resources:.*serviceaccounts.*token
   severity: high
-  description: "RBAC service account token access"
-  remediation: "Limit token access"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC service account token access
+  remediation: Limit token access
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-rbac-role-aggregation
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)aggregationRule:'
+  - regex: '(?i)aggregationRule:'
   severity: low
-  description: "Role aggregation"
-  remediation: "Review aggregated roles"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Role aggregation
+  remediation: Review aggregated roles
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-rbac-subject-user
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*User.*name:'
+  - regex: '(?i)kind:\s*User.*name:'
   severity: medium
-  description: "RBAC subject is User"
-  remediation: "Prefer ServiceAccounts"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC subject is User
+  remediation: Prefer ServiceAccounts
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: k8s-rbac-subject-group
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*Group.*name:'
+  - regex: '(?i)kind:\s*Group.*name:'
   severity: medium
-  description: "RBAC subject is Group"
-  remediation: "Review group membership"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC subject is Group
+  remediation: Review group membership
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: k8s-rbac-subject-service-account
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*ServiceAccount'
+  - regex: (?i)kind:\s*ServiceAccount
   severity: low
-  description: "RBAC subject is ServiceAccount"
-  remediation: "Good practice"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: RBAC subject is ServiceAccount
+  remediation: Good practice
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-rbac-namespace-scope
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*RoleBinding'
+  - regex: (?i)kind:\s*RoleBinding
   severity: low
-  description: "Namespace-scoped RoleBinding"
-  remediation: "Prefer namespace scope"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Namespace-scoped RoleBinding
+  remediation: Prefer namespace scope
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-rbac-cluster-scope
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*ClusterRoleBinding'
+  - regex: (?i)kind:\s*ClusterRoleBinding
   severity: medium
-  description: "Cluster-scoped RoleBinding"
-  remediation: "Use namespace scope when possible"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Cluster-scoped RoleBinding
+  remediation: Use namespace scope when possible
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: k8s-rbac-custom-role
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*Role'
+  - regex: (?i)kind:\s*Role
   severity: low
-  description: "Custom Role"
-  remediation: "Review custom roles"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Custom Role
+  remediation: Review custom roles
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-rbac-custom-cluster-role
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*ClusterRole'
+  - regex: (?i)kind:\s*ClusterRole
   severity: medium
-  description: "Custom ClusterRole"
-  remediation: "Review custom ClusterRoles"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: Custom ClusterRole
+  remediation: Review custom ClusterRoles
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.55
 - id: k8s-rbac-label-selector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)labelSelector:'
+  - regex: '(?i)labelSelector:'
   severity: low
-  description: "RBAC label selector"
-  remediation: "Review label selectors"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# --- NETWORK POLICY (21-40) ---
+  description: RBAC label selector
+  remediation: Review label selectors
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-ingress
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)policyTypes:.*Ingress'
+  - regex: (?i)policyTypes:.*Ingress
   severity: low
-  description: "NetworkPolicy ingress"
-  remediation: "Define ingress rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy ingress
+  remediation: Define ingress rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-egress
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)policyTypes:.*Egress'
+  - regex: (?i)policyTypes:.*Egress
   severity: low
-  description: "NetworkPolicy egress"
-  remediation: "Define egress rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy egress
+  remediation: Define egress rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-allow-all
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ingress:\s*\[\s*\{\s*\}\s*\]'
+  - regex: (?i)ingress:\s*\[\s*\{\s*\}\s*\]
   severity: high
-  description: "NetworkPolicy allows all ingress"
-  remediation: "Define specific ingress rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy allows all ingress
+  remediation: Define specific ingress rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.65
 - id: k8s-network-policy-deny-all
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)podSelector:\s*\{\s*\}.*ingress:\s*\[\s*\]'
+  - regex: (?i)podSelector:\s*\{\s*\}.*ingress:\s*\[\s*\]
   severity: low
-  description: "NetworkPolicy deny all"
-  remediation: "Good default deny policy"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy deny all
+  remediation: Good default deny policy
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-namespace
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)namespaceSelector:'
+  - regex: '(?i)namespaceSelector:'
   severity: low
-  description: "NetworkPolicy namespace selector"
-  remediation: "Review namespace selectors"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy namespace selector
+  remediation: Review namespace selectors
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-pod-selector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)podSelector:'
+  - regex: '(?i)podSelector:'
   severity: low
-  description: "NetworkPolicy pod selector"
-  remediation: "Review pod selectors"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy pod selector
+  remediation: Review pod selectors
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-ip-block
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ipBlock:'
+  - regex: '(?i)ipBlock:'
   severity: low
-  description: "NetworkPolicy IP block"
-  remediation: "Review IP blocks"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy IP block
+  remediation: Review IP blocks
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-port
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ports:'
+  - regex: '(?i)ports:'
   severity: low
-  description: "NetworkPolicy port"
-  remediation: "Review port rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy port
+  remediation: Review port rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-protocol
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)protocol:\s*TCP|protocol:\s*UDP'
+  - regex: (?i)protocol:\s*TCP|protocol:\s*UDP
   severity: low
-  description: "NetworkPolicy protocol"
-  remediation: "Review protocol rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy protocol
+  remediation: Review protocol rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-cidr
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)cidr:'
+  - regex: '(?i)cidr:'
   severity: low
-  description: "NetworkPolicy CIDR"
-  remediation: "Review CIDR blocks"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy CIDR
+  remediation: Review CIDR blocks
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-except
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)except:'
+  - regex: '(?i)except:'
   severity: low
-  description: "NetworkPolicy except"
-  remediation: "Review except blocks"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy except
+  remediation: Review except blocks
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-match-labels
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)matchLabels:'
+  - regex: '(?i)matchLabels:'
   severity: low
-  description: "NetworkPolicy match labels"
-  remediation: "Review match labels"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy match labels
+  remediation: Review match labels
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-match-expressions
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)matchExpressions:'
+  - regex: '(?i)matchExpressions:'
   severity: low
-  description: "NetworkPolicy match expressions"
-  remediation: "Review match expressions"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy match expressions
+  remediation: Review match expressions
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-not-selector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)not:'
+  - regex: '(?i)not:'
   severity: low
-  description: "NetworkPolicy not selector"
-  remediation: "Review not selectors"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy not selector
+  remediation: Review not selectors
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-or-selector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)or:'
+  - regex: '(?i)or:'
   severity: low
-  description: "NetworkPolicy or selector"
-  remediation: "Review or selectors"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy or selector
+  remediation: Review or selectors
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-and-selector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)and:'
+  - regex: '(?i)and:'
   severity: low
-  description: "NetworkPolicy and selector"
-  remediation: "Review and selectors"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy and selector
+  remediation: Review and selectors
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-sctp
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)protocol:\s*SCTP'
+  - regex: (?i)protocol:\s*SCTP
   severity: low
-  description: "NetworkPolicy SCTP"
-  remediation: "Review SCTP rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy SCTP
+  remediation: Review SCTP rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-end-port
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)endPort:'
+  - regex: '(?i)endPort:'
   severity: low
-  description: "NetworkPolicy endPort"
-  remediation: "Review port ranges"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy endPort
+  remediation: Review port ranges
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-fqdn
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)fqdn:'
+  - regex: '(?i)fqdn:'
   severity: low
-  description: "NetworkPolicy FQDN"
-  remediation: "Review FQDN rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
+  description: NetworkPolicy FQDN
+  remediation: Review FQDN rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-network-policy-to-ports
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)toPorts:'
+  - regex: '(?i)toPorts:'
   severity: low
-  description: "NetworkPolicy toPorts"
-  remediation: "Review toPorts rules"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
-
-# --- SECRETS MANAGEMENT (41-60) ---
+  description: NetworkPolicy toPorts
+  remediation: Review toPorts rules
+  cwe: CWE-284
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-secret-type-opaque
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*Opaque'
+  - regex: (?i)type:\s*Opaque
   severity: low
-  description: "Opaque Secret"
-  remediation: "Use appropriate secret types"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Opaque Secret
+  remediation: Use appropriate secret types
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-type-tls
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*kubernetes\.io/tls'
+  - regex: (?i)type:\s*kubernetes\.io/tls
   severity: low
-  description: "TLS Secret"
-  remediation: "Protect TLS secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: TLS Secret
+  remediation: Protect TLS secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-type-docker
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*kubernetes\.io/dockerconfigjson'
+  - regex: (?i)type:\s*kubernetes\.io/dockerconfigjson
   severity: low
-  description: "Docker registry Secret"
-  remediation: "Protect registry credentials"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Docker registry Secret
+  remediation: Protect registry credentials
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-type-basic-auth
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*kubernetes\.io/basic-auth'
+  - regex: (?i)type:\s*kubernetes\.io/basic-auth
   severity: low
-  description: "Basic auth Secret"
-  remediation: "Protect basic auth credentials"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Basic auth Secret
+  remediation: Protect basic auth credentials
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-type-ssh
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*kubernetes\.io/ssh-auth'
+  - regex: (?i)type:\s*kubernetes\.io/ssh-auth
   severity: low
-  description: "SSH auth Secret"
-  remediation: "Protect SSH keys"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: SSH auth Secret
+  remediation: Protect SSH keys
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-type-service-account
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*kubernetes\.io/service-account-token'
+  - regex: (?i)type:\s*kubernetes\.io/service-account-token
   severity: low
-  description: "Service account token Secret"
-  remediation: "Protect service account tokens"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Service account token Secret
+  remediation: Protect service account tokens
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-type-bootstrap-token
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)type:\s*bootstrap\.kubernetes\.io/token'
+  - regex: (?i)type:\s*bootstrap\.kubernetes\.io/token
   severity: low
-  description: "Bootstrap token Secret"
-  remediation: "Protect bootstrap tokens"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Bootstrap token Secret
+  remediation: Protect bootstrap tokens
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: k8s-secret-data-base64
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)data:'
+  - regex: '(?i)data:'
   severity: low
-  description: "Secret data (base64)"
-  remediation: "Remember base64 is not encryption"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Secret data (base64)
+  remediation: Remember base64 is not encryption
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-string-data
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)stringData:'
+  - regex: '(?i)stringData:'
   severity: low
-  description: "Secret stringData"
-  remediation: "Don't commit stringData"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Secret stringData
+  remediation: Don't commit stringData
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-immutable
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)immutable:\s*true'
+  - regex: (?i)immutable:\s*true
   severity: low
-  description: "Immutable Secret"
-  remediation: "Good for security"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Immutable Secret
+  remediation: Good for security
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-encryption-at-rest
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)encryptionConfiguration'
+  - regex: (?i)encryptionConfiguration
   severity: low
-  description: "Secret encryption at rest"
-  remediation: "Enable encryption at rest"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Secret encryption at rest
+  remediation: Enable encryption at rest
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-external-secrets
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)external-secrets|externalSecret'
+  - regex: (?i)external-secrets|externalSecret
   severity: low
-  description: "External Secrets"
-  remediation: "Good for secret management"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: External Secrets
+  remediation: Good for secret management
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-vault-injector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)vault\.hashicorp\.com'
+  - regex: (?i)vault\.hashicorp\.com
   severity: low
-  description: "Vault injector"
-  remediation: "Good for secret management"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Vault injector
+  remediation: Good for secret management
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: k8s-secret-sealed-secrets
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)SealedSecret'
+  - regex: (?i)SealedSecret
   severity: low
-  description: "Sealed Secrets"
-  remediation: "Good for GitOps"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Sealed Secrets
+  remediation: Good for GitOps
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-secret-sops
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)\.sops\.yaml|sops:'
+  - regex: '(?i)\.sops\.yaml|sops:'
   severity: low
-  description: "SOPS encrypted secrets"
-  remediation: "Good for GitOps"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: SOPS encrypted secrets
+  remediation: Good for GitOps
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: k8s-secret-aws-secrets-manager
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)secretsmanager\.amazonaws\.com'
+  - regex: (?i)secretsmanager\.amazonaws\.com
   severity: low
-  description: "AWS Secrets Manager"
-  remediation: "Good for secret management"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: AWS Secrets Manager
+  remediation: Good for secret management
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: k8s-secret-azure-key-vault
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)keyvault\.azure\.com'
+  - regex: (?i)keyvault\.azure\.com
   severity: low
-  description: "Azure Key Vault"
-  remediation: "Good for secret management"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: Azure Key Vault
+  remediation: Good for secret management
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: k8s-secret-gcp-secret-manager
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)secretmanager\.googleapis\.com'
+  - regex: (?i)secretmanager\.googleapis\.com
   severity: low
-  description: "GCP Secret Manager"
-  remediation: "Good for secret management"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: GCP Secret Manager
+  remediation: Good for secret management
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.5
 - id: k8s-secret-rotation
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)rotation:'
+  - regex: '(?i)rotation:'
   severity: low
-  description: "Secret rotation"
-  remediation: "Implement secret rotation"
-  cwe: "CWE-324"
-  owasp: "A02:2021"
-
+  description: Secret rotation
+  remediation: Implement secret rotation
+  cwe: CWE-324
+  owasp: A02:2021
+  confidence: 0.45
 - id: k8s-secret-mount-path
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)mountPath:.*secret'
+  - regex: (?i)mountPath:.*secret
   severity: low
-  description: "Secret mount path"
-  remediation: "Use appropriate mount paths"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
-# --- CONFIGMAPS (61-80) ---
+  description: Secret mount path
+  remediation: Use appropriate mount paths
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-data
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*ConfigMap.*data:'
+  - regex: '(?i)kind:\s*ConfigMap.*data:'
   severity: low
-  description: "ConfigMap data"
-  remediation: "Don't store secrets in ConfigMaps"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap data
+  remediation: Don't store secrets in ConfigMaps
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-binary-data
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)binaryData:'
+  - regex: '(?i)binaryData:'
   severity: low
-  description: "ConfigMap binaryData"
-  remediation: "Don't store secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap binaryData
+  remediation: Don't store secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-from-file
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)fromFile:'
+  - regex: '(?i)fromFile:'
   severity: low
-  description: "ConfigMap from file"
-  remediation: "Validate file contents"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap from file
+  remediation: Validate file contents
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-from-literal
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)fromLiteral:'
+  - regex: '(?i)fromLiteral:'
   severity: low
-  description: "ConfigMap from literal"
-  remediation: "Don't include secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap from literal
+  remediation: Don't include secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-env-from
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)envFrom:.*configMapRef'
+  - regex: (?i)envFrom:.*configMapRef
   severity: low
-  description: "ConfigMap envFrom"
-  remediation: "Don't include secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap envFrom
+  remediation: Don't include secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-env
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)env:.*valueFrom:.*configMapKeyRef'
+  - regex: (?i)env:.*valueFrom:.*configMapKeyRef
   severity: low
-  description: "ConfigMap env"
-  remediation: "Don't include secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap env
+  remediation: Don't include secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-volume
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)volumes:.*configMap'
+  - regex: (?i)volumes:.*configMap
   severity: low
-  description: "ConfigMap volume"
-  remediation: "Don't include secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap volume
+  remediation: Don't include secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-volume-mount
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)volumeMounts:.*configMap'
+  - regex: (?i)volumeMounts:.*configMap
   severity: low
-  description: "ConfigMap volume mount"
-  remediation: "Don't include secrets"
-  cwe: "CWE-312"
-  owasp: "A07:2021"
-
+  description: ConfigMap volume mount
+  remediation: Don't include secrets
+  cwe: CWE-312
+  owasp: A07:2021
+  confidence: 0.45
 - id: k8s-configmap-immutable
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)immutable:\s*true'
+  - regex: (?i)immutable:\s*true
   severity: low
-  description: "Immutable ConfigMap"
-  remediation: "Good for stability"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Immutable ConfigMap
+  remediation: Good for stability
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-labels
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)labels:'
+  - regex: '(?i)labels:'
   severity: low
-  description: "ConfigMap labels"
-  remediation: "Use appropriate labels"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap labels
+  remediation: Use appropriate labels
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-annotations
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)annotations:'
+  - regex: '(?i)annotations:'
   severity: low
-  description: "ConfigMap annotations"
-  remediation: "Use appropriate annotations"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap annotations
+  remediation: Use appropriate annotations
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-owner-reference
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ownerReferences:'
+  - regex: '(?i)ownerReferences:'
   severity: low
-  description: "ConfigMap owner reference"
-  remediation: "Review owner references"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap owner reference
+  remediation: Review owner references
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-finalizers
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)finalizers:'
+  - regex: '(?i)finalizers:'
   severity: low
-  description: "ConfigMap finalizers"
-  remediation: "Review finalizers"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap finalizers
+  remediation: Review finalizers
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-managed-fields
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)managedFields:'
+  - regex: '(?i)managedFields:'
   severity: low
-  description: "ConfigMap managed fields"
-  remediation: "Review managed fields"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap managed fields
+  remediation: Review managed fields
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-resource-version
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)resourceVersion:'
+  - regex: '(?i)resourceVersion:'
   severity: low
-  description: "ConfigMap resource version"
-  remediation: "Don't hardcode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap resource version
+  remediation: Don't hardcode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-uid
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)uid:'
+  - regex: '(?i)uid:'
   severity: low
-  description: "ConfigMap UID"
-  remediation: "Don't hardcode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap UID
+  remediation: Don't hardcode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-creation-timestamp
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)creationTimestamp:'
+  - regex: '(?i)creationTimestamp:'
   severity: low
-  description: "ConfigMap creation timestamp"
-  remediation: "Don't hardcode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap creation timestamp
+  remediation: Don't hardcode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-generation
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)generation:'
+  - regex: '(?i)generation:'
   severity: low
-  description: "ConfigMap generation"
-  remediation: "Don't hardcode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap generation
+  remediation: Don't hardcode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-cluster-name
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)clusterName:'
+  - regex: '(?i)clusterName:'
   severity: low
-  description: "ConfigMap cluster name"
-  remediation: "Don't hardcode"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ConfigMap cluster name
+  remediation: Don't hardcode
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-configmap-managed-by
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)app\.kubernetes\.io/managed-by'
+  - regex: (?i)app\.kubernetes\.io/managed-by
   severity: low
-  description: "ConfigMap managed-by"
-  remediation: "Review management tool"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- POD SECURITY (81-100) ---
+  description: ConfigMap managed-by
+  remediation: Review management tool
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.5
 - id: k8s-pod-security-context
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)securityContext:'
+  - regex: '(?i)securityContext:'
   severity: low
-  description: "Pod security context"
-  remediation: "Configure security context"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod security context
+  remediation: Configure security context
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-pod-fs-group
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)fsGroup:'
+  - regex: '(?i)fsGroup:'
   severity: low
-  description: "Pod fsGroup"
-  remediation: "Set appropriate fsGroup"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod fsGroup
+  remediation: Set appropriate fsGroup
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-pod-fs-group-change-policy
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)fsGroupChangePolicy:'
+  - regex: '(?i)fsGroupChangePolicy:'
   severity: low
-  description: "Pod fsGroup change policy"
-  remediation: "Review change policy"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod fsGroup change policy
+  remediation: Review change policy
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-pod-supplemental-groups
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)supplementalGroups:'
+  - regex: '(?i)supplementalGroups:'
   severity: low
-  description: "Pod supplemental groups"
-  remediation: "Set appropriate groups"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod supplemental groups
+  remediation: Set appropriate groups
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-pod-sysctls
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)sysctls:'
+  - regex: '(?i)sysctls:'
   severity: medium
-  description: "Pod sysctls"
-  remediation: "Review sysctls"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod sysctls
+  remediation: Review sysctls
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.55
 - id: k8s-pod-seccomp-profile
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)seccompProfile:'
+  - regex: '(?i)seccompProfile:'
   severity: low
-  description: "Pod seccomp profile"
-  remediation: "Use RuntimeDefault or Localhost"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod seccomp profile
+  remediation: Use RuntimeDefault or Localhost
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-pod-apparmor-profile
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)apparmor\.security\.kubernetes\.io'
+  - regex: (?i)apparmor\.security\.kubernetes\.io
   severity: low
-  description: "Pod AppArmor profile"
-  remediation: "Use AppArmor profiles"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod AppArmor profile
+  remediation: Use AppArmor profiles
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.5
 - id: k8s-pod-runtime-class
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)runtimeClassName:'
+  - regex: '(?i)runtimeClassName:'
   severity: low
-  description: "Pod runtime class"
-  remediation: "Use appropriate runtime"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
-
+  description: Pod runtime class
+  remediation: Use appropriate runtime
+  cwe: CWE-250
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-pod-overhead
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)overhead:'
+  - regex: '(?i)overhead:'
   severity: low
-  description: "Pod overhead"
-  remediation: "Review overhead"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod overhead
+  remediation: Review overhead
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-topology-spread
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)topologySpreadConstraints:'
+  - regex: '(?i)topologySpreadConstraints:'
   severity: low
-  description: "Pod topology spread"
-  remediation: "Configure for availability"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod topology spread
+  remediation: Configure for availability
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-affinity
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)affinity:'
+  - regex: '(?i)affinity:'
   severity: low
-  description: "Pod affinity"
-  remediation: "Configure appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod affinity
+  remediation: Configure appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-node-affinity
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)nodeAffinity:'
+  - regex: '(?i)nodeAffinity:'
   severity: low
-  description: "Pod node affinity"
-  remediation: "Configure appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod node affinity
+  remediation: Configure appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-pod-affinity
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)podAffinity:'
+  - regex: '(?i)podAffinity:'
   severity: low
-  description: "Pod affinity"
-  remediation: "Configure appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod affinity
+  remediation: Configure appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-pod-anti-affinity
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)podAntiAffinity:'
+  - regex: '(?i)podAntiAffinity:'
   severity: low
-  description: "Pod anti-affinity"
-  remediation: "Configure for HA"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod anti-affinity
+  remediation: Configure for HA
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-tolerations
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)tolerations:'
+  - regex: '(?i)tolerations:'
   severity: low
-  description: "Pod tolerations"
-  remediation: "Review tolerations"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod tolerations
+  remediation: Review tolerations
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-node-selector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)nodeSelector:'
+  - regex: '(?i)nodeSelector:'
   severity: low
-  description: "Pod node selector"
-  remediation: "Configure appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod node selector
+  remediation: Configure appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-scheduler-name
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)schedulerName:'
+  - regex: '(?i)schedulerName:'
   severity: low
-  description: "Pod scheduler name"
-  remediation: "Use appropriate scheduler"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod scheduler name
+  remediation: Use appropriate scheduler
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-priority-class
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)priorityClassName:'
+  - regex: '(?i)priorityClassName:'
   severity: low
-  description: "Pod priority class"
-  remediation: "Set appropriate priority"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod priority class
+  remediation: Set appropriate priority
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-preemption-policy
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)preemptionPolicy:'
+  - regex: '(?i)preemptionPolicy:'
   severity: low
-  description: "Pod preemption policy"
-  remediation: "Review preemption"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Pod preemption policy
+  remediation: Review preemption
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-dns-policy
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)dnsPolicy:'
+  - regex: '(?i)dnsPolicy:'
   severity: low
-  description: "Pod DNS policy"
-  remediation: "Configure appropriately"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- INGRESS & GATEWAY (101-120) ---
+  description: Pod DNS policy
+  remediation: Configure appropriately
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-class
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ingressClassName:'
+  - regex: '(?i)ingressClassName:'
   severity: low
-  description: "Ingress class"
-  remediation: "Specify ingress class"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress class
+  remediation: Specify ingress class
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-rules
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)rules:'
+  - regex: '(?i)rules:'
   severity: low
-  description: "Ingress rules"
-  remediation: "Define rules properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress rules
+  remediation: Define rules properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-host
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)host:'
+  - regex: '(?i)host:'
   severity: low
-  description: "Ingress host"
-  remediation: "Specify hosts"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress host
+  remediation: Specify hosts
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-path
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)path:'
+  - regex: '(?i)path:'
   severity: low
-  description: "Ingress path"
-  remediation: "Define paths properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress path
+  remediation: Define paths properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-path-type
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)pathType:'
+  - regex: '(?i)pathType:'
   severity: low
-  description: "Ingress path type"
-  remediation: "Use ImplementationSpecific or Prefix"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress path type
+  remediation: Use ImplementationSpecific or Prefix
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-backend
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)backend:'
+  - regex: '(?i)backend:'
   severity: low
-  description: "Ingress backend"
-  remediation: "Configure backend properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress backend
+  remediation: Configure backend properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-service
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)service:'
+  - regex: '(?i)service:'
   severity: low
-  description: "Ingress service"
-  remediation: "Configure service properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress service
+  remediation: Configure service properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-port
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)port:'
+  - regex: '(?i)port:'
   severity: low
-  description: "Ingress port"
-  remediation: "Specify port"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress port
+  remediation: Specify port
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-annotation
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)annotations:'
+  - regex: '(?i)annotations:'
   severity: low
-  description: "Ingress annotations"
-  remediation: "Review annotations"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Ingress annotations
+  remediation: Review annotations
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-ssl-redirect
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ssl-redirect|force-ssl-redirect'
+  - regex: (?i)ssl-redirect|force-ssl-redirect
   severity: low
-  description: "Ingress SSL redirect"
-  remediation: "Enable SSL redirect"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
+  description: Ingress SSL redirect
+  remediation: Enable SSL redirect
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: k8s-ingress-rate-limit
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)rate-limit|limit-rps'
+  - regex: (?i)rate-limit|limit-rps
   severity: low
-  description: "Ingress rate limit"
-  remediation: "Configure rate limiting"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Ingress rate limit
+  remediation: Configure rate limiting
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-ingress-auth
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)auth-type|auth-url'
+  - regex: (?i)auth-type|auth-url
   severity: low
-  description: "Ingress authentication"
-  remediation: "Configure authentication"
-  cwe: "CWE-306"
-  owasp: "A01:2021"
-
+  description: Ingress authentication
+  remediation: Configure authentication
+  cwe: CWE-306
+  owasp: A01:2021
+  confidence: 0.45
 - id: k8s-ingress-cors
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)cors-allow-origin|enable-cors'
+  - regex: (?i)cors-allow-origin|enable-cors
   severity: low
-  description: "Ingress CORS"
-  remediation: "Configure CORS properly"
-  cwe: "CWE-942"
-  owasp: "A05:2021"
-
+  description: Ingress CORS
+  remediation: Configure CORS properly
+  cwe: CWE-942
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-ingress-proxy-body-size
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)proxy-body-size'
+  - regex: (?i)proxy-body-size
   severity: low
-  description: "Ingress body size limit"
-  remediation: "Set appropriate limit"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Ingress body size limit
+  remediation: Set appropriate limit
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-ingress-proxy-timeout
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)proxy-connect-timeout|proxy-read-timeout'
+  - regex: (?i)proxy-connect-timeout|proxy-read-timeout
   severity: low
-  description: "Ingress timeout"
-  remediation: "Set appropriate timeouts"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: Ingress timeout
+  remediation: Set appropriate timeouts
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-gateway-api
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)kind:\s*Gateway'
+  - regex: (?i)kind:\s*Gateway
   severity: low
-  description: "Gateway API"
-  remediation: "Configure Gateway properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Gateway API
+  remediation: Configure Gateway properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-gateway-listener
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)listeners:'
+  - regex: '(?i)listeners:'
   severity: low
-  description: "Gateway listeners"
-  remediation: "Configure listeners properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Gateway listeners
+  remediation: Configure listeners properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-gateway-route
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)HTTPRoute|TCPRoute|TLSRoute'
+  - regex: (?i)HTTPRoute|TCPRoute|TLSRoute
   severity: low
-  description: "Gateway routes"
-  remediation: "Configure routes properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Gateway routes
+  remediation: Configure routes properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-gateway-reference-grant
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ReferenceGrant'
+  - regex: (?i)ReferenceGrant
   severity: low
-  description: "Gateway ReferenceGrant"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Gateway ReferenceGrant
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-gateway-tls-mode
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)mode:\s*Terminate|mode:\s*Passthrough'
+  - regex: (?i)mode:\s*Terminate|mode:\s*Passthrough
   severity: low
-  description: "Gateway TLS mode"
-  remediation: "Use Terminate for TLS"
-  cwe: "CWE-319"
-  owasp: "A02:2021"
-
-# --- MONITORING & LOGGING (121-140) ---
+  description: Gateway TLS mode
+  remediation: Use Terminate for TLS
+  cwe: CWE-319
+  owasp: A02:2021
+  confidence: 0.45
 - id: k8s-prometheus-servicemonitor
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ServiceMonitor'
+  - regex: (?i)ServiceMonitor
   severity: low
-  description: "Prometheus ServiceMonitor"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Prometheus ServiceMonitor
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-prometheus-podmonitor
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PodMonitor'
+  - regex: (?i)PodMonitor
   severity: low
-  description: "Prometheus PodMonitor"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Prometheus PodMonitor
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-prometheus-probe
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)Probe'
+  - regex: (?i)Probe
   severity: low
-  description: "Prometheus Probe"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Prometheus Probe
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-prometheus-rule
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PrometheusRule'
+  - regex: (?i)PrometheusRule
   severity: low
-  description: "PrometheusRule"
-  remediation: "Configure alerts properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: PrometheusRule
+  remediation: Configure alerts properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-fluentd-config
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)fluentd|fluent-bit'
+  - regex: (?i)fluentd|fluent-bit
   severity: low
-  description: "Fluentd logging"
-  remediation: "Configure logging properly"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Fluentd logging
+  remediation: Configure logging properly
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-elastic-agent
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)elastic-agent|filebeat'
+  - regex: (?i)elastic-agent|filebeat
   severity: low
-  description: "Elastic logging"
-  remediation: "Configure logging properly"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Elastic logging
+  remediation: Configure logging properly
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-jaeger-tracing
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)jaeger|tracing'
+  - regex: (?i)jaeger|tracing
   severity: low
-  description: "Jaeger tracing"
-  remediation: "Configure tracing properly"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: Jaeger tracing
+  remediation: Configure tracing properly
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-otel-collector
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)otel|OpenTelemetry'
+  - regex: (?i)otel|OpenTelemetry
   severity: low
-  description: "OpenTelemetry"
-  remediation: "Configure properly"
-  cwe: "CWE-532"
-  owasp: "A05:2021"
-
+  description: OpenTelemetry
+  remediation: Configure properly
+  cwe: CWE-532
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-grafana-dashboard
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)GrafanaDashboard'
+  - regex: (?i)GrafanaDashboard
   severity: low
-  description: "Grafana dashboard"
-  remediation: "Don't expose dashboards publicly"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Grafana dashboard
+  remediation: Don't expose dashboards publicly
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-alertmanager-config
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)Alertmanager'
+  - regex: (?i)Alertmanager
   severity: low
-  description: "Alertmanager"
-  remediation: "Configure alerts properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Alertmanager
+  remediation: Configure alerts properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-metrics-server
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)metrics-server'
+  - regex: (?i)metrics-server
   severity: low
-  description: "Metrics server"
-  remediation: "Secure metrics server"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: Metrics server
+  remediation: Secure metrics server
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-hpa
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)HorizontalPodAutoscaler'
+  - regex: (?i)HorizontalPodAutoscaler
   severity: low
-  description: "HPA"
-  remediation: "Configure properly"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: HPA
+  remediation: Configure properly
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-vpa
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)VerticalPodAutoscaler'
+  - regex: (?i)VerticalPodAutoscaler
   severity: low
-  description: "VPA"
-  remediation: "Configure properly"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: VPA
+  remediation: Configure properly
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-pdb
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PodDisruptionBudget'
+  - regex: (?i)PodDisruptionBudget
   severity: low
-  description: "PDB"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: PDB
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-limit-range
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)LimitRange'
+  - regex: (?i)LimitRange
   severity: low
-  description: "LimitRange"
-  remediation: "Configure properly"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: LimitRange
+  remediation: Configure properly
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-resource-quota
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ResourceQuota'
+  - regex: (?i)ResourceQuota
   severity: low
-  description: "ResourceQuota"
-  remediation: "Configure properly"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: ResourceQuota
+  remediation: Configure properly
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-priority-class
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PriorityClass'
+  - regex: (?i)PriorityClass
   severity: low
-  description: "PriorityClass"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: PriorityClass
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-runtime-class
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)RuntimeClass'
+  - regex: (?i)RuntimeClass
   severity: low
-  description: "RuntimeClass"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: RuntimeClass
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-validating-webhook
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ValidatingWebhookConfiguration'
+  - regex: (?i)ValidatingWebhookConfiguration
   severity: low
-  description: "ValidatingWebhook"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: ValidatingWebhook
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-mutating-webhook
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)MutatingWebhookConfiguration'
+  - regex: (?i)MutatingWebhookConfiguration
   severity: low
-  description: "MutatingWebhook"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
-# --- STORAGE & VOLUMES (141-150) ---
+  description: MutatingWebhook
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pvc
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PersistentVolumeClaim'
+  - regex: (?i)PersistentVolumeClaim
   severity: low
-  description: "PVC"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: PVC
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pv
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PersistentVolume'
+  - regex: (?i)PersistentVolume
   severity: low
-  description: "PV"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: PV
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-storage-class
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)StorageClass'
+  - regex: (?i)StorageClass
   severity: low
-  description: "StorageClass"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: StorageClass
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-volume-claim-template
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)volumeClaimTemplates'
+  - regex: (?i)volumeClaimTemplates
   severity: low
-  description: "VolumeClaimTemplate"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: VolumeClaimTemplate
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-empty-dir
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)emptyDir:'
+  - regex: '(?i)emptyDir:'
   severity: low
-  description: "emptyDir volume"
-  remediation: "Set sizeLimit"
-  cwe: "CWE-770"
-  owasp: "A04:2023"
-
+  description: emptyDir volume
+  remediation: Set sizeLimit
+  cwe: CWE-770
+  owasp: A04:2023
+  confidence: 0.45
 - id: k8s-downward-api
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)downwardAPI:'
+  - regex: '(?i)downwardAPI:'
   severity: low
-  description: "downwardAPI volume"
-  remediation: "Don't expose sensitive info"
-  cwe: "CWE-200"
-  owasp: "A05:2021"
-
+  description: downwardAPI volume
+  remediation: Don't expose sensitive info
+  cwe: CWE-200
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-projected-volume
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)projected:'
+  - regex: '(?i)projected:'
   severity: low
-  description: "Projected volume"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: Projected volume
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-csi-driver
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)CSIDriver'
+  - regex: (?i)CSIDriver
   severity: low
-  description: "CSI Driver"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CSI Driver
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-csi-node
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)CSINode'
+  - regex: (?i)CSINode
   severity: low
-  description: "CSI Node"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CSI Node
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-csi-storage
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)CSIStorageCapacity'
+  - regex: (?i)CSIStorageCapacity
   severity: low
-  description: "CSI Storage Capacity"
-  remediation: "Configure properly"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
-
+  description: CSI Storage Capacity
+  remediation: Configure properly
+  cwe: CWE-693
+  owasp: A05:2021
+  confidence: 0.45
 - id: k8s-pod-disruption-budget
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PodDisruptionBudget'
+  - regex: (?i)PodDisruptionBudget
   severity: medium
-  description: "Pod disruption budget defined"
-  remediation: "Configure for availability"
-  cwe: "CWE-693"
-  owasp: "A05:2021"
+  description: Pod disruption budget defined
+  remediation: Configure for availability
+  cwe: CWE-693
+  owasp: A05:2021
   confidence: 0.8
-
 - id: k8s-resource-quota-dup1
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)ResourceQuota'
+  - regex: (?i)ResourceQuota
   severity: medium
-  description: "Resource quota defined"
-  remediation: "Configure for limits"
-  cwe: "CWE-400"
-  owasp: "A04:2021"
+  description: Resource quota defined
+  remediation: Configure for limits
+  cwe: CWE-400
+  owasp: A04:2021
   confidence: 0.8
-
 - id: k8s-limit-range-dup1
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)LimitRange'
+  - regex: (?i)LimitRange
   severity: low
-  description: "Limit range defined"
-  remediation: "Configure resource limits"
-  cwe: "CWE-400"
-  owasp: "A04:2021"
+  description: Limit range defined
+  remediation: Configure resource limits
+  cwe: CWE-400
+  owasp: A04:2021
   confidence: 0.8
-
 - id: k8s-network-policy
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)NetworkPolicy'
+  - regex: (?i)NetworkPolicy
   severity: medium
-  description: "Network policy defined"
-  remediation: "Configure network isolation"
-  cwe: "CWE-284"
-  owasp: "A01:2021"
+  description: Network policy defined
+  remediation: Configure network isolation
+  cwe: CWE-284
+  owasp: A01:2021
   confidence: 0.8
-
 - id: k8s-pod-security-policy
-  languages: [yaml]
+  languages:
+  - yaml
   patterns:
-    - regex: '(?i)PodSecurityPolicy'
+  - regex: (?i)PodSecurityPolicy
   severity: high
-  description: "Pod security policy"
-  remediation: "Configure pod security"
-  cwe: "CWE-250"
-  owasp: "A01:2021"
+  description: Pod security policy
+  remediation: Configure pod security
+  cwe: CWE-250
+  owasp: A01:2021
   confidence: 0.8
