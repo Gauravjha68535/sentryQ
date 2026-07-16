@@ -1,0 +1,153 @@
+# SentryQ — Cloud Metadata Exploitation & Cloud-Specific Attack Rules
+# Covers: IMDS v1/v2, Lambda env exposure, S3 presigned URLs, IAM wildcard, container escape
+
+- id: cloud-imds-v1-no-token
+  languages: [python, javascript, typescript, go, ruby, java]
+  patterns:
+    - regex: |-
+        (?i)(?:requests\.get|urllib\.request\.urlopen|fetch|http\.get|Net::HTTP\.get)\s*\([\"']http://169\.254\.169\.254
+    - regex: '(?i)169\.254\.169\.254[^;\\n]*(?:requests\.get|urllib|fetch|http\.get|curl)'
+  negative_patterns:
+    - regex: '(?i)X-aws-ec2-metadata-token'
+    - regex: '(?i)imdsv2|metadata-token'
+  severity: critical
+  description: "AWS Instance Metadata Service (IMDS) accessed without IMDSv2 token header. IMDSv1 is unauthenticated — any SSRF vulnerability in the application lets attackers steal IAM credentials (role name, access key, secret key, session token) via this endpoint."
+  remediation: "Require IMDSv2 by first PUT-requesting a token: PUT /latest/api/token with X-aws-ec2-metadata-token-ttl-seconds header, then use the token in GET requests. Enforce IMDSv2 in instance metadata options (HttpTokens=required)."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+  confidence: 0.97
+
+- id: cloud-lambda-env-to-response
+  languages: [python, javascript, typescript]
+  patterns:
+    - regex: '(?i)(?:json\.dumps|json\.stringify|return|response)\s*\([^;\\n]*(?:os\.environ|process\.env)\b'
+    - regex: '(?i)(?:os\.environ|process\.env)\s*(?:\[|\.).*(?:return|response\.json|res\.json|body)'
+  severity: critical
+  description: "Lambda/serverless environment variables dumped to HTTP response. Lambda env vars commonly contain database credentials, API keys, JWT secrets, and internal service URLs — exposing them is a full account compromise."
+  remediation: "Never return process.env or os.environ to the caller. Log specific vars only — never the entire environment. Use Secrets Manager for sensitive configuration."
+  cwe: "CWE-200"
+  owasp: "A02:2021"
+  confidence: 0.95
+
+- id: cloud-gcp-metadata-no-flavor
+  languages: [python, javascript, typescript, go]
+  patterns:
+    - regex: |-
+        (?i)(?:requests\.get|fetch|http\.get)\s*\([\"']http://metadata\.google\.internal
+    - regex: '(?i)metadata\.google\.internal[^;\\n]*(?:requests|fetch|urlopen|http\.get)'
+  negative_patterns:
+    - regex: '(?i)Metadata-Flavor.*Google|metadata-flavor'
+  severity: high
+  description: "GCP Instance Metadata Service request without required 'Metadata-Flavor: Google' header. Without this header, GCP returns an error, but the pattern indicates untested SSRF exposure. Any SSRF reaching this endpoint leaks GCP service account credentials."
+  remediation: "Add 'Metadata-Flavor: Google' header to all legitimate GCP metadata requests. Block requests to metadata IPs at the network layer and via SSRF protection middleware."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+  confidence: 0.93
+
+- id: cloud-azure-imds-unauthenticated
+  languages: [python, javascript, typescript]
+  patterns:
+    - regex: |-
+        (?i)(?:requests\.get|fetch|http\.get)\s*\([\"']http://169\.254\.169\.254/metadata
+    - regex: '(?i)169\.254\.169\.254/metadata/instance'
+  negative_patterns:
+    - regex: '(?i)Metadata.*true|metadata.*:.*true'
+  severity: high
+  description: "Azure IMDS endpoint accessed without required 'Metadata: true' header. Azure IMDS provides subscription IDs, VM details, and MSI (Managed Service Identity) tokens — accessible via SSRF."
+  remediation: "Include the 'Metadata: true' header in all Azure IMDS requests. Use Azure Instance Metadata Service v2 (IMDS v2) where available."
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+  confidence: 0.93
+
+- id: cloud-s3-presigned-excessive-expiry
+  languages: [python]
+  patterns:
+    - regex: '(?i)generate_presigned_url\s*\([^)]*ExpiresIn\s*=\s*(?:[8-9][0-9]{3}|[1-9][0-9]{4,})'
+    - regex: '(?i)generate_presigned_url\s*\([^)]*ExpiresIn\s*=\s*(?:86400|604800|2592000|31536000)'
+  severity: medium
+  description: "S3 presigned URL with excessive expiry (>24 hours). Presigned URLs with long expiry periods become a permanent backdoor if leaked in logs, emails, or browser history — the bucket object remains publicly accessible."
+  remediation: "Set ExpiresIn to the minimum needed duration (≤3600 seconds for most use cases). Rotate presigned URLs rather than extending expiry."
+  cwe: "CWE-672"
+  owasp: "A01:2021"
+  confidence: 0.9
+
+- id: cloud-sts-assume-role-no-external-id
+  languages: [python]
+  patterns:
+    - regex: '(?i)sts\.assume_role\s*\([^)]*RoleArn[^)]*\)'
+  negative_patterns:
+    - regex: '(?i)ExternalId\s*='
+  severity: high
+  description: "AWS STS AssumeRole without ExternalId condition. This enables the 'confused deputy' attack — any AWS account that knows your Role ARN can assume it without permission, escalating privileges into your account."
+  remediation: "Add ExternalId condition to the IAM trust policy and pass a unique ExternalId in every AssumeRole call. This prevents unauthorized cross-account role assumption."
+  cwe: "CWE-284"
+  owasp: "A01:2021"
+  confidence: 0.9
+
+- id: cloud-iam-wildcard-action
+  languages: [python, javascript, typescript, go]
+  patterns:
+    - regex: |-
+        (?i)[\"']Action[\"']\s*:\s*[\"']\*[\"']
+    - regex: |-
+        (?i)actions\s*=\s*\[[\"']\*[\"']\]
+  negative_patterns:
+    - regex: '(?i)#.*test|#.*example|comment|deny'
+  severity: high
+  description: "IAM policy with wildcard action '*'. This grants unrestricted access to every API action in the specified service or across all AWS services — a privilege escalation and lateral movement vector."
+  remediation: "Apply the principle of least privilege. Enumerate only the specific IAM actions required. Use AWS Access Analyzer to auto-generate least-privilege policies."
+  cwe: "CWE-250"
+  owasp: "A01:2021"
+  confidence: 0.88
+
+- id: cloud-docker-socket-mount
+  languages: [python, javascript, typescript, go]
+  patterns:
+    - regex: |-
+        (?i)[\"']/var/run/docker\.sock[\"']
+    - regex: '(?i)volumes.*docker\.sock'
+  severity: critical
+  description: "Docker socket mounted into container. Full host compromise — any process inside the container can create privileged containers, mount the host filesystem, or escape the container entirely."
+  remediation: "Never mount the Docker socket into containers. Use Docker-in-Docker (dind) with TLS auth or rootless Docker, or switch to a purpose-built build tool like kaniko or buildah."
+  cwe: "CWE-269"
+  owasp: "A05:2021"
+  confidence: 0.97
+
+- id: cloud-k8s-host-namespace
+  languages: [yaml]
+  patterns:
+    - regex: '(?i)hostPID\s*:\s*true'
+    - regex: '(?i)hostNetwork\s*:\s*true'
+    - regex: '(?i)hostIPC\s*:\s*true'
+  severity: critical
+  description: "Kubernetes pod shares host PID/Network/IPC namespace. Container escape is trivial — host processes are visible and killable (hostPID), host network is accessible (hostNetwork), or host IPC is shared (hostIPC)."
+  remediation: "Never set hostPID/hostNetwork/hostIPC: true unless absolutely required (e.g., DaemonSets for node monitoring). Use pod security policies or OPA Gatekeeper to enforce."
+  cwe: "CWE-269"
+  owasp: "A05:2021"
+  confidence: 0.97
+
+- id: cloud-curl-pipe-bash-in-dockerfile
+  languages: [dockerfile]
+  patterns:
+    - regex: '(?i)(?:curl|wget)\s+[^|;\\n]+\|\s*(?:bash|sh|python|perl|ruby)'
+    - regex: '(?i)RUN\s+.*(?:curl|wget).*\|\s*(?:bash|sh)'
+  severity: critical
+  description: "Dockerfile downloads and executes script via curl|bash. Classic supply chain attack vector — the remote URL can be compromised or hijacked at build time to inject malicious code into the image."
+  remediation: "Download the script, verify its SHA256 hash against a known-good value, THEN execute. Pin the URL to a specific commit hash. Use COPY instead of curl where possible."
+  cwe: "CWE-829"
+  owasp: "A08:2021"
+  confidence: 0.96
+
+- id: cloud-env-var-hardcoded-secret-in-dockerfile
+  languages: [dockerfile]
+  patterns:
+    - regex: '(?i)ENV\s+(?:PASSWORD|SECRET|API_KEY|TOKEN|PRIVATE_KEY|AWS_SECRET|DB_PASSWORD)\s*=\s*\S+'
+  negative_patterns:
+    - regex: '(?i)ENV\s+\w+\s*=$'
+    - regex: '(?i)changeme|placeholder|your_'
+  severity: critical
+  description: "Secret hardcoded in Dockerfile ENV instruction. ENV values are embedded in every image layer and visible to anyone who can pull the image (docker inspect, docker history). They persist even after override."
+  remediation: "Never hardcode secrets in Dockerfile ENV. Use Docker secrets, BuildKit --secret mount, or inject via runtime environment variables. Rotate any exposed credentials immediately."
+  cwe: "CWE-798"
+  owasp: "A07:2021"
+  confidence: 0.95

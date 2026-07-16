@@ -837,12 +837,12 @@ func TestValidateFindingsBatch_ContextCancellation(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MLFPReducer
+// FPHistoryCache
 // ─────────────────────────────────────────────────────────────────────────────
 
-func newTestReducer(t *testing.T) *MLFPReducer {
+func newTestReducer(t *testing.T) *FPHistoryCache {
 	t.Helper()
-	return NewMLFPReducer(t.TempDir())
+	return NewFPHistoryCache(t.TempDir())
 }
 
 func TestMLFPReducer_FilterWithNoHistory_KeepsAll(t *testing.T) {
@@ -898,7 +898,7 @@ func TestMLFPReducer_SaveAndLoadHistory(t *testing.T) {
 		t.Fatalf("SaveHistory: %v", err)
 	}
 
-	reducer2 := NewMLFPReducer(reducer.historyFile[:strings.LastIndex(reducer.historyFile, string(os.PathSeparator))])
+	reducer2 := NewFPHistoryCache(reducer.historyFile[:strings.LastIndex(reducer.historyFile, string(os.PathSeparator))])
 	if err := reducer2.LoadHistory(); err != nil {
 		t.Fatalf("LoadHistory: %v", err)
 	}
