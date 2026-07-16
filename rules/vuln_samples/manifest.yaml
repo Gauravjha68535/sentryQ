@@ -1,0 +1,74 @@
+# Rule Test Manifest
+# Maps test files to expected rule IDs that should fire
+# Format: file → [list of rule IDs that MUST fire]
+
+positive_tests:
+  python/sql_injection.py:
+    must_fire: [py-sql-injection, py-sql-injection-fstring, py-sql-injection-format]
+    severity_min: high
+    
+  python/command_injection.py:
+    must_fire: [py-command-injection, py-cmdi-source-fstring-request]
+    severity_min: critical
+    
+  python/path_traversal.py:
+    must_fire: [py-path-traversal-source-open-request]
+    severity_min: high
+    
+  python/hardcoded_secrets.py:
+    must_fire: [py-hardcoded-password, py-hardcoded-api-key, py-hardcoded-aws-credentials]
+    severity_min: high
+    
+  python/weak_crypto.py:
+    must_fire: [py-insecure-random]
+    severity_min: medium
+    
+  javascript/xss.js:
+    must_fire: [js-xss-source-innerhtml-request]
+    severity_min: high
+    
+  javascript/sql_injection.js:
+    must_fire: [js-sqli-source-template-literal]
+    severity_min: critical
+    
+  javascript/command_injection.js:
+    must_fire: [js-cmdi-source-exec-request]
+    severity_min: critical
+    
+  go/sql_injection.go:
+    must_fire: [go-sqli-source-db-sprintf, go-sqli-fmt-sprintf]
+    severity_min: critical
+    
+  java/sql_injection.java:
+    must_fire: [java-sqli-source-concat-getparam, java-sql-injection]
+    severity_min: critical
+    
+  php/sql_injection.php:
+    must_fire: [php-sqli-source-mysqli-request, php-sql-injection]
+    severity_min: critical
+    
+  ruby/injection.rb:
+    must_fire: [ruby-sqli-source-params-where, ruby-cmdi-source-params]
+    severity_min: critical
+
+negative_tests:
+  python/sql_injection.py:
+    must_not_fire: [py-sql-injection, py-sql-injection-fstring]
+    
+  python/command_injection.py:
+    must_not_fire: [py-command-injection, py-cmdi-source-fstring-request]
+    
+  python/path_traversal.py:
+    must_not_fire: [py-path-traversal-source-open-request]
+    
+  python/hardcoded_secrets.py:
+    must_not_fire: [py-hardcoded-password, py-hardcoded-api-key]
+    
+  javascript/xss.js:
+    must_not_fire: [js-xss-source-innerhtml-request]
+    
+  javascript/sql_injection.js:
+    must_not_fire: [js-sqli-source-template-literal]
+    
+  javascript/command_injection.js:
+    must_not_fire: [js-cmdi-source-exec-request]

@@ -7,7 +7,7 @@ import (
 
 	"SentryQ/utils"
 
-	"github.com/jung-kurt/gofpdf"
+	gofpdf "github.com/go-pdf/fpdf"
 	"github.com/wcharczuk/go-chart/v2"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 	"golang.org/x/text/cases"

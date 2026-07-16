@@ -44,6 +44,12 @@ func main() {
 		fmt.Println("🔗 Ollama: localhost:11434")
 	}
 
+	// Handle subcommands before treating args as scan paths
+	if flag.NArg() > 0 && flag.Arg(0) == "update" {
+		RunUpdate()
+		return
+	}
+
 	// If a positional argument is provided, treat it as a directory to scan immediately
 	if flag.NArg() > 0 {
 		targetDir := flag.Arg(0)

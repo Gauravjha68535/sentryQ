@@ -847,7 +847,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		if homeDir, err := os.UserHomeDir(); err == nil {
 			mlCacheDir = filepath.Join(homeDir, ".sentryq", "ml-cache")
 		}
-		reducer := ai.NewMLFPReducer(mlCacheDir)
+		reducer := ai.NewFPHistoryCache(mlCacheDir)
 		if err := reducer.LoadHistory(); err != nil {
 			utils.LogWarn("ML FP reducer: failed to load history: " + err.Error())
 		}
@@ -1855,7 +1855,7 @@ fileContentsDone:
 		if homeDir, err := os.UserHomeDir(); err == nil {
 			mlCacheDir = filepath.Join(homeDir, ".sentryq", "ml-cache")
 		}
-		reducer := ai.NewMLFPReducer(mlCacheDir)
+		reducer := ai.NewFPHistoryCache(mlCacheDir)
 		if err := reducer.LoadHistory(); err != nil {
 			utils.LogWarn("ML FP reducer: failed to load history: " + err.Error())
 		}

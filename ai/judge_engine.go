@@ -270,6 +270,27 @@ IMPORTANT: Every finding ID from the input MUST appear exactly once — either a
 		return nil, fmt.Errorf("failed to parse judge verdict: %v", err)
 	}
 
+	// Validate coverage: every input finding ID must appear exactly once as either
+	// a master_id or inside a duplicate_ids array. Missing IDs mean the LLM dropped
+	// findings silently; the catch-all in JudgeFindings will rescue them, but we log
+	// so operators can tune the prompt or switch to a stronger model.
+	coveredIDs := make(map[int]bool)
+	for _, v := range verdict.Findings {
+		coveredIDs[v.MasterID] = true
+		for _, d := range v.DuplicateIDs {
+			coveredIDs[d] = true
+		}
+	}
+	var missingIDs []int
+	for _, f := range findings {
+		if !coveredIDs[f.ID] {
+			missingIDs = append(missingIDs, f.ID)
+		}
+	}
+	if len(missingIDs) > 0 {
+		utils.LogWarn(fmt.Sprintf("Judge output missing %d input IDs %v — catch-all will retain them. Consider using a stronger model or smaller batch size.", len(missingIDs), missingIDs))
+	}
+
 	return verdict.Findings, nil
 }
 

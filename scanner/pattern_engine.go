@@ -330,6 +330,13 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 					confidence = getDefaultConfidence(rule.Severity)
 				}
 
+				// Cap severity for very low-confidence rules to avoid drowning
+				// high-priority queues with speculative findings.
+				effectiveSeverity := normalizeSeverity(rule)
+				if confidence < 0.3 && effectiveSeverity != "info" {
+					effectiveSeverity = "info"
+				}
+
 				srNo := int(atomic.AddInt64(counter, 1))
 
 				findings = append(findings, reporter.Finding{
@@ -337,7 +344,7 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 					IssueName:   rule.ID,
 					FilePath:    filePath,
 					Description: rule.Description,
-					Severity:    normalizeSeverity(rule),
+					Severity:    effectiveSeverity,
 					LineNumber:  lineRef,
 					AiValidated: "No",
 					Remediation: rule.Remediation,

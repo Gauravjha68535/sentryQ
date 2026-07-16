@@ -259,7 +259,7 @@ func loadSettings() {
 }
 
 // recordMLFeedback records a user triage decision into the ML FP history file
-// so the MLFPReducer can learn from it on future scans.
+// so the FPHistoryCache can learn from it on future scans.
 // Only "false_positive" and "resolved" statuses are meaningful signals;
 // "open" and "ignored" are skipped since they carry no FP/TP information.
 func recordMLFeedback(f reporter.Finding, status string) {
@@ -274,7 +274,7 @@ func recordMLFeedback(f reporter.Finding, status string) {
 		mlCacheDir = filepath.Join(homeDir, ".sentryq", "ml-cache")
 	}
 
-	reducer := ai.NewMLFPReducer(mlCacheDir)
+	reducer := ai.NewFPHistoryCache(mlCacheDir)
 	if err := reducer.LoadHistory(); err != nil {
 		utils.LogWarn("ML feedback: failed to load history: " + err.Error())
 		return

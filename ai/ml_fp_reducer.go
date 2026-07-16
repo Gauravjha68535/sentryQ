@@ -30,23 +30,23 @@ type FindingFeedback struct {
 	Comments        string    `json:"comments"`
 }
 
-// MLFPReducer performs machine learning-based false positive reduction.
+// FPHistoryCache suppresses recurring false positives using a local history file.
+// It is NOT a trained ML model — it is a frequency-based lookup: if a rule+file
+// combination was marked false_positive enough times in the past, future findings
+// from that combination are filtered when their historical FP rate exceeds a threshold.
 // All exported methods are safe for concurrent use.
 //
-// NOTE: This reducer requires user feedback to be wired in via AddFeedback.
-// The intended data flow is: when a user triages a finding in the UI
-// (marking it as "false_positive" or "resolved"), the web_dashboard.go
-// PATCH /api/scan/:id/finding/:dbId/status handler should call AddFeedback
-// so the history file is populated. Without that, the filter is a no-op.
-type MLFPReducer struct {
+// Populate history via AddFeedback when users triage findings in the UI
+// (marking them "false_positive" or "resolved"). Without feedback, the filter is a no-op.
+type FPHistoryCache struct {
 	mu          sync.Mutex
 	history     *FPHistory
 	historyFile string
 }
 
-// NewMLFPReducer creates a new ML false positive reducer
-func NewMLFPReducer(cacheDir string) *MLFPReducer {
-	return &MLFPReducer{
+// NewFPHistoryCache creates a new FP history cache backed by a JSON file in cacheDir.
+func NewFPHistoryCache(cacheDir string) *FPHistoryCache {
+	return &FPHistoryCache{
 		history: &FPHistory{
 			Findings:    make([]FindingFeedback, 0),
 			LastUpdated: time.Now().Format(time.RFC3339),
@@ -56,7 +56,7 @@ func NewMLFPReducer(cacheDir string) *MLFPReducer {
 }
 
 // LoadHistory loads historical feedback data
-func (ml *MLFPReducer) LoadHistory() error {
+func (ml *FPHistoryCache) LoadHistory() error {
 	ml.mu.Lock()
 	defer ml.mu.Unlock()
 
@@ -72,7 +72,7 @@ func (ml *MLFPReducer) LoadHistory() error {
 }
 
 // SaveHistory saves feedback data to disk
-func (ml *MLFPReducer) SaveHistory() error {
+func (ml *FPHistoryCache) SaveHistory() error {
 	ml.mu.Lock()
 	defer ml.mu.Unlock()
 
@@ -91,7 +91,7 @@ func (ml *MLFPReducer) SaveHistory() error {
 // AddFeedback records a user triage decision for a finding.
 // Call this from the status-update handler whenever a user marks a finding
 // as false_positive or resolved so the history file gets populated.
-func (ml *MLFPReducer) AddFeedback(ruleID, filePath, severity string, isFalsePositive bool, comments string) {
+func (ml *FPHistoryCache) AddFeedback(ruleID, filePath, severity string, isFalsePositive bool, comments string) {
 	ml.mu.Lock()
 	defer ml.mu.Unlock()
 
@@ -111,7 +111,7 @@ func (ml *MLFPReducer) AddFeedback(ruleID, filePath, severity string, isFalsePos
 // FilterFindingsByFPProbability filters findings based on FP probability.
 // Findings whose historical FP probability meets or exceeds threshold are dropped.
 // Returns all findings unchanged if there is not enough history yet.
-func (ml *MLFPReducer) FilterFindingsByFPProbability(findings []reporter.Finding, threshold float64) []reporter.Finding {
+func (ml *FPHistoryCache) FilterFindingsByFPProbability(findings []reporter.Finding, threshold float64) []reporter.Finding {
 	ml.mu.Lock()
 	defer ml.mu.Unlock()
 
@@ -135,7 +135,7 @@ func (ml *MLFPReducer) FilterFindingsByFPProbability(findings []reporter.Finding
 
 // calculateFPProbabilityLocked calculates the probability that a finding is a false positive.
 // Caller must hold ml.mu.
-func (ml *MLFPReducer) calculateFPProbabilityLocked(finding reporter.Finding) float64 {
+func (ml *FPHistoryCache) calculateFPProbabilityLocked(finding reporter.Finding) float64 {
 	if len(ml.history.Findings) == 0 {
 		return 0.0 // No history, default to 0% FP (assume true positive)
 	}
@@ -160,7 +160,7 @@ func (ml *MLFPReducer) calculateFPProbabilityLocked(finding reporter.Finding) fl
 
 // findSimilarFindingsLocked finds historically similar findings.
 // Caller must hold ml.mu.
-func (ml *MLFPReducer) findSimilarFindingsLocked(current reporter.Finding) []FindingFeedback {
+func (ml *FPHistoryCache) findSimilarFindingsLocked(current reporter.Finding) []FindingFeedback {
 	var similar []FindingFeedback
 
 	for _, feedback := range ml.history.Findings {
@@ -174,7 +174,7 @@ func (ml *MLFPReducer) findSimilarFindingsLocked(current reporter.Finding) []Fin
 }
 
 // calculateSimilarityScore calculates similarity between current and historical finding
-func (ml *MLFPReducer) calculateSimilarityScore(current reporter.Finding, historical FindingFeedback) float64 {
+func (ml *FPHistoryCache) calculateSimilarityScore(current reporter.Finding, historical FindingFeedback) float64 {
 	score := 0.0
 	maxScore := 4.0
 

@@ -22,20 +22,23 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 
 | Feature | Details |
 | :--- | :--- |
-| **Multi-Engine SAST** | 13,160+ rules across 120 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (Python, JS, Java, Kotlin) + intra-file taint tracking (11 languages) |
-| **Cross-File Taint Tracking** | Project-wide taint index built before scanning — wrapper-source functions and imported taint propagators are recognised across file boundaries |
+| **Multi-Engine SAST** | 13,160+ rules across 120 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (Python, JS, Java, Kotlin) + taint tracking (11 languages) |
+| **Cross-File Taint Tracking** | Project-wide function-signature index built before scanning so taint sources exported from one file are recognised when imported by another. _Scope: signature-level propagation, not a full data-flow graph._ |
 | **Negative Pattern Suppression** | Per-rule `negative_patterns` teach the engine about sanitizers and safe API variants; any match within a ±10-line context window auto-suppresses the finding |
+| **Low-Confidence Severity Capping** | Rules with `confidence < 0.3` are automatically capped to `info` severity so speculative rules never pollute critical/high queues |
 | **Shannon Entropy Secret Detection** | Catches known secrets (AWS, GitHub, Google, Stripe, Slack, JWT, private keys) and custom credentials via entropy analysis + base64/hex decode |
 | **SCA / Dependency Auditing** | OSV API + `osv-scanner` CLI, reachability-aware (unused deps are downgraded) + supply chain / typosquatting checks |
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
 | **MITRE ATT&CK Enrichment** | Local technique mapping from CWE/issue keywords — no network calls |
 | **AI-Orchestrated Triage** | Supports **Ollama, OpenAI, Anthropic Claude, Google Gemini, and LM Studio**. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding. Smart worker scaling optimizes for latency vs. VRAM. |
+| **Judge LLM with ID Validation** | Ensemble Judge deduplicates two reports; output coverage is verified — any input finding ID missing from the LLM response is logged and retained via catch-all (never silently lost) |
 | **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge (separate configurable models per phase) |
 | **Real-Time Dashboard** | React + WebSocket. Dark/Light mode. Per-finding triage (open/resolved/ignored/FP) with bulk triage. Pause/Resume scan controls |
 | **Rule Builder UI** | In-browser YAML rule editor with live regex test pane. Edit and create custom rules without leaving the dashboard |
 | **Trust Score & Priority Matrix** | Per-finding composite Trust Score (0–100) + P0–P3 remediation priority tiers in all reports |
-| **ML Feedback Loop** | User triage decisions feed a local FP-history cache (`~/.sentryq/ml-cache/`) to filter recurring false positives in future scans |
-| **Multi-Format Reports** | SARIF, HTML, PDF, CSV — auto-generated per scan, served for 48 hours then auto-cleaned |
+| **FP History Cache** | User triage decisions feed a local history file (`~/.sentryq/ml-cache/`). Findings whose per-rule FP rate exceeds a configurable threshold are suppressed on future scans. Frequency-based — not a trained model. |
+| **Auto-Update** | `./sentryq update` checks GitHub for a newer release and replaces the binary in-place (old binary saved as `sentryq.bak`) |
+| **Multi-Format Reports** | SARIF, HTML, PDF (go-pdf/fpdf), CSV — auto-generated per scan, served for 48 hours then auto-cleaned |
 
 ---
 
@@ -137,6 +140,9 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → upload a fold
 
 # Remote Ollama instance
 ./sentryq --ollama-host 192.168.1.10:11434
+
+# Check for and install the latest release
+./sentryq update
 ```
 
 ### Environment Variables
@@ -290,8 +296,8 @@ Three-phase high-assurance pipeline for maximum accuracy:
 | Area | Location |
 | :--- | :--- |
 | Core scanner engines | `scanner/` |
-| AI validation, judge, calibration | `ai/` |
-| API server & scan orchestration | `cmd/scanner/` |
+| AI validation, judge, calibration, FP history cache | `ai/` |
+| API server, scan orchestration, auto-updater | `cmd/scanner/` |
 | Frontend UI | `web/src/` |
 | Report generators (SARIF, HTML, PDF, CSV) | `reporter/` |
 | Detection rules (120 files: 71 languages + security domains; 15 framework files) | `rules/` |
