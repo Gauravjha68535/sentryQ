@@ -16,6 +16,7 @@
   description: Hardcoded secrets in Dockerfile ENV instruction
   remediation: Use Docker secrets or pass secrets at runtime via environment variables
   confidence: 0.7
+  cwe: CWE-798
 - id: docker-add-instead-of-copy
   languages:
   - dockerfile
@@ -106,6 +107,7 @@
   description: Downloading and executing remote scripts in Dockerfile
   remediation: Download files, verify checksums, then execute separately
   confidence: 0.55
+  cwe: CWE-78
 - id: docker-package-manager-cleanup
   languages:
   - dockerfile

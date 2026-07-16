@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 
 	treeSitter "github.com/smacker/go-tree-sitter"
 )
@@ -186,4 +187,19 @@ func containsPattern(node *treeSitter.Node, content []byte, pattern string) bool
 		return false
 	}
 	return strings.Contains(node.Content(content), pattern)
+}
+
+// sharedASTAnalyzer is a package-level singleton used for reachability checks
+// in SCA (dependency_scanner.go + osv_cli.go). Both callers share the same
+// instance so BuildReachabilityCache (which walks the entire directory) only
+// runs once per scan instead of twice.
+var (
+	_sharedAST     *ASTAnalyzer
+	_sharedASTOnce sync.Once
+)
+
+// SharedASTAnalyzer returns the package-level ASTAnalyzer singleton.
+func SharedASTAnalyzer() *ASTAnalyzer {
+	_sharedASTOnce.Do(func() { _sharedAST = NewASTAnalyzer() })
+	return _sharedAST
 }

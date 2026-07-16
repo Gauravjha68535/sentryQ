@@ -7,6 +7,7 @@
   description: Hardcoded password detected in Swift source code
   remediation: Use Keychain or environment variables for sensitive credentials
   confidence: 0.7
+  cwe: CWE-798
 - id: swift-hardcoded-api-key
   languages:
   - swift
@@ -16,6 +17,7 @@
   description: Hardcoded API key detected in Swift source code
   remediation: Store API keys in Keychain or use a secure configuration system
   confidence: 0.7
+  cwe: CWE-798
 - id: swift-insecure-userdefaults
   languages:
   - swift
@@ -34,6 +36,7 @@
   description: Use of weak cryptographic hash function (MD5)
   remediation: Use CryptoKit's SHA256 or SHA512 for hashing
   confidence: 0.55
+  cwe: CWE-327
 - id: swift-insecure-http
   languages:
   - swift
@@ -79,6 +82,7 @@
   description: Hardcoded bundle identifier comparison
   remediation: Use configuration files or environment variables for environment-specific values
   confidence: 0.5
+  cwe: CWE-798
 - id: swift-insecure-keychain
   languages:
   - swift
@@ -97,6 +101,7 @@
   description: Biometric authentication can be bypassed with skip option
   remediation: Remove skip/fallback options from biometric authentication
   confidence: 0.75
+  cwe: CWE-284
 - id: swift-sql-injection
   languages:
   - swift
@@ -106,6 +111,7 @@
   description: Potential SQL injection via string concatenation
   remediation: Use parameterized queries with ? placeholders
   confidence: 0.75
+  cwe: CWE-89
 - id: swift-command-injection
   languages:
   - swift
@@ -115,6 +121,7 @@
   description: Potential command injection via Process with string concatenation
   remediation: Pass command arguments as separate parameters, not concatenated strings
   confidence: 0.75
+  cwe: CWE-78
 - id: swift-insecure-webview
   languages:
   - swift
@@ -133,6 +140,7 @@
   description: Hardcoded encryption key or IV detected
   remediation: Generate keys dynamically or store in Keychain/Secure Enclave
   confidence: 0.75
+  cwe: CWE-798
 - id: swift-debug-logging
   languages:
   - swift
@@ -142,6 +150,7 @@
   description: Sensitive data logged via print() statements
   remediation: Remove or obfuscate sensitive data in log statements for production
   confidence: 0.65
+  cwe: CWE-209
 - id: swift-unsafe-codable
   languages:
   - swift
@@ -151,6 +160,7 @@
   description: Deserializing from untrusted external data source
   remediation: Validate and sanitize external data before decoding
   confidence: 0.65
+  cwe: CWE-502
 - id: swift-cert-pinning-missing
   languages:
   - swift
@@ -169,6 +179,7 @@
   description: Biometric authentication has weak password fallback
   remediation: Use strong passcode fallback or require biometric for sensitive operations
   confidence: 0.5
+  cwe: CWE-798
 - id: swift-urlsession-no-tls
   languages:
   - swift

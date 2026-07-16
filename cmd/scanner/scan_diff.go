@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"SentryQ/reporter"
+	"SentryQ/utils"
 )
 
 // DiffResult is the result of comparing two scans.
@@ -39,9 +40,9 @@ func DiffScans(scanIDA, scanIDB string) (*DiffResult, error) {
 		return nil, fmt.Errorf("failed to load scan %s: %w", scanIDB, err)
 	}
 
-	// Key: RuleID + FilePath + normalised line
+	// Key: RuleID + FilePath + start line (normalised)
 	keyOf := func(f reporter.Finding) string {
-		return fmt.Sprintf("%s|%s|%s", f.RuleID, f.FilePath, normaliseLineRef(f.LineNumber))
+		return fmt.Sprintf("%s|%s|%d", f.RuleID, f.FilePath, utils.ParseStartLine(f.LineNumber))
 	}
 
 	setA := make(map[string]reporter.Finding, len(findingsA))
@@ -122,7 +123,3 @@ func PrintDiff(d *DiffResult) {
 	}
 }
 
-// normaliseLineRef strips ranges like "42-45" to just "42" for fuzzy matching.
-func normaliseLineRef(ref string) string {
-	return strings.SplitN(ref, "-", 2)[0]
-}

@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"SentryQ/reporter"
-	"SentryQ/utils"
 
 	"github.com/fatih/color"
 )
 
-// ValidateFindingsBatch validates multiple findings concurrently using a worker pool.
+// ValidateFindingsBatch validates findings sequentially using AI.
+// Sequential processing (not a pool) is preferred to avoid GPU VRAM thrashing
+// on consumer hardware. The channel+goroutine pool that existed before was pure
+// overhead since numWorkers was always 1.
 func ValidateFindingsBatch(ctx context.Context, modelName string, findings []reporter.Finding, fileContents map[string]string, logCallback ...func(msg string, level string)) []reporter.Finding {
 	totalToValidate := countCriticalHighMedium(findings)
 
-	// Helper to send logs to UI if a callback was provided
 	uiLog := func(msg, level string) {
 		if len(logCallback) > 0 && logCallback[0] != nil {
 			logCallback[0](msg, level)
@@ -26,27 +26,22 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 	}
 	calibrator := NewConfidenceCalibrator()
 
-	// Styled header
 	headerColor := color.New(color.FgCyan, color.Bold)
-	headerColor.Println("\n┌─ 🤖 AI Validation Engine (Concurrent)")
+	headerColor.Println("\n┌─ 🤖 AI Validation Engine")
 	headerColor.Println("└────────────────────────────────────────")
 	fmt.Println()
 
 	if len(findings) == 0 {
 		return findings
 	}
-	numWorkers := 1 // Sequential preferred to avoid GPU VRAM thrashing on consumer hardware
 
-	uiLog(fmt.Sprintf("Starting BATCH AI validation with model: %s", modelName), "info")
-	uiLog(fmt.Sprintf("Concurrency: %d parallel workers", numWorkers), "info")
+	uiLog(fmt.Sprintf("Starting AI validation with model: %s", modelName), "info")
 	uiLog(fmt.Sprintf("Validating %d findings (Critical/High/Medium only)", totalToValidate), "info")
 	fmt.Println()
 
 	startTime := time.Now()
 
-	// Metrics & Synchronization
 	var (
-		mu                sync.Mutex
 		validated         int
 		truePositives     int
 		falsePositives    int
@@ -56,233 +51,135 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 	)
 	const maxConsecutiveErrors = 3
 
-	// Channels for worker pool
-	type findingJob struct {
-		index   int
-		finding reporter.Finding
-	}
-
-	jobs := make(chan findingJob, len(findings))
-	results := make(chan findingJob, len(findings))
-
-	var wg sync.WaitGroup
-
-	// Worker Function
-	worker := func() {
-		defer wg.Done()
-		for job := range jobs {
-			// Respect context cancellation between jobs
-			if ctx.Err() != nil {
-				job.finding.AiValidated = "Skipped (Cancelled)"
-				results <- job
-				continue
-			}
-
-			// Pre-check for skip conditions
-			if job.finding.Severity == "low" || job.finding.Severity == "info" {
-				job.finding.AiValidated = "Skipped (Low/Info)"
-
-				mu.Lock()
-				skipped++
-				mu.Unlock()
-
-				results <- job
-				continue
-			}
-
-			// Circuit breaker check
-			mu.Lock()
-			ce := consecutiveErrors
-			mu.Unlock()
-			if ce >= maxConsecutiveErrors {
-				job.finding.AiValidated = "Skipped (AI Unavailable)"
-
-				mu.Lock()
-				skipped++
-				mu.Unlock()
-
-				results <- job
-				continue
-			}
-
-			// Capture context for UI before unlocking
-			mu.Lock()
-			validated++
-			currValidated := validated
-			mu.Unlock()
-
-			// Print UI Progress
-			elapsed := time.Since(startTime)
-			var eta time.Duration
-			if currValidated > 1 {
-				avgTime := elapsed / time.Duration(currValidated-1)
-				remaining := totalToValidate - currValidated
-				if remaining > 0 {
-					eta = avgTime * time.Duration(remaining)
-				}
-			}
-
-			shortFile := filepath.Base(job.finding.FilePath)
-			parentDir := filepath.Base(filepath.Dir(job.finding.FilePath))
-			displayPath := filepath.Join(parentDir, shortFile)
-
-			issueName := job.finding.IssueName
-
-			// We wrap terminal output in a mutex to prevent lines from clobbering each other
-			mu.Lock()
-			etaStr := ""
-			if currValidated > 1 && eta > 0 {
-				etaStr = fmt.Sprintf("ETA %s", formatDuration(eta))
-			} else {
-				etaStr = "calculating..."
-			}
-			uiLog(fmt.Sprintf("Validating [%d/%d] %s => %s (%s)", currValidated, totalToValidate, displayPath, job.finding.IssueName, etaStr), "info")
-			fmt.Printf("\r\033[K")
-			color.New(color.FgHiBlue).Printf("  [%s elapsed | %s] (%d/%d) ", formatDuration(elapsed), etaStr, currValidated, totalToValidate)
-			color.New(color.FgHiCyan).Printf("📄 %s ", displayPath)
-			fmt.Printf("L%s ", job.finding.LineNumber)
-
-			switch job.finding.Severity {
-			case "critical":
-				color.New(color.FgRed, color.Bold).Printf("[CRIT] ")
-			case "high":
-				color.New(color.FgHiRed).Printf("[HIGH] ")
-			case "medium":
-				color.New(color.FgYellow).Printf("[MED]  ")
-			}
-			fmt.Printf("%s\n", issueName)
-			mu.Unlock()
-
-			// Extract context for cross-file validation
-			relatedFilesContext := ""
-			relatedCount := 0
-			// Look for file paths mentioned in ExploitPath or Description that aren't the main file
-			for p, content := range fileContents {
-				if p != job.finding.FilePath {
-					shortPath := filepath.Base(p)
-					mentioned := false
-					for _, step := range job.finding.ExploitPath {
-						if strings.Contains(step, shortPath) {
-							mentioned = true
-							break
-						}
-					}
-					if !mentioned && strings.Contains(job.finding.Description, shortPath) {
-						mentioned = true
-					}
-					
-					if mentioned {
-						relatedFilesContext += fmt.Sprintf("=== Related Context: %s ===\n%s\n\n", shortPath, content)
-						relatedCount++
-					}
-				}
-				if relatedCount >= 2 { // Limit to 2 related files to protect context window
-					break
-				}
-			}
-
-			// Perform actual AI Validation (Heavy lifting, no mutex)
-			codeSnippet := getCodeSnippet(fileContents, job.finding.FilePath, job.finding.LineNumber)
-			result, err := ValidateFinding(ctx, modelName, job.finding, codeSnippet, relatedFilesContext)
-
-			mu.Lock()
-			if err != nil {
-				uiLog(fmt.Sprintf("AI validation failed for finding %s: %v", job.finding.IssueName, err), "error")
-				job.finding.AiValidated = "Error"
-				errorsCount++
-				consecutiveErrors++
-				color.Red("         ⚠ Error: AI validation failed")
-				if consecutiveErrors >= maxConsecutiveErrors {
-					color.Yellow("         ⚠ Circuit breaker triggered: skipping remaining AI validations")
-				}
-			} else {
-				consecutiveErrors = 0
-				if result.IsTruePositive {
-					job.finding.AiValidated = "Yes"
-					if result.Explanation != "" {
-						job.finding.AiReasoning = result.Explanation
-					}
-					if result.SuggestedFix != "" {
-						job.finding.Remediation = result.SuggestedFix
-					}
-					if result.FixedCodeSnippet != "" && result.FixedCodeSnippet != "N/A" {
-						job.finding.FixedCode = result.FixedCodeSnippet
-					}
-					if result.SeverityAdjustment != "same" && result.SeverityAdjustment != "" {
-						job.finding.Severity = result.SeverityAdjustment
-					}
-					if result.ExploitPoC != "" {
-						job.finding.ExploitPoC = result.ExploitPoC
-					}
-					job.finding.Confidence = result.Confidence
-					truePositives++
-					uiLog(fmt.Sprintf("  ✓ Confirmed (%s) %.0f%% confidence", job.finding.IssueName, result.Confidence*100), "success")
-					color.New(color.FgGreen).Printf("         ✓ Confirmed (%.0f%% confidence)\n", result.Confidence*100)
-				} else {
-					job.finding.AiValidated = "No (False Positive)"
-					job.finding.Description = fmt.Sprintf("AI determined this is a false positive: %s", result.Explanation)
-					job.finding.Confidence = result.Confidence
-					job.finding.CWE = ""
-					job.finding.OWASP = ""
-					falsePositives++
-					uiLog(fmt.Sprintf("  ○ Filtered FP (%s) %.0f%% confidence", job.finding.IssueName, result.Confidence*100), "warning")
-					color.New(color.FgHiBlack).Printf("         ○ Filtered (False Positive) [%.0f%% confidence]\n", result.Confidence*100)
-				}
-
-				calibrator.RecordValidation(job.finding.Severity, result.IsTruePositive)
-			}
-			mu.Unlock()
-			// SaveStats does file I/O — call it outside the lock so it doesn't
-			// block other workers (or UI printing) while writing to disk.
-			if err == nil {
-				calibrator.SaveStats()
-			}
-
-			results <- job
-		}
-	}
-
-	// Start workers
-	for w := 0; w < numWorkers; w++ {
-		wg.Add(1)
-		go worker()
-	}
-
-	// Send jobs
-	for i, f := range findings {
-		jobs <- findingJob{index: i, finding: f}
-	}
-	close(jobs)
-
-	// Wait for workers to finish
-	wg.Wait()
-	close(results)
-
-	// Re-assemble results in original order (safeguarding against missing results)
-	orderedFindings := make([]reporter.Finding, len(findings))
-	resultCount := 0
-	for res := range results {
-		orderedFindings[res.index] = res.finding
-		resultCount++
-	}
-
-	if resultCount < len(findings) {
-		utils.LogWarn(fmt.Sprintf("AI validation: expected %d results but received %d — some findings may have been dropped", len(findings), resultCount))
-	}
-
 	var finalFindings []reporter.Finding
-	droppedCount := 0
-	for _, f := range orderedFindings {
-		// Only append findings that were actually populated (not empty default structs)
-		// We use FilePath as a decent indicator that this finding wasn't completely dropped
-		if f.FilePath != "" {
+
+	for i := range findings {
+		f := findings[i]
+
+		if ctx.Err() != nil {
+			f.AiValidated = "Skipped (Cancelled)"
 			finalFindings = append(finalFindings, f)
-		} else {
-			droppedCount++
+			continue
 		}
-	}
-	if droppedCount > 0 {
-		utils.LogWarn(fmt.Sprintf("AI validation: %d findings had empty results and were excluded from output", droppedCount))
+
+		if f.Severity == "low" || f.Severity == "info" {
+			f.AiValidated = "Skipped (Low/Info)"
+			skipped++
+			finalFindings = append(finalFindings, f)
+			continue
+		}
+
+		if consecutiveErrors >= maxConsecutiveErrors {
+			f.AiValidated = "Skipped (AI Unavailable)"
+			skipped++
+			finalFindings = append(finalFindings, f)
+			continue
+		}
+
+		validated++
+		elapsed := time.Since(startTime)
+		var etaStr string
+		if validated > 1 {
+			avgTime := elapsed / time.Duration(validated-1)
+			remaining := totalToValidate - validated
+			if remaining > 0 {
+				etaStr = fmt.Sprintf("ETA %s", formatDuration(avgTime*time.Duration(remaining)))
+			}
+		}
+		if etaStr == "" {
+			etaStr = "calculating..."
+		}
+
+		shortFile := filepath.Base(f.FilePath)
+		displayPath := filepath.Join(filepath.Base(filepath.Dir(f.FilePath)), shortFile)
+
+		uiLog(fmt.Sprintf("Validating [%d/%d] %s => %s (%s)", validated, totalToValidate, displayPath, f.IssueName, etaStr), "info")
+		fmt.Printf("\r\033[K")
+		color.New(color.FgHiBlue).Printf("  [%s elapsed | %s] (%d/%d) ", formatDuration(elapsed), etaStr, validated, totalToValidate)
+		color.New(color.FgHiCyan).Printf("📄 %s ", displayPath)
+		fmt.Printf("L%s ", f.LineNumber)
+		switch f.Severity {
+		case "critical":
+			color.New(color.FgRed, color.Bold).Printf("[CRIT] ")
+		case "high":
+			color.New(color.FgHiRed).Printf("[HIGH] ")
+		case "medium":
+			color.New(color.FgYellow).Printf("[MED]  ")
+		}
+		fmt.Printf("%s\n", f.IssueName)
+
+		// Build related file context (up to 2 files mentioned in ExploitPath/Description)
+		relatedFilesContext := ""
+		relatedCount := 0
+		for p, content := range fileContents {
+			if p == f.FilePath || relatedCount >= 2 {
+				continue
+			}
+			shortPath := filepath.Base(p)
+			mentioned := strings.Contains(f.Description, shortPath)
+			if !mentioned {
+				for _, step := range f.ExploitPath {
+					if strings.Contains(step, shortPath) {
+						mentioned = true
+						break
+					}
+				}
+			}
+			if mentioned {
+				relatedFilesContext += fmt.Sprintf("=== Related Context: %s ===\n%s\n\n", shortPath, content)
+				relatedCount++
+			}
+		}
+
+		codeSnippet := getCodeSnippet(fileContents, f.FilePath, f.LineNumber)
+		result, err := ValidateFinding(ctx, modelName, f, codeSnippet, relatedFilesContext)
+
+		if err != nil {
+			uiLog(fmt.Sprintf("AI validation failed for finding %s: %v", f.IssueName, err), "error")
+			f.AiValidated = "Error"
+			errorsCount++
+			consecutiveErrors++
+			color.Red("         ⚠ Error: AI validation failed")
+			if consecutiveErrors >= maxConsecutiveErrors {
+				color.Yellow("         ⚠ Circuit breaker triggered: skipping remaining AI validations")
+			}
+		} else {
+			consecutiveErrors = 0
+			if result.IsTruePositive {
+				f.AiValidated = "Yes"
+				if result.Explanation != "" {
+					f.AiReasoning = result.Explanation
+				}
+				if result.SuggestedFix != "" {
+					f.Remediation = result.SuggestedFix
+				}
+				if result.FixedCodeSnippet != "" && result.FixedCodeSnippet != "N/A" {
+					f.FixedCode = result.FixedCodeSnippet
+				}
+				if result.SeverityAdjustment != "same" && result.SeverityAdjustment != "" {
+					f.Severity = result.SeverityAdjustment
+				}
+				if result.ExploitPoC != "" {
+					f.ExploitPoC = result.ExploitPoC
+				}
+				f.Confidence = result.Confidence
+				truePositives++
+				uiLog(fmt.Sprintf("  ✓ Confirmed (%s) %.0f%% confidence", f.IssueName, result.Confidence*100), "success")
+				color.New(color.FgGreen).Printf("         ✓ Confirmed (%.0f%% confidence)\n", result.Confidence*100)
+			} else {
+				f.AiValidated = "No (False Positive)"
+				f.Description = fmt.Sprintf("AI determined this is a false positive: %s", result.Explanation)
+				f.Confidence = result.Confidence
+				f.CWE = ""
+				f.OWASP = ""
+				falsePositives++
+				uiLog(fmt.Sprintf("  ○ Filtered FP (%s) %.0f%% confidence", f.IssueName, result.Confidence*100), "warning")
+				color.New(color.FgHiBlack).Printf("         ○ Filtered (False Positive) [%.0f%% confidence]\n", result.Confidence*100)
+			}
+			calibrator.RecordValidation(f.Severity, result.IsTruePositive)
+			calibrator.SaveStats()
+		}
+		finalFindings = append(finalFindings, f)
 	}
 
 	// Summary

@@ -85,7 +85,7 @@ func scanDependenciesFallback(ctx context.Context, targetDir string) ([]reporter
 
 	// Query OSV API using batched requests to minimise round-trips.
 	// Fall back to individual queries for any batch that fails.
-	analyzer := NewASTAnalyzer()
+	analyzer := SharedASTAnalyzer()
 
 	processDep := func(dep Dependency, vulns []OSVVulnerability) {
 		for _, vuln := range vulns {

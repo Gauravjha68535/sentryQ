@@ -11,6 +11,7 @@
   - regex: (?i)(os\.environ|os\.getenv|getenv|environ\.get|System\.getenv|process\.env|dotenv|config\[|settings\.|secretsmanager|vault|KeyVault)
   - regex: (?i)(#.*(test|mock|example|sample|placeholder|dummy|fake)|^\s*(import|from)\s.*(test|mock)|def\s+test_|class\s+Test|REPLACE_ME|YOUR_[A-Z]|<[A-Z_]+>|changeme)
   - regex: (?i)(#.*secret|#.*password|#.*api.?key)
+  cwe: CWE-798
 - id: java-hardcoded-api-key
   languages:
   - java
@@ -21,6 +22,7 @@
   remediation: Store API keys in environment variables or use AWS Secrets Manager/HashiCorp Vault
   confidence: 0.65
   negative_patterns: *id001
+  cwe: CWE-798
 - id: java-hardcoded-aws-credentials
   languages:
   - java
@@ -31,6 +33,7 @@
   remediation: Remove AWS credentials from code. Use IAM roles or AWS Secrets Manager
   confidence: 0.7
   negative_patterns: *id001
+  cwe: CWE-798
 - id: java-hardcoded-jdbc
   languages:
   - java
@@ -41,6 +44,7 @@
   remediation: Use environment variables or JNDI for database credentials. Never hardcode passwords
   confidence: 0.65
   negative_patterns: *id001
+  cwe: CWE-798
 - id: java-sql-injection
   languages:
   - java
@@ -54,6 +58,7 @@
   - regex: (?i)@Query\s*\(|@Param\s*\(
   - regex: (?i)createQuery\s*\(["\x27][^"\x27]*:[a-z]
   confidence: 0.85
+  cwe: CWE-89
 - id: java-sql-injection-statement
   languages:
   - java
@@ -67,6 +72,7 @@
   - regex: (?i)(cursor\.(execute|executemany)|db\.(execute|query)|session\.execute)\s*\(\s*["\x27][^"\x27]*["\x27]\s*,\s*[\(\[]
   - regex: \?\s*\}|\$\d+|%s\s*,|\bprepare\b|\bprepared_statement\b|\bPreparedStatement\b
   - regex: (?i)(parameterized|bind_param|bindValue|addBatch)
+  cwe: CWE-89
 - id: java-hibernate-hql-injection
   languages:
   - java
@@ -76,6 +82,7 @@
   description: HQL/SQL injection via string concatenation in Hibernate query
   remediation: 'Use named parameters: createQuery(''FROM User WHERE name = :name'').setParameter(''name'', input)'
   confidence: 0.8
+  cwe: CWE-89
 - id: java-command-injection
   languages:
   - java
@@ -88,6 +95,7 @@
   - regex: (?i)ProcessBuilder\s*\(\s*(?:List|Arrays\.asList|new\s+ArrayList)
   - regex: (?i)Runtime\.getRuntime\(\)\.exec\s*\(\s*new\s+String\[\]
   confidence: 0.8
+  cwe: CWE-78
 - id: java-insecure-deserialization
   languages:
   - java
@@ -97,6 +105,7 @@
   description: Java deserialization detected which can lead to remote code execution
   remediation: Avoid deserializing untrusted data. Use JSON or other safe serialization formats
   confidence: 0.65
+  cwe: CWE-78
 - id: java-unsafe-xmldecoder
   languages:
   - java
@@ -106,6 +115,7 @@
   description: XMLDecoder can execute arbitrary code during deserialization
   remediation: Never use XMLDecoder on untrusted input. Use JAXB or Jackson instead
   confidence: 0.75
+  cwe: CWE-78
 - id: java-weak-crypto-md5
   languages:
   - java
@@ -115,6 +125,7 @@
   description: Use of weak cryptographic hash function (MD5/SHA1)
   remediation: Use SHA-256 or SHA-512. For passwords, use bcrypt, scrypt, or Argon2
   confidence: 0.65
+  cwe: CWE-327
 - id: java-weak-cipher-ecb
   languages:
   - java
@@ -124,6 +135,7 @@
   description: Use of weak cipher mode (ECB) or deprecated algorithm (DES/RC4)
   remediation: Use AES/GCM/NoPadding or AES/CBC/PKCS5Padding with random IV
   confidence: 0.75
+  cwe: CWE-327
 - id: java-hardcoded-crypto-key
   languages:
   - java
@@ -134,6 +146,7 @@
   remediation: Generate keys using KeyGenerator and store in KeyStore
   confidence: 0.75
   negative_patterns: *id001
+  cwe: CWE-798
 - id: java-insecure-random
   languages:
   - java
@@ -143,6 +156,7 @@
   description: Using insecure Random for security-sensitive operations
   remediation: Use java.security.SecureRandom for security-critical random numbers
   confidence: 0.6
+  cwe: CWE-330
 - id: java-xxe-vulnerability
   languages:
   - java
@@ -152,6 +166,7 @@
   description: XML parser instantiation without disabling external entities (XXE risk)
   remediation: 'Disable external entities: factory.setFeature(''http://xml.org/sax/features/external-general-entities'', false)'
   confidence: 0.7
+  cwe: CWE-611
 - id: java-path-traversal
   languages:
   - java
@@ -164,6 +179,7 @@
   negative_patterns:
   - regex: (?i)(os\.path\.realpath|abspath|safe_join|ALLOWED_DIRS|BASE_DIR|restrict_path)
   - regex: (?i)(\.startswith\(base|Path\(.*resolve\(\))
+  cwe: CWE-22
 - id: java-ssrf
   languages:
   - java
@@ -173,6 +189,7 @@
   description: Server-Side Request Forgery via user-controlled URL
   remediation: Validate URLs against allowlists. Block private/internal IP ranges
   confidence: 0.95
+  cwe: CWE-918
 - id: java-spring-sql-injection
   languages:
   - java
@@ -183,6 +200,7 @@
   remediation: Use parameterized queries with ? placeholders in JdbcTemplate
   confidence: 0.8
   negative_patterns: *id002
+  cwe: CWE-89
 - id: java-spring-open-redirect
   languages:
   - java
@@ -192,6 +210,7 @@
   description: Open redirect via user-controlled redirect URL
   remediation: Validate redirect URLs against allowlist. Never redirect to user-controlled URL
   confidence: 0.95
+  cwe: CWE-601
 - id: java-spring-csrf-disabled
   languages:
   - java
@@ -201,6 +220,7 @@
   description: CSRF protection disabled in Spring Security
   remediation: Enable CSRF protection for state-changing operations
   confidence: 0.75
+  cwe: CWE-352
 - id: java-spring-actuator-exposed
   languages:
   - java
@@ -219,6 +239,7 @@
   description: LDAP injection via string concatenation in search filter
   remediation: Use parameterized LDAP queries with proper escaping
   confidence: 0.8
+  cwe: CWE-90
 - id: java-xss-response
   languages:
   - java
@@ -228,6 +249,7 @@
   description: XSS via direct output of user input in HTTP response
   remediation: Escape HTML output using OWASP ESAPI or Apache Commons Text
   confidence: 0.95
+  cwe: CWE-79
 - id: java-jsp-scriptlet
   languages:
   - java
@@ -237,6 +259,7 @@
   description: XSS via unescaped JSP expression with user input
   remediation: Use JSTL <c:out> or ${fn:escapeXml()} for output encoding
   confidence: 0.85
+  cwe: CWE-79
 - id: java-log-injection
   languages:
   - java
@@ -282,6 +305,7 @@
   description: Sensitive data logged in Android debug statements
   remediation: Remove sensitive data from log statements in production builds
   confidence: 0.65
+  cwe: CWE-209
 - id: java-nosql-injection
   languages:
   - java

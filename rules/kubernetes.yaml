@@ -88,6 +88,7 @@
   description: Service account token automatically mounted
   remediation: 'Set automountServiceAccountToken: false if not needed'
   confidence: 0.55
+  cwe: CWE-798
 - id: k8s-host-path-volume
   languages:
   - yaml
@@ -133,6 +134,7 @@
   description: Secrets hardcoded in environment variables
   remediation: Use secretKeyRef to reference Kubernetes Secrets
   confidence: 0.7
+  cwe: CWE-798
 - id: k8s-nodeport-service
   languages:
   - yaml
