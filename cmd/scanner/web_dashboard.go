@@ -437,6 +437,16 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/custom-endpoint/test", handleCustomEndpointTest)
 	mux.HandleFunc("/api/custom-endpoint/models", handleCustomEndpointModels)
 
+	// Auth routes (multi-user mode)
+	mux.HandleFunc("/api/auth/login", handleLogin)
+	mux.HandleFunc("/api/auth/users", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			RequireRole(RoleAdmin, handleListUsers)(w, r)
+		} else {
+			RequireRole(RoleAdmin, handleCreateUser)(w, r)
+		}
+	})
+
 	// Dynamic scan routes (manual routing for path params)
 	mux.HandleFunc("/api/scan/compliance", handleScanCompliance)
 	mux.HandleFunc("/api/scans/diff", handleScansDiff)
