@@ -13,7 +13,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"sync/atomic"
 )
 
 // scanJob represents a single file scanning job for the worker pool
@@ -280,10 +279,8 @@ func RunPatternScan(ctx context.Context, result *ScanResult, baseRules []config.
 	jobChan := make(chan scanJob, len(jobs))
 	resultChan := make(chan scanResult, len(jobs))
 
-	// Atomic counter for Sr numbers
-	var srCounter int64
-
-	// Start workers
+	// Start workers — SrNo assigned sequentially after all results collected,
+	// so no atomic counter is needed inside workers.
 	var wg sync.WaitGroup
 	for w := 0; w < numWorkers; w++ {
 		wg.Add(1)
@@ -296,13 +293,9 @@ func RunPatternScan(ctx context.Context, result *ScanResult, baseRules []config.
 			}()
 			for job := range jobChan {
 				if ctx.Err() != nil {
-					// Context cancelled — stop processing. The remaining jobs in
-					// jobChan will be drained by the GC when jobChan is GC'd; we
-					// must not block here or the wg.Wait() call below will stall.
 					return
 				}
-				findings := scanFile(job.filePath, job.rules, &srCounter)
-				resultChan <- scanResult{findings: findings}
+				resultChan <- scanResult{findings: scanFile(job.filePath, job.rules)}
 			}
 		}()
 	}
@@ -339,7 +332,9 @@ func RunPatternScan(ctx context.Context, result *ScanResult, baseRules []config.
 const maxPatternFileSizeBytes = 5 * 1024 * 1024 // 5 MB
 
 // scanFile scans a single file against all applicable rules
-func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.Finding {
+func scanFile(filePath string, rules []config.Rule) []reporter.Finding {
+	var localCounter int64
+	counter := &localCounter
 	// Contextual Filtering 1: Skip test/mock files to reduce false positives
 	if utils.IsTestFile(filePath) {
 		return nil
@@ -413,7 +408,8 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 					effectiveSeverity = "info"
 				}
 
-				srNo := int(atomic.AddInt64(counter, 1))
+				(*counter)++
+					srNo := int(*counter)
 
 				findings = append(findings, reporter.Finding{
 					SrNo:        srNo,
@@ -445,7 +441,8 @@ func scanFile(filePath string, rules []config.Rule, counter *int64) []reporter.F
 					if confidence == 0 {
 						confidence = getDefaultConfidence(rule.Severity)
 					}
-					srNo := int(atomic.AddInt64(counter, 1))
+					(*counter)++
+					srNo := int(*counter)
 					findings = append(findings, reporter.Finding{
 						SrNo:        srNo,
 						IssueName:   rule.ID,

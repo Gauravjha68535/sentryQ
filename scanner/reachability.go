@@ -72,7 +72,7 @@ func (ra *ReachabilityAnalyzer) BuildCallGraph(targetDir string) error {
 		}
 
 		// Only process source code files
-		lang := getLanguageFromPath(path)
+		lang := utils.GetLanguage(filepath.Ext(path))
 		if lang == "" {
 			return nil
 		}

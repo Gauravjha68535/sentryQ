@@ -345,7 +345,7 @@ func (ta *TaintAnalyzer) BuildCrossFileIndex(targetDir string) *CrossFileIndex {
 			return nil
 		}
 
-		lang := getLanguageFromPath(path)
+		lang := utils.GetLanguage(filepath.Ext(path))
 		if lang == "" || ta.compiledSinks[lang] == nil {
 			return nil
 		}
@@ -404,7 +404,7 @@ func (ta *TaintAnalyzer) AnalyzeTaintFlowWithIndex(filePath string, idx *CrossFi
 }
 
 func (ta *TaintAnalyzer) analyzeTaintFlowInternal(filePath string, crossFileIdx *CrossFileIndex) ([]reporter.Finding, error) {
-	lang := getLanguageFromPath(filePath)
+	lang := utils.GetLanguage(filepath.Ext(filePath))
 	if lang == "" || ta.compiledSinks[lang] == nil {
 		return nil, nil
 	}

@@ -142,59 +142,48 @@ func getOllamaStatus(host string) string {
 	return status
 }
 
+// settingsData is the canonical settings schema shared by the runtime struct,
+// disk serialisation (loadSettings/saveSettings), and the API response.
+// Defining it once eliminates the three identical anonymous structs that
+// previously existed in appSettings, loadSettings, and saveSettings.
+type settingsData struct {
+	AIProvider    string `json:"ai_provider"`
+	DefaultModel  string `json:"default_model"`
+	OllamaHost    string `json:"ollama_host"`
+	LMStudioHost  string `json:"lmstudio_host"`
+	LMStudioModel string `json:"lmstudio_model"`
+	CustomAPIURL  string `json:"custom_api_url"`
+	CustomAPIKey  string `json:"custom_api_key"`
+	CustomModel   string `json:"custom_model"`
+	ClaudeAPIKey  string `json:"claude_api_key"`
+	ClaudeModel   string `json:"claude_model"`
+	GeminiAPIKey  string `json:"gemini_api_key"`
+	GeminiModel   string `json:"gemini_model"`
+	WebhookURLs   string `json:"webhook_urls"`
+}
+
 var (
 	startTime    time.Time
-	settingsPath string // initialized in init() to ~/.sentryq/settings.json
-	appSettings = struct {
+	settingsPath string
+	appSettings  = struct {
 		sync.RWMutex
-		// Common
-		AIProvider   string `json:"ai_provider"`
-		DefaultModel string `json:"default_model"`
-		// Ollama
-		OllamaHost string `json:"ollama_host"`
-		// LM Studio
-		LMStudioHost  string `json:"lmstudio_host"`
-		LMStudioModel string `json:"lmstudio_model"`
-		// OpenAI-compatible custom endpoint
-		CustomAPIURL string `json:"custom_api_url"`
-		CustomAPIKey string `json:"custom_api_key"`
-		CustomModel  string `json:"custom_model"`
-		// Claude (Anthropic)
-		ClaudeAPIKey string `json:"claude_api_key"`
-		ClaudeModel  string `json:"claude_model"`
-		// Gemini (Google)
-		GeminiAPIKey string `json:"gemini_api_key"`
-		GeminiModel  string `json:"gemini_model"`
-		// Notifications
-		WebhookURLs string `json:"webhook_urls"`
+		settingsData
 	}{
-		AIProvider:    "ollama",
-		DefaultModel:  "qwen2.5-coder:7b",
-		OllamaHost:    "localhost:11434",
-		LMStudioHost:  "localhost:1234",
-		ClaudeModel:   "claude-sonnet-4-6",
-		GeminiModel:   "gemini-2.0-flash",
+		settingsData: settingsData{
+			AIProvider:   "ollama",
+			DefaultModel: "qwen2.5-coder:7b",
+			OllamaHost:   "localhost:11434",
+			LMStudioHost: "localhost:1234",
+			ClaudeModel:  "claude-sonnet-4-6",
+			GeminiModel:  "gemini-2.0-flash",
+		},
 	}
 )
 
 func loadSettings() {
 	data, err := os.ReadFile(settingsPath)
 	if err == nil {
-		var s struct {
-			AIProvider    string `json:"ai_provider"`
-			DefaultModel  string `json:"default_model"`
-			OllamaHost    string `json:"ollama_host"`
-			LMStudioHost  string `json:"lmstudio_host"`
-			LMStudioModel string `json:"lmstudio_model"`
-			CustomAPIURL  string `json:"custom_api_url"`
-			CustomAPIKey  string `json:"custom_api_key"`
-			CustomModel   string `json:"custom_model"`
-			ClaudeAPIKey  string `json:"claude_api_key"`
-			ClaudeModel   string `json:"claude_model"`
-			GeminiAPIKey  string `json:"gemini_api_key"`
-			GeminiModel   string `json:"gemini_model"`
-			WebhookURLs   string `json:"webhook_urls"`
-		}
+		var s settingsData
 		if err := json.Unmarshal(data, &s); err == nil {
 			// Environment variables take precedence over stored keys so that
 			// users can inject credentials via the process environment without
@@ -348,35 +337,7 @@ func saveSettings() error {
 	appSettings.RLock()
 	defer appSettings.RUnlock()
 
-	s := struct {
-		AIProvider    string `json:"ai_provider"`
-		DefaultModel  string `json:"default_model"`
-		OllamaHost    string `json:"ollama_host"`
-		LMStudioHost  string `json:"lmstudio_host"`
-		LMStudioModel string `json:"lmstudio_model"`
-		CustomAPIURL  string `json:"custom_api_url"`
-		CustomAPIKey  string `json:"custom_api_key"`
-		CustomModel   string `json:"custom_model"`
-		ClaudeAPIKey  string `json:"claude_api_key"`
-		ClaudeModel   string `json:"claude_model"`
-		GeminiAPIKey  string `json:"gemini_api_key"`
-		GeminiModel   string `json:"gemini_model"`
-		WebhookURLs   string `json:"webhook_urls"`
-	}{
-		AIProvider:    appSettings.AIProvider,
-		DefaultModel:  appSettings.DefaultModel,
-		OllamaHost:    appSettings.OllamaHost,
-		LMStudioHost:  appSettings.LMStudioHost,
-		LMStudioModel: appSettings.LMStudioModel,
-		CustomAPIURL:  appSettings.CustomAPIURL,
-		CustomAPIKey:  appSettings.CustomAPIKey,
-		CustomModel:   appSettings.CustomModel,
-		ClaudeAPIKey:  appSettings.ClaudeAPIKey,
-		ClaudeModel:   appSettings.ClaudeModel,
-		GeminiAPIKey:  appSettings.GeminiAPIKey,
-		GeminiModel:   appSettings.GeminiModel,
-		WebhookURLs:   appSettings.WebhookURLs,
-	}
+	s := appSettings.settingsData
 
 	data, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
