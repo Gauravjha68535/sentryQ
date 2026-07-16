@@ -13,13 +13,23 @@ import (
 	"SentryQ/utils"
 
 	treeSitter "github.com/smacker/go-tree-sitter"
-	golang "github.com/smacker/go-tree-sitter/golang"
-	java "github.com/smacker/go-tree-sitter/java"
+	bash       "github.com/smacker/go-tree-sitter/bash"
+	clang      "github.com/smacker/go-tree-sitter/c"
+	cpp        "github.com/smacker/go-tree-sitter/cpp"
+	csharp     "github.com/smacker/go-tree-sitter/csharp"
+	elixir     "github.com/smacker/go-tree-sitter/elixir"
+	golang     "github.com/smacker/go-tree-sitter/golang"
+	groovy     "github.com/smacker/go-tree-sitter/groovy"
+	java       "github.com/smacker/go-tree-sitter/java"
 	javascript "github.com/smacker/go-tree-sitter/javascript"
-	kotlin "github.com/smacker/go-tree-sitter/kotlin"
-	python "github.com/smacker/go-tree-sitter/python"
-	ruby "github.com/smacker/go-tree-sitter/ruby"
-	rust "github.com/smacker/go-tree-sitter/rust"
+	kotlin     "github.com/smacker/go-tree-sitter/kotlin"
+	lua        "github.com/smacker/go-tree-sitter/lua"
+	phpLang    "github.com/smacker/go-tree-sitter/php"
+	python     "github.com/smacker/go-tree-sitter/python"
+	ruby       "github.com/smacker/go-tree-sitter/ruby"
+	rust       "github.com/smacker/go-tree-sitter/rust"
+	scala      "github.com/smacker/go-tree-sitter/scala"
+	swift      "github.com/smacker/go-tree-sitter/swift"
 	typescript "github.com/smacker/go-tree-sitter/typescript/typescript"
 )
 
@@ -47,6 +57,7 @@ func NewASTAnalyzer() *ASTAnalyzer {
 
 	// Register all supported languages.
 	// Each uses its own dedicated tree-sitter grammar from go-tree-sitter.
+	// Core languages (original 8)
 	analyzer.languages["python"]     = python.GetLanguage()
 	analyzer.languages["javascript"] = javascript.GetLanguage()
 	analyzer.languages["typescript"] = typescript.GetLanguage()
@@ -55,6 +66,17 @@ func NewASTAnalyzer() *ASTAnalyzer {
 	analyzer.languages["go"]         = golang.GetLanguage()
 	analyzer.languages["ruby"]       = ruby.GetLanguage()
 	analyzer.languages["rust"]       = rust.GetLanguage()
+	// Tier 3 expansion: 10 additional languages via existing go-tree-sitter grammars
+	analyzer.languages["bash"]       = bash.GetLanguage()
+	analyzer.languages["c"]          = clang.GetLanguage()
+	analyzer.languages["cpp"]        = cpp.GetLanguage()
+	analyzer.languages["csharp"]     = csharp.GetLanguage()
+	analyzer.languages["elixir"]     = elixir.GetLanguage()
+	analyzer.languages["groovy"]     = groovy.GetLanguage()
+	analyzer.languages["lua"]        = lua.GetLanguage()
+	analyzer.languages["php"]        = phpLang.GetLanguage()
+	analyzer.languages["scala"]      = scala.GetLanguage()
+	analyzer.languages["swift"]      = swift.GetLanguage()
 
 	// Initialize parsers and per-language mutexes.
 	// Each language gets its own mutex so different languages can be parsed

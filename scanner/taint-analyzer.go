@@ -382,6 +382,12 @@ func (ta *TaintAnalyzer) BuildCrossFileIndex(targetDir string) *CrossFileIndex {
 		utils.LogWarn(fmt.Sprintf("cross-file index: walk error: %v", err))
 	}
 
+	// Phase 2: build a project-wide call graph and propagate taint transitively.
+	// If A calls B and B returns user data, A is also marked tainted.
+	cg := BuildCallGraph(targetDir)
+	PropagateCallGraphTaint(cg, idx)
+	utils.LogInfo(fmt.Sprintf("Cross-file taint: %d tainted functions after call-graph propagation", len(idx.TaintedFunctions)))
+
 	return idx
 }
 
