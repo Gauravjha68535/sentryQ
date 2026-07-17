@@ -27,8 +27,9 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{ padding: '40px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
           <h2 style={{ color: '#ef4444' }}>Something went wrong</h2>
-          <p style={{ color: 'var(--text-muted, #aaa)', marginBottom: '16px' }}>{this.state.error?.message || 'An unexpected error occurred.'}</p>
-          <button style={{ padding: '8px 20px', borderRadius: '6px', cursor: 'pointer' }} onClick={() => this.setState({ hasError: false, error: null })}>Try again</button>
+          <p style={{ color: 'var(--text-muted, #aaa)', marginBottom: '16px' }}>{this.state.error?.message}</p>
+          <button style={{ padding: '8px 20px', borderRadius: '6px', cursor: 'pointer' }}
+            onClick={() => this.setState({ hasError: false, error: null })}>Try again</button>
         </div>
       )
     }
@@ -36,36 +37,12 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Patches global fetch to inject stored auth token and redirect to /login on 401.
-function useAuthInterceptor(setNeedsLogin) {
-  const navigate = useNavigate()
-  useEffect(() => {
-    const origFetch = window.fetch.bind(window)
-    window.fetch = async (...args) => {
-      const token = localStorage.getItem('sentryq_token')
-      if (token) {
-        const opts = args[1] && typeof args[1] === 'object' ? args[1] : {}
-        args[1] = { ...opts, headers: { ...(opts.headers || {}), 'Authorization': `Bearer ${token}` } }
-      }
-      const res = await origFetch(...args)
-      if (res.status === 401 && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
-        localStorage.removeItem('sentryq_token')
-        setNeedsLogin(true)
-        navigate('/login')
-      }
-      return res
-    }
-    return () => { window.fetch = origFetch }
-  }, [navigate, setNeedsLogin])
-}
-
-// Checks auth once at startup: probes /api/scans.
-// Returns: 'loading' | 'ok' | 'login'
+// Probes /api/scans once at startup to detect multi-user mode.
+// Returns 'loading' | 'open' | 'login'
 function useAuthStatus() {
   const [status, setStatus] = useState('loading')
   useEffect(() => {
     const token = localStorage.getItem('sentryq_token')
-    // Try the probe with whatever token we have (may be empty)
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
     fetch('/api/scans', { headers })
       .then(res => {
@@ -73,60 +50,88 @@ function useAuthStatus() {
           localStorage.removeItem('sentryq_token')
           setStatus('login')
         } else {
-          setStatus('ok')
+          setStatus('open')
         }
       })
-      .catch(() => setStatus('ok')) // network error → let the app try (server might be starting)
+      .catch(() => {
+        // Network error: server might still be starting. Default to open and
+        // let individual page API calls surface the error naturally.
+        setStatus('open')
+      })
   }, [])
   return status
 }
 
-function AuthInterceptorSetup({ setNeedsLogin }) {
-  useAuthInterceptor(setNeedsLogin)
+// Patches global fetch to inject stored session token and redirect to /login on 401.
+function useAuthInterceptor(onUnauthenticated) {
+  const navigate = useNavigate()
+  useEffect(() => {
+    const origFetch = window.fetch.bind(window)
+    window.fetch = async (...args) => {
+      const token = localStorage.getItem('sentryq_token')
+      if (token) {
+        const opts = typeof args[1] === 'object' && args[1] ? args[1] : {}
+        args[1] = { ...opts, headers: { ...(opts.headers || {}), 'Authorization': `Bearer ${token}` } }
+      }
+      const res = await origFetch(...args)
+      if (res.status === 401 && typeof args[0] === 'string' && args[0].startsWith('/api/') && args[0] !== '/api/auth/login') {
+        localStorage.removeItem('sentryq_token')
+        onUnauthenticated()
+        navigate('/login')
+      }
+      return res
+    }
+    return () => { window.fetch = origFetch }
+  }, [navigate, onUnauthenticated])
+}
+
+function AuthInterceptorSetup({ onUnauthenticated }) {
+  useAuthInterceptor(onUnauthenticated)
   return null
 }
 
-function AppLayout({ sidebarOpen, setSidebarOpen, setNeedsLogin, needsLogin }) {
+function AppShell({ showLogin, onLogin, onUnauthenticated }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   return (
-    <>
-      <AuthInterceptorSetup setNeedsLogin={setNeedsLogin} />
-      <Routes>
-        <Route path="/login" element={<Login onLogin={() => setNeedsLogin(false)} />} />
-        <Route path="*" element={
-          needsLogin
-            ? <Navigate to="/login" replace />
-            : (
-              <div className="app-layout">
-                <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
-                <main className={`main-content ${sidebarOpen ? '' : 'main-content-expanded'}`}>
-                  <ErrorBoundary>
-                    <Routes>
-                      <Route path="/"               element={<PageTransition><Dashboard /></PageTransition>} />
-                      <Route path="/scan/new"        element={<PageTransition><NewScan /></PageTransition>} />
-                      <Route path="/scan/:id"        element={<PageTransition><ScanProgress /></PageTransition>} />
-                      <Route path="/scan/:id/report" element={<PageTransition><ReportViewer /></PageTransition>} />
-                      <Route path="/rules"           element={<PageTransition><RuleBuilder /></PageTransition>} />
-                      <Route path="/settings"        element={<PageTransition><Settings /></PageTransition>} />
-                      <Route path="/compare"         element={<PageTransition><ScanDiff /></PageTransition>} />
-                      <Route path="/compliance"      element={<PageTransition><CompliancePage /></PageTransition>} />
-                      <Route path="/compliance/:id"  element={<PageTransition><CompliancePage /></PageTransition>} />
-                    </Routes>
-                  </ErrorBoundary>
-                </main>
-              </div>
-            )
-        } />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/login" element={<Login onLogin={onLogin} />} />
+      <Route path="*" element={
+        showLogin ? <Navigate to="/login" replace /> : (
+          <div className="app-layout">
+            <AuthInterceptorSetup onUnauthenticated={onUnauthenticated} />
+            <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(p => !p)} />
+            <main className={`main-content ${sidebarOpen ? '' : 'main-content-expanded'}`}>
+              <ErrorBoundary>
+                <Routes>
+                  <Route path="/"               element={<PageTransition><Dashboard /></PageTransition>} />
+                  <Route path="/scan/new"        element={<PageTransition><NewScan /></PageTransition>} />
+                  <Route path="/scan/:id"        element={<PageTransition><ScanProgress /></PageTransition>} />
+                  <Route path="/scan/:id/report" element={<PageTransition><ReportViewer /></PageTransition>} />
+                  <Route path="/rules"           element={<PageTransition><RuleBuilder /></PageTransition>} />
+                  <Route path="/settings"        element={<PageTransition><Settings /></PageTransition>} />
+                  <Route path="/compare"         element={<PageTransition><ScanDiff /></PageTransition>} />
+                  <Route path="/compliance"      element={<PageTransition><CompliancePage /></PageTransition>} />
+                  <Route path="/compliance/:id"  element={<PageTransition><CompliancePage /></PageTransition>} />
+                </Routes>
+              </ErrorBoundary>
+            </main>
+          </div>
+        )
+      } />
+    </Routes>
   )
 }
 
 export default function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [needsLogin, setNeedsLogin] = useState(false)
   const authStatus = useAuthStatus()
+  const [showLogin, setShowLogin] = useState(false)
 
-  // Restore saved theme
+  // Sync probe result into showLogin state (only via useEffect, never during render)
+  useEffect(() => {
+    if (authStatus === 'login') setShowLogin(true)
+  }, [authStatus])
+
+  // Restore saved theme on mount
   useEffect(() => {
     const saved = localStorage.getItem('theme')
     if (saved) document.documentElement.setAttribute('data-theme', saved)
@@ -143,19 +148,14 @@ export default function App() {
     )
   }
 
-  if (authStatus === 'login' && !needsLogin) {
-    setNeedsLogin(true)
-  }
-
   return (
     <BrowserRouter>
       <ToastProvider>
         <ConfirmProvider>
-          <AppLayout
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-            setNeedsLogin={setNeedsLogin}
-            needsLogin={needsLogin || authStatus === 'login'}
+          <AppShell
+            showLogin={showLogin}
+            onLogin={() => setShowLogin(false)}
+            onUnauthenticated={() => setShowLogin(true)}
           />
         </ConfirmProvider>
       </ToastProvider>

@@ -15,11 +15,18 @@ export default function Login({ onLogin }) {
         setError('')
         setLoading(true)
         try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            })
+            let res
+            try {
+                res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                })
+            } catch {
+                setError('Cannot reach the server. Make sure SentryQ is running.')
+                setLoading(false)
+                return
+            }
             if (!res.ok) {
                 const body = await res.json().catch(() => ({}))
                 throw new Error(body.error || 'Invalid credentials')
