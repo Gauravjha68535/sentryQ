@@ -1292,7 +1292,9 @@ func csrfMiddleware(next http.Handler) http.Handler {
 				return
 			}
 			contentType := r.Header.Get("Content-Type")
-			if !strings.HasPrefix(contentType, "application/json") {
+			// Allow application/json (all API endpoints) and multipart/form-data (file upload).
+			// Browsers cannot cross-origin-submit file inputs, so multipart/form-data is safe here.
+			if !strings.HasPrefix(contentType, "application/json") && !strings.HasPrefix(contentType, "multipart/form-data") {
 				utils.LogWarn(fmt.Sprintf("CSRF block: Missing/invalid Content-Type from %s: %s %s", r.RemoteAddr, r.Method, r.URL.Path))
 				http.Error(w, "CSRF protection: Content-Type must be application/json", http.StatusForbidden)
 				return
