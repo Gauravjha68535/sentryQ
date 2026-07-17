@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -141,7 +142,7 @@ func Login(username, password string) string {
 	usersMu.RLock()
 	u, ok := users[username]
 	usersMu.RUnlock()
-	if !ok || u.PasswordHash != hashPassword(password) {
+	if !ok || subtle.ConstantTimeCompare([]byte(u.PasswordHash), []byte(hashPassword(password))) != 1 {
 		return ""
 	}
 

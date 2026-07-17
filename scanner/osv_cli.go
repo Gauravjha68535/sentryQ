@@ -108,7 +108,7 @@ func RunOSVCli(ctx context.Context, targetDir string) ([]reporter.Finding, error
 	cmd.Stderr = &stderr
 	cmd.Dir = targetDir
 
-	analyzer := SharedASTAnalyzer()
+	analyzer := SharedASTAnalyzer(targetDir)
 
 	// osv-scanner returns exit code 1 if vulnerabilities are found, so err is expected
 	err := cmd.Run()

@@ -65,8 +65,6 @@ type WebScanConfig struct {
 	PRRepo     string `json:"prRepo"`
 	PRNumber   int    `json:"prNumber"`
 	MRiid      int    `json:"mrIid"`
-	// GenerateSBOM controls whether a CycloneDX SBOM is written for this scan.
-	GenerateSBOM bool `json:"generateSbom"`
 	// IncrementalScan, when true, restricts scanning to files changed relative to BaseBranch.
 	IncrementalScan bool   `json:"incrementalScan"`
 	BaseBranch      string `json:"baseBranch"`
@@ -461,21 +459,28 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 
 		wsHub.BroadcastLog(scanID, "Repository cloned successfully", "success")
 
-		// Incremental scan: resolve changed files relative to base branch now
-		// that the repo is cloned. The tmpDir is a git repo so getChangedFiles works.
+		// Incremental scan: the repo was cloned with --depth 1 (single commit).
+		// git diff HEAD~1 and git diff base...HEAD both require additional history,
+		// so we deepen the clone before attempting the diff.
 		if webCfg.IncrementalScan && len(webCfg.ChangedFiles) == 0 {
 			base := webCfg.BaseBranch
 			if base == "" {
 				base = "main"
 			}
-			changed, err := getChangedFiles(tmpDir, base)
-			if err != nil {
-				wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental scan: git diff failed (%v) — running full scan", err), "warning")
-			} else if len(changed) == 0 {
-				wsHub.BroadcastLog(scanID, "Incremental scan: no changed files vs "+base+" — running full scan", "info")
+			wsHub.BroadcastLog(scanID, "Incremental scan: deepening shallow clone to fetch diff history...", "info")
+			// Fetch extra commits so HEAD~1 and remote base branch are available.
+			if _, ferr := runGit(tmpDir, "fetch", "--deepen=10", "origin"); ferr != nil {
+				wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental scan: fetch --deepen failed (%v) — running full scan", ferr), "warning")
 			} else {
-				webCfg.ChangedFiles = changed
-				wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental scan: %d changed file(s) vs %s", len(changed), base), "info")
+				changed, err := getChangedFiles(tmpDir, base)
+				if err != nil {
+					wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental scan: git diff failed (%v) — running full scan", err), "warning")
+				} else if len(changed) == 0 {
+					wsHub.BroadcastLog(scanID, "Incremental scan: no changed files vs "+base+" — running full scan", "info")
+				} else {
+					webCfg.ChangedFiles = changed
+					wsHub.BroadcastLog(scanID, fmt.Sprintf("Incremental scan: %d changed file(s) vs %s", len(changed), base), "info")
+				}
 			}
 		}
 
