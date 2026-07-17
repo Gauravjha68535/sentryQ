@@ -369,13 +369,6 @@ func StartWebServer(port int) {
 		return
 	}
 
-	// Initialize multi-user auth — must run before routes are registered so
-	// the users map is populated before the first request arrives.
-	if os.Getenv("SENTRYQ_MULTI_USER") == "1" {
-		initMultiUser()
-		utils.LogInfo("Multi-user mode enabled (SENTRYQ_MULTI_USER=1)")
-	}
-
 	// Initialize embedded static filesystem (lazy, with graceful fallback)
 	staticFSOnce.Do(func() {
 		staticFS, staticFSError = ui.StaticFS()
@@ -405,16 +398,6 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/rules/", handleRulesFile)
 	mux.HandleFunc("/api/custom-endpoint/test", handleCustomEndpointTest)
 	mux.HandleFunc("/api/custom-endpoint/models", handleCustomEndpointModels)
-
-	// Auth routes (multi-user mode)
-	mux.HandleFunc("/api/auth/login", handleLogin)
-	mux.HandleFunc("/api/auth/users", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			RequireRole(RoleAdmin, handleListUsers)(w, r)
-		} else {
-			RequireRole(RoleAdmin, handleCreateUser)(w, r)
-		}
-	})
 
 	// Dynamic scan routes (manual routing for path params)
 	mux.HandleFunc("/api/scan/compliance", handleScanCompliance)
@@ -1304,52 +1287,23 @@ func csrfMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// authMiddleware enforces authentication on /api/* and /ws/* routes.
-// Two modes:
-//   - Single-token (SENTRYQ_AUTH_TOKEN set): all API calls must send the static token.
-//   - Multi-user (SENTRYQ_MULTI_USER=1): all API calls except /api/auth/login must carry
-//     a valid session token issued by handleLogin. /api/auth/login is always public so
-//     the browser can obtain a token.
-//
-// Static UI files are always public so the frontend can load and show the login screen.
+// authMiddleware enforces SENTRYQ_AUTH_TOKEN single-token protection on /api/* and /ws/* routes.
+// If SENTRYQ_AUTH_TOKEN is not set, all requests pass through (open mode).
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// CORS preflight must bypass auth (browsers send OPTIONS before credentials).
 		if r.Method == http.MethodOptions {
 			next.ServeHTTP(w, r)
 			return
 		}
-		// /health is a public liveness probe for container orchestrators — no auth.
 		if r.URL.Path == "/health" {
 			next.ServeHTTP(w, r)
 			return
 		}
-		// Only protect API and WebSocket routes; static UI files are public.
 		if !strings.HasPrefix(r.URL.Path, "/api/") && !strings.HasPrefix(r.URL.Path, "/ws/") {
 			next.ServeHTTP(w, r)
 			return
 		}
-
-		// ── Multi-user session mode ───────────────────────────────────────────
-		if os.Getenv("SENTRYQ_MULTI_USER") == "1" {
-			// Login endpoint is always public; every other /api/* requires a session.
-			if r.URL.Path == "/api/auth/login" {
-				next.ServeHTTP(w, r)
-				return
-			}
-			sess := SessionFromRequest(r)
-			if sess == nil {
-				utils.LogWarn(fmt.Sprintf("Unauthorized API request from %s: %s %s", r.RemoteAddr, r.Method, r.URL.Path))
-				http.Error(w, `{"error":"authentication required"}`, http.StatusUnauthorized)
-				return
-			}
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// ── Single-token mode (SENTRYQ_AUTH_TOKEN) ───────────────────────────
 		if serverAuthToken == "" {
-			// No auth configured → open mode, pass through unchanged.
 			next.ServeHTTP(w, r)
 			return
 		}
