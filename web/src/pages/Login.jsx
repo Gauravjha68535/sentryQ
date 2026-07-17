@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Shield, LogIn } from 'lucide-react'
 
-export default function Login() {
+export default function Login({ onLogin }) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -21,13 +21,12 @@ export default function Login() {
                 body: JSON.stringify({ username, password }),
             })
             if (!res.ok) {
-                const msg = await res.text()
-                throw new Error(msg || 'Invalid credentials')
+                const body = await res.json().catch(() => ({}))
+                throw new Error(body.error || 'Invalid credentials')
             }
             const data = await res.json()
-            if (data.token) {
-                localStorage.setItem('sentryq_token', data.token)
-            }
+            if (data.token) localStorage.setItem('sentryq_token', data.token)
+            if (onLogin) onLogin()
             navigate('/')
         } catch (e) {
             setError(e.message || 'Login failed')
