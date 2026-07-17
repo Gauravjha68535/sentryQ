@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { ChevronDown, ChevronRight, Plus, Play, Save, FileCode, AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
+import { useToast } from '../components/Toast'
 
 export default function RuleBuilder() {
+    const toast = useToast()
     const [ruleFiles, setRuleFiles] = useState([])
     const [selectedFile, setSelectedFile] = useState(null)
     const [rules, setRules] = useState([])
@@ -26,10 +28,10 @@ export default function RuleBuilder() {
         try {
             const res = await fetch('/api/rules')
             if (res.ok) setRuleFiles(await res.json())
-            else alert(`Failed to load rule files (HTTP ${res.status})`)
+            else toast.error(`Failed to load rule files (HTTP ${res.status})`)
         } catch (e) {
             console.error('[RuleBuilder] Failed to load rule files:', e)
-            alert('Failed to load rule files: ' + e.message)
+            toast.error('Failed to load rule files: ' + e.message)
         } finally { setLoading(false) }
     }, [])
 
@@ -41,10 +43,10 @@ export default function RuleBuilder() {
         try {
             const res = await fetch(`/api/rules/${filename}`)
             if (res.ok) setRules(await res.json())
-            else alert(`Failed to load rules (HTTP ${res.status})`)
+            else toast.error(`Failed to load rules (HTTP ${res.status})`)
         } catch (e) {
             console.error('[RuleBuilder] Failed to load rules for file:', filename, e)
-            alert('Failed to load rules: ' + e.message)
+            toast.error('Failed to load rules: ' + e.message)
         }
     }
 
@@ -58,10 +60,10 @@ export default function RuleBuilder() {
                 body: JSON.stringify({ pattern: testPattern, code: testCode })
             })
             if (res.ok) setTestResult(await res.json())
-            else alert(`Test failed (HTTP ${res.status})`)
+            else toast.error(`Test failed (HTTP ${res.status})`)
         } catch (e) {
             console.error('[RuleBuilder] Rule test request failed:', e)
-            alert('Test request failed: ' + e.message)
+            toast.error('Test request failed: ' + e.message)
         } finally { setTesting(false) }
     }
 
@@ -75,15 +77,15 @@ export default function RuleBuilder() {
                 body: JSON.stringify(rule)
             })
             if (res.ok) {
+                toast.success(`Rule "${newRule.id}" saved`)
                 setShowForm(false)
                 setNewRule({ id: '', languages: [''], severity: 'medium', patterns: [{ regex: '' }], description: '', remediation: '', cwe: '', owasp: '' })
                 fetchRulesForFile(selectedFile)
             } else {
-                alert(`Failed to save rule (HTTP ${res.status})`)
+                toast.error(`Failed to save rule (HTTP ${res.status})`)
             }
         } catch (e) {
-            console.error('[RuleBuilder] Failed to save rule:', e)
-            alert('Failed to save rule: ' + e.message)
+            toast.error('Failed to save rule: ' + e.message)
         }
     }
 
@@ -97,7 +99,16 @@ export default function RuleBuilder() {
         }
     }
 
-    if (loading) return <div style={{ textAlign: 'center', padding: '80px', color: 'var(--text-muted)' }}>Loading rules...</div>
+    if (loading) return (
+        <div className="animate-fade-in">
+            <div className="skeleton skeleton-text" style={{ width: '180px', height: '28px', marginBottom: '10px' }} />
+            <div className="skeleton skeleton-text" style={{ width: '280px', marginBottom: '32px' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '24px' }}>
+                <div className="skeleton" style={{ height: '400px', borderRadius: 'var(--radius-lg)' }} />
+                <div className="skeleton" style={{ height: '400px', borderRadius: 'var(--radius-lg)' }} />
+            </div>
+        </div>
+    )
 
     return (
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
