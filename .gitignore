@@ -31,6 +31,9 @@ vendor/
 .DS_Store
 *.swp
 
+# Claude Code internal files
+.claude/
+
 # Temporary files
 tmp/
 temp/
