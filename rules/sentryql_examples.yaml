@@ -8,8 +8,7 @@
   patterns:
     - regex: 'requests\.(get|post|put|delete|head|request)\s*\('
   sentryql: |
-    FIND requests.get OR requests.post OR requests.put OR requests.delete
-    WHERE input IS NOT LITERAL
+    FIND requests\.get|requests\.post|requests\.put|requests\.delete WHERE request\.|args\.|form\.|params\.|input\.|user
   severity: high
   description: Possible SSRF — requests call with non-literal URL argument
   remediation: Validate the URL against an allowlist before making outbound HTTP requests
@@ -25,8 +24,7 @@
   patterns:
     - regex: '(?i)(execute|executemany|raw|extra\(where)\s*\(.*(%|format\(|f\")'
   sentryql: |
-    FIND execute OR executemany OR raw
-    WHERE CONTAINS % OR CONTAINS .format(
+    FIND execute|executemany|raw WHERE %|\.format\(
   severity: critical
   description: SQL injection via Python string formatting in database call
   remediation: Use parameterized queries — cursor.execute(sql, (param,)) instead of string formatting
@@ -43,8 +41,7 @@
     - regex: '\.innerHTML\s*='
     - regex: '\.outerHTML\s*='
   sentryql: |
-    FIND .innerHTML OR .outerHTML
-    WHERE CONTAINS request OR CONTAINS param OR CONTAINS query OR CONTAINS body
+    FIND \.innerHTML|\.outerHTML WHERE request|param|query|body
   severity: high
   description: Potential XSS — innerHTML assignment with user-controlled data
   remediation: Use textContent instead of innerHTML, or sanitize with DOMPurify before assignment
@@ -60,8 +57,7 @@
   patterns:
     - regex: '\beval\s*\('
   sentryql: |
-    FIND eval
-    WHERE input IS NOT LITERAL
+    FIND \beval\( WHERE req\.|request\.|params\.|query\.|body\.|input\.|args\.|user
   severity: critical
   description: Code injection — eval() called with potentially user-controlled input
   remediation: Never use eval() with user input. Use JSON.parse() for JSON, or structured alternatives
@@ -76,8 +72,7 @@
   patterns:
     - regex: '\bopen\s*\(.*\b(request|args|form|params|data|input|user)\b'
   sentryql: |
-    FIND open
-    WHERE CONTAINS request OR CONTAINS args OR CONTAINS form
+    FIND \bopen\( WHERE request|args|form|params|data|input|user
   severity: high
   description: Path traversal — file open with user-controlled path
   remediation: Validate and sanitize the path using os.path.realpath() and restrict to an allowed base directory
@@ -93,8 +88,7 @@
   patterns:
     - regex: '(?i)(token|secret|password|apikey|api_key|passwd)\s*:?=\s*"[A-Za-z0-9+/]{16,}"'
   sentryql: |
-    FIND := OR =
-    WHERE IDENTIFIER MATCHES (token|secret|password|apikey) AND VALUE IS LITERAL STRING
+    FIND :=|= WHERE (?i)(token|secret|password|apikey|api_key|passwd)\s*:?=\s*"[A-Za-z0-9+/]{16,}"
   severity: high
   description: Hardcoded credential detected in Go source
   remediation: Load secrets from environment variables using os.Getenv() or a secrets manager
@@ -112,8 +106,7 @@
     - regex: '\bpickle\.(loads|load)\s*\('
     - regex: '\byaml\.load\s*\([^,)]+\)'
   sentryql: |
-    FIND pickle.loads OR pickle.load OR yaml.load
-    WHERE input IS NOT LITERAL
+    FIND pickle\.loads|pickle\.load|yaml\.load WHERE request\.|args\.|form\.|data\.|input\.|user
   severity: critical
   description: Insecure deserialization — pickle.loads/yaml.load with untrusted input can execute arbitrary code
   remediation: Use pickle only with data from trusted sources. For YAML, use yaml.safe_load() instead of yaml.load()
@@ -129,8 +122,7 @@
   patterns:
     - regex: '\bsubprocess\.(run|call|Popen|check_output|check_call)\s*\(.*shell\s*=\s*True'
   sentryql: |
-    FIND subprocess.run OR subprocess.call OR subprocess.Popen OR subprocess.check_output
-    WHERE CONTAINS shell=True AND CONTAINS (request OR args OR form OR input OR user)
+    FIND subprocess\.(run|call|Popen|check_output) WHERE shell\s*=\s*True
   severity: critical
   description: Command injection — subprocess with shell=True and user-controlled input
   remediation: Use shell=False and pass arguments as a list. Validate all user input before passing to subprocesses

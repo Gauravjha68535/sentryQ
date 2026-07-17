@@ -404,6 +404,7 @@ var alwaysLoadRuleFiles = []string{
 	"android_security.yaml",
 	"ios_security.yaml",
 	"flutter_security.yaml",
+	"sentryql_examples.yaml",
 }
 
 // LoadRulesForLanguages loads only the rule files relevant to the detected languages,
