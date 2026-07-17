@@ -22,7 +22,7 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 
 | Feature | Details |
 | :--- | :--- |
-| **Multi-Engine SAST** | 13,160+ rules across 120 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (Python, JS, Java, Kotlin) + taint tracking (11 languages) |
+| **Multi-Engine SAST** | 13,168+ rules across 120 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (18 languages) + taint tracking (11 languages) |
 | **Cross-File Taint Tracking** | Project-wide function-signature index built before scanning so taint sources exported from one file are recognised when imported by another. _Scope: signature-level propagation, not a full data-flow graph._ |
 | **Negative Pattern Suppression** | Per-rule `negative_patterns` teach the engine about sanitizers and safe API variants; any match within a ±10-line context window auto-suppresses the finding |
 | **Low-Confidence Severity Capping** | Rules with `confidence < 0.3` are automatically capped to `info` severity so speculative rules never pollute critical/high queues |
@@ -30,15 +30,24 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 | **SCA / Dependency Auditing** | OSV API + `osv-scanner` CLI, reachability-aware (unused deps are downgraded) + supply chain / typosquatting checks |
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
 | **MITRE ATT&CK Enrichment** | Local technique mapping from CWE/issue keywords — no network calls |
-| **AI-Orchestrated Triage** | Supports **Ollama, OpenAI, Anthropic Claude, Google Gemini, and LM Studio**. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding. Smart worker scaling optimizes for latency vs. VRAM. |
-| **Judge LLM with ID Validation** | Ensemble Judge deduplicates two reports; output coverage is verified — any input finding ID missing from the LLM response is logged and retained via catch-all (never silently lost) |
+| **AI-Orchestrated Triage** | Supports **Ollama, OpenAI, Anthropic Claude, Google Gemini, and LM Studio**. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding. |
+| **Judge LLM with ID Validation** | Ensemble Judge deduplicates two reports; output coverage verified — missing finding IDs are logged and retained via catch-all |
 | **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge (separate configurable models per phase) |
-| **Real-Time Dashboard** | React + WebSocket. Dark/Light mode. Per-finding triage (open/resolved/ignored/FP) with bulk triage. Pause/Resume scan controls |
+| **CI Policy Engine** | `--fail-on critical`, `--max-critical N`, `--max-high N`, `--max-total N` — exit code 1 on violation; also configurable from the New Scan UI |
+| **PR / MR Decoration** | Posts findings as GitHub PR review comments (inline) and GitLab MR notes; token + repo configured per-scan from UI or CLI |
+| **Webhook Notifications** | POST JSON payload to any URL on scan completion or policy violation; configure globally in Settings or per-scan in New Scan |
+| **Incremental Scan** | `--changed-only` (CLI) or toggle in UI — only scans files changed since the base branch |
+| **Scan Diff** | Compare any two scans: new / fixed / persisting findings + critical/high delta. `sentryq --diff <id1> <id2>` or Compare Scans page |
+| **Compliance Reports** | OWASP Top 10 2021, PCI DSS 3.2.1, NIST SP 800-53 mapping — JSON + HTML reports auto-generated per scan, downloadable from Report Viewer |
+| **CycloneDX SBOM** | Software Bill of Materials (CycloneDX 1.4) auto-generated per scan; downloadable from Report Viewer |
+| **SentryQL Query Language** | Semantic rule queries: `FIND function_call(execute) WHERE tainted_by(request) AND not_sanitized_by(escape) REPORT AS critical` |
+| **Real-Time Dashboard** | React + WebSocket. Dark/Light mode. Per-finding triage (open/resolved/ignored/FP) with bulk triage. Pause/Resume scan controls. Policy gate badge per scan. |
 | **Rule Builder UI** | In-browser YAML rule editor with live regex test pane. Edit and create custom rules without leaving the dashboard |
 | **Trust Score & Priority Matrix** | Per-finding composite Trust Score (0–100) + P0–P3 remediation priority tiers in all reports |
-| **FP History Cache** | User triage decisions feed a local history file (`~/.sentryq/ml-cache/`). Findings whose per-rule FP rate exceeds a configurable threshold are suppressed on future scans. Frequency-based — not a trained model. |
+| **FP History Cache** | User triage decisions feed a local history file (`~/.sentryq/ml-cache/`). Findings whose per-rule FP rate exceeds a threshold are suppressed on future scans. Frequency-based — not a trained model. |
+| **Multi-User RBAC** | Set `SENTRYQ_MULTI_USER=1` to enable login, user management (admin/analyst/viewer roles), session tokens. Admin panel in Settings. |
 | **Auto-Update** | `./sentryq update` checks GitHub for a newer release and replaces the binary in-place (old binary saved as `sentryq.bak`) |
-| **Multi-Format Reports** | SARIF, HTML, PDF (go-pdf/fpdf), CSV — auto-generated per scan, served for 48 hours then auto-cleaned |
+| **Multi-Format Reports** | SARIF, HTML, PDF (go-pdf/fpdf), CSV, CycloneDX SBOM, OWASP/PCI compliance HTML — auto-generated per scan, served for 48 hours then auto-cleaned |
 
 ---
 
@@ -47,12 +56,14 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 ```
 Source Code
     │
-    ├──► Pattern Engine       (13,160+ regex rules, 71 languages, 15 framework targets)
+    ├──► Pattern Engine       (13,168+ regex rules, 71 languages, 15 framework targets)
     │     └── Negative Patterns (±10-line context window suppresses sanitized code paths)
-    ├──► AST Analyzer         (Tree-Sitter: Python, JavaScript, Java, Kotlin)
-    ├──► Taint-Flow Tracker   (cross-file index + intra-file source→sink, 11 languages)
+    │     └── SentryQL Engine  (semantic queries: tainted_by, not_sanitized_by, matches)
+    ├──► AST Analyzer         (Tree-Sitter: 18 languages — Python, JS/TS, Java, Kotlin, Go,
+    │                          Ruby, Rust, C, C++, C#, PHP, Scala, Swift, Bash, Elixir, Groovy, Lua)
+    ├──► Taint-Flow Tracker   (cross-file call-graph index + intra-file source→sink, 11 languages)
     ├──► Secret Detector      (regex + Shannon entropy + base64/hex decode)
-    ├──► Dependency Scanner   (OSV API + osv-scanner CLI)
+    ├──► Dependency Scanner   (OSV API + osv-scanner CLI, reachability-aware)
     ├──► Container Scanner    (Dockerfile + K8s + Trivy)
     │
     ▼
@@ -69,13 +80,15 @@ AI Validation Layer (optional)
     ├──► AI Discovery Engine         (sliding-window vulnerability hunt)
     ├──► Judge Engine                (multi-report consensus & dedup; configurable separate model)
     ├──► Confidence Calibrator       (historical accuracy weighting)
-    └──► FP Reducer                  (frequency-based historical filter via local feedback cache)
+    └──► FP History Cache            (frequency-based historical filter via local feedback cache)
     │
     ▼
 Final Report
     ├──► React Dashboard  (WebSocket real-time, Dark/Light mode, Pause/Resume, bulk triage)
     ├──► SARIF            (GitHub Security Tab, GitLab, Azure DevOps)
     ├──► HTML / PDF / CSV (Trust Score, Priority Matrix P0–P3, Exploit PoC, Fixed Code)
+    ├──► CycloneDX SBOM   (Software Bill of Materials, auto-generated)
+    ├──► Compliance HTML  (OWASP Top 10, PCI DSS, NIST 800-53 control mapping)
     └──► SQLite           (scan history, per-finding triage status, ensemble phase storage)
 ```
 
@@ -127,7 +140,7 @@ This bundles the React frontend and compiles the Go backend into a single `sentr
 ./sentryq
 ```
 
-Navigate to **`http://localhost:5336`** → click **New Scan** → upload a folder or paste a Git URL.
+Navigate to **`http://localhost:5336`** → click **New Scan** → configure scan options → start.
 
 ### CLI / Headless Mode
 
@@ -135,11 +148,26 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → upload a fold
 # Static scan of a local directory (no AI, fast)
 ./sentryq /path/to/my-repo
 
+# Print version
+./sentryq --version
+
 # Custom port
 ./sentryq --port 8080
 
 # Remote Ollama instance
 ./sentryq --ollama-host 192.168.1.10:11434
+
+# CI: fail if any critical finding
+./sentryq --fail-on critical /path/to/repo
+
+# CI: fail if more than 5 high findings
+./sentryq --max-high 5 /path/to/repo
+
+# Scan only files changed since main branch
+./sentryq --changed-only --base-branch main /path/to/repo
+
+# Compare two scans
+./sentryq --diff <scan-id-1> <scan-id-2>
 
 # Check for and install the latest release
 ./sentryq update
@@ -155,7 +183,10 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → upload a fold
 | `SENTRYQ_CLAUDE_API_KEY` | Inject Anthropic Claude API key | `SENTRYQ_CLAUDE_API_KEY=sk-ant-... ./sentryq` |
 | `SENTRYQ_GEMINI_API_KEY` | Inject Google Gemini API key | `SENTRYQ_GEMINI_API_KEY=AIza... ./sentryq` |
 | `SENTRYQ_BIND` | Set listening interface (defaults to 127.0.0.1 for security) | `SENTRYQ_BIND=0.0.0.0 ./sentryq` |
-| `SENTRYQ_AUTH_TOKEN` | Enable API authentication & CSRF protection | `SENTRYQ_AUTH_TOKEN=mysecret ./sentryq` |
+| `SENTRYQ_AUTH_TOKEN` | Enable single-token API authentication & CSRF protection | `SENTRYQ_AUTH_TOKEN=mysecret ./sentryq` |
+| `SENTRYQ_MULTI_USER` | Enable multi-user RBAC mode (admin/analyst/viewer) | `SENTRYQ_MULTI_USER=1 ./sentryq` |
+| `SENTRYQ_WEBHOOK_URLS` | Comma-separated webhook URLs for scan completion notifications | `SENTRYQ_WEBHOOK_URLS=https://...` |
+| `SENTRYQ_PR_TOKEN` | Inject GitHub/GitLab token for PR decoration without writing to disk | `SENTRYQ_PR_TOKEN=ghp_...` |
 
 ---
 
@@ -171,6 +202,7 @@ Settings are stored at `~/.sentryq/settings.json` (owner-only, mode 0600). Confi
 | `custom_api_url` | Custom endpoint URL (vLLM, TGI, LM Studio, etc.) | — |
 | `custom_api_key` | API key for custom provider | — |
 | `custom_model` | Model name for custom provider | — |
+| `webhook_urls` | Comma-separated webhook endpoints notified on scan completion | — |
 
 **Per-scan overrides** (configurable from the New Scan UI):
 
@@ -179,8 +211,13 @@ Settings are stored at `~/.sentryq/settings.json` (owner-only, mode 0600). Confi
 | `aiModel` / `ollamaHost` | Model and host used for Chain-of-Thought validation |
 | `consolidationModel` / `consolidationOllamaHost` | Model used for AI discovery consolidation |
 | `judgeModel` / `judgeOllamaHost` | Separate model and host for the Judge LLM in Ensemble mode |
-| `enableMLFPReduction` | Enable ML-based false positive suppression using local feedback history |
+| `enableMLFPReduction` | Enable FP history-based suppression using local feedback |
 | `customRulesDir` | Path to an additional directory of custom YAML rule files |
+| `policyFailOn` | Severity threshold that triggers policy failure (`critical`, `high`, `medium`, `low`) |
+| `maxCritical` / `maxHigh` / `maxMedium` / `maxTotal` | Maximum findings per severity before policy fails (-1 = no limit) |
+| `prProvider` / `prToken` / `prRepo` / `prNumber` | GitHub PR decoration config |
+| `webhookUrls` | Per-scan webhook override (comma-separated) |
+| `incrementalScan` / `baseBranch` | Restrict scan to files changed vs base branch |
 
 ### Custom Rules
 
@@ -200,7 +237,23 @@ Drop any `.yaml` file into the `rules/` directory next to the binary:
   owasp: "A07:2021"
 ```
 
-`negative_patterns` are optional — when any negative pattern matches within ±10 lines of a positive hit, the finding is suppressed. Use this to teach rules about your project's specific sanitizer functions.
+Rules also support the **SentryQL** query language for semantic pattern matching:
+
+```yaml
+- id: my-ssrf-rule
+  languages: [python]
+  patterns:
+    - regex: 'requests\.(get|post)\s*\('
+  sentryql: |
+    FIND requests.get OR requests.post
+    WHERE input IS NOT LITERAL
+  negative_patterns:
+    - regex: '(?i)(allowlist|validate_url|urlparse)'
+  severity: high
+  description: "SSRF risk — outbound HTTP with user-controlled URL"
+  cwe: "CWE-918"
+  owasp: "A10:2021"
+```
 
 SentryQ auto-loads all rules on startup and on every scan, filtered to the languages detected in the target.
 
@@ -212,15 +265,16 @@ SentryQ auto-loads all rules on startup and on every scan, filtered to the langu
 | :--- | :--- |
 | **Scan Pause / Resume** | Pause a running scan between phases and resume later; state persisted to DB |
 | **Bulk Triage** | Multi-select findings in the dashboard and set status in one action |
+| **Compare Scans** | Side-by-side diff of any two scans — new / fixed / persisting findings with severity delta |
 | **Rule Builder** | In-browser YAML rule editor with live regex test pane — no file system access needed |
 | **Trust Score** | Per-finding composite score (0–100): base confidence + engine corroboration bonus + AI validation bonus |
 | **Priority Matrix** | P0 (critical/high reachable) → P3 (low) remediation tiers surfaced in HTML and PDF reports |
 | **Exploit PoC & Fixed Code** | AI validator generates a working proof-of-concept and a corrected code snippet per finding |
-| **FP Feedback Loop** | Triage decisions (false_positive / resolved) are stored locally at `~/.sentryq/ml-cache/` and used to suppress recurring false positives in future scans |
+| **FP History Cache** | Triage decisions (false_positive / resolved) are stored locally at `~/.sentryq/ml-cache/` and used to suppress recurring false positives in future scans |
 | **Confidence Calibration** | Historical TP/FP accuracy per severity is tracked in `~/.sentryq/.scanner-ai-stats.json` and used to adjust future AI confidence scores |
 | **Multi-Phase Ensemble Storage** | All three ensemble phases (static / ai / final) are stored independently in SQLite and viewable separately in the ReportViewer |
 | **Git URL scanning** | Paste a public or private Git URL in the UI; SentryQ clones, scans, and cleans up automatically |
-| **Report auto-cleanup** | Generated report files (HTML, PDF, CSV, SARIF) are automatically deleted 48 hours after scan completion |
+| **Report auto-cleanup** | Generated report files (HTML, PDF, CSV, SARIF, SBOM, Compliance) are automatically deleted 48 hours after scan completion |
 | **Browser Notifications** | Desktop push notification fires on scan completion (requires browser permission) |
 
 ---
@@ -262,13 +316,28 @@ jobs:
           git clone https://github.com/Gauravjha68535/sentryQ.git /tmp/sentryQ
           cd /tmp/sentryQ && sh build.sh
 
-      - name: Run SentryQ headless scan
-        run: /tmp/sentryQ/sentryq ./
+      - name: Run SentryQ headless scan (fail on critical)
+        run: /tmp/sentryQ/sentryq --fail-on critical ./
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: /tmp/sentryQ/report.sarif
+```
+
+### PR Decoration (GitHub)
+
+```yaml
+      - name: Decorate PR with findings
+        if: github.event_name == 'pull_request'
+        run: |
+          /tmp/sentryQ/sentryq \
+            --pr-provider github \
+            --pr-token ${{ secrets.GITHUB_TOKEN }} \
+            --pr-repo ${{ github.repository }} \
+            --pr-number ${{ github.event.pull_request.number }} \
+            --fail-on high \
+            ./
 ```
 
 ---
@@ -278,7 +347,7 @@ jobs:
 ### Standard Mode
 Runs all always-on engines (pattern, AST, taint, secret detection, FP suppression, reachability). Enable **Deep Scan** to add dependency auditing, Semgrep, supply chain / typosquatting checks, container scanning, and MITRE ATT&CK enrichment. Enable **AI** to add Chain-of-Thought validation (with Exploit PoC + Fixed Code generation), AI discovery, Judge LLM consolidation, and confidence calibration.
 
-> **Note:** AST analysis covers Python, JavaScript, Java, and Kotlin. Taint tracking is cross-file + intra-file across 11 languages (Python, PHP, JavaScript/TypeScript, Java, Kotlin, C#/ASP.NET, Go, Ruby, Swift, Dart). Browser notifications fire on scan completion.
+> **Note:** AST analysis now covers **18 languages** — Python, JavaScript, TypeScript, Java, Kotlin, Go, Ruby, Rust, C, C++, C#, PHP, Scala, Swift, Bash, Elixir, Groovy, Lua. Taint tracking is cross-file + intra-file across 11 languages (Python, PHP, JavaScript/TypeScript, Java, Kotlin, C#/ASP.NET, Go, Ruby, Swift, Dart). Browser notifications fire on scan completion.
 
 ### Ensemble Audit Mode
 Three-phase high-assurance pipeline for maximum accuracy:
@@ -297,11 +366,11 @@ Three-phase high-assurance pipeline for maximum accuracy:
 | :--- | :--- |
 | Core scanner engines | `scanner/` |
 | AI validation, judge, calibration, FP history cache | `ai/` |
-| API server, scan orchestration, auto-updater | `cmd/scanner/` |
+| API server, scan orchestration, CI policy, PR decoration, auto-updater | `cmd/scanner/` |
 | Frontend UI | `web/src/` |
-| Report generators (SARIF, HTML, PDF, CSV) | `reporter/` |
+| Report generators (SARIF, HTML, PDF, CSV, SBOM, Compliance) | `reporter/` |
 | Detection rules (120 files: 71 languages + security domains; 15 framework files) | `rules/` |
-| Rule loader (YAML parsing, negative patterns) | `config/` |
+| Rule loader (YAML parsing, negative patterns, SentryQL) | `config/` |
 | Shared utilities | `utils/` |
 
 **Frontend dev server:**
