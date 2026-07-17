@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Save, RefreshCw, Cpu, Server, CheckCircle2, XCircle, Play, List, ExternalLink, Bell, UserPlus, Users, ShieldCheck } from 'lucide-react'
+import { Save, RefreshCw, Cpu, Server, CheckCircle2, XCircle, Play, List, ExternalLink, Bell } from 'lucide-react'
 import { useToast } from '../components/Toast'
 import FormField from '../components/FormField'
 
@@ -27,80 +27,6 @@ function TestButton({ testing, onTest, result }) {
                     {result.message}
                 </span>
             )}
-        </div>
-    )
-}
-
-function MultiUserPanel() {
-    const [users, setUsers] = useState([])
-    const [loading, setLoading] = useState(false)
-    const [newUser, setNewUser] = useState({ username: '', password: '', role: 'analyst' })
-    const [msg, setMsg] = useState(null)
-    const toast = useToast()
-    const enabled = document.cookie.includes('sentryq_token') || !!localStorage.getItem('sentryq_token')
-
-    const fetchUsers = async () => {
-        setLoading(true)
-        try { const r = await fetch('/api/auth/users'); if (r.ok) setUsers(await r.json()) } catch {}
-        setLoading(false)
-    }
-
-    useEffect(() => { if (enabled) fetchUsers() }, [enabled])
-
-    const createUser = async (e) => {
-        e.preventDefault()
-        const res = await fetch('/api/auth/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newUser) })
-        if (res.ok) {
-            toast.success(`User "${newUser.username}" created`)
-            setNewUser({ username: '', password: '', role: 'analyst' })
-            fetchUsers()
-        } else {
-            const err = await res.json()
-            toast.error(err.error || 'Failed to create user')
-        }
-    }
-
-    if (!enabled) return (
-        <div className="card" style={{ opacity: 0.5 }}>
-            <div className="section-title" style={{ marginBottom: '12px' }}><ShieldCheck size={20} style={{ color: 'var(--accent-primary)' }} /><h3>User Management</h3></div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Set <code className="code-inline">SENTRYQ_MULTI_USER=1</code> and restart to enable multi-user mode.</p>
-        </div>
-    )
-
-    return (
-        <div className="card">
-            <div className="section-header">
-                <div className="section-title"><Users size={20} style={{ color: 'var(--accent-primary)' }} /><h3>User Management</h3></div>
-                <button className="btn btn-secondary btn-sm" onClick={fetchUsers}><RefreshCw size={14} /></button>
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-                {loading ? <p style={{ color: 'var(--text-muted)' }}>Loading...</p> : users.map(u => (
-                    <div key={u.id} className="user-row">
-                        <div>
-                            <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>{u.username}</span>
-                            <span className="user-role-badge" style={{ background: u.role === 'admin' ? '#3b1d8a' : '#1d3a5f' }}>{u.role}</span>
-                        </div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            {u.last_login_at ? `Last login: ${new Date(u.last_login_at).toLocaleDateString()}` : 'Never logged in'}
-                        </span>
-                    </div>
-                ))}
-            </div>
-
-            <form onSubmit={createUser}>
-                <div className="section-title" style={{ marginBottom: '12px' }}><UserPlus size={16} style={{ color: 'var(--accent-primary)' }} /><span style={{ fontWeight: 600, fontSize: '0.88rem' }}>Add User</span></div>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <input placeholder="Username" required value={newUser.username} onChange={e => setNewUser(p => ({ ...p, username: e.target.value }))} className="input" style={{ flex: 1, minWidth: '120px' }} />
-                    <input type="password" placeholder="Password" required value={newUser.password} onChange={e => setNewUser(p => ({ ...p, password: e.target.value }))} className="input" style={{ flex: 1, minWidth: '120px' }} />
-                    <select value={newUser.role} onChange={e => setNewUser(p => ({ ...p, role: e.target.value }))} className="input" style={{ minWidth: '100px' }}>
-                        <option value="viewer">Viewer</option>
-                        <option value="analyst">Analyst</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                    <button type="submit" className="btn btn-primary btn-sm"><UserPlus size={14} /> Create</button>
-                </div>
-            </form>
         </div>
     )
 }
@@ -334,8 +260,6 @@ export default function Settings() {
                         <Save size={16} /> {saved ? '✓ Saved!' : 'Save Notifications'}
                     </button>
                 </div>
-
-                <MultiUserPanel />
 
                 {/* System Diagnostics */}
                 <div className="card">
