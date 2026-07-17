@@ -1,26 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { GitCompare, AlertTriangle, CheckCircle, MinusCircle, RefreshCw } from 'lucide-react'
+import SeverityBadge from '../components/SeverityBadge'
 
 const SEVERITY_ORDER = { critical: 5, high: 4, medium: 3, low: 2, info: 1 }
-
-function SeverityBadge({ severity }) {
-    const colors = {
-        critical: { bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
-        high: { bg: 'rgba(249,115,22,0.15)', color: '#f97316' },
-        medium: { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
-        low: { bg: 'rgba(59,130,246,0.15)', color: '#3b82f6' },
-        info: { bg: 'rgba(107,114,128,0.15)', color: '#6b7280' },
-    }
-    const c = colors[severity?.toLowerCase()] || colors.info
-    return (
-        <span style={{
-            background: c.bg, color: c.color, fontWeight: 700, fontSize: '0.7rem',
-            padding: '2px 8px', borderRadius: '10px', textTransform: 'uppercase', letterSpacing: '0.04em'
-        }}>
-            {severity || 'info'}
-        </span>
-    )
-}
 
 function FindingCard({ finding }) {
     return (

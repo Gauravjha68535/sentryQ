@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GitBranch, FolderUp, Play, Shield, Lock, Brain, Globe, Sparkles, FolderOpen, Layers, ChevronDown, AlertTriangle, GitPullRequest, Bell, GitMerge } from 'lucide-react'
+import { GitBranch, FolderUp, Play, Shield, Lock, Brain, Globe, Sparkles, FolderOpen, Layers, ChevronDown, AlertTriangle, GitPullRequest, Bell, GitMerge, Upload } from 'lucide-react'
+import { useToast } from '../components/Toast'
 
 const defaultConfig = {
     enableDeepScan: false,
@@ -86,6 +87,7 @@ export default function NewScan() {
     const [availableModels, setAvailableModels] = useState([])
     const [loadingModels, setLoadingModels] = useState(true)
     const navigate = useNavigate()
+    const toast = useToast()
 
     // Collapsible section state
     const [policyOpen, setPolicyOpen] = useState(false)
@@ -150,15 +152,15 @@ export default function NewScan() {
                         return newConfig
                     })
                 } else if (explicitHost) {
-                    alert(`No models found on ${isCustomAPI ? 'Custom API' : 'Ollama host'}: ${hostStr}.`)
+                    toast.warning(`No models found on ${isCustomAPI ? 'Custom API' : 'Ollama host'}: ${hostStr}`)
                 }
             } else {
-                if (explicitHost) alert(`Failed to fetch models from ${hostStr}`)
+                if (explicitHost) toast.error(`Failed to fetch models from ${hostStr}`)
             }
         } catch (e) {
             if (e.name !== 'AbortError') {
                 console.error("Failed to fetch models", e)
-                if (explicitHost) alert(`Connection error to endpoint: ${e.message}`)
+                if (explicitHost) toast.error(`Connection error to endpoint: ${e.message}`)
             }
         } finally {
             setLoadingModels(false)
@@ -194,7 +196,7 @@ export default function NewScan() {
                     body: JSON.stringify({ url: gitUrl.trim(), config }),
                 })
             } else {
-                alert('Please provide a folder or Git URL')
+                toast.warning('Please provide a folder or Git URL')
                 setUploading(false)
                 return
             }
@@ -204,10 +206,10 @@ export default function NewScan() {
                 navigate(`/scan/${data.scan_id}`)
             } else {
                 const err = await res.text()
-                alert(`Scan failed to start: ${err}`)
+                toast.error(`Scan failed to start: ${err}`)
             }
         } catch (e) {
-            alert(`Error: ${e.message}`)
+            toast.error(`Error: ${e.message}`)
         } finally {
             setUploading(false)
         }
@@ -250,7 +252,9 @@ export default function NewScan() {
                                 style={{ display: 'none' }}
                                 onChange={handleFileSelect}
                             />
-                            <div className="upload-zone-icon">📁</div>
+                            <div className="upload-zone-icon">
+                                <Upload size={48} style={{ opacity: 0.4, color: 'var(--accent-primary)' }} />
+                            </div>
                             <h3>{files ? `${files.length} files selected` : 'Drop your project folder here'}</h3>
                             <p>{files ? 'Click to change selection' : 'or click to browse files'}</p>
                         </div>

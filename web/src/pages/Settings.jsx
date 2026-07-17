@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Save, RefreshCw, Cpu, Server, CheckCircle2, XCircle, Play, List, ExternalLink, Bell, UserPlus, Users, ShieldCheck } from 'lucide-react'
+import { useToast } from '../components/Toast'
 
 function MultiUserPanel() {
     const [users, setUsers] = useState([])
@@ -134,6 +135,7 @@ const PROVIDERS = [
 ]
 
 export default function Settings() {
+    const toast = useToast()
     const [settings, setSettings] = useState({
         ai_provider: 'ollama',
         default_model: '',
@@ -222,11 +224,14 @@ export default function Settings() {
             })
             if (res.ok) {
                 setSaved(true)
+                toast.success('Settings saved')
                 setTimeout(() => setSaved(false), 3000)
                 fetchSettings()
+            } else {
+                toast.error('Failed to save settings')
             }
         } catch (e) {
-            alert(`Failed to save: ${e.message}`)
+            toast.error(`Failed to save: ${e.message}`)
         }
     }
 

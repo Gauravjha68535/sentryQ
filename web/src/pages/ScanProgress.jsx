@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2, FileText, PauseCircle } from 'lucide-react'
+import { useConfirm } from '../components/ConfirmModal'
+import { useToast } from '../components/Toast'
 
 export default function ScanProgress() {
     const { id } = useParams()
@@ -13,6 +15,8 @@ export default function ScanProgress() {
     const terminalRef = useRef(null)
     const wsRef = useRef(null)
     const statusRef = useRef('connecting')
+    const confirm = useConfirm()
+    const toast = useToast()
 
     useEffect(() => {
         if ('Notification' in window && Notification.permission === 'default') {
@@ -214,18 +218,21 @@ export default function ScanProgress() {
                             className="btn"
                             style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
                             onClick={async () => {
-                                if (window.confirm("Are you sure you want to stop this scan?")) {
+                                const ok = await confirm('Stop this scan? Progress so far will be saved.', 'Stop Scan')
+                                if (ok) {
                                     try {
                                         const res = await fetch(`/api/scan/${id}/stop`, {
                                             method: 'POST',
-                                            headers: { 'X-API-Key': localStorage.getItem('sentryq_api_key') || '' }
+                                            headers: { 'Content-Type': 'application/json' }
                                         })
                                         if (res.ok) {
                                             statusRef.current = 'stopping'
                                             setStatus('stopping')
+                                        } else {
+                                            toast.error('Failed to stop scan')
                                         }
                                     } catch (e) {
-                                        console.error("Failed to stop scan", e)
+                                        toast.error('Failed to stop scan')
                                     }
                                 }
                             }}

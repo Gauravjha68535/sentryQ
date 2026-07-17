@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { FileCheck, RefreshCw, ChevronDown, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+import SeverityBadge from '../components/SeverityBadge'
 
 const FRAMEWORKS = [
     { id: 'owasp', label: 'OWASP Top 10' },
@@ -21,16 +22,6 @@ function StatusBadge({ status }) {
             {pass ? 'PASS' : 'FAIL'}
         </span>
     )
-}
-
-function SeverityBadge({ severity }) {
-    const colors = {
-        critical: '#ef4444', high: '#f97316', medium: '#f59e0b', low: '#3b82f6', info: '#6b7280',
-    }
-    const c = colors[severity?.toLowerCase()] || '#6b7280'
-    return severity
-        ? <span style={{ color: c, fontWeight: 600, fontSize: '0.8rem', textTransform: 'capitalize' }}>{severity}</span>
-        : <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>—</span>
 }
 
 function ControlRow({ ctrl }) {

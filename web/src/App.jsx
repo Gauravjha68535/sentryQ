@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import PageTransition from './components/PageTransition'
+import { ToastProvider } from './components/Toast'
+import { ConfirmProvider } from './components/ConfirmModal'
 import Dashboard from './pages/Dashboard'
 import NewScan from './pages/NewScan'
 import ScanProgress from './pages/ScanProgress'
@@ -84,6 +86,8 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ToastProvider>
+      <ConfirmProvider>
       <AuthInterceptorSetup />
       <Routes>
         {/* Standalone login page — no sidebar */}
@@ -111,6 +115,8 @@ export default function App() {
           </div>
         } />
       </Routes>
+      </ConfirmProvider>
+      </ToastProvider>
     </BrowserRouter>
   )
 }
