@@ -189,17 +189,25 @@ func containsPattern(node *treeSitter.Node, content []byte, pattern string) bool
 	return strings.Contains(node.Content(content), pattern)
 }
 
-// sharedASTAnalyzer is a package-level singleton used for reachability checks
-// in SCA (dependency_scanner.go + osv_cli.go). Both callers share the same
-// instance so BuildReachabilityCache (which walks the entire directory) only
-// runs once per scan instead of twice.
+// sharedASTState caches one ASTAnalyzer per target directory so that
+// ScanDependencies and RunOSVCli share the same instance (and therefore the
+// same BuildReachabilityCache walk) within a single scan without poisoning
+// subsequent scans that target a different directory.
 var (
-	_sharedAST     *ASTAnalyzer
-	_sharedASTOnce sync.Once
+	_sharedASTMu  sync.Mutex
+	_sharedASTDir string
+	_sharedAST    *ASTAnalyzer
 )
 
-// SharedASTAnalyzer returns the package-level ASTAnalyzer singleton.
-func SharedASTAnalyzer() *ASTAnalyzer {
-	_sharedASTOnce.Do(func() { _sharedAST = NewASTAnalyzer() })
+// SharedASTAnalyzer returns an ASTAnalyzer whose reachability cache was built
+// for targetDir. If the directory differs from the previous call a new instance
+// is created so no cross-scan contamination occurs.
+func SharedASTAnalyzer(targetDir string) *ASTAnalyzer {
+	_sharedASTMu.Lock()
+	defer _sharedASTMu.Unlock()
+	if _sharedAST == nil || _sharedASTDir != targetDir {
+		_sharedAST = NewASTAnalyzer()
+		_sharedASTDir = targetDir
+	}
 	return _sharedAST
 }

@@ -28,7 +28,6 @@ const defaultConfig = {
     mrIid: 0,
     // Notifications
     webhookUrls: '',
-    generateSbom: false,
     // Incremental scan
     incrementalScan: false,
     baseBranch: 'main',
@@ -617,13 +616,8 @@ export default function NewScan() {
                             />
                             <p style={hintStyle}>Comma-separated list of webhook endpoints. A JSON payload is POSTed on scan completion.</p>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <input type="checkbox" className="checkbox-custom" checked={config.generateSbom}
-                                onChange={() => setConfig(prev => ({ ...prev, generateSbom: !prev.generateSbom }))} />
-                            <div>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Generate SBOM (CycloneDX)</div>
-                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Writes sbom.cdx.json alongside other report files</div>
-                            </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '4px 0' }}>
+                            CycloneDX SBOM (<code>sbom.cdx.json</code>) is generated automatically for every scan.
                         </div>
                     </CollapsibleSection>
 

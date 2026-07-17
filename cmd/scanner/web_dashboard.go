@@ -3,6 +3,7 @@ package main
 import (
 	"archive/zip"
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -1333,7 +1334,7 @@ func authMiddleware(next http.Handler) http.Handler {
 				token = strings.TrimPrefix(auth, "Bearer ")
 			}
 		}
-		if token != serverAuthToken {
+		if subtle.ConstantTimeCompare([]byte(token), []byte(serverAuthToken)) != 1 {
 			utils.LogWarn(fmt.Sprintf("Unauthorized API request from %s: %s %s", r.RemoteAddr, r.Method, r.URL.Path))
 			http.Error(w, "Unauthorized: set X-Auth-Token header with the value of SENTRYQ_AUTH_TOKEN", http.StatusUnauthorized)
 			return
