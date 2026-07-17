@@ -4,6 +4,7 @@ import { Download, ChevronDown, ChevronUp, FileText, Code, Shield } from 'lucide
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
 import { Doughnut, Bar } from 'react-chartjs-2'
 import SeverityBadge from '../components/SeverityBadge'
+import { useToast } from '../components/Toast'
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
 
@@ -20,6 +21,7 @@ export default function ReportViewer() {
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedIds, setSelectedIds] = useState(new Set())
     const [errorMsg, setErrorMsg] = useState(null)
+    const toast = useToast()
 
     const fetchReport = useCallback(async (phase = 'final') => {
         try {
@@ -62,8 +64,7 @@ export default function ReportViewer() {
                 setErrorMsg(`Failed to update status: server returned ${res.status}`)
             }
         } catch (e) {
-            console.error('Failed to update status:', e)
-            setErrorMsg('Failed to update finding status. Check your connection and try again.')
+            toast.error('Failed to update finding status')
         }
     }
 
@@ -79,12 +80,12 @@ export default function ReportViewer() {
             if (res.ok) {
                 setFindings(prev => prev.map(f => selectedIds.has(f.db_id) ? { ...f, status: newStatus } : f))
                 setSelectedIds(new Set())
+                toast.success(`${ids.length} finding${ids.length > 1 ? 's' : ''} marked as ${newStatus.replace('_', ' ')}`)
             } else {
-                setErrorMsg(`Bulk update failed: server returned ${res.status}`)
+                toast.error(`Bulk update failed: server returned ${res.status}`)
             }
         } catch (e) {
-            console.error('Bulk update failed:', e)
-            setErrorMsg('Bulk status update failed. Check your connection and try again.')
+            toast.error('Bulk status update failed')
         }
     }
 
@@ -176,23 +177,23 @@ export default function ReportViewer() {
     }
 
     if (loading) {
-        return <div style={{ textAlign: 'center', padding: '80px', color: 'var(--text-muted)' }}>Loading report...</div>
+        return (
+            <div className="animate-fade-in">
+                <div style={{ marginBottom: '32px' }}>
+                    <div className="skeleton skeleton-text" style={{ width: '200px', height: '28px', marginBottom: '10px' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '320px' }} />
+                </div>
+                <div className="stats-grid" style={{ marginBottom: '24px' }}>
+                    {[1,2,3,4,5].map(i => <div key={i} className="skeleton" style={{ height: '80px', borderRadius: 'var(--radius-lg)' }} />)}
+                </div>
+                <div className="skeleton" style={{ height: '180px', borderRadius: 'var(--radius-lg)', marginBottom: '24px' }} />
+                <div className="skeleton" style={{ height: '300px', borderRadius: 'var(--radius-lg)' }} />
+            </div>
+        )
     }
 
     return (
         <div className="animate-fade-in">
-            {errorMsg && (
-                <div style={{
-                    background: '#7f1d1d', color: '#fca5a5', padding: '10px 16px', borderRadius: '8px',
-                    marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    fontSize: '0.85rem',
-                }}>
-                    <span>{errorMsg}</span>
-                    <button onClick={() => setErrorMsg(null)} style={{
-                        background: 'none', border: 'none', color: '#fca5a5', cursor: 'pointer', fontSize: '1rem', lineHeight: 1,
-                    }}>✕</button>
-                </div>
-            )}
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
                     <h1>Security Report</h1>
@@ -219,6 +220,9 @@ export default function ReportViewer() {
                     </a>
                     <a href={`/api/scan/compliance?id=${id}&framework=pci`} download={`compliance-pci-${id}.json`} className="btn btn-secondary btn-sm" title="PCI DSS Compliance Report">
                         <Download size={14} /> PCI
+                    </a>
+                    <a href={`/api/scan/compliance?id=${id}&framework=nist`} download={`compliance-nist-${id}.json`} className="btn btn-secondary btn-sm" title="NIST 800-53 Compliance Report">
+                        <Download size={14} /> NIST
                     </a>
                     <a href={`/api/scan/${id}/report/all`} download={`sentryq-full-report-${id}.zip`} className="btn btn-primary btn-sm">
                         <Download size={14} /> All (ZIP)

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { PlusCircle, Clock, CheckCircle, XCircle, Trash2, ScanSearch, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SeverityBadge from '../components/SeverityBadge'
+import { useToast } from '../components/Toast'
+import { useConfirm } from '../components/ConfirmModal'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler)
@@ -13,6 +15,8 @@ export default function Dashboard() {
     const [fetchError, setFetchError] = useState(false)
     const [isLightMode, setIsLightMode] = useState(() => document.documentElement.getAttribute('data-theme') === 'light')
     const navigate = useNavigate()
+    const toast = useToast()
+    const confirm = useConfirm()
 
     const toggleTheme = () => {
         const newTheme = isLightMode ? 'dark' : 'light'
@@ -47,14 +51,15 @@ export default function Dashboard() {
 
     const deleteScan = async (id, e) => {
         e.stopPropagation()
-        if (!confirm('Delete this scan and all its data?')) return
+        const ok = await confirm('Delete this scan and all its data? This cannot be undone.', 'Delete Scan')
+        if (!ok) return
         try {
             const res = await fetch(`/api/scan/${id}`, { method: 'DELETE' })
             if (!res.ok) throw new Error(`HTTP ${res.status}`)
+            toast.success('Scan deleted')
             fetchScans()
         } catch (err) {
-            console.error('Delete failed:', err)
-            alert(`Failed to delete scan: ${err.message}`)
+            toast.error(`Failed to delete scan: ${err.message}`)
         }
     }
 
@@ -163,7 +168,11 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {scans.length === 0 && !loading ? (
+            {loading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {[1,2,3].map(i => <div key={i} className="skeleton skeleton-card" />)}
+                </div>
+            ) : scans.length === 0 ? (
                 <div className="card" style={{ textAlign: 'center', padding: '60px 40px' }}>
                     <ScanSearch size={48} style={{ color: 'var(--text-muted)', marginBottom: '16px' }} />
                     <h3 style={{ marginBottom: '8px', color: 'var(--text-secondary)' }}>No scans yet</h3>
@@ -175,10 +184,11 @@ export default function Dashboard() {
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {scans.map(scan => (
+
                         <motion.div
                             key={scan.id}
                             className="card"
-                            whileHover={{ scale: 1.01, border: '1px solid var(--accent-primary)' }}
+                            whileHover={{ scale: 1.005, boxShadow: '0 0 0 1px var(--accent-primary), 0 0 20px rgba(99,102,241,0.15)' }}
                             style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '16px' }}
                             onClick={() => navigate(scan.status === 'completed' ? `/scan/${scan.id}/report` : `/scan/${scan.id}`)}
                         >
