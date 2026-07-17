@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"SentryQ/reporter"
@@ -85,12 +86,15 @@ func FireWebhooks(urls []string, scanID, target, status string, findings []repor
 
 	client := &http.Client{Timeout: 10 * time.Second}
 
+	var wg sync.WaitGroup
 	for _, rawURL := range urls {
 		rawURL = strings.TrimSpace(rawURL)
 		if rawURL == "" {
 			continue
 		}
+		wg.Add(1)
 		go func(url string) {
+			defer wg.Done()
 			req, err := http.NewRequest("POST", url, bytes.NewReader(body))
 			if err != nil {
 				utils.LogWarn(fmt.Sprintf("webhook: invalid URL %s: %v", url, err))
@@ -113,4 +117,5 @@ func FireWebhooks(urls []string, scanID, target, status string, findings []repor
 			utils.LogInfo(fmt.Sprintf("webhook: notified %s (HTTP %d)", url, resp.StatusCode))
 		}(rawURL)
 	}
+	wg.Wait()
 }

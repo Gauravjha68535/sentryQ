@@ -70,6 +70,27 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		"hasCodeFence": func(s string) bool {
 			return strings.Contains(s, "```")
 		},
+		"findingPriority": func(f Finding) string {
+			switch f.Severity {
+			case "critical":
+				if f.AiValidated == "Yes" {
+					return "P0"
+				}
+				return "P1"
+			case "high":
+				if f.AiValidated == "Yes" {
+					return "P1"
+				}
+				return "P2"
+			case "medium":
+				if f.AiValidated == "Yes" {
+					return "P2"
+				}
+				return "P3"
+			default:
+				return "P3"
+			}
+		},
 	}).Parse(htmlTemplate))
 
 	reachable, unreachable, falsePositives := SplitFindingsThreeWay(findings)
@@ -642,6 +663,8 @@ const htmlTemplate = `<!DOCTYPE html>
                                         <table style="font-size:0.82rem; border-collapse:collapse; width:100%;">
                                             <tr><td style="padding:6px 8px; color:var(--text-dim); border-bottom:1px solid var(--border); width:120px;">CWE</td><td style="padding:6px 8px; border-bottom:1px solid var(--border);">{{if and .CWE (ne .CWE "N/A")}}{{.CWE}}{{else}}N/A{{end}}</td></tr>
                                             <tr><td style="padding:6px 8px; color:var(--text-dim); border-bottom:1px solid var(--border);">OWASP</td><td style="padding:6px 8px; border-bottom:1px solid var(--border);">{{if and .OWASP (ne .OWASP "N/A")}}{{.OWASP}}{{else}}N/A{{end}}</td></tr>
+                                            <tr><td style="padding:6px 8px; color:var(--text-dim); border-bottom:1px solid var(--border);">Trust Score</td><td style="padding:6px 8px; border-bottom:1px solid var(--border);">{{printf "%.0f" .TrustScore}}/100</td></tr>
+                                            <tr><td style="padding:6px 8px; color:var(--text-dim); border-bottom:1px solid var(--border);">Priority</td><td style="padding:6px 8px; border-bottom:1px solid var(--border);">{{findingPriority .}}</td></tr>
                                             <tr><td style="padding:6px 8px; color:var(--text-dim); border-bottom:1px solid var(--border);">Confidence</td><td style="padding:6px 8px; border-bottom:1px solid var(--border);">{{confidencePct .Confidence}}</td></tr>
                                             <tr><td style="padding:6px 8px; color:var(--text-dim); border-bottom:1px solid var(--border);">Source</td><td style="padding:6px 8px; border-bottom:1px solid var(--border);">{{.Source}}</td></tr>
                                             <tr><td style="padding:6px 8px; color:var(--text-dim); border-bottom:1px solid var(--border);">AI Validated</td><td style="padding:6px 8px; border-bottom:1px solid var(--border);">{{.AiValidated}}</td></tr>

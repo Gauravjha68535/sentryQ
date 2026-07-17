@@ -34,7 +34,8 @@ func ParseSentryQL(query string) (*SentryQLQuery, error) {
 	}
 
 	q := &SentryQLQuery{raw: query}
-	rest := strings.TrimSpace(query)
+	// Normalise newlines to spaces so multi-line queries parse correctly.
+	rest := strings.TrimSpace(strings.ReplaceAll(query, "\n", " "))
 
 	// Extract FIND pattern (mandatory)
 	upper := strings.ToUpper(rest)

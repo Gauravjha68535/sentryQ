@@ -1302,16 +1302,16 @@ func csrfMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// authMiddleware enforces token authentication on /api/* and /ws/* routes when
-// SENTRYQ_AUTH_TOKEN is set. Static UI files always pass through so the
-// frontend can load and display the auth token prompt to the user.
+// authMiddleware enforces authentication on /api/* and /ws/* routes.
+// Two modes:
+//   - Single-token (SENTRYQ_AUTH_TOKEN set): all API calls must send the static token.
+//   - Multi-user (SENTRYQ_MULTI_USER=1): all API calls except /api/auth/login must carry
+//     a valid session token issued by handleLogin. /api/auth/login is always public so
+//     the browser can obtain a token.
+//
+// Static UI files are always public so the frontend can load and show the login screen.
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// No token configured → open mode, pass through unchanged.
-		if serverAuthToken == "" {
-			next.ServeHTTP(w, r)
-			return
-		}
 		// CORS preflight must bypass auth (browsers send OPTIONS before credentials).
 		if r.Method == http.MethodOptions {
 			next.ServeHTTP(w, r)
@@ -1327,7 +1327,30 @@ func authMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		// Accept X-Auth-Token header or Authorization: Bearer <token>.
+
+		// ── Multi-user session mode ───────────────────────────────────────────
+		if os.Getenv("SENTRYQ_MULTI_USER") == "1" {
+			// Login endpoint is always public; every other /api/* requires a session.
+			if r.URL.Path == "/api/auth/login" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			sess := SessionFromRequest(r)
+			if sess == nil {
+				utils.LogWarn(fmt.Sprintf("Unauthorized API request from %s: %s %s", r.RemoteAddr, r.Method, r.URL.Path))
+				http.Error(w, `{"error":"authentication required"}`, http.StatusUnauthorized)
+				return
+			}
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// ── Single-token mode (SENTRYQ_AUTH_TOKEN) ───────────────────────────
+		if serverAuthToken == "" {
+			// No auth configured → open mode, pass through unchanged.
+			next.ServeHTTP(w, r)
+			return
+		}
 		token := r.Header.Get("X-Auth-Token")
 		if token == "" {
 			if auth := r.Header.Get("Authorization"); strings.HasPrefix(auth, "Bearer ") {
