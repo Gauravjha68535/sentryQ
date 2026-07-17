@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2, FileText, PauseCircle } from 'lucide-react'
+import StatCard from '../components/StatCard'
 import { useConfirm } from '../components/ConfirmModal'
 import { useToast } from '../components/Toast'
 
@@ -33,12 +34,11 @@ export default function ScanProgress() {
         const connect = () => {
             if (destroyed) return
             const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-            const wsUrl = `${protocol}://${window.location.host}/ws/scan/${id}`
-            const ws = new WebSocket(wsUrl)
+            const ws = new WebSocket(`${protocol}://${window.location.host}/ws/scan/${id}`)
             wsRef.current = ws
 
             ws.onopen = () => {
-                reconnectDelay = 1000 // reset backoff on successful connect
+                reconnectDelay = 1000
                 setStatus(prev => prev === 'connecting' ? 'running' : prev)
                 addLog('Connected to scan engine...', 'info')
             }
@@ -47,16 +47,9 @@ export default function ScanProgress() {
                 try {
                     const msg = JSON.parse(event.data)
                     switch (msg.type) {
-                        case 'log':
-                            addLog(msg.message, msg.level || 'info')
-                            break
-                        case 'progress':
-                            setProgress(msg.percent || 0)
-                            setPhase(msg.phase || '')
-                            break
-                        case 'findings_update':
-                            setFindingsCount(msg.count || 0)
-                            break
+                        case 'log':           addLog(msg.message, msg.level || 'info'); break
+                        case 'progress':      setProgress(msg.percent || 0); setPhase(msg.phase || ''); break
+                        case 'findings_update': setFindingsCount(msg.count || 0); break
                         case 'complete':
                             statusRef.current = 'completed'
                             setStatus('completed')
@@ -69,14 +62,8 @@ export default function ScanProgress() {
                                 }
                             }
                             break
-                        case 'paused':
-                            statusRef.current = 'paused'
-                            setStatus('paused')
-                            break
-                        case 'resumed':
-                            statusRef.current = 'running'
-                            setStatus('running')
-                            break
+                        case 'paused':  statusRef.current = 'paused';   setStatus('paused');   break
+                        case 'resumed': statusRef.current = 'running';  setStatus('running');  break
                         case 'error':
                             statusRef.current = 'failed'
                             setStatus('failed')
@@ -85,15 +72,13 @@ export default function ScanProgress() {
                         default:
                             addLog(msg.message || JSON.stringify(msg), 'info')
                     }
-                } catch (parseErr) {
-                    console.warn('Failed to parse WebSocket message as JSON:', parseErr)
+                } catch {
                     addLog(event.data, 'info')
                 }
             }
 
-            ws.onclose = (event) => {
+            ws.onclose = () => {
                 if (destroyed) return
-                // Don't reconnect if scan is already done or being stopped
                 const cur = statusRef.current
                 if (cur === 'completed' || cur === 'failed' || cur === 'stopped' || cur === 'stopping') return
                 addLog(`Connection lost — reconnecting in ${reconnectDelay / 1000}s...`, 'warning')
@@ -103,42 +88,23 @@ export default function ScanProgress() {
                 }, reconnectDelay)
             }
 
-            ws.onerror = () => {
-                // onclose fires after onerror, so reconnect is handled there
-                addLog('WebSocket error.', 'warning')
-            }
+            ws.onerror = () => { addLog('WebSocket error.', 'warning') }
         }
 
         connect()
 
-        // Also poll status via REST as fallback
         const pollInterval = setInterval(async () => {
             try {
                 const res = await fetch(`/api/scan/${id}`)
                 if (res.ok) {
                     const data = await res.json()
-                    if (data.status === 'completed') {
-                        statusRef.current = 'completed'
-                        setStatus('completed')
-                        setProgress(100)
-                        clearInterval(pollInterval)
-                    } else if (data.status === 'failed') {
-                        statusRef.current = 'failed'
-                        setStatus('failed')
-                        clearInterval(pollInterval)
-                    } else if (data.status === 'stopped') {
-                        statusRef.current = 'stopped'
-                        setStatus('stopped')
-                        clearInterval(pollInterval)
-                    } else if (data.status === 'paused') {
-                        statusRef.current = 'paused'
-                        setStatus('paused')
-                    }
+                    if (data.status === 'completed') { statusRef.current = 'completed'; setStatus('completed'); setProgress(100); clearInterval(pollInterval) }
+                    else if (data.status === 'failed') { statusRef.current = 'failed'; setStatus('failed'); clearInterval(pollInterval) }
+                    else if (data.status === 'stopped') { statusRef.current = 'stopped'; setStatus('stopped'); clearInterval(pollInterval) }
+                    else if (data.status === 'paused') { statusRef.current = 'paused'; setStatus('paused') }
                     if (data.total_findings) setFindingsCount(data.total_findings)
                 }
-            } catch (pollErr) {
-                    console.warn('REST status poll failed:', pollErr)
-                }
+            } catch { /* ignore poll errors */ }
         }, 3000)
 
         return () => {
@@ -150,102 +116,61 @@ export default function ScanProgress() {
     }, [id])
 
     useEffect(() => {
-        if (terminalRef.current) {
-            terminalRef.current.scrollTop = terminalRef.current.scrollHeight
-        }
+        if (terminalRef.current) terminalRef.current.scrollTop = terminalRef.current.scrollHeight
     }, [logs])
 
-    const addLog = (message, level = 'info') => {
+    const addLog = (message, level = 'info') =>
         setLogs(prev => [...prev, { message, level, time: new Date().toLocaleTimeString() }])
+
+    const apiPost = async (action) => {
+        try {
+            const res = await fetch(`/api/scan/${id}/${action}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+            return res.ok
+        } catch { return false }
     }
+
+    const statusTitle = {
+        completed: '✅ Scan Complete',
+        failed:    '❌ Scan Failed',
+        stopping:  '🛑 Stopping...',
+        stopped:   '🛑 Stopped',
+        paused:    '⏸ Paused',
+    }[status] ?? '🔍 Scanning...'
 
     return (
         <div className="animate-fade-in">
-            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div className="page-header-row">
                 <div>
-                    <h1>
-                        {status === 'completed' ? '✅ Scan Complete' : status === 'failed' ? '❌ Scan Failed' : status === 'stopping' || status === 'stopped' ? '🛑 Stopped' : status === 'paused' ? '⏸ Paused' : '🔍 Scanning...'}
-                    </h1>
-                    <p>Scan ID: <code style={{ fontSize: '0.82rem', background: 'var(--bg-elevated)', padding: '2px 8px', borderRadius: '4px' }}>{id}</code></p>
+                    <h1>{statusTitle}</h1>
+                    <p>Scan ID: <code className="scan-id">{id}</code></p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="page-actions">
                     {status === 'running' && (
-                        <button
-                            className="btn"
-                            style={{ background: 'rgba(234, 179, 8, 0.1)', color: '#eab308', border: '1px solid rgba(234, 179, 8, 0.2)' }}
-                            onClick={async () => {
-                                try {
-                                    const res = await fetch(`/api/scan/${id}/pause`, {
-                                        method: 'POST',
-                                        headers: { 'X-API-Key': localStorage.getItem('sentryq_api_key') || '' }
-                                    })
-                                    if (res.ok) {
-                                        statusRef.current = 'paused'
-                                        setStatus('paused')
-                                    }
-                                } catch (e) {
-                                    console.error("Failed to pause scan", e)
-                                }
-                            }}
-                        >
+                        <button className="btn" style={{ background: 'rgba(234,179,8,0.1)', color: '#eab308', border: '1px solid rgba(234,179,8,0.2)' }}
+                            onClick={async () => { if (await apiPost('pause')) { statusRef.current = 'paused'; setStatus('paused') } }}>
                             ⏸ Pause
                         </button>
                     )}
                     {status === 'paused' && (
-                        <button
-                            className="btn"
-                            style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}
-                            onClick={async () => {
-                                try {
-                                    const res = await fetch(`/api/scan/${id}/resume`, {
-                                        method: 'POST',
-                                        headers: { 'X-API-Key': localStorage.getItem('sentryq_api_key') || '' }
-                                    })
-                                    if (res.ok) {
-                                        statusRef.current = 'running'
-                                        setStatus('running')
-                                    }
-                                } catch (e) {
-                                    console.error("Failed to resume scan", e)
-                                }
-                            }}
-                        >
+                        <button className="btn" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}
+                            onClick={async () => { if (await apiPost('resume')) { statusRef.current = 'running'; setStatus('running') } }}>
                             ▶ Resume
                         </button>
                     )}
                     {(status === 'running' || status === 'paused') && (
-                        <button
-                            className="btn"
-                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                        <button className="btn" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}
                             onClick={async () => {
                                 const ok = await confirm('Stop this scan? Progress so far will be saved.', 'Stop Scan')
                                 if (ok) {
-                                    try {
-                                        const res = await fetch(`/api/scan/${id}/stop`, {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' }
-                                        })
-                                        if (res.ok) {
-                                            statusRef.current = 'stopping'
-                                            setStatus('stopping')
-                                        } else {
-                                            toast.error('Failed to stop scan')
-                                        }
-                                    } catch (e) {
-                                        toast.error('Failed to stop scan')
-                                    }
+                                    if (await apiPost('stop')) { statusRef.current = 'stopping'; setStatus('stopping') }
+                                    else toast.error('Failed to stop scan')
                                 }
-                            }}
-                        >
+                            }}>
                             Stop Scan
                         </button>
                     )}
                     {(status === 'stopping' || status === 'stopped') && (
-                        <button
-                            className="btn"
-                            style={{ background: 'rgba(107, 114, 128, 0.1)', color: '#6b7280', border: '1px solid rgba(107, 114, 128, 0.2)', cursor: 'not-allowed' }}
-                            disabled
-                        >
+                        <button className="btn" style={{ background: 'rgba(107,114,128,0.1)', color: '#6b7280', border: '1px solid rgba(107,114,128,0.2)', cursor: 'not-allowed' }} disabled>
                             Stopping...
                         </button>
                     )}
@@ -257,10 +182,9 @@ export default function ScanProgress() {
                 </div>
             </div>
 
-            {/* Progress Bar */}
             <div className="card" style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{phase}</span>
+                    <span className="phase-text">{phase}</span>
                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-primary-hover)' }}>{progress}%</span>
                 </div>
                 <div className="progress-bar-container">
@@ -268,29 +192,21 @@ export default function ScanProgress() {
                 </div>
             </div>
 
-            {/* Stats Row */}
             <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
                 <div className="stat-card">
                     <div className="stat-card-label">Status</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {status === 'running' && <Loader2 size={20} className="animate-spin" style={{ color: 'var(--status-running)' }} />}
+                        {status === 'running'   && <Loader2 size={20} className="animate-spin" style={{ color: 'var(--status-running)' }} />}
                         {status === 'completed' && <CheckCircle size={20} style={{ color: 'var(--status-success)' }} />}
-                        {status === 'failed' && <XCircle size={20} style={{ color: 'var(--status-failed)' }} />}
-                        {status === 'paused' && <PauseCircle size={20} style={{ color: '#eab308' }} />}
+                        {status === 'failed'    && <XCircle size={20} style={{ color: 'var(--status-failed)' }} />}
+                        {status === 'paused'    && <PauseCircle size={20} style={{ color: '#eab308' }} />}
                         <span style={{ fontSize: '1rem', fontWeight: 700, textTransform: 'capitalize' }}>{status}</span>
                     </div>
                 </div>
-                <div className="stat-card">
-                    <div className="stat-card-label">Findings</div>
-                    <div className="stat-card-value">{findingsCount}</div>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-card-label">Log Lines</div>
-                    <div className="stat-card-value">{logs.length}</div>
-                </div>
+                <StatCard label="Findings" value={findingsCount} />
+                <StatCard label="Log Lines" value={logs.length} />
             </div>
 
-            {/* Terminal */}
             <div className="terminal" ref={terminalRef}>
                 {logs.map((log, i) => (
                     <div key={i} className={`terminal-line ${log.level}`}>
@@ -299,7 +215,7 @@ export default function ScanProgress() {
                     </div>
                 ))}
                 {(status === 'running' || status === 'paused') && (
-                    <div className="terminal-line" style={{ opacity: 0.5 }}>
+                    <div className="terminal-line terminal-cursor">
                         <span className={status === 'running' ? 'animate-pulse' : ''}>█</span>
                     </div>
                 )}
