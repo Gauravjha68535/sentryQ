@@ -52,11 +52,11 @@
   --border-primary: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.12);
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  /* Radius — intentionally tight so UI reads as a tool, not a SaaS landing page */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+  --radius-xl: 10px;
 
   /* Shadow */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -148,7 +148,7 @@ body {
   right: -10%;
   width: 50%;
   height: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
 }
@@ -160,7 +160,7 @@ body {
   left: -10%;
   width: 50%;
   height: 50%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.03) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
 }
@@ -461,14 +461,12 @@ pre {
 }
 
 .btn-primary {
-  background: var(--accent-gradient);
+  background: var(--accent-primary);
   color: white;
-  box-shadow: var(--shadow-glow);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 30px var(--accent-glow);
+  background: var(--accent-primary-hover);
 }
 
 .btn-secondary {
@@ -617,11 +615,11 @@ pre {
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 0.72rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .severity-critical {
@@ -660,25 +658,33 @@ pre {
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
+  border-left: 3px solid var(--accent-primary);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  transition: border-left-color var(--transition-fast);
+}
+
+.stat-card:hover {
+  border-left-color: var(--accent-primary-hover);
 }
 
 .stat-card-label {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .stat-card-value {
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
   letter-spacing: -1px;
+  line-height: 1;
 }
 
 /* ── Tables ── */

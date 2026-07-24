@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Settings, Shield, PlusCircle, Code, Menu, X, GitCompare, FileCheck, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, Settings, Shield, PlusCircle, Code, Menu, X, GitCompare, FileCheck } from 'lucide-react'
 
 export default function Sidebar({ isOpen, onToggle }) {
-    const [isLightMode, setIsLightMode] = useState(
-        () => document.documentElement.getAttribute('data-theme') === 'light'
-    )
     const [version, setVersion] = useState(null)
 
     useEffect(() => {
@@ -14,13 +11,6 @@ export default function Sidebar({ isOpen, onToggle }) {
             .then(d => { if (d?.version) setVersion(d.version) })
             .catch(() => {})
     }, [])
-
-    const toggleTheme = () => {
-        const next = isLightMode ? 'dark' : 'light'
-        setIsLightMode(!isLightMode)
-        document.documentElement.setAttribute('data-theme', next)
-        localStorage.setItem('theme', next)
-    }
 
     const links = [
         {
@@ -93,39 +83,15 @@ export default function Sidebar({ isOpen, onToggle }) {
                 </nav>
 
                 <div className="sidebar-version-box" style={{ padding: '16px 12px', borderTop: '1px solid var(--border-primary)', marginTop: 'auto' }}>
-                    {/* Theme toggle — always visible as an icon button */}
-                    <button
-                        onClick={toggleTheme}
-                        aria-label="Toggle theme"
-                        title={isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-                        style={{
-                            background: 'transparent', border: '1px solid var(--border-primary)',
-                            borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)',
-                            cursor: 'pointer', padding: '6px', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center',
-                            width: '100%', marginBottom: '8px',
-                            transition: 'background var(--transition-fast)',
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--glass-hover)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                        {isLightMode ? <Moon size={16} /> : <Sun size={16} />}
-                        {isOpen && (
-                            <span style={{ marginLeft: '8px', fontSize: '0.8rem', fontWeight: 500 }}>
-                                {isLightMode ? 'Dark Mode' : 'Light Mode'}
-                            </span>
-                        )}
-                    </button>
-
                     {isOpen ? (
                         <div className="sidebar-version" style={{ padding: '10px 12px', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
                             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>Version</div>
-                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
                                 {version ? `v${version}` : 'SentryQ'}
                             </div>
                         </div>
                     ) : (
-                        <div style={{ fontSize: '0.65rem', textAlign: 'center', color: 'var(--text-muted)', width: '100%' }}>
+                        <div style={{ fontSize: '0.65rem', textAlign: 'center', color: 'var(--text-muted)', width: '100%', fontFamily: 'var(--font-mono)' }}>
                             {version ? `v${version}` : '—'}
                         </div>
                     )}
