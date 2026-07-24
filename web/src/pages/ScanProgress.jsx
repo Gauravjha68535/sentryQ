@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { CheckCircle, XCircle, Loader2, FileText, PauseCircle } from 'lucide-react'
+import { CheckCircle, XCircle, Loader2, FileText, PauseCircle, Bell } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import { useConfirm } from '../components/ConfirmModal'
 import { useToast } from '../components/Toast'
@@ -16,14 +16,18 @@ export default function ScanProgress() {
     const terminalRef = useRef(null)
     const wsRef = useRef(null)
     const statusRef = useRef('connecting')
+    const [notifGranted, setNotifGranted] = useState(
+        typeof Notification !== 'undefined' && Notification.permission === 'granted'
+    )
     const confirm = useConfirm()
     const toast = useToast()
 
-    useEffect(() => {
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission()
-        }
-    }, [])
+    const requestNotifications = useCallback(async () => {
+        if (!('Notification' in window)) return
+        const perm = await Notification.requestPermission()
+        setNotifGranted(perm === 'granted')
+        if (perm === 'granted') toast.success('Desktop notifications enabled')
+    }, [toast])
 
     useEffect(() => {
         let reconnectTimer = null
@@ -145,6 +149,11 @@ export default function ScanProgress() {
                     <p>Scan ID: <code className="scan-id">{id}</code></p>
                 </div>
                 <div className="page-actions">
+                    {'Notification' in window && Notification.permission !== 'denied' && !notifGranted && (
+                        <button className="btn btn-secondary btn-sm" onClick={requestNotifications} title="Get a desktop notification when the scan finishes">
+                            <Bell size={14} /> Notify me
+                        </button>
+                    )}
                     {status === 'running' && (
                         <button className="btn" style={{ background: 'rgba(234,179,8,0.1)', color: '#eab308', border: '1px solid rgba(234,179,8,0.2)' }}
                             onClick={async () => { if (await apiPost('pause')) { statusRef.current = 'paused'; setStatus('paused') } }}>

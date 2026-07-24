@@ -33,6 +33,12 @@ func main() {
 	maxLow        := flag.Int("max-low", -1, "Fail if low findings exceed this count (-1 = no limit)")
 	maxTotal      := flag.Int("max-total", -1, "Fail if total findings exceed this count (-1 = no limit)")
 
+	// ── AI flags ──────────────────────────────────────────────────────────────
+	enableAI       := flag.Bool("enable-ai", false, "Enable AI-powered vulnerability discovery and validation")
+	enableEnsemble := flag.Bool("enable-ensemble", false, "Enable Ensemble Audit (3-phase: static → AI → judge merge; implies --enable-ai)")
+	aiModel        := flag.String("ai-model", "", "AI model to use for discovery/validation (default: auto-selected)")
+	judgeModel     := flag.String("judge-model", "", "Judge LLM model for Ensemble merge (default: same as --ai-model)")
+
 	// ── Incremental scan ──────────────────────────────────────────────────────
 	changedOnly   := flag.Bool("changed-only", false, "Scan only files changed since last git commit (uses git diff HEAD~1)")
 	baseBranch    := flag.String("base-branch", "main", "Base branch for incremental diff (used with --changed-only)")
@@ -174,9 +180,22 @@ func main() {
 			}
 		}
 
+		useEnsemble := *enableEnsemble
+		useAI := *enableAI || useEnsemble
+		model := *aiModel
+		if model == "" && useAI {
+			model = ai.GetDefaultModel()
+		}
+		jModel := *judgeModel
+		if jModel == "" {
+			jModel = model
+		}
 		cfg := WebScanConfig{
 			EnableDeepScan: true,
-			EnableAI:       false,
+			EnableAI:       useAI,
+			EnableEnsemble: useEnsemble,
+			AIModel:        model,
+			JudgeModel:     jModel,
 			OllamaHost:     ollamaHost,
 			ChangedFiles:   changedFiles,
 		}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlusCircle, Clock, CheckCircle, XCircle, Trash2, ScanSearch, Sun, Moon } from 'lucide-react'
+import { PlusCircle, Clock, CheckCircle, XCircle, Trash2, ScanSearch, Search } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SeverityBadge from '../components/SeverityBadge'
 import StatCard from '../components/StatCard'
@@ -10,21 +10,22 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { Line } from 'react-chartjs-2'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler)
 
+const STATUS_FILTERS = [
+    { id: 'all',       label: 'All' },
+    { id: 'running',   label: 'Running' },
+    { id: 'completed', label: 'Completed' },
+    { id: 'failed',    label: 'Failed' },
+]
+
 export default function Dashboard() {
     const [scans, setScans] = useState([])
     const [loading, setLoading] = useState(true)
     const [fetchError, setFetchError] = useState(false)
-    const [isLightMode, setIsLightMode] = useState(() => document.documentElement.getAttribute('data-theme') === 'light')
+    const [statusFilter, setStatusFilter] = useState('all')
+    const [search, setSearch] = useState('')
     const navigate = useNavigate()
     const toast = useToast()
     const confirm = useConfirm()
-
-    const toggleTheme = () => {
-        const newTheme = isLightMode ? 'dark' : 'light'
-        setIsLightMode(!isLightMode)
-        document.documentElement.setAttribute('data-theme', newTheme)
-        localStorage.setItem('theme', newTheme)
-    }
 
     const fetchScans = useCallback(async () => {
         try {
@@ -95,7 +96,12 @@ export default function Dashboard() {
     const policyBadge = (scan) => {
         try {
             const cfg = typeof scan.config === 'string' ? JSON.parse(scan.config) : (scan.config || {})
-            const hasPolicy = cfg.policyFailOn || (cfg.maxCritical >= 0 && cfg.maxCritical !== -1) || (cfg.maxHigh >= 0 && cfg.maxHigh !== -1) || (cfg.maxTotal >= 0 && cfg.maxTotal !== -1)
+            const hasPolicy = cfg.policyFailOn
+                || (cfg.maxCritical >= 0 && cfg.maxCritical !== -1)
+                || (cfg.maxHigh >= 0 && cfg.maxHigh !== -1)
+                || (cfg.maxMedium >= 0 && cfg.maxMedium !== -1)
+                || (cfg.maxLow >= 0 && cfg.maxLow !== -1)
+                || (cfg.maxTotal >= 0 && cfg.maxTotal !== -1)
             if (!hasPolicy) return null
             const violated = (
                 (cfg.maxCritical >= 0 && scan.critical_count > cfg.maxCritical) ||
@@ -108,17 +114,23 @@ export default function Dashboard() {
         } catch { return null }
     }
 
+    const visibleScans = useMemo(() => {
+        const q = search.toLowerCase()
+        return scans.filter(s => {
+            const matchStatus = statusFilter === 'all' || s.status === statusFilter
+            const matchSearch = !q || (s.target || '').toLowerCase().includes(q) || (s.id || '').toLowerCase().includes(q)
+            return matchStatus && matchSearch
+        })
+    }, [scans, statusFilter, search])
+
     return (
         <div className="animate-fade-in">
             <div className="page-header-row">
                 <div>
                     <h1>Dashboard</h1>
-                    <p>Welcome to SentryQ — your AI-powered code analysis platform</p>
+                    <p>AI-powered security scan history and findings overview</p>
                 </div>
                 <div className="page-actions">
-                    <button className="btn btn-secondary" onClick={toggleTheme} aria-label="Toggle Theme" title={isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode'} style={{ padding: '8px' }}>
-                        {isLightMode ? <Moon size={18} /> : <Sun size={18} />}
-                    </button>
                     <button className="btn btn-primary" onClick={() => navigate('/scan/new')}>
                         <PlusCircle size={18} /> New Scan
                     </button>
@@ -140,7 +152,7 @@ export default function Dashboard() {
 
             {trendData.labels.length >= 2 && (
                 <div className="card" style={{ marginBottom: '24px', padding: '20px' }}>
-                    <h3 className="chart-header">Findings Trend (Last 10 Scans)</h3>
+                    <h3 className="chart-header">Findings Trend (Last 10 Completed Scans)</h3>
                     <div style={{ height: '180px' }}>
                         <Line data={trendData} options={{
                             responsive: true, maintainAspectRatio: false,
@@ -153,6 +165,43 @@ export default function Dashboard() {
                     </div>
                 </div>
             )}
+
+            {/* Filter bar */}
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                    {STATUS_FILTERS.map(f => (
+                        <button
+                            key={f.id}
+                            onClick={() => setStatusFilter(f.id)}
+                            style={{
+                                padding: '6px 14px', borderRadius: 'var(--radius-md)', fontSize: '0.8rem',
+                                fontWeight: 600, border: '1px solid var(--border-primary)', cursor: 'pointer',
+                                background: statusFilter === f.id ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                                color: statusFilter === f.id ? '#fff' : 'var(--text-secondary)',
+                                transition: 'all var(--transition-fast)',
+                            }}
+                        >
+                            {f.label}
+                            {f.id !== 'all' && (
+                                <span style={{ marginLeft: '6px', fontSize: '0.72rem', opacity: 0.75 }}>
+                                    ({scans.filter(s => s.status === f.id).length})
+                                </span>
+                            )}
+                        </button>
+                    ))}
+                </div>
+                <div style={{ position: 'relative', flex: 1, minWidth: '180px' }}>
+                    <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                    <input
+                        className="input"
+                        type="text"
+                        placeholder="Search by target name or scan ID…"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        style={{ paddingLeft: '32px', height: '36px', fontSize: '0.82rem' }}
+                    />
+                </div>
+            </div>
 
             {loading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -167,9 +216,16 @@ export default function Dashboard() {
                         <PlusCircle size={18} /> Start First Scan
                     </button>
                 </div>
+            ) : visibleScans.length === 0 ? (
+                <div className="card text-center" style={{ padding: '40px' }}>
+                    <p style={{ color: 'var(--text-muted)' }}>No scans match the current filter.</p>
+                    <button className="btn btn-secondary btn-sm" style={{ marginTop: '12px' }} onClick={() => { setStatusFilter('all'); setSearch('') }}>
+                        Clear filters
+                    </button>
+                </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {scans.map(scan => (
+                    {visibleScans.map(scan => (
                         <motion.div
                             key={scan.id}
                             className="card"
@@ -178,8 +234,8 @@ export default function Dashboard() {
                             onClick={() => navigate(scan.status === 'completed' ? `/scan/${scan.id}/report` : `/scan/${scan.id}`)}
                         >
                             {statusIcon(scan.status)}
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: '4px' }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {scan.target || 'Unnamed Scan'}
                                 </div>
                                 <div className="scan-meta">
@@ -187,7 +243,7 @@ export default function Dashboard() {
                                     <span>{new Date(scan.created_at).toLocaleString()}</span>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
                                 {scan.status === 'completed' && (
                                     <>
                                         {scan.critical_count > 0 && <SeverityBadge severity="critical" />}
@@ -201,8 +257,11 @@ export default function Dashboard() {
                                 {scan.status === 'running' && (
                                     <span style={{ fontSize: '0.78rem', color: 'var(--status-running)', fontWeight: 600 }}>Scanning...</span>
                                 )}
+                                {scan.status === 'failed' && (
+                                    <span style={{ fontSize: '0.78rem', color: 'var(--status-failed)', fontWeight: 600 }}>Failed</span>
+                                )}
                             </div>
-                            <button className="btn btn-danger btn-sm" onClick={(e) => deleteScan(scan.id, e)} style={{ padding: '6px 8px' }}>
+                            <button className="btn btn-danger btn-sm" onClick={(e) => deleteScan(scan.id, e)} style={{ padding: '6px 8px', flexShrink: 0 }}>
                                 <Trash2 size={14} />
                             </button>
                         </motion.div>

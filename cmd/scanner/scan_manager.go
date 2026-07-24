@@ -55,6 +55,8 @@ type WebScanConfig struct {
 	MaxHigh int `json:"maxHigh"`
 	// MaxMedium is the maximum number of medium findings allowed (-1 = no limit).
 	MaxMedium int `json:"maxMedium"`
+	// MaxLow is the maximum number of low findings allowed (-1 = no limit).
+	MaxLow int `json:"maxLow"`
 	// MaxTotal is the maximum total findings allowed (-1 = no limit).
 	MaxTotal int `json:"maxTotal"`
 	// WebhookURLs is a comma-separated list of webhook endpoint URLs to notify on scan completion.
@@ -270,7 +272,12 @@ func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 
 	displayName := filepath.Base(targetDir)
 
-	if err := CreateScan(scanID, displayName, "upload", configJSON); err != nil {
+	// Strip secrets (e.g. PRToken) before persisting the config JSON to the DB.
+	safeConfig, err := json.Marshal(sanitizeConfigForStorage(webCfg))
+	if err != nil {
+		return "", fmt.Errorf("failed to serialize sanitized config: %v", err)
+	}
+	if err := CreateScan(scanID, displayName, "upload", string(safeConfig)); err != nil {
 		return "", fmt.Errorf("failed to create scan record: %v", err)
 	}
 
@@ -331,6 +338,14 @@ func forceRemoveAll(path string) {
 			utils.LogWarn(fmt.Sprintf("forceRemoveAll: failed to remove %s after attrib retry: %v", path, retryErr))
 		}
 	}
+}
+
+// sanitizeConfigForStorage returns a copy of cfg with secrets zeroed out so
+// they are never written to the SQLite database. Credentials should be passed
+// server-side via environment variables (SENTRYQ_PR_TOKEN), not persisted.
+func sanitizeConfigForStorage(cfg WebScanConfig) WebScanConfig {
+	cfg.PRToken = ""
+	return cfg
 }
 
 // credentialPattern matches embedded credentials in any scheme URL:
@@ -413,7 +428,13 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 		displayName = repoURL
 	}
 
-	if err := CreateScan(scanID, displayName, "git", configJSON); err != nil {
+	// Strip secrets before persisting config to the DB.
+	safeConfig, err := json.Marshal(sanitizeConfigForStorage(webCfg))
+	if err != nil {
+		os.RemoveAll(tmpDir)
+		return "", fmt.Errorf("failed to serialize sanitized config: %v", err)
+	}
+	if err := CreateScan(scanID, displayName, "git", string(safeConfig)); err != nil {
 		os.RemoveAll(tmpDir) // don't leak the temp dir if we never start the goroutine
 		return "", fmt.Errorf("failed to create scan record: %v", err)
 	}

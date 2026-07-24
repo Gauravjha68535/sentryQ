@@ -59,7 +59,7 @@ export default function CompliancePage() {
     const [scans, setScans] = useState([])
 
     useEffect(() => {
-        fetch('/api/scans').then(r => r.ok ? r.json() : Promise.reject()).then(d => setScans(d.scans || d || [])).catch(() => {})
+        fetch('/api/scans').then(r => r.ok ? r.json() : Promise.reject()).then(d => setScans(d || [])).catch(() => {})
     }, [])
 
     useEffect(() => { if (paramID) load(paramID, framework) }, [])

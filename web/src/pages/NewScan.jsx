@@ -59,10 +59,18 @@ export default function NewScan() {
             const isCustom = config.aiProvider === 'openai'
             const host = explicitHost || (isCustom ? config.customApiUrl : config.ollamaHost)
             if (!host) { setLoadingModels(false); return }
+            // API key goes in the Authorization header — never in a URL query param
+            // (URLs appear in server logs, browser history, and proxy logs).
+            // If the key is the masked sentinel "***" from settings, omit it and
+            // let the backend use the stored key via its own settings.
+            const fetchOpts = { ...(signal ? { signal } : {}) }
             const url = isCustom
-                ? `/api/custom-endpoint/models?${new URLSearchParams({ url: host, api_key: config.customApiKey || '' })}`
+                ? `/api/custom-endpoint/models?${new URLSearchParams({ url: host })}`
                 : `/api/models?host=${encodeURIComponent(host)}`
-            const res = await fetch(url, signal ? { signal } : {})
+            if (isCustom && config.customApiKey && config.customApiKey !== '***') {
+                fetchOpts.headers = { Authorization: `Bearer ${config.customApiKey}` }
+            }
+            const res = await fetch(url, fetchOpts)
             if (res.ok) {
                 const data = await res.json()
                 const models = data.models || []
@@ -322,20 +330,22 @@ export default function NewScan() {
                         <p className="form-hint">CycloneDX SBOM (<code>sbom.cdx.json</code>) is generated automatically for every scan.</p>
                     </CollapsibleSection>
 
-                    <CollapsibleSection title="Incremental Scan" icon={<GitMerge size={15} />} open={incrOpen} onToggle={() => setIncrOpen(o => !o)}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <input type="checkbox" className="checkbox-custom" checked={config.incrementalScan} onChange={() => setCfg({ incrementalScan: !config.incrementalScan })} />
-                            <div>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Scan only changed files (git diff)</div>
-                                <p className="form-hint" style={{ marginTop: '2px' }}>Restricts analysis to files changed relative to the base branch</p>
+                    {tab === 'git' && (
+                        <CollapsibleSection title="Incremental Scan" icon={<GitMerge size={15} />} open={incrOpen} onToggle={() => setIncrOpen(o => !o)}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <input type="checkbox" className="checkbox-custom" checked={config.incrementalScan} onChange={() => setCfg({ incrementalScan: !config.incrementalScan })} />
+                                <div>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Scan only changed files (git diff)</div>
+                                    <p className="form-hint" style={{ marginTop: '2px' }}>Restricts analysis to files changed relative to the base branch</p>
+                                </div>
                             </div>
-                        </div>
-                        {config.incrementalScan && (
-                            <FormField label="Base Branch" hint="The branch to diff against when computing changed files">
-                                <input className="input" type="text" value={config.baseBranch} onChange={e => setCfg({ baseBranch: e.target.value })} placeholder="main" />
-                            </FormField>
-                        )}
-                    </CollapsibleSection>
+                            {config.incrementalScan && (
+                                <FormField label="Base Branch" hint="The branch to diff against when computing changed files">
+                                    <input className="input" type="text" value={config.baseBranch} onChange={e => setCfg({ baseBranch: e.target.value })} placeholder="main" />
+                                </FormField>
+                            )}
+                        </CollapsibleSection>
+                    )}
 
                     <div className="always-on-box">
                         <div className="always-on-header"><Lock size={12} /> Always Active</div>

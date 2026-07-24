@@ -234,13 +234,3 @@
   remediation: 'Never use the Host header to construct application URLs. Use a hardcoded base URL from server-side configuration. In Django: use ALLOWED_HOSTS and Sites framework.'
   cwe: CWE-601
   owasp: A01:2021
-- id: e2e-test-rule
-  languages:
-    - python
-  patterns:
-    - regex: test_pattern
-  severity: low
-  description: E2E test rule
-  remediation: ""
-  cwe: ""
-  owasp: ""

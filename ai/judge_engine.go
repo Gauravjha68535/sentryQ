@@ -39,7 +39,12 @@ type JudgeVerdictItem struct {
 	SimplifiedName string `json:"simplified_name,omitempty"`
 }
 
-const maxJudgeBatchSize = 5 // Small batches prevent remote LLM timeouts with reasoning models
+// maxJudgeBatchSize caps how many findings go to one Judge LLM call.
+// Cross-batch deduplication is impossible, so keep this large enough that
+// duplicates from static and AI scanners land in the same batch.
+// 30 is a good balance: fits within the context window of any modern model
+// while keeping single-call latency acceptable.
+const maxJudgeBatchSize = 30
 
 // JudgeFindings takes two independent reports (static and AI) and uses a Judge LLM
 // to deduplicate, remove false positives, and merge them into one master report.

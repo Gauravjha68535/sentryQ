@@ -42,7 +42,7 @@ export default function ScanDiff() {
     useEffect(() => {
         fetch('/api/scans')
             .then(r => r.ok ? r.json() : Promise.reject())
-            .then(d => setScans(d.scans || d || []))
+            .then(d => setScans(d || []))
             .catch(() => {})
     }, [])
 
