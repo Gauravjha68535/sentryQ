@@ -99,9 +99,10 @@ var scanRateLimiter = &ipRateLimiter{requests: make(map[string][]time.Time)}
 var reportRateLimiter = &ipRateLimiter{requests: make(map[string][]time.Time)}
 
 func init() {
-	// Background cleanup every 5 minutes to prevent unbounded memory growth
+	// Cleanup every 90 seconds — must be less than the 2-minute window so stale
+	// entries don't accumulate between ticks.
 	go func() {
-		ticker := time.NewTicker(5 * time.Minute)
+		ticker := time.NewTicker(90 * time.Second)
 		defer ticker.Stop()
 		for range ticker.C {
 			scanRateLimiter.cleanup(2 * time.Minute)
@@ -1015,21 +1016,7 @@ func handleWebSocketRoute(w http.ResponseWriter, r *http.Request) {
 
 func handleSettings(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
-		var s struct {
-			AIProvider    string `json:"ai_provider"`
-			DefaultModel  string `json:"default_model"`
-			OllamaHost    string `json:"ollama_host"`
-			LMStudioHost  string `json:"lmstudio_host"`
-			LMStudioModel string `json:"lmstudio_model"`
-			CustomAPIURL  string `json:"custom_api_url"`
-			CustomAPIKey  string `json:"custom_api_key"`
-			CustomModel   string `json:"custom_model"`
-			ClaudeAPIKey  string `json:"claude_api_key"`
-			ClaudeModel   string `json:"claude_model"`
-			GeminiAPIKey  string `json:"gemini_api_key"`
-			GeminiModel   string `json:"gemini_model"`
-			WebhookURLs   string `json:"webhook_urls"`
-		}
+		var s settingsData
 		if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
 			http.Error(w, "Invalid body", http.StatusBadRequest)
 			return
@@ -1167,6 +1154,7 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpJSON(w, http.StatusOK, map[string]interface{}{
+		"version":     reporter.Version,
 		"ollama":      ollamaStatus,
 		"ollama_host": host,
 		"go_version":  goVersion,

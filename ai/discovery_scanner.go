@@ -1,7 +1,6 @@
 package ai
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -150,17 +149,14 @@ func buildProjectContext(targetDir string, filesToScan []string) string {
 // maxFileSize is the maximum file size (in bytes) to send to AI (avoid overloading context)
 const maxFileSize = 150000
 
-// ollamaMu guards ollamaAPIURL and ollamaBaseURL against concurrent access
-// from multiple simultaneous scans each potentially using a different Ollama host.
+// ollamaMu guards ollamaBaseURL against concurrent access from multiple
+// simultaneous scans each potentially using a different Ollama host.
 var ollamaMu sync.RWMutex
 
-// ollamaAPIURL is the Ollama REST API endpoint (configurable for remote hosts)
-var ollamaAPIURL = "http://localhost:11434/api/generate"
-
-// ollamaBaseURL stores the base URL without the /api/generate path
+// ollamaBaseURL stores the Ollama base URL (without path suffix)
 var ollamaBaseURL = "http://localhost:11434"
 
-// SetOllamaHost configures the Ollama API endpoint to use a specific host:port.
+// SetOllamaHost configures the Ollama base URL to use a specific host:port.
 func SetOllamaHost(hostPort string) {
 	if hostPort == "" {
 		return
@@ -168,7 +164,6 @@ func SetOllamaHost(hostPort string) {
 	ollamaMu.Lock()
 	defer ollamaMu.Unlock()
 	ollamaBaseURL = "http://" + hostPort
-	ollamaAPIURL = ollamaBaseURL + "/api/generate"
 }
 
 // GetOllamaBaseURL returns the current Ollama base URL (e.g. "http://192.168.1.42:11434")
@@ -191,37 +186,6 @@ type OllamaAPIRequest struct {
 type OllamaAPIResponse struct {
 	Response string `json:"response"`
 	Done     bool   `json:"done"`
-}
-
-// doOllamaRequest sends a POST to the Ollama generate API and returns the full
-// text response. It owns the response body lifecycle — the body is always closed
-// before returning, even if a panic occurs inside readOllamaResponse.
-func doOllamaRequest(ctx context.Context, reqJSON []byte) (string, error) {
-	ollamaMu.RLock()
-	apiURL := ollamaAPIURL
-	ollamaMu.RUnlock()
-
-	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, bytes.NewBuffer(reqJSON))
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := aiHTTPClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, readBodyErr := io.ReadAll(resp.Body)
-		if readBodyErr != nil {
-			return "", fmt.Errorf("ollama API error (status %d): <failed to read response body: %v>", resp.StatusCode, readBodyErr)
-		}
-		return "", fmt.Errorf("ollama API error (status %d): %s", resp.StatusCode, string(body))
-	}
-
-	return readOllamaResponse(resp.Body)
 }
 
 // readOllamaResponse reads an Ollama API response body, handling BOTH:
@@ -377,9 +341,6 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 		// Allow the AI to request related files (up to 1 deeper iteration)
 		maxAgenticLoops := 2
 		var aiError error
-		var reqCtx context.Context
-		var reqCancel context.CancelFunc
-
 		var jsonContent string
 		var outputStr string
 
@@ -387,16 +348,14 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 			if ctx.Err() != nil {
 				break
 			}
-			var fullText string
-			var readErr error
 
 			// Dispatch via unified generator
-			reqCtx, reqCancel = context.WithTimeout(ctx, 30*time.Minute)
-			fullText, readErr = Generate(reqCtx, GenerateOptions{
+			reqCtx, reqCancel := context.WithTimeout(ctx, 30*time.Minute)
+			fullText, readErr := Generate(reqCtx, GenerateOptions{
 				Model:       modelName,
 				Prompt:      prompt,
 				Temperature: 0.0,
-				NumPredict:  4096, // Matches original default for Ollama in this engine
+				NumPredict:  4096,
 				OllamaHost:  GetOllamaBaseURL(),
 			})
 			reqCancel()
