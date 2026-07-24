@@ -31,9 +31,9 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
 | **MITRE ATT&CK Enrichment** | Local technique mapping from CWE/issue keywords — no network calls |
 | **AI-Orchestrated Triage** | Supports **Ollama, OpenAI, Anthropic Claude, Google Gemini, and LM Studio**. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding. |
-| **Judge LLM with ID Validation** | Ensemble Judge deduplicates two reports; output coverage verified — missing finding IDs are logged and retained via catch-all |
+| **Judge LLM with ID Validation** | Ensemble Judge deduplicates two reports in batches of 30 (up from 5) so static and AI findings that describe the same vulnerability land in the same batch and get merged; output coverage verified — missing IDs retained via catch-all |
 | **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge (separate configurable models per phase) |
-| **CI Policy Engine** | `--fail-on critical`, `--max-critical N`, `--max-high N`, `--max-total N` — exit code 1 on violation; also configurable from the New Scan UI |
+| **CI Policy Engine** | `--fail-on critical`, `--max-critical N`, `--max-high N`, `--max-medium N`, `--max-low N`, `--max-total N` — exit code 1 on violation; also configurable from the New Scan UI |
 | **PR / MR Decoration** | Posts findings as GitHub PR review comments (inline) and GitLab MR notes; token + repo configured per-scan from UI or CLI |
 | **Webhook Notifications** | POST JSON payload to any URL on scan completion or policy violation; configure globally in Settings or per-scan in New Scan |
 | **Incremental Scan** | `--changed-only` (CLI) or toggle in UI — only scans files changed since the base branch |
@@ -145,8 +145,20 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → configure sca
 ### CLI / Headless Mode
 
 ```bash
-# Static scan of a local directory (no AI, fast)
+# Static scan of a local directory (pattern + AST + taint + secrets, no AI)
 ./sentryq /path/to/my-repo
+
+# AI-powered scan — adds Chain-of-Thought validation, discovery, and consolidation
+./sentryq --enable-ai /path/to/repo
+
+# Full Ensemble Audit — 3-phase pipeline: static → AI → Judge LLM merge
+./sentryq --enable-ensemble /path/to/repo
+
+# Ensemble with explicit models
+./sentryq --enable-ensemble \
+  --ai-model qwen2.5-coder:7b \
+  --judge-model llama3.1:8b \
+  /path/to/repo
 
 # Print version
 ./sentryq --version
@@ -160,7 +172,7 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → configure sca
 # CI: fail if any critical finding
 ./sentryq --fail-on critical /path/to/repo
 
-# CI: fail if more than 5 high findings
+# CI: fail if more than 5 high findings (also supports --max-medium, --max-low, --max-total)
 ./sentryq --max-high 5 /path/to/repo
 
 # Scan only files changed since main branch
@@ -214,7 +226,7 @@ Settings are stored at `~/.sentryq/settings.json` (owner-only, mode 0600). Confi
 | `enableMLFPReduction` | Enable FP history-based suppression using local feedback |
 | `customRulesDir` | Path to an additional directory of custom YAML rule files |
 | `policyFailOn` | Severity threshold that triggers policy failure (`critical`, `high`, `medium`, `low`) |
-| `maxCritical` / `maxHigh` / `maxMedium` / `maxTotal` | Maximum findings per severity before policy fails (-1 = no limit) |
+| `maxCritical` / `maxHigh` / `maxMedium` / `maxLow` / `maxTotal` | Maximum findings per severity before policy fails (-1 = no limit) |
 | `prProvider` / `prToken` / `prRepo` / `prNumber` | GitHub PR decoration config |
 | `webhookUrls` | Per-scan webhook override (comma-separated) |
 | `incrementalScan` / `baseBranch` | Restrict scan to files changed vs base branch |
@@ -275,7 +287,7 @@ SentryQ auto-loads all rules on startup and on every scan, filtered to the langu
 | **Multi-Phase Ensemble Storage** | All three ensemble phases (static / ai / final) are stored independently in SQLite and viewable separately in the ReportViewer |
 | **Git URL scanning** | Paste a public or private Git URL in the UI; SentryQ clones, scans, and cleans up automatically |
 | **Report auto-cleanup** | Generated report files (HTML, PDF, CSV, SARIF, SBOM, Compliance) are automatically deleted 48 hours after scan completion |
-| **Browser Notifications** | Desktop push notification fires on scan completion (requires browser permission) |
+| **Browser Notifications** | Desktop push notification on scan completion — opt-in via "Notify me" button on the scan progress page (no automatic permission prompt) |
 
 ---
 
@@ -330,10 +342,13 @@ jobs:
 ```yaml
       - name: Decorate PR with findings
         if: github.event_name == 'pull_request'
+        env:
+          # Pass token via env var — SentryQ reads SENTRYQ_PR_TOKEN and never
+          # writes it to the scan database, keeping the secret out of storage.
+          SENTRYQ_PR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           /tmp/sentryQ/sentryq \
             --pr-provider github \
-            --pr-token ${{ secrets.GITHUB_TOKEN }} \
             --pr-repo ${{ github.repository }} \
             --pr-number ${{ github.event.pull_request.number }} \
             --fail-on high \
