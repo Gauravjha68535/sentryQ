@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlusCircle, Clock, CheckCircle, XCircle, Trash2, ScanSearch, Search } from 'lucide-react'
+import { PlusCircle, Clock, CheckCircle, XCircle, Trash2, ScanSearch, Search, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SeverityBadge from '../components/SeverityBadge'
 import StatCard from '../components/StatCard'
@@ -23,7 +23,15 @@ export default function Dashboard() {
     const [fetchError, setFetchError] = useState(false)
     const [statusFilter, setStatusFilter] = useState('all')
     const [search, setSearch] = useState('')
+    const [isLightMode, setIsLightMode] = useState(() => document.documentElement.getAttribute('data-theme') === 'light')
     const navigate = useNavigate()
+
+    const toggleTheme = () => {
+        const next = isLightMode ? 'dark' : 'light'
+        setIsLightMode(!isLightMode)
+        document.documentElement.setAttribute('data-theme', next)
+        localStorage.setItem('theme', next)
+    }
     const toast = useToast()
     const confirm = useConfirm()
 
@@ -87,8 +95,24 @@ export default function Dashboard() {
         return {
             labels: completed.map(s => new Date(s.created_at).toLocaleDateString()),
             datasets: [
-                { label: 'Total Findings', data: completed.map(s => s.total_findings || 0), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.4, pointRadius: 4 },
-                { label: 'Critical + High', data: completed.map(s => (s.critical_count || 0) + (s.high_count || 0)), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)', fill: true, tension: 0.4, pointRadius: 4 },
+                {
+                    label: 'Total Findings',
+                    data: completed.map(s => s.total_findings || 0),
+                    borderColor: '#818cf8',
+                    backgroundColor: 'rgba(129,140,248,0.12)',
+                    fill: true, tension: 0.3,
+                    pointRadius: 4, pointBackgroundColor: '#818cf8', pointBorderWidth: 0,
+                    borderWidth: 2,
+                },
+                {
+                    label: 'Critical + High',
+                    data: completed.map(s => (s.critical_count || 0) + (s.high_count || 0)),
+                    borderColor: '#f87171',
+                    backgroundColor: 'rgba(248,113,113,0.1)',
+                    fill: true, tension: 0.3,
+                    pointRadius: 4, pointBackgroundColor: '#f87171', pointBorderWidth: 0,
+                    borderWidth: 2,
+                },
             ],
         }
     }, [scans])
@@ -131,6 +155,15 @@ export default function Dashboard() {
                     <p>AI-powered security scan history and findings overview</p>
                 </div>
                 <div className="page-actions">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={toggleTheme}
+                        aria-label="Toggle theme"
+                        title={isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+                        style={{ padding: '9px 12px' }}
+                    >
+                        {isLightMode ? <Moon size={16} /> : <Sun size={16} />}
+                    </button>
                     <button className="btn btn-primary" onClick={() => navigate('/scan/new')}>
                         <PlusCircle size={18} /> New Scan
                     </button>
@@ -152,14 +185,36 @@ export default function Dashboard() {
 
             {trendData.labels.length >= 2 && (
                 <div className="card" style={{ marginBottom: '24px', padding: '20px' }}>
-                    <h3 className="chart-header">Findings Trend (Last 10 Completed Scans)</h3>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '4px' }}>
+                        <h3 className="chart-header" style={{ margin: 0 }}>Findings Trend</h3>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>last {trendData.labels.length} completed scans</span>
+                    </div>
                     <div style={{ height: '180px' }}>
                         <Line data={trendData} options={{
                             responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { labels: { color: 'var(--text-secondary)', font: { size: 11 } } } },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#94a3b8',
+                                        font: { size: 11 },
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        boxWidth: 8,
+                                        padding: 20,
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: '#1a1d2e',
+                                    borderColor: 'rgba(255,255,255,0.08)',
+                                    borderWidth: 1,
+                                    titleColor: '#e8eaf0',
+                                    bodyColor: '#94a3b8',
+                                    padding: 10,
+                                },
+                            },
                             scales: {
-                                x: { ticks: { color: 'var(--text-muted)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                                y: { ticks: { color: 'var(--text-muted)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                                x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                                y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true },
                             },
                         }} />
                     </div>
