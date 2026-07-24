@@ -52,11 +52,11 @@
   --border-primary: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.12);
 
-  /* Radius — intentionally tight so UI reads as a tool, not a SaaS landing page */
-  --radius-sm: 3px;
-  --radius-md: 5px;
-  --radius-lg: 7px;
-  --radius-xl: 10px;
+  /* Radius — zero: strict rectangles everywhere */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 
   /* Shadow */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -575,7 +575,7 @@ pre {
   width: 20px;
   height: 20px;
   border: 2px solid var(--border-primary);
-  border-radius: 4px;
+  border-radius: 0;
   background: var(--bg-elevated);
   cursor: pointer;
   position: relative;
@@ -658,17 +658,11 @@ pre {
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
-  border-left: 3px solid var(--accent-primary);
   border-radius: var(--radius-lg);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: border-left-color var(--transition-fast);
-}
-
-.stat-card:hover {
-  border-left-color: var(--accent-primary-hover);
 }
 
 .stat-card-label {
@@ -771,14 +765,14 @@ tbody tr:last-child td {
   width: 100%;
   height: 8px;
   background: var(--bg-elevated);
-  border-radius: 4px;
+  border-radius: 0;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
   background: var(--accent-gradient);
-  border-radius: 4px;
+  border-radius: 0;
   transition: width var(--transition-slow);
 }
 
@@ -1046,7 +1040,7 @@ tbody tr:last-child td {
 .skeleton-text {
   height: 14px;
   margin-bottom: 8px;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 .skeleton-card {
@@ -1215,7 +1209,7 @@ tbody tr:last-child td {
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-radius: 10px;
+  border-radius: 0;
   transition: background var(--transition-fast);
 }
 
@@ -1228,7 +1222,7 @@ tbody tr:last-child td {
 .option-icon {
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1261,7 +1255,7 @@ tbody tr:last-child td {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 0;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1277,7 +1271,7 @@ tbody tr:last-child td {
 /* ── Info boxes ── */
 .info-box {
   padding: 12px 14px;
-  border-radius: 8px;
+  border-radius: 0;
   font-size: 0.72rem;
   color: var(--text-muted);
   line-height: 1.5;
@@ -1300,7 +1294,7 @@ tbody tr:last-child td {
 .ai-host-box {
   margin-top: 8px;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 0;
   background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.08) 100%);
   border: 2px solid rgba(99,102,241,0.25);
 }
@@ -1327,7 +1321,7 @@ tbody tr:last-child td {
   font-size: 0.82rem;
   background: var(--bg-elevated);
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 /* ── Provider tab group (Settings) ── */
@@ -1336,14 +1330,14 @@ tbody tr:last-child td {
   gap: 8px;
   background: var(--bg-tertiary);
   padding: 4px;
-  border-radius: 8px;
+  border-radius: 0;
   margin-bottom: 4px;
 }
 
 .provider-tab {
   flex: 1;
   padding: 8px 10px;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 0.82rem;
   font-weight: 600;
   border: none;
@@ -1394,7 +1388,7 @@ tbody tr:last-child td {
   padding: 8px 14px;
   background: rgba(99,102,241,0.1);
   border: 1px solid rgba(99,102,241,0.3);
-  border-radius: 8px;
+  border-radius: 0;
   flex-wrap: wrap;
 }
 
@@ -1515,7 +1509,7 @@ tbody tr:last-child td {
 .diff-col {
   flex: 1;
   background: var(--bg-card);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 16px;
   min-width: 0;
 }
@@ -1523,7 +1517,7 @@ tbody tr:last-child td {
 /* ── Finding card (diff) ── */
 .finding-card {
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--bg-secondary);
   margin-bottom: 6px;
 }
@@ -1572,7 +1566,7 @@ tbody tr:last-child td {
 
 .finding-code-block {
   padding: 14px;
-  border-radius: 8px;
+  border-radius: 0;
   font-size: 0.78rem;
   white-space: pre-wrap;
   word-break: break-word;
@@ -1604,7 +1598,7 @@ tbody tr:last-child td {
 .ai-reasoning-box {
   padding: 12px;
   background: rgba(99,102,241,0.05);
-  border-radius: 8px;
+  border-radius: 0;
   border-left: 3px solid #6366f1;
   margin-bottom: 16px;
 }
@@ -1656,20 +1650,20 @@ tbody tr:last-child td {
   width: 32px;
   height: 4px;
   background: rgba(255,255,255,0.1);
-  border-radius: 2px;
+  border-radius: 0;
   overflow: hidden;
 }
 
 .trust-bar-fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: 0;
 }
 
 /* ── Always-on info box ── */
 .always-on-box {
   margin-top: 8px;
   padding: 12px 14px;
-  border-radius: 8px;
+  border-radius: 0;
   background: rgba(34,197,94,0.06);
   border: 1px solid rgba(34,197,94,0.15);
   font-size: 0.72rem;
@@ -1699,7 +1693,7 @@ tbody tr:last-child td {
   margin-left: 10px;
   font-size: 0.75rem;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 0;
   color: #a5b4fc;
 }
 
@@ -1708,7 +1702,7 @@ tbody tr:last-child td {
   font-size: 0.82rem;
   background: var(--bg-elevated);
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 0;
   font-family: var(--font-mono);
 }
 
@@ -1717,7 +1711,7 @@ tbody tr:last-child td {
   font-size: 0.7rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 0;
   letter-spacing: 0.04em;
 }
 
@@ -1727,7 +1721,7 @@ tbody tr:last-child td {
 /* ── Collapsible section ── */
 .collapsible {
   border: 1px solid var(--border-primary);
-  border-radius: 10px;
+  border-radius: 0;
   overflow: hidden;
   margin-top: 12px;
 }
