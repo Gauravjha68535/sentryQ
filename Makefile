@@ -1,4 +1,4 @@
-.PHONY: all build build-windows clean test
+.PHONY: all build build-windows clean test test-cover
 
 # Default build target
 all: build
@@ -31,3 +31,8 @@ clean:
 # Run tests
 test:
 	go test ./...
+
+# Run tests with coverage report
+test-cover:
+	go test ./... -coverprofile=coverage.out -covermode=atomic
+	go tool cover -func=coverage.out
