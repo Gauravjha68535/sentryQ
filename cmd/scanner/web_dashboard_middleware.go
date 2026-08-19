@@ -4,6 +4,7 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"os/exec"
@@ -137,4 +138,45 @@ func openBrowser(url string) {
 	if err != nil {
 		utils.LogInfo(fmt.Sprintf("Open %s in your browser", url))
 	}
+}
+
+// rejectPrivateURL parses rawURL and rejects any host that resolves to a
+// private, loopback, or link-local IP. This prevents SSRF via crafted
+// ?url= parameters on the custom-endpoint and similar API handlers.
+func rejectPrivateURL(rawURL string) error {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("invalid URL: %w", err)
+	}
+	scheme := strings.ToLower(u.Scheme)
+	if scheme != "http" && scheme != "https" {
+		return fmt.Errorf("only http/https URLs are permitted")
+	}
+	host := u.Hostname()
+	if host == "" {
+		return fmt.Errorf("missing host")
+	}
+	addrs, err := net.LookupHost(host)
+	if err != nil {
+		// Treat unresolvable hosts as invalid to prevent DNS-rebinding bypass.
+		return fmt.Errorf("cannot resolve host %q: %w", host, err)
+	}
+	for _, addr := range addrs {
+		ip := net.ParseIP(addr)
+		if ip == nil {
+			continue
+		}
+		if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+			return fmt.Errorf("host %q resolves to a reserved address (%s)", host, addr)
+		}
+		// RFC1918 private ranges
+		privateRanges := []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "fc00::/7", "169.254.0.0/16"}
+		for _, cidr := range privateRanges {
+			_, block, _ := net.ParseCIDR(cidr)
+			if block != nil && block.Contains(ip) {
+				return fmt.Errorf("host %q resolves to a private address (%s)", host, addr)
+			}
+		}
+	}
+	return nil
 }

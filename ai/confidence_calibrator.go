@@ -60,10 +60,12 @@ func (c *ConfidenceCalibrator) LoadStats() {
 	}
 }
 
-// SaveStats saves current stats to disk
+// SaveStats saves current stats to disk.
+// Uses a full write lock — not RLock — because json.MarshalIndent reads c.stats
+// while other goroutines may be writing it via RecordValidation.
 func (c *ConfidenceCalibrator) SaveStats() {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	data, err := json.MarshalIndent(c.stats, "", "  ")
 	if err != nil {

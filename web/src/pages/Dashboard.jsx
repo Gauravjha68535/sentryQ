@@ -66,7 +66,7 @@ export default function Dashboard() {
             const res = await fetch(`/api/scan/${id}`, { method: 'DELETE' })
             if (!res.ok) throw new Error(`HTTP ${res.status}`)
             toast.success('Scan deleted')
-            fetchScans()
+            fetchScans(new AbortController().signal)
         } catch (err) {
             toast.error(`Failed to delete scan: ${err.message}`)
         }

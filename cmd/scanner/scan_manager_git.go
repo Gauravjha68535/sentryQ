@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"os/exec"
@@ -216,6 +217,33 @@ func isValidGitURL(rawURL string) bool {
 	if u.User != nil {
 		if _, hasPassword := u.User.Password(); hasPassword {
 			return false
+		}
+	}
+	// Block private/reserved IPs to prevent git-clone-based SSRF.
+	// Resolve the hostname and reject any result that falls in RFC1918,
+	// loopback, or link-local ranges.
+	host := u.Hostname()
+	if addrs, err := net.LookupHost(host); err == nil {
+		privateRanges := []string{
+			"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+			"127.0.0.0/8", "::1/128",
+			"169.254.0.0/16", "fe80::/10",
+			"fc00::/7",
+		}
+		for _, addr := range addrs {
+			ip := net.ParseIP(addr)
+			if ip == nil {
+				continue
+			}
+			if ip.IsLoopback() || ip.IsLinkLocalUnicast() {
+				return false
+			}
+			for _, cidr := range privateRanges {
+				_, block, parseErr := net.ParseCIDR(cidr)
+				if parseErr == nil && block.Contains(ip) {
+					return false
+				}
+			}
 		}
 	}
 	return true

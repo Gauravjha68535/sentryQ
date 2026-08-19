@@ -220,6 +220,13 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// validTriageStatuses is the closed set of allowed triage values.
+	// Enforced here to prevent garbage data from reaching the DB and corrupting
+	// report filtering, triage views, and the ML feedback system.
+	validTriageStatuses := map[string]bool{
+		"open": true, "resolved": true, "ignored": true, "false_positive": true,
+	}
+
 	// PATCH /api/scan/:id/finding/:findingId/status
 	if len(parts) >= 4 && parts[1] == "finding" && parts[3] == "status" && r.Method == http.MethodPatch {
 		findingID, err := strconv.Atoi(parts[2])
@@ -232,6 +239,10 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		if !validTriageStatuses[req.Status] {
+			httpJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid status: must be open, resolved, ignored, or false_positive"})
 			return
 		}
 		// Fetch finding before update so we have ruleID/filePath/severity for ML feedback.
@@ -255,6 +266,10 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		if !validTriageStatuses[req.Status] {
+			httpJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid status: must be open, resolved, ignored, or false_positive"})
 			return
 		}
 		var failed []int

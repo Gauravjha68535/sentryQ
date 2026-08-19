@@ -248,7 +248,10 @@ func downloadToTemp(url string) (string, error) {
 	}
 	defer tmp.Close()
 
-	if _, err := io.Copy(tmp, resp.Body); err != nil {
+	// Cap at 200 MB — no legitimate SentryQ binary will ever be larger.
+	// Without a limit, a compromised release URL can exhaust disk space.
+	const maxBinarySize = 200 << 20
+	if _, err := io.Copy(tmp, io.LimitReader(resp.Body, maxBinarySize)); err != nil {
 		os.Remove(tmp.Name())
 		return "", fmt.Errorf("download incomplete: %w", err)
 	}

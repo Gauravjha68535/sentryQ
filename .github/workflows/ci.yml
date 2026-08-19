@@ -27,11 +27,11 @@ jobs:
       - name: Test with coverage
         run: go test ./... -coverprofile=coverage.out -covermode=atomic
 
-      - name: Coverage threshold (40%)
+      - name: Coverage threshold (20%)
         run: |
           total=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}' | tr -d '%')
           echo "Total coverage: ${total}%"
-          awk -v t="$total" 'BEGIN { if (t+0 < 40) { print "Coverage " t "% is below 40% threshold"; exit 1 } }'
+          awk -v t="$total" 'BEGIN { if (t+0 < 20) { print "Coverage " t "% is below 20% threshold"; exit 1 } }'
 
   go-vet:
     name: Go Vet

@@ -66,13 +66,19 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 		judgeOllamaBaseURL = "http://" + judgeOllamaHost
 	}
 
-	// Build ID-indexed maps for both sets
+	// Build ID-indexed maps for both sets.
+	// inputOrder preserves insertion order for the catch-all loop below so that
+	// findings the LLM omitted from its verdict are appended deterministically.
+	// Map iteration is randomised in Go, so iterating findingByID directly would
+	// produce different output order on every run of an identical scan.
 	findingByID := make(map[int]reporter.Finding)
+	var inputOrder []int
 	var allJudge []JudgeFinding
 	idCounter := 1
 
 	for _, f := range staticFindings {
 		findingByID[idCounter] = f
+		inputOrder = append(inputOrder, idCounter)
 		allJudge = append(allJudge, JudgeFinding{
 			ID:          idCounter,
 			Source:      "static",
@@ -88,6 +94,7 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 
 	for _, f := range aiFindings {
 		findingByID[idCounter] = f
+		inputOrder = append(inputOrder, idCounter)
 		allJudge = append(allJudge, JudgeFinding{
 			ID:          idCounter,
 			Source:      "ai",
@@ -181,10 +188,11 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 		}
 	}
 
-	// Catch-all: any finding not mentioned in verdicts gets kept
-	for id, f := range findingByID {
+	// Catch-all: any finding not mentioned in verdicts gets kept.
+	// Iterate inputOrder (not the map) to guarantee deterministic output order.
+	for _, id := range inputOrder {
 		if !droppedIDs[id] && !mergedIDs[id] {
-			finalFindings = append(finalFindings, f)
+			finalFindings = append(finalFindings, findingByID[id])
 		}
 	}
 

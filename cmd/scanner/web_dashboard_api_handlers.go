@@ -255,7 +255,7 @@ func handleCustomEndpointModels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := r.URL.Query().Get("url")
+	rawURL := r.URL.Query().Get("url")
 	// Prefer the Authorization header to avoid exposing the key in URLs (which appear in
 	// server logs, browser history, and proxy logs). Fall back to the query param for
 	// backward compatibility with older frontend versions.
@@ -264,7 +264,7 @@ func handleCustomEndpointModels(w http.ResponseWriter, r *http.Request) {
 		apiKey = r.URL.Query().Get("api_key")
 	}
 
-	if url == "" {
+	if rawURL == "" {
 		httpJSON(w, http.StatusOK, map[string]interface{}{
 			"models": []string{},
 			"error":  "URL parameter is required",
@@ -272,7 +272,14 @@ func handleCustomEndpointModels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models, err := ai.ListOpenAIModels(url, apiKey)
+	// SSRF guard: reject private/reserved IP ranges so this endpoint cannot
+	// be used to probe cloud metadata (169.254.x.x) or internal services.
+	if err := rejectPrivateURL(rawURL); err != nil {
+		http.Error(w, "Invalid URL: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	models, err := ai.ListOpenAIModels(rawURL, apiKey)
 	if err != nil {
 		httpJSON(w, http.StatusOK, map[string]interface{}{
 			"models": []string{},
