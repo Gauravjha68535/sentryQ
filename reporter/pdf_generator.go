@@ -127,7 +127,7 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 	pdf.Ln(10)
 
 	// ——— Table of Contents ———
-	reachable, unreachable, falsePositives := SplitFindingsThreeWay(findings)
+	reachable, lowPriority, falsePositives := SplitFindingsThreeWay(findings)
 
 	pdf.AddPage()
 	addPortraitHeader(pdf, "Table of Contents")
@@ -137,8 +137,8 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 		{"Executive Summary", 0},
 		{"Detailed Findings", len(reachable)},
 	}
-	if len(unreachable) > 0 {
-		tocEntries = append(tocEntries, struct{ label string; count int }{"Low-Confidence / Unreachable Findings", len(unreachable)})
+	if len(lowPriority) > 0 {
+		tocEntries = append(tocEntries, struct{ label string; count int }{"Low-Confidence / Unreachable Findings", len(lowPriority)})
 	}
 	if len(falsePositives) > 0 {
 		tocEntries = append(tocEntries, struct{ label string; count int }{"Manual Review — Potential False Positives", len(falsePositives)})
@@ -177,7 +177,7 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 	}
 
 	// ——— Low-Confidence / Unreachable Findings ———
-	if len(unreachable) > 0 {
+	if len(lowPriority) > 0 {
 		pdf.AddPage()
 		addPortraitHeader(pdf, "Low-Confidence / Unreachable Findings")
 		pdf.SetFont("Helvetica", "I", 9)
@@ -185,7 +185,7 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 		pdf.MultiCell(0, 5, "The following findings are in test files or have low trust scores. Review manually before dismissing.", "", "L", false)
 		pdf.Ln(4)
 
-		for _, f := range unreachable {
+		for _, f := range lowPriority {
 			drawFindingDetail(pdf, f)
 		}
 	}

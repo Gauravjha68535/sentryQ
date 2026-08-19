@@ -35,26 +35,27 @@ export default function Dashboard() {
     const toast = useToast()
     const confirm = useConfirm()
 
-    const fetchScans = useCallback(async () => {
+    const fetchScans = useCallback(async (signal) => {
         try {
-            const res = await fetch('/api/scans')
+            const res = await fetch('/api/scans', signal ? { signal } : undefined)
             if (res.ok) {
                 setScans(await res.json() || [])
                 setFetchError(false)
             } else {
                 setFetchError(true)
             }
-        } catch {
-            setFetchError(true)
+        } catch (e) {
+            if (e.name !== 'AbortError') setFetchError(true)
         } finally {
             setLoading(false)
         }
     }, [])
 
     useEffect(() => {
-        fetchScans()
-        const interval = setInterval(fetchScans, 5000)
-        return () => clearInterval(interval)
+        const ac = new AbortController()
+        fetchScans(ac.signal)
+        const interval = setInterval(() => fetchScans(ac.signal), 5000)
+        return () => { ac.abort(); clearInterval(interval) }
     }, [fetchScans])
 
     const deleteScan = async (id, e) => {

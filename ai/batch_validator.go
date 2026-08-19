@@ -19,6 +19,11 @@ import (
 func ValidateFindingsBatch(ctx context.Context, modelName string, findings []reporter.Finding, fileContents map[string]string, logCallback ...func(msg string, level string)) []reporter.Finding {
 	totalToValidate := countCriticalHighMedium(findings)
 
+	// printConsole is true only when running in CLI mode (no web UI callback).
+	// In web mode the callback already streams progress to the browser; printing
+	// ANSI-decorated text to stdout would just pollute server logs.
+	printConsole := len(logCallback) == 0 || logCallback[0] == nil
+
 	uiLog := func(msg, level string) {
 		if len(logCallback) > 0 && logCallback[0] != nil {
 			logCallback[0](msg, level)
@@ -26,10 +31,12 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 	}
 	calibrator := NewConfidenceCalibrator()
 
-	headerColor := color.New(color.FgCyan, color.Bold)
-	headerColor.Println("\n┌─ 🤖 AI Validation Engine")
-	headerColor.Println("└────────────────────────────────────────")
-	fmt.Println()
+	if printConsole {
+		headerColor := color.New(color.FgCyan, color.Bold)
+		headerColor.Println("\n┌─ 🤖 AI Validation Engine")
+		headerColor.Println("└────────────────────────────────────────")
+		fmt.Println()
+	}
 
 	if len(findings) == 0 {
 		return findings
@@ -37,7 +44,9 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 
 	uiLog(fmt.Sprintf("Starting AI validation with model: %s", modelName), "info")
 	uiLog(fmt.Sprintf("Validating %d findings (Critical/High/Medium only)", totalToValidate), "info")
-	fmt.Println()
+	if printConsole {
+		fmt.Println()
+	}
 
 	startTime := time.Now()
 
@@ -94,19 +103,21 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 		displayPath := filepath.Join(filepath.Base(filepath.Dir(f.FilePath)), shortFile)
 
 		uiLog(fmt.Sprintf("Validating [%d/%d] %s => %s (%s)", validated, totalToValidate, displayPath, f.IssueName, etaStr), "info")
-		fmt.Printf("\r\033[K")
-		color.New(color.FgHiBlue).Printf("  [%s elapsed | %s] (%d/%d) ", formatDuration(elapsed), etaStr, validated, totalToValidate)
-		color.New(color.FgHiCyan).Printf("📄 %s ", displayPath)
-		fmt.Printf("L%s ", f.LineNumber)
-		switch f.Severity {
-		case "critical":
-			color.New(color.FgRed, color.Bold).Printf("[CRIT] ")
-		case "high":
-			color.New(color.FgHiRed).Printf("[HIGH] ")
-		case "medium":
-			color.New(color.FgYellow).Printf("[MED]  ")
+		if printConsole {
+			fmt.Printf("\r\033[K")
+			color.New(color.FgHiBlue).Printf("  [%s elapsed | %s] (%d/%d) ", formatDuration(elapsed), etaStr, validated, totalToValidate)
+			color.New(color.FgHiCyan).Printf("📄 %s ", displayPath)
+			fmt.Printf("L%s ", f.LineNumber)
+			switch f.Severity {
+			case "critical":
+				color.New(color.FgRed, color.Bold).Printf("[CRIT] ")
+			case "high":
+				color.New(color.FgHiRed).Printf("[HIGH] ")
+			case "medium":
+				color.New(color.FgYellow).Printf("[MED]  ")
+			}
+			fmt.Printf("%s\n", f.IssueName)
 		}
-		fmt.Printf("%s\n", f.IssueName)
 
 		// Build related file context (up to 2 files mentioned in ExploitPath/Description)
 		relatedFilesContext := ""
@@ -139,9 +150,11 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 			f.AiValidated = "Error"
 			errorsCount++
 			consecutiveErrors++
-			color.Red("         ⚠ Error: AI validation failed")
-			if consecutiveErrors >= maxConsecutiveErrors {
-				color.Yellow("         ⚠ Circuit breaker triggered: skipping remaining AI validations")
+			if printConsole {
+				color.Red("         ⚠ Error: AI validation failed")
+				if consecutiveErrors >= maxConsecutiveErrors {
+					color.Yellow("         ⚠ Circuit breaker triggered: skipping remaining AI validations")
+				}
 			}
 		} else {
 			consecutiveErrors = 0
@@ -165,7 +178,9 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 				f.Confidence = result.Confidence
 				truePositives++
 				uiLog(fmt.Sprintf("  ✓ Confirmed (%s) %.0f%% confidence", f.IssueName, result.Confidence*100), "success")
-				color.New(color.FgGreen).Printf("         ✓ Confirmed (%.0f%% confidence)\n", result.Confidence*100)
+				if printConsole {
+					color.New(color.FgGreen).Printf("         ✓ Confirmed (%.0f%% confidence)\n", result.Confidence*100)
+				}
 			} else {
 				f.AiValidated = "No (False Positive)"
 				f.Description = fmt.Sprintf("AI determined this is a false positive: %s", result.Explanation)
@@ -174,7 +189,9 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 				f.OWASP = ""
 				falsePositives++
 				uiLog(fmt.Sprintf("  ○ Filtered FP (%s) %.0f%% confidence", f.IssueName, result.Confidence*100), "warning")
-				color.New(color.FgHiBlack).Printf("         ○ Filtered (False Positive) [%.0f%% confidence]\n", result.Confidence*100)
+				if printConsole {
+					color.New(color.FgHiBlack).Printf("         ○ Filtered (False Positive) [%.0f%% confidence]\n", result.Confidence*100)
+				}
 			}
 			calibrator.RecordValidation(f.Severity, result.IsTruePositive)
 			calibrator.SaveStats()
@@ -182,24 +199,27 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 		finalFindings = append(finalFindings, f)
 	}
 
-	// Summary
-	totalTime := time.Since(startTime)
-	fmt.Println()
-	headerColor.Println("┌─ 📊 AI Validation Summary")
-	headerColor.Println("└────────────────────────────────────────")
-	fmt.Printf("  ⏱  Total Time:       %s\n", formatDuration(totalTime))
-	if validated > 0 {
-		avgPerFinding := totalTime / time.Duration(validated)
-		fmt.Printf("  ⚡ Avg per Finding:   %s\n", formatDuration(avgPerFinding))
+	// Summary — CLI only
+	if printConsole {
+		totalTime := time.Since(startTime)
+		summaryColor := color.New(color.FgCyan, color.Bold)
+		fmt.Println()
+		summaryColor.Println("┌─ 📊 AI Validation Summary")
+		summaryColor.Println("└────────────────────────────────────────")
+		fmt.Printf("  ⏱  Total Time:       %s\n", formatDuration(totalTime))
+		if validated > 0 {
+			avgPerFinding := totalTime / time.Duration(validated)
+			fmt.Printf("  ⚡ Avg per Finding:   %s\n", formatDuration(avgPerFinding))
+		}
+		color.New(color.FgGreen).Printf("  ✓  True Positives:   %d\n", truePositives)
+		color.New(color.FgHiBlack).Printf("  ✗  False Positives:  %d\n", falsePositives)
+		if errorsCount > 0 {
+			color.Red("  ⚠  Errors:           %d\n", errorsCount)
+		}
+		fmt.Printf("  ⏭  Skipped (Low):    %d\n", skipped)
+		fmt.Printf("  📋 Total Processed:  %d\n", validated+skipped)
+		fmt.Println()
 	}
-	color.New(color.FgGreen).Printf("  ✓  True Positives:   %d\n", truePositives)
-	color.New(color.FgHiBlack).Printf("  ✗  False Positives:  %d\n", falsePositives)
-	if errorsCount > 0 {
-		color.Red("  ⚠  Errors:           %d\n", errorsCount)
-	}
-	fmt.Printf("  ⏭  Skipped (Low):    %d\n", skipped)
-	fmt.Printf("  📋 Total Processed:  %d\n", validated+skipped)
-	fmt.Println()
 
 	// Apply confidence calibration
 	finalFindings = calibrator.ApplyCalibrationToFindings(finalFindings)

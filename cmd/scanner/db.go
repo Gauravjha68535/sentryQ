@@ -138,8 +138,9 @@ var migrations = []migration{
 		CREATE INDEX IF NOT EXISTS idx_findings_scan_id ON findings(scan_id);
 		CREATE INDEX IF NOT EXISTS idx_findings_phase ON findings(scan_id, phase);
 	`},
-	// v2 — future schema changes go here, e.g.:
-	// {2, `ALTER TABLE scans ADD COLUMN risk_score REAL DEFAULT 0`},
+	// v2 — promote triage status to a dedicated column so UpdateFindingStatus
+	// no longer needs a full JSON round-trip (read→unmarshal→update→marshal→write).
+	{2, `ALTER TABLE findings ADD COLUMN status TEXT NOT NULL DEFAULT 'open'`},
 }
 
 // runMigrations creates the schema_migrations tracking table if needed,
@@ -249,7 +250,8 @@ func SaveFindingsWithPhase(scanID string, findings []reporter.Finding, phase str
 		return rollback(err)
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO findings (scan_id, data, phase) VALUES (?, ?, ?)")
+	// Include the status column so UpdateFindingStatus can skip the JSON roundtrip.
+	stmt, err := tx.Prepare("INSERT INTO findings (scan_id, data, phase, status) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return rollback(err)
 	}
@@ -261,7 +263,11 @@ func SaveFindingsWithPhase(scanID string, findings []reporter.Finding, phase str
 			utils.LogError(fmt.Sprintf("Failed to marshal finding '%s' for scan %s — skipping", f.IssueName, scanID), err)
 			continue
 		}
-		if _, err := stmt.Exec(scanID, string(data), phase); err != nil {
+		status := f.Status
+		if status == "" {
+			status = "open"
+		}
+		if _, err := stmt.Exec(scanID, string(data), phase, status); err != nil {
 			utils.LogError(fmt.Sprintf("Failed to insert finding for scan %s", scanID), err)
 			return rollback(err)
 		}
@@ -316,12 +322,12 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 
 	if phase == "" || phase == "final" {
 		// Default: return final findings, or all findings if no final phase exists
-		rows, err = db.Query("SELECT id, data FROM findings WHERE scan_id = ? AND phase = 'final'", scanID)
+		rows, err = db.Query("SELECT id, data, status FROM findings WHERE scan_id = ? AND phase = 'final'", scanID)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		rows, err = db.Query("SELECT id, data FROM findings WHERE scan_id = ? AND phase = ?", scanID, phase)
+		rows, err = db.Query("SELECT id, data, status FROM findings WHERE scan_id = ? AND phase = ?", scanID, phase)
 		if err != nil {
 			return nil, err
 		}
@@ -331,8 +337,8 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 	var findings []reporter.Finding
 	for rows.Next() {
 		var id int64
-		var data string
-		if err := rows.Scan(&id, &data); err != nil {
+		var data, colStatus string
+		if err := rows.Scan(&id, &data, &colStatus); err != nil {
 			utils.LogError(fmt.Sprintf("Failed to scan finding row for scan %s", scanID), err)
 			continue
 		}
@@ -348,6 +354,11 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 			continue
 		}
 		f.ID = int(id)
+		// Column value wins: it reflects the latest triage action without
+		// requiring a full JSON round-trip on every UpdateFindingStatus call.
+		if colStatus != "" {
+			f.Status = colStatus
+		}
 		findings = append(findings, f)
 	}
 	if err := rows.Err(); err != nil {
@@ -376,7 +387,7 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 
 // getAllFindingsForScan retrieves ALL findings regardless of phase
 func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
-	rows, err := db.Query("SELECT id, data FROM findings WHERE scan_id = ?", scanID)
+	rows, err := db.Query("SELECT id, data, status FROM findings WHERE scan_id = ?", scanID)
 	if err != nil {
 		return nil, err
 	}
@@ -385,8 +396,8 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 	var findings []reporter.Finding
 	for rows.Next() {
 		var id int64
-		var data string
-		if err := rows.Scan(&id, &data); err != nil {
+		var data, colStatus string
+		if err := rows.Scan(&id, &data, &colStatus); err != nil {
 			utils.LogError(fmt.Sprintf("Failed to scan finding row for scan %s", scanID), err)
 			continue
 		}
@@ -402,6 +413,9 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 			continue
 		}
 		f.ID = int(id)
+		if colStatus != "" {
+			f.Status = colStatus
+		}
 		findings = append(findings, f)
 	}
 	if err := rows.Err(); err != nil {
@@ -410,37 +424,17 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 	return findings, nil
 }
 
-// UpdateFindingStatus updates the triage status of a specific finding
+// UpdateFindingStatus updates the triage status of a specific finding.
+// Uses the dedicated status column — no JSON round-trip required.
 func UpdateFindingStatus(scanID string, id int, status string) error {
-	// 1. Get current finding data
-	row := db.QueryRow("SELECT data FROM findings WHERE id = ? AND scan_id = ?", id, scanID)
-	var data string
-	err := row.Scan(&data)
-	if err != nil {
-		return err
-	}
-
-	// 2. Unmarshal, update status, marshal back
-	var f reporter.Finding
-	if err := json.Unmarshal([]byte(data), &f); err != nil {
-		return err
-	}
-	f.Status = status
-
-	newData, err := json.Marshal(f)
-	if err != nil {
-		return err
-	}
-
-	// 3. Update in DB
-	_, err = db.Exec("UPDATE findings SET data = ? WHERE id = ? AND scan_id = ?", string(newData), id, scanID)
+	_, err := db.Exec("UPDATE findings SET status = ? WHERE id = ? AND scan_id = ?", status, id, scanID)
 	return err
 }
 
 // GetFindingByID fetches a single finding by its DB primary key within a scan.
 func GetFindingByID(scanID string, id int) (reporter.Finding, error) {
-	var data string
-	err := db.QueryRow("SELECT data FROM findings WHERE id = ? AND scan_id = ?", id, scanID).Scan(&data)
+	var data, colStatus string
+	err := db.QueryRow("SELECT data, status FROM findings WHERE id = ? AND scan_id = ?", id, scanID).Scan(&data, &colStatus)
 	if err != nil {
 		return reporter.Finding{}, err
 	}
@@ -449,6 +443,9 @@ func GetFindingByID(scanID string, id int) (reporter.Finding, error) {
 		return reporter.Finding{}, err
 	}
 	f.ID = id
+	if colStatus != "" {
+		f.Status = colStatus
+	}
 	return f, nil
 }
 

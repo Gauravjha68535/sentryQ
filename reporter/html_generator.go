@@ -93,7 +93,7 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		},
 	}).Parse(htmlTemplate))
 
-	reachable, unreachable, falsePositives := SplitFindingsThreeWay(findings)
+	reachable, lowPriority, falsePositives := SplitFindingsThreeWay(findings)
 
 	data := struct {
 		Findings       []Finding
@@ -106,7 +106,7 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		OWASPCounts    []KVCount
 	}{
 		Findings:       reachable,
-		Unreachable:    unreachable,
+		Unreachable:    lowPriority,
 		FalsePositives: falsePositives,
 		Summary:        summary,
 		RiskScore:      CalculateRiskScore(findings),
@@ -125,9 +125,10 @@ type KVCount struct {
 }
 
 // owaspRe extracts the canonical AXX:YYYY or AXX:YYYY-Category form from any OWASP string.
-// It deliberately stops at the first sentence-ending punctuation so AI reasoning text
-// that leaks into this field (e.g. "A03:2021-Injection**? No. Wait...") is truncated.
-var owaspRe = regexp.MustCompile(`(A\d{2}:\d{4})([-\s]+[A-Za-z][A-Za-z\s/()]{0,50})?`)
+// Hyphens are intentionally allowed inside the category name so that multi-word names like
+// "Server-Side Request Forgery" are captured in full. The {0,60} cap plus the TrimRight in
+// NormalizeOWASP together prevent AI reasoning bleed-through.
+var owaspRe = regexp.MustCompile(`(A\d{2}:\d{4})([-\s]+[A-Za-z][A-Za-z0-9\s/()\-]{0,60})?`)
 
 // cweRe extracts just the CWE-NNN identifier from any CWE string.
 var cweRe = regexp.MustCompile(`CWE-\d+`)

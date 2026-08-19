@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -82,6 +84,16 @@ func RunUpdate() {
 		os.Exit(1)
 	}
 
+	// Look for a matching SHA256 checksum asset (e.g. sentryq-linux-amd64.sha256)
+	checksumAssetName := assetName + ".sha256"
+	var checksumURL string
+	for _, asset := range release.Assets {
+		if asset.Name == checksumAssetName {
+			checksumURL = asset.BrowserDownloadURL
+			break
+		}
+	}
+
 	fmt.Printf("Downloading %s...\n", downloadURL)
 	tmpFile, err := downloadToTemp(downloadURL)
 	if err != nil {
@@ -89,6 +101,27 @@ func RunUpdate() {
 		os.Exit(1)
 	}
 	defer os.Remove(tmpFile)
+
+	// Verify SHA256 if a checksum asset was published alongside the binary.
+	// Fail hard — a missing match means either corruption or tampering.
+	if checksumURL != "" {
+		fmt.Println("Verifying SHA256 checksum...")
+		expectedHash, err := fetchChecksumFile(checksumURL)
+		if err != nil {
+			os.Remove(tmpFile)
+			fmt.Fprintf(os.Stderr, "Failed to fetch checksum file: %v\n", err)
+			os.Exit(1)
+		}
+		if err := verifyChecksum(tmpFile, expectedHash); err != nil {
+			os.Remove(tmpFile)
+			fmt.Fprintf(os.Stderr, "Checksum verification FAILED: %v\n", err)
+			fmt.Fprintf(os.Stderr, "The downloaded binary has been removed. Do not retry automatically.\n")
+			os.Exit(1)
+		}
+		fmt.Println("Checksum OK.")
+	} else {
+		fmt.Println("⚠  No checksum asset found for this release — skipping verification.")
+	}
 
 	// Back up existing binary
 	backupPath := execPath + ".bak"
@@ -150,6 +183,51 @@ func buildAssetName() string {
 		name += ".exe"
 	}
 	return name
+}
+
+// fetchChecksumFile downloads a .sha256 file and returns the hex digest.
+// The file is expected to be either just a 64-char hex string, or in the
+// standard `sha256sum` format: "<hex>  <filename>".
+func fetchChecksumFile(url string) (string, error) {
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	raw, err := io.ReadAll(io.LimitReader(resp.Body, 256))
+	if err != nil {
+		return "", err
+	}
+	// Handle both "<hex>" and "<hex>  <filename>" formats
+	line := strings.TrimSpace(string(raw))
+	parts := strings.Fields(line)
+	if len(parts) == 0 {
+		return "", fmt.Errorf("empty checksum file")
+	}
+	hash := parts[0]
+	if len(hash) != 64 {
+		return "", fmt.Errorf("unexpected checksum format (got %d chars, want 64)", len(hash))
+	}
+	return strings.ToLower(hash), nil
+}
+
+// verifyChecksum computes the SHA256 of filePath and compares it to expectedHex.
+func verifyChecksum(filePath, expectedHex string) error {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return err
+	}
+	actual := hex.EncodeToString(h.Sum(nil))
+	if actual != expectedHex {
+		return fmt.Errorf("expected %s, got %s", expectedHex, actual)
+	}
+	return nil
 }
 
 func downloadToTemp(url string) (string, error) {

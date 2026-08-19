@@ -31,7 +31,7 @@ func WriteCSV(filename string, findings []Finding) error {
 		return err
 	}
 
-	reachable, unreachable, falsePositives := SplitFindingsThreeWay(findings)
+	reachable, lowPriority, falsePositives := SplitFindingsThreeWay(findings)
 
 	// Write reachable findings
 	for _, f := range reachable {
@@ -40,8 +40,8 @@ func WriteCSV(filename string, findings []Finding) error {
 		}
 	}
 
-	// Write unreachable findings (optional, but keep them separate)
-	if len(unreachable) > 0 {
+	// Write lowPriority findings (optional, but keep them separate)
+	if len(lowPriority) > 0 {
 		blankRow := make([]string, len(header))
 		if err := writer.Write(blankRow); err != nil {
 			return err
@@ -55,7 +55,7 @@ func WriteCSV(filename string, findings []Finding) error {
 			return err
 		}
 
-		for _, f := range unreachable {
+		for _, f := range lowPriority {
 			if err := writer.Write(findingToRow(f)); err != nil {
 				return err
 			}

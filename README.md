@@ -45,7 +45,6 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 | **Rule Builder UI** | In-browser YAML rule editor with live regex test pane. Edit and create custom rules without leaving the dashboard |
 | **Trust Score & Priority Matrix** | Per-finding composite Trust Score (0–100) + P0–P3 remediation priority tiers in all reports |
 | **FP History Cache** | User triage decisions feed a local history file (`~/.sentryq/ml-cache/`). Findings whose per-rule FP rate exceeds a threshold are suppressed on future scans. Frequency-based — not a trained model. |
-| **Multi-User RBAC** | Set `SENTRYQ_MULTI_USER=1` to enable login, user management (admin/analyst/viewer roles), session tokens. Admin panel in Settings. |
 | **Auto-Update** | `./sentryq update` checks GitHub for a newer release and replaces the binary in-place (old binary saved as `sentryq.bak`) |
 | **Multi-Format Reports** | SARIF, HTML, PDF (go-pdf/fpdf), CSV, CycloneDX SBOM, OWASP/PCI compliance HTML — auto-generated per scan, served for 48 hours then auto-cleaned |
 
@@ -196,7 +195,6 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → configure sca
 | `SENTRYQ_GEMINI_API_KEY` | Inject Google Gemini API key | `SENTRYQ_GEMINI_API_KEY=AIza... ./sentryq` |
 | `SENTRYQ_BIND` | Set listening interface (defaults to 127.0.0.1 for security) | `SENTRYQ_BIND=0.0.0.0 ./sentryq` |
 | `SENTRYQ_AUTH_TOKEN` | Enable single-token API authentication & CSRF protection | `SENTRYQ_AUTH_TOKEN=mysecret ./sentryq` |
-| `SENTRYQ_MULTI_USER` | Enable multi-user RBAC mode (admin/analyst/viewer) | `SENTRYQ_MULTI_USER=1 ./sentryq` |
 | `SENTRYQ_WEBHOOK_URLS` | Comma-separated webhook URLs for scan completion notifications | `SENTRYQ_WEBHOOK_URLS=https://...` |
 | `SENTRYQ_PR_TOKEN` | Inject GitHub/GitLab token for PR decoration without writing to disk | `SENTRYQ_PR_TOKEN=ghp_...` |
 
@@ -323,18 +321,25 @@ jobs:
         with:
           go-version: '1.25'
 
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y gcc
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
       - name: Build SentryQ
-        run: |
-          git clone https://github.com/Gauravjha68535/sentryQ.git /tmp/sentryQ
-          cd /tmp/sentryQ && sh build.sh
+        run: chmod +x build.sh && ./build.sh
 
       - name: Run SentryQ headless scan (fail on critical)
-        run: /tmp/sentryQ/sentryq --fail-on critical ./
+        run: ./dist/sentryq --fail-on critical ./
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: /tmp/sentryQ/report.sarif
+          sarif_file: report.sarif
 ```
 
 ### PR Decoration (GitHub)
@@ -347,7 +352,7 @@ jobs:
           # writes it to the scan database, keeping the secret out of storage.
           SENTRYQ_PR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          /tmp/sentryQ/sentryq \
+          ./dist/sentryq \
             --pr-provider github \
             --pr-repo ${{ github.repository }} \
             --pr-number ${{ github.event.pull_request.number }} \

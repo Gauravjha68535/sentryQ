@@ -4,28 +4,28 @@ import "strings"
 
 // Finding represents a detected vulnerability
 type Finding struct {
-	ID          int      `json:"db_id"` // Internal database ID
-	SrNo        int      `json:"sr_no"`
-	IssueName   string   `json:"issue_name"`
-	FilePath    string   `json:"file_path"`
-	Description string   `json:"description"`
-	Severity    string   `json:"severity"`
-	LineNumber  string   `json:"line_number"`
-	AiValidated string   `json:"ai_validated"`
-	Remediation string   `json:"remediation"`
-	RuleID      string   `json:"rule_id"`
-	Source      string   `json:"source"`       // "custom", "semgrep", "ai-discovery", "taint-analyzer", "ast", "secret"
-	CWE         string   `json:"cwe"`          // CWE ID (e.g., "CWE-79")
-	OWASP       string   `json:"owasp"`        // OWASP category (e.g., "A03:2021")
-	Confidence  float64  `json:"confidence"`   // 0.0-1.0 confidence score
-	CodeSnippet string   `json:"code_snippet"` // Source code around the vulnerable line
-	AiReasoning string   `json:"ai_reasoning"` // AI's detailed reasoning for the finding
-	ExploitPath []string `json:"exploit_path"` // Step-by-step data flow path (for taint)
-	TrustScore  float64  `json:"trust_score"`  // Multi-engine confidence score (0-100)
-	ExploitPoC         string   `json:"exploit_poc"`          // AI-generated proof of concept exploit
-	FixedCode          string   `json:"fixed_code"`           // AI-generated fixed code snippet
-	VulnerablePattern  string   `json:"vulnerable_pattern"`   // Short exact code fragment the AI flagged; used to anchor snippet to real line
-	Status      string   `json:"status"`       // Triage status: "open", "resolved", "ignored", "false_positive"
+	ID                int      `json:"db_id"`             // Internal database ID
+	SrNo              int      `json:"sr_no"`
+	IssueName         string   `json:"issue_name"`
+	FilePath          string   `json:"file_path"`
+	Description       string   `json:"description"`
+	Severity          string   `json:"severity"`
+	LineNumber        string   `json:"line_number"`
+	AiValidated       string   `json:"ai_validated"`
+	Remediation       string   `json:"remediation"`
+	RuleID            string   `json:"rule_id"`
+	Source            string   `json:"source"`            // "custom", "semgrep", "ai-discovery", "taint-analyzer", "ast", "secret"
+	CWE               string   `json:"cwe"`               // CWE ID (e.g., "CWE-79")
+	OWASP             string   `json:"owasp"`             // OWASP category (e.g., "A03:2021")
+	Confidence        float64  `json:"confidence"`        // 0.0-1.0 confidence score
+	CodeSnippet       string   `json:"code_snippet"`      // Source code around the vulnerable line
+	AiReasoning       string   `json:"ai_reasoning"`      // AI's detailed reasoning for the finding
+	ExploitPath       []string `json:"exploit_path"`      // Step-by-step data flow path (for taint)
+	TrustScore        float64  `json:"trust_score"`       // Multi-engine confidence score (0-100)
+	ExploitPoC        string   `json:"exploit_poc"`       // AI-generated proof of concept exploit
+	FixedCode         string   `json:"fixed_code"`        // AI-generated fixed code snippet
+	VulnerablePattern string   `json:"vulnerable_pattern"` // Exact code fragment used to anchor the snippet to the real line
+	Status            string   `json:"status"`            // Triage status: "open", "resolved", "ignored", "false_positive"
 }
 
 // IsFalsePositive returns true only when the AI validator EXPLICITLY marked this
@@ -37,9 +37,9 @@ func (f Finding) IsFalsePositive() bool {
 	return strings.Contains(lower, "false positive")
 }
 
-// IsUnreachable returns true if the finding is in a test file or has very low confidence
-func (f Finding) IsUnreachable() bool {
-	// Normalize to forward slashes so checks work on Windows paths too
+// IsInTestFile returns true if the finding lives in a test/mock/fixture file.
+// These findings are lower priority but may still be valid (e.g. test infra with real secrets).
+func (f Finding) IsInTestFile() bool {
 	lowerPath := strings.ToLower(strings.ReplaceAll(f.FilePath, "\\", "/"))
 	testIndicators := []string{"_test.", ".test.", ".spec.", "/test/", "/tests/", "/__tests__/", "/mock/", "/fixture/", "testdata/"}
 	for _, indicator := range testIndicators {
@@ -47,17 +47,30 @@ func (f Finding) IsUnreachable() bool {
 			return true
 		}
 	}
-	// Also mark as unreachable if trust score is very low (likely noise)
-	return f.TrustScore < 20 && f.TrustScore > 0
+	return false
 }
 
-// SplitFindingsThreeWay separates findings into reachable, unreachable, and false positives
-func SplitFindingsThreeWay(findings []Finding) (reachable, unreachable, falsePositives []Finding) {
+// IsLowConfidence returns true if the finding has a non-zero but very low trust score,
+// indicating the scanner flagged it speculatively with little corroborating evidence.
+func (f Finding) IsLowConfidence() bool {
+	return f.TrustScore > 0 && f.TrustScore < 20
+}
+
+// IsLowPriority returns true for findings that are deprioritised in reports —
+// either located in test/mock files or carrying a very low trust score.
+// Callers that previously used IsUnreachable should migrate to this method.
+func (f Finding) IsLowPriority() bool {
+	return f.IsInTestFile() || f.IsLowConfidence()
+}
+
+// SplitFindingsThreeWay separates findings into reachable, low-priority, and false positives.
+// "low-priority" covers test-file findings and very-low-confidence noise.
+func SplitFindingsThreeWay(findings []Finding) (reachable, lowPriority, falsePositives []Finding) {
 	for _, f := range findings {
 		if f.IsFalsePositive() {
 			falsePositives = append(falsePositives, f)
-		} else if f.IsUnreachable() {
-			unreachable = append(unreachable, f)
+		} else if f.IsLowPriority() {
+			lowPriority = append(lowPriority, f)
 		} else {
 			reachable = append(reachable, f)
 		}

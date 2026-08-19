@@ -67,7 +67,7 @@ func TestIsFalsePositive(t *testing.T) {
 	}
 }
 
-func TestIsUnreachable(t *testing.T) {
+func TestIsLowPriority(t *testing.T) {
 	cases := []struct {
 		filePath   string
 		trustScore float64
@@ -76,13 +76,13 @@ func TestIsUnreachable(t *testing.T) {
 		{"app/handler_test.go", 0, true},
 		{"src/__tests__/helper.js", 0, true},
 		{"app/handler.go", 0, false},
-		{"app/handler.go", 10.0, true},  // low trust score
+		{"app/handler.go", 10.0, true},  // low trust score → low priority
 		{"app/handler.go", 50.0, false}, // normal trust score
 	}
 	for _, c := range cases {
 		f := Finding{FilePath: c.filePath, TrustScore: c.trustScore}
-		if got := f.IsUnreachable(); got != c.want {
-			t.Errorf("IsUnreachable({path:%q, trust:%.0f}) = %v, want %v", c.filePath, c.trustScore, got, c.want)
+		if got := f.IsLowPriority(); got != c.want {
+			t.Errorf("IsLowPriority({path:%q, trust:%.0f}) = %v, want %v", c.filePath, c.trustScore, got, c.want)
 		}
 	}
 }
@@ -93,12 +93,12 @@ func TestSplitFindingsThreeWay(t *testing.T) {
 		{FilePath: "main_test.go", AiValidated: "Yes"},
 		{FilePath: "main.go", AiValidated: "No (False Positive - Safe Pattern)"},
 	}
-	reachable, unreachable, fps := SplitFindingsThreeWay(findings)
+	reachable, lowPriority, fps := SplitFindingsThreeWay(findings)
 	if len(reachable) != 1 {
 		t.Errorf("reachable: got %d, want 1", len(reachable))
 	}
-	if len(unreachable) != 1 {
-		t.Errorf("unreachable: got %d, want 1", len(unreachable))
+	if len(lowPriority) != 1 {
+		t.Errorf("lowPriority: got %d, want 1", len(lowPriority))
 	}
 	if len(fps) != 1 {
 		t.Errorf("falsePositives: got %d, want 1", len(fps))

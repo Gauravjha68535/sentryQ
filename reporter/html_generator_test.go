@@ -14,6 +14,7 @@ func TestNormalizeOWASP(t *testing.T) {
 		{"A03:2021", "A03:2021"},
 		{"OWASP A01 Broken Access Control", "N/A"},
 		{"A10:2021", "A10:2021"},
+		{"A10:2021 - Server-Side Request Forgery", "A10:2021-Server-Side Request Forgery"},
 	}
 	for _, tt := range tests {
 		got := NormalizeOWASP(tt.input)
