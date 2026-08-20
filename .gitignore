@@ -59,3 +59,6 @@ backend_logs.txt
 .kilocode/
 coverage.out
 dist/
+double_results.txt
+long_words.txt
+long_words.txt
