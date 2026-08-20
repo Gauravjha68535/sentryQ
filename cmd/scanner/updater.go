@@ -120,7 +120,12 @@ func RunUpdate() {
 		}
 		fmt.Println("Checksum OK.")
 	} else {
-		fmt.Println("⚠  No checksum asset found for this release — skipping verification.")
+		// A self-updating security scanner that silently executes unverified binaries is a
+		// supply chain attack surface. Refuse to proceed without a checksum.
+		os.Remove(tmpFile)
+		fmt.Fprintf(os.Stderr, "Update aborted: no %s checksum asset published in release v%s.\n", checksumAssetName, latestTag)
+		fmt.Fprintf(os.Stderr, "Build from source instead: git pull && ./build.sh\n")
+		os.Exit(1)
 	}
 
 	// Back up existing binary

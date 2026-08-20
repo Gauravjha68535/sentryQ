@@ -379,8 +379,10 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		var validatedStatic []reporter.Finding
 		var validatedAI []reporter.Finding
 		for _, f := range validatedFindings {
-			if f.AiValidated == "No (False Positive)" || f.AiValidated == "Error" {
-				// Drop findings explicitly rejected by AI or that had a validation API error
+			if f.AiValidated == "No (False Positive)" {
+				// Drop findings explicitly rejected by AI as false positives.
+				// "Error" findings are NOT dropped — a flaky API connection should
+				// degrade accuracy, not silently delete real vulnerabilities.
 				continue
 			}
 			if strings.Contains(f.Source, "ai") {

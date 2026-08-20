@@ -209,8 +209,9 @@ func shouldSuppress(f reporter.Finding, fileContent string) bool {
 			"v-text=", ":textcontent",
 			// Angular — {{ }} interpolation is safe; [innerHTML] is unsafe
 			"[textcontent]", "domhandler",
-			// Python
-			"markupsafe.escape(", "markup(", "escape(", "bleach.clean(",
+			// Python — "escape(" matches "unescape(userInput)" which is the opposite
+			// of safe. Use qualified names only; bare "escape(" is too broad.
+			"markupsafe.escape(", "markup(", "bleach.clean(",
 			"django.utils.html", "jinja2.escape(", "htmlescape(",
 			"flask.escape(", "cgi.escape(", "html.escape(",
 			// PHP
@@ -524,9 +525,22 @@ func shouldSuppress(f reporter.Finding, fileContent string) bool {
 
 	// ─────────────────────────────────────────────────────────────────────────
 	case "INPUT_VALIDATION":
-		// Suppress generic "env var used" false positives
-		if strings.Contains(exactLine, "process.env.") || strings.Contains(exactLine, "os.environ") ||
-			strings.Contains(exactLine, "os.getenv(") || strings.Contains(exactLine, "env[") {
+		// Only suppress env-var findings when the env var is clearly being assigned
+		// to a variable — NOT when it appears in a URL construction, exec call, or
+		// other dangerous sink. process.env.PORT used in a URL is exactly the class
+		// of CWE-20 violation we're supposed to find.
+		lower := strings.ToLower(exactLine)
+		isEnvAssignment := (strings.Contains(exactLine, "process.env.") ||
+			strings.Contains(exactLine, "os.environ") ||
+			strings.Contains(exactLine, "os.getenv(") ||
+			strings.Contains(exactLine, "env[")) &&
+			!strings.ContainsAny(lower, "\"'`+") && // no string concatenation
+			!strings.Contains(lower, "url") &&
+			!strings.Contains(lower, "exec") &&
+			!strings.Contains(lower, "eval") &&
+			!strings.Contains(lower, "popen") &&
+			!strings.Contains(lower, "spawn")
+		if isEnvAssignment {
 			return true
 		}
 

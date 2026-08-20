@@ -92,6 +92,13 @@ func FireWebhooks(urls []string, scanID, target, status string, findings []repor
 		if rawURL == "" {
 			continue
 		}
+		// SSRF guard: rejectPrivateURL exists in this package — use it.
+		// Per-scan webhookUrls come from scan config (user-supplied input) so
+		// they must be validated even though settings-level URLs are admin-controlled.
+		if err := rejectPrivateURL(rawURL); err != nil {
+			utils.LogWarn(fmt.Sprintf("webhook: blocked %s — %v", rawURL, err))
+			continue
+		}
 		wg.Add(1)
 		go func(url string) {
 			defer wg.Done()

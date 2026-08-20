@@ -74,6 +74,15 @@ func main() {
 		port = 5336
 	}
 
+	// ── Version / banner — check BEFORE printing anything else ─────────────
+	// Previously the Ollama URL was printed before the version string, breaking
+	// scripted version checks that parse stdout (e.g. grep, awk, version parsers).
+	if *versionFlag {
+		fmt.Println(getVersion())
+		return
+	}
+	utils.PrintBanner()
+
 	// ── Ollama host ───────────────────────────────────────────────────────────
 	ollamaHost := *ollamaPtr
 	if ollamaHost == "" {
@@ -85,13 +94,6 @@ func main() {
 	} else {
 		fmt.Println("🔗 Ollama: localhost:11434")
 	}
-
-	// ── Version / banner ─────────────────────────────────────────────────────
-	if *versionFlag {
-		fmt.Println(getVersion())
-		return
-	}
-	utils.PrintBanner()
 
 	// ── Subcommands ───────────────────────────────────────────────────────────
 	if flag.NArg() > 0 {
@@ -139,6 +141,20 @@ func main() {
 		}
 		defer CloseDB()
 		loadSettings()
+
+		// Apply API key env vars that loadSettings() may have missed when
+		// there is no settings.json yet (first run or CI environment).
+		// Without this, SENTRYQ_CLAUDE_API_KEY is parsed but ai.SetClaudeConfig
+		// is never called, so the scanner silently falls back to Ollama.
+		if k := os.Getenv("SENTRYQ_CLAUDE_API_KEY"); k != "" {
+			ai.SetClaudeConfig(k, os.Getenv("SENTRYQ_CLAUDE_MODEL"))
+		}
+		if k := os.Getenv("SENTRYQ_GEMINI_API_KEY"); k != "" {
+			ai.SetGeminiConfig(k, os.Getenv("SENTRYQ_GEMINI_MODEL"))
+		}
+		if k := os.Getenv("SENTRYQ_CUSTOM_API_KEY"); k != "" {
+			ai.SetCustomEndpoint(os.Getenv("SENTRYQ_CUSTOM_API_URL"), k, os.Getenv("SENTRYQ_CUSTOM_MODEL"))
+		}
 
 		// Build policy config from flags
 		policy := PolicyConfig{

@@ -812,7 +812,14 @@ func (aa *ASTAnalyzer) BuildReachabilityCache(ctx context.Context, targetDir str
 			}
 
 			parser := aa.parsers[lang]
+			// tree-sitter parsers are not thread-safe. AnalyzeFile correctly holds
+			// parserMu[lang] before every ParseCtx call; BuildReachabilityCache
+			// was missing the same lock, causing silent data corruption or crashes
+			// under -race when two scans run concurrently.
+			mu := aa.parserMu[lang]
+			mu.Lock()
 			tree, err := parser.ParseCtx(ctx, nil, content)
+			mu.Unlock()
 			if err != nil || tree == nil {
 				return nil
 			}

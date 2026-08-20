@@ -9,10 +9,14 @@ import { useToast } from '../components/Toast'
 const defaultConfig = {
     enableDeepScan: false, enableAI: false, enableEnsemble: false,
     aiModel: '', ollamaHost: 'localhost:11434',
+    // aiProvider must be in defaultConfig — if settings fetch fails it was
+    // undefined, making the isCustom check always false and the model list
+    // always show Ollama even when the user configured OpenAI/Claude/Gemini.
+    aiProvider: 'ollama',
     consolidationModel: '', consolidationOllamaHost: '',
     judgeModel: '', judgeOllamaHost: '',
     enableMLFPReduction: false, customRulesDir: '',
-    policyFailOn: '', maxCritical: -1, maxHigh: -1, maxMedium: -1, maxTotal: -1,
+    policyFailOn: '', maxCritical: -1, maxHigh: -1, maxMedium: -1, maxLow: -1, maxTotal: -1,
     prProvider: '', prToken: '', prRepo: '', prNumber: 0, mrIid: 0,
     webhookUrls: '', incrementalScan: false, baseBranch: 'main',
 }

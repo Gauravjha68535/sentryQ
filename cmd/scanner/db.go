@@ -426,9 +426,21 @@ func getAllFindingsForScan(scanID string) ([]reporter.Finding, error) {
 
 // UpdateFindingStatus updates the triage status of a specific finding.
 // Uses the dedicated status column — no JSON round-trip required.
+// Returns sql.ErrNoRows when no finding matched (scan_id mismatch or bad id),
+// which the HTTP handler maps to 404 so callers can detect cross-scan ID attempts.
 func UpdateFindingStatus(scanID string, id int, status string) error {
-	_, err := db.Exec("UPDATE findings SET status = ? WHERE id = ? AND scan_id = ?", status, id, scanID)
-	return err
+	res, err := db.Exec("UPDATE findings SET status = ? WHERE id = ? AND scan_id = ?", status, id, scanID)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("finding %d not found in scan %s", id, scanID)
+	}
+	return nil
 }
 
 // GetFindingByID fetches a single finding by its DB primary key within a scan.

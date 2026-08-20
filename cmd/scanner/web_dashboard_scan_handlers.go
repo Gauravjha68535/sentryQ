@@ -248,7 +248,9 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		// Fetch finding before update so we have ruleID/filePath/severity for ML feedback.
 		finding, fetchErr := GetFindingByID(scanID, findingID)
 		if err := UpdateFindingStatus(scanID, findingID, req.Status); err != nil {
-			httpJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			// UpdateFindingStatus returns an error when 0 rows matched — this means
+			// the finding ID does not belong to this scan (cross-scan ID attempt).
+			httpJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
 			return
 		}
 		if fetchErr == nil {
@@ -372,7 +374,13 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 					archive := zip.NewWriter(zipFile)
 					defer archive.Close()
 
-					filesToZip := []string{"report.html", "report.csv", "report.pdf", "report.sarif", "sbom.cdx.json", "compliance-owasp.html", "compliance-pci.json"}
+					// compliance-nist.json is generated on-demand; pre-generate it here
+				// so the "download all" bundle is complete.
+				if nistFindings, nistErr := GetFindingsForScan(scanID); nistErr == nil {
+					nistPath := filepath.Join(reportsDir, "compliance-nist.json")
+					reporter.GenerateComplianceReport(nistPath, scanID, nistFindings, reporter.FrameworkNIST800) //nolint:errcheck
+				}
+				filesToZip := []string{"report.html", "report.csv", "report.pdf", "report.sarif", "sbom.cdx.json", "compliance-owasp.html", "compliance-pci.json", "compliance-nist.json"}
 					for _, fileName := range filesToZip {
 						filePathToZip := filepath.Join(reportsDir, fileName)
 						if _, err := os.Stat(filePathToZip); os.IsNotExist(err) {
