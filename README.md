@@ -22,7 +22,7 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 
 | Feature | Details |
 | :--- | :--- |
-| **Multi-Engine SAST** | 10,586+ rules across 106 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (18 languages) + taint tracking (11 languages) |
+| **Multi-Engine SAST** | 10,586+ rules across 106 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (8 languages with active analysis) + taint tracking (11 languages) |
 | **Cross-File Taint Tracking** | Project-wide function-signature index built before scanning so taint sources exported from one file are recognised when imported by another. _Scope: signature-level propagation, not a full data-flow graph._ |
 | **Negative Pattern Suppression** | Per-rule `negative_patterns` teach the engine about sanitizers and safe API variants; any match within a ±10-line context window auto-suppresses the finding |
 | **Low-Confidence Severity Capping** | Rules with `confidence < 0.3` are automatically capped to `info` severity so speculative rules never pollute critical/high queues |
@@ -58,7 +58,7 @@ Source Code
     ├──► Pattern Engine       (10,586+ regex rules, 71 languages, 15 framework targets)
     │     └── Negative Patterns (±10-line context window suppresses sanitized code paths)
     │     └── SentryQL Engine  (structured pattern queries: FIND + WHERE + AND NOT clauses)
-    ├──► AST Analyzer         (Tree-Sitter: 18 languages — Python, JS/TS, Java, Kotlin, Go,
+    ├──► AST Analyzer         (Tree-Sitter parsing: 18 languages registered; active findings for Python, JS/TS, Java, Kotlin, Go,
     │                          Ruby, Rust, C, C++, C#, PHP, Scala, Swift, Bash, Elixir, Groovy, Lua)
     ├──► Taint-Flow Tracker   (cross-file call-graph index + intra-file source→sink, 11 languages)
     ├──► Secret Detector      (regex + Shannon entropy + base64/hex decode)
@@ -368,7 +368,7 @@ jobs:
 ### Standard Mode
 Runs all always-on engines (pattern, AST, taint, secret detection, FP suppression, reachability). Enable **Deep Scan** to add dependency auditing, Semgrep, supply chain / typosquatting checks, container scanning, and MITRE ATT&CK enrichment. Enable **AI** to add Chain-of-Thought validation (with Exploit PoC + Fixed Code generation), AI discovery, Judge LLM consolidation, and confidence calibration.
 
-> **Note:** AST analysis now covers **18 languages** — Python, JavaScript, TypeScript, Java, Kotlin, Go, Ruby, Rust, C, C++, C#, PHP, Scala, Swift, Bash, Elixir, Groovy, Lua. Taint tracking is cross-file + intra-file across 11 languages (Python, PHP, JavaScript/TypeScript, Java, Kotlin, C#/ASP.NET, Go, Ruby, Swift, Dart). Browser notifications fire on scan completion.
+> **Note:** Tree-Sitter parses 18 languages for AST structure; active vulnerability analysis (producing findings) covers 8 — Python, JavaScript, TypeScript, Java, Kotlin, Go, Ruby, Rust. Remaining languages (C, C++, C#, PHP, Scala, Swift, Bash, Elixir, Groovy, Lua) are parsed but analysis rules are pending. Taint tracking is cross-file + intra-file across 11 languages (Python, PHP, JavaScript/TypeScript, Java, Kotlin, C#/ASP.NET, Go, Ruby, Swift, Dart). Browser notifications fire on scan completion.
 
 ### Ensemble Audit Mode
 Three-phase high-assurance pipeline for maximum accuracy:
@@ -390,7 +390,7 @@ Three-phase high-assurance pipeline for maximum accuracy:
 | API server, scan orchestration, CI policy, PR decoration, auto-updater | `cmd/scanner/` |
 | Frontend UI | `web/src/` |
 | Report generators (SARIF, HTML, PDF, CSV, SBOM, Compliance) | `reporter/` |
-| Detection rules (120 files: 71 languages + security domains; 15 framework files) | `rules/` |
+| Detection rules (106 files: 71 languages + security domains; 15 framework files) | `rules/` |
 | Rule loader (YAML parsing, negative patterns, SentryQL) | `config/` |
 | Shared utilities | `utils/` |
 

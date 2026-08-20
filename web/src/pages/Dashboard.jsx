@@ -128,12 +128,18 @@ export default function Dashboard() {
                 || (cfg.maxLow >= 0 && cfg.maxLow !== -1)
                 || (cfg.maxTotal >= 0 && cfg.maxTotal !== -1)
             if (!hasPolicy) return null
+            // policyFailOn medium/low: the DB only stores critical_count + high_count,
+            // so we can only detect a violation if the total indicates it.
+            // Server-side evaluatePolicyGate has the authoritative result;
+            // this badge is best-effort based on available counts.
             const violated = (
                 (cfg.maxCritical >= 0 && scan.critical_count > cfg.maxCritical) ||
                 (cfg.maxHigh >= 0 && scan.high_count > cfg.maxHigh) ||
                 (cfg.maxTotal >= 0 && scan.total_findings > cfg.maxTotal) ||
                 (cfg.policyFailOn === 'critical' && scan.critical_count > 0) ||
-                (cfg.policyFailOn === 'high' && (scan.critical_count + scan.high_count) > 0)
+                (cfg.policyFailOn === 'high' && (scan.critical_count + scan.high_count) > 0) ||
+                (cfg.policyFailOn === 'medium' && scan.total_findings > 0) ||
+                (cfg.policyFailOn === 'low' && scan.total_findings > 0)
             )
             return <span className={`policy-badge ${violated ? 'policy-fail' : 'policy-pass'}`}>{violated ? '✗ POLICY FAIL' : '✓ POLICY PASS'}</span>
         } catch { return null }

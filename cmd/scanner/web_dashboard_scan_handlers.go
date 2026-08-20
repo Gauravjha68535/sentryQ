@@ -534,6 +534,10 @@ func handleWebSocketRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing scan ID", http.StatusBadRequest)
 		return
 	}
+	if !validScanIDRe.MatchString(scanID) {
+		http.Error(w, "invalid scan ID format", http.StatusBadRequest)
+		return
+	}
 	wsHub.HandleWS(w, r, scanID)
 }
 
@@ -570,6 +574,11 @@ func handleScanCompliance(w http.ResponseWriter, r *http.Request) {
 	scanID := r.URL.Query().Get("id")
 	if scanID == "" {
 		httpJSON(w, http.StatusBadRequest, map[string]string{"error": "id parameter required"})
+		return
+	}
+	// Validate format to prevent path traversal via crafted scan IDs in filepath.Join.
+	if !validScanIDRe.MatchString(scanID) {
+		http.Error(w, "invalid scan ID format", http.StatusBadRequest)
 		return
 	}
 	fw := r.URL.Query().Get("framework")

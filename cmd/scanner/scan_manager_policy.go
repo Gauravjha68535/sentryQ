@@ -12,7 +12,7 @@ import (
 func evaluatePolicyGate(scanID string, cfg WebScanConfig, findings []reporter.Finding, criticalCount, highCount int) {
 	severityOrder := map[string]int{"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
 
-	hasPolicy := cfg.PolicyFailOn != "" || cfg.MaxCritical >= 0 || cfg.MaxHigh >= 0 || cfg.MaxMedium >= 0 || cfg.MaxTotal >= 0
+	hasPolicy := cfg.PolicyFailOn != "" || cfg.MaxCritical >= 0 || cfg.MaxHigh >= 0 || cfg.MaxMedium >= 0 || cfg.MaxLow >= 0 || cfg.MaxTotal >= 0
 	if !hasPolicy {
 		return
 	}
@@ -57,6 +57,11 @@ func evaluatePolicyGate(scanID string, cfg WebScanConfig, findings []reporter.Fi
 	if cfg.MaxMedium >= 0 && counts["medium"] > cfg.MaxMedium {
 		violated = true
 		reasons = append(reasons, fmt.Sprintf("medium count %d exceeds limit %d", counts["medium"], cfg.MaxMedium))
+	}
+	// MaxLow — was missing from hasPolicy guard AND evaluation body
+	if cfg.MaxLow >= 0 && counts["low"] > cfg.MaxLow {
+		violated = true
+		reasons = append(reasons, fmt.Sprintf("low count %d exceeds limit %d", counts["low"], cfg.MaxLow))
 	}
 	// MaxTotal
 	if cfg.MaxTotal >= 0 && total > cfg.MaxTotal {

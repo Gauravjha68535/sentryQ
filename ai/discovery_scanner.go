@@ -501,6 +501,11 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, ollamaHost s
 // RunAIDiscovery scans all supported files in a directory using AI-powered discovery concurrently.
 func RunAIDiscovery(ctx context.Context, modelName string, ollamaHost string, targetDir string, logCallback ...func(msg string, level string)) []reporter.Finding {
 
+	// printConsole is true only in CLI mode (no web UI callback).
+	// In web mode the callback streams progress to the browser; printing ANSI
+	// escape codes to stdout would pollute server logs and Docker output.
+	printConsole := len(logCallback) == 0 || logCallback[0] == nil
+
 	// Helper to send logs to UI if a callback was provided
 	uiLog := func(msg, level string) {
 		if len(logCallback) > 0 && logCallback[0] != nil {
@@ -561,13 +566,15 @@ func RunAIDiscovery(ctx context.Context, modelName string, ollamaHost string, ta
 		return allFindings
 	}
 
-	color.Cyan("\n╔═══════════════════════════════════════════════════════════╗")
-	color.Cyan("║         🧠 AI VULNERABILITY DISCOVERY ENGINE              ║")
-	color.Cyan("╠═══════════════════════════════════════════════════════════╣")
-	fmt.Printf("║  Model:    %-45s ║\n", modelName)
-	fmt.Printf("║  Files:    %-45d ║\n", totalFiles)
-	color.Cyan("╚═══════════════════════════════════════════════════════════╝\n")
-	fmt.Println()
+	if printConsole {
+		color.Cyan("\n╔═══════════════════════════════════════════════════════════╗")
+		color.Cyan("║         🧠 AI VULNERABILITY DISCOVERY ENGINE              ║")
+		color.Cyan("╠═══════════════════════════════════════════════════════════╣")
+		fmt.Printf("║  Model:    %-45s ║\n", modelName)
+		fmt.Printf("║  Files:    %-45d ║\n", totalFiles)
+		color.Cyan("╚═══════════════════════════════════════════════════════════╝\n")
+		fmt.Println()
+	}
 
 	uiLog(fmt.Sprintf("Prepared %d files for AI Discovery", totalFiles), "info")
 
@@ -670,16 +677,18 @@ func RunAIDiscovery(ctx context.Context, modelName string, ollamaHost string, ta
 			}
 
 			mu.Lock()
-			fmt.Printf("\r\033[K")
-			color.HiBlack("  [%d/%d] ", currProcessed, totalFiles)
-			color.HiWhite("Scanning: ")
-			color.HiCyan("%s ", relPath)
-			color.HiBlack("| %d found | ⏱ %s | ETA: %s", currDiscovered, elapsed.Round(time.Second), eta)
-			if scanErr != nil && scanErr.Error() != "scan interrupted" {
-				fmt.Printf("\n")
-				color.Yellow("    ⚠ Error: %v (Skipping file)\n", scanErr)
-			} else if currProcessed == totalFiles {
-				fmt.Printf("\n")
+			if printConsole {
+				fmt.Printf("\r\033[K")
+				color.HiBlack("  [%d/%d] ", currProcessed, totalFiles)
+				color.HiWhite("Scanning: ")
+				color.HiCyan("%s ", relPath)
+				color.HiBlack("| %d found | ⏱ %s | ETA: %s", currDiscovered, elapsed.Round(time.Second), eta)
+				if scanErr != nil && scanErr.Error() != "scan interrupted" {
+					fmt.Printf("\n")
+					color.Yellow("    ⚠ Error: %v (Skipping file)\n", scanErr)
+				} else if currProcessed == totalFiles {
+					fmt.Printf("\n")
+				}
 			}
 			mu.Unlock()
 
@@ -729,21 +738,23 @@ func RunAIDiscovery(ctx context.Context, modelName string, ollamaHost string, ta
 		}
 	}
 
-	// Final check
-	if ctx.Err() != nil {
-		color.Yellow("\n  ⚠ Scan interrupted by user")
+	if printConsole {
+		if ctx.Err() != nil {
+			color.Yellow("\n  ⚠ Scan interrupted by user")
+		}
+		fmt.Println()
+		color.Cyan("\n═══════════════════════════════════════════════════════")
+		color.Green("✓ AI Discovery Complete")
+		color.White("  Files Processed:  %d", filesProcessed)
+		if errorCount > 0 {
+			color.Yellow("  Errors / Skipped: %d", errorCount)
+		}
+		color.White("  Vulnerable Files: %d of %d", filesWithIssues, filesProcessed)
+		color.HiRed("  Total Discovered: %d vulnerabilities", totalDiscovered)
 	}
-
-	fmt.Println()
-	color.Cyan("\n═══════════════════════════════════════════════════════")
-	color.Green("✓ AI Discovery Complete")
-	color.White("  Files Processed:  %d", filesProcessed)
-	if errorCount > 0 {
-		color.Yellow("  Errors / Skipped: %d", errorCount)
+	if printConsole {
+		color.Cyan("═══════════════════════════════════════════════════════\n")
 	}
-	color.White("  Vulnerable Files: %d of %d", filesWithIssues, filesProcessed)
-	color.HiRed("  Total Discovered: %d vulnerabilities", totalDiscovered)
-	color.Cyan("═══════════════════════════════════════════════════════\n")
 
 	return allFindings
 }
