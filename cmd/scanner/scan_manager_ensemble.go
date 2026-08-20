@@ -29,8 +29,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	wsHub.BroadcastProgress(scanID, "Initializing Ensemble", 1)
 
 	if cfg.OllamaHost != "" {
-		ai.SetOllamaHost(cfg.OllamaHost)
-		wsHub.BroadcastLog(scanID, fmt.Sprintf("Set Ollama Host to %s", cfg.OllamaHost), "info")
+		wsHub.BroadcastLog(scanID, fmt.Sprintf("Using Ollama Host: %s", cfg.OllamaHost), "info")
 	}
 
 	rulesDir := getDefaultRulesDir()
@@ -215,7 +214,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	wsHub.BroadcastProgress(scanID, "Phase 2: AI Discovery", 45)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("Running AI Discovery with model: %s", modelName), "info")
 	wsHub.BroadcastLog(scanID, "AI is independently scanning all supported files...", "info")
-	aiFindings := ai.RunAIDiscovery(ctx, modelName, targetDir, func(msg string, level string) {
+	aiFindings := ai.RunAIDiscovery(ctx, modelName, cfg.OllamaHost, targetDir, func(msg string, level string) {
 		wsHub.BroadcastLog(scanID, msg, level)
 	})
 
@@ -247,7 +246,7 @@ fileContentsDone:
 	if len(aiFindings) > 0 {
 		wsHub.BroadcastProgress(scanID, "Phase 2: AI Self-Validation", 65)
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("AI validating its own %d discoveries...", len(aiFindings)), "info")
-		aiFindings = ai.ValidateFindingsBatch(ctx, modelName, aiFindings, fileContents, func(msg string, level string) {
+		aiFindings = ai.ValidateFindingsBatch(ctx, modelName, cfg.OllamaHost, aiFindings, fileContents, func(msg string, level string) {
 			wsHub.BroadcastLog(scanID, msg, level)
 		})
 	}
@@ -278,7 +277,7 @@ fileContentsDone:
 	// Reuses the fileContents map built above — no second disk read.
 	wsHub.BroadcastProgress(scanID, "Phase 3: Static Pre-Validation", 78)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("AI validating %d static discoveries for remediation insights...", len(staticFindings)), "info")
-	staticFindings = ai.ValidateFindingsBatch(ctx, modelName, staticFindings, fileContents, func(msg string, level string) {
+	staticFindings = ai.ValidateFindingsBatch(ctx, modelName, cfg.OllamaHost, staticFindings, fileContents, func(msg string, level string) {
 		wsHub.BroadcastLog(scanID, msg, level)
 	})
 

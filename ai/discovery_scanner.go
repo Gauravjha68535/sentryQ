@@ -229,7 +229,7 @@ const chunkOverlap = 50
 // DiscoverVulnerabilities scans a single file using AI to find vulnerabilities via sliding window chunking.
 // projectContext is an optional string containing the project tree and imports for multi-vector context.
 // scanRoot is the top-level directory being scanned; it's used to bound agentic file requests.
-func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath string, content string, projectContext ...string) ([]DiscoveryFinding, error) {
+func DiscoverVulnerabilities(ctx context.Context, modelName string, ollamaHost string, filePath string, content string, projectContext ...string) ([]DiscoveryFinding, error) {
 	lines := strings.Split(utils.NormalizeNewlines(content), "\n")
 	totalLines := len(lines)
 
@@ -356,7 +356,7 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 				Prompt:      prompt,
 				Temperature: 0.0,
 				NumPredict:  4096,
-				OllamaHost:  GetOllamaBaseURL(),
+				OllamaHost:  ollamaHost,
 			})
 			reqCancel()
 			if readErr != nil {
@@ -499,7 +499,7 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, filePath str
 }
 
 // RunAIDiscovery scans all supported files in a directory using AI-powered discovery concurrently.
-func RunAIDiscovery(ctx context.Context, modelName string, targetDir string, logCallback ...func(msg string, level string)) []reporter.Finding {
+func RunAIDiscovery(ctx context.Context, modelName string, ollamaHost string, targetDir string, logCallback ...func(msg string, level string)) []reporter.Finding {
 
 	// Helper to send logs to UI if a callback was provided
 	uiLog := func(msg, level string) {
@@ -641,7 +641,7 @@ func RunAIDiscovery(ctx context.Context, modelName string, targetDir string, log
 			}
 
 			// Perform Discovery using the shared project context
-			vulns, scanErr := DiscoverVulnerabilities(ctx, modelName, job.filePath, string(content), projectContext)
+			vulns, scanErr := DiscoverVulnerabilities(ctx, modelName, ollamaHost, job.filePath, string(content), projectContext)
 
 			// UI Updates
 			mu.Lock()

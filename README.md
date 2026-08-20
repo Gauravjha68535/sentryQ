@@ -22,7 +22,7 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 
 | Feature | Details |
 | :--- | :--- |
-| **Multi-Engine SAST** | 13,168+ rules across 120 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (18 languages) + taint tracking (11 languages) |
+| **Multi-Engine SAST** | 10,586+ rules across 106 rule files (71 languages, 15 framework targets) + Tree-Sitter AST (18 languages) + taint tracking (11 languages) |
 | **Cross-File Taint Tracking** | Project-wide function-signature index built before scanning so taint sources exported from one file are recognised when imported by another. _Scope: signature-level propagation, not a full data-flow graph._ |
 | **Negative Pattern Suppression** | Per-rule `negative_patterns` teach the engine about sanitizers and safe API variants; any match within a ±10-line context window auto-suppresses the finding |
 | **Low-Confidence Severity Capping** | Rules with `confidence < 0.3` are automatically capped to `info` severity so speculative rules never pollute critical/high queues |
@@ -40,7 +40,7 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 | **Scan Diff** | Compare any two scans: new / fixed / persisting findings + critical/high delta. `sentryq --diff <id1> <id2>` or Compare Scans page |
 | **Compliance Reports** | OWASP Top 10 2021, PCI DSS 3.2.1, NIST SP 800-53 mapping — JSON + HTML reports auto-generated per scan, downloadable from Report Viewer |
 | **CycloneDX SBOM** | Software Bill of Materials (CycloneDX 1.4) auto-generated per scan; downloadable from Report Viewer |
-| **SentryQL Query Language** | Semantic rule queries: `FIND function_call(execute) WHERE tainted_by(request) AND not_sanitized_by(escape) REPORT AS critical` |
+| **SentryQL Query Language** | Pattern-based rule queries: `FIND exec\( WHERE user_input AND NOT escape\(` — combines primary pattern with must-match and must-not-match clauses |
 | **Real-Time Dashboard** | React + WebSocket. Dark/Light mode. Per-finding triage (open/resolved/ignored/FP) with bulk triage. Pause/Resume scan controls. Policy gate badge per scan. |
 | **Rule Builder UI** | In-browser YAML rule editor with live regex test pane. Edit and create custom rules without leaving the dashboard |
 | **Trust Score & Priority Matrix** | Per-finding composite Trust Score (0–100) + P0–P3 remediation priority tiers in all reports |
@@ -55,9 +55,9 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 ```
 Source Code
     │
-    ├──► Pattern Engine       (13,168+ regex rules, 71 languages, 15 framework targets)
+    ├──► Pattern Engine       (10,586+ regex rules, 71 languages, 15 framework targets)
     │     └── Negative Patterns (±10-line context window suppresses sanitized code paths)
-    │     └── SentryQL Engine  (semantic queries: tainted_by, not_sanitized_by, matches)
+    │     └── SentryQL Engine  (structured pattern queries: FIND + WHERE + AND NOT clauses)
     ├──► AST Analyzer         (Tree-Sitter: 18 languages — Python, JS/TS, Java, Kotlin, Go,
     │                          Ruby, Rust, C, C++, C#, PHP, Scala, Swift, Bash, Elixir, Groovy, Lua)
     ├──► Taint-Flow Tracker   (cross-file call-graph index + intra-file source→sink, 11 languages)
@@ -247,7 +247,7 @@ Drop any `.yaml` file into the `rules/` directory next to the binary:
   owasp: "A07:2021"
 ```
 
-Rules also support the **SentryQL** query language for semantic pattern matching:
+Rules also support the **SentryQL** query language — a structured pattern DSL that adds `WHERE` (must-match) and `AND NOT` (must-not-match) clauses to the primary regex:
 
 ```yaml
 - id: my-ssrf-rule
@@ -255,8 +255,9 @@ Rules also support the **SentryQL** query language for semantic pattern matching
   patterns:
     - regex: 'requests\.(get|post)\s*\('
   sentryql: |
-    FIND requests.get OR requests.post
-    WHERE input IS NOT LITERAL
+    FIND requests\.(get|post)\s*\(
+    WHERE url=
+    AND NOT validate_url|urlparse|allowlist
   negative_patterns:
     - regex: '(?i)(allowlist|validate_url|urlparse)'
   severity: high
@@ -291,7 +292,7 @@ SentryQ auto-loads all rules on startup and on every scan, filtered to the langu
 
 ## Rule Coverage
 
-120 rule files covering 71 languages and security domains:
+106 rule files covering 71 languages and security domains:
 
 **Languages & Runtimes:** C, C++, C#, Go, Java, JavaScript, TypeScript, Python, Ruby, PHP, Rust, Swift, Kotlin, Scala, Dart, Groovy, Elixir, Erlang, Haskell, Lua, Perl, R, Julia, Nim, OCaml, F#, Crystal, Clojure, Zig, Move, Cairo, Vyper, Solidity, WebAssembly, Objective-C, Bash/Shell, PowerShell, ASP, ASP.NET, and more.
 

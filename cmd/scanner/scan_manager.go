@@ -91,8 +91,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	}
 
 	if cfg.OllamaHost != "" {
-		ai.SetOllamaHost(cfg.OllamaHost)
-		wsHub.BroadcastLog(scanID, fmt.Sprintf("Set Ollama Host to %s", cfg.OllamaHost), "info")
+		wsHub.BroadcastLog(scanID, fmt.Sprintf("Using Ollama Host: %s", cfg.OllamaHost), "info")
 	}
 
 	rulesDir := getDefaultRulesDir()
@@ -311,7 +310,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		// AI Discovery
 		wsHub.BroadcastProgress(scanID, "AI Discovery", 70)
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Running AI discovery with model: %s", modelName), "phase")
-		aiFindings := ai.RunAIDiscovery(ctx, modelName, targetDir, func(msg string, level string) {
+		aiFindings := ai.RunAIDiscovery(ctx, modelName, cfg.OllamaHost, targetDir, func(msg string, level string) {
 			wsHub.BroadcastLog(scanID, msg, level)
 		})
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("AI discovered %d potential vulnerabilities", len(aiFindings)), "success")
@@ -372,7 +371,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		uniqueForValidation := webDeduplicateFindings(toValidate)
 
 		wsHub.BroadcastLog(scanID, fmt.Sprintf("Validating %d unique findings with AI...", len(uniqueForValidation)), "phase")
-		validatedFindings := ai.ValidateFindingsBatch(ctx, modelName, uniqueForValidation, fileContents, func(msg string, level string) {
+		validatedFindings := ai.ValidateFindingsBatch(ctx, modelName, cfg.OllamaHost, uniqueForValidation, fileContents, func(msg string, level string) {
 			wsHub.BroadcastLog(scanID, msg, level)
 		})
 

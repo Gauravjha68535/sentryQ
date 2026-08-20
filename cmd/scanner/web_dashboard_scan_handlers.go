@@ -272,7 +272,10 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 			httpJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid status: must be open, resolved, ignored, or false_positive"})
 			return
 		}
+		// Collect successfully updated findings for a single batched ML feedback write.
+		// Per-finding load+save in a loop causes a data race under concurrent bulk requests.
 		var failed []int
+		var feedbackFindings []reporter.Finding
 		for _, dbID := range req.IDs {
 			finding, fetchErr := GetFindingByID(scanID, dbID)
 			if err := UpdateFindingStatus(scanID, dbID, req.Status); err != nil {
@@ -281,8 +284,11 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			if fetchErr == nil {
-				recordMLFeedback(finding, req.Status)
+				feedbackFindings = append(feedbackFindings, finding)
 			}
+		}
+		if len(feedbackFindings) > 0 {
+			recordMLFeedbackBatch(feedbackFindings, req.Status)
 		}
 		if len(failed) > 0 {
 			httpJSON(w, http.StatusInternalServerError, map[string]interface{}{
@@ -605,6 +611,10 @@ func handleScansDiff(w http.ResponseWriter, r *http.Request) {
 	idB := r.URL.Query().Get("b")
 	if idA == "" || idB == "" {
 		httpJSON(w, http.StatusBadRequest, map[string]string{"error": "a and b parameters required"})
+		return
+	}
+	if !validScanIDRe.MatchString(idA) || !validScanIDRe.MatchString(idB) {
+		http.Error(w, "invalid scan ID format", http.StatusBadRequest)
 		return
 	}
 

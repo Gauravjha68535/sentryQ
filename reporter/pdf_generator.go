@@ -244,7 +244,9 @@ func drawFindingDetail(pdf *gofpdf.Fpdf, f Finding) {
 	}
 	if f.OWASP != "" {
 		owaspDisplay := NormalizeOWASP(f.OWASP)
-		if owaspDisplay == "" {
+		// NormalizeOWASP returns "N/A" (not "") for unrecognizable input.
+		// The empty-string check never fired; check both to avoid falling through.
+		if owaspDisplay == "" || owaspDisplay == "N/A" {
 			owaspDisplay = utils.TruncateString(f.OWASP, 20)
 		}
 		fileInfo += fmt.Sprintf("  |  OWASP %s", sanitizePDFText(owaspDisplay))

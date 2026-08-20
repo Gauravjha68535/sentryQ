@@ -40,7 +40,7 @@ func main() {
 	judgeModel     := flag.String("judge-model", "", "Judge LLM model for Ensemble merge (default: same as --ai-model)")
 
 	// ── Incremental scan ──────────────────────────────────────────────────────
-	changedOnly   := flag.Bool("changed-only", false, "Scan only files changed since last git commit (uses git diff HEAD~1)")
+	changedOnly   := flag.Bool("changed-only", false, "Scan only files changed vs base branch (tries base...HEAD, falls back to HEAD~1)")
 	baseBranch    := flag.String("base-branch", "main", "Base branch for incremental diff (used with --changed-only)")
 
 	// ── PR decoration ─────────────────────────────────────────────────────────

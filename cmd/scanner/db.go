@@ -26,7 +26,7 @@ type ScanRecord struct {
 	ID            string     `json:"id"`
 	Target        string     `json:"target"`
 	SourceType    string     `json:"source_type"` // "upload" or "git"
-	Status        string     `json:"status"`      // "running", "completed", "failed", "cancelled"
+	Status        string     `json:"status"`      // "running", "completed", "failed", "stopped", "paused"
 	Config        string     `json:"config"`      // JSON blob
 	CreatedAt     time.Time  `json:"created_at"`
 	CompletedAt   *time.Time `json:"completed_at,omitempty"`

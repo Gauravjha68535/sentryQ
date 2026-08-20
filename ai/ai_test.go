@@ -416,7 +416,7 @@ func TestValidateFinding_TruePositive(t *testing.T) {
 		Remediation: "Use prepared statements",
 	}
 
-	result, err := ValidateFinding(context.Background(), "test-model", finding, "code content", "")
+	result, err := ValidateFinding(context.Background(), "test-model", "", finding, "code content", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -455,7 +455,7 @@ func TestValidateFinding_FalsePositive(t *testing.T) {
 		Severity:   "medium",
 	}
 
-	result, err := ValidateFinding(context.Background(), "test-model", finding, "", "")
+	result, err := ValidateFinding(context.Background(), "test-model", "", finding, "", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -478,7 +478,7 @@ func TestValidateFinding_MalformedJSON_FallsBackGracefully(t *testing.T) {
 		Remediation: "Use env vars",
 	}
 
-	result, err := ValidateFinding(context.Background(), "test-model", finding, "", "")
+	result, err := ValidateFinding(context.Background(), "test-model", "", finding, "", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -497,7 +497,7 @@ func TestValidateFinding_ServerError_ReturnsError(t *testing.T) {
 	SetActiveProvider(ProviderOllama)
 
 	finding := reporter.Finding{IssueName: "test", FilePath: "f.go", LineNumber: "1", Severity: "high"}
-	_, err := ValidateFinding(context.Background(), "test-model", finding, "", "")
+	_, err := ValidateFinding(context.Background(), "test-model", "", finding, "", "")
 	if err == nil {
 		t.Error("expected error for HTTP 500 response")
 	}
@@ -517,7 +517,7 @@ func TestValidateFinding_ContextCancellation(t *testing.T) {
 	defer cancel()
 
 	finding := reporter.Finding{IssueName: "test", FilePath: "f.go", LineNumber: "1", Severity: "high"}
-	_, err := ValidateFinding(ctx, "test-model", finding, "", "")
+	_, err := ValidateFinding(ctx, "test-model", "", finding, "", "")
 	if err == nil {
 		t.Error("expected error on context cancellation")
 	}
@@ -539,7 +539,7 @@ func TestValidateFinding_ZeroConfidenceSanityFix(t *testing.T) {
 	SetActiveProvider(ProviderOllama)
 
 	finding := reporter.Finding{IssueName: "test", FilePath: "f.go", LineNumber: "1", Severity: "high"}
-	result, err := ValidateFinding(context.Background(), "test-model", finding, "", "")
+	result, err := ValidateFinding(context.Background(), "test-model", "", finding, "", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -726,7 +726,7 @@ func TestJudgeFindings_CustomOllamaHost(t *testing.T) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 func TestValidateFindingsBatch_EmptyFindings(t *testing.T) {
-	out := ValidateFindingsBatch(context.Background(), "model", nil, nil)
+	out := ValidateFindingsBatch(context.Background(), "model", "", nil, nil)
 	if len(out) != 0 {
 		t.Errorf("expected empty output for empty input, got %d", len(out))
 	}
@@ -738,7 +738,7 @@ func TestValidateFindingsBatch_SkipsLowAndInfo(t *testing.T) {
 		{SrNo: 1, IssueName: "low-issue", FilePath: "f.go", LineNumber: "1", Severity: "low"},
 		{SrNo: 2, IssueName: "info-issue", FilePath: "f.go", LineNumber: "2", Severity: "info"},
 	}
-	out := ValidateFindingsBatch(context.Background(), "model", findings, nil)
+	out := ValidateFindingsBatch(context.Background(), "model", "", findings, nil)
 	for _, f := range out {
 		if f.AiValidated != "Skipped (Low/Info)" {
 			t.Errorf("expected skipped marking, got %q for %s", f.AiValidated, f.IssueName)
@@ -763,7 +763,7 @@ func TestValidateFindingsBatch_CircuitBreaker(t *testing.T) {
 			Severity:  "high",
 		}
 	}
-	out := ValidateFindingsBatch(context.Background(), "model", findings, nil)
+	out := ValidateFindingsBatch(context.Background(), "model", "", findings, nil)
 	if len(out) != 6 {
 		t.Fatalf("expected all 6 findings returned (some skipped), got %d", len(out))
 	}
@@ -802,7 +802,7 @@ func TestValidateFindingsBatch_PreservesOrder(t *testing.T) {
 			Severity:  "high",
 		}
 	}
-	out := ValidateFindingsBatch(context.Background(), "model", findings, nil)
+	out := ValidateFindingsBatch(context.Background(), "model", "", findings, nil)
 	if len(out) != 5 {
 		t.Fatalf("expected 5 findings, got %d", len(out))
 	}
@@ -830,7 +830,7 @@ func TestValidateFindingsBatch_ContextCancellation(t *testing.T) {
 	defer cancel()
 
 	// Should return (possibly with error marker) rather than hanging
-	out := ValidateFindingsBatch(ctx, "model", findings, nil)
+	out := ValidateFindingsBatch(ctx, "model", "", findings, nil)
 	if len(out) != 1 {
 		t.Errorf("expected 1 finding returned even on cancellation, got %d", len(out))
 	}

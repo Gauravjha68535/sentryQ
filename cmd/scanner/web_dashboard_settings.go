@@ -159,11 +159,24 @@ func loadSettings() {
 	}
 }
 
+// mlFeedbackMu serialises all load→add→save cycles so concurrent bulk-triage
+// requests don't overwrite each other's history entries. Without this lock,
+// two concurrent PATCH requests each load the file, append one entry, and save —
+// the second save silently discards the first entry.
+var mlFeedbackMu sync.Mutex
+
 // recordMLFeedback records a user triage decision into the ML FP history file
 // so the MLFPReducer can learn from it on future scans.
 // Only "false_positive" and "resolved" statuses are meaningful signals;
 // "open" and "ignored" are skipped since they carry no FP/TP information.
 func recordMLFeedback(f reporter.Finding, status string) {
+	recordMLFeedbackBatch([]reporter.Finding{f}, status)
+}
+
+// recordMLFeedbackBatch records feedback for multiple findings in a single
+// load→N-adds→save cycle. Use this from bulk-triage handlers to avoid the
+// per-finding data race that occurs when each finding does its own load+save.
+func recordMLFeedbackBatch(findings []reporter.Finding, status string) {
 	isFP := status == "false_positive"
 	isTP := status == "resolved"
 	if !isFP && !isTP {
@@ -175,12 +188,17 @@ func recordMLFeedback(f reporter.Finding, status string) {
 		mlCacheDir = filepath.Join(homeDir, ".sentryq", "ml-cache")
 	}
 
+	mlFeedbackMu.Lock()
+	defer mlFeedbackMu.Unlock()
+
 	reducer := ai.NewFPHistoryCache(mlCacheDir)
 	if err := reducer.LoadHistory(); err != nil {
 		utils.LogWarn("ML feedback: failed to load history: " + err.Error())
 		return
 	}
-	reducer.AddFeedback(f.RuleID, f.FilePath, f.Severity, isFP, "")
+	for _, f := range findings {
+		reducer.AddFeedback(f.RuleID, f.FilePath, f.Severity, isFP, "")
+	}
 	if err := reducer.SaveHistory(); err != nil {
 		utils.LogWarn("ML feedback: failed to save history: " + err.Error())
 	}

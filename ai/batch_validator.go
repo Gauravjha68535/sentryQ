@@ -16,7 +16,7 @@ import (
 // Sequential processing (not a pool) is preferred to avoid GPU VRAM thrashing
 // on consumer hardware. The channel+goroutine pool that existed before was pure
 // overhead since numWorkers was always 1.
-func ValidateFindingsBatch(ctx context.Context, modelName string, findings []reporter.Finding, fileContents map[string]string, logCallback ...func(msg string, level string)) []reporter.Finding {
+func ValidateFindingsBatch(ctx context.Context, modelName string, ollamaHost string, findings []reporter.Finding, fileContents map[string]string, logCallback ...func(msg string, level string)) []reporter.Finding {
 	totalToValidate := countCriticalHighMedium(findings)
 
 	// printConsole is true only when running in CLI mode (no web UI callback).
@@ -143,7 +143,7 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 		}
 
 		codeSnippet := getCodeSnippet(fileContents, f.FilePath, f.LineNumber)
-		result, err := ValidateFinding(ctx, modelName, f, codeSnippet, relatedFilesContext)
+		result, err := ValidateFinding(ctx, modelName, ollamaHost, f, codeSnippet, relatedFilesContext)
 
 		if err != nil {
 			uiLog(fmt.Sprintf("AI validation failed for finding %s: %v", f.IssueName, err), "error")
@@ -194,10 +194,12 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, findings []rep
 				}
 			}
 			calibrator.RecordValidation(f.Severity, result.IsTruePositive)
-			calibrator.SaveStats()
 		}
 		finalFindings = append(finalFindings, f)
 	}
+	// Single stats write after all findings are processed — not one per finding.
+	// N synchronous disk writes inside the loop added measurable per-finding latency.
+	calibrator.SaveStats()
 
 	// Summary — CLI only
 	if printConsole {

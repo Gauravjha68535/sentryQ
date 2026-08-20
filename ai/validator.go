@@ -31,7 +31,7 @@ type ValidationResult struct {
 const maxPromptFileContent = 8000
 
 // ValidateFinding sends a single finding to the AI model for validation
-func ValidateFinding(ctx context.Context, modelName string, finding reporter.Finding, fileContent string, relatedFilesContext string) (*ValidationResult, error) {
+func ValidateFinding(ctx context.Context, modelName string, ollamaHost string, finding reporter.Finding, fileContent string, relatedFilesContext string) (*ValidationResult, error) {
 	// Truncate file content to prevent prompt injection and context overflow.
 	if len(fileContent) > maxPromptFileContent {
 		fileContent = fileContent[:maxPromptFileContent] + "\n\n... [FILE TRUNCATED — showing first 8 KB only] ..."
@@ -114,6 +114,7 @@ Return ONLY a valid JSON object in the final part of your response:
 	valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)
 	outputStr, err := Generate(valCtx, GenerateOptions{
 		Model:       modelName,
+		OllamaHost:  ollamaHost,
 		Prompt:      prompt,
 		Temperature: 0.0,
 		NumPredict:  8192,

@@ -92,7 +92,7 @@ export default function ScanProgress() {
                 }, reconnectDelay)
             }
 
-            ws.onerror = () => { addLog('WebSocket error.', 'warning') }
+            ws.onerror = () => { if (!destroyed) addLog('WebSocket error.', 'warning') }
         }
 
         connect()

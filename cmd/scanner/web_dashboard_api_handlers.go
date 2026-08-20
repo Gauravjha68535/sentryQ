@@ -233,6 +233,12 @@ func handleCustomEndpointTest(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		// SSRF guard: reject private/reserved IP ranges.
+		// handleCustomEndpointModels has the same guard; both must be consistent.
+		if err := rejectPrivateURL(req.URL); err != nil {
+			http.Error(w, "Invalid URL: "+err.Error(), http.StatusBadRequest)
+			return
+		}
 		ok, msg = ai.TestOpenAIEndpoint(req.URL, req.APIKey, req.Model)
 	}
 
