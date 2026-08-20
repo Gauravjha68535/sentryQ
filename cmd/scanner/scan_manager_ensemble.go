@@ -224,6 +224,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	const maxTotalFileContents = 512 * 1024 * 1024 // 512 MB cumulative cap
 	fileContents := make(map[string]string)
 	var cumulativeSize int64
+fileWalk:
 	for _, files := range result.FilePaths {
 		for _, file := range files {
 			info, statErr := os.Stat(file)
@@ -232,7 +233,7 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 			}
 			if cumulativeSize+info.Size() > maxTotalFileContents {
 				utils.LogWarn("fileContents map reached 512 MB cumulative cap — skipping remaining files")
-				goto fileContentsDone
+				break fileWalk
 			}
 			if data, err := os.ReadFile(file); err == nil {
 				fileContents[file] = string(data)
@@ -240,7 +241,6 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 			}
 		}
 	}
-fileContentsDone:
 
 	// AI self-validation of its own findings
 	if len(aiFindings) > 0 {
@@ -310,7 +310,7 @@ fileContentsDone:
 
 	// ── ML False Positive Reduction (if enabled) ─────────────
 	if cfg.EnableMLFPReduction {
-		wsHub.BroadcastLog(scanID, "Applying ML-based False Positive reduction...", "info")
+		wsHub.BroadcastLog(scanID, "Applying FP frequency filter (triage history)...", "info")
 		mlCacheDir := ".sentryq-ml-cache"
 		if homeDir, err := os.UserHomeDir(); err == nil {
 			mlCacheDir = filepath.Join(homeDir, ".sentryq", "ml-cache")
@@ -396,6 +396,35 @@ fileContentsDone:
 	// Generate report files
 	wsHub.BroadcastLog(scanID, "Generating reports (CSV, HTML, PDF)...", "info")
 	webGenerateReportFiles(scanID, allFindings, targetDir, cfg)
+
+	// ── Policy Gate Evaluation ─────────────────────────────────────────────
+	// Previously missing from runEnsembleScan — CI pipelines using --enable-ensemble
+	// --fail-on critical always got exit code 0 regardless of findings.
+	evaluatePolicyGate(scanID, cfg, allFindings, criticalCount, highCount)
+
+	// ── Fire webhooks ──────────────────────────────────────────────────────
+	webhookURLs := cfg.WebhookURLs
+	if webhookURLs == "" {
+		appSettings.RLock()
+		webhookURLs = appSettings.WebhookURLs
+		appSettings.RUnlock()
+	}
+	if webhookURLs != "" {
+		FireWebhooks(strings.Split(webhookURLs, ","), scanID, targetDir, "completed", allFindings, nil)
+	}
+
+	// ── PR/MR Decoration ──────────────────────────────────────────────────
+	if cfg.PRProvider != "" {
+		prCfg := PRConfig{
+			Provider: cfg.PRProvider,
+			Token:    cfg.PRToken,
+			Repo:     cfg.PRRepo,
+			PRNumber: cfg.PRNumber,
+			MRID:     cfg.MRiid,
+		}
+		wsHub.BroadcastLog(scanID, fmt.Sprintf("Decorating %s PR/MR with findings...", cfg.PRProvider), "info")
+		go DecoratePR(prCfg, scanID, allFindings)
+	}
 
 	elapsed := time.Since(startTime)
 	wsHub.BroadcastLog(scanID, fmt.Sprintf("✅ Ensemble Audit completed in %s — %d master findings (%d critical, %d high) — Risk: %d/100 (%s)",

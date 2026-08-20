@@ -459,8 +459,8 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 
 	// ── ML False Positive Reduction (if enabled) ─────────────
 	if cfg.EnableMLFPReduction {
-		wsHub.BroadcastProgress(scanID, "ML FP Reduction", 87)
-		wsHub.BroadcastLog(scanID, "Applying ML-based False Positive reduction...", "info")
+		wsHub.BroadcastProgress(scanID, "FP Frequency Filter", 87)
+		wsHub.BroadcastLog(scanID, "Applying FP frequency filter (triage history)...", "info")
 		mlCacheDir := ".sentryq-ml-cache"
 		if homeDir, err := os.UserHomeDir(); err == nil {
 			mlCacheDir = filepath.Join(homeDir, ".sentryq", "ml-cache")

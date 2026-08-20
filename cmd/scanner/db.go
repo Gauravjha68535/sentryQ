@@ -15,6 +15,11 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// errFindingNotFound is returned by UpdateFindingStatus when the finding ID does
+// not exist in the specified scan. Callers distinguish this from a DB error to
+// return 404 (not 500) on cross-scan ID attempts.
+var errFindingNotFound = fmt.Errorf("finding not found in this scan")
+
 var (
 	db            *sql.DB
 	dbMu          sync.Mutex
@@ -377,7 +382,10 @@ func GetFindingsByPhase(scanID string, phase string) ([]reporter.Finding, error)
 	if (phase == "" || phase == "final") && len(findings) == 0 {
 		var status string
 		if err := db.QueryRow("SELECT status FROM scans WHERE id = ?", scanID).Scan(&status); err == nil &&
-			status != "running" {
+			status != "running" && status != "paused" {
+			// "paused" is excluded: the scan will resume and produce more findings.
+			// Falling back to partial intermediate results while paused would display
+			// incomplete data as if it were the final report.
 			return getAllFindingsForScan(scanID)
 		}
 	}
@@ -438,7 +446,7 @@ func UpdateFindingStatus(scanID string, id int, status string) error {
 		return err
 	}
 	if n == 0 {
-		return fmt.Errorf("finding %d not found in scan %s", id, scanID)
+		return errFindingNotFound
 	}
 	return nil
 }

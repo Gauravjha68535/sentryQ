@@ -54,6 +54,22 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// securityHeadersMiddleware adds defence-in-depth HTTP headers to every response.
+// CSP is especially important because the HTML report embeds AI-generated content
+// (ExploitPoC, FixedCode fields) — without it, any XSS in those fields executes.
+func securityHeadersMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		// CSP: self-contained UI + API; no inline scripts beyond what we control.
+		// Reports are served as downloads (Content-Disposition: attachment), not rendered here.
+		w.Header().Set("Content-Security-Policy",
+			"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'none'")
+		next.ServeHTTP(w, r)
+	})
+}
+
 // csrfMiddleware protects against Cross-Site Request Forgery on state-changing API endpoints.
 // It requires that POST/PUT/DELETE requests specify Content-Type: application/json.
 // Because browsers do not allow cross-origin requests with this Content-Type without
@@ -138,6 +154,45 @@ func openBrowser(url string) {
 	if err != nil {
 		utils.LogInfo(fmt.Sprintf("Open %s in your browser", url))
 	}
+}
+
+// validateOllamaHost checks that a user-supplied Ollama host is safe to connect to.
+// Unlike rejectPrivateURL (which blocks all RFC1918), this function allows LAN addresses
+// because remote Ollama servers on local networks are a documented use case.
+// It blocks only cloud IMDS ranges (169.254.x.x, link-local) which have no
+// legitimate use as an Ollama host and are the primary SSRF target.
+func validateOllamaHost(hostPort string) error {
+	if hostPort == "" {
+		return nil // empty = use default, which is localhost — safe
+	}
+	host := hostPort
+	if strings.Contains(hostPort, ":") {
+		var err error
+		host, _, err = net.SplitHostPort(hostPort)
+		if err != nil {
+			// Might be a bare IPv6 address without port; try as-is
+			host = hostPort
+		}
+	}
+	addrs, err := net.LookupHost(host)
+	if err != nil {
+		return fmt.Errorf("cannot resolve Ollama host %q: %w", host, err)
+	}
+	for _, addr := range addrs {
+		ip := net.ParseIP(addr)
+		if ip == nil {
+			continue
+		}
+		// Block link-local (169.254.x.x, fe80::/10) — the cloud IMDS range.
+		if ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+			return fmt.Errorf("Ollama host %q resolves to a cloud metadata address (%s)", host, addr)
+		}
+		// Block the specific AWS/GCP IPv6 metadata address.
+		if addr == "fd00:ec2::254" {
+			return fmt.Errorf("Ollama host %q resolves to cloud metadata (%s)", host, addr)
+		}
+	}
+	return nil
 }
 
 // rejectPrivateURL parses rawURL and rejects any host that resolves to a

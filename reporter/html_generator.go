@@ -40,7 +40,9 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 		},
 		"confidencePct": func(c float64) string {
 			if c <= 0 {
-				return "100%"
+				// Confidence 0.0 means "not yet AI-validated" — show a dash,
+				// not "100%" which actively misleads reviewers.
+				return "—"
 			}
 			return fmt.Sprintf("%.0f%%", c*100)
 		},
@@ -210,11 +212,9 @@ const htmlTemplate = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Scan Report — {{.Summary.TargetDirectory}}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+    <!-- All fonts and scripts are self-contained. No external network requests are made
+         when viewing this report — consistent with SentryQ's local-first privacy guarantee.
+         Charts use inline SVG; code highlighting uses CSS only (no external JS). -->
     <style>
         :root {
             --primary: #3b82f6; --primary-dark: #2563eb; --primary-glow: rgba(59,130,246,0.12);
@@ -225,8 +225,8 @@ const htmlTemplate = `<!DOCTYPE html>
             --border: #1e293b; --border-active: #334155;
             --shadow: 0 1px 3px rgba(0,0,0,0.4); --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
             --radius: 10px; --radius-sm: 6px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', 'Fira Code', monospace;
         }
         [data-theme="light"] {
             --bg: #f1f5f9; --bg-card: #ffffff; --bg-elevated: #f8fafc; --bg-hover: #f1f5f9;
@@ -831,48 +831,43 @@ const htmlTemplate = `<!DOCTYPE html>
         html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
 
-    // Charts
-    const chartColors = { text: '#64748b', grid: 'rgba(148,163,184,0.08)' };
+    // Inline bar charts — no Chart.js dependency, works fully offline.
     (function() {
-        const sevAll = [
+        function barRow(label, value, total, color, labelW) {
+            var pct = total > 0 ? (value / total * 100).toFixed(1) : '0';
+            return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+                '<span style="width:' + labelW + ';font-size:0.78rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + label + '</span>' +
+                '<div style="flex:1;background:var(--bg-elevated);border-radius:4px;height:15px;overflow:hidden;">' +
+                '<div style="width:' + pct + '%;background:' + color + ';height:100%;border-radius:4px;transition:width 0.4s;"></div>' +
+                '</div>' +
+                '<span style="width:30px;text-align:right;font-size:0.78rem;font-weight:600;">' + value + '</span>' +
+                '</div>';
+        }
+
+        var sevAll = [
             { label: 'Critical', value: {{.Summary.CriticalCount}}, color: '#ef4444' },
             { label: 'High',     value: {{.Summary.HighCount}},     color: '#f97316' },
             { label: 'Medium',   value: {{.Summary.MediumCount}},   color: '#eab308' },
             { label: 'Low',      value: {{.Summary.LowCount}},      color: '#0ea5e9' },
-            {{if gt .Summary.InfoCount 0}}{ label: 'Info', value: {{.Summary.InfoCount}}, color: '#8b5cf6' },{{end}}
-        ].filter(s => s.value > 0);
-        new Chart(document.getElementById('severityChart'), {
-            type: 'doughnut',
-            data: {
-                labels: sevAll.map(s => s.label),
-                datasets: [{
-                    data: sevAll.map(s => s.value),
-                    backgroundColor: sevAll.map(s => s.color),
-                    borderWidth: 0, spacing: 2, borderRadius: 3
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'right', labels: { padding: 14, usePointStyle: true, pointStyle: 'circle', color: chartColors.text, font: { family: 'Inter', size: 12 } } } },
-                cutout: '68%'
-            }
-        });
-    })();
-
-    const cweLabels = [{{range .CWECounts}}'{{.Key}}',{{end}}];
-    const cweCounts = [{{range .CWECounts}}{{.Count}},{{end}}];
-    new Chart(document.getElementById('cweChart'), {
-        type: 'bar',
-        data: { labels: cweLabels, datasets: [{ data: cweCounts, backgroundColor: '#6366f1', borderRadius: 4, barThickness: 20 }] },
-        options: {
-            responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { grid: { color: chartColors.grid }, ticks: { color: chartColors.text } },
-                y: { grid: { display: false }, ticks: { color: chartColors.text, font: { family: 'JetBrains Mono', size: 10 } } }
-            }
+            { label: 'Info',     value: {{.Summary.InfoCount}},     color: '#8b5cf6' },
+        ].filter(function(s) { return s.value > 0; });
+        var total = sevAll.reduce(function(a, b) { return a + b.value; }, 0);
+        var sevContainer = document.getElementById('severityChart');
+        if (sevContainer && total > 0) {
+            sevContainer.innerHTML = '<div style="padding:8px 0">' +
+                sevAll.map(function(s) { return barRow(s.label, s.value, total, s.color, '70px'); }).join('') +
+                '</div>';
         }
-    });
+
+        var cweData = [{{range .CWECounts}}{k:'{{.Key}}',v:{{.Count}}},{{end}}];
+        var cweContainer = document.getElementById('cweChart');
+        if (cweContainer && cweData.length > 0) {
+            var maxV = Math.max.apply(null, cweData.map(function(d) { return d.v; }));
+            cweContainer.innerHTML = '<div style="padding:8px 0">' +
+                cweData.slice(0,10).map(function(d) { return barRow(d.k, d.v, maxV, '#6366f1', '80px'); }).join('') +
+                '</div>';
+        }
+    })();
 
     // Pagination & Filtering
     const PAGE_SIZE = 50;
@@ -948,9 +943,7 @@ const htmlTemplate = `<!DOCTYPE html>
     // Init
     document.addEventListener('DOMContentLoaded', () => {
         filterAndPaginate();
-        document.querySelectorAll('.code-block').forEach(block => {
-            hljs.highlightElement(block);
-        });
+        // Syntax highlighting handled by CSS only — no external hljs needed.
     });
 
     // Risk ring animation

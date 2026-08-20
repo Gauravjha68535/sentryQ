@@ -62,7 +62,10 @@ export default function CompliancePage() {
         fetch('/api/scans').then(r => r.ok ? r.json() : Promise.reject()).then(d => setScans(d || [])).catch(() => {})
     }, [])
 
-    useEffect(() => { if (paramID) load(paramID, framework) }, [])
+    // framework must be in the dependency array — omitting it caused a stale closure
+    // where changing the framework dropdown never reloaded the compliance data.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => { if (paramID) load(paramID, framework) }, [paramID, framework])
 
     const load = async (sid, fw) => {
         if (!sid) { setError('Enter a scan ID'); return }

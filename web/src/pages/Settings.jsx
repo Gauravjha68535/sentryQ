@@ -48,12 +48,17 @@ export default function Settings() {
     const [fetchingModels, setFetchingModels] = useState(false)
     const [availableModels, setAvailableModels] = useState([])
 
-    useEffect(() => { fetchSettings(); fetchSystemStatus() }, [])
+    useEffect(() => {
+        const ac = new AbortController()
+        fetchSettings(ac.signal)
+        fetchSystemStatus(ac.signal)
+        return () => ac.abort()
+    }, [])
     useEffect(() => { setTestResult(null); setAvailableModels([]) }, [settings.ai_provider])
 
-    const fetchSettings = async () => {
+    const fetchSettings = async (signal) => {
         try {
-            const res = await fetch('/api/settings')
+            const res = await fetch('/api/settings', signal ? { signal } : undefined)
             if (!res.ok) return
             const d = await res.json()
             setKeySet({ custom: !!d.custom_api_key_set, claude: !!d.claude_api_key_set, gemini: !!d.gemini_api_key_set })
@@ -69,8 +74,11 @@ export default function Settings() {
         } catch (e) { console.warn('[Settings] Failed to fetch settings:', e) }
     }
 
-    const fetchSystemStatus = async () => {
-        try { const r = await fetch('/api/system/status'); if (r.ok) setSystemStatus(await r.json()) } catch {}
+    const fetchSystemStatus = async (signal) => {
+        try {
+            const r = await fetch('/api/system/status', signal ? { signal } : undefined)
+            if (r.ok) setSystemStatus(await r.json())
+        } catch (e) { if (e.name !== 'AbortError') console.warn('[Settings] status fetch failed:', e) }
     }
 
     const set = (name, value) => setSettings(prev => ({ ...prev, [name]: value }))

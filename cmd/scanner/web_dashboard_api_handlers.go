@@ -174,7 +174,23 @@ func isAllowedOllamaHost(host string) bool {
 			return false
 		}
 	}
-	return h == "localhost" || h == "127.0.0.1" || h == "::1"
+	// Fast path: known loopback strings.
+	if h == "localhost" || h == "127.0.0.1" || h == "::1" {
+		return true
+	}
+	// Resolve to prevent DNS rebinding: attacker registers 127.0.0.1.evil.com → 127.0.0.1.
+	// Only a resolved loopback address is accepted.
+	addrs, err := net.LookupHost(h)
+	if err != nil {
+		return false
+	}
+	for _, addr := range addrs {
+		ip := net.ParseIP(addr)
+		if ip == nil || !ip.IsLoopback() {
+			return false
+		}
+	}
+	return len(addrs) > 0
 }
 
 func handleModels(w http.ResponseWriter, r *http.Request) {

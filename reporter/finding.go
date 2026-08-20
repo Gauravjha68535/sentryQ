@@ -57,10 +57,13 @@ func (f Finding) IsInTestFile() bool {
 	return false
 }
 
-// IsLowConfidence returns true if the finding has a non-zero but very low trust score,
-// indicating the scanner flagged it speculatively with little corroborating evidence.
+// IsLowConfidence returns true if the finding has a genuinely low trust score.
+// Threshold is 14 (below the 15-point multi-engine bonus) so that unvalidated
+// two-engine findings (TrustScore=15) are NOT penalised vs unvalidated single-engine
+// findings (TrustScore=0). Previously the threshold was 20, which flagged two-engine
+// findings as "low confidence" while single-engine findings were not — backwards.
 func (f Finding) IsLowConfidence() bool {
-	return f.TrustScore > 0 && f.TrustScore < 20
+	return f.TrustScore > 0 && f.TrustScore < 14
 }
 
 // IsLowPriority returns true for findings that are deprioritised in reports —

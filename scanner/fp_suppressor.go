@@ -154,7 +154,10 @@ func shouldSuppress(f reporter.Finding, fileContent string) bool {
 		safeSQL := []string{
 			// Placeholder styles (these appear IN the query string itself)
 			"= ?", "= $1", "= $2", "= :param", "= @param",
-			"= %s", "(%s)", "values (%s", "values(%s",
+			// NOTE: "= %s" and "(%s)" deliberately removed — in Python,
+			// cursor.execute("WHERE id = %s" % user_input) is a textbook SQL injection.
+			// The % operator is a string format specifier here, not a DB-API placeholder.
+			// DB-API parameterized queries pass values as a tuple: execute("WHERE id = %s", (val,))
 			// Python execute with tuple/list second arg indicator
 			"), (", "), [",  // e.g. execute("...", (param,)) or execute("...", [param])
 			"cursor.executemany(", // executemany always parameterized

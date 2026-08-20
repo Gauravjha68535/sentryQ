@@ -12,7 +12,7 @@
 
 <hr/>
 
-SentryQ transforms security scanning from simple pattern matching into **Intelligent Orchestration**. It runs your codebase through seven independent static analysis engines, performs **AI-driven vulnerability validation** via Chain-of-Thought reasoning, and uses a **"Security Judge" LLM** to deduplicate and merge findings — all running 100% locally. Your code never leaves `localhost`.
+SentryQ transforms security scanning from simple pattern matching into **Intelligent Orchestration**. It runs your codebase through six independent static analysis engines (Pattern, AST, Taint, Secret Detection, Dependency, Container), performs **AI-driven vulnerability validation** via Chain-of-Thought reasoning, and uses a **"Security Judge" LLM** to deduplicate and merge findings — all running 100% locally. The binary and API server never contact external services; the generated HTML report is self-contained and requires no internet access to view.
 
 > **Local-first guarantee:** No telemetry, no cloud uploads. Scans run entirely on your machine — including AI inference via Ollama.
 

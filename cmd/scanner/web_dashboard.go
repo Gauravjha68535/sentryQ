@@ -120,9 +120,9 @@ func StartWebServer(port int) {
 	localAddr := fmt.Sprintf("localhost:%d", port)
 	server := &http.Server{
 		Addr:         addr,
-		Handler:      corsMiddleware(csrfMiddleware(authMiddleware(mux))),
+		Handler:      securityHeadersMiddleware(corsMiddleware(csrfMiddleware(authMiddleware(mux)))),
 		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 0, // 0 = no write timeout — needed for long-running SSE/WebSocket upgrades and large report downloads
+		WriteTimeout: 0, // 0 = no write timeout — required for long-running WebSocket upgrades and large report downloads (no SSE endpoints exist)
 		IdleTimeout:  120 * time.Second,
 	}
 

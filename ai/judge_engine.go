@@ -150,6 +150,14 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 			mergedIDs[d] = true
 		}
 
+		if _, exists := findingByID[v.MasterID]; !exists {
+			// LLM hallucinated a master_id that doesn't exist in our input set.
+			// Do NOT set mergedIDs[v.MasterID] — doing so would cause the catch-all
+			// to skip all duplicate_ids listed under this verdict, permanently losing
+			// those findings. Log and let the catch-all rescue everything.
+			utils.LogWarn(fmt.Sprintf("Judge: hallucinated master_id=%d (not in input) — rescuing %d listed duplicate(s) via catch-all", v.MasterID, len(v.DuplicateIDs)))
+			continue
+		}
 		if f, ok := findingByID[v.MasterID]; ok {
 			// Override severity if the Judge specified one
 			if v.Severity != "" {

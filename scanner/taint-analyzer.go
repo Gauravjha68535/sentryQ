@@ -96,7 +96,11 @@ func NewTaintAnalyzer() *TaintAnalyzer {
 				`SqlCommand\s*\(`, `\.ExecuteReader\s*\(`, `\.ExecuteNonQuery\s*\(`, `Process\.Start\s*\(`, `BinaryFormatter\(\)\.Deserialize\s*\(`, `\.InnerHtml\s*=`, `Response\.Write\s*\(`,
 			},
 			"go": {
-				`db\.Query\s*\(`, `db\.Exec\s*\(`, `exec\.Command\s*\(`, `http\.Get\s*\(`, `http\.NewRequest\s*\(`, `html/template`, `text/template`,
+				`db\.Query\s*\(`, `db\.Exec\s*\(`, `exec\.Command\s*\(`, `http\.Get\s*\(`, `http\.NewRequest\s*\(`,
+				// Note: "html/template" and "text/template" deliberately omitted — those
+				// are import path strings and matching them flagged safe import declarations
+				// as taint sinks (false positive on every Go file using the safe template package).
+				`template\.HTML\s*\(`, `template\.JS\s*\(`, `template\.URL\s*\(`,
 			},
 			"ruby": {
 				`eval\s*\(`, `system\s*\(`, `exec\s*\(`, `%\(`, `%\w\(`, `User\.find_by_sql\s*\(`, `ActiveRecord::Base\.connection\.execute\s*\(`, `URI\.open\s*\(`, `Net::HTTP\.get\s*\(`, `Marshal\.load\s*\(`,

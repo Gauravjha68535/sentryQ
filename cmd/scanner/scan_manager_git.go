@@ -93,12 +93,26 @@ func StopScan(scanID string) error {
 	return nil
 }
 
+// validateScanConfigHosts checks all user-supplied Ollama host fields for SSRF risk.
+// Uses validateOllamaHost (allows LAN, blocks cloud IMDS / link-local).
+func validateScanConfigHosts(cfg WebScanConfig) error {
+	for _, h := range []string{cfg.OllamaHost, cfg.ConsolidationOllamaHost, cfg.JudgeOllamaHost} {
+		if err := validateOllamaHost(h); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // StartScanFromUpload handles uploaded files
 func StartScanFromUpload(targetDir string, configJSON string) (string, error) {
 	scanID := uuid.New().String()
 	var webCfg WebScanConfig
 	if err := json.Unmarshal([]byte(configJSON), &webCfg); err != nil {
 		return "", fmt.Errorf("failed to parse config JSON: %v", err)
+	}
+	if err := validateScanConfigHosts(webCfg); err != nil {
+		return "", fmt.Errorf("invalid Ollama host in scan config: %v", err)
 	}
 
 	displayName := filepath.Base(targetDir)
@@ -273,6 +287,9 @@ func StartScanFromGit(repoURL string, configJSON string) (string, error) {
 	var webCfg WebScanConfig
 	if err := json.Unmarshal([]byte(configJSON), &webCfg); err != nil {
 		return "", fmt.Errorf("failed to parse config JSON: %v", err)
+	}
+	if err := validateScanConfigHosts(webCfg); err != nil {
+		return "", fmt.Errorf("invalid Ollama host in scan config: %v", err)
 	}
 
 	tmpDir, err := os.MkdirTemp("", "sentryq-scan-"+scanID[:8]+"-")

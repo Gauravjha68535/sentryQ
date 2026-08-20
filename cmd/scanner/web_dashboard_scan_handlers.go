@@ -248,9 +248,11 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		// Fetch finding before update so we have ruleID/filePath/severity for ML feedback.
 		finding, fetchErr := GetFindingByID(scanID, findingID)
 		if err := UpdateFindingStatus(scanID, findingID, req.Status); err != nil {
-			// UpdateFindingStatus returns an error when 0 rows matched — this means
-			// the finding ID does not belong to this scan (cross-scan ID attempt).
-			httpJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+			status := http.StatusInternalServerError
+			if err == errFindingNotFound {
+				status = http.StatusNotFound
+			}
+			httpJSON(w, status, map[string]string{"error": err.Error()})
 			return
 		}
 		if fetchErr == nil {
@@ -589,7 +591,15 @@ func handleScanCompliance(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid scan ID format", http.StatusBadRequest)
 		return
 	}
-	fw := r.URL.Query().Get("framework")
+	fw := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("framework")))
+	// Whitelist the framework parameter before it lands in a filepath.Join call.
+	switch fw {
+	case "owasp", "pci", "nist", "":
+		// valid
+	default:
+		http.Error(w, "invalid framework: must be owasp, pci, or nist", http.StatusBadRequest)
+		return
+	}
 
 	findings, err := GetFindingsForScan(scanID)
 	if err != nil {
@@ -598,7 +608,7 @@ func handleScanCompliance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var framework reporter.ComplianceFramework
-	switch strings.ToLower(fw) {
+	switch fw {
 	case "pci":
 		framework = reporter.FrameworkPCIDSS
 	case "nist":
