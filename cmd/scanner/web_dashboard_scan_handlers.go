@@ -276,6 +276,12 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 			httpJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid status: must be open, resolved, ignored, or false_positive"})
 			return
 		}
+		// Hard cap: prevent DoS via a giant ID array (each ID = 2 DB round-trips).
+		const maxBulkIDs = 1000
+		if len(req.IDs) > maxBulkIDs {
+			httpJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("too many IDs: max %d per request", maxBulkIDs)})
+			return
+		}
 		// Collect successfully updated findings for a single batched ML feedback write.
 		// Per-finding load+save in a loop causes a data race under concurrent bulk requests.
 		var failed []int
@@ -367,7 +373,7 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 				// Wrap in a function so defers execute immediately after creation,
 				// before ServeFile is called.
 				err = func() error {
-					zipFile, err := os.Create(zipPath)
+					zipFile, err := os.OpenFile(zipPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 					if err != nil {
 						return err
 					}
@@ -377,11 +383,16 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 					defer archive.Close()
 
 					// compliance-nist.json is generated on-demand; pre-generate it here
-				// so the "download all" bundle is complete.
-				if nistFindings, nistErr := GetFindingsForScan(scanID); nistErr == nil {
-					nistPath := filepath.Join(reportsDir, "compliance-nist.json")
-					reporter.GenerateComplianceReport(nistPath, scanID, nistFindings, reporter.FrameworkNIST800) //nolint:errcheck
-				}
+					// so the "download all" bundle is complete. Log failures rather than
+					// silently omitting the NIST report from the ZIP.
+					if nistFindings, nistErr := GetFindingsForScan(scanID); nistErr != nil {
+						utils.LogWarn(fmt.Sprintf("ZIP: failed to load findings for NIST (scan %s): %v — NIST report omitted", scanID, nistErr))
+					} else {
+						nistPath := filepath.Join(reportsDir, "compliance-nist.json")
+						if _, nistGenErr := reporter.GenerateComplianceReport(nistPath, scanID, nistFindings, reporter.FrameworkNIST800); nistGenErr != nil {
+							utils.LogWarn(fmt.Sprintf("ZIP: NIST report generation failed (scan %s): %v — bundle will be incomplete", scanID, nistGenErr))
+						}
+					}
 				filesToZip := []string{"report.html", "report.csv", "report.pdf", "report.sarif", "sbom.cdx.json", "compliance-owasp.html", "compliance-pci.json", "compliance-nist.json"}
 					for _, fileName := range filesToZip {
 						filePathToZip := filepath.Join(reportsDir, fileName)
@@ -469,9 +480,18 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 			contentType = "application/json"
 		case "compliance-nist":
 			// Generate on demand since it's less common
-			findings, _ := GetFindingsForScan(scanID)
+			nistFindings, nistErr := GetFindingsForScan(scanID)
+			if nistErr != nil {
+				utils.LogError(fmt.Sprintf("Failed to load findings for NIST report (scan %s)", scanID), nistErr)
+				httpJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to load findings for NIST report"})
+				return
+			}
 			filePath = filepath.Join(reportsDir, "compliance-nist.json")
-			reporter.GenerateComplianceReport(filePath, scanID, findings, reporter.FrameworkNIST800)
+			if _, genErr := reporter.GenerateComplianceReport(filePath, scanID, nistFindings, reporter.FrameworkNIST800); genErr != nil {
+				utils.LogError(fmt.Sprintf("Failed to generate NIST report (scan %s)", scanID), genErr)
+				httpJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to generate NIST report"})
+				return
+			}
 			contentType = "application/json"
 		default:
 			http.NotFound(w, r)

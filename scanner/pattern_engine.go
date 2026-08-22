@@ -131,6 +131,7 @@ var frameworkDetectors = map[string]*regexp.Regexp{
 	"nuxt_js": regexp.MustCompile(`(?i)"nuxt"\s*[:=]|nuxt\.config`),
 	"svelte":  regexp.MustCompile(`(?i)"svelte"\s*[:=]|\.svelte`),
 	"go_web":  regexp.MustCompile(`(?i)"github\.com/gin-gonic/gin"|"github\.com/labstack/echo"|"github\.com/gofiber/fiber"`),
+	"mobile":  regexp.MustCompile(`(?i)"react-native"\s*[:=]|"@ionic/|"flutter"|com\.android\.|import\s+Flutter|UIViewController`),
 }
 
 // detectFrameworks reads a subset of files to guess which frameworks are in use
@@ -188,6 +189,7 @@ var frameworkFileMap = map[string]string{
 	"nuxt_js": "nuxt_js.yaml",
 	"svelte":  "svelte.yaml",
 	"go_web":  "go_web.yaml",
+	"mobile":  "mobile.yaml",
 }
 
 // localFrameworkDetectors for per-file verification to avoid generic language leakage

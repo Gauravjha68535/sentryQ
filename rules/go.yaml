@@ -2,15 +2,12 @@
   languages:
   - go
   patterns:
-  - regex: (?i)exec\.Command\s*\(\s*[\\"'](sh|bash|cmd)[\\"']\s*,\s*[\\"'](-c|/c)[\\"']\s*,
+  - regex: (?i)exec\.Command\s*\(\s*[\\"'](sh|bash|zsh|fish|dash|ksh|tcsh|cmd|pwsh|powershell)[\\"']\s*,\s*[\\"'](-c|/c|-Command|-c\s)[\\"']\s*,
   severity: critical
-  description: Command injection via exec.Command with sh/bash -c
+  description: Command injection via exec.Command with shell -c flag
   remediation: Never pass user input directly to a shell. Pass arguments individually.
   cwe: CWE-78
   owasp: A03:2021
-  negative_patterns:
-  - regex: (?i)exec\.Command\s*\(\s*["\x60][^"\x60]+["\x60]\s*,
-  - regex: (?i)exec\.LookPath\s*\(
   confidence: 0.9
 - id: go-command-injection-general
   languages:
@@ -3590,6 +3587,8 @@
   remediation: Use defer cancel() immediately after context creation
   cwe: CWE-401
   owasp: A06:2021
+  negative_patterns:
+  - regex: defer\s+cancel\s*\(
   confidence: 0.55
 - id: go-context-background-without-timeout
   languages:

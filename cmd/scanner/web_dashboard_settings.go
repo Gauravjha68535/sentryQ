@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"runtime"
 	"sync"
@@ -37,7 +38,15 @@ func getOllamaStatus(host string) string {
 	}
 	status := "unreachable"
 	client := &http.Client{Timeout: 3 * time.Second}
-	resp, err := client.Get(fmt.Sprintf("http://%s/api/version", host))
+	// Honour an explicit scheme if the host already includes one; otherwise try http.
+	scheme := "http"
+	if strings.HasPrefix(host, "https://") {
+		scheme = "https"
+		host = strings.TrimPrefix(host, "https://")
+	} else {
+		host = strings.TrimPrefix(host, "http://")
+	}
+	resp, err := client.Get(fmt.Sprintf("%s://%s/api/version", scheme, host))
 	if err == nil {
 		io.Copy(io.Discard, resp.Body) //nolint:errcheck
 		resp.Body.Close()
@@ -235,11 +244,13 @@ func secureWriteFile(path string, data []byte) error {
 		tmp.Close()
 
 		// Apply restrictive ACL before exposing under the final name.
-		if username := os.Getenv("USERNAME"); username != "" {
+		// Use os/user.Current() — reads the process token, unlike os.Getenv("USERNAME")
+		// which is controllable by the user and could be set to an arbitrary value.
+		if currentUser, err := user.Current(); err == nil && currentUser.Username != "" {
 			if err := exec.Command(
 				"icacls", tmpPath,
 				"/inheritance:r",
-				"/grant:r", username+":F",
+				"/grant:r", currentUser.Username+":F",
 			).Run(); err != nil {
 				utils.LogWarn(fmt.Sprintf("secureWriteFile: icacls failed for %s: %v — file may be accessible to other users", tmpPath, err))
 			}

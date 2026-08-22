@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // GenerateSBOM writes a CycloneDX-format SBOM JSON file derived from scan findings.
@@ -61,6 +63,13 @@ func GenerateSBOM(filename string, findings []Finding, projectName string) error
 			if f.VulnerablePattern != "" {
 				comp.Version = extractVersion(f.VulnerablePattern)
 			}
+			if eco := extractEcosystem(f); eco != "" {
+				if comp.Version != "" {
+					comp.PURL = fmt.Sprintf("pkg:%s/%s@%s", eco, pkgName, comp.Version)
+				} else {
+					comp.PURL = fmt.Sprintf("pkg:%s/%s", eco, pkgName)
+				}
+			}
 			components = append(components, comp)
 		}
 
@@ -84,7 +93,7 @@ func GenerateSBOM(filename string, findings []Finding, projectName string) error
 		BOMFormat:    "CycloneDX",
 		SpecVersion:  "1.4",
 		Version:      1,
-		SerialNumber: fmt.Sprintf("urn:uuid:sentryq-%d", time.Now().UnixNano()),
+		SerialNumber: "urn:uuid:" + uuid.New().String(),
 		Metadata: map[string]interface{}{
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 			"component": map[string]string{
@@ -100,7 +109,31 @@ func GenerateSBOM(filename string, findings []Finding, projectName string) error
 	if err != nil {
 		return fmt.Errorf("sbom: marshal failed: %w", err)
 	}
-	return os.WriteFile(filename, data, 0644)
+	return os.WriteFile(filename, data, 0600)
+}
+
+// extractEcosystem infers the CycloneDX/PURL ecosystem type from finding metadata.
+func extractEcosystem(f Finding) string {
+	src := strings.ToLower(f.Source + " " + f.RuleID + " " + f.IssueName)
+	switch {
+	case strings.Contains(src, "npm") || strings.Contains(src, "node") || strings.Contains(src, "yarn"):
+		return "npm"
+	case strings.Contains(src, "pypi") || strings.Contains(src, "pip") || strings.Contains(src, "python"):
+		return "pypi"
+	case strings.Contains(src, "golang") || strings.Contains(src, "go-module") || strings.Contains(src, "go mod"):
+		return "golang"
+	case strings.Contains(src, "maven") || strings.Contains(src, "gradle") || strings.Contains(src, "java"):
+		return "maven"
+	case strings.Contains(src, "rubygem") || strings.Contains(src, "bundler") || strings.Contains(src, "gem"):
+		return "gem"
+	case strings.Contains(src, "cargo") || strings.Contains(src, "rust") || strings.Contains(src, "crate"):
+		return "cargo"
+	case strings.Contains(src, "nuget") || strings.Contains(src, "dotnet") || strings.Contains(src, "csharp"):
+		return "nuget"
+	case strings.Contains(src, "composer") || strings.Contains(src, "php"):
+		return "composer"
+	}
+	return ""
 }
 
 // extractPackageName tries to get a meaningful package name from a finding.

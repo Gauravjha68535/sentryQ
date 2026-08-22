@@ -40,11 +40,14 @@ func EvaluatePolicy(findings []reporter.Finding, p PolicyConfig) []PolicyViolati
 
 	var violations []PolicyViolation
 
-	// --fail-on: any finding at this severity or above triggers a failure
+	// --fail-on: any finding at this severity or above triggers a failure.
+	// Only iterate real severity keys — "total" is a synthetic accumulator key
+	// that has no entry in the order map and would match every threshold >= 0.
 	if p.FailOn != "" {
 		order := map[string]int{"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
 		threshold := order[strings.ToLower(p.FailOn)]
-		for sev, n := range counts {
+		for _, sev := range []string{"critical", "high", "medium", "low", "info"} {
+			n := counts[sev]
 			if n > 0 && order[sev] >= threshold {
 				violations = append(violations, PolicyViolation{
 					Gate:    "--fail-on " + p.FailOn,

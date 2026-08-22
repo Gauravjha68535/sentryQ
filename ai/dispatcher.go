@@ -17,7 +17,10 @@ type GenerateOptions struct {
 	Prompt      string
 	Temperature float32
 	NumPredict  int
-	OllamaHost  string // Optional: overrides global if provided
+	// OllamaHost overrides the global Ollama base URL when non-empty.
+	// Accepted formats: bare "host:port" (http:// is prepended automatically) or
+	// a full URL "http://host:port". Both forms are normalised in Generate before use.
+	OllamaHost string
 }
 
 // Generate dispatches an AI generation request to the currently active provider.

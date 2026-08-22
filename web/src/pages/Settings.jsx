@@ -54,7 +54,16 @@ export default function Settings() {
         fetchSystemStatus(ac.signal)
         return () => ac.abort()
     }, [])
-    useEffect(() => { setTestResult(null); setAvailableModels([]) }, [settings.ai_provider])
+    // Only clear the model list when the user actively changes the provider — not when
+    // fetchSettings updates the provider after load (which would cause a visible flicker).
+    const prevProviderRef = React.useRef(null)
+    useEffect(() => {
+        if (prevProviderRef.current !== null && prevProviderRef.current !== settings.ai_provider) {
+            setTestResult(null)
+            setAvailableModels([])
+        }
+        prevProviderRef.current = settings.ai_provider
+    }, [settings.ai_provider])
 
     const fetchSettings = async (signal) => {
         try {
@@ -84,6 +93,7 @@ export default function Settings() {
     const set = (name, value) => setSettings(prev => ({ ...prev, [name]: value }))
     const handleChange = e => set(e.target.name, e.target.value)
 
+    const saveAbortRef = React.useRef(null)
     const saveSettings = async () => {
         try {
             const res = await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
@@ -91,7 +101,9 @@ export default function Settings() {
                 toast.success('Settings saved')
                 setSaved(true)
                 setTimeout(() => setSaved(false), 3000)
-                fetchSettings()
+                if (saveAbortRef.current) saveAbortRef.current.abort()
+                saveAbortRef.current = new AbortController()
+                fetchSettings(saveAbortRef.current.signal)
             } else {
                 toast.error('Failed to save settings')
             }
@@ -120,9 +132,18 @@ export default function Settings() {
         setFetchingModels(true)
         try {
             let url = `/api/custom-endpoint/models?provider=${provider}`
-            if (provider === 'lmstudio') url += `&url=${encodeURIComponent('http://' + settings.lmstudio_host)}`
-            else if (provider === 'openai') url += `&url=${encodeURIComponent(settings.custom_api_url)}&api_key=${encodeURIComponent(settings.custom_api_key)}`
-            const res = await fetch(url)
+            const fetchOpts = {}
+            if (provider === 'lmstudio') {
+                url += `&url=${encodeURIComponent('http://' + settings.lmstudio_host)}`
+            } else if (provider === 'openai') {
+                url += `&url=${encodeURIComponent(settings.custom_api_url)}`
+                // Send the API key in the Authorization header — never in a URL query param
+                // (URLs appear in server logs, browser history, and proxy logs).
+                if (settings.custom_api_key) {
+                    fetchOpts.headers = { Authorization: `Bearer ${settings.custom_api_key}` }
+                }
+            }
+            const res = await fetch(url, fetchOpts)
             const data = await res.json()
             if (data.error) setTestResult({ success: false, message: data.error })
             else { setAvailableModels(data.models || []); setTestResult({ success: true, message: `Found ${data.models?.length || 0} models` }) }

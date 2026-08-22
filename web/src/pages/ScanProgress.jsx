@@ -48,6 +48,7 @@ export default function ScanProgress() {
             }
 
             ws.onmessage = (event) => {
+                if (destroyed) return
                 try {
                     const msg = JSON.parse(event.data)
                     switch (msg.type) {
@@ -97,22 +98,24 @@ export default function ScanProgress() {
 
         connect()
 
+        const pollController = new AbortController()
         const pollInterval = setInterval(async () => {
             try {
-                const res = await fetch(`/api/scan/${id}`)
-                if (res.ok) {
-                    const data = await res.json()
-                    if (data.status === 'completed') { statusRef.current = 'completed'; setStatus('completed'); setProgress(100); clearInterval(pollInterval) }
-                    else if (data.status === 'failed') { statusRef.current = 'failed'; setStatus('failed'); clearInterval(pollInterval) }
-                    else if (data.status === 'stopped') { statusRef.current = 'stopped'; setStatus('stopped'); clearInterval(pollInterval) }
-                    else if (data.status === 'paused') { statusRef.current = 'paused'; setStatus('paused') }
-                    if (data.total_findings) setFindingsCount(data.total_findings)
-                }
+                const res = await fetch(`/api/scan/${id}`, { signal: pollController.signal })
+                if (!res.ok || destroyed) return
+                const data = await res.json()
+                if (destroyed) return
+                if (data.status === 'completed') { statusRef.current = 'completed'; setStatus('completed'); setProgress(100); clearInterval(pollInterval) }
+                else if (data.status === 'failed') { statusRef.current = 'failed'; setStatus('failed'); clearInterval(pollInterval) }
+                else if (data.status === 'stopped') { statusRef.current = 'stopped'; setStatus('stopped'); clearInterval(pollInterval) }
+                else if (data.status === 'paused') { statusRef.current = 'paused'; setStatus('paused') }
+                if (data.total_findings) setFindingsCount(data.total_findings)
             } catch { /* ignore poll errors */ }
         }, 3000)
 
         return () => {
             destroyed = true
+            pollController.abort()
             clearTimeout(reconnectTimer)
             if (wsRef.current) wsRef.current.close()
             clearInterval(pollInterval)

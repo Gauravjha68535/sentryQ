@@ -24,46 +24,63 @@ export default function RuleBuilder() {
     const [testResult, setTestResult] = useState(null)
     const [testing, setTesting] = useState(false)
 
-    const fetchRuleFiles = useCallback(async () => {
+    const fetchRuleFiles = useCallback(async (signal) => {
         try {
-            const res = await fetch('/api/rules')
+            const res = await fetch('/api/rules', { signal })
             if (res.ok) setRuleFiles(await res.json())
             else toast.error(`Failed to load rule files (HTTP ${res.status})`)
         } catch (e) {
-            console.error('[RuleBuilder] Failed to load rule files:', e)
-            toast.error('Failed to load rule files: ' + e.message)
+            if (e.name !== 'AbortError') {
+                console.error('[RuleBuilder] Failed to load rule files:', e)
+                toast.error('Failed to load rule files: ' + e.message)
+            }
         } finally { setLoading(false) }
     }, [])
 
-    useEffect(() => { fetchRuleFiles() }, [fetchRuleFiles])
+    useEffect(() => {
+        const controller = new AbortController()
+        fetchRuleFiles(controller.signal)
+        return () => controller.abort()
+    }, [fetchRuleFiles])
 
+    const fileAbortRef = React.useRef(null)
     const fetchRulesForFile = async (filename) => {
+        if (fileAbortRef.current) fileAbortRef.current.abort()
+        fileAbortRef.current = new AbortController()
         setSelectedFile(filename)
         setExpandedRule(null)
         try {
-            const res = await fetch(`/api/rules/${filename}`)
+            const res = await fetch(`/api/rules/${filename}`, { signal: fileAbortRef.current.signal })
             if (res.ok) setRules(await res.json())
             else toast.error(`Failed to load rules (HTTP ${res.status})`)
         } catch (e) {
-            console.error('[RuleBuilder] Failed to load rules for file:', filename, e)
-            toast.error('Failed to load rules: ' + e.message)
+            if (e.name !== 'AbortError') {
+                console.error('[RuleBuilder] Failed to load rules for file:', filename, e)
+                toast.error('Failed to load rules: ' + e.message)
+            }
         }
     }
 
+    const testAbortRef = React.useRef(null)
     const handleTest = async () => {
         if (!testPattern) return
+        if (testAbortRef.current) testAbortRef.current.abort()
+        testAbortRef.current = new AbortController()
         setTesting(true)
         try {
             const res = await fetch('/api/rules/test', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pattern: testPattern, code: testCode })
+                body: JSON.stringify({ pattern: testPattern, code: testCode }),
+                signal: testAbortRef.current.signal,
             })
             if (res.ok) setTestResult(await res.json())
             else toast.error(`Test failed (HTTP ${res.status})`)
         } catch (e) {
-            console.error('[RuleBuilder] Rule test request failed:', e)
-            toast.error('Test request failed: ' + e.message)
+            if (e.name !== 'AbortError') {
+                console.error('[RuleBuilder] Rule test request failed:', e)
+                toast.error('Test request failed: ' + e.message)
+            }
         } finally { setTesting(false) }
     }
 

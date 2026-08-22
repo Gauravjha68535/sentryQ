@@ -21,8 +21,11 @@ import (
 
 
 // maxFileContentSize is the maximum file size sent to AI for context (10 MB).
-// Declared at package level to avoid duplication across runScan and runEnsembleScan.
 const maxFileContentSize = 10 * 1024 * 1024
+
+// maxTotalFileContentsSize is the cumulative cap on file content loaded into the AI
+// context map to prevent OOM on large repositories (512 MB).
+const maxTotalFileContentsSize = 512 * 1024 * 1024
 
 // getGitBin returns the correct git executable name for the current OS,
 // consistent with the pattern used by getTrivyBin, getSemgrepBin, and getOSVBin.
@@ -186,10 +189,12 @@ func forceRemoveAll(path string) {
 }
 
 // sanitizeConfigForStorage returns a copy of cfg with secrets zeroed out so
-// they are never written to the SQLite database. Credentials should be passed
-// server-side via environment variables (SENTRYQ_PR_TOKEN), not persisted.
+// they are never written to the SQLite database.
+// WebhookURLs is zeroed because webhook URLs routinely embed auth tokens in the
+// path (Slack /services/T/B/SECRET, Discord /webhooks/ID/SECRET, etc.).
 func sanitizeConfigForStorage(cfg WebScanConfig) WebScanConfig {
 	cfg.PRToken = ""
+	cfg.WebhookURLs = ""
 	return cfg
 }
 

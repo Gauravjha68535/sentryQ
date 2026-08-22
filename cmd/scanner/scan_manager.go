@@ -321,7 +321,6 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		wsHub.BroadcastProgress(scanID, "AI Validation", 78)
 		wsHub.BroadcastLog(scanID, "Preparing combined findings for AI validation...", "phase")
 
-		const maxTotalFileContentsStd = 512 * 1024 * 1024 // 512 MB cumulative cap (same as ensemble)
 		fileContents := make(map[string]string)
 		var cumulativeSizeStd int64
 		for _, files := range result.FilePaths {
@@ -330,7 +329,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 				if statErr != nil || info.Size() > maxFileContentSize {
 					continue
 				}
-				if cumulativeSizeStd+info.Size() > maxTotalFileContentsStd {
+				if cumulativeSizeStd+info.Size() > maxTotalFileContentsSize {
 					utils.LogWarn("fileContents map reached 512 MB cumulative cap — skipping remaining files for AI context")
 					break
 				}
@@ -559,7 +558,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 	webGenerateReportFiles(scanID, allFindings, targetDir, cfg)
 
 	// ── Policy Gate Evaluation ─────────────────────────────────
-	evaluatePolicyGate(scanID, cfg, allFindings, criticalCount, highCount)
+	policyViolations := evaluatePolicyGate(scanID, cfg, allFindings)
 
 	// ── Fire webhooks (per-scan config first, then global settings) ──
 	// Per-scan webhook URLs (from config) take priority; fall back to global settings.
@@ -570,7 +569,7 @@ func runScan(ctx context.Context, scanID string, targetDir string, cfg WebScanCo
 		appSettings.RUnlock()
 	}
 	if webhookURLs != "" {
-		FireWebhooks(strings.Split(webhookURLs, ","), scanID, targetDir, "completed", allFindings, nil)
+		FireWebhooks(strings.Split(webhookURLs, ","), scanID, targetDir, "completed", allFindings, policyViolations)
 	}
 
 	// ── PR/MR Decoration ─────────────────────────────────────────

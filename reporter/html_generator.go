@@ -12,7 +12,7 @@ import (
 
 // GenerateHTMLReport generates an interactive HTML report to a file
 func GenerateHTMLReport(filename string, findings []Finding, summary ReportSummary) error {
-	file, err := os.Create(filename)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}

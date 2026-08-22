@@ -57,11 +57,11 @@ func (f Finding) IsInTestFile() bool {
 	return false
 }
 
-// IsLowConfidence returns true if the finding has a genuinely low trust score.
-// Threshold is 14 (below the 15-point multi-engine bonus) so that unvalidated
-// two-engine findings (TrustScore=15) are NOT penalised vs unvalidated single-engine
-// findings (TrustScore=0). Previously the threshold was 20, which flagged two-engine
-// findings as "low confidence" while single-engine findings were not — backwards.
+// IsLowConfidence returns true when a finding has some trust signal but it is weak.
+// TrustScore == 0 is excluded: zero means no data (no AI validation, no multi-engine
+// bonus) — that is a distinct "unknown" state, not a confirmed low-confidence signal.
+// Threshold is 14 so that unvalidated two-engine findings (TrustScore=15) are not
+// penalised relative to unvalidated single-engine findings (TrustScore=0).
 func (f Finding) IsLowConfidence() bool {
 	return f.TrustScore > 0 && f.TrustScore < 14
 }

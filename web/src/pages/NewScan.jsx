@@ -41,26 +41,33 @@ export default function NewScan() {
 
     React.useEffect(() => {
         const ac = new AbortController()
-        fetchSettings(ac.signal)
-        fetchModels(null, ac.signal)
+        // Fetch settings first, then fetch models using the just-received provider/host
+        // values rather than stale React state (which would always be 'ollama' on first render).
+        ;(async () => {
+            try {
+                const res = await fetch('/api/settings', { signal: ac.signal })
+                if (!res.ok || ac.signal.aborted) return
+                const d = await res.json()
+                const provider = d.ai_provider || 'ollama'
+                const ollamaHost = d.ollama_host || 'localhost:11434'
+                const customApiUrl = d.custom_api_url || ''
+                const customApiKey = d.custom_api_key || ''
+                setCfg({ ollamaHost, aiProvider: provider, customApiUrl, customApiKey })
+                if (!ac.signal.aborted) {
+                    // Pass provider and key explicitly so fetchModels doesn't read stale state
+                    const host = provider === 'openai' ? customApiUrl : ollamaHost
+                    fetchModels(host || null, ac.signal, provider, customApiKey)
+                }
+            } catch (e) { if (e.name !== 'AbortError') console.error('Failed to fetch settings', e) }
+        })()
         return () => ac.abort()
     }, [])
 
-    const fetchSettings = async (signal) => {
-        try {
-            const res = await fetch('/api/settings', { signal })
-            if (res.ok) {
-                const d = await res.json()
-                setCfg({ ollamaHost: d.ollama_host || 'localhost:11434', aiProvider: d.ai_provider || 'ollama', customApiUrl: d.custom_api_url || '', customApiKey: d.custom_api_key || '' })
-            }
-        } catch (e) { if (e.name !== 'AbortError') console.error('Failed to fetch settings', e) }
-    }
-
-    const fetchModels = async (explicitHost = null, signal = null) => {
+    const fetchModels = async (explicitHost = null, signal = null, explicitProvider = null, explicitApiKey = null) => {
         setLoadingModels(true)
         if (explicitHost) setAvailableModels([])
         try {
-            const isCustom = config.aiProvider === 'openai'
+            const isCustom = (explicitProvider || config.aiProvider) === 'openai'
             const host = explicitHost || (isCustom ? config.customApiUrl : config.ollamaHost)
             if (!host) { setLoadingModels(false); return }
             // API key goes in the Authorization header — never in a URL query param
@@ -71,8 +78,9 @@ export default function NewScan() {
             const url = isCustom
                 ? `/api/custom-endpoint/models?${new URLSearchParams({ url: host })}`
                 : `/api/models?host=${encodeURIComponent(host)}`
-            if (isCustom && config.customApiKey && config.customApiKey !== '***') {
-                fetchOpts.headers = { Authorization: `Bearer ${config.customApiKey}` }
+            const apiKey = explicitApiKey !== null ? explicitApiKey : config.customApiKey
+            if (isCustom && apiKey && apiKey !== '***') {
+                fetchOpts.headers = { Authorization: `Bearer ${apiKey}` }
             }
             const res = await fetch(url, fetchOpts)
             if (res.ok) {
@@ -101,7 +109,11 @@ export default function NewScan() {
         }
     }
 
+    const startAbortRef = React.useRef(null)
     const startScan = async () => {
+        if (startAbortRef.current) startAbortRef.current.abort()
+        startAbortRef.current = new AbortController()
+        const { signal } = startAbortRef.current
         setUploading(true)
         try {
             let res
@@ -109,9 +121,9 @@ export default function NewScan() {
                 const fd = new FormData()
                 for (let i = 0; i < files.length; i++) fd.append('files', files[i], files[i].webkitRelativePath || files[i].name)
                 fd.append('config', JSON.stringify(config))
-                res = await fetch('/api/scan/upload', { method: 'POST', body: fd })
+                res = await fetch('/api/scan/upload', { method: 'POST', body: fd, signal })
             } else if (tab === 'git' && gitUrl.trim()) {
-                res = await fetch('/api/scan/git', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: gitUrl.trim(), config }) })
+                res = await fetch('/api/scan/git', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: gitUrl.trim(), config }), signal })
             } else {
                 toast.warning('Please provide a folder or Git URL')
                 setUploading(false)
@@ -123,7 +135,7 @@ export default function NewScan() {
                 toast.error(`Scan failed to start: ${await res.text()}`)
             }
         } catch (e) {
-            toast.error(`Error: ${e.message}`)
+            if (e.name !== 'AbortError') toast.error(`Error: ${e.message}`)
         } finally {
             setUploading(false)
         }
@@ -292,7 +304,7 @@ export default function NewScan() {
                             </select>
                         </FormField>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                            {[['maxCritical','Max Critical'],['maxHigh','Max High'],['maxMedium','Max Medium'],['maxTotal','Max Total']].map(([key, lbl]) => (
+                            {[['maxCritical','Max Critical'],['maxHigh','Max High'],['maxMedium','Max Medium'],['maxLow','Max Low'],['maxTotal','Max Total']].map(([key, lbl]) => (
                                 <FormField key={key} label={lbl}>
                                     <input className="input" type="number" min="-1"
                                         value={config[key] === -1 ? '' : config[key]} placeholder="No limit"

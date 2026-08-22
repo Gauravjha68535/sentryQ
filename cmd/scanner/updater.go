@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -229,8 +230,8 @@ func verifyChecksum(filePath, expectedHex string) error {
 		return err
 	}
 	actual := hex.EncodeToString(h.Sum(nil))
-	if actual != expectedHex {
-		return fmt.Errorf("expected %s, got %s", expectedHex, actual)
+	if !hmac.Equal([]byte(actual), []byte(expectedHex)) {
+		return fmt.Errorf("checksum mismatch: expected %s, got %s", expectedHex, actual)
 	}
 	return nil
 }

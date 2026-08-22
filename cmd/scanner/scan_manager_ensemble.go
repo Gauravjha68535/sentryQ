@@ -221,7 +221,6 @@ func runEnsembleScan(ctx context.Context, scanID string, targetDir string, cfg W
 	// Build file contents map once — shared by both Phase 2 (AI self-validation)
 	// and Phase 3 (static pre-validation). Uses the package-level maxFileContentSize.
 	// A cumulative size cap prevents OOM on repositories with many large files.
-	const maxTotalFileContents = 512 * 1024 * 1024 // 512 MB cumulative cap
 	fileContents := make(map[string]string)
 	var cumulativeSize int64
 fileWalk:
@@ -231,7 +230,7 @@ fileWalk:
 			if statErr != nil || info.Size() > maxFileContentSize {
 				continue
 			}
-			if cumulativeSize+info.Size() > maxTotalFileContents {
+			if cumulativeSize+info.Size() > maxTotalFileContentsSize {
 				utils.LogWarn("fileContents map reached 512 MB cumulative cap — skipping remaining files")
 				break fileWalk
 			}
@@ -400,7 +399,7 @@ fileWalk:
 	// ── Policy Gate Evaluation ─────────────────────────────────────────────
 	// Previously missing from runEnsembleScan — CI pipelines using --enable-ensemble
 	// --fail-on critical always got exit code 0 regardless of findings.
-	evaluatePolicyGate(scanID, cfg, allFindings, criticalCount, highCount)
+	policyViolations := evaluatePolicyGate(scanID, cfg, allFindings)
 
 	// ── Fire webhooks ──────────────────────────────────────────────────────
 	webhookURLs := cfg.WebhookURLs
@@ -410,7 +409,7 @@ fileWalk:
 		appSettings.RUnlock()
 	}
 	if webhookURLs != "" {
-		FireWebhooks(strings.Split(webhookURLs, ","), scanID, targetDir, "completed", allFindings, nil)
+		FireWebhooks(strings.Split(webhookURLs, ","), scanID, targetDir, "completed", allFindings, policyViolations)
 	}
 
 	// ── PR/MR Decoration ──────────────────────────────────────────────────

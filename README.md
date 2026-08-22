@@ -4,7 +4,7 @@
   <p><strong>Next-Gen AI-Orchestrated Security Analysis Platform</strong></p>
   <p><i>A high-performance, local-first security tool designed for elite engineering teams. Powered by Go and AI.</i></p>
 
-  [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go)](https://golang.org)
+  [![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat-square&logo=go)](https://golang.org)
   [![React Version](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react)](https://react.dev)
   [![AI Support](https://img.shields.io/badge/AI-Ollama%20%7C%20OpenAI%20%7C%20Claude%20%7C%20Gemini-FF9900?style=flat-square&logo=openai)](https://ollama.com)
   [![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](LICENSE)
@@ -31,7 +31,7 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
 | **MITRE ATT&CK Enrichment** | Local technique mapping from CWE/issue keywords — no network calls |
 | **AI-Orchestrated Triage** | Supports **Ollama, OpenAI, Anthropic Claude, Google Gemini, and LM Studio**. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding. |
-| **Judge LLM with ID Validation** | Ensemble Judge deduplicates two reports in batches of 30 (up from 5) so static and AI findings that describe the same vulnerability land in the same batch and get merged; output coverage verified — missing IDs retained via catch-all |
+| **Judge LLM with ID Validation** | Ensemble Judge deduplicates findings in batches of 30; when the total finding count exceeds 30 the input is split across batches and cross-batch deduplication is not possible — duplicates that land in different batches will appear as separate findings. Output coverage is verified: IDs absent from the verdict are retained via catch-all. |
 | **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge (separate configurable models per phase) |
 | **CI Policy Engine** | `--fail-on critical`, `--max-critical N`, `--max-high N`, `--max-medium N`, `--max-low N`, `--max-total N` — exit code 1 on violation; also configurable from the New Scan UI |
 | **PR / MR Decoration** | Posts findings as GitHub PR review comments (inline) and GitLab MR notes; token + repo configured per-scan from UI or CLI |
@@ -99,9 +99,9 @@ Final Report
 
 | Platform | Requirements |
 | :--- | :--- |
-| **Linux** | Go 1.25+, Node.js 18+, GCC (required for go-tree-sitter CGO sources), [Ollama](https://ollama.com) (optional, for AI) |
+| **Linux** | Go 1.24+, Node.js 18+, GCC (required for go-tree-sitter CGO sources), [Ollama](https://ollama.com) (optional, for AI) |
 | **macOS** | `brew install go node ollama` |
-| **Windows** | Go 1.25+, Node.js 18+, GCC via [TDM-GCC](https://jmeubank.github.io/tdm-gcc/) or MSYS2, Ollama |
+| **Windows** | Go 1.24+, Node.js 18+, GCC via [TDM-GCC](https://jmeubank.github.io/tdm-gcc/) or MSYS2, Ollama |
 
 > **Note:** SentryQ uses `modernc.org/sqlite` (pure Go SQLite driver) for its database. However, **CGO is required** because the Tree-Sitter AST analyzer embeds C grammar sources via `go-tree-sitter`. Ensure GCC (or a compatible C compiler) is available on your `PATH` before building.
 
@@ -197,6 +197,11 @@ Navigate to **`http://localhost:5336`** → click **New Scan** → configure sca
 | `SENTRYQ_AUTH_TOKEN` | Enable single-token API authentication & CSRF protection | `SENTRYQ_AUTH_TOKEN=mysecret ./sentryq` |
 | `SENTRYQ_WEBHOOK_URLS` | Comma-separated webhook URLs for scan completion notifications | `SENTRYQ_WEBHOOK_URLS=https://...` |
 | `SENTRYQ_PR_TOKEN` | Inject GitHub/GitLab token for PR decoration without writing to disk | `SENTRYQ_PR_TOKEN=ghp_...` |
+| `SENTRYQ_SCAN_TIMEOUT_MINUTES` | Override the 60-minute scan timeout (CLI and web mode) | `SENTRYQ_SCAN_TIMEOUT_MINUTES=120` |
+| `SENTRYQ_CLAUDE_MODEL` | Override Claude model used when `SENTRYQ_CLAUDE_API_KEY` is set | `SENTRYQ_CLAUDE_MODEL=claude-opus-4-8` |
+| `SENTRYQ_GEMINI_MODEL` | Override Gemini model used when `SENTRYQ_GEMINI_API_KEY` is set | `SENTRYQ_GEMINI_MODEL=gemini-2.0-flash` |
+| `SENTRYQ_CUSTOM_API_URL` | Base URL for custom OpenAI-compatible endpoint | `SENTRYQ_CUSTOM_API_URL=https://api.example.com/v1` |
+| `SENTRYQ_CUSTOM_MODEL` | Model name for the custom endpoint | `SENTRYQ_CUSTOM_MODEL=my-model` |
 
 ---
 
@@ -320,7 +325,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version-file: go.mod
 
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y gcc

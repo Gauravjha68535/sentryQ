@@ -197,9 +197,14 @@ func handleModels(w http.ResponseWriter, r *http.Request) {
 	// Allow optional host parameter to fetch models from a different Ollama instance.
 	// Restrict to loopback addresses to prevent SSRF via crafted ?host= values.
 	host := r.URL.Query().Get("host")
-	if host != "" && !isAllowedOllamaHost(host) {
-		http.Error(w, "Invalid host: only loopback addresses are permitted", http.StatusBadRequest)
-		return
+	// Use validateOllamaHost (allows LAN) rather than isAllowedOllamaHost (loopback only).
+	// LAN Ollama servers (e.g. 192.168.1.10:11434) are a documented and supported use case.
+	// Only cloud IMDS link-local ranges (169.254.x.x) are blocked.
+	if host != "" {
+		if err := validateOllamaHost(host); err != nil {
+			http.Error(w, "Invalid host: "+err.Error(), http.StatusBadRequest)
+			return
+		}
 	}
 	if host == "" {
 		appSettings.RLock()

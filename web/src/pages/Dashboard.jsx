@@ -128,18 +128,22 @@ export default function Dashboard() {
                 || (cfg.maxLow >= 0 && cfg.maxLow !== -1)
                 || (cfg.maxTotal >= 0 && cfg.maxTotal !== -1)
             if (!hasPolicy) return null
-            // policyFailOn medium/low: the DB only stores critical_count + high_count,
-            // so we can only detect a violation if the total indicates it.
-            // Server-side evaluatePolicyGate has the authoritative result;
-            // this badge is best-effort based on available counts.
+            // The DB only stores critical_count + high_count; medium_count and low_count
+            // are not available. For policyFailOn=medium/low we cannot evaluate the badge
+            // client-side without those counts — show an indeterminate state rather than lie.
+            const cannotEvaluate =
+                cfg.policyFailOn === 'medium' || cfg.policyFailOn === 'low' ||
+                (cfg.maxMedium >= 0 && cfg.maxMedium !== -1) ||
+                (cfg.maxLow >= 0 && cfg.maxLow !== -1)
+            if (cannotEvaluate) {
+                return <span className="policy-badge policy-unknown" title="Policy gate includes medium/low severity — see full scan report for authoritative result">? POLICY</span>
+            }
             const violated = (
                 (cfg.maxCritical >= 0 && scan.critical_count > cfg.maxCritical) ||
                 (cfg.maxHigh >= 0 && scan.high_count > cfg.maxHigh) ||
                 (cfg.maxTotal >= 0 && scan.total_findings > cfg.maxTotal) ||
                 (cfg.policyFailOn === 'critical' && scan.critical_count > 0) ||
-                (cfg.policyFailOn === 'high' && (scan.critical_count + scan.high_count) > 0) ||
-                (cfg.policyFailOn === 'medium' && scan.total_findings > 0) ||
-                (cfg.policyFailOn === 'low' && scan.total_findings > 0)
+                (cfg.policyFailOn === 'high' && (scan.critical_count + scan.high_count) > 0)
             )
             return <span className={`policy-badge ${violated ? 'policy-fail' : 'policy-pass'}`}>{violated ? '✗ POLICY FAIL' : '✓ POLICY PASS'}</span>
         } catch { return null }

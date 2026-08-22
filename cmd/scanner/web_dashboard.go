@@ -122,7 +122,7 @@ func StartWebServer(port int) {
 		Addr:         addr,
 		Handler:      securityHeadersMiddleware(corsMiddleware(csrfMiddleware(authMiddleware(mux)))),
 		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 0, // 0 = no write timeout — required for long-running WebSocket upgrades and large report downloads (no SSE endpoints exist)
+		WriteTimeout: 10 * time.Minute, // generous but bounded; WebSocket connections bypass this after the protocol upgrade
 		IdleTimeout:  120 * time.Second,
 	}
 

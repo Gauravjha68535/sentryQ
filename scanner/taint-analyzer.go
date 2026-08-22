@@ -83,7 +83,10 @@ func NewTaintAnalyzer() *TaintAnalyzer {
 			},
 			"php": {
 				`eval\s*\(`, `exec\s*\(`, `system\s*\(`, `passthru\s*\(`, `shell_exec\s*\(`,
-				`mysql_query\s*\(`, `mysqli_query\s*\(`, `PDO::query\s*\(`, `include\s*\(`, `require\s*\(`, `unserialize\s*\(`, `curl_init\s*\(`,
+				`mysql_query\s*\(`, `mysqli_query\s*\(`, `PDO::query\s*\(`,
+				// Match both function form include(...) and statement form include "file"
+				`(?:include|require)(?:_once)?\s*[\(\$'"]`,
+				`unserialize\s*\(`, `curl_init\s*\(`,
 			},
 			"java": {
 				`\.executeQuery\s*\(`, `\.executeUpdate\s*\(`, `Runtime\.getRuntime\(\)\.exec\s*\(`, `ProcessBuilder\s*\(`, `\.readObject\s*\(`,

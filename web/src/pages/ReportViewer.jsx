@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Download, ChevronDown, ChevronUp, FileText, Code, Shield } from 'lucide-react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
@@ -126,13 +126,14 @@ export default function ReportViewer() {
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedIds, setSelectedIds] = useState(new Set())
     const toast = useToast()
+    const phaseAbortRef = useRef(null)
 
-    const fetchReport = useCallback(async (phase = 'final') => {
+    const fetchReport = useCallback(async (phase = 'final', signal) => {
         try {
             const phaseParam = phase && phase !== 'final' ? `?phase=${phase}` : ''
             const [scanRes, findingsRes] = await Promise.all([
-                fetch(`/api/scan/${id}`),
-                fetch(`/api/scan/${id}/findings${phaseParam}`),
+                fetch(`/api/scan/${id}`, { signal }),
+                fetch(`/api/scan/${id}/findings${phaseParam}`, { signal }),
             ])
             if (scanRes.ok) {
                 const d = await scanRes.json()
@@ -140,11 +141,18 @@ export default function ReportViewer() {
                 try { setIsEnsemble(!!JSON.parse(d.config || '{}').enableEnsemble) } catch { /* ignore */ }
             }
             if (findingsRes.ok) setFindings(await findingsRes.json() || [])
-        } catch { /* ignore */ }
+        } catch (e) { if (e.name !== 'AbortError') { /* ignore */ } }
         finally { setLoading(false) }
     }, [id])
 
-    useEffect(() => { fetchReport() }, [fetchReport])
+    useEffect(() => {
+        const controller = new AbortController()
+        fetchReport('final', controller.signal)
+        return () => {
+            controller.abort()
+            if (phaseAbortRef.current) phaseAbortRef.current.abort()
+        }
+    }, [fetchReport])
 
     const updateFindingStatus = async (dbId, newStatus) => {
         try {
@@ -258,7 +266,11 @@ export default function ReportViewer() {
                 <div style={{ marginBottom: '20px' }}>
                     <div style={{ display: 'flex', gap: '8px', padding: '4px', background: 'var(--bg-tertiary)', borderRadius: '10px', width: 'fit-content' }}>
                         {[{ key: 'final', label: '⚖️ Final Report (Judge)', color: '#f59e0b' }, { key: 'static', label: '📊 Static Report', color: '#6366f1' }, { key: 'ai', label: '🤖 AI Report', color: '#22c55e' }].map(t => (
-                            <button key={t.key} onClick={() => { setReportPhase(t.key); setLoading(true); fetchReport(t.key) }}
+                            <button key={t.key} onClick={() => {
+                                if (phaseAbortRef.current) phaseAbortRef.current.abort()
+                                phaseAbortRef.current = new AbortController()
+                                setReportPhase(t.key); setLoading(true); fetchReport(t.key, phaseAbortRef.current.signal)
+                            }}
                                 style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.2s', background: reportPhase === t.key ? t.color : 'transparent', color: reportPhase === t.key ? '#fff' : 'var(--text-muted)' }}>
                                 {t.label}
                             </button>

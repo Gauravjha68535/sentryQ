@@ -54,12 +54,18 @@ func ValidateFinding(ctx context.Context, modelName string, ollamaHost string, f
 	}
 
 	// sanitizeField removes prompt injection markers from untrusted finding fields.
-	// A filename or description containing "ignore all previous instructions" would
-	// otherwise redirect the model verdict. XML delimiters in the prompt isolate these fields.
+	// XML delimiters in the prompt isolate these fields from the instruction region.
 	sanitizeField := func(s string) string {
 		s = strings.ReplaceAll(s, "<|", "< |")
 		s = strings.ReplaceAll(s, "|>", "| >")
 		return strings.TrimSpace(s)
+	}
+
+	// sanitizeContent escapes XML closing tags in raw file content so that a file
+	// containing "</code_context>" cannot escape the XML wrapper and inject into the
+	// live instruction region of the prompt.
+	sanitizeContent := func(s string) string {
+		return strings.ReplaceAll(s, "</", "<\\/")
 	}
 
 	prompt := fmt.Sprintf(`You are a Senior Security Code Reviewer.
@@ -122,8 +128,8 @@ Return ONLY a valid JSON object in the final part of your response:
 		sanitizeField(finding.Description),
 		sanitizeField(finding.Remediation),
 		testFileNote,
-		fileContent,
-		crossFileNote)
+		sanitizeContent(fileContent),
+		sanitizeContent(crossFileNote))
 
 	// Use unified dispatcher (handles provider routing and OllamaHost overriding)
 	valCtx, valCancel := context.WithTimeout(ctx, 10*time.Minute)

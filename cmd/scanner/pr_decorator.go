@@ -6,12 +6,41 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
 	"SentryQ/reporter"
 	"SentryQ/utils"
 )
+
+// mdLinkRe matches Markdown link syntax [text](url) to neutralise injected links.
+var mdLinkRe = regexp.MustCompile(`\[([^\]]*)\]\(([^)]*)\)`)
+
+// sanitizeMD escapes AI-generated text before embedding it in a GitHub/GitLab
+// Markdown comment. It neutralises injected links and code-fence breakouts so that
+// adversarial content in scanned code cannot hijack the posted PR comment.
+func sanitizeMD(s string) string {
+	// Neutralise Markdown links: [text](url) → text (url rendered as plain text)
+	s = mdLinkRe.ReplaceAllString(s, "$1 ($2)")
+	// Escape backtick runs that could open a code fence
+	s = strings.ReplaceAll(s, "```", "` ` `")
+	// Escape heading markers at the start of a line
+	s = regexp.MustCompile(`(?m)^(#{1,6}\s)`).ReplaceAllString(s, "\\$1")
+	return s
+}
+
+// mustMarshal marshals v to JSON, returning nil on error (callers guard against nil).
+// All payloads here are simple known structs/maps; marshalling should never fail.
+// If it does, the error is logged and the caller skips the request safely.
+func mustMarshal(v interface{}) []byte {
+	b, err := json.Marshal(v)
+	if err != nil {
+		utils.LogWarn(fmt.Sprintf("pr-decorator: JSON marshal failed: %v", err))
+		return nil
+	}
+	return b
+}
 
 // PRConfig holds the config needed to post findings as PR comments.
 type PRConfig struct {
@@ -105,8 +134,8 @@ func buildPRSummaryComment(scanID string, findings []reporter.Finding) string {
 				}
 				sb.WriteString(fmt.Sprintf("- **%s** `%s` — %s (line %s)\n",
 					strings.ToUpper(f.Severity),
-					f.FilePath,
-					f.IssueName,
+					sanitizeMD(f.FilePath),
+					sanitizeMD(f.IssueName),
 					f.LineNumber,
 				))
 				shown++
@@ -128,7 +157,10 @@ func buildPRSummaryComment(scanID string, findings []reporter.Finding) string {
 
 func postGitHubPRComment(cfg PRConfig, body string) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/issues/%d/comments", cfg.Repo, cfg.PRNumber)
-	payload, _ := json.Marshal(map[string]string{"body": body})
+	payload := mustMarshal(map[string]string{"body": body})
+	if payload == nil {
+		return
+	}
 
 	req, _ := http.NewRequest("POST", url, bytes.NewReader(payload))
 	req.Header.Set("Authorization", "Bearer "+cfg.Token)
@@ -194,9 +226,9 @@ func postGitHubReviewComments(cfg PRConfig, findings []reporter.Finding) {
 		seen[key] = true
 
 		body := fmt.Sprintf("**SentryQ %s: %s**\n\n%s\n\n**Remediation:** %s\n\n_Rule: `%s` | %s_",
-			strings.ToUpper(f.Severity), f.IssueName,
-			f.Description,
-			f.Remediation,
+			strings.ToUpper(f.Severity), sanitizeMD(f.IssueName),
+			sanitizeMD(f.Description),
+			sanitizeMD(f.Remediation),
 			f.RuleID, f.CWE,
 		)
 		comments = append(comments, reviewComment{
@@ -218,12 +250,15 @@ func postGitHubReviewComments(cfg PRConfig, findings []reporter.Finding) {
 		Event    string          `json:"event"`
 		Comments []reviewComment `json:"comments"`
 	}
-	payload, _ := json.Marshal(reviewPayload{
+	payload := mustMarshal(reviewPayload{
 		CommitID: sha,
 		Body:     "",
 		Event:    "COMMENT",
 		Comments: comments,
 	})
+	if payload == nil {
+		return
+	}
 
 	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d/reviews", cfg.Repo, cfg.PRNumber)
 	req, _ := http.NewRequest("POST", url, bytes.NewReader(payload))
@@ -277,7 +312,10 @@ func postGitLabMRNote(cfg PRConfig, body string) {
 		urlEncodeRepo(cfg.Repo),
 		cfg.MRID,
 	)
-	payload, _ := json.Marshal(map[string]string{"body": body})
+	payload := mustMarshal(map[string]string{"body": body})
+	if payload == nil {
+		return
+	}
 
 	req, _ := http.NewRequest("POST", url, bytes.NewReader(payload))
 	req.Header.Set("Private-Token", cfg.Token)
@@ -353,9 +391,9 @@ func postGitLabInlineComments(cfg PRConfig, findings []reporter.Finding) {
 		seen[key] = true
 
 		body := fmt.Sprintf("**SentryQ %s: %s**\n\n%s\n\n**Remediation:** %s\n\n_Rule: `%s` | %s_",
-			strings.ToUpper(f.Severity), f.IssueName,
-			f.Description,
-			f.Remediation,
+			strings.ToUpper(f.Severity), sanitizeMD(f.IssueName),
+			sanitizeMD(f.Description),
+			sanitizeMD(f.Remediation),
 			f.RuleID, f.CWE,
 		)
 
@@ -371,7 +409,10 @@ func postGitLabInlineComments(cfg PRConfig, findings []reporter.Finding) {
 			},
 		}
 
-		payload, _ := json.Marshal(dp)
+		payload := mustMarshal(dp)
+		if payload == nil {
+			continue
+		}
 		apiURL := fmt.Sprintf("%s/api/v4/projects/%s/merge_requests/%d/discussions",
 			strings.TrimRight(cfg.GitLabURL, "/"),
 			urlEncodeRepo(cfg.Repo),

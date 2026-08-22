@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { FileCheck, RefreshCw, ChevronDown, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 import SeverityBadge from '../components/SeverityBadge'
@@ -59,24 +59,36 @@ export default function CompliancePage() {
     const [scans, setScans] = useState([])
 
     useEffect(() => {
-        fetch('/api/scans').then(r => r.ok ? r.json() : Promise.reject()).then(d => setScans(d || [])).catch(() => {})
+        const controller = new AbortController()
+        fetch('/api/scans', { signal: controller.signal })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(d => setScans(d || []))
+            .catch(() => {})
+        return () => controller.abort()
     }, [])
 
-    // framework must be in the dependency array — omitting it caused a stale closure
-    // where changing the framework dropdown never reloaded the compliance data.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { if (paramID) load(paramID, framework) }, [paramID, framework])
+    const loadAbortRef = useRef(null)
 
     const load = async (sid, fw) => {
         if (!sid) { setError('Enter a scan ID'); return }
+        if (loadAbortRef.current) loadAbortRef.current.abort()
+        loadAbortRef.current = new AbortController()
+        const { signal } = loadAbortRef.current
         setError(''); setLoading(true)
         try {
-            const res = await fetch(`/api/scan/compliance?id=${encodeURIComponent(sid)}&framework=${fw}`)
+            const res = await fetch(`/api/scan/compliance?id=${encodeURIComponent(sid)}&framework=${fw}`, { signal })
             if (!res.ok) throw new Error(await res.text())
             setReport(await res.json())
-        } catch (e) { setError(e.message || 'Failed to load compliance report'); setReport(null) }
-        finally { setLoading(false) }
+        } catch (e) {
+            if (e.name !== 'AbortError') { setError(e.message || 'Failed to load compliance report'); setReport(null) }
+        } finally { setLoading(false) }
     }
+
+    useEffect(() => {
+        if (!paramID) return
+        load(paramID, framework)
+        return () => { if (loadAbortRef.current) loadAbortRef.current.abort() }
+    }, [paramID, framework])
 
     const overallColor = report?.overall_status === 'compliant' ? '#22c55e' : '#ef4444'
 

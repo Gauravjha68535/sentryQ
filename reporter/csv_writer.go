@@ -10,7 +10,7 @@ import (
 
 // WriteCSV generates the CSV report with required columns
 func WriteCSV(filename string, findings []Finding) error {
-	file, err := os.Create(filename)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -87,6 +87,20 @@ func WriteCSV(filename string, findings []Finding) error {
 	return nil
 }
 
+// csvSafe prevents CSV formula injection by prefixing cells that start with
+// formula trigger characters (=, +, -, @, TAB, CR) with a single quote.
+// Spreadsheet applications strip the quote visually but will not evaluate the cell as a formula.
+func csvSafe(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	switch s[0] {
+	case '=', '+', '-', '@', '\t', '\r':
+		return "'" + s
+	}
+	return s
+}
+
 func findingToRow(f Finding) []string {
 	confidenceStr := "N/A"
 	if f.Confidence > 0 {
@@ -95,22 +109,22 @@ func findingToRow(f Finding) []string {
 	taintFlow := strings.Join(f.ExploitPath, " → ")
 	return []string{
 		strconv.Itoa(f.SrNo),
-		f.IssueName,
-		f.FilePath,
-		f.Description,
-		f.Severity,
-		f.LineNumber,
-		f.CWE,
-		f.OWASP,
-		confidenceStr,
-		fmt.Sprintf("%.0f", f.TrustScore),
-		f.Source,
-		f.AiValidated,
-		f.AiReasoning,
-		f.Remediation,
-		f.CodeSnippet,
-		f.FixedCode,
-		f.ExploitPoC,
-		taintFlow,
+		csvSafe(f.IssueName),
+		csvSafe(f.FilePath),
+		csvSafe(f.Description),
+		csvSafe(f.Severity),
+		csvSafe(f.LineNumber),
+		csvSafe(f.CWE),
+		csvSafe(f.OWASP),
+		csvSafe(confidenceStr),
+		csvSafe(fmt.Sprintf("%.0f", f.TrustScore)),
+		csvSafe(f.Source),
+		csvSafe(f.AiValidated),
+		csvSafe(f.AiReasoning),
+		csvSafe(f.Remediation),
+		csvSafe(f.CodeSnippet),
+		csvSafe(f.FixedCode),
+		csvSafe(f.ExploitPoC),
+		csvSafe(taintFlow),
 	}
 }

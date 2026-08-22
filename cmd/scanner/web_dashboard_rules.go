@@ -14,17 +14,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type YAMLRulePattern struct {
+	Regex string `json:"regex" yaml:"regex"`
+}
+
 type YAMLRule struct {
-	ID        string   `json:"id" yaml:"id"`
-	Languages []string `json:"languages" yaml:"languages"`
-	Patterns  []struct {
-		Regex string `json:"regex" yaml:"regex"`
-	} `json:"patterns" yaml:"patterns"`
-	Severity    string `json:"severity" yaml:"severity"`
-	Description string `json:"description" yaml:"description"`
-	Remediation string `json:"remediation" yaml:"remediation"`
-	CWE         string `json:"cwe" yaml:"cwe"`
-	OWASP       string `json:"owasp" yaml:"owasp"`
+	ID               string            `json:"id" yaml:"id"`
+	Languages        []string          `json:"languages" yaml:"languages"`
+	Patterns         []YAMLRulePattern `json:"patterns" yaml:"patterns"`
+	NegativePatterns []YAMLRulePattern `json:"negative_patterns" yaml:"negative_patterns"`
+	Severity         string            `json:"severity" yaml:"severity"`
+	Description      string            `json:"description" yaml:"description"`
+	Remediation      string            `json:"remediation" yaml:"remediation"`
+	CWE              string            `json:"cwe" yaml:"cwe"`
+	OWASP            string            `json:"owasp" yaml:"owasp"`
 }
 
 func handleRulesList(w http.ResponseWriter, r *http.Request) {
@@ -71,14 +74,19 @@ func handleRulesFile(w http.ResponseWriter, r *http.Request) {
 	}
 	rulesDir := getDefaultRulesDir()
 	rulesPath := filepath.Join(rulesDir, filename)
-	// Verify the resolved path is still inside the rules directory to prevent
-	// path traversal via absolute paths or symlink chains.
-	cleanedPath := filepath.Clean(rulesPath)
+	// Resolve symlinks before the prefix check so a symlink inside rules/
+	// pointing outside cannot bypass the containment guard.
+	resolvedPath, err := filepath.EvalSymlinks(rulesPath)
+	if err != nil {
+		// File may not exist yet (POST to create). Fall back to cleaned path.
+		resolvedPath = filepath.Clean(rulesPath)
+	}
 	cleanedDir := filepath.Clean(rulesDir) + string(filepath.Separator)
-	if !strings.HasPrefix(cleanedPath+string(filepath.Separator), cleanedDir) {
+	if !strings.HasPrefix(resolvedPath+string(filepath.Separator), cleanedDir) {
 		http.Error(w, "Invalid filename", http.StatusBadRequest)
 		return
 	}
+	rulesPath = resolvedPath
 
 	switch r.Method {
 	case http.MethodGet:
@@ -106,6 +114,21 @@ func handleRulesFile(w http.ResponseWriter, r *http.Request) {
 		if newRule.ID == "" || newRule.Severity == "" || len(newRule.Patterns) == 0 {
 			http.Error(w, "id, severity, and patterns are required", http.StatusBadRequest)
 			return
+		}
+		// Validate all regex patterns before writing to disk. An invalid or
+		// catastrophically-backtracking pattern would be loaded into every subsequent
+		// scan with no error message.
+		for _, pat := range newRule.Patterns {
+			if _, err := regexp.Compile(pat.Regex); err != nil {
+				http.Error(w, "invalid regex in patterns: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		for _, pat := range newRule.NegativePatterns {
+			if _, err := regexp.Compile(pat.Regex); err != nil {
+				http.Error(w, "invalid regex in negative_patterns: "+err.Error(), http.StatusBadRequest)
+				return
+			}
 		}
 		// Load existing
 		var rules []YAMLRule

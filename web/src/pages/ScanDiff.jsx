@@ -40,21 +40,26 @@ export default function ScanDiff() {
     const [error, setError] = useState('')
 
     useEffect(() => {
-        fetch('/api/scans')
+        const controller = new AbortController()
+        fetch('/api/scans', { signal: controller.signal })
             .then(r => r.ok ? r.json() : Promise.reject())
             .then(d => setScans(d || []))
             .catch(() => {})
+        return () => controller.abort()
     }, [])
 
+    const compareAbortRef = React.useRef(null)
     const compare = async () => {
         if (!scanA || !scanB) { setError('Select two scan IDs to compare'); return }
         if (scanA === scanB) { setError('Select two different scans'); return }
+        if (compareAbortRef.current) compareAbortRef.current.abort()
+        compareAbortRef.current = new AbortController()
         setError(''); setLoading(true)
         try {
-            const res = await fetch(`/api/scans/diff?a=${encodeURIComponent(scanA)}&b=${encodeURIComponent(scanB)}`)
+            const res = await fetch(`/api/scans/diff?a=${encodeURIComponent(scanA)}&b=${encodeURIComponent(scanB)}`, { signal: compareAbortRef.current.signal })
             if (!res.ok) throw new Error(await res.text())
             setDiff(await res.json())
-        } catch (e) { setError(e.message || 'Comparison failed') }
+        } catch (e) { if (e.name !== 'AbortError') setError(e.message || 'Comparison failed') }
         finally { setLoading(false) }
     }
 

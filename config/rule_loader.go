@@ -408,10 +408,11 @@ var alwaysLoadRuleFiles = []string{
 }
 
 // LoadRulesForLanguages loads only the rule files relevant to the detected languages,
-// plus the always-on cross-language rule files. This avoids loading hundreds of
-// irrelevant rules when scanning a single-language codebase.
+// plus the always-on cross-language rule files, plus all framework-specific rule files
+// from the rules/frameworks/ subdirectory. This avoids loading hundreds of irrelevant
+// rules when scanning a single-language codebase while still covering all framework targets.
 func LoadRulesForLanguages(rulesDir string, languages map[string]bool) ([]Rule, error) {
-	// Build the set of rule file names to load
+	// Build the set of flat rule file names to load
 	toLoad := make(map[string]bool)
 	for _, f := range alwaysLoadRuleFiles {
 		toLoad[f] = true
@@ -431,10 +432,12 @@ func LoadRulesForLanguages(rulesDir string, languages map[string]bool) ([]Rule, 
 	}
 
 	var allRules []Rule
+
+	// Load flat language rules
 	for fileName := range toLoad {
 		path := filepath.Join(rulesDir, fileName)
 		if _, err := os.Stat(path); os.IsNotExist(err) {
-			continue // No rule file for this language — skip silently
+			continue
 		}
 		rules, err := LoadRulesFile(path)
 		if err != nil {
@@ -443,6 +446,28 @@ func LoadRulesForLanguages(rulesDir string, languages map[string]bool) ([]Rule, 
 		}
 		allRules = append(allRules, rules...)
 		utils.LogInfo(fmt.Sprintf("Loaded %d rules from %s", len(rules), fileName))
+	}
+
+	// Load all framework-specific rule files from rules/frameworks/.
+	// These files are always loaded — the framework detector in RunPatternScan
+	// tags each rule with its framework name so rules are only applied to files
+	// where the framework is detected, preventing cross-framework false positives.
+	frameworksDir := filepath.Join(rulesDir, "frameworks")
+	entries, err := os.ReadDir(frameworksDir)
+	if err == nil {
+		for _, e := range entries {
+			if e.IsDir() || filepath.Ext(e.Name()) != ".yaml" {
+				continue
+			}
+			path := filepath.Join(frameworksDir, e.Name())
+			rules, err := LoadRulesFile(path)
+			if err != nil {
+				utils.LogError(fmt.Sprintf("Failed to parse framework rule YAML (%s)", e.Name()), err)
+				continue
+			}
+			allRules = append(allRules, rules...)
+			utils.LogInfo(fmt.Sprintf("Loaded %d rules from frameworks/%s", len(rules), e.Name()))
+		}
 	}
 
 	return allRules, nil

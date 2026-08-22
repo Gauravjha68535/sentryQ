@@ -206,6 +206,18 @@ func main() {
 		if jModel == "" {
 			jModel = model
 		}
+		// Collect CLI webhook URLs and pass them into cfg so runScan fires them
+		// with the correct policy violations. Doing it here (rather than in main
+		// after runScan returns) avoids the double-fire that used to happen when a
+		// global webhook was also configured in settings.json.
+		var cliWebhookURLs []string
+		if *webhookURLs != "" {
+			cliWebhookURLs = append(cliWebhookURLs, strings.Split(*webhookURLs, ",")...)
+		}
+		if envW := os.Getenv("SENTRYQ_WEBHOOK_URLS"); envW != "" {
+			cliWebhookURLs = append(cliWebhookURLs, strings.Split(envW, ",")...)
+		}
+
 		cfg := WebScanConfig{
 			EnableDeepScan: true,
 			EnableAI:       useAI,
@@ -214,6 +226,17 @@ func main() {
 			JudgeModel:     jModel,
 			OllamaHost:     ollamaHost,
 			ChangedFiles:   changedFiles,
+			// Policy limits default to -1 ("no limit") when not set via flags.
+			// Go zero-initialises int to 0, which evaluatePolicyGate treats as
+			// "limit = 0" and fires a violation for every finding. Pass the actual
+			// flag values (which default to -1) to avoid spurious policy failures.
+			PolicyFailOn: policy.FailOn,
+			MaxCritical:  policy.MaxCritical,
+			MaxHigh:      policy.MaxHigh,
+			MaxMedium:    policy.MaxMedium,
+			MaxLow:       policy.MaxLow,
+			MaxTotal:     policy.MaxTotal,
+			WebhookURLs:  strings.Join(cliWebhookURLs, ","),
 		}
 
 		scanID := "cli-" + uuid.New().String()
@@ -222,7 +245,9 @@ func main() {
 			return
 		}
 
-		ctx := context.Background()
+		scanTimeout := getScanTimeout()
+		ctx, cancelScan := context.WithTimeout(context.Background(), scanTimeout)
+		defer cancelScan()
 		runScan(ctx, scanID, targetDir, cfg)
 
 		findings, err := GetFindingsForScan(scanID)
@@ -242,18 +267,8 @@ func main() {
 			}
 		}
 
-		// Webhook notification
-		var wURLs []string
-		if *webhookURLs != "" {
-			wURLs = strings.Split(*webhookURLs, ",")
-		}
-		if envW := os.Getenv("SENTRYQ_WEBHOOK_URLS"); envW != "" {
-			wURLs = append(wURLs, strings.Split(envW, ",")...)
-		}
-
-		// Policy evaluation
+		// Policy evaluation (for exit code only — webhook firing is handled by runScan)
 		violations := EvaluatePolicy(findings, policy)
-		FireWebhooks(wURLs, scanID, targetDir, "completed", findings, violations)
 
 		// PR decoration
 		if prCfg.Provider != "" {

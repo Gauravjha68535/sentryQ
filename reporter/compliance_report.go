@@ -16,7 +16,6 @@ const (
 	FrameworkOWASP10 ComplianceFramework = "OWASP Top 10 2021"
 	FrameworkPCIDSS  ComplianceFramework = "PCI DSS 3.2.1"
 	FrameworkNIST800 ComplianceFramework = "NIST SP 800-53"
-	FrameworkHIPAA   ComplianceFramework = "HIPAA"
 )
 
 // ControlResult shows how many findings map to a compliance control.
@@ -24,7 +23,7 @@ type ControlResult struct {
 	ControlID   string    `json:"control_id"`
 	ControlName string    `json:"control_name"`
 	Findings    []Finding `json:"findings"`
-	Status      string    `json:"status"`   // "pass" | "fail" | "partial"
+	Status      string    `json:"status"`   // "pass" | "fail"
 	Severity    string    `json:"highest_severity"`
 }
 
@@ -96,7 +95,7 @@ func GenerateComplianceReport(filename, scanID string, findings []Finding, frame
 	case FrameworkNIST800:
 		controls = mapNIST(findings)
 	default:
-		controls = mapOWASP(findings)
+		return nil, fmt.Errorf("unsupported compliance framework: %q", framework)
 	}
 
 	passing, failing := 0, 0
@@ -112,7 +111,7 @@ func GenerateComplianceReport(filename, scanID string, findings []Finding, frame
 
 	overall := "compliant"
 	for _, c := range controls {
-		if c.Status == "fail" && (c.Severity == "critical" || c.Severity == "high") {
+		if c.Status == "fail" {
 			overall = "non-compliant"
 			break
 		}
@@ -136,7 +135,7 @@ func GenerateComplianceReport(filename, scanID string, findings []Finding, frame
 	if err != nil {
 		return report, fmt.Errorf("compliance: marshal failed: %w", err)
 	}
-	if err := os.WriteFile(filename, data, 0644); err != nil {
+	if err := os.WriteFile(filename, data, 0600); err != nil {
 		return report, fmt.Errorf("compliance: write failed: %w", err)
 	}
 	return report, nil
@@ -245,7 +244,7 @@ tr:hover td{background:#253044}
 		time.Now().UTC().Format("2006-01-02 15:04 UTC"),
 	)
 
-	return os.WriteFile(filename, []byte(htmlContent), 0644)
+	return os.WriteFile(filename, []byte(htmlContent), 0600)
 }
 
 func mapOWASP(findings []Finding) []ControlResult {

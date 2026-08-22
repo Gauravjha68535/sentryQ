@@ -292,9 +292,10 @@ func GetScan(id string) (*ScanRecord, error) {
 	return &s, nil
 }
 
-// GetAllScans retrieves all scans, most recent first
+// GetAllScans retrieves the 500 most recent scans. The dashboard polls this every 5 s;
+// an unbounded query would serialize a full table dump on every poll as scan history grows.
 func GetAllScans() ([]ScanRecord, error) {
-	rows, err := db.Query("SELECT id, target, source_type, status, config, created_at, completed_at, total_findings, critical_count, high_count FROM scans ORDER BY created_at DESC")
+	rows, err := db.Query("SELECT id, target, source_type, status, config, created_at, completed_at, total_findings, critical_count, high_count FROM scans ORDER BY created_at DESC LIMIT 500")
 	if err != nil {
 		return nil, err
 	}
