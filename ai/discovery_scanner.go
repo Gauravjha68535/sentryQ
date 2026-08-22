@@ -283,9 +283,7 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, ollamaHost s
 			langSpecific = "PHP-SPECIFIC: Look for unserialize() vulnerabilities, local file inclusion (LFI) via 'include/require', and SQLi in legacy 'mysql_' functions."
 		}
 
-		// Escape closing XML tags in the raw source so that a file containing
-		// "</code_context>" cannot escape the wrapper and inject into the instruction region.
-		safCodeBlock := strings.ReplaceAll(codeBlock, "</", "<\\/")
+		safCodeBlock := SanitizeCodeContent(codeBlock)
 
 		prompt := fmt.Sprintf("You are an Expert Security Auditor and Code Analysis System.\n"+
 			"Your mission: Perform a comprehensive security review of the provided code to identify vulnerabilities and suggest defensive improvements. Be thorough and analytical.\n\n"+
@@ -430,12 +428,9 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, ollamaHost s
 						continue
 					}
 				}
-				// Sanitize the AI-returned reqFile before embedding it in the prompt.
-				// reqFile comes from the model's JSON output and could contain newlines,
-				// closing XML tags, or other injection payloads.
-				safeReqFile := strings.ReplaceAll(reqFile, "\n", " ")
-				safeReqFile = strings.ReplaceAll(safeReqFile, "\r", " ")
-				safeReqFile = strings.ReplaceAll(safeReqFile, "</", "<\\/")
+				// Sanitize the AI-returned reqFile using the shared sanitizer.
+				// reqFile is model output and could contain injection payloads.
+				safeReqFile := SanitizePromptField(reqFile)
 
 				fileContent, readErr := os.ReadFile(targetPath)
 				if readErr == nil {
@@ -443,9 +438,7 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, ollamaHost s
 					if len(snippet) > 32000 {
 						snippet = snippet[:32000] + "\n... (context cap reached)"
 					}
-					// Escape closing tags in the fetched file content too.
-					snippet = strings.ReplaceAll(snippet, "</", "<\\/")
-					contextAdditions.WriteString(fmt.Sprintf("\n// File: %s\n```\n%s\n```\n", safeReqFile, snippet))
+					contextAdditions.WriteString(fmt.Sprintf("\n// File: %s\n```\n%s\n```\n", safeReqFile, SanitizeCodeContent(snippet)))
 				} else {
 					contextAdditions.WriteString(fmt.Sprintf("\n// File: %s (NOT FOUND)\n", safeReqFile))
 				}

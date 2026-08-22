@@ -53,20 +53,10 @@ func ValidateFinding(ctx context.Context, modelName string, ollamaHost string, f
 		crossFileNote = "\nRELATED CROSS-FILE CONTEXT (Dependencies, imports, or callers):\n" + relatedFilesContext + "\n"
 	}
 
-	// sanitizeField removes prompt injection markers from untrusted finding fields.
-	// XML delimiters in the prompt isolate these fields from the instruction region.
-	sanitizeField := func(s string) string {
-		s = strings.ReplaceAll(s, "<|", "< |")
-		s = strings.ReplaceAll(s, "|>", "| >")
-		return strings.TrimSpace(s)
-	}
-
-	// sanitizeContent escapes XML closing tags in raw file content so that a file
-	// containing "</code_context>" cannot escape the XML wrapper and inject into the
-	// live instruction region of the prompt.
-	sanitizeContent := func(s string) string {
-		return strings.ReplaceAll(s, "</", "<\\/")
-	}
+	// Use shared sanitizers: SanitizePromptField for metadata fields,
+	// SanitizeCodeContent for raw source (preserves whitespace/tabs/newlines).
+	sanitizeField := SanitizePromptField
+	sanitizeContent := SanitizeCodeContent
 
 	prompt := fmt.Sprintf(`You are a Senior Security Code Reviewer.
 Your task is to validate a potential vulnerability found by an automated scanner.

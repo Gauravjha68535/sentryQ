@@ -211,12 +211,12 @@ func JudgeFindings(ctx context.Context, staticFindings []reporter.Finding, aiFin
 	return finalFindings, nil
 }
 
-// sanitizeJudgeField removes prompt injection markers from untrusted finding fields
-// before they are embedded in the judge prompt.
+// sanitizeJudgeField removes prompt injection vectors from untrusted finding
+// fields before they are embedded in the judge prompt. Delegates to the shared
+// SanitizePromptField which handles LLaMA tokens, XML breakout, bidi overrides,
+// and control characters.
 func sanitizeJudgeField(s string) string {
-	s = strings.ReplaceAll(s, "<|", "< |")
-	s = strings.ReplaceAll(s, "|>", "| >")
-	return strings.TrimSpace(s)
+	return SanitizePromptField(s)
 }
 
 // runJudgeBatch sends a single batch of findings to the Judge LLM
