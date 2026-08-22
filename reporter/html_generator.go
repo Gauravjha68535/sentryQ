@@ -73,19 +73,22 @@ func GenerateHTMLReportToWriter(w io.Writer, findings []Finding, summary ReportS
 			return strings.Contains(s, "```")
 		},
 		"findingPriority": func(f Finding) string {
+			ai := f.AiValidated == "Yes"
 			switch f.Severity {
 			case "critical":
-				if f.AiValidated == "Yes" {
+				return "P0"
+			case "high":
+				if ai {
 					return "P0"
 				}
 				return "P1"
-			case "high":
-				if f.AiValidated == "Yes" {
+			case "medium":
+				if ai {
 					return "P1"
 				}
 				return "P2"
-			case "medium":
-				if f.AiValidated == "Yes" {
+			case "low":
+				if ai {
 					return "P2"
 				}
 				return "P3"

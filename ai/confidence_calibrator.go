@@ -95,11 +95,12 @@ func (c *ConfidenceCalibrator) RecordValidation(severity string, isTruePositive 
 		stats.FalsePositives++
 	}
 
-	// Guard against zero division; AssessedFindings is always >= 1 here because
-	// we just incremented it, but defend explicitly for future-proofing.
-	if stats.AssessedFindings > 0 {
-		stats.AccuracyRate = float64(stats.TruePositives) / float64(stats.AssessedFindings)
-	}
+	// Laplace smoothing: add 1 pseudo-observation of each outcome so the accuracy
+	// estimate is never 0 or 1 on sparse data, and converges smoothly to the true
+	// rate as sample count grows. Without smoothing, 1/1 = 100% accuracy after the
+	// very first assessment, which is high-variance and misleading.
+	// Formula: (TruePositives + 1) / (AssessedFindings + 2)
+	stats.AccuracyRate = float64(stats.TruePositives+1) / float64(stats.AssessedFindings+2)
 }
 
 // CalibrateConfidence adjusts the raw confidence score based on historical accuracy for that severity
@@ -108,10 +109,11 @@ func (c *ConfidenceCalibrator) CalibrateConfidence(severity string, rawConfidenc
 	defer c.mu.RUnlock()
 
 	stats, exists := c.stats[severity]
-	if !exists || stats.AssessedFindings < 5 {
-		// Not enough data to calibrate, return raw
+	if !exists {
 		return rawConfidence
 	}
+	// Laplace-smoothed AccuracyRate is reliable from the very first sample —
+	// no hard minimum sample count needed.
 
 	// If the AI is highly accurate for this severity, boost confidence slightly
 	// If it heavily false positives, downgrade confidence significantly

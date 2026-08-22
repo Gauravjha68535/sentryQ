@@ -88,8 +88,8 @@ func ValidateFindingsBatch(ctx context.Context, modelName string, ollamaHost str
 		validated++
 		elapsed := time.Since(startTime)
 		var etaStr string
-		if validated > 1 {
-			avgTime := elapsed / time.Duration(validated-1)
+		if validated > 0 {
+			avgTime := elapsed / time.Duration(validated)
 			remaining := totalToValidate - validated
 			if remaining > 0 {
 				etaStr = fmt.Sprintf("ETA %s", formatDuration(avgTime*time.Duration(remaining)))

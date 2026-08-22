@@ -107,33 +107,37 @@ func GetPriorityMatrix(findings []Finding) PriorityMatrix {
 	}
 
 	for _, f := range findings {
-		// Skip AI-validated false positives
 		if f.AiValidated == "No (False Positive)" {
 			continue
 		}
 
-		// Priority based on severity + AI validation status
+		// Priority is based primarily on severity so that static-only scans
+		// (where AiValidated is never "Yes") produce a meaningful P0/P1 breakdown.
+		// AI validation acts as a one-tier boost when available.
+		aiConfirmed := f.AiValidated == "Yes"
 		switch f.Severity {
 		case "critical":
-			if f.AiValidated == "Yes" {
-				matrix.P0 = append(matrix.P0, f) // Critical + AI confirmed = P0
-			} else {
-				matrix.P1 = append(matrix.P1, f) // Critical but not AI validated = P1
-			}
+			matrix.P0 = append(matrix.P0, f) // Critical = always P0
 		case "high":
-			if f.AiValidated == "Yes" {
-				matrix.P1 = append(matrix.P1, f) // High + AI confirmed = P1
+			if aiConfirmed {
+				matrix.P0 = append(matrix.P0, f) // High + AI confirmed = P0
 			} else {
-				matrix.P2 = append(matrix.P2, f) // High but not AI validated = P2
+				matrix.P1 = append(matrix.P1, f) // High = P1
 			}
 		case "medium":
-			if f.AiValidated == "Yes" {
-				matrix.P2 = append(matrix.P2, f) // Medium + AI confirmed = P2
+			if aiConfirmed {
+				matrix.P1 = append(matrix.P1, f) // Medium + AI confirmed = P1
 			} else {
-				matrix.P3 = append(matrix.P3, f) // Medium but not AI validated = P3
+				matrix.P2 = append(matrix.P2, f) // Medium = P2
+			}
+		case "low":
+			if aiConfirmed {
+				matrix.P2 = append(matrix.P2, f) // Low + AI confirmed = P2
+			} else {
+				matrix.P3 = append(matrix.P3, f) // Low = P3
 			}
 		default:
-			matrix.P3 = append(matrix.P3, f) // Low/Info = P3
+			matrix.P3 = append(matrix.P3, f) // Info = P3
 		}
 	}
 

@@ -64,6 +64,10 @@ type WebScanConfig struct {
 	BaseBranch      string `json:"baseBranch"`
 }
 
+// activeScans and activeScansMu are declared here and used by registerScan,
+// unregisterScan, and StopScan in scan_manager_git.go. They share the same
+// package (main) so the split across files is intentional: this file owns the
+// data, scan_manager_git.go owns the lifecycle operations on it.
 var (
 	activeScans   = make(map[string]context.CancelFunc)
 	activeScansMu sync.Mutex
