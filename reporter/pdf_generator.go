@@ -3,6 +3,7 @@ package reporter
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"strings"
 
 	"SentryQ/utils"
@@ -204,7 +205,12 @@ func GeneratePDF(filename string, findings []Finding, summary ReportSummary, ris
 		}
 	}
 
-	return pdf.OutputFileAndClose(filename)
+	if err := pdf.OutputFileAndClose(filename); err != nil {
+		return err
+	}
+	// fpdf creates files via os.Create (umask-dependent). Restrict after the fact
+	// so PDF reports containing exploit PoCs are not world-readable.
+	return os.Chmod(filename, 0600)
 }
 
 // drawFindingDetail renders a single finding as a detailed block with code and remediation.

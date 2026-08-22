@@ -118,9 +118,9 @@ func handleUploadScan(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			// Wrap file creation + copy in a closure so defer always closes the
-			// file descriptor — even when io.Copy or os.Create error mid-way.
+			// file descriptor — even when io.Copy or os.OpenFile error mid-way.
 			writeOK := func() bool {
-				destFile, err := os.Create(destPath)
+				destFile, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 				if err != nil {
 					return false
 				}
