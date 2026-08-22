@@ -31,7 +31,7 @@ SentryQ transforms security scanning from simple pattern matching into **Intelli
 | **Container & K8s Security** | Dockerfile lint + Kubernetes manifest audit + Trivy integration |
 | **MITRE ATT&CK Enrichment** | Local technique mapping from CWE/issue keywords — no network calls |
 | **AI-Orchestrated Triage** | Supports **Ollama, OpenAI, Anthropic Claude, Google Gemini, and LM Studio**. Chain-of-Thought validation slashes false positives. Generates Exploit PoC + Fixed Code per finding. |
-| **Judge LLM with ID Validation** | Ensemble Judge deduplicates findings in batches of 30; when the total finding count exceeds 30 the input is split across batches and cross-batch deduplication is not possible — duplicates that land in different batches will appear as separate findings. Output coverage is verified: IDs absent from the verdict are retained via catch-all. |
+| **Judge LLM with ID Validation** | Ensemble Judge sends all findings in a single batch of up to 200 (modern models have 128K–200K token windows, so typical scans fit in one call). Batch size is configurable; output coverage is verified — IDs absent from the verdict are retained via catch-all. |
 | **Ensemble Audit Mode** | 3-phase pipeline: Static Expert → AI Expert → Judge LLM merge (separate configurable models per phase) |
 | **CI Policy Engine** | `--fail-on critical`, `--max-critical N`, `--max-high N`, `--max-medium N`, `--max-low N`, `--max-total N` — exit code 1 on violation; also configurable from the New Scan UI |
 | **PR / MR Decoration** | Posts findings as GitHub PR review comments (inline) and GitLab MR notes; token + repo configured per-scan from UI or CLI |

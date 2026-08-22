@@ -40,11 +40,12 @@ type JudgeVerdictItem struct {
 }
 
 // maxJudgeBatchSize caps how many findings go to one Judge LLM call.
-// Cross-batch deduplication is impossible, so keep this large enough that
-// duplicates from static and AI scanners land in the same batch.
-// 30 is a good balance: fits within the context window of any modern model
-// while keeping single-call latency acceptable.
-const maxJudgeBatchSize = 30
+// Set high enough that all findings from a typical scan fit in a single batch —
+// cross-batch deduplication is impossible because separate LLM calls don't share
+// state. Modern models (Llama 3, Claude, GPT-4o) have 128K–200K token windows;
+// 200 findings with 4 KB descriptions each is ~800 KB, well within that range.
+// Only very large codebases (200+ findings) will split across batches.
+const maxJudgeBatchSize = 200
 
 // JudgeFindings takes two independent reports (static and AI) and uses a Judge LLM
 // to deduplicate, remove false positives, and merge them into one master report.
