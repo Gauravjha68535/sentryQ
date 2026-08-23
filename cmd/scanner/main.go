@@ -135,6 +135,21 @@ func main() {
 		targetDir := flag.Arg(0)
 		fmt.Printf("🚀 Starting CLI scan of: %s\n", targetDir)
 
+		// Load sentryq.yaml / .sentryq.yaml from the project root.
+		// Config file values are applied only for flags not set on the CLI.
+		projectCfg := loadProjectConfig(targetDir)
+		applyProjectConfig(projectCfg,
+			failOn, maxCritical, maxHigh, maxMedium, maxLow, maxTotal,
+			enableAI, enableEnsemble, aiModel, judgeModel, ollamaPtr,
+			changedOnly, baseBranch,
+			webhookURLs, prProvider, prRepo, prNumber, maxPRComments,
+			sbomOut,
+		)
+		// Re-apply Ollama host after potential config override
+		if *ollamaPtr != "" {
+			ollamaHost = *ollamaPtr
+		}
+
 		if err := InitDB(); err != nil {
 			fmt.Printf("❌ Failed to initialize database: %v\n", err)
 			return

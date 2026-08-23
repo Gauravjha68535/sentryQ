@@ -44,13 +44,17 @@ type ScanResult struct {
 	mu           sync.RWMutex
 }
 
-// WalkDirectory scans the target directory with parallel processing
+// WalkDirectory scans the target directory with parallel processing.
+// It automatically loads .sentryqignore from root and skips matched paths.
 func WalkDirectory(root string) (*ScanResult, error) {
 	result := &ScanResult{
 		ByLanguage:  make(map[string]int),
 		FilePaths:   make(map[string][]string),
 		SkippedExts: make(map[string]int),
 	}
+
+	// Load project-level ignore file (optional)
+	ignore := LoadIgnoreFile(root)
 
 	var wg sync.WaitGroup
 	fileChan := make(chan string, 100)
@@ -73,16 +77,29 @@ func WalkDirectory(root string) (*ScanResult, error) {
 			return nil
 		}
 
+		// Compute path relative to root for ignore matching
+		relPath, relErr := filepath.Rel(root, path)
+		if relErr != nil {
+			relPath = path
+		}
+
 		if info.IsDir() {
 			// Skip known non-source directories.
-			// Normalise to lowercase so "Node_Modules" or "BUILD" are caught on
-			// case-sensitive Linux filesystems the same as on Windows.
 			if skipDirs[strings.ToLower(info.Name())] {
+				return filepath.SkipDir
+			}
+			// Skip directories matched by .sentryqignore
+			if ignore.Matches(relPath, true) {
 				return filepath.SkipDir
 			}
 			result.mu.Lock()
 			result.TotalFolders++
 			result.mu.Unlock()
+			return nil
+		}
+
+		// Skip files matched by .sentryqignore
+		if ignore.Matches(relPath, false) {
 			return nil
 		}
 

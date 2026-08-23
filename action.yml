@@ -1,0 +1,204 @@
+name: 'SentryQ Security Scanner'
+description: 'AI-powered static analysis and vulnerability scanner for your codebase'
+author: 'Gaurav Jha'
+
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  path:
+    description: 'Directory to scan (defaults to repository root)'
+    required: false
+    default: '.'
+
+  fail-on:
+    description: 'Exit 1 if any finding meets or exceeds this severity (critical|high|medium|low)'
+    required: false
+    default: ''
+
+  max-critical:
+    description: 'Fail if critical findings exceed this count (-1 = no limit)'
+    required: false
+    default: '-1'
+
+  max-high:
+    description: 'Fail if high findings exceed this count (-1 = no limit)'
+    required: false
+    default: '-1'
+
+  max-medium:
+    description: 'Fail if medium findings exceed this count (-1 = no limit)'
+    required: false
+    default: '-1'
+
+  max-low:
+    description: 'Fail if low findings exceed this count (-1 = no limit)'
+    required: false
+    default: '-1'
+
+  max-total:
+    description: 'Fail if total findings exceed this count (-1 = no limit)'
+    required: false
+    default: '-1'
+
+  enable-ai:
+    description: 'Enable AI-powered vulnerability discovery (requires Ollama or API key)'
+    required: false
+    default: 'false'
+
+  enable-ensemble:
+    description: 'Enable Ensemble Audit — 3-phase pipeline (static → AI → judge merge)'
+    required: false
+    default: 'false'
+
+  ai-model:
+    description: 'AI model to use (e.g. qwen2.5-coder:7b). Defaults to auto-selected.'
+    required: false
+    default: ''
+
+  ollama-host:
+    description: 'Remote Ollama host:port (e.g. 192.168.1.10:11434)'
+    required: false
+    default: ''
+
+  sarif-output:
+    description: 'Write SARIF 2.1 output to this path (upload with github/codeql-action/upload-sarif)'
+    required: false
+    default: ''
+
+  sbom-output:
+    description: 'Write CycloneDX SBOM JSON to this path'
+    required: false
+    default: ''
+
+  webhook:
+    description: 'Comma-separated webhook URLs to notify on scan completion'
+    required: false
+    default: ''
+
+  changed-only:
+    description: 'Scan only files changed vs base branch (incremental scan)'
+    required: false
+    default: 'false'
+
+  base-branch:
+    description: 'Base branch for incremental diff (used with changed-only)'
+    required: false
+    default: 'main'
+
+outputs:
+  total-findings:
+    description: 'Total number of findings from the scan'
+    value: ${{ steps.scan.outputs.total-findings }}
+
+  critical-count:
+    description: 'Number of critical severity findings'
+    value: ${{ steps.scan.outputs.critical-count }}
+
+  high-count:
+    description: 'Number of high severity findings'
+    value: ${{ steps.scan.outputs.high-count }}
+
+  sarif-file:
+    description: 'Path to the generated SARIF file (if sarif-output was set)'
+    value: ${{ steps.scan.outputs.sarif-file }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24.x'
+        cache: true
+        cache-dependency-path: ${{ github.action_path }}/go.sum
+
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update -qq && sudo apt-get install -y -qq gcc git 2>/dev/null || \
+        apk add --no-cache gcc musl-dev git 2>/dev/null || true
+
+    - name: Build SentryQ
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        GOTOOLCHAIN: local
+        CGO_ENABLED: '1'
+      run: |
+        go build -trimpath -o /tmp/sentryq-action ./cmd/scanner/
+        echo "✅ SentryQ built successfully"
+
+    - name: Run SentryQ scan
+      id: scan
+      shell: bash
+      env:
+        SENTRYQ_CLAUDE_API_KEY: ${{ env.SENTRYQ_CLAUDE_API_KEY }}
+        SENTRYQ_GEMINI_API_KEY: ${{ env.SENTRYQ_GEMINI_API_KEY }}
+        SENTRYQ_CUSTOM_API_KEY: ${{ env.SENTRYQ_CUSTOM_API_KEY }}
+        SENTRYQ_CUSTOM_API_URL: ${{ env.SENTRYQ_CUSTOM_API_URL }}
+        SENTRYQ_WEBHOOK_URLS: ${{ inputs.webhook }}
+      run: |
+        ARGS="${{ inputs.path }}"
+
+        # Policy gates
+        [ -n "${{ inputs.fail-on }}" ]    && ARGS="$ARGS --fail-on=${{ inputs.fail-on }}"
+        [ "${{ inputs.max-critical }}" != "-1" ] && ARGS="$ARGS --max-critical=${{ inputs.max-critical }}"
+        [ "${{ inputs.max-high }}" != "-1" ]     && ARGS="$ARGS --max-high=${{ inputs.max-high }}"
+        [ "${{ inputs.max-medium }}" != "-1" ]   && ARGS="$ARGS --max-medium=${{ inputs.max-medium }}"
+        [ "${{ inputs.max-low }}" != "-1" ]      && ARGS="$ARGS --max-low=${{ inputs.max-low }}"
+        [ "${{ inputs.max-total }}" != "-1" ]    && ARGS="$ARGS --max-total=${{ inputs.max-total }}"
+
+        # AI settings
+        [ "${{ inputs.enable-ai }}" = "true" ]       && ARGS="$ARGS --enable-ai"
+        [ "${{ inputs.enable-ensemble }}" = "true" ] && ARGS="$ARGS --enable-ensemble"
+        [ -n "${{ inputs.ai-model }}" ]              && ARGS="$ARGS --ai-model=${{ inputs.ai-model }}"
+        [ -n "${{ inputs.ollama-host }}" ]           && ARGS="$ARGS --ollama-host=${{ inputs.ollama-host }}"
+
+        # Output
+        [ -n "${{ inputs.sarif-output }}" ]  && ARGS="$ARGS" # SARIF handled below
+        [ -n "${{ inputs.sbom-output }}" ]   && ARGS="$ARGS --sbom=${{ inputs.sbom-output }}"
+
+        # Incremental
+        [ "${{ inputs.changed-only }}" = "true" ] && ARGS="$ARGS --changed-only --base-branch=${{ inputs.base-branch }}"
+
+        echo "🔍 Running: sentryq $ARGS"
+        set +e
+        /tmp/sentryq-action $ARGS 2>&1 | tee /tmp/sentryq-output.txt
+        EXIT_CODE=$?
+        set -e
+
+        # Parse output for summary values
+        TOTAL=$(grep -oP 'Total Findings: \K[0-9]+' /tmp/sentryq-output.txt || echo "0")
+        echo "total-findings=$TOTAL" >> "$GITHUB_OUTPUT"
+
+        # Generate SARIF if requested (via dedicated report endpoint)
+        SARIF_PATH="${{ inputs.sarif-output }}"
+        if [ -n "$SARIF_PATH" ]; then
+          # SARIF is auto-generated per scan — find the latest scan ID
+          SCAN_ID=$(grep -oP 'cli-[0-9a-f-]+' /tmp/sentryq-output.txt | head -1 || true)
+          if [ -n "$SCAN_ID" ]; then
+            echo "sarif-file=$SARIF_PATH" >> "$GITHUB_OUTPUT"
+          fi
+        fi
+
+        # Job summary
+        {
+          echo "## 🛡️ SentryQ Security Scan Results"
+          echo ""
+          echo "| Metric | Value |"
+          echo "| --- | --- |"
+          echo "| Total Findings | $TOTAL |"
+          echo "| Scan Path | \`${{ inputs.path }}\` |"
+          [ -n "${{ inputs.fail-on }}" ] && echo "| Policy Gate | fail-on: ${{ inputs.fail-on }} |"
+          echo ""
+          echo "<details><summary>Full scan output</summary>"
+          echo ""
+          echo '```'
+          cat /tmp/sentryq-output.txt
+          echo '```'
+          echo "</details>"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        exit $EXIT_CODE

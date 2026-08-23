@@ -7,7 +7,8 @@ COPY web/ ./
 RUN npm run build
 
 # Stage 2: Build the Go binary (requires GCC for go-tree-sitter CGO)
-FROM golang:1.25 AS go-builder
+FROM golang:1.24 AS go-builder
+ENV GOTOOLCHAIN=local
 RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY go.mod go.sum ./
@@ -18,9 +19,9 @@ RUN CGO_ENABLED=1 go build -trimpath -o /sentryq ./cmd/scanner
 
 # Stage 3: Minimal runtime image
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates git && rm -rf /var/lib/apt/lists/*
 COPY --from=go-builder /sentryq /usr/local/bin/sentryq
-COPY --from=go-builder /build/dist/rules /usr/local/bin/rules
+COPY --from=go-builder /build/rules /usr/local/share/sentryq/rules
 EXPOSE 5336
 ENV SENTRYQ_BIND=0.0.0.0
 ENTRYPOINT ["/usr/local/bin/sentryq"]
