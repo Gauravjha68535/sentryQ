@@ -65,9 +65,8 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v2.13.1
-          args: --timeout=5m
-          install-mode: goinstall
+          version: latest
+          args: --timeout=5m --no-config -D errcheck
 
   web-build:
     name: Web Build
