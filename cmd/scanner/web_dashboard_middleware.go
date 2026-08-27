@@ -185,11 +185,11 @@ func validateOllamaHost(hostPort string) error {
 		}
 		// Block link-local (169.254.x.x, fe80::/10) — the cloud IMDS range.
 		if ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
-			return fmt.Errorf("Ollama host %q resolves to a cloud metadata address (%s)", host, addr)
+			return fmt.Errorf("ollama host %q resolves to a cloud metadata address (%s)", host, addr)
 		}
 		// Block the specific AWS/GCP IPv6 metadata address.
 		if addr == "fd00:ec2::254" {
-			return fmt.Errorf("Ollama host %q resolves to cloud metadata (%s)", host, addr)
+			return fmt.Errorf("ollama host %q resolves to cloud metadata (%s)", host, addr)
 		}
 	}
 	return nil

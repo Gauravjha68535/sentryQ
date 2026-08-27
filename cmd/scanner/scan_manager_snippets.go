@@ -263,7 +263,6 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 				if isTrivialLine(lines[preferredIdx]) {
 					bestIdx := bestLineInWindow(lines, shiftStart, shiftEnd, preferredIdx)
 					if bestIdx != preferredIdx {
-						preferredIdx = bestIdx
 						lineNum = bestIdx + 1
 						findings[idx].LineNumber = fmt.Sprintf("%d", lineNum)
 					}
@@ -286,7 +285,7 @@ func webPopulateCodeSnippets(findings []reporter.Finding, targetDir string) {
 				if j+1 == lineNum {
 					marker = "→ "
 				}
-				snippet.WriteString(fmt.Sprintf("%s%4d | %s\n", marker, j+1, lines[j]))
+				fmt.Fprintf(&snippet, "%s%4d | %s\n", marker, j+1, lines[j])
 			}
 			findings[idx].CodeSnippet = snippet.String()
 		}

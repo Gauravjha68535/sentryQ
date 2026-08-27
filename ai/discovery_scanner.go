@@ -102,7 +102,7 @@ func buildProjectContext(targetDir string, filesToScan []string) string {
 			sb.WriteString("  ... (truncated)\n")
 			break
 		}
-		sb.WriteString(fmt.Sprintf("  %s/ (%d files)\n", dir, n))
+		fmt.Fprintf(&sb, "  %s/ (%d files)\n", dir, n)
 		count++
 	}
 
@@ -133,7 +133,7 @@ func buildProjectContext(targetDir string, filesToScan []string) string {
 			}
 		}
 		if len(importLines) > 0 {
-			sb.WriteString(fmt.Sprintf("  [%s] %s\n", rel, strings.Join(importLines, " | ")))
+			fmt.Fprintf(&sb, "  [%s] %s\n", rel, strings.Join(importLines, " | "))
 			sampled++
 		}
 	}
@@ -252,7 +252,7 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, ollamaHost s
 
 		var b strings.Builder
 		b.WriteString("```\n")
-		b.WriteString(fmt.Sprintf("// File: %s (Lines %d to %d)\n", filePath, startLine+1, endLine))
+		fmt.Fprintf(&b, "// File: %s (Lines %d to %d)\n", filePath, startLine+1, endLine)
 		var charCount int
 		for i, l := range chunkLines {
 			lineText := fmt.Sprintf("%d: %s\n", startLine+i+1, l)
@@ -438,9 +438,9 @@ func DiscoverVulnerabilities(ctx context.Context, modelName string, ollamaHost s
 					if len(snippet) > 32000 {
 						snippet = snippet[:32000] + "\n... (context cap reached)"
 					}
-					contextAdditions.WriteString(fmt.Sprintf("\n// File: %s\n```\n%s\n```\n", safeReqFile, SanitizeCodeContent(snippet)))
+					fmt.Fprintf(&contextAdditions, "\n// File: %s\n```\n%s\n```\n", safeReqFile, SanitizeCodeContent(snippet))
 				} else {
-					contextAdditions.WriteString(fmt.Sprintf("\n// File: %s (NOT FOUND)\n", safeReqFile))
+					fmt.Fprintf(&contextAdditions, "\n// File: %s (NOT FOUND)\n", safeReqFile)
 				}
 			}
 			prompt += contextAdditions.String()
@@ -611,13 +611,11 @@ func RunAIDiscovery(ctx context.Context, modelName string, ollamaHost string, ta
 	// Scale worker count based on provider: cloud APIs are network-latency-bound
 	// and benefit from higher concurrency; local inference (Ollama/LMStudio) is
 	// GPU-VRAM-bound and thrashes with too many parallel requests.
-	numWorkers := 2
+	var numWorkers int
 	switch GetActiveProvider() {
 	case ProviderOpenAI, ProviderClaude, ProviderGemini:
 		numWorkers = 5 // Cloud APIs: limited by round-trip latency, not compute
-	case ProviderLMStudio:
-		numWorkers = 2 // Local inference: same constraints as Ollama
-	default: // ProviderOllama
+	default: // ProviderOllama, ProviderLMStudio
 		numWorkers = 2
 	}
 	if totalFiles < numWorkers {

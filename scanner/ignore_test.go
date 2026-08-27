@@ -96,15 +96,14 @@ func TestMatchesGlobExtension(t *testing.T) {
 
 func TestMatchesGlobStar(t *testing.T) {
 	dir := t.TempDir()
-	writeIgnoreFile(t, dir, "*.lock\n")
+	writeIgnoreFile(t, dir, "*.json\n")
 	ig := LoadIgnoreFile(dir)
 
 	if !ig.Matches("package-lock.json", false) {
-		t.Error("*.lock should match package-lock.json")
+		t.Error("*.json should match package-lock.json")
 	}
-	if !ig.Matches("go.sum", false) {
-		// go.sum doesn't end in .lock — should not match
-		t.Skip("go.sum doesn't match *.lock — skip")
+	if ig.Matches("go.sum", false) {
+		t.Error("*.json should NOT match go.sum")
 	}
 }
 
@@ -127,17 +126,17 @@ func TestMatchesRootedPattern(t *testing.T) {
 
 func TestMatchesDoubleStarAnywhere(t *testing.T) {
 	dir := t.TempDir()
-	writeIgnoreFile(t, dir, "**/*.test.go\n")
+	writeIgnoreFile(t, dir, "**/*_test.go\n")
 	ig := LoadIgnoreFile(dir)
 
 	if !ig.Matches("scanner/helpers_test.go", false) {
-		t.Error("**/*.test.go should match scanner/helpers_test.go")
+		t.Error("**/*_test.go should match scanner/helpers_test.go")
 	}
 	if !ig.Matches("cmd/scanner/main_test.go", false) {
-		t.Error("**/*.test.go should match cmd/scanner/main_test.go")
+		t.Error("**/*_test.go should match cmd/scanner/main_test.go")
 	}
 	if ig.Matches("scanner/helpers.go", false) {
-		t.Error("**/*.test.go should NOT match scanner/helpers.go")
+		t.Error("**/*_test.go should NOT match scanner/helpers.go")
 	}
 }
 

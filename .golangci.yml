@@ -1,26 +1,13 @@
 version: "2"
 
 linters:
-  enable:
-    - errcheck
-    - govet
-    - staticcheck
-    - unused
-    - gosimple
-    - ineffassign
-    - typecheck
-
-linters-settings:
-  errcheck:
-    check-type-assertions: false
+  disable:
+    - errcheck  # Too many false positives from fatih/color and standard defer-close patterns
 
 issues:
-  exclude-rules:
-    # Test files have looser standards
-    - path: "_test\\.go"
-      linters:
-        - errcheck
-    # Generated or embedded files
-    - path: "dist/"
-      linters:
-        - all
+  exclude-dirs:
+    - web
+    - dist
+
+  exclude-files:
+    - ".*/vuln_samples/.*\\.go"

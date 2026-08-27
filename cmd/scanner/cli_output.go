@@ -132,22 +132,6 @@ func printDivider() {
 	color.New(color.FgHiBlack).Println("  " + strings.Repeat("─", 72))
 }
 
-// colorForSeverity returns an ANSI color string for terminal output fallback.
-func severityColor(sev string) func(a ...interface{}) string {
-	switch strings.ToLower(sev) {
-	case "critical":
-		return color.New(color.FgHiRed, color.Bold).SprintFunc()
-	case "high":
-		return color.New(color.FgRed).SprintFunc()
-	case "medium":
-		return color.New(color.FgYellow).SprintFunc()
-	case "low":
-		return color.New(color.FgGreen).SprintFunc()
-	default:
-		return color.New(color.FgCyan).SprintFunc()
-	}
-}
-
 // PrintPolicyResultColored prints a colored policy gate result.
 func PrintPolicyResultColored(violations []PolicyViolation) int {
 	fmt.Println()

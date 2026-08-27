@@ -13,10 +13,6 @@ import (
 // GenerateSBOM writes a CycloneDX-format SBOM JSON file derived from scan findings.
 // The SBOM surfaces all unique third-party components referenced in dependency findings.
 func GenerateSBOM(filename string, findings []Finding, projectName string) error {
-	type hash struct {
-		Alg     string `json:"alg"`
-		Content string `json:"content"`
-	}
 	type component struct {
 		Type    string `json:"type"`
 		Name    string `json:"name"`

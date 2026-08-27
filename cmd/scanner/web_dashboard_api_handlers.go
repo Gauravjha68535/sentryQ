@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"net"
 	"net/http"
 	"os/exec"
 	"runtime"
@@ -160,37 +159,6 @@ func handleSystemStatus(w http.ResponseWriter, r *http.Request) {
 		"memory_mb":   m.Alloc / 1024 / 1024,
 		"uptime":      time.Since(startTime).Round(time.Second).String(),
 	})
-}
-
-// isAllowedOllamaHost returns true if the host (host:port or bare host) is a
-// loopback address. This prevents the ?host= query parameter from being used as
-// an SSRF vector to reach internal network services or cloud metadata endpoints.
-func isAllowedOllamaHost(host string) bool {
-	h := host
-	if strings.Contains(host, ":") {
-		var err error
-		h, _, err = net.SplitHostPort(host)
-		if err != nil {
-			return false
-		}
-	}
-	// Fast path: known loopback strings.
-	if h == "localhost" || h == "127.0.0.1" || h == "::1" {
-		return true
-	}
-	// Resolve to prevent DNS rebinding: attacker registers 127.0.0.1.evil.com → 127.0.0.1.
-	// Only a resolved loopback address is accepted.
-	addrs, err := net.LookupHost(h)
-	if err != nil {
-		return false
-	}
-	for _, addr := range addrs {
-		ip := net.ParseIP(addr)
-		if ip == nil || !ip.IsLoopback() {
-			return false
-		}
-	}
-	return len(addrs) > 0
 }
 
 func handleModels(w http.ResponseWriter, r *http.Request) {

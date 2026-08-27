@@ -51,28 +51,6 @@ func setTestOllamaHost(t *testing.T, srv *httptest.Server) {
 	})
 }
 
-// makeFindings is a convenience constructor for test findings.
-func makeFindings(specs ...struct {
-	severity    string
-	aiValidated string
-	filePath    string
-	confidence  float64
-}) []reporter.Finding {
-	out := make([]reporter.Finding, len(specs))
-	for i, s := range specs {
-		out[i] = reporter.Finding{
-			SrNo:        i + 1,
-			IssueName:   fmt.Sprintf("issue-%d", i+1),
-			FilePath:    s.filePath,
-			Severity:    s.severity,
-			AiValidated: s.aiValidated,
-			Confidence:  s.confidence,
-			LineNumber:  "10",
-		}
-	}
-	return out
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // batchJudgeFindings — pure function, no I/O
 // ─────────────────────────────────────────────────────────────────────────────
@@ -194,7 +172,7 @@ func TestGetCodeSnippet_LargeFile_ReturnsWindow(t *testing.T) {
 	// Build a 600-line file
 	var sb strings.Builder
 	for i := 1; i <= 600; i++ {
-		sb.WriteString(fmt.Sprintf("code line %d\n", i))
+		fmt.Fprintf(&sb, "code line %d\n", i)
 	}
 	content := strings.TrimRight(sb.String(), "\n")
 	contents := map[string]string{"big.go": content}
@@ -212,7 +190,7 @@ func TestGetCodeSnippet_LargeFile_ReturnsWindow(t *testing.T) {
 func TestGetCodeSnippet_RangeLineNumber(t *testing.T) {
 	var sb strings.Builder
 	for i := 1; i <= 600; i++ {
-		sb.WriteString(fmt.Sprintf("line %d\n", i))
+		fmt.Fprintf(&sb, "line %d\n", i)
 	}
 	contents := map[string]string{"f.go": strings.TrimRight(sb.String(), "\n")}
 	// Range format: "300-305"
@@ -263,14 +241,18 @@ func newTestCalibrator(t *testing.T) *ConfidenceCalibrator {
 
 func TestCalibrateConfidence_NotEnoughData(t *testing.T) {
 	c := newTestCalibrator(t)
-	// 4 validations — below the 5-sample threshold
+	// 4 validations — Laplace smoothing applies from the first sample, so
+	// the result is calibrated (not the raw value). With 4 true positives:
+	//   AccuracyRate = (4+1)/(4+2) = 5/6 ≈ 0.8333
+	//   calibrated   = 0.80*0.70 + 0.8333*0.30 ≈ 0.81
 	for i := 0; i < 4; i++ {
 		c.RecordValidation("high", true)
 	}
 	raw := 0.8
 	got := c.CalibrateConfidence("high", raw)
-	if got != raw {
-		t.Errorf("expected raw confidence %.2f with <5 samples, got %.2f", raw, got)
+	// Result should be between raw and slightly boosted (high accuracy ≈ raw here)
+	if got < 0.79 || got > 0.85 {
+		t.Errorf("CalibrateConfidence with 4 true samples: got %.4f, expected in [0.79, 0.85]", got)
 	}
 }
 
@@ -328,7 +310,8 @@ func TestRecordValidation_IncrementsCorrectly(t *testing.T) {
 	if stats.FalsePositives != 1 {
 		t.Errorf("FalsePositives: got %d, want 1", stats.FalsePositives)
 	}
-	wantRate := 2.0 / 3.0
+	// Laplace smoothing: (TruePositives+1) / (AssessedFindings+2) = 3/5 = 0.60
+	wantRate := 3.0 / 5.0
 	if stats.AccuracyRate < wantRate-0.01 || stats.AccuracyRate > wantRate+0.01 {
 		t.Errorf("AccuracyRate: got %.4f, want ~%.4f", stats.AccuracyRate, wantRate)
 	}

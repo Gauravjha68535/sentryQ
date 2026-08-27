@@ -354,9 +354,10 @@ func (cs *ContainerScanner) createFinding(filePath string, lineNum int, ruleID, 
 	}
 
 	conf := 0.8
-	if severity == "critical" {
+	switch severity {
+	case "critical":
 		conf = 0.95
-	} else if severity == "high" {
+	case "high":
 		conf = 0.85
 	}
 

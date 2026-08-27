@@ -203,6 +203,7 @@ var localFrameworkDetectors = map[string]*regexp.Regexp{
 	"fastapi": regexp.MustCompile(`(?i)from\s+fastapi|FastAPI\(`),
 	"flask":   regexp.MustCompile(`(?i)from\s+flask|Flask\(`),
 	"django":  regexp.MustCompile(`(?i)import.*django|from\s+django`),
+	"go_web":  regexp.MustCompile(`(?i)"github\.com/gin-gonic/gin"|"github\.com/labstack/echo"|"github\.com/gofiber/fiber"`),
 }
 
 // RunPatternScan performs multi-threaded pattern scanning across all files.
@@ -578,6 +579,11 @@ func shouldApplyFrameworkRule(framework, filePath, content string) bool {
 		return false
 	case "spring":
 		return ext == ".java" || ext == ".xml"
+	case "go_web":
+		if ext != ".go" {
+			return false
+		}
+		return localFrameworkDetectors["go_web"].MatchString(content)
 	default:
 		return true // Fallback
 	}
@@ -625,5 +631,13 @@ func normalizeSeverity(rule config.Rule) string {
 		return "medium"
 	}
 
-	return strings.ToLower(rule.Severity)
+	sev := strings.ToLower(rule.Severity)
+
+	// Cap severity based on confidence: low-confidence rules cannot be critical.
+	// This prevents a pattern match with 10% confidence from alerting as critical.
+	if rule.Confidence > 0 && rule.Confidence < 0.5 && sev == "critical" {
+		return "high"
+	}
+
+	return sev
 }

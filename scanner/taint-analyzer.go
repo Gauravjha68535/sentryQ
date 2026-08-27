@@ -284,17 +284,15 @@ func (ta *TaintAnalyzer) preScanFunctions(lines []string, lang string) map[strin
 		}
 
 		// ── Check if a sink is called with a local (likely-param) var ─────
-		if compiledSinks != nil {
-			for _, sinkRe := range compiledSinks {
-				if sinkRe.MatchString(line) && !isSafeSinkUsage(line, "") {
-					for v := range localVars {
-						if !localTaint[v] && containsVariable(line, v) {
-							// v is used in a sink but NOT from a known taint source
-							// — it is probably a parameter received from the caller.
-							p := profiles[currentFunc]
-							p.SinkInBody = true
-							profiles[currentFunc] = p
-						}
+		for _, sinkRe := range compiledSinks {
+			if sinkRe.MatchString(line) && !isSafeSinkUsage(line, "") {
+				for v := range localVars {
+					if !localTaint[v] && containsVariable(line, v) {
+						// v is used in a sink but NOT from a known taint source
+						// — it is probably a parameter received from the caller.
+						p := profiles[currentFunc]
+						p.SinkInBody = true
+						profiles[currentFunc] = p
 					}
 				}
 			}
@@ -315,20 +313,6 @@ type CrossFileIndex struct {
 	// TaintedModules maps import aliases whose module is a known user-input source.
 	// Example: "flask_request" → true (imported as `from flask import request as flask_request`)
 	TaintedModules map[string]bool
-}
-
-// importPatterns matches import statements in Python, JS/TS, Go, Ruby
-var importPatterns = []*regexp.Regexp{
-	// Python: from module import func  OR  import module.func
-	regexp.MustCompile(`(?m)^from\s+(\S+)\s+import\s+(.+)$`),
-	regexp.MustCompile(`(?m)^import\s+(\S+)(?:\s+as\s+(\w+))?`),
-	// JS/TS: import { func } from 'module'  OR  const func = require('module')
-	regexp.MustCompile(`(?m)import\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]`),
-	regexp.MustCompile(`(?m)(?:const|let|var)\s+(\w+)\s*=\s*require\s*\(\s*['"]([^'"]+)['"]\s*\)`),
-	// Go: import "package" or import alias "package"
-	regexp.MustCompile(`(?m)(?:(\w+)\s+)?"([^"]+)"`),
-	// Ruby: require 'module' or require_relative 'path'
-	regexp.MustCompile(`(?m)require(?:_relative)?\s+['"]([^'"]+)['"]`),
 }
 
 // BuildCrossFileIndex scans all source files in targetDir to build a project-wide

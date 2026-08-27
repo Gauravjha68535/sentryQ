@@ -173,7 +173,7 @@ func GenerateComplianceHTML(filename, scanID string, report *ComplianceReport) e
 		if sevText == "" {
 			sevText = "—"
 		}
-		rows.WriteString(fmt.Sprintf(`
+		fmt.Fprintf(&rows, `
 			<tr>
 				<td style="font-family:monospace;font-weight:600">%s</td>
 				<td>%s</td>
@@ -186,7 +186,7 @@ func GenerateComplianceHTML(filename, scanID string, report *ComplianceReport) e
 			statusColor, statusText,
 			len(ctrl.Findings),
 			sevColor, html.EscapeString(sevText),
-		))
+		)
 	}
 
 	htmlContent := fmt.Sprintf(`<!DOCTYPE html>

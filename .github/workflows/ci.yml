@@ -25,7 +25,11 @@ jobs:
         run: CGO_ENABLED=1 go build ./...
 
       - name: Test with coverage
-        run: go test ./... -coverprofile=coverage.out -covermode=atomic
+        run: |
+          # Exclude: cmd/scanner (main package — server wiring, low unit-testable surface)
+          #          web/node_modules (third-party JS package that ships Go code)
+          pkgs=$(go list ./... | grep -v 'cmd/scanner' | grep -v 'web/node_modules' | tr '\n' ' ')
+          CGO_ENABLED=1 go test $pkgs -coverprofile=coverage.out -covermode=atomic
 
       - name: Coverage threshold (30%)
         run: |

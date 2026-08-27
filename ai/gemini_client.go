@@ -140,7 +140,7 @@ func GenerateViaGemini(ctx context.Context, apiKey, model, prompt string, option
 				}
 				continue
 			}
-			return "", fmt.Errorf("Gemini API request failed: %v", err)
+			return "", fmt.Errorf("gemini API request failed: %v", err)
 		}
 
 		body, err := io.ReadAll(resp.Body)
@@ -161,7 +161,7 @@ func GenerateViaGemini(ctx context.Context, apiKey, model, prompt string, option
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			return "", fmt.Errorf("Gemini API error (status %d): %s", resp.StatusCode, truncateForUI(string(body), 300))
+			return "", fmt.Errorf("gemini API error (status %d): %s", resp.StatusCode, truncateForUI(string(body), 300))
 		}
 
 		var geminiResp geminiResponse
@@ -169,10 +169,10 @@ func GenerateViaGemini(ctx context.Context, apiKey, model, prompt string, option
 			return "", fmt.Errorf("failed to parse Gemini response: %v", err)
 		}
 		if geminiResp.Error != nil {
-			return "", fmt.Errorf("Gemini API error: %s", geminiResp.Error.Message)
+			return "", fmt.Errorf("gemini API error: %s", geminiResp.Error.Message)
 		}
 		if len(geminiResp.Candidates) == 0 {
-			return "", fmt.Errorf("Gemini API returned no candidates")
+			return "", fmt.Errorf("gemini API returned no candidates")
 		}
 
 		var sb strings.Builder
@@ -182,7 +182,7 @@ func GenerateViaGemini(ctx context.Context, apiKey, model, prompt string, option
 		return sb.String(), nil
 	}
 
-	return "", fmt.Errorf("Gemini API request failed after %d retries", maxRetries+1)
+	return "", fmt.Errorf("gemini API request failed after %d retries", maxRetries+1)
 }
 
 // TestGeminiEndpoint makes a lightweight test call to verify the Gemini API key.

@@ -44,7 +44,7 @@ func TestSanitizePromptFieldControlChars(t *testing.T) {
 
 func TestSanitizePromptFieldBidiOverride(t *testing.T) {
 	// U+202E RIGHT-TO-LEFT OVERRIDE is used to disguise malicious text
-	input := "file‮fdp.exe" // displays as "fileexe.pdf" visually
+	input := "file‮fdp.exe" //nolint:staticcheck // literal U+202E is intentional — testing bidi override stripping
 	got := SanitizePromptField(input)
 	if strings.ContainsRune(got, '‮') {
 		t.Errorf("SanitizePromptField did not strip RLO bidi override: %q", got)

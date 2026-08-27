@@ -129,7 +129,7 @@ func GenerateViaClaude(ctx context.Context, apiKey, model, prompt string, option
 				}
 				continue
 			}
-			return "", fmt.Errorf("Claude API request failed: %v", err)
+			return "", fmt.Errorf("claude API request failed: %v", err)
 		}
 
 		body, err := io.ReadAll(resp.Body)
@@ -150,7 +150,7 @@ func GenerateViaClaude(ctx context.Context, apiKey, model, prompt string, option
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			return "", fmt.Errorf("Claude API error (status %d): %s", resp.StatusCode, truncateForUI(string(body), 300))
+			return "", fmt.Errorf("claude API error (status %d): %s", resp.StatusCode, truncateForUI(string(body), 300))
 		}
 
 		var claudeResp claudeResponse
@@ -158,17 +158,17 @@ func GenerateViaClaude(ctx context.Context, apiKey, model, prompt string, option
 			return "", fmt.Errorf("failed to parse Claude response: %v", err)
 		}
 		if claudeResp.Error != nil {
-			return "", fmt.Errorf("Claude API error: %s", claudeResp.Error.Message)
+			return "", fmt.Errorf("claude API error: %s", claudeResp.Error.Message)
 		}
 		for _, block := range claudeResp.Content {
 			if block.Type == "text" {
 				return block.Text, nil
 			}
 		}
-		return "", fmt.Errorf("Claude API returned no text content")
+		return "", fmt.Errorf("claude API returned no text content")
 	}
 
-	return "", fmt.Errorf("Claude API request failed after %d retries", maxRetries+1)
+	return "", fmt.Errorf("claude API request failed after %d retries", maxRetries+1)
 }
 
 // TestClaudeEndpoint makes a lightweight test call to verify the Claude API key.

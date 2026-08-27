@@ -6,6 +6,7 @@ import (
 	"os/exec"
 )
 
+//nolint:unused // vulnerability sample file
 func runCmd(w http.ResponseWriter, r *http.Request) {
 	host := r.FormValue("host")
 	

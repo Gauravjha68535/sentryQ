@@ -66,7 +66,7 @@ func Generate(ctx context.Context, opts GenerateOptions) (string, error) {
 		claudeKey, claudeMdl := GetClaudeConfig()
 		fullText, err := GenerateViaClaude(ctx, claudeKey, claudeMdl, opts.Prompt, genOpts)
 		if err != nil {
-			return "", fmt.Errorf("Claude request failed: %v", err)
+			return "", fmt.Errorf("claude request failed: %v", err)
 		}
 		outputStr = fullText
 
@@ -74,7 +74,7 @@ func Generate(ctx context.Context, opts GenerateOptions) (string, error) {
 		geminiKey, geminiMdl := GetGeminiConfig()
 		fullText, err := GenerateViaGemini(ctx, geminiKey, geminiMdl, opts.Prompt, genOpts)
 		if err != nil {
-			return "", fmt.Errorf("Gemini request failed: %v", err)
+			return "", fmt.Errorf("gemini request failed: %v", err)
 		}
 		outputStr = fullText
 

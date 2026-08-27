@@ -57,7 +57,7 @@ func ExtractJSON(input string) string {
 	if startIdx >= 0 {
 		startIdx += searchFrom
 		var stack []rune
-		var endIdx int = -1
+		endIdx := -1
 		// Limit stack depth to prevent O(N) memory growth on pathologically
 		// nested or malformed LLM output. Real vulnerability JSON never exceeds
 		// a few levels of nesting; 500 is generous while preventing abuse.
@@ -133,11 +133,12 @@ func RepairJSON(input string) string {
 		}
 
 		if !inString {
-			if r == '{' {
+			switch r {
+			case '{':
 				stack = append(stack, '}')
-			} else if r == '[' {
+			case '[':
 				stack = append(stack, ']')
-			} else if r == '}' || r == ']' {
+			case '}', ']':
 				if len(stack) > 0 && stack[len(stack)-1] == r {
 					stack = stack[:len(stack)-1]
 				}

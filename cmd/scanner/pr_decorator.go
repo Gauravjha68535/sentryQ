@@ -111,13 +111,13 @@ func buildPRSummaryComment(scanID string, findings []reporter.Finding) string {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("## %s SentryQ Security Scan — %d finding(s)\n\n", riskIcon, total))
+	fmt.Fprintf(&sb, "## %s SentryQ Security Scan — %d finding(s)\n\n", riskIcon, total)
 	sb.WriteString("| Severity | Count |\n|---|---|\n")
 	for _, sev := range []string{"critical", "high", "medium", "low", "info"} {
 		if n := counts[sev]; n > 0 {
 			icon := map[string]string{"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🔵", "info": "⚪"}[sev]
 			sevLabel := strings.ToUpper(sev[:1]) + sev[1:]
-			sb.WriteString(fmt.Sprintf("| %s %s | **%d** |\n", icon, sevLabel, n))
+			fmt.Fprintf(&sb, "| %s %s | **%d** |\n", icon, sevLabel, n)
 		}
 	}
 
@@ -132,12 +132,12 @@ func buildPRSummaryComment(scanID string, findings []reporter.Finding) string {
 				if shown >= 10 {
 					break
 				}
-				sb.WriteString(fmt.Sprintf("- **%s** `%s` — %s (line %s)\n",
+				fmt.Fprintf(&sb, "- **%s** `%s` — %s (line %s)\n",
 					strings.ToUpper(f.Severity),
 					sanitizeMD(f.FilePath),
 					sanitizeMD(f.IssueName),
 					f.LineNumber,
-				))
+				)
 				shown++
 			}
 			if shown >= 10 {
@@ -145,11 +145,11 @@ func buildPRSummaryComment(scanID string, findings []reporter.Finding) string {
 			}
 		}
 		if total > 10 {
-			sb.WriteString(fmt.Sprintf("\n_…and %d more. View full report in SentryQ._\n", total-10))
+			fmt.Fprintf(&sb, "\n_…and %d more. View full report in SentryQ._\n", total-10)
 		}
 	}
 
-	sb.WriteString(fmt.Sprintf("\n---\n_SentryQ scan ID: `%s` • %s_\n", scanID, time.Now().UTC().Format("2006-01-02 15:04 UTC")))
+	fmt.Fprintf(&sb, "\n---\n_SentryQ scan ID: `%s` • %s_\n", scanID, time.Now().UTC().Format("2006-01-02 15:04 UTC"))
 	return sb.String()
 }
 

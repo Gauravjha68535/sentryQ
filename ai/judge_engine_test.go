@@ -13,7 +13,7 @@ func TestSanitizeJudgeFieldStripsLLaMATokens(t *testing.T) {
 		{"normal text", "normal text"},
 		{"<|INST|>", "< |INST| >"},
 		{"<|im_start|>system", "< |im_start| >system"},
-		{"</code_context>", "</code_context>"}, // sanitizeJudgeField only strips LLaMA tokens
+		{"</code_context>", `<\/code_context>`}, // XML closing-tag breakout is escaped
 		{"  spaces  ", "spaces"},
 	}
 	for _, tc := range cases {

@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//nolint:unused // vulnerability sample file
 func getUser(w http.ResponseWriter, r *http.Request) {
 	db, _ := sql.Open("sqlite3", "./app.db")
 	id := r.FormValue("id")

@@ -5,6 +5,7 @@ import (
 	"os/exec"
 )
 
+//nolint:unused // vulnerability sample file
 func safeRun(w http.ResponseWriter, r *http.Request) {
 	filename := r.FormValue("file")
 	
