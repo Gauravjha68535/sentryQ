@@ -53,7 +53,7 @@ func TestGetPriorityMatrixEmptyInput(t *testing.T) {
 func TestCalculateRiskScoreZeroFindings(t *testing.T) {
 	score := CalculateRiskScore(nil)
 	if score.Score != 0 {
-		t.Errorf("zero findings should give score 0, got %f", score.Score)
+		t.Errorf("zero findings should give score 0, got %d", score.Score)
 	}
 }
 
@@ -64,7 +64,7 @@ func TestCalculateRiskScoreCriticalDominates(t *testing.T) {
 	}
 	score := CalculateRiskScore(findings)
 	if score.Score <= 0 {
-		t.Errorf("critical findings should produce positive risk score, got %f", score.Score)
+		t.Errorf("critical findings should produce positive risk score, got %d", score.Score)
 	}
 	if score.Level == "" {
 		t.Error("risk level string should not be empty")
