@@ -1,13 +1,14 @@
 version: "2"
 
 linters:
-  disable:
-    - errcheck  # Too many false positives from fatih/color and standard defer-close patterns
+  default: none
+  enable:
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
 
 issues:
   exclude-dirs:
     - web
     - dist
-
-  exclude-files:
-    - ".*/vuln_samples/.*\\.go"
