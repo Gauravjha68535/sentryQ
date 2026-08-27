@@ -7,8 +7,7 @@ COPY web/ ./
 RUN npm run build
 
 # Stage 2: Build the Go binary (requires GCC for go-tree-sitter CGO)
-FROM golang:1.24 AS go-builder
-ENV GOTOOLCHAIN=local
+FROM golang:1.26 AS go-builder
 RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY go.mod go.sum ./

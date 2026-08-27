@@ -6,12 +6,6 @@ on:
   pull_request:
     branches: ["**"]
 
-# modernc.org/sqlite declares go 1.25 in its go.mod. Go 1.25 is not yet in the
-# toolchain registry, so setup-go with go-version-file would fail trying to download it.
-# GOTOOLCHAIN=local forces each job to use the installed toolchain rather than auto-upgrading.
-env:
-  GOTOOLCHAIN: local
-
 jobs:
   go-build-test:
     name: Go Build & Test
@@ -24,7 +18,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24.x'
+          go-version: '1.26.x'
           cache: true
 
       - name: Build
@@ -48,7 +42,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gcc
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24.x'
+          go-version: '1.26.x'
           cache: true
       - name: Vet
         run: CGO_ENABLED=1 go vet ./...
@@ -62,7 +56,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gcc
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24.x'
+          go-version: '1.26.x'
           cache: true
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6

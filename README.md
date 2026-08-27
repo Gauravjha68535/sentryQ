@@ -4,7 +4,7 @@
   <p><strong>Next-Gen AI-Orchestrated Security Analysis Platform</strong></p>
   <p><i>A high-performance, local-first security tool designed for elite engineering teams. Powered by Go and AI.</i></p>
 
-  [![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat-square&logo=go)](https://golang.org)
+  [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go)](https://golang.org)
   [![React Version](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react)](https://react.dev)
   [![AI Support](https://img.shields.io/badge/AI-Ollama%20%7C%20OpenAI%20%7C%20Claude%20%7C%20Gemini-FF9900?style=flat-square&logo=openai)](https://ollama.com)
   [![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](LICENSE)
