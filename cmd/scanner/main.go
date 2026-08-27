@@ -260,6 +260,8 @@ func main() {
 			return
 		}
 
+		PrintScanBanner(targetDir, scanID)
+
 		scanTimeout := getScanTimeout()
 		ctx, cancelScan := context.WithTimeout(context.Background(), scanTimeout)
 		defer cancelScan()
@@ -271,7 +273,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Printf("\n✅ CLI Scan Complete. Total Findings: %d\n", len(findings))
+		PrintFindingsSummary(findings, targetDir)
 
 		// SBOM generation
 		if *sbomOut != "" {
@@ -290,7 +292,7 @@ func main() {
 			DecoratePR(prCfg, scanID, findings)
 		}
 
-		exitCode := PrintPolicyResult(violations)
+		exitCode := PrintPolicyResultColored(violations)
 		if exitCode != 0 {
 			os.Exit(exitCode)
 		}

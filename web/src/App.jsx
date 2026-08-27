@@ -12,6 +12,7 @@ import Settings from './pages/Settings'
 import RuleBuilder from './pages/RuleBuilder'
 import ScanDiff from './pages/ScanDiff'
 import CompliancePage from './pages/CompliancePage'
+import Projects from './pages/Projects'
 import './index.css'
 
 class ErrorBoundary extends React.Component {
@@ -63,6 +64,7 @@ export default function App() {
                   <Route path="/compare"         element={<PageTransition><ScanDiff /></PageTransition>} />
                   <Route path="/compliance"      element={<PageTransition><CompliancePage /></PageTransition>} />
                   <Route path="/compliance/:id"  element={<PageTransition><CompliancePage /></PageTransition>} />
+                  <Route path="/projects"        element={<PageTransition><Projects /></PageTransition>} />
                 </Routes>
               </ErrorBoundary>
             </main>

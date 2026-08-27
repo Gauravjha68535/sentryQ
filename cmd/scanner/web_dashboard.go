@@ -70,6 +70,8 @@ func StartWebServer(port int) {
 	mux.HandleFunc("/api/custom-endpoint/models", handleCustomEndpointModels)
 
 	// Dynamic scan routes (manual routing for path params)
+	mux.HandleFunc("/api/projects", handleProjects)
+	mux.HandleFunc("/api/projects/trend", handleProjectTrend)
 	mux.HandleFunc("/api/scan/compliance", handleScanCompliance)
 	mux.HandleFunc("/api/scans/diff", handleScansDiff)
 	mux.HandleFunc("/api/scan/", handleScanRoutes)

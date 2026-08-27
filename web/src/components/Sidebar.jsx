@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Settings, Shield, PlusCircle, Code, Menu, X, GitCompare, FileCheck } from 'lucide-react'
+import { LayoutDashboard, Settings, Shield, PlusCircle, Code, Menu, X, GitCompare, FileCheck, Layers } from 'lucide-react'
 
 export default function Sidebar({ isOpen, onToggle }) {
     const [version, setVersion] = useState(null)
@@ -16,6 +16,7 @@ export default function Sidebar({ isOpen, onToggle }) {
         {
             section: 'Main', items: [
                 { to: '/', icon: <LayoutDashboard />, label: 'Dashboard' },
+                { to: '/projects', icon: <Layers />, label: 'Projects' },
                 { to: '/scan/new', icon: <PlusCircle />, label: 'New Scan' },
                 { to: '/compare', icon: <GitCompare />, label: 'Compare Scans' },
             ]

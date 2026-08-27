@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -468,6 +469,154 @@ func GetFindingByID(scanID string, id int) (reporter.Finding, error) {
 		f.Status = colStatus
 	}
 	return f, nil
+}
+
+// ── Projects (multi-repo dashboard) ──────────────────────────────────────────
+
+// ProjectSummary aggregates scan history for a single repository target.
+type ProjectSummary struct {
+	Target        string  `json:"target"`
+	DisplayName   string  `json:"display_name"`
+	TotalScans    int     `json:"total_scans"`
+	LastScanAt    string  `json:"last_scan_at"`
+	LastScanID    string  `json:"last_scan_id"`
+	Status        string  `json:"status"`
+	TotalFindings int     `json:"total_findings"`
+	CriticalCount int     `json:"critical_count"`
+	HighCount     int     `json:"high_count"`
+	Trend         string  `json:"trend"` // "improving" | "worsening" | "stable" | "new"
+	TrendDelta    int     `json:"trend_delta"`
+}
+
+// TrendPoint is one data point in a project's finding-count history.
+type TrendPoint struct {
+	Date          string `json:"date"`
+	ScanID        string `json:"scan_id"`
+	TotalFindings int    `json:"total_findings"`
+	CriticalCount int    `json:"critical_count"`
+	HighCount     int    `json:"high_count"`
+}
+
+// GetProjects returns one summary row per unique scan target, ordered by most
+// recently scanned. Only completed scans are included.
+func GetProjects() ([]ProjectSummary, error) {
+	// For each distinct target, fetch the latest completed scan plus a count of all scans.
+	rows, err := db.Query(`
+		SELECT
+			s.target,
+			COUNT(*) AS total_scans,
+			s.id AS last_id,
+			s.status,
+			s.created_at,
+			s.total_findings,
+			s.critical_count,
+			s.high_count,
+			prev.total_findings AS prev_findings
+		FROM scans s
+		INNER JOIN (
+			SELECT target, MAX(created_at) AS max_ts
+			FROM scans WHERE status = 'completed'
+			GROUP BY target
+		) latest ON s.target = latest.target AND s.created_at = latest.max_ts
+		LEFT JOIN (
+			SELECT target, total_findings,
+				ROW_NUMBER() OVER (PARTITION BY target ORDER BY created_at DESC) AS rn
+			FROM scans WHERE status = 'completed'
+		) prev ON prev.target = s.target AND prev.rn = 2
+		GROUP BY s.target
+		ORDER BY s.created_at DESC
+		LIMIT 200
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("GetProjects: %w", err)
+	}
+	defer rows.Close()
+
+	var projects []ProjectSummary
+	for rows.Next() {
+		var p ProjectSummary
+		var prevFindings sql.NullInt64
+		var createdAt time.Time
+		if err := rows.Scan(
+			&p.Target, &p.TotalScans, &p.LastScanID, &p.Status,
+			&createdAt, &p.TotalFindings, &p.CriticalCount, &p.HighCount,
+			&prevFindings,
+		); err != nil {
+			utils.LogWarn(fmt.Sprintf("GetProjects: scan row error: %v", err))
+			continue
+		}
+		p.LastScanAt = createdAt.UTC().Format(time.RFC3339)
+		// Display name: last two path segments (e.g. "owner/repo" or "myproject")
+		p.DisplayName = projectDisplayName(p.Target)
+		// Trend
+		if !prevFindings.Valid || p.TotalScans < 2 {
+			p.Trend = "new"
+		} else {
+			delta := p.TotalFindings - int(prevFindings.Int64)
+			p.TrendDelta = delta
+			switch {
+			case delta < 0:
+				p.Trend = "improving"
+			case delta > 0:
+				p.Trend = "worsening"
+			default:
+				p.Trend = "stable"
+			}
+		}
+		projects = append(projects, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("GetProjects rows: %w", err)
+	}
+	return projects, nil
+}
+
+// GetProjectTrend returns the last N completed scans for a given target,
+// ordered oldest → newest, for plotting a time-series chart.
+func GetProjectTrend(target string, limit int) ([]TrendPoint, error) {
+	if limit <= 0 || limit > 100 {
+		limit = 30
+	}
+	rows, err := db.Query(`
+		SELECT id, created_at, total_findings, critical_count, high_count
+		FROM scans
+		WHERE target = ? AND status = 'completed'
+		ORDER BY created_at ASC
+		LIMIT ?
+	`, target, limit)
+	if err != nil {
+		return nil, fmt.Errorf("GetProjectTrend: %w", err)
+	}
+	defer rows.Close()
+
+	var points []TrendPoint
+	for rows.Next() {
+		var tp TrendPoint
+		var ts time.Time
+		if err := rows.Scan(&tp.ScanID, &ts, &tp.TotalFindings, &tp.CriticalCount, &tp.HighCount); err != nil {
+			continue
+		}
+		tp.Date = ts.UTC().Format("2006-01-02 15:04")
+		points = append(points, tp)
+	}
+	return points, rows.Err()
+}
+
+// projectDisplayName extracts a human-readable name from a scan target path or URL.
+// "/home/user/projects/myapp" → "myapp"
+// "https://github.com/owner/repo.git" → "owner/repo"
+func projectDisplayName(target string) string {
+	// Strip .git suffix for URLs
+	t := strings.TrimSuffix(strings.TrimSuffix(target, ".git"), "/")
+	// Use last two segments if target looks like a URL or deep path
+	parts := strings.FieldsFunc(t, func(r rune) bool { return r == '/' || r == '\\' })
+	if len(parts) >= 2 {
+		return parts[len(parts)-2] + "/" + parts[len(parts)-1]
+	}
+	if len(parts) == 1 {
+		return parts[0]
+	}
+	return target
 }
 
 // DeleteScan removes a scan, its findings, and its generated report files.
