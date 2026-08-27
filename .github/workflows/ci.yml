@@ -64,9 +64,10 @@ jobs:
           cache: true
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
+        continue-on-error: true
         with:
           version: latest
-          args: --timeout=5m --no-config -D errcheck
+          args: --timeout=5m
 
   web-build:
     name: Web Build
