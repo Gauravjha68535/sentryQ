@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { Download, ChevronDown, ChevronUp, FileText, Code, Shield } from 'lucide-react'
+import { Download, ChevronDown, ChevronUp, FileText, Code, Shield, Wand2, Loader2 } from 'lucide-react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
 import { Doughnut, Bar } from 'react-chartjs-2'
 import SeverityBadge from '../components/SeverityBadge'
@@ -51,7 +51,26 @@ function TaintFlow({ steps }) {
     )
 }
 
-function FindingDetail({ f }) {
+function FindingDetail({ f, scanId }) {
+    const [aifix, setAifix] = useState(null)   // { fix, explanation } | null
+    const [fixing, setFixing] = useState(false)
+    const [fixErr, setFixErr] = useState(null)
+
+    const generateFix = async () => {
+        setFixing(true)
+        setFixErr(null)
+        try {
+            const res = await fetch(`/api/scan/${scanId}/finding/${f.db_id}/remediate`, { method: 'POST' })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'AI unavailable')
+            setAifix(data)
+        } catch (e) {
+            setFixErr(e.message)
+        } finally {
+            setFixing(false)
+        }
+    }
+
     return (
         <td colSpan={9} className="finding-detail">
             <div className="finding-detail-section">
@@ -66,12 +85,53 @@ function FindingDetail({ f }) {
                 </div>
             )}
 
-            {f.fixed_code && (
+            {/* Static AI-generated fix from scan time */}
+            {f.fixed_code && !aifix && (
                 <div className="finding-detail-section">
                     <h4 className="finding-detail-label" style={{ color: '#4ade80' }}>🛡️ Secure Fix</h4>
                     <pre className="finding-code-block finding-code-fix"><code>{f.fixed_code}</code></pre>
                 </div>
             )}
+
+            {/* On-demand AI remediation */}
+            <div className="finding-detail-section">
+                {!aifix && !fixing && (
+                    <button
+                        className="ai-fix-btn"
+                        onClick={generateFix}
+                        title="Ask AI to generate a targeted code fix for this finding"
+                    >
+                        <Wand2 size={14} />
+                        {f.fixed_code ? 'Regenerate AI Fix' : 'Generate AI Fix'}
+                    </button>
+                )}
+                {fixing && (
+                    <div className="ai-fix-loading">
+                        <Loader2 size={14} className="spin" />
+                        <span>Generating fix…</span>
+                    </div>
+                )}
+                {fixErr && (
+                    <p style={{ color: '#f87171', fontSize: '0.8rem', marginTop: '6px' }}>
+                        ⚠ {fixErr}
+                    </p>
+                )}
+                {aifix && (
+                    <div className="ai-fix-result">
+                        <div className="ai-fix-result-header">
+                            <Wand2 size={14} style={{ color: '#a78bfa' }} />
+                            <span>AI-Generated Fix</span>
+                            <button className="ai-fix-regen" onClick={generateFix} title="Regenerate">↻</button>
+                        </div>
+                        {aifix.fix && (
+                            <pre className="finding-code-block finding-code-fix"><code>{aifix.fix}</code></pre>
+                        )}
+                        {aifix.explanation && (
+                            <p className="ai-fix-explanation">{aifix.explanation}</p>
+                        )}
+                    </div>
+                )}
+            </div>
 
             {f.ai_reasoning && (
                 <div className="ai-reasoning-box">
@@ -395,7 +455,7 @@ export default function ReportViewer() {
                                     </td>
                                     <td>{expandedRow === i ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</td>
                                 </tr>
-                                {expandedRow === i && <tr><FindingDetail f={f} /></tr>}
+                                {expandedRow === i && <tr><FindingDetail f={f} scanId={id} /></tr>}
                             </React.Fragment>
                         ))}
                     </tbody>

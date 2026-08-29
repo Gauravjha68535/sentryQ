@@ -227,6 +227,12 @@ func handleScanRoutes(w http.ResponseWriter, r *http.Request) {
 		"open": true, "resolved": true, "ignored": true, "false_positive": true,
 	}
 
+	// POST /api/scan/:id/finding/:findingId/remediate
+	if len(parts) >= 4 && parts[1] == "finding" && parts[3] == "remediate" && r.Method == http.MethodPost {
+		handleFindingRemediate(w, r, scanID, parts[2])
+		return
+	}
+
 	// PATCH /api/scan/:id/finding/:findingId/status
 	if len(parts) >= 4 && parts[1] == "finding" && parts[3] == "status" && r.Method == http.MethodPatch {
 		findingID, err := strconv.Atoi(parts[2])
