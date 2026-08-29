@@ -359,12 +359,19 @@ func (ta *TaintAnalyzer) BuildCrossFileIndex(targetDir string) *CrossFileIndex {
 		base := filepath.Base(path)
 		modName := strings.TrimSuffix(base, filepath.Ext(base))
 
+		anyTainted := false
 		for funcName, profile := range profiles {
 			if profile.ReturnsTainted {
 				// Register as "module.function" and bare "function"
 				idx.TaintedFunctions[modName+"."+funcName] = true
 				idx.TaintedFunctions[funcName] = true
+				anyTainted = true
 			}
+		}
+		// If the module itself has tainted functions, mark it as a tainted module
+		// so import-alias resolution can match "import utils" → utils is tainted
+		if anyTainted {
+			idx.TaintedModules[modName] = true
 		}
 		return nil
 	})
@@ -380,6 +387,51 @@ func (ta *TaintAnalyzer) BuildCrossFileIndex(targetDir string) *CrossFileIndex {
 	utils.LogInfo(fmt.Sprintf("Cross-file taint: %d tainted functions after call-graph propagation", len(idx.TaintedFunctions)))
 
 	return idx
+}
+
+// resolveImportAliases scans the import section of a file and promotes any
+// local name that is an alias for a tainted external function to a taint source.
+//
+// Handles the most common import forms:
+//   - Python:     from utils import get_input as ui
+//   - Python:     import utils.helpers as uh  → uh.get_input
+//   - JS/TS:      import { getInput as ui } from './utils'
+//   - Go:         import alias "pkg/path"      → alias.Func
+func resolveImportAliases(lines []string, lang string, idx *CrossFileIndex, profiles map[string]funcProfile) {
+	// Patterns per language to extract (module, alias) or (func, alias) from imports.
+	var importRe *regexp.Regexp
+	switch lang {
+	case "python":
+		// "from module import func as alias"
+		importRe = regexp.MustCompile(`(?i)from\s+(\S+)\s+import\s+\S+\s+as\s+(\w+)`)
+	case "javascript", "typescript":
+		// "import { func as alias } from 'mod'"
+		importRe = regexp.MustCompile(`(?i)import\s*\{[^}]*\b(\w+)\s+as\s+(\w+)[^}]*\}\s+from`)
+	case "go":
+		// `import alias "pkg"`
+		importRe = regexp.MustCompile(`(?i)^\s*(\w+)\s+"[^"]+"\s*$`)
+	default:
+		return
+	}
+
+	for _, line := range lines {
+		m := importRe.FindStringSubmatch(line)
+		if len(m) < 3 {
+			continue
+		}
+		original := m[1] // module name or function name being imported
+		alias := m[2]    // the local alias
+
+		// If the original name (or any combination with it) is a known tainted
+		// function, promote the alias to a taint source.
+		if idx.TaintedFunctions[original] || idx.TaintedFunctions[alias] {
+			profiles[alias] = funcProfile{ReturnsTainted: true}
+		}
+		// Also check "module.func" variants — the alias itself becomes a tainted prefix
+		if idx.TaintedModules[original] {
+			profiles[alias] = funcProfile{ReturnsTainted: true}
+		}
+	}
 }
 
 // AnalyzeTaintFlow scans a file for taint flow vulnerabilities
@@ -413,15 +465,22 @@ func (ta *TaintAnalyzer) analyzeTaintFlowInternal(filePath string, crossFileIdx 
 	// user input) and sink-body functions (functions whose body calls a sink).
 	funcProfiles := ta.preScanFunctions(lines, lang)
 
-	// ── Cross-file: merge external taint profiles into local funcProfiles ────
-	// When a cross-file index is provided, any function imported from another
-	// file that was marked ReturnsTainted is promoted to a local taint source.
+	// ── Cross-file: merge external taint profiles + resolve import aliases ──
+	// When a cross-file index is provided:
+	// 1. Any function known to return tainted data is promoted to a local source.
+	// 2. Import statements in this file are scanned so that aliases for tainted
+	//    modules/functions are ALSO treated as taint sources.
+	//    e.g. "from utils import get_user_input as ui" → "ui" becomes a source.
 	if crossFileIdx != nil {
 		for extFunc := range crossFileIdx.TaintedFunctions {
 			if _, alreadyLocal := funcProfiles[extFunc]; !alreadyLocal {
 				funcProfiles[extFunc] = funcProfile{ReturnsTainted: true}
 			}
 		}
+
+		// Resolve import aliases so that local call-site names for tainted
+		// external functions are recognised as taint sources.
+		resolveImportAliases(lines, lang, crossFileIdx, funcProfiles)
 	}
 
 	var findings []reporter.Finding
