@@ -121,10 +121,11 @@ func buildPRSummaryComment(scanID string, findings []reporter.Finding) string {
 		}
 	}
 
-	if total > 0 {
-		sb.WriteString("\n### Top Findings\n\n")
+	critHigh := counts["critical"] + counts["high"]
+	if critHigh > 0 {
+		sb.WriteString("\n### Critical & High Findings\n\n")
 		shown := 0
-		for _, sev := range []string{"critical", "high", "medium", "low", "info"} {
+		for _, sev := range []string{"critical", "high"} {
 			for _, f := range findings {
 				if strings.ToLower(f.Severity) != sev || f.Status == "false_positive" {
 					continue
@@ -144,8 +145,8 @@ func buildPRSummaryComment(scanID string, findings []reporter.Finding) string {
 				break
 			}
 		}
-		if total > 10 {
-			fmt.Fprintf(&sb, "\n_…and %d more. View full report in SentryQ._\n", total-10)
+		if critHigh > 10 {
+			fmt.Fprintf(&sb, "\n_…and %d more critical/high. View full report in SentryQ._\n", critHigh-10)
 		}
 	}
 

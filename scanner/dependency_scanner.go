@@ -223,6 +223,21 @@ func collectDependencies(targetDir string) []Dependency {
 		deps = append(deps, parsePNPMLock(data, filepath.Join(targetDir, "pnpm-lock.yaml"))...)
 	}
 
+	// Cargo.lock (Rust/Cargo)
+	if data, err := os.ReadFile(filepath.Join(targetDir, "Cargo.lock")); err == nil {
+		deps = append(deps, parseCargoLock(data, filepath.Join(targetDir, "Cargo.lock"))...)
+	}
+
+	// packages.lock.json (NuGet/.NET)
+	if data, err := os.ReadFile(filepath.Join(targetDir, "packages.lock.json")); err == nil {
+		deps = append(deps, parseNuGetLock(data, filepath.Join(targetDir, "packages.lock.json"))...)
+	}
+
+	// composer.lock (PHP/Packagist) — preferred over composer.json for exact pinned versions
+	if data, err := os.ReadFile(filepath.Join(targetDir, "composer.lock")); err == nil {
+		deps = append(deps, parseComposerLock(data, filepath.Join(targetDir, "composer.lock"))...)
+	}
+
 	return deps
 }
 
@@ -707,4 +722,109 @@ func getFixedVersion(vuln OSVVulnerability, ecosystem string) string {
 		}
 	}
 	return "unknown"
+}
+
+// parseCargoLock parses Rust Cargo.lock (TOML format).
+// Each [[package]] section has name and version fields.
+func parseCargoLock(data []byte, sourceFile string) []Dependency {
+	var deps []Dependency
+	lines := strings.Split(utils.NormalizeNewlines(string(data)), "\n")
+
+	var currentName, currentVersion string
+	lineNum := 0
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "[[package]]" {
+			// Flush previous package
+			if currentName != "" {
+				deps = append(deps, Dependency{
+					Name:       currentName,
+					Version:    currentVersion,
+					Ecosystem:  "crates.io",
+					SourceFile: sourceFile,
+					LineNumber: lineNum + 1,
+				})
+			}
+			currentName, currentVersion = "", ""
+			lineNum = i
+			continue
+		}
+		if strings.HasPrefix(trimmed, "name = ") {
+			currentName = strings.Trim(strings.TrimPrefix(trimmed, "name = "), "\"")
+		} else if strings.HasPrefix(trimmed, "version = ") {
+			currentVersion = strings.Trim(strings.TrimPrefix(trimmed, "version = "), "\"")
+		}
+	}
+	// Flush last package
+	if currentName != "" {
+		deps = append(deps, Dependency{
+			Name:       currentName,
+			Version:    currentVersion,
+			Ecosystem:  "crates.io",
+			SourceFile: sourceFile,
+			LineNumber: lineNum + 1,
+		})
+	}
+	return deps
+}
+
+// parseNuGetLock parses .NET packages.lock.json.
+// Format: {"dependencies":{"net8.0":{"PackageName":{"resolved":"1.2.3",...}}}}
+func parseNuGetLock(data []byte, sourceFile string) []Dependency {
+	var root struct {
+		Dependencies map[string]map[string]struct {
+			Resolved string `json:"resolved"`
+		} `json:"dependencies"`
+	}
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil
+	}
+	var deps []Dependency
+	for _, framework := range root.Dependencies {
+		for pkgName, info := range framework {
+			deps = append(deps, Dependency{
+				Name:       pkgName,
+				Version:    info.Resolved,
+				Ecosystem:  "NuGet",
+				SourceFile: sourceFile,
+				LineNumber: 1,
+			})
+		}
+	}
+	return deps
+}
+
+// parseComposerLock parses PHP composer.lock for exact pinned package versions.
+// Preferred over composer.json because it has the real resolved versions.
+func parseComposerLock(data []byte, sourceFile string) []Dependency {
+	var root struct {
+		Packages []struct {
+			Name    string `json:"name"`
+			Version string `json:"version"`
+		} `json:"packages"`
+		PackagesDev []struct {
+			Name    string `json:"name"`
+			Version string `json:"version"`
+		} `json:"packages-dev"`
+	}
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil
+	}
+	var deps []Dependency
+	addPkg := func(name, version string) {
+		deps = append(deps, Dependency{
+			Name:       name,
+			Version:    strings.TrimPrefix(version, "v"),
+			Ecosystem:  "Packagist",
+			SourceFile: sourceFile,
+			LineNumber: 1,
+		})
+	}
+	for _, p := range root.Packages {
+		addPkg(p.Name, p.Version)
+	}
+	for _, p := range root.PackagesDev {
+		addPkg(p.Name, p.Version)
+	}
+	return deps
 }
